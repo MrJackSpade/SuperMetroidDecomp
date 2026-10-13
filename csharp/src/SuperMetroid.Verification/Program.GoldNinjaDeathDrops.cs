@@ -36,7 +36,7 @@ internal static class GoldNinjaDeathDropsVerification
         // ($B2:8779), the callback the movie's kill entered, and hold that frame.
         const ushort normalShotFrame = 0x8ea2;
         pirate.SpritemapPointer = normalShotFrame;
-        pirate.InstructionTimer = 0x7fff;
+        pirate.InstructionTimer = NativeCountdown.Start(0x7fff);
         pirate.Health = 1;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
         (ushort X, ushort Y) target = (pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
@@ -45,7 +45,7 @@ internal static class GoldNinjaDeathDropsVerification
         shot.Type = 0x0200; shot.Damage = 300; shot.Direction = 2;
         shot.Position = shot.Position.WithWhole(new(target.X, target.Y));
         shot.Radius = new(4, 4);
-        shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
+        shot.InstructionPointer = 0x9000; shot.InstructionTimer = NativeCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: pirate.NativeIndex);
         AssertEqual((ushort)0, pirate.Health, "the shot kills the Gold Ninja Pirate");

@@ -52,7 +52,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
     {
         _metareeStates[slot.SlotIndex] = new MetareeEnemyState(slot)
         {
-            BurrowTimer = 0,
+            BurrowTimer = NativeCountdown.Start(0),
             Function = MetareeEnemyFunction.Idling,
             RequestedInstructionListIndex = SkreeMetareeAnimationPhase.Idling,
             InstalledInstructionListIndex = SkreeMetareeAnimationPhase.Idling,
@@ -153,7 +153,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
     {
         // Native AI reloads this every airborne frame. It becomes a countdown only after
         // the solid-bit probe reports the ground, which is why interrupted dives never age.
-        state.BurrowTimer = MetareeBurrowLifetimeNtsc;
+        state.BurrowTimer = NativeCountdown.Start(MetareeBurrowLifetimeNtsc);
 
         // Bits zero/one are still unnamed because their general engine semantics are not
         // proven. Metaree writes the literal mask `$0003`; retaining it raw avoids inventing
@@ -165,8 +165,8 @@ internal sealed class MetareeBehavior : IEnemySpecies
                 SnesSixteenSixteen.FromWhole(state.YVelocity),
                 movingDown: true))
         {
-            slot.InstructionTimer = 1;
-            slot.Timer = 0;
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.Timer = NativeCountdown.Start(0);
             state.Function = MetareeEnemyFunction.Burrowing;
             LastMetareeSoundEffect = 0x005c;
             return;
@@ -185,8 +185,8 @@ internal sealed class MetareeBehavior : IEnemySpecies
 
     private void RunMetareeBurrow(RoomEnemySlot slot, MetareeEnemyState state)
     {
-        state.BurrowTimer = unchecked((ushort)(state.BurrowTimer - 1));
-        if (state.BurrowTimer == 0)
+        state.BurrowTimer = state.BurrowTimer.Decrement().Remaining;
+        if (state.BurrowTimer.IsZero)
         {
             // `$A3:8A92` writes the packed live palette/tile indexes back into the spawn
             // record before hiding/deleting the actor. Preserve that odd state mutation so
@@ -201,7 +201,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
             return;
         }
 
-        if (state.BurrowTimer == MetareeParticleFrameNtsc)
+        if (state.BurrowTimer.RawValue == MetareeParticleFrameNtsc)
             _projectiles.SpawnMetareeParticleBurst(slot);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
     }
@@ -217,8 +217,8 @@ internal sealed class MetareeBehavior : IEnemySpecies
         state.InstalledInstructionListIndex = requested;
         slot.CurrentInstruction =
             SkreeMetareeAnimationDefinitions.MetareeInstructionList(requested);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private MetareeEnemyState RequireMetareeState(RoomEnemySlot slot) =>

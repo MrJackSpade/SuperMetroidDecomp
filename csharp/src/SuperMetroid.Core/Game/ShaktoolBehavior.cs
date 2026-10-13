@@ -44,8 +44,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         var state = new ShaktoolSegmentState(slot);
         _shaktoolSegments[slot.SlotIndex] = state;
 
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         state.TargetAngle = 0;
         state.OrientationAndAcceleration = 0;
         slot.Properties = unchecked((ushort)(slot.Properties | definition.PropertyMask));
@@ -167,7 +167,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             (SnesLittleEndian.HighByteInPlace(state.OrientationAndAcceleration)) | directionBucket));
         slot.CurrentInstruction =
             ShaktoolInstructionDefinitions.ForOrientationBucket(directionBucket);
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Ports the last segment's collision/reversal controller at <c>$AA:DD25</c>.</summary>
@@ -277,7 +277,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             segmentState.PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
             segment.CurrentInstruction =
                 ShaktoolInstructionDefinitions.CollisionForSegment(index);
-            segment.InstructionTimer = 1;
+            segment.InstructionTimer = NativeCountdown.Start(1);
         }
     }
 

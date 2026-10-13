@@ -40,7 +40,7 @@ internal static class KraidArmSamusContactVerification
         SamusState samus = runtime.Player.Samus!;
         samus.Position = samus.Position.WithWhole(new(0x007f, 0x019a));
         samus.Kinematics.Radius = new(5, 19);
-        samus.InvincibilityTimer = 0;
+        samus.InvincibilityTimer = NativeCountdown.Start(0);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(0, 0));
         // The header radius box (top $1AF) misses Samus's feet at $1AD; the arm frame does not.
         AssertTrue(!RadiusBoxesOverlapForArm(arm, samus), "the header radius alone does not reach Samus");
@@ -53,7 +53,7 @@ internal static class KraidArmSamusContactVerification
         AssertEqual((short)-8, samus.Kinematics.ExtraDisplacement.Y.WholePixels, "$A7:94AA pushes Samus eight pixels up");
         AssertEqual((ushort)KraidAiFunction.LintFire, runtime.Enemies.SlotTable.Slots[4].VariableA,
             "the arm touch makes the bottom lint fire");
-        AssertTrue(samus.InvincibilityTimer != 0, "the arm's contact damage starts invincibility");
+        AssertTrue(!samus.InvincibilityTimer.IsZero, "the arm's contact damage starts invincibility");
         Console.WriteLine("  Kraid arm Samus contact: the extended arm frame pushes Samus back and fires the bottom lint.");
     }
 

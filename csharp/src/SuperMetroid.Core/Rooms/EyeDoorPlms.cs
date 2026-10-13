@@ -87,7 +87,7 @@ internal sealed class EyeDoorPlms
                 {
                     slot.PreInstruction = 0;
                     slot.InstructionPointer = slot.LinkInstruction;
-                    slot.InstructionTimer = 1;
+                    slot.InstructionTimer = NativeCountdown.Start(1);
                 }
                 return;
 
@@ -114,7 +114,7 @@ internal sealed class EyeDoorPlms
                 }
 
                 slot.InstructionPointer = slot.LinkInstruction;
-                slot.InstructionTimer = 1;
+                slot.InstructionTimer = NativeCountdown.Start(1);
                 return;
 
             default:

@@ -58,9 +58,9 @@ internal sealed class SparkBehavior : IEnemySpecies
         state.BaseFunctionTime = slot.Parameter2;
         SetSparkFunctionTimer(state, additionalTime: 0);
 
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         slot.CurrentInstruction = definition.InstructionList;
-        slot.Timer = 0;
+        slot.Timer = NativeCountdown.Start(0);
 
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
             return;
@@ -143,7 +143,7 @@ internal sealed class SparkBehavior : IEnemySpecies
     private static void InstallSparkInstructionList(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
     private SparkEnemyState RequireSparkState(RoomEnemySlot slot) =>

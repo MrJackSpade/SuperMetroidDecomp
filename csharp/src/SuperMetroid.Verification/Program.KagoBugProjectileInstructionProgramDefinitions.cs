@@ -144,7 +144,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
         {
             for (int tick = 0; tick < count; tick++)
             {
-                target.InstructionTimer = 1;
+                target.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(target, new SamusState(), Position16<RoomPixels>.Zero);
             }
         }

@@ -19,7 +19,7 @@ internal sealed class BeamChargeState
     /// white frames and a fourth-call suit restore. Hyper Beam uses `$8014` through `$8000`
     /// for ten ROM palettes held two calls each before the same restore path.
     /// </summary>
-    public ushort ChargedShotGlowTimer { get; internal set; }
+    public NativeCountdown ChargedShotGlowTimer { get; internal set; }
 
     /// <summary>
     /// WRAM <c>$0B62</c>, a byte offset into the active six-word charge-palette list.
@@ -28,5 +28,5 @@ internal sealed class BeamChargeState
     public ushort SamusChargePaletteIndex { get; internal set; }
 
     internal readonly ushort[] _flareFrames = new ushort[3];
-    internal readonly ushort[] _flareTimers = new ushort[3];
+    internal readonly NativeCountdown[] _flareTimers = new NativeCountdown[3];
 }

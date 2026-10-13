@@ -42,7 +42,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
 
         internal void SetProgram(ushort pointer)
         {
-            Body.CurrentInstruction = pointer; Body.InstructionTimer = 1; Body.Timer = 0;
+            Body.CurrentInstruction = pointer; Body.InstructionTimer = NativeCountdown.Start(1); Body.Timer = NativeCountdown.Start(0);
         }
 
         internal void Step() => instructions(Body, Inner.Samus, Inner.Level, Position16<RoomPixels>.Zero, 0);

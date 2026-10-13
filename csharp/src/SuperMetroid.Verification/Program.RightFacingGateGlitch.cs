@@ -193,7 +193,7 @@ internal static class RightFacingGateGlitchVerification
                 enemy.EnemyDefinitionPointer = 0;
         }
         frozen.Position = frozen.Position.WithWhole(new(checked((ushort)frozenEnemyX), 139));
-        frozen.FrozenTimer = 1000;
+        frozen.FrozenTimer = NativeCountdown.Start(1000);
         frozen.AiHandlerBits |= 4;
 
         // The cartridge continues normal gameplay during pause darkening. The published

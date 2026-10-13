@@ -23,7 +23,10 @@ public sealed class MapPaletteAnimation
     /// <summary>Copies the native palette frame; true requests library-three MapPaletteLoop.</summary>
     public bool Step(SnesCgram cgram)
     {
-        if (timer == 0 || --timer != 0) return false;
+        if (timer == 0) return false;
+        NativeLowByteCounterStep step = NativeWordCounter.DecrementLowByte(timer);
+        timer = step.Low;
+        if (!step.IsZero) return false;
         MapPaletteCycle cycle = content ?? throw new InvalidOperationException(
             "Map palette animation requires installed palette-cycle assets.");
         // Preserve native increment-before-read and loop sound ownership. A

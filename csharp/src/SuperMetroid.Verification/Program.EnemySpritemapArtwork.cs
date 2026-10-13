@@ -175,7 +175,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
             bull.CurrentInstruction,
             "installed Bull immune-shot program returns to the normal loop");
-        AssertEqual((ushort)0, bull.Timer,
+        AssertEqual((ushort)0, bull.Timer.RawValue,
             "installed Bull immune-shot loop exhausts its native repeat timer");
         AssertEqual(0, guard.ObservedWords.Count,
             "installed Bull programs read no cartridge visual selectors");
@@ -2095,7 +2095,7 @@ internal static class EnemySpritemapArtworkVerification
             {
                 AssertEqual((ushort)0xfa13, slot.SpritemapPointer,
                     "Ceres door art edit retains the native selected pose");
-                AssertEqual((ushort)7, slot.InstructionTimer,
+                AssertEqual((ushort)7, slot.InstructionTimer.RawValue,
                     "Ceres door art edit preserves instruction timing");
             });
         AssertEqual(unchecked((byte)(stockCeresDoor.LowTable[1] + 1)),
@@ -3525,9 +3525,9 @@ internal static class EnemySpritemapArtworkVerification
             {
                 AssertEqual((ushort)0x88da, slot.SpritemapPointer,
                     "display override retains native collision frame pointer");
-                AssertEqual((ushort)7, slot.InstructionTimer,
+                AssertEqual((ushort)7, slot.InstructionTimer.RawValue,
                     "display override does not move an instruction frame boundary");
-                AssertEqual((ushort)9, slot.Timer,
+                AssertEqual((ushort)9, slot.Timer.RawValue,
                     "display override does not move an enemy AI timer");
             });
         AssertTrue(!nativeFirst.LowTable.SequenceEqual(nativeSecond.LowTable),
@@ -3677,8 +3677,8 @@ internal static class EnemySpritemapArtworkVerification
             if (spritemapBank is byte bank)
                 slot.Definition = slot.Definition with { Bank = bank };
             slot.SpritemapPointer = pointer;
-            slot.InstructionTimer = 7;
-            slot.Timer = 9;
+            slot.InstructionTimer = NativeCountdown.Start(7);
+            slot.Timer = NativeCountdown.Start(9);
             slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 0);

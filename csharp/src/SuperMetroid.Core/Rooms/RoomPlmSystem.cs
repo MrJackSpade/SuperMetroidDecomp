@@ -156,7 +156,7 @@ public sealed class RoomPlmSystem
             slot.BlockIndex = 0;
             slot.RestoreLevelWord = 0;
             slot.InstructionPointer = 0;
-            slot.InstructionTimer = 0;
+            slot.InstructionTimer = NativeCountdown.Start(0);
             slot.PreInstruction = 0;
             slot.RoomArgument = 0;
             slot.LoopTimer = 0;
@@ -252,8 +252,8 @@ public sealed class RoomPlmSystem
             if (!slot.Active)
                 continue;
 
-            slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
-            if (slot.InstructionTimer != 0)
+            slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
+            if (!slot.InstructionTimer.IsZero)
                 continue;
 
             ExecuteInstructionStream(bus, level, streamer, slot, view, frame.Scrolls, frame.CollectedItems);
@@ -276,7 +276,7 @@ public sealed class RoomPlmSystem
                     bus,
                     unchecked((ushort)(slot.InstructionPointer + 2)));
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
-                slot.InstructionTimer = instruction;
+                slot.InstructionTimer = NativeCountdown.FromRaw(instruction);
                 Drawing.DrawPlmInstruction(bus, level, streamer, slot.HeaderPointer, slot.BlockIndex, drawPointer, view);
                 return;
             }
@@ -290,7 +290,7 @@ public sealed class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
                 case RoomPlmInstruction.SamusEaterReleaseImmunity:
-                    SamusEater.RequirePlantSamus().InvincibilityTimer = 0x30;
+                    SamusEater.RequirePlantSamus().InvincibilityTimer = NativeCountdown.Start(0x30);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
                 case RoomPlmInstruction.SetAnimalsEscapedEvent:
@@ -490,7 +490,7 @@ public sealed class RoomPlmSystem
                     // draw list, sets timer one, and exits the handler. Deletion therefore
                     // occurs on the next PLM pass rather than this restoration pass.
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    slot.InstructionTimer = 1;
+                    slot.InstructionTimer = NativeCountdown.Start(1);
                     Drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord, view);
                     return;
 
@@ -511,7 +511,7 @@ public sealed class RoomPlmSystem
                     // Sleep decrements Y back onto itself and exits. Colored-door hit
                     // animations use it as the linked idle target, so expose that semantic
                     // transition while retaining the self-rewinding instruction pointer.
-                    slot.InstructionTimer = 1;
+                    slot.InstructionTimer = NativeCountdown.Start(1);
                     if (slot.ColoredDoor is not null)
                         slot.ColoredDoor.Phase = ColoredDoorPhase.Waiting;
                     return;

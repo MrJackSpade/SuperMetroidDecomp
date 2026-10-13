@@ -92,7 +92,7 @@ internal sealed class DownwardGateBehavior
                 $"Downward gate PLM block {plmBlockIndex} has no associated bank-$86 actor.");
         }
 
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
         projectile.InstructionPointer = unchecked((ushort)(projectile.InstructionPointer + 2));
     }
 
@@ -105,7 +105,7 @@ internal sealed class DownwardGateBehavior
         {
             // The sleeping opcode is the current instruction pointer. Advancing two bytes
             // wakes the next visual frame on this same projectile-handler pass.
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             projectile.InstructionPointer = unchecked((ushort)(projectile.InstructionPointer + 2));
             accumulated = 0;
         }

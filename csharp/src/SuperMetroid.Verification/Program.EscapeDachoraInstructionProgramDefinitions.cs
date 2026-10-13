@@ -130,7 +130,7 @@ internal static class EscapeDachoraInstructionProgramDefinitionsVerification
             [dachora, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int step = 0; step < steps; step++)
         {
-            dachora.InstructionTimer = 1;
+            dachora.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
             VerifyExecutedEnemySelector(rom, dachora, executedOperands);
         }

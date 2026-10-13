@@ -39,7 +39,7 @@ internal sealed class ScrollPlms
                 slot.Scroll.Triggered = true;
                 slot.RestoreLevelWord = 0x8000;
                 slot.InstructionPointer = 0xaf8c;
-                slot.InstructionTimer = 1;
+                slot.InstructionTimer = NativeCountdown.Start(1);
             }
             return true;
         }

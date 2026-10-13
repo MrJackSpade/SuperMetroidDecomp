@@ -134,7 +134,7 @@ internal sealed class SpeedBoosterEscapePlms
     /// </summary>
     private static void WakeAtNextInstruction(PlmSlot slot)
     {
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
         slot.LoopTimer = 0;
     }

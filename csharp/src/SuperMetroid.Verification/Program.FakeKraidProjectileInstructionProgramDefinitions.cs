@@ -83,7 +83,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
             RunForcedTick(projectile);
             AssertEqual(testCase.Sleep, projectile.InstructionPointer,
                 $"{testCase.Kind} sleeps at the authored opcode");
-            AssertEqual((ushort)0, projectile.InstructionTimer,
+            AssertEqual((ushort)0, projectile.InstructionTimer.RawValue,
                 $"{testCase.Kind} sleep leaves the timer stopped");
 
             projectile.InstructionPointer =
@@ -132,15 +132,15 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
 
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
-            if (projectile.IsActive && projectile.InstructionTimer != 0)
+            if (projectile.IsActive && !projectile.InstructionTimer.IsZero)
             {
                 ushort operand = (ushort)(projectile.InstructionPointer - 2);
                 AssertEqual(operand, projectile.PresentationOperandAddress,
                     "Fake Kraid selects the just-executed native frame operand");
                 AssertEqual(ReadFakeKraidProjectileInstructionWord(rom, (ushort)(operand - 2)),
-                    projectile.InstructionTimer, "Fake Kraid frame retains the native duration");
+                    projectile.InstructionTimer.RawValue, "Fake Kraid frame retains the native duration");
                 selectedPresentationWords.Add(projectile.PresentationOperandAddress);
             }
         }

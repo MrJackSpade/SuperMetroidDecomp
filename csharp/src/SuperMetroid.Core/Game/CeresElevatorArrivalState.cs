@@ -38,7 +38,7 @@ public sealed class CeresElevatorArrivalState
         pad = LoadProjectile(
             CeresElevatorArrivalDefinitions.MovingPad,
             MovingPadUnder(samus));
-        pad.WaitTimer = CeresElevatorArrivalDefinitions.MovingPadWaitFrames;
+        pad.WaitTimer = NativeCountdown.Start(CeresElevatorArrivalDefinitions.MovingPadWaitFrames);
 
         platform = LoadProjectile(
             CeresElevatorArrivalDefinitions.StationaryPlatform,
@@ -65,14 +65,14 @@ public sealed class CeresElevatorArrivalState
         // therefore the pad pre-instruction must move Samus before the platform tests Y=72.
         if (pad.Active)
         {
-            if (pad.WaitTimer > 1)
+            if (pad.WaitTimer.RawValue > 1)
             {
-                pad.WaitTimer--;
+                pad.WaitTimer = pad.WaitTimer.Decrement().Remaining;
             }
             else
             {
-                if (pad.WaitTimer == 1)
-                    pad.WaitTimer = 0;
+                if (pad.WaitTimer.RawValue == 1)
+                    pad.WaitTimer = NativeCountdown.Start(0);
 
                 // `$86:A342` samples the old Samus position for the pad, then increments
                 // Samus. That one-pixel separation is visible throughout the descent.
@@ -82,7 +82,7 @@ public sealed class CeresElevatorArrivalState
                     samus.Position.Y.Whole - CeresElevatorArrivalDefinitions.LandingThresholdY)) >= 0)
                 {
                     samus.Position = samus.Position.WithWholeY(CeresElevatorArrivalDefinitions.LandingSamusY);
-                    pad.InstructionTimer = 1;
+                    pad.InstructionTimer = NativeCountdown.Start(1);
                     pad.InstructionPointer = CeresElevatorArrivalDefinitions.DeleteInstructionPointer;
                 }
             }
@@ -93,7 +93,7 @@ public sealed class CeresElevatorArrivalState
         {
             if (samus.Position.Y.Whole == CeresElevatorArrivalDefinitions.LandingSamusY)
             {
-                platform.InstructionTimer = 1;
+                platform.InstructionTimer = NativeCountdown.Start(1);
                 platform.InstructionPointer = CeresElevatorArrivalDefinitions.DeleteInstructionPointer;
             }
             ProcessInstructionList(platform);
@@ -129,8 +129,8 @@ public sealed class CeresElevatorArrivalState
 
     private static void ProcessInstructionList(CeresElevatorProjectile projectile)
     {
-        ushort oldTimer = projectile.InstructionTimer;
-        projectile.InstructionTimer = unchecked((ushort)(projectile.InstructionTimer - 1));
+        ushort oldTimer = projectile.InstructionTimer.RawValue;
+        projectile.InstructionTimer = projectile.InstructionTimer.Decrement().Remaining;
         if (oldTimer != 1)
             return;
 
@@ -144,7 +144,7 @@ public sealed class CeresElevatorArrivalState
             switch (instruction.Operation)
             {
                 case CeresElevatorProjectileOperation.Frame:
-                    projectile.InstructionTimer = instruction.Duration;
+                    projectile.InstructionTimer = NativeCountdown.FromRaw(instruction.Duration);
                     projectile.SpritemapPointer = instruction.SpritemapPointer;
                     projectile.InstructionPointer = instruction.NextInstruction;
                     return;
@@ -210,9 +210,9 @@ public sealed class CeresElevatorArrivalState
         public bool Active { get; set; } = true;
         /// <summary>Whole room position; the pre-instruction only rewrites Y.</summary>
         public Position16<RoomPixels> Position { get; set; }
-        public ushort WaitTimer { get; set; }
+        public NativeCountdown WaitTimer { get; set; }
         public ushort InstructionPointer { get; set; }
-        public ushort InstructionTimer { get; set; } = 1;
+        public NativeCountdown InstructionTimer { get; set; } = NativeCountdown.Start(1);
         public ushort SpritemapPointer { get; set; } = CeresElevatorArrivalDefinitions.NoSpritemap;
     }
 }

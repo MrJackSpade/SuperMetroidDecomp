@@ -198,7 +198,7 @@ internal static class EscapeEtecoonDefinitionsVerification
             [etecoon, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int step = 0; step < steps; step++)
         {
-            etecoon.InstructionTimer = 1;
+            etecoon.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
             ushort operand = unchecked((ushort)(etecoon.CurrentInstruction - 2));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | operand)),

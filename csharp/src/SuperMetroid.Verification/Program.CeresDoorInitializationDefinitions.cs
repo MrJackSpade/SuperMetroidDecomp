@@ -49,9 +49,9 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 $"production Ceres door function selector {variant}");
             AssertEqual(definition.InstructionList, slot.CurrentInstruction,
                 $"production Ceres door instruction selector {variant}");
-            AssertEqual((ushort)1, slot.InstructionTimer,
+            AssertEqual((ushort)1, slot.InstructionTimer.RawValue,
                 $"production Ceres door instruction timer {variant}");
-            AssertEqual((ushort)0, slot.Timer,
+            AssertEqual((ushort)0, slot.Timer.RawValue,
                 $"production Ceres door general timer {variant}");
         }
 

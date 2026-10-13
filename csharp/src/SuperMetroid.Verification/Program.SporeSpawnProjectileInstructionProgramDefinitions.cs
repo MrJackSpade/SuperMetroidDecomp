@@ -58,7 +58,7 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitionsVerificat
         Run(spawner, 2, [0xdc02]);
         AssertEqual((ushort)0xdc04, spawner.InstructionPointer,
             "closed ceiling emitter reaches terminal sleep");
-        AssertEqual((ushort)0, spawner.InstructionTimer,
+        AssertEqual((ushort)0, spawner.InstructionTimer.RawValue,
             "closed ceiling emitter remains dormant at sleep");
         spawner.InstructionPointer = SporeSpawnProjectileInstructionProgramDefinitions.SpawnerRelease;
         Run(spawner, 6, [0xdc08, 0xdc0c, 0xdc12, 0xdc16, 0xdc1a]);
@@ -77,7 +77,7 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitionsVerificat
             "stalk reaches terminal sleep after its display frame");
 
         spore.InstructionPointer = SporeSpawnProjectileInstructionProgramDefinitions.SporeShot;
-        spore.InstructionTimer = 1;
+        spore.InstructionTimer = NativeCountdown.Start(1);
         Run(spore, 8, [0xdc36, 0xdc3c, 0xdc40, 0xdc44, 0xdc4a, 0xdc4e, 0xdc52]);
         AssertTrue(!spore.IsActive,
             "shot spore completes its seven-frame explosion/drop path and deletes");
@@ -129,10 +129,10 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitionsVerificat
             int draw = 0;
             for (int frame = 0; frame < frames; frame++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
-                if (projectile.IsActive && projectile.InstructionTimer != 0)
+                if (projectile.IsActive && !projectile.InstructionTimer.IsZero)
                 {
                     AssertTrue(draw < nativeOperands.Length, "Spore Spawn has no extra draw steps");
                     AssertEqual(nativeOperands[draw++], projectile.PresentationOperandAddress,

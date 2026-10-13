@@ -33,9 +33,9 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         DraygonEnemyState draygon = runtime.Enemies.DraygonBehavior.Draygon!;
         // Stage the end of the intro rather than replaying the dance; the fight's hitboxes
         // carry Draygon's own touch routine.
-        draygon.FunctionTimer = 0x100;
+        draygon.FunctionTimer = NativeCountdown.Start(0x100);
         runtime.StepFrame(0);
-        draygon.FunctionTimer = DraygonIntroDanceDefinitions.DurationFrames;
+        draygon.FunctionTimer = NativeCountdown.Start(DraygonIntroDanceDefinitions.DurationFrames);
         runtime.StepFrame(0);
         runtime.StepFrame(0);
         for (int frame = 0; frame < draygon.SwoopPathEntryCount + 2; frame++)

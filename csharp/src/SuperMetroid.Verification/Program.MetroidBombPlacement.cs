@@ -44,7 +44,7 @@ internal static class MetroidBombPlacementVerification
         {
             ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
             bombs.StepFrame(new SamusTerrain { Bus = bus, Level = assets.LevelData }, samus, input, input);
-            if (firstExplosion < 0 && bombs.Slots.Any(b => b.Type != 0 && b.BombTimer == 0)) firstExplosion = frame;
+            if (firstExplosion < 0 && bombs.Slots.Any(b => b.Type != 0 && b.BombTimer.IsZero)) firstExplosion = frame;
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus);
             if (state.Function == MetroidAiFunction.PowerBombEscape && detached < 0) detached = frame;
@@ -52,13 +52,13 @@ internal static class MetroidBombPlacementVerification
         }
         AssertTrue(firstExplosion >= 0, "placed normal bomb reaches its natural explosion");
         AssertTrue(detached >= firstExplosion, "centered placed bomb detaches attached Metroid");
-        Console.WriteLine($"Centered normal bomb: explosion frame {firstExplosion}, detached frame {detached}, escape timer {state.EscapeTimer}.");
-        AssertEqual((ushort)4, state.EscapeTimer, "native bomb-detach escape interval");
+        Console.WriteLine($"Centered normal bomb: explosion frame {firstExplosion}, detached frame {detached}, escape timer {state.EscapeTimer.RawValue}.");
+        AssertEqual((ushort)4, state.EscapeTimer.RawValue, "native bomb-detach escape interval");
         // Isolate the post-hit AI from further bomb/contact hits and check the exact
         // native jitter trajectory rather than treating a temporary detach as immunity.
         for (int frame = 0; frame < 4; frame++)
         {
-            int index = state.EscapeTimer & 3;
+            int index = state.EscapeTimer.RawValue & 3;
             ushort expectedX = unchecked((ushort)(target.Position.X.Whole + SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + index * 2)));
             ushort expectedY = unchecked((ushort)(target.Position.Y.Whole + SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + (index + 4) * 2)));
             // Move Samus away to prevent touch from immediately changing the returned
@@ -130,7 +130,7 @@ internal static class MetroidBombPlacementVerification
             runtime.StepFrame(input);
             if (frame < 61) continue;
             AssertEqual(expected[frame - 61],
-                (target.Position.X.Whole, target.Position.Y.Whole, state.Function, state.EscapeTimer, samus.Health),
+                (target.Position.X.Whole, target.Position.Y.Whole, state.Function, state.EscapeTimer.RawValue, samus.Health),
                 $"native bomb/EnemyMain detach trajectory at frame {frame}");
             AssertEqual(0x00950000u, samus.Kinematics.Position.X.RawValue, "Samus remains at native release X");
             AssertEqual(0x0099ffffu, samus.Kinematics.Position.Y.RawValue, "Samus stays on the floor during detach");

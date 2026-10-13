@@ -455,7 +455,7 @@ internal sealed class InstalledSamusIsolationTests
         for (int frame = 0; frame < 180; frame++)
             pair.Apply($"stored shine palette {frame}", actor => actor.Samus.Shinespark.UpdatePalette(
                 actor.Memory, actor.Colors, actor.Samus.EquippedItems, actor.Suits, actor.Cycles));
-        Require(pair.Stock.Samus.Shinespark.Phase == ShinesparkPhase.Inactive && pair.Stock.Samus.Shinespark.ShineTimer == 0,
+        Require(pair.Stock.Samus.Shinespark.Phase == ShinesparkPhase.Inactive && pair.Stock.Samus.Shinespark.ShineTimer.IsZero,
             "Edited stored-shine colors must retain the 180-call expiration");
     }
 
@@ -478,7 +478,7 @@ internal sealed class InstalledSamusIsolationTests
                 return result;
             });
         Require(pair.Stock.Samus.Shinespark.Phase == ShinesparkPhase.Windup &&
-            pair.Stock.Samus.Shinespark.StartStopTimer == 1, "Spark windup duration changed");
+            pair.Stock.Samus.Shinespark.StartStopTimer.RawValue == 1, "Spark windup duration changed");
         pair.Apply(context + " launch", actor => actor.Samus.Shinespark.BeginDirectionalLaunch(actor.Memory, actor.Samus, target));
         int frames = 0;
         while (pair.Stock.Samus.Shinespark.Phase != ShinesparkPhase.Inactive && frames < 300)

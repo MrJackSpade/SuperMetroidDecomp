@@ -30,9 +30,9 @@ public sealed class PolypEnemyState
     }
 
     /// <summary>Native <c>$0FAA,x</c>, decremented through $FFFF before rearming.</summary>
-    public ushort CooldownTimer
+    public NativeCountdown CooldownTimer
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => NativeCountdown.FromRaw(_slot.VariableB);
+        internal set => _slot.VariableB = value.RawValue;
     }
 }

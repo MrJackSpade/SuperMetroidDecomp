@@ -224,7 +224,7 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(samus);
         LastVisorPaletteStep = default;
 
-        ushort timerBefore = Charge.ChargedShotGlowTimer;
+        ushort timerBefore = Charge.ChargedShotGlowTimer.RawValue;
         if (timerBefore == 0)
         {
             // `$91:D748-$D793` admits the continuously cycling charge palette only while
@@ -286,8 +286,8 @@ public sealed class SamusProjectileSystem
             // `$91:D799` decrements before its BEQ. Starting at four therefore produces
             // white on timers 3, 2, and 1. Timer 1 -> 0 takes carry-set `$D7AE`, causing
             // outer `$D717` to restore the complete suit palette on the fourth call.
-            Charge.ChargedShotGlowTimer = unchecked((ushort)(Charge.ChargedShotGlowTimer - 1));
-            if (Charge.ChargedShotGlowTimer == 0)
+            Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
+            if (Charge.ChargedShotGlowTimer.IsZero)
             {
                 ushort normalPointer = ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
                 LastBeamChargePaletteStep = new(
@@ -309,20 +309,20 @@ public sealed class SamusProjectileSystem
         // Hyper's sign bit selects this branch but is not part of the table index. Odd
         // values are pure hold calls; even low-five-bit values 20..2 select palette 0..9.
         // Each selected ROM palette consequently remains visible for exactly two calls.
-        if ((Charge.ChargedShotGlowTimer & 1) != 0)
+        if ((Charge.ChargedShotGlowTimer.RawValue & 1) != 0)
         {
-            Charge.ChargedShotGlowTimer = unchecked((ushort)(Charge.ChargedShotGlowTimer - 1));
+            Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.HyperHold);
             return LastBeamChargePaletteStep;
         }
 
-        ushort tableOffset = unchecked((ushort)(Charge.ChargedShotGlowTimer & 0x001e));
+        ushort tableOffset = unchecked((ushort)(Charge.ChargedShotGlowTimer.RawValue & 0x001e));
         if (tableOffset == 0)
         {
             // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the
             // already-`$8000` timer and returns carry so `$D717` performs the suit copy.
-            Charge.ChargedShotGlowTimer = 0;
+            Charge.ChargedShotGlowTimer = NativeCountdown.Start(0);
             ushort normalPointer = ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.RestoredNormalSuit);
@@ -338,7 +338,7 @@ public sealed class SamusProjectileSystem
         (samus.Presentation.ChargeColors ?? throw new InvalidOperationException(
             "Hyper Beam palette requires installed colors."))
             .ApplyHyper(cgram, hyperPaletteIndex);
-        Charge.ChargedShotGlowTimer = unchecked((ushort)(Charge.ChargedShotGlowTimer - 1));
+        Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
         LastBeamChargePaletteStep = new(
             SamusBeamChargePaletteAction.HyperPalette);
         return LastBeamChargePaletteStep;
@@ -605,8 +605,9 @@ public sealed class SamusProjectileSystem
             // flare (WRAM offsets four, two, zero), so preserve that reverse OAM order.
             for (int component = 2; component >= 0; component--)
             {
-                Charge._flareTimers[component] = unchecked((ushort)(Charge._flareTimers[component] - 1));
-                if (Charge._flareTimers[component] == 0 || (Charge._flareTimers[component] & 0x8000) != 0)
+                NativeWordCounterStep timer = Charge._flareTimers[component].Decrement();
+                Charge._flareTimers[component] = timer.Remaining;
+                if (timer.IsZeroOrNegative)
                 {
                     bool finalFrame = Charge._flareFrames[component] == 1;
                     Charge._flareFrames[component] = unchecked((ushort)(Charge._flareFrames[component] - 1));
@@ -619,7 +620,7 @@ public sealed class SamusProjectileSystem
                     }
                     else
                     {
-                        Charge._flareTimers[component] = 3;
+                        Charge._flareTimers[component] = NativeCountdown.Start(3);
                     }
                 }
 
@@ -633,9 +634,9 @@ public sealed class SamusProjectileSystem
         if (Charge.FlareCounter == 1)
         {
             Charge._flareFrames[0] = Charge._flareFrames[1] = Charge._flareFrames[2] = 0;
-            Charge._flareTimers[0] = 3;
-            Charge._flareTimers[1] = 5;
-            Charge._flareTimers[2] = 4;
+            Charge._flareTimers[0] = NativeCountdown.Start(3);
+            Charge._flareTimers[1] = NativeCountdown.Start(5);
+            Charge._flareTimers[2] = NativeCountdown.Start(4);
         }
         if (Charge.FlareCounter < 15)
             return;
@@ -760,7 +761,7 @@ public sealed class SamusProjectileSystem
         ResetForRoomTransition(samus);
         Charge.FlareCounter = 0;
         Charge.PreviousBeamChargeCounter = 0;
-        Charge.ChargedShotGlowTimer = 0;
+        Charge.ChargedShotGlowTimer = NativeCountdown.Start(0);
         Array.Clear(Charge._flareFrames);
         Array.Clear(Charge._flareTimers);
         LastBeamChargePaletteStep = default;
@@ -787,7 +788,7 @@ public sealed class SamusProjectileSystem
         foreach (SamusProjectileTrailSlot trail in SlotTable._trailSlots)
             trail.ClearFields();
         SlotTable.ProjectileCounter = 0;
-        Firing.ProjectileInvincibilityTimer = 0;
+        Firing.ProjectileInvincibilityTimer = NativeCountdown.Start(0);
         Earthquakes.EarthquakeType = 0;
         Earthquakes.EarthquakeTimer = 0;
         LastFrameResult = default;

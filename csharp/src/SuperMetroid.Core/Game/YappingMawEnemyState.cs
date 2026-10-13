@@ -81,7 +81,7 @@ public sealed class YappingMawEnemyState
     public ushort QuadraticSpeedByteOffset { get; internal set; }
 
     /// <summary>Native E: 64-frame hold after the tongue fully retracts.</summary>
-    public ushort RetractedDelayTimer { get; internal set; }
+    public NativeCountdown RetractedDelayTimer { get; internal set; }
 
     /// <summary>Native F copied from population parameter one.</summary>
     public ushort ActivationDistance { get; internal set; }
@@ -99,7 +99,7 @@ public sealed class YappingMawEnemyState
     /// Native variable 35. Main AI decrements it unconditionally; touch may grab only while
     /// its sign bit is set. Values 48 and zero therefore form real cooldown states, not bools.
     /// </summary>
-    public ushort GrabCooldown { get; internal set; }
+    public NativeCountdown GrabCooldown { get; internal set; }
 
     /// <summary>Result of the point-based $A0:AD70 viewport test sampled before movement.</summary>
     public bool IsOffScreen { get; internal set; }

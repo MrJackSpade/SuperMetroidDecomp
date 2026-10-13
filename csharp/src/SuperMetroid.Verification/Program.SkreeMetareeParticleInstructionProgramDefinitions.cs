@@ -148,7 +148,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
                     AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | operand), projectile.SpritemapPointer,
                         "particle loop selects the exact native installed composition");
                     AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | expectedInitial),
-                        projectile.InstructionTimer, "particle frame retains native duration");
+                        projectile.InstructionTimer.RawValue, "particle frame retains native duration");
                     selectedCompositions.Add(projectile.SpritemapPointer);
                 }
                 AssertTrue(projectile.IsActive,
@@ -168,7 +168,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
 
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
         }
     }

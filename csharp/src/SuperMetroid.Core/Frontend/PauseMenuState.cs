@@ -1103,7 +1103,7 @@ internal sealed class PauseMenuState
 
     // Native $0757 persists while the selector moves away. It is not a host
     // task or timer: only the selected reserve-transfer subdispatcher ticks it.
-    internal ushort reserveTransferSoundDelay;
+    internal NativeCountdown reserveTransferSoundDelay;
 
     /// <summary>The selected item while the reserve-tank category is selected.</summary>
     private PauseReserveItem SelectedReserveItem => Enum.IsDefined((PauseReserveItem)selectedItem)
@@ -1128,14 +1128,14 @@ internal sealed class PauseMenuState
                 throw new InvalidOperationException($"Undefined {nameof(PauseReserveItem)} {selectedItem}.");
         }
 
-        if (reserveTransferSoundDelay == 0)
+        if (reserveTransferSoundDelay.IsZero)
         {
             if ((pressed & SnesButton.A) == 0) return;
-            reserveTransferSoundDelay = unchecked((ushort)((samus.ReserveEnergy +
-                PauseReserveTransferRomData.SoundCadenceMask) & ~PauseReserveTransferRomData.SoundCadenceMask));
+            reserveTransferSoundDelay = NativeCountdown.FromRaw(unchecked((ushort)((samus.ReserveEnergy +
+                PauseReserveTransferRomData.SoundCadenceMask) & ~PauseReserveTransferRomData.SoundCadenceMask)));
         }
-        reserveTransferSoundDelay = unchecked((ushort)(reserveTransferSoundDelay - 1));
-        if ((reserveTransferSoundDelay & PauseReserveTransferRomData.SoundCadenceMask) ==
+        reserveTransferSoundDelay = reserveTransferSoundDelay.Decrement().Remaining;
+        if ((reserveTransferSoundDelay.RawValue & PauseReserveTransferRomData.SoundCadenceMask) ==
             PauseReserveTransferRomData.SoundCadenceMask)
             audio?.QueueSound(PauseReserveTransferRomData.RefillSound, PauseReserveTransferRomData.MaximumQueuedSounds);
 
@@ -1154,7 +1154,7 @@ internal sealed class PauseMenuState
         // Retail exhausts ALL reserves even when only a small top-up was needed.
         // Preserve that behavior and clear both bytes of the packed selector.
         samus.ReserveEnergy = 0;
-        reserveTransferSoundDelay = 0;
+        reserveTransferSoundDelay = NativeCountdown.Start(0);
         selectedCategory = PauseEquipmentCategory.Reserves;
         selectedItem = PauseReserveTransferRomData.ModeItem;
     }

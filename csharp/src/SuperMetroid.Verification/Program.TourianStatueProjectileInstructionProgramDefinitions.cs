@@ -58,7 +58,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             projectile => projectile.Kind == RoomEnemyProjectileKind.TourianStatueParticle),
             "eye glow releases four real unlocking particles");
         AssertEqual((ushort)1, enemies.Earthquake.EarthquakeType, "eye glow starts the native earthquake");
-        AssertEqual((ushort)0x20, enemies.Earthquake.EarthquakeTimer,
+        AssertEqual((ushort)0x20, enemies.Earthquake.EarthquakeTimer.RawValue,
             "eye glow publishes the native earthquake duration bit");
 
         RoomEnemyProjectileSlot particle = Single(RoomEnemyProjectileKind.TourianStatueParticle);
@@ -172,7 +172,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         {
             for (int frame = 0; frame < frames; frame++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }

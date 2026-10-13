@@ -46,7 +46,7 @@ internal static class ElevatorInstructionProgramDefinitionsVerification
             [elevator, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int call = 0; call < 3; call++)
         {
-            elevator.InstructionTimer = 1;
+            elevator.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
         AssertEqual((ushort)0x94da, elevator.CurrentInstruction,

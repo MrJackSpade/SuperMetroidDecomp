@@ -36,10 +36,10 @@ internal sealed class ProjectileMotion
         // `$90:AF00` allocates a persistent trail before applying acceleration or movement.
         // Thus the detached 8x8 OBJ records the beam's old world position and visibly falls
         // behind it. Failure to preserve this order makes the trail sit inside the projectile.
-        slot.TrailTimer = unchecked((ushort)(slot.TrailTimer - 1));
-        if (slot.TrailTimer == 0)
+        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
+        if (slot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = 4;
+            slot.TrailTimer = NativeCountdown.Start(4);
             _trails.SpawnTrail(bus, slot);
         }
 
@@ -99,13 +99,13 @@ internal sealed class ProjectileMotion
         // expires. The producer always starts at four; an uncharged low-family wave becomes
         // three only after its first emission. Spawning precedes acceleration and movement,
         // so the trail samples the old world position just like the no-wave family.
-        slot.TrailTimer = unchecked((ushort)(slot.TrailTimer - 1));
-        if (slot.TrailTimer == 0)
+        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
+        if (slot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = slot.PreInstruction ==
+            slot.TrailTimer = NativeCountdown.FromRaw(slot.PreInstruction ==
                 SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
                     ? (ushort)3
-                    : (ushort)4;
+                    : (ushort)4);
             _trails.SpawnTrail(bus, slot);
         }
 
@@ -177,10 +177,10 @@ internal sealed class ProjectileMotion
             return false;
         }
 
-        slot.TrailTimer = unchecked((ushort)(slot.TrailTimer - 1));
-        if (slot.TrailTimer == 0)
+        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
+        if (slot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = 4;
+            slot.TrailTimer = NativeCountdown.Start(4);
             _trails.SpawnTrail(bus, slot);
         }
 
@@ -253,10 +253,10 @@ internal sealed class ProjectileMotion
         // `$90:AFF3` begins with the producer's value four but reloads two after every
         // expiry. Super Missiles therefore emit twice as frequently as ordinary missiles;
         // both families still select the same `$B5A1` art through pointer entries $20/$21.
-        slot.TrailTimer = unchecked((ushort)(slot.TrailTimer - 1));
-        if (slot.TrailTimer == 0)
+        slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
+        if (slot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = 2;
+            slot.TrailTimer = NativeCountdown.Start(2);
             _trails.SpawnTrail(bus, slot);
         }
 
@@ -360,7 +360,7 @@ internal sealed class ProjectileMotion
         link.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2)));
-        link.InstructionTimer = 1;
+        link.InstructionTimer = NativeCountdown.Start(1);
         link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 
         owner.Variable = unchecked((ushort)((SnesLittleEndian.HighByteInPlace(owner.Variable)) + link.NativeByteIndex));

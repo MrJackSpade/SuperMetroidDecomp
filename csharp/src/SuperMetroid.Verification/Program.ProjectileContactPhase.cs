@@ -40,7 +40,7 @@ internal static class ProjectileContactPhaseVerification
         var projectile = runtime.Enemies.Projectiles.EnemyProjectiles[^1];
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
-        projectile.InstructionTimer = 2;
+        projectile.InstructionTimer = NativeCountdown.Start(2);
         projectile.Position = projectile.Position.WithWhole(new(128, 235));
         projectile.Radius = new(8, 8);
         projectile.Damage = 20; projectile.InvincibilityFrames = 96;
@@ -59,8 +59,8 @@ internal static class ProjectileContactPhaseVerification
         {
             runtime.StepFrame(0);
             var actual = (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Pose,
-                samus.KnockbackTimer, samus.KnockbackDirection);
-            Console.WriteLine($"CONTACT_FRAME {frame} x={samus.Kinematics.Position.X.RawValue:X8} y={samus.Kinematics.Position.Y.RawValue:X8} pose={(int)samus.Pose:X2} health={samus.Health} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection}");
+                samus.KnockbackTimer.RawValue, samus.KnockbackDirection);
+            Console.WriteLine($"CONTACT_FRAME {frame} x={samus.Kinematics.Position.X.RawValue:X8} y={samus.Kinematics.Position.Y.RawValue:X8} pose={(int)samus.Pose:X2} health={samus.Health} timer={samus.KnockbackTimer.RawValue} direction={samus.KnockbackDirection}");
             if (actual != expected[frame] || samus.Health != 79)
                 failures.Add($"frame {frame}: {actual} != {expected[frame]}");
         }
@@ -86,20 +86,20 @@ internal static class ProjectileContactPhaseVerification
             var projectile = runtime.Enemies.Projectiles.EnemyProjectiles[^1];
             projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
             projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
-            projectile.InstructionTimer = 2;
+            projectile.InstructionTimer = NativeCountdown.Start(2);
             projectile.Position = projectile.Position.WithWhole(new(120, 120));
             projectile.Radius = new(8, 8);
             projectile.Damage = 20;
             projectile.InvincibilityFrames = 96;
             projectile.CanDamageSamus = true;
             runtime.Enemies.StepEnemyProjectiles(runtime.Room.LevelData!, samus);
-            Console.WriteLine($"PROJECTILE suit={suit:X4} health={samus.Health} pose={(int)samus.Pose:X2} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
+            Console.WriteLine($"PROJECTILE suit={suit:X4} health={samus.Health} pose={(int)samus.Pose:X2} timer={samus.KnockbackTimer.RawValue} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
             ushort expectedHealth = suit == 0 ? (ushort)79 : suit == (ushort)SamusEquipmentFlags.VariaSuit ? (ushort)89 : (ushort)94;
             if (samus.Health != expectedHealth) failures.Add($"suit {suit:X4}: expected health {expectedHealth}, got {samus.Health}");
             if (verifyPhase && (samus.Pose != SamusPoseId.FacingRightNormalPose || samus.KnockbackActive || samus.KnockbackDirection != 0))
                 failures.Add($"suit {suit:X4}: projectile contact initialized hurt movement early");
-            AssertEqual(5, samus.KnockbackTimer, "projectile publishes five-frame hurt request");
-            AssertEqual(96, samus.InvincibilityTimer, "projectile publishes invincibility");
+            AssertEqual(5, samus.KnockbackTimer.RawValue, "projectile publishes five-frame hurt request");
+            AssertEqual(96, samus.InvincibilityTimer.RawValue, "projectile publishes invincibility");
             AssertTrue(!projectile.IsActive, "nonpersistent projectile deletes on contact");
         }
         AssertEqual(0, failures.Count, string.Join("; ", failures));

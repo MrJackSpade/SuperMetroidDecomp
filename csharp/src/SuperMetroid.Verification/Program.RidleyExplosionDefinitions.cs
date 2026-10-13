@@ -145,7 +145,7 @@ internal static class RidleyExplosionDefinitionsVerification
             body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
             var state = new RidleyEnemyState
             {
-                DeathExplosionTimer = 0,
+                DeathExplosionTimer = NativeCountdown.Start(0),
                 DeathExplosionCount = unchecked((ushort)((selectedIndex + 9) % 10)),
             };
 
@@ -156,7 +156,7 @@ internal static class RidleyExplosionDefinitionsVerification
             short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + selectedIndex * 4)));
             AssertEqual((ushort)selectedIndex, state.DeathExplosionCount,
                 $"Ridley death explosion {selectedIndex} cyclic index");
-            AssertEqual((ushort)4, state.DeathExplosionTimer,
+            AssertEqual((ushort)4, state.DeathExplosionTimer.RawValue,
                 $"Ridley death explosion {selectedIndex} timer reload");
             AssertEqual(unchecked((ushort)(body.Position.X.Whole + xOffset)), effect.Position.X.Whole,
                 $"Ridley death explosion {selectedIndex} production X");
@@ -209,7 +209,7 @@ internal static class RidleyExplosionDefinitionsVerification
 
                 initialize(fragment, body, state);
 
-                AssertEqual((ushort)1, fragment.InstructionTimer,
+                AssertEqual((ushort)1, fragment.InstructionTimer.RawValue,
                     "Ridley breakup production instruction timer");
                 AssertEqual(EnemyPaletteBits.Palette7, fragment.PaletteIndex,
                     "Ridley breakup production palette");

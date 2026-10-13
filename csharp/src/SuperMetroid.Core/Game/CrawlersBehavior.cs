@@ -82,7 +82,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         slot.CurrentInstruction = CrawlerAnimationDefinitions.InitialInstruction(
             animationFamily, orientation);
         slot.SpritemapPointer = 0x804d; // Spritemap_Common_Nothing.
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
         ResetCrawlerVelocitiesFromProperties(slot);
@@ -145,7 +145,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         slot.CurrentInstruction = CrawlerAnimationDefinitions.InitialInstruction(
             CrawlerAnimationFamily.HZoomer, orientation);
         slot.SpritemapPointer = 0x804d;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
         state.Velocity = new(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
         switch (slot.Properties & 3)
@@ -268,7 +268,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies
 
     private void TriggerCrawlerEarthquakeFall(CrawlerEnemyState state)
     {
-        if (_earthquake.EarthquakeTimer == SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration &&
+        if (_earthquake.EarthquakeTimer.RawValue == SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration &&
             _earthquake.EarthquakeType == SamusProjectileRomData.NonBeam.SuperMissileEarthquakeType)
             BeginCrawlerFall(state);
     }
@@ -300,8 +300,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     /// <summary>Ports shared crawler main AI at $A3:E6C2.</summary>
@@ -477,8 +477,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         }
         slot.CurrentInstruction = CrawlerAnimationDefinitions.SurfaceInstruction(
             slot.Parameter2, orientation);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private static int GetCrawlerSlopeAdjustedHorizontalDisplacement(

@@ -201,11 +201,11 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         endpoint.Pose = source;
         endpoint.Presentation.InitializeAnimation(bus);
         endpoint.HorizontalSpeed.AccelerationMode = 1;
-        ushort timerBeforeRelease = endpoint.AnimationFrameTimer;
+        ushort timerBeforeRelease = endpoint.AnimationFrameTimer.RawValue;
         endpoint.PoseTransitions.ApplyTurnInputFallback(bus, endpoint.PoseMetadata.ReadMovementType(bus));
         AssertEqual(0, endpoint.HorizontalSpeed.AccelerationMode, "released turn invokes momentum command two");
         AssertEqual(source, endpoint.Pose, "released turn retains unfinished pose");
-        AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer, "released turn does not restart animation");
+        AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer.RawValue, "released turn does not restart animation");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "released turn retains base speed until next movement");
 
         var lavaEndpoint = new SamusState { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) };
@@ -215,7 +215,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         lavaEndpoint.Presentation.SetAnimationFrameFromSpecialHandler(2, 1);
         lavaEndpoint.Presentation.AnimateNoFx(bus, new SamusAnimationStep { NmiFrameCounter = 1 });
         AssertTrue(lavaEndpoint.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "lava turn consumes command three");
-        AssertEqual(falling ? 12 : 6, lavaEndpoint.AnimationFrameTimer,
+        AssertEqual(falling ? 12 : 6, lavaEndpoint.AnimationFrameTimer.RawValue,
             "command three adds lava and pose-change buffers to native jump/fall target delay (2 or 8, plus 2+2)");
     }
 
@@ -359,7 +359,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     eligible.PoseTransitions.ApplyWallJumpTrigger(bus);
     SamusAtmosphericEffectSlot wallDust = eligible.LiquidPhysics.AtmosphericEffects.Slots[3];
     AssertEqual(0x0600, wallDust.FrameAndType, "wall jump creates native dust in slot three");
-    AssertEqual(3, wallDust.AnimationTimer, "wall dust begins with timer three");
+    AssertEqual(3, wallDust.AnimationTimer.RawValue, "wall dust begins with timer three");
     AssertEqual(eligible.Position.X.Whole - 6, wallDust.Position.X, "right-facing wall dust is six pixels behind Samus");
     // $91:FA76 runs after the wall-jump pose is installed: Get_Samus_Bottom_Boundary uses
     // that pose's radius (Y + radius - 1), not the spin radius still live in kinematics.
@@ -523,7 +523,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "right-facing knockback pose");
     AssertEqual(2, samus.KnockbackDirection, "up-right knockback direction");
     AssertEqual(1, samus.KnockbackXDirection, "knockback X direction publication");
-    AssertEqual(5, samus.KnockbackTimer, "enemy hurt timer publication");
+    AssertEqual(5, samus.KnockbackTimer.RawValue, "enemy hurt timer publication");
     AssertEqual(1, samus.HurtFlashCounter,
         "knockback command starts shared hurt-flash palette counter");
     AssertTrue(samus.KnockbackActive, "special knockback handler installed");
@@ -539,7 +539,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
     SamusKnockbackMovement.Start(bus, introTimedKnockback, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = 1, KnockbackTimer = 11 });
-    AssertEqual(11, introTimedKnockback.KnockbackTimer,
+    AssertEqual(11, introTimedKnockback.KnockbackTimer.RawValue,
         "intro Rinka preserves producer-owned eleven-frame knockback timer");
     AssertEqual(SamusPoseId.KnockbackRightPose, introTimedKnockback.Pose,
         "intro Rinka enters visible humanoid hurt pose");
@@ -551,7 +551,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
-        KnockbackTimer = SamusTerrainHazardRomData.KnockbackFrames,
+        KnockbackTimer = NativeCountdown.Start(SamusTerrainHazardRomData.KnockbackFrames),
         KnockbackXDirection = 0,
     };
     AssertTrue(
@@ -571,7 +571,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
             timeIsFrozen: false),
         "active hit interruption consumes terrain request");
     AssertEqual(SamusTerrainHazardRomData.KnockbackFrames,
-        pendingTerrainHit.KnockbackTimer,
+        pendingTerrainHit.KnockbackTimer.RawValue,
         "terrain hit interruption preserves ten-frame producer timer");
     AssertEqual(SamusPoseId.KnockbackRightPose, pendingTerrainHit.Pose,
         "terrain hit interruption installs visible hurt pose");
@@ -587,7 +587,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     // Movement consumes the current timer; gameplay state eight then calls `$A0:9169`
     // after drawing/room work. Keep that distinct owner visible in this direct subsystem test.
     samus.DecrementHurtTimers();
-    AssertEqual(4, samus.KnockbackTimer, "first hurt frame decrements timer");
+    AssertEqual(4, samus.KnockbackTimer.RawValue, "first hurt frame decrements timer");
     AssertEqual(0x00018000, unchecked((int)(samus.Kinematics.Position.X.RawValue - hurtXBefore)),
         "knockback moves in bank-$A0 X direction");
     AssertEqual(unchecked((int)0xfffb0000), unchecked((int)(samus.Kinematics.Position.Y.RawValue - hurtYBefore)),
@@ -639,7 +639,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         "damage-boost movement type");
     AssertTrue(!samus.KnockbackActive, "damage boost restores normal handler");
     AssertEqual(2, samus.KnockbackDirection, "damage boost preserves knockback direction");
-    AssertEqual(4, samus.KnockbackTimer, "damage boost preserves hurt timer");
+    AssertEqual(4, samus.KnockbackTimer.RawValue, "damage boost preserves hurt timer");
     AssertEqual(4, samus.Kinematics.YSpeed, "damage boost retains whole speed");
     AssertEqual(0xe400, samus.Kinematics.YSubspeed, "damage boost retains subspeed");
 
@@ -756,7 +756,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         ball.Presentation.InitializeAnimation(bus, initialFrame: 3);
         ball.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         ushort preservedFrame = ball.AnimationFrame;
-        ushort preservedTimer = ball.AnimationFrameTimer;
+        ushort preservedTimer = ball.AnimationFrameTimer.RawValue;
 
         SamusKnockbackMovement.Start(bus, ball, controllerInput: (ushort)(SnesButton.Left | SnesButton.Right), launch: new KnockbackLaunch { KnockbackXDirection = hitSide });
         AssertEqual(
@@ -767,7 +767,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
             $"morphed pose ${(int)pose:X2} chooses direction from facing only");
         AssertEqual(preservedFrame, ball.AnimationFrame,
             $"morphed pose ${(int)pose:X2} retains rolling animation frame");
-        AssertEqual(preservedTimer, ball.AnimationFrameTimer,
+        AssertEqual(preservedTimer, ball.AnimationFrameTimer.RawValue,
             $"morphed pose ${(int)pose:X2} retains rolling animation timer");
         AssertEqual(0, ball.BombJumpDirection,
             $"morphed pose ${(int)pose:X2} start clears pending bomb jump");
@@ -798,7 +798,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     SamusKnockbackMovement.Start(bus, ballExpires, controllerInput: (ushort)SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = 0 });
     ballExpires.PoseHistory.PreviousPose = SamusPoseId.MorphBallGroundRightPose;
     ushort retainedBallFrame = ballExpires.AnimationFrame;
-    ushort retainedBallTimer = ballExpires.AnimationFrameTimer;
+    ushort retainedBallTimer = ballExpires.AnimationFrameTimer.RawValue;
     for (int frame = 0; frame < 5; frame++)
     {
         SamusKnockbackMovement.Step(bus, empty, ballExpires, unchecked((ushort)frame));
@@ -815,7 +815,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         "expired morphed knockback retains current ball pose");
     AssertEqual(retainedBallFrame, ballExpires.AnimationFrame,
         "expired morphed knockback retains rolling frame");
-    AssertEqual(retainedBallTimer, ballExpires.AnimationFrameTimer,
+    AssertEqual(retainedBallTimer, ballExpires.AnimationFrameTimer.RawValue,
         "expired morphed knockback retains rolling timer");
     AssertEqual(SamusBallBounceState.None, ballExpires.MorphBallBounceState,
         "expired morphed knockback clears bounce state");
@@ -851,7 +851,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         Pose = SamusPoseId.NormalJumpAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x007a, 0x0696)),
         KnockbackDirection = 5,
-        KnockbackTimer = 0,
+        KnockbackTimer = NativeCountdown.Start(0),
     };
     floorClipOverlap.Kinematics.Position = floorClipOverlap.Kinematics.Position.WithFractionX(0xffff).WithFractionY(0xffff);
     floorClipOverlap.Kinematics.YSpeed = 0xffff;
@@ -884,7 +884,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         Pose = SamusPoseId.NormalJumpAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0696)),
         KnockbackDirection = 5,
-        KnockbackTimer = 0,
+        KnockbackTimer = NativeCountdown.Start(0),
     };
     sameRadiusExpiry.PoseHistory.PreviousPose = SamusPoseId.NormalJumpAimDownRightPose;
     sameRadiusExpiry.PoseMetadata.RefreshCollisionRadii(bus);
@@ -909,7 +909,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         "suppressed grounded-turn hit leaves normal movement installed");
     AssertEqual(SamusPoseId.TurningRightToLeftPose, suppressedTurnHit.Pose,
         "suppressed grounded-turn hit retains pose");
-    AssertEqual(7, suppressedTurnHit.KnockbackTimer,
+    AssertEqual(7, suppressedTurnHit.KnockbackTimer.RawValue,
         "suppressed grounded-turn hit retains producer hurt timer");
 
     // The unused movement-type-seven table arm is nevertheless completely defined by the

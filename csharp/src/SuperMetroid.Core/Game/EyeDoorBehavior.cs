@@ -193,7 +193,7 @@ internal sealed class EyeDoorBehavior
     {
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
         projectile.InstructionPointer = instructionList;
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
     }
 
     private static bool MoveEyeDoorEffectHorizontally(

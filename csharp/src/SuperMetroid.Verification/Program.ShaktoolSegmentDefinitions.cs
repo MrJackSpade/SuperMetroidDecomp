@@ -53,7 +53,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production initial list {index}");
             AssertEqual(definition.Layer, slot.Layer,
                 $"Shaktool production layer {index}");
-            AssertEqual((ushort)1, slot.InstructionTimer,
+            AssertEqual((ushort)1, slot.InstructionTimer.RawValue,
                 $"Shaktool production instruction timer {index}");
         }
 

@@ -56,17 +56,17 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(0x40, vram.ReadByte(0xc300), "Samus bottom part 2 reaches VRAM word $6180");
 
     samus.Presentation.InitializeAnimation(bus);
-    AssertEqual(10, samus.AnimationFrameTimer, "pose 1 initial animation delay");
+    AssertEqual(10, samus.AnimationFrameTimer.RawValue, "pose 1 initial animation delay");
 
     // Frames 0-3 each last ten calls. The fifth byte is command $F6, which returns a
     // healthy Samus to frame zero rather than ever exposing command index four as art.
     for (int tick = 0; tick < 9; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0, samus.AnimationFrame, "standing frame remains zero for first nine ticks");
-    AssertEqual(1, samus.AnimationFrameTimer, "standing timer reaches one before advance");
+    AssertEqual(1, samus.AnimationFrameTimer.RawValue, "standing timer reaches one before advance");
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(1, samus.AnimationFrame, "standing frame advances on tenth tick");
-    AssertEqual(10, samus.AnimationFrameTimer, "next standing frame reloads ten ticks");
+    AssertEqual(10, samus.AnimationFrameTimer.RawValue, "next standing frame reloads ten ticks");
     for (int tick = 0; tick < 30; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0, samus.AnimationFrame, "healthy $F6 command loops standing animation");
@@ -79,7 +79,7 @@ internal static void VerifySamusRenderingSlice()
     for (int tick = 0; tick < 40; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(5, samus.AnimationFrame, "low-health $F6 enters alternate sequence");
-    AssertEqual(8, samus.AnimationFrameTimer, "low-health sequence uses eight-tick delay");
+    AssertEqual(8, samus.AnimationFrameTimer.RawValue, "low-health sequence uses eight-tick delay");
     for (int tick = 0; tick < 32; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(5, samus.AnimationFrame, "$FE,$04 loops low-health standing sequence");
@@ -159,7 +159,7 @@ internal static void VerifySamusRenderingSlice()
     samus.PoseTransitions.ApplyStandingRightToRunningRight(bus);
     AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "standing-right transition applies running-right pose");
     AssertEqual(0, samus.AnimationFrame, "running transition resets animation frame");
-    AssertEqual(2, samus.AnimationFrameTimer, "running pose first delay byte");
+    AssertEqual(2, samus.AnimationFrameTimer.RawValue, "running pose first delay byte");
     AssertEqual(21, samus.Kinematics.Radius.Y, "running pose refreshes collision radius");
 
     oam.BeginFrame();
@@ -173,7 +173,7 @@ internal static void VerifySamusRenderingSlice()
     samus.PoseTransitions.ApplyRunningRightToStandingRight(bus);
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "running no-button fallback applies standing-right pose");
     AssertEqual(0, samus.AnimationFrame, "standing fallback resets animation frame");
-    AssertEqual(10, samus.AnimationFrameTimer, "standing fallback reloads frame-zero delay");
+    AssertEqual(10, samus.AnimationFrameTimer.RawValue, "standing fallback reloads frame-zero delay");
 
     // `$90:868D` inserts one direct small-OBJ write between pose `$00`'s ordinary top and
     // bottom spritemaps. This record is easy to lose in a high-level “draw both halves”
@@ -207,7 +207,7 @@ internal static void VerifySamusRenderingSlice()
     // MakeSamusFaceForward ($91:E3F6) only compares the live radius with $18; the next
     // frame's SetSamusRadius installs the pose's own radius.
     AssertEqual(radiusBeforeForwardSetup, samus.Kinematics.Radius.Y, "forward setup leaves the live radius");
-    AssertEqual(8, samus.AnimationFrameTimer, "power forward setup reads delay eight");
+    AssertEqual(8, samus.AnimationFrameTimer.RawValue, "power forward setup reads delay eight");
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "forward setup clears base X speed");
     AssertEqual(0, samus.Kinematics.YSpeed, "forward setup clears Y speed");
     oam.BeginFrame();
@@ -240,8 +240,8 @@ internal static void VerifySamusRenderingSlice()
     // `$90:85E2` suppresses body OAM on odd invincibility frames but still calls the
     // bank-$92 tile-definition selector. This is deliberately not folded into the arm-
     // cannon test: `$90:C663` has a similar-looking but stricter condition of its own.
-    samus.InvincibilityTimer = 1;
-    samus.KnockbackTimer = 0;
+    samus.InvincibilityTimer = NativeCountdown.Start(1);
+    samus.KnockbackTimer = NativeCountdown.Start(0);
     samus.Presentation.TileTransfers.ClearTransferFlags();
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -263,7 +263,7 @@ internal static void VerifySamusRenderingSlice()
 
     // Knockback and shine are two independent OR terms in the native branch. Prove each
     // on an odd frame so neither can pass accidentally through the even-NMI condition.
-    samus.KnockbackTimer = 1;
+    samus.KnockbackTimer = NativeCountdown.Start(1);
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0), nmiFrameCounter: 1);
@@ -271,7 +271,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "knockback overrides odd-frame invincibility blink");
 
-    samus.KnockbackTimer = 0;
+    samus.KnockbackTimer = NativeCountdown.Start(0);
     AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(0x0400),
         "test fixture installs nonzero native shine timer");
     oam.BeginFrame();
@@ -289,8 +289,8 @@ internal static void VerifySamusRenderingSlice()
     // Reset the unrelated flicker inputs before exercising the complete `$90:86EE/$870C`
     // bottom-half matrix using authored pose/movement pairs. Movement type $0C has no
     // authored pose record, so production correctly cannot reach that dispatcher slot.
-    samus.InvincibilityTimer = 0;
-    samus.KnockbackTimer = 0;
+    samus.InvincibilityTimer = NativeCountdown.Start(0);
+    samus.KnockbackTimer = NativeCountdown.Start(0);
     SeedBodyHalfRoutingTileAnimation(bus);
     foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedSprites, string name) in new[]
     {
@@ -569,7 +569,7 @@ internal static void VerifySamusArmCannon()
 
     // Odd invincibility frames return before both OAM and DMA. An off-screen coordinate,
     // in contrast, suppresses only the OBJ: native code still refreshes the shared tile.
-    samus.InvincibilityTimer = 1;
+    samus.InvincibilityTimer = NativeCountdown.Start(1);
     var flickerOam = new OamBuffer();
     var flickerWrites = new VramWriteQueue();
     flickerOam.BeginFrame();
@@ -578,7 +578,7 @@ internal static void VerifySamusArmCannon()
         "odd invincibility frame suppresses cover OBJ and DMA");
     AssertEqual(0, flickerWrites.Entries.Count, "flicker return leaves VRAM queue untouched");
 
-    samus.InvincibilityTimer = 0;
+    samus.InvincibilityTimer = NativeCountdown.Start(0);
     var clippedOam = new OamBuffer();
     var clippedWrites = new VramWriteQueue();
     clippedOam.BeginFrame();

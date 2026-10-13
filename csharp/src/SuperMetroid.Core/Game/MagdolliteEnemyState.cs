@@ -113,7 +113,7 @@ public sealed class MagdolliteEnemyState
     /// The wrapping word counts enemy updates, is reset to $0100 by the throw list,
     /// and expires when the head observes its sign bit after decrementing through zero.
     /// </summary>
-    public ushort AttackTimer { get; internal set; }
+    public NativeCountdown AttackTimer { get; internal set; }
 
     /// <summary>Native downSubVelocity at extension offset $0E: unsigned fractional word of downward 16.16 pixels per enemy update; the arm consumes the head's copy.</summary>
     public ushort PositiveSpeedFraction { get; internal set; }

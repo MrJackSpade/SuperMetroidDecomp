@@ -66,7 +66,7 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
         RunForcedTicks(sleepSystem, sleeping, 1, new SamusState());
         AssertEqual((ushort)0x8c56, sleeping.InstructionPointer,
             "Draygon goop's terminal sleep retains its own opcode");
-        AssertEqual((ushort)0, sleeping.InstructionTimer,
+        AssertEqual((ushort)0, sleeping.InstructionTimer.RawValue,
             "Draygon goop's terminal sleep stores the native zero timer");
 
         RoomEnemySystem shotSystem = NewSystem();
@@ -171,7 +171,7 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
         {
             for (int tick = 0; tick < count; tick++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
                 if (projectile.PresentationOperandAddress != 0)
                     selectedPresentation.Add(projectile.PresentationOperandAddress);

@@ -95,7 +95,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         AssertBand(CrocomirePaletteRomData.FightBodyDestination,
             CrocomirePaletteRomData.FightBodyCount, colors.ResolveFightBody,
             "restored fight-body CGRAM");
-        body.FlashTimer = 1;
+        body.FlashTimer = NativeCountdown.Start(1);
         enemies.FrameContext._randomEnemyCounter = (ushort)2;
         enemies.CrocomireBehavior.ApplyCrocomireHurtPalette(body);
         for (int color = 0; color < CrocomirePaletteRomData.FightBodyCount; color++)

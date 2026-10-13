@@ -42,7 +42,7 @@ public static class SamusKnockbackMovement
         // `$90:DDEC-$DE09` requires a live producer timer, unfrozen time, and zero in the
         // installed direction word. A nonzero direction means a previous request already
         // owns the special movement handler; it must finish instead of being restarted.
-        if (samus.KnockbackTimer == 0 ||
+        if (samus.KnockbackTimer.IsZero ||
             timeIsFrozen ||
             samus.KnockbackDirection != 0 ||
             samus.KnockbackActive)
@@ -50,7 +50,7 @@ public static class SamusKnockbackMovement
             return false;
         }
 
-        return Start(bus, samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = samus.KnockbackXDirection, KnockbackTimer = samus.KnockbackTimer }, level, nmiFrameCounter, plms);
+        return Start(bus, samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = samus.KnockbackXDirection, KnockbackTimer = samus.KnockbackTimer.RawValue }, level, nmiFrameCounter, plms);
     }
 
     /// <summary>
@@ -123,7 +123,7 @@ public static class SamusKnockbackMovement
         // Enemy contact has already established `$18AA` before `$90:DDE9` selects a pose.
         // Turning, grapple, current knockback, damage boost, and special type-$1B bodies all
         // return carry clear: they retain the timer/flicker but do not install `$90:DF38`.
-        samus.KnockbackTimer = launch.KnockbackTimer;
+        samus.KnockbackTimer = NativeCountdown.FromRaw(launch.KnockbackTimer);
         if (suppressesKnockback)
             return false;
 
@@ -362,7 +362,7 @@ public static class SamusKnockbackMovement
     public static bool IsExpiredHitInterruptionPending(SamusState samus)
     {
         Ensure.NotNull(samus);
-        return samus.KnockbackTimer == 0 && samus.KnockbackDirection != 0;
+        return samus.KnockbackTimer.IsZero && samus.KnockbackDirection != 0;
     }
 
     /// <summary>

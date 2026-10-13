@@ -1,5 +1,6 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 
@@ -10,7 +11,7 @@ internal static class MotherBrainAscentCaptureVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var state = runtime.Enemies.MotherBrainEncounter.MotherBrain!;
         AssertTrue(Layer().MainScreenLayersByLine.IsEmpty, "No ascent mask before the native state starts it");
-        state.FunctionTimer = 0;
+        state.FunctionTimer = NativeCountdown.Start(0);
         runtime.Enemies.MotherBrainBehavior.PrepareMotherBrainForRising(state);
         AssertTrue(state.RisingHdmaActive, "Production rising setup activates HDMA");
         var captured = Layer();

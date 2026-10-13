@@ -103,7 +103,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         }
 
         body.Health = unchecked((ushort)(2 * 312 + 1));
-        body.FlashTimer = 8;
+        body.FlashTimer = NativeCountdown.Start(8);
         tentacles.Parameter2 = 0x0101;
         enemies.PhantoonBehavior.ApplyPhantoonHurt(body, state);
         AssertBodyBand(2, "Phantoon live hurt restore");

@@ -70,7 +70,7 @@ internal sealed class NoobTubeBehavior
                     NoobTubeProjectileRomData.ShardOffsets[index].Y)));
                 projectile.InstructionPointer =
                     NoobTubeProjectileRomData.ShardInstructionLists[index];
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 projectile.Velocity = NoobTubeProjectileRomData.ShardVelocities[index];
                 return;
             }

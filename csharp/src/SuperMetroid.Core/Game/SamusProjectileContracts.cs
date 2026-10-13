@@ -41,13 +41,13 @@ public sealed class SamusProjectileSlot
     /// <summary>Bank-$93 instruction-list pointer; zero marks the slot inactive for animation.</summary>
     public ushort InstructionPointer { get; internal set; }
     /// <summary>Updates remaining before the current projectile instruction advances.</summary>
-    public ushort InstructionTimer { get; internal set; }
+    public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Bank-relative pointer to the projectile's current spritemap.</summary>
     public ushort SpritemapPointer { get; internal set; }
     /// <summary>Current animation frame index.</summary>
     public ushort AnimationFrame { get; internal set; }
     /// <summary>Countdown controlling projectile-trail emission.</summary>
-    public ushort TrailTimer { get; internal set; }
+    public NativeCountdown TrailTimer { get; internal set; }
     /// <summary>WRAM <c>$0C7C</c>; missile ignition/acceleration state in the high byte.</summary>
     public ushort Variable { get; internal set; }
     /// <summary>WRAM $0CA4: phase word used by Spazer special-attack particles.</summary>
@@ -80,7 +80,7 @@ public sealed class SamusProjectileSlot
         Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
         InstructionPointer = 0;
-        InstructionTimer = 0;
+        InstructionTimer = NativeCountdown.Start(0);
         SpritemapPointer = 0;
         AnimationFrame = 0;
         Variable = 0;
@@ -94,7 +94,7 @@ public sealed class SamusProjectileSlot
     /// </summary>
     internal void ClearForProjectileDataReset()
     {
-        TrailTimer = 0;
+        TrailTimer = NativeCountdown.Start(0);
         Position = Position.WithWhole(Position16<RoomPixels>.Zero);
         Direction = 0;
         Velocity = default(EightEightVector<RoomPixels>);
@@ -102,7 +102,7 @@ public sealed class SamusProjectileSlot
         Type = 0;
         Damage = 0;
         InstructionPointer = 0;
-        InstructionTimer = 0;
+        InstructionTimer = NativeCountdown.Start(0);
         Variable = 0;
         SpritemapPointer = 0;
         PreInstruction = SamusProjectilePreInstruction.None;
@@ -185,7 +185,7 @@ public sealed class SamusProjectileTrailSide
     /// <summary>Room-pixel trail-sprite position.</summary>
     public Position16<RoomPixels> Position { get; internal set; }
     /// <summary>Updates remaining before the current trail instruction advances.</summary>
-    public ushort InstructionTimer { get; internal set; }
+    public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Bank-$90 pointer to the current trail instruction.</summary>
     public ushort InstructionPointer { get; internal set; }
     /// <summary>Packed tile number and OBJ attributes drawn for this trail side.</summary>
@@ -194,7 +194,7 @@ public sealed class SamusProjectileTrailSide
     internal void ClearFields()
     {
         Position = Position16<RoomPixels>.Zero;
-        InstructionTimer = 0;
+        InstructionTimer = NativeCountdown.Start(0);
         InstructionPointer = 0;
         TileNumberAttributes = 0;
     }

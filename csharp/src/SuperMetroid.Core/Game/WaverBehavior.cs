@@ -137,8 +137,8 @@ internal sealed class WaverBehavior : IEnemySpecies
 
         state.CurrentInstructionListIndex = requested;
         slot.CurrentInstruction = WaverAnimationDefinitions.InstructionList(requested);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private WaverEnemyState RequireWaverState(RoomEnemySlot slot) =>

@@ -91,7 +91,7 @@ internal sealed class EnemyDeathsAndDrops
                 : enemy.NativeIndex;
             explosion.InstructionPointer =
                 EnemyDeathExplosionDefinitions.InstructionPointer(deathAnimation);
-            explosion.InstructionTimer = 1;
+            explosion.InstructionTimer = NativeCountdown.Start(1);
         }
 
         enemy.Clear();
@@ -266,7 +266,7 @@ internal sealed class EnemyDeathsAndDrops
         EnemyPickupAnimationDefinition animation = EnemyPickupDefinitions.Animation(kind);
         projectile.Variable0 = animation.TableOffset;
         projectile.InstructionPointer = animation.InstructionList;
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
         projectile.Variable1 = EnemyPickupLifetime;
         projectile.PreInstruction = EnemyPickupPreInstruction;
 
@@ -281,7 +281,7 @@ internal sealed class EnemyDeathsAndDrops
         // and $8154 deletes the actor. Collection and natural expiry use this same tail.
         projectile.InstructionPointer =
             EnemyDeathExplosionDefinitions.NoDropTailInstruction;
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86EFDF;
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;

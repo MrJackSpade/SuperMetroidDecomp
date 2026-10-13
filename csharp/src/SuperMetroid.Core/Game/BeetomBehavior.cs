@@ -66,12 +66,12 @@ internal sealed class BeetomBehavior : IEnemySpecies
         var state = new BeetomEnemyState(slot, new BeetomSharedTables { InstalledInstructionLists = _beetomInstalledInstructionLists, InitialShortLeapYSpeedIndexes = _beetomInitialShortLeapYSpeedIndexes, InitialLongLeapYSpeedIndexes = _beetomInitialLongLeapYSpeedIndexes, InitialLungeYSpeedIndexes = _beetomInitialLungeYSpeedIndexes, FallingFlags = _beetomFallingFlags, AttachedFlags = _beetomAttachedToSamusFlags, Directions = _beetomDirections, InitialAttachmentOffsets = _beetomInitialAttachmentOffsets });
         _beetomStates[slot.SlotIndex] = state;
 
-        state.FunctionTimer = 0;
+        state.FunctionTimer = NativeCountdown.Start(0);
         state.Function = 0;
         state.Falling = false;
         state.AttachedToSamus = false;
         slot.VariableA = 0;
-        state.ButtonCounter = BeetomMashCount;
+        state.ButtonCounter = NativeCountdown.Start(BeetomMashCount);
         state.PreviousController1Input = controllerInput;
 
         // Every Beetom initializer writes the global seed, even when several Beetoms share
@@ -114,7 +114,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
                 ChooseDistantBeetomAction(state);
                 return;
             case BeetomEnemyFunction.StartIdling:
-                state.FunctionTimer = 0x0020;
+                state.FunctionTimer = NativeCountdown.Start(0x0020);
                 state.Function = BeetomEnemyFunction.Idling;
                 return;
             case BeetomEnemyFunction.StartCrawlingLeft:
@@ -153,8 +153,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
                 state.Function = BeetomEnemyFunction.BeingFlung;
                 return;
             case BeetomEnemyFunction.Idling:
-                NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
-                state.FunctionTimer = timer.Value;
+                NativeWordCounterStep timer = state.FunctionTimer.Decrement();
+                state.FunctionTimer = timer.Remaining;
                 if (timer.IsNegative)
                     state.Function = BeetomEnemyFunction.DecideAction;
                 return;
@@ -302,11 +302,11 @@ internal sealed class BeetomBehavior : IEnemySpecies
 
     private void RunBeetomCrawl(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level, bool left)
     {
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
-        state.FunctionTimer = timer.Value;
+        NativeWordCounterStep timer = state.FunctionTimer.Decrement();
+        state.FunctionTimer = timer.Remaining;
         if (timer.IsNegative)
         {
-            state.FunctionTimer = 0x0040;
+            state.FunctionTimer = NativeCountdown.Start(0x0040);
             state.Function = BeetomEnemyFunction.DecideAction;
             return;
         }
@@ -396,13 +396,13 @@ internal sealed class BeetomBehavior : IEnemySpecies
         ushort controllerInput,
         bool left)
     {
-        if (state.ButtonCounter != 0)
+        if (!state.ButtonCounter.IsZero)
         {
             slot.Position = slot.Position.WithWhole(new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole - 4))));
             if (controllerInput != state.PreviousController1Input)
             {
                 state.PreviousController1Input = controllerInput;
-                state.ButtonCounter = unchecked((ushort)(state.ButtonCounter - 1));
+                state.ButtonCounter = state.ButtonCounter.Decrement().Remaining;
             }
             return;
         }
@@ -475,7 +475,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
                 ? BeetomEnemyFunction.StartDrainingLeft
                 : BeetomEnemyFunction.StartDrainingRight;
             state.AttachedToSamus = true;
-            state.ButtonCounter = BeetomMashCount;
+            state.ButtonCounter = NativeCountdown.Start(BeetomMashCount);
             slot.Layer = 2;
             state.InitialAttachmentOffset = samus.Position.Whole - slot.Position.Whole;
         }
@@ -483,8 +483,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
         {
             _collision.ResolveNormalEnemyTouch(slot, samus);
-            samus.InvincibilityTimer = 0;
-            samus.KnockbackTimer = 0;
+            samus.InvincibilityTimer = NativeCountdown.Start(0);
+            samus.KnockbackTimer = NativeCountdown.Start(0);
             return;
         }
 
@@ -504,14 +504,14 @@ internal sealed class BeetomBehavior : IEnemySpecies
         samus.Health = samus.Health <= damage
             ? (ushort)0
             : unchecked((ushort)(samus.Health - damage));
-        samus.InvincibilityTimer = 0;
-        samus.KnockbackTimer = 0;
+        samus.InvincibilityTimer = NativeCountdown.Start(0);
+        samus.KnockbackTimer = NativeCountdown.Start(0);
     }
 
     /// <summary>Ports the private post-common-shot tail at $A8:BEAC.</summary>
     private static void ResolveBeetomShotAfterCommon(RoomEnemySlot slot, BeetomEnemyState state)
     {
-        if (slot.FrozenTimer != 0 && state.Function is
+        if (!slot.FrozenTimer.IsZero && state.Function is
             BeetomEnemyFunction.DrainingLeft or BeetomEnemyFunction.DrainingRight)
         {
             state.Function = BeetomEnemyFunction.StartDropping;
@@ -526,8 +526,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
     {
         state.InstalledInstructionList = instructionList;
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private static void RequireBeetomSamus(SamusState? samus)

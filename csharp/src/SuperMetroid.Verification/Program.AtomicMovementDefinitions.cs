@@ -186,7 +186,7 @@ internal static class AtomicMovementDefinitionsVerification
             programSlot.EnemyDefinitionPointer = EnemyDefinitionId.Atomic;
             programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             programSlot.CurrentInstruction = entry;
-            programSlot.InstructionTimer = 1;
+            programSlot.InstructionTimer = NativeCountdown.Start(1);
             object?[] arguments =
                 [programSlot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 

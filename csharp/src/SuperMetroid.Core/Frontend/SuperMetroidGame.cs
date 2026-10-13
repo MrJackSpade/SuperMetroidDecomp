@@ -691,8 +691,8 @@ public sealed class SuperMetroidGame
                     ?? throw new InvalidOperationException("Death sequence lost its Samus owner.");
                 dyingSamus.SelectedHudItem = 0;
                 dyingSamus.AutoCancelHudItemIndex = 0;
-                dyingSamus.InvincibilityTimer = 0;
-                dyingSamus.KnockbackTimer = 0;
+                dyingSamus.InvincibilityTimer = NativeCountdown.Start(0);
+                dyingSamus.KnockbackTimer = NativeCountdown.Start(0);
                 dyingSamus.KnockbackActive = false;
                 GameState = SuperMetroidGameState.DeathBlackOutSurroundings;
                 break;
@@ -1048,8 +1048,8 @@ public sealed class SuperMetroidGame
                         "Ceres destruction with Samus requires her gameplay state.");
                     lostSamus.SelectedHudItem = 0;
                     lostSamus.AutoCancelHudItemIndex = 0;
-                    lostSamus.InvincibilityTimer = 0;
-                    lostSamus.KnockbackTimer = 0;
+                    lostSamus.InvincibilityTimer = NativeCountdown.Start(0);
+                    lostSamus.KnockbackTimer = NativeCountdown.Start(0);
                     ceresDestruction = null;
                     BeginForcedBlankDeathBlackOut();
                 }
@@ -1486,7 +1486,7 @@ public sealed class SuperMetroidGame
             loadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
         SuperMetroidGameState.MadeItToCeresElevator =>
             ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator
-                ? $"Ceres elevator departure ({ceresDeparture.HoldFramesRemaining})"
+                ? $"Ceres elevator departure ({ceresDeparture.HoldFramesRemaining.RawValue})"
                 : runtime?.Room.CeresElevatorArrival is { IsComplete: false }
                 ? "Ceres elevator arrival"
                 : "Ceres controls unlocked",
@@ -2240,7 +2240,7 @@ public sealed class SuperMetroidGame
             $"room=$8F:{GameplayActiveRoomPointer:X4}; roomState=$8F:{GameplayActiveRoomStatePointer:X4}; door=$83:{GameplayActiveDoorPointer:X4}";
         if (runtime?.Player.Samus is not { } samus)
             return location + "; Samus=not initialized";
-        return location + $"; pose=${(int)samus.Pose:X2}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer}; " +
+        return location + $"; pose=${(int)samus.Pose:X2}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RawValue}; " +
             $"animationList=${samus.AnimationDelayListAddress:X6}; position={samus.Position.X.Whole},{samus.Position.Y.Whole}; " +
             $"input=${runtime.Controller1.Current:X4}; newlyPressed=${runtime.Controller1.NewlyPressed:X4}; inputLocked={samus.InputLocked}; " +
             $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +

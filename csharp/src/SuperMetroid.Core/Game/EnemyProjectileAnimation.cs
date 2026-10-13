@@ -11,17 +11,17 @@ internal abstract class EnemyProjectileAnimation
     /// <summary>Advances one projectile pass: the frame expires on the update its native timer would.</summary>
     internal void Advance(RoomEnemyProjectileSlot projectile)
     {
-        ushort oldTimer = projectile.InstructionTimer;
-        projectile.InstructionTimer = unchecked((ushort)(oldTimer - 1));
+        ushort oldTimer = projectile.InstructionTimer.RawValue;
+        projectile.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
             return;
         if (!TryShowNextFrame(out int duration, out ushort presentationKey))
         {
             // A held timeline is the native sleep: the timer stays zero and wraps, never expiring again.
-            projectile.InstructionTimer = 0;
+            projectile.InstructionTimer = NativeCountdown.Start(0);
             return;
         }
-        projectile.InstructionTimer = (ushort)duration;
+        projectile.InstructionTimer = NativeCountdown.FromRaw((ushort)duration);
         projectile.PresentationOperandAddress = presentationKey;
         projectile.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
     }

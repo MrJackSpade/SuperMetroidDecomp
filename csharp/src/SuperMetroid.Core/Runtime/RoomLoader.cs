@@ -214,7 +214,7 @@ internal sealed class RoomLoader
             _player._samusLoadAppearancePaletteFxDefinition,
             _player.Samus.EquippedItems,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
-        _player._samusLoadAppearanceFramesRemaining = RoomLoadingRomData.SavedGameAppearanceFrameCount;
+        _player._samusLoadAppearanceFramesRemaining = NativeCountdown.Start(RoomLoadingRomData.SavedGameAppearanceFrameCount);
         _player.Samus.InputLocked = true;
         _player.PreviousMovementTypeForXray = _player.Samus.PoseMetadata.ReadMovementType(_addressSpace);
         _player.GroundedSamusMovementEnabled = false;

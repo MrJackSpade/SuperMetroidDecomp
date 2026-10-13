@@ -128,7 +128,7 @@ internal static class LowPercentIntroTimelineVerification
         {
             case 1809:
                 // $90:A3BA: the demo's held shot restarts and holds the standing animation.
-                AssertEqual((ushort)0x000f, flashback!.AnimationFrameTimer, "update 1809 standing-shot animation timer");
+                AssertEqual((ushort)0x000f, flashback!.AnimationFrameTimer.RawValue, "update 1809 standing-shot animation timer");
                 AssertEqual((ushort)0, flashback.AnimationFrame, "update 1809 standing-shot animation frame");
                 break;
             case 1884:
@@ -144,16 +144,16 @@ internal static class LowPercentIntroTimelineVerification
                 break;
             case 2111:
                 // $91:874B: the demo-end lock keeps the running animation of an unchanged pose.
-                AssertEqual((ushort)0x000e, flashback!.AnimationFrameTimer, "update 2111 locked Samus animation timer");
+                AssertEqual((ushort)0x000e, flashback!.AnimationFrameTimer.RawValue, "update 2111 locked Samus animation timer");
                 break;
             case 2400:
                 // $8B:B842 cleared $1A57, so Samus is not processed during the page-two text.
-                AssertEqual((ushort)0x0003, flashback!.AnimationFrameTimer, "update 2400 frozen Samus animation timer");
+                AssertEqual((ushort)0x0003, flashback!.AnimationFrameTimer.RawValue, "update 2400 frozen Samus animation timer");
                 AssertEqual((ushort)0, flashback.AnimationFrame, "update 2400 frozen Samus animation frame");
                 break;
             case 3012:
                 // $8B:AF99: pose two was already set, so the discovery keeps her animation running.
-                AssertEqual((ushort)0x0002, discovery!.AnimationFrameTimer, "update 3012 discovery Samus animation timer");
+                AssertEqual((ushort)0x0002, discovery!.AnimationFrameTimer.RawValue, "update 3012 discovery Samus animation timer");
                 AssertEqual((ushort)0, discovery.AnimationFrame, "update 3012 discovery Samus animation frame");
                 break;
             case 3990:

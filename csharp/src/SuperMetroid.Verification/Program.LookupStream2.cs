@@ -138,7 +138,7 @@ internal static class LookupStream2Verification
         enemies.Presentation._cgram = cgram;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0;
-        var state = new WreckedShipGhostEnemyState(slot) { PhaseTimer = 2 };
+        var state = new WreckedShipGhostEnemyState(slot) { PhaseTimer = NativeCountdown.Start(2) };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = enemies.WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = enemies.WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
         var native = new ushort[16];
@@ -1356,8 +1356,8 @@ internal static class LookupStream2Verification
                 slot.EnemyDefinitionPointer = EnemyDefinitionId.Gamet;
                 slot.Position = slot.Position.WithWhole(new(128, 128)); slot.Parameter2 = 64;
                 enemies.PipeBugsBehavior.InitializeNorfairPipeBug(slot);
-                slot.InstructionTimer = (ushort)(member + 4);
-                slot.Timer = (ushort)(member + 8);
+                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)(member + 4));
+                slot.Timer = NativeCountdown.FromRaw((ushort)(member + 8));
             }
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
             enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], enemies.PipeBugStates[0]!, samus);
@@ -1372,9 +1372,9 @@ internal static class LookupStream2Verification
                 AssertEqual(samusX < 128 ? NorfairPipeBugInstructionProgramDefinitions.RisingLeft
                     : NorfairPipeBugInstructionProgramDefinitions.RisingRight,
                     enemies.SlotTable.Slots[member].CurrentInstruction, "Actual formation selects facing");
-                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].InstructionTimer,
+                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].InstructionTimer.RawValue,
                     "Only leader instruction timer resets");
-                AssertEqual((ushort)(member == 0 ? 0 : member + 8), enemies.SlotTable.Slots[member].Timer,
+                AssertEqual((ushort)(member == 0 ? 0 : member + 8), enemies.SlotTable.Slots[member].Timer.RawValue,
                     "Only leader loop counter resets");
             }
         }
@@ -1481,7 +1481,7 @@ internal static class LookupStream2Verification
             {
                 var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.InstructionTimer = 1; side.Position = side.Position.WithX(100).WithY(100); }
+                { side.InstructionPointer = start; side.InstructionTimer = NativeCountdown.Start(1); side.Position = side.Position.WithX(100).WithY(100); }
             }
             for (int frame = 0; frame < 80; frame++)
             {
@@ -1494,7 +1494,7 @@ internal static class LookupStream2Verification
                 foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
                     AssertEqual(sides.Item1.InstructionPointer, sides.Item2.InstructionPointer, "Trail artwork cannot change instruction cursor");
-                    AssertEqual(sides.Item1.InstructionTimer, sides.Item2.InstructionTimer, "Trail artwork cannot change live timing");
+                    AssertEqual(sides.Item1.InstructionTimer.RawValue, sides.Item2.InstructionTimer.RawValue, "Trail artwork cannot change live timing");
                     AssertEqual(sides.Item1.Position.Y, sides.Item2.Position.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
@@ -1522,8 +1522,8 @@ internal static class LookupStream2Verification
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
         void StepNative(SamusProjectileTrailSlot pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)
         {
-            if (side.InstructionTimer == 0) return;
-            if (!frozen && --side.InstructionTimer == 0)
+            if (side.InstructionTimer.IsZero) return;
+            if (!frozen && (side.InstructionTimer = side.InstructionTimer.Decrement().Remaining).IsZero)
             {
                 ushort cursor = side.InstructionPointer;
                 while (true)
@@ -1531,7 +1531,7 @@ internal static class LookupStream2Verification
                     ushort word = ReadVerificationWord(bus, 0x900000 | cursor);
                     if (word < 0x8000)
                     {
-                        side.InstructionTimer = word;
+                        side.InstructionTimer = NativeCountdown.FromRaw(word);
                         if (word == 0) return;
                         side.TileNumberAttributes = ReadVerificationWord(bus, 0x900000 | (cursor + 2));
                         side.InstructionPointer = (ushort)(cursor + 4);
@@ -1571,7 +1571,7 @@ internal static class LookupStream2Verification
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Trails.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");
-            AssertEqual(1, trail.Left.InstructionTimer, "Selector extraction leaves allocation timer unchanged");
+            AssertEqual(1, trail.Left.InstructionTimer.RawValue, "Selector extraction leaves allocation timer unchanged");
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
         Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
@@ -1882,33 +1882,33 @@ internal static class LookupStream2Verification
             AssertEqual(unchecked((ushort)(32 + originalX)), slot.Position.X.Whole, "Ghost actual wrapped spawn X");
             AssertEqual(unchecked((ushort)(65520 + originalY)), slot.Position.Y.Whole, "Ghost actual wrapped spawn Y");
             AssertEqual(WreckedShipGhostAiFunction.BrighteningAndFlickering, state.Function, "Ghost appearance phase");
-            AssertEqual((ushort)64, state.StablePositionTimer, "Ghost appearance position timer");
-            AssertEqual((ushort)16, state.StableDirectionTimer, "Ghost appearance direction timer");
+            AssertEqual((ushort)64, state.StablePositionTimer.RawValue, "Ghost appearance position timer");
+            AssertEqual((ushort)16, state.StableDirectionTimer.RawValue, "Ghost appearance direction timer");
         }
         for (int offset = 0; offset < 34; offset++)
         {
             short original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (offset / 2)));
             AssertEqual(original, WreckedShipGhostAppearanceDefinitions.FlickerDuration(offset / 2), "Ghost original flicker interval");
             slot.Properties = (ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
-            state.PhaseTimer = 1;
+            state.PhaseTimer = NativeCountdown.Start(1);
             state.FlickerTableOffset = (ushort)offset;
             flicker(slot, state);
-            AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer, "Ghost actual next interval");
+            AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer.RawValue, "Ghost actual next interval");
             AssertEqual(original < 0 ? (ushort)0 : (ushort)(offset + 2), state.FlickerTableOffset, "Ghost actual next offset including odd folding");
             bool remainsInvisible = original < 0 || (offset & 2) != 0;
             AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), slot.Properties, "Ghost actual visibility preserves unrelated flags");
         }
-        state.PhaseTimer = 2;
+        state.PhaseTimer = NativeCountdown.Start(2);
         state.FlickerTableOffset = 2;
         slot.Properties = (ushort)EnemyProperties.Invisible;
         flicker(slot, state);
-        AssertEqual((ushort)1, state.PhaseTimer, "Ghost interval countdown");
+        AssertEqual((ushort)1, state.PhaseTimer.RawValue, "Ghost interval countdown");
         AssertEqual((ushort)2, state.FlickerTableOffset, "Ghost no early interval advance");
         AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties, "Ghost no early visibility change");
-        state.PhaseTimer = 0;
+        state.PhaseTimer = NativeCountdown.Start(0);
         flicker(slot, state);
         AssertEqual((ushort)0, slot.Properties, "Ghost terminal next call clears invisibility");
-        state.PhaseTimer = 1;
+        state.PhaseTimer = NativeCountdown.Start(1);
         state.FlickerTableOffset = 34;
         AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");
         state.SpawnColumnOffset = 1;
@@ -2188,7 +2188,7 @@ internal static class LookupStream2Verification
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
             AssertTrue(!remaining.Contains(pointer), "Stock compass selector is absent from stored residuals");
-            var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
+            var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = NativeCountdown.Start(1) };
             var system = new SamusProjectileSystem { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
@@ -2196,11 +2196,11 @@ internal static class LookupStream2Verification
             string original = document.Frames[key];
             document.Frames[key] = ProjectileSpriteDefinitions.Name(ProjectileSpriteDefinitions.NativePointers[0]);
             var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
-            var editedShot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
+            var editedShot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = NativeCountdown.Start(1) };
             system.Animation.FrameBindings = edited;
             _ = system.Animation.RunProjectileInstructionHandler(editedShot);
             AssertEqual(ProjectileSpriteDefinitions.NativePointers[0], editedShot.SpritemapPointer, "Independent direction edit overrides calculation in actual handler");
-            AssertEqual(shot.InstructionTimer, editedShot.InstructionTimer, "Visual edit preserves duration");
+            AssertEqual(shot.InstructionTimer.RawValue, editedShot.InstructionTimer.RawValue, "Visual edit preserves duration");
             AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Visual edit preserves control flow");
             AssertEqual(shot.Radius.X, editedShot.Radius.X, "Visual edit preserves horizontal radius");
             AssertEqual(shot.Radius.Y, editedShot.Radius.Y, "Visual edit preserves vertical radius");
@@ -2232,7 +2232,7 @@ internal static class LookupStream2Verification
                 checkedCappedSweep++;
             }
             AssertTrue(!remaining.Contains(pointer), "Calculated Wave/Ice selector is absent from stored residuals");
-            var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
+            var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = NativeCountdown.Start(1) };
             var system = new SamusProjectileSystem { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
@@ -2243,10 +2243,10 @@ internal static class LookupStream2Verification
             document.Frames[key] = ProjectileSpriteDefinitions.Name(replacement);
             var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
             system.Animation.FrameBindings = edited;
-            var editedShot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
+            var editedShot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = NativeCountdown.Start(1) };
             _ = system.Animation.RunProjectileInstructionHandler(editedShot);
             AssertEqual(replacement, editedShot.SpritemapPointer, "Every Wave/Ice supplied edit takes precedence");
-            AssertEqual(shot.InstructionTimer, editedShot.InstructionTimer, "Wave/Ice visual edit preserves duration");
+            AssertEqual(shot.InstructionTimer.RawValue, editedShot.InstructionTimer.RawValue, "Wave/Ice visual edit preserves duration");
             AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Wave/Ice visual edit preserves flow");
             AssertEqual(shot.Radius.X, editedShot.Radius.X, "Wave/Ice visual edit preserves X radius");
             AssertEqual(shot.Radius.Y, editedShot.Radius.Y, "Wave/Ice visual edit preserves Y radius");
@@ -2260,7 +2260,7 @@ internal static class LookupStream2Verification
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
-            var bomb = new SamusBombProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1, Type = 0x0500 };
+            var bomb = new SamusBombProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = NativeCountdown.Start(1), Type = 0x0500 };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             _ = bombs.RunProjectileInstructionHandler(bomb);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");

@@ -91,7 +91,7 @@ internal sealed class BombTorizoHandPlms
 
         // The sleeping opcode leaves Y pointing at itself. D33B adds two to skip that word,
         // restores the instruction timer to one, and replaces its pre-instruction with RTS.
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
         slot.PreInstruction = 0;
     }

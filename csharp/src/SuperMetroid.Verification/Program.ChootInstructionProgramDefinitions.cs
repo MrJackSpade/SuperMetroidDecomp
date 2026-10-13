@@ -66,7 +66,7 @@ internal static class ChootInstructionProgramDefinitionsVerification
         AssertTrue((slot.Properties & (ushort)EnemyProperties.ProcessOffScreen) == 0,
             "Choot idle program disables off-screen processing");
 
-        state.JumpDelayTimer = 0;
+        state.JumpDelayTimer = NativeCountdown.Start(0);
         prepareJump(slot, state);
         AssertEqual(ChootInstructionProgramDefinitions.Jumping, slot.CurrentInstruction,
             "Choot real preparation handoff installs jumping program");
@@ -125,10 +125,10 @@ internal static class ChootInstructionProgramDefinitionsVerification
         AssertEqual(entry, slot.CurrentInstruction, "Choot compiled program entry");
         for (int frame = 0; frame < timedFrameCount; frame++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, processArguments);
         }
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(unchecked((ushort)(entry + timedFrameCount * 4 + 2)),
             slot.CurrentInstruction,

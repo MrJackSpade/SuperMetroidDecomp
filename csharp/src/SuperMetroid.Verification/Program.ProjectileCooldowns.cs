@@ -44,7 +44,7 @@ internal static class ProjectileCooldownsVerification
             var result = projectiles.Firing.TryFireBeam(bus, room, samus, edge, shared, null, charged);
             AssertEqual((int?)0, result.Slot, "Cooldown check exercises the actual successful producer");
             int address = charged ? 0x90c264 + beam : edge == 0 ? 0x90c283 + beam : 0x90c254 + beam;
-            AssertEqual((ushort)retail.ReadCartridgeByte(address), shared.CooldownTimer,
+            AssertEqual((ushort)retail.ReadCartridgeByte(address), shared.CooldownTimer.RawValue,
                 "Native charged/fresh/held selection installs exact shared delay");
         }
         // Original source 2778 releases an uncharged shot via the pose handoff,
@@ -60,7 +60,7 @@ internal static class ProjectileCooldownsVerification
             projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? (ushort)0 : (ushort)SnesButton.X }, new(0, 0), shared);
             AssertEqual((int?)0, slotsBefore.FiredSlot(projectiles),
                 "native handoff/previous-edge shot is produced");
-            AssertEqual((ushort)15, shared.CooldownTimer, "Charge equipment or previous Shoot edge selects ordinary cooldown");
+            AssertEqual((ushort)15, shared.CooldownTimer.RawValue, "Charge equipment or previous Shoot edge selects ordinary cooldown");
         }
         foreach (ushort beam in new ushort[] { 0, 10 })
         {
@@ -88,7 +88,7 @@ internal static class ProjectileCooldownsVerification
             AssertTrue(projectiles.Combos.TryActivateCombo(bus, samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");
             AssertEqual((ushort)retail.ReadCartridgeByte(0x90c254 + (projectiles.Slots[0].Type & 0x3f)),
-                shared.CooldownTimer, "Combo retains six-bit index into padding/non-beam neighbors");
+                shared.CooldownTimer.RawValue, "Combo retains six-bit index into padding/non-beam neighbors");
         }
         Console.WriteLine("Projectile cooldowns: 59 native bytes, bounded SpaceTime observation, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
     }

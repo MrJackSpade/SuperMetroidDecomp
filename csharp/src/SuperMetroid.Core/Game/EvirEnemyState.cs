@@ -40,10 +40,10 @@ public sealed class EvirEnemyState
     }
 
     /// <summary>Body bobbing countdown in native common variable E.</summary>
-    public ushort MovementTimer
+    public NativeCountdown MovementTimer
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => NativeCountdown.FromRaw(_slot.VariableE);
+        internal set => _slot.VariableE = value.RawValue;
     }
 
     /// <summary>Regeneration X offset in native common variable F.</summary>

@@ -49,8 +49,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         slot.Properties = slot.Properties.With(
             EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
         slot.CurrentInstruction = DeadTorizoInstructionProgramDefinitions.Stationary;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.PaletteIndex = EnemyPaletteBits.Palette1;
         slot.VariableB = 0;
         slot.VariableC = 8;

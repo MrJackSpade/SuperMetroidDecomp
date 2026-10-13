@@ -96,7 +96,7 @@ internal sealed class GreyDoorPlms
             door.PendingProjectileType = default;
             door.Phase = GreyDoorPhase.Flashing;
             slot.InstructionPointer = door.FlashList;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             slot.LoopTimer = 0;
             return false;
         }
@@ -118,7 +118,7 @@ internal sealed class GreyDoorPlms
             // remains responsible for sound seven, all four authored draws, and deletion.
             door.Phase = GreyDoorPhase.Opening;
             slot.InstructionPointer = door.OpeningList;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
         }
 
         // Flashing and opening streams contain only timer/draw pairs, Goto, sound, and

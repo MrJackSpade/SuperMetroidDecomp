@@ -90,7 +90,7 @@ internal sealed class TourianUnlockBehavior
                 if ((projectile.Position.Y.Whole & 0x100) != 0)
                 {
                     projectile.InstructionPointer = TourianStatueRomData.DeleteProjectile;
-                    projectile.InstructionTimer = 1;
+                    projectile.InstructionTimer = NativeCountdown.Start(1);
                 }
                 projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue - 128))));
                 return true;
@@ -102,7 +102,7 @@ internal sealed class TourianUnlockBehavior
                 if (SnesLittleEndian.HighByte(projectile.Position.Y.Whole) == 1)
                 {
                     projectile.InstructionPointer = TourianStatueRomData.DeleteProjectile;
-                    projectile.InstructionTimer = 1;
+                    projectile.InstructionTimer = NativeCountdown.Start(1);
                 }
                 else projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + (16)))));
                 return true;
@@ -137,7 +137,7 @@ internal sealed class TourianUnlockBehavior
                 break;
             case TourianStatueInstruction.Earthquake:
                 _earthquake.EarthquakeType = 1;
-                _earthquake.EarthquakeTimer |= 0x20;
+                _earthquake.EarthquakeTimer = NativeCountdown.FromRaw(unchecked((ushort)(_earthquake.EarthquakeTimer.RawValue | 0x20)));
                 break;
             case TourianStatueInstruction.AddY:
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + (EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(

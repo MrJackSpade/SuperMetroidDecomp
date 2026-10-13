@@ -34,7 +34,7 @@ internal static class MotherBrainFakeDeathLockVerification
         samus.InputLocked = false;
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain!;
         state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
-        state.FunctionTimer = 0;
+        state.FunctionTimer = NativeCountdown.Start(0);
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
@@ -42,7 +42,7 @@ internal static class MotherBrainFakeDeathLockVerification
             "the descent locks Samus with command zero's stationary handlers");
 
         state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock;
-        state.FunctionTimer = 0;
+        state.FunctionTimer = NativeCountdown.Start(0);
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
         AssertTrue(!samus.InputLocked && !samus.ScriptLocks.StationaryScriptControlLocked,
             "command one restores the normal handlers");

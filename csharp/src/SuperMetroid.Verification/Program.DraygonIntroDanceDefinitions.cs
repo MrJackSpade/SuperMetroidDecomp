@@ -172,12 +172,12 @@ internal static class DraygonIntroDanceDefinitionsVerification
             }
         }
 
-        AssertEqual(DraygonIntroDanceDefinitions.DurationFrames, state.FunctionTimer,
+        AssertEqual(DraygonIntroDanceDefinitions.DurationFrames, state.FunctionTimer.RawValue,
             "Draygon intro exact native duration");
         run(state, null, 1);
         AssertEqual(DraygonAiFunction.SwoopRightSetup, state.Function,
             "Draygon intro transitions to right-swoop setup after the native duration");
-        AssertEqual((ushort)0, state.FunctionTimer,
+        AssertEqual((ushort)0, state.FunctionTimer.RawValue,
             "Draygon intro clears the function timer at the native handoff");
 
         // A restored index can be corrupt while the owner is still inside its native

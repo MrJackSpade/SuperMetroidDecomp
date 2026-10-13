@@ -49,7 +49,7 @@ internal static class BossDisplayBindingsFixtureVerification
         }
 
         internal void SetProgram(ushort pointer)
-        { Actor.CurrentInstruction = pointer; Actor.InstructionTimer = 1; Actor.Timer = 0; }
+        { Actor.CurrentInstruction = pointer; Actor.InstructionTimer = NativeCountdown.Start(1); Actor.Timer = NativeCountdown.Start(0); }
         internal void Step() => instructions(Actor, null, null, Position16<RoomPixels>.Zero, 0);
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal (bool Hit, ushort Callback) Hitbox(Position16<RoomPixels> probe, bool shot)

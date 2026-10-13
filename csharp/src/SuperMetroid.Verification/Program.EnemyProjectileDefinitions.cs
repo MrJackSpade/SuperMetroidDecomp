@@ -52,7 +52,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 $"{kind} production pre-instruction");
             AssertEqual(definition.InitialInstructionList, projectile.InstructionPointer,
                 $"{kind} production initial list");
-            AssertEqual((ushort)1, projectile.InstructionTimer,
+            AssertEqual((ushort)1, projectile.InstructionTimer.RawValue,
                 $"{kind} production timer");
             AssertEqual((ushort)0x8000, projectile.SpritemapPointer,
                 $"{kind} production initial spritemap");

@@ -56,22 +56,22 @@ internal static class SpikeShinesparkSuitVerification
         uint frozenX = frozenSamus.Kinematics.Position.X.RawValue;
         uint frozenY = frozenSamus.Kinematics.Position.Y.RawValue;
         ushort frozenAnimationFrame = frozenSamus.AnimationFrame;
-        ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer;
+        ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer.RawValue;
         ushort frozenShineTimer = frozenSamus.InputSnapshot.SharedShineTimer;
         SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
-        ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer;
+        ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer.RawValue;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
             shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.Nmi.NmiFrameCounter) });
         AssertEqual((frozenX, frozenY),
             (frozenSamus.Kinematics.Position.X.RawValue, frozenSamus.Kinematics.Position.Y.RawValue),
             "Reserve command zero freezes spike-knockback position");
         AssertEqual((frozenAnimationFrame, frozenAnimationTimer),
-            (frozenSamus.AnimationFrame, frozenSamus.AnimationFrameTimer),
+            (frozenSamus.AnimationFrame, frozenSamus.AnimationFrameTimer.RawValue),
             "Reserve command zero freezes the unmorph animation cursor");
         AssertEqual((frozenShineTimer, frozenPalette),
             (frozenSamus.InputSnapshot.SharedShineTimer, frozenSamus.Shinespark.PaletteType),
             "Reserve command zero freezes stored-shine palette progression");
-        AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackTimer,
+        AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackTimer.RawValue,
             "global hurt timer continues while Reserve owns Samus");
         AssertTrue(frozenSamus.KnockbackActive && frozenSamus.KnockbackDirection != 0,
             "Reserve command zero retains the interrupted knockback movement owner");

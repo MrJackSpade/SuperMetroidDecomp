@@ -93,7 +93,7 @@ public sealed class BotwoonEnemyState
     /// <summary>Byte distance between successive body samples in the history ring, selected inversely to movement speed: 24, 16, or 12.</summary>
     public ushort SegmentSpacingBytes { get; internal set; }
     /// <summary>Initial unsigned countdown, seeded to 256 and decremented until zero before normal traversal begins.</summary>
-    public ushort InitialDelayTimer { get; internal set; }
+    public NativeCountdown InitialDelayTimer { get; internal set; }
     /// <summary>Spit-action cooldown, seeded to 48 for the stationary attack and decremented to signed underflow by the head callback before being pinned to zero.</summary>
     public ushort AttackTimer { get; internal set; }
     /// <summary>Pre-fall death count, seeded to 240 once the tail completes the hole transition and incremented toward 256.</summary>
@@ -103,9 +103,9 @@ public sealed class BotwoonEnemyState
     /// <summary>Elapsed wall-explosion update count 0 through 192, also used as the vertical progression of randomized explosion positions.</summary>
     public ushort WallExplosionFrame { get; internal set; }
     /// <summary>Large wall-explosion countdown, active from update 64 and reloaded to 12 after signed underflow.</summary>
-    public ushort LargeExplosionTimer { get; internal set; }
+    public NativeCountdown LargeExplosionTimer { get; internal set; }
     /// <summary>Small wall-explosion countdown, active from update 64 and reloaded to four after signed underflow to emit a pair of effects.</summary>
-    public ushort SmallExplosionTimer { get; internal set; }
+    public NativeCountdown SmallExplosionTimer { get; internal set; }
     /// <summary>Health-selected movement magnitude 2, 3, or 4: pixels per direct-vector update or signed path samples consumed per authored-path update.</summary>
     public ushort Speed { get; internal set; }
     /// <summary>Byte offset 0, 8, 16, or 24 selecting one of four hole rectangles and its direct-movement target.</summary>

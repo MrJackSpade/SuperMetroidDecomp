@@ -51,7 +51,7 @@ internal static class PowerBombDeathRadiusVerification
                 AssertEqual(killerRespawns ? EnemyDefinitionId.Respawn : (ushort)0,
                     higher.EnemyDefinitionPointer, label + ": higher slot dies first");
             }
-            AssertEqual(expectLowerHit ? (ushort)48 : (ushort)0, lower.InvincibilityTimer,
+            AssertEqual(expectLowerHit ? (ushort)48 : (ushort)0, lower.InvincibilityTimer.RawValue,
                 label + ": lower slot invincibility");
             AssertEqual(expectLowerHit, lower.Health < 1000, label + ": lower slot damage");
         }

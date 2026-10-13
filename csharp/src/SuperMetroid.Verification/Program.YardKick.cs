@@ -27,7 +27,7 @@ internal static class YardKickVerification
             state.MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = YardBehavior.NormalCrawling;
             samus.Position = samus.Position.WithWhole(actor.Position.Whole);
-            samus.InvincibilityTimer = 0;
+            samus.InvincibilityTimer = NativeCountdown.Start(0);
             samus.AbsoluteMovedLastFrameXFixed = (SnesSixteenSixteen.FromWhole((uint)whole)) | fraction;
             AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0, assets.LevelData, actor.NativeIndex),
                 "Yard kick enters through native contact dispatcher");

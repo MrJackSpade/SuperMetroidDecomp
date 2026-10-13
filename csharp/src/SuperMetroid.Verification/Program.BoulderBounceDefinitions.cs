@@ -25,12 +25,12 @@ internal static class BoulderBounceDefinitionsVerification
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(expected, BoulderBounceDefinitions.SpeedIndex(counter), "Boulder native leading-zero/bounce word");
             actor.Position = actor.Position.WithY(new(55, 0));
-            state.BounceCounter = counter;
+            state.BounceCounter = NativeCountdown.FromRaw(counter);
             state.BounceSpeedAccumulator = 0x2000;
             state.Function = BoulderAiFunction.Falling;
             fall(actor, state, level);
             AssertEqual(expected, state.BounceSpeedAccumulator, "Boulder real collision installs compiled sample without bus");
-            AssertEqual(unchecked((ushort)(counter - 1)), state.BounceCounter, "Boulder native bounce underflow");
+            AssertEqual(unchecked((ushort)(counter - 1)), state.BounceCounter.RawValue, "Boulder native bounce underflow");
             AssertEqual(counter == 0 ? BoulderAiFunction.Rolling : BoulderAiFunction.Rebound,
                 state.Function, "Boulder last collision enters rolling");
             if (counter == 0)

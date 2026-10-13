@@ -56,7 +56,7 @@ internal static class WreckedShipGhostInstructionProgramDefinitionsVerification
             [ghost, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int call = 0; call < 4; call++)
         {
-            ghost.InstructionTimer = 1;
+            ghost.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, processArguments);
         }
 

@@ -59,9 +59,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
             StopMovementNextFrame = false,
             Function = MaridiaLargeSnailEnemyFunction.Idle,
             YSpeedTableIndex = 0,
-            AttackCooldown = MaridiaLargeSnailInitialAttackCooldown,
+            AttackCooldown = NativeCountdown.Start(MaridiaLargeSnailInitialAttackCooldown),
             MovingLeft = false,
-            RemainingBounces = MaridiaLargeSnailInitialBounceCount,
+            RemainingBounces = NativeCountdown.Start(MaridiaLargeSnailInitialBounceCount),
             BounceFunction = MaridiaLargeSnailBounceFunction.Falling,
         };
         _maridiaLargeSnailStates[slot.SlotIndex] = state;
@@ -117,7 +117,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         SamusState samus,
         RoomLevelData level)
     {
-        if (state.RemainingBounces != 0)
+        if (!state.RemainingBounces.IsZero)
         {
             RunMaridiaLargeSnailBounce(slot, state, level);
             return;
@@ -151,7 +151,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         SamusState samus,
         RoomLevelData level)
     {
-        if (state.RemainingBounces != 0)
+        if (!state.RemainingBounces.IsZero)
         {
             RunMaridiaLargeSnailBounce(slot, state, level);
         }
@@ -161,7 +161,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
             // complete three-impact settling sequence without skipping horizontal work.
             state.YSpeedTableIndex = 0;
             state.BounceFunction = MaridiaLargeSnailBounceFunction.Falling;
-            state.RemainingBounces = MaridiaLargeSnailInitialBounceCount;
+            state.RemainingBounces = NativeCountdown.Start(MaridiaLargeSnailInitialBounceCount);
         }
 
         // StopMovementNextFrame was produced at the end of the preceding main-AI call. The
@@ -169,17 +169,17 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         if (state.StopMovementNextFrame)
             return;
 
-        state.AttackCooldown = unchecked((ushort)(state.AttackCooldown - 1));
-        bool cooldownExpired = unchecked((short)state.AttackCooldown) < 0;
+        state.AttackCooldown = state.AttackCooldown.Decrement().Remaining;
+        bool cooldownExpired = state.AttackCooldown.IsNegative;
         if (cooldownExpired)
         {
-            state.AttackCooldown = 0;
+            state.AttackCooldown = NativeCountdown.Start(0);
             bool mayAttack = EnemyMath.IsWithinStrictModularDistance(
                     samus.Position.X.Whole,
                     slot.Position.X.Whole,
                     MaridiaLargeSnailAttackXDistance) &&
                 state.AttackAllowsRotation &&
-                state.RemainingBounces == 0;
+                state.RemainingBounces.IsZero;
             if (mayAttack)
             {
                 state.RequestedInstructionListIndex = 0;
@@ -190,7 +190,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
                     state.MovingLeft = true;
                 }
 
-                state.AttackCooldown = MaridiaLargeSnailInitialAttackCooldown;
+                state.AttackCooldown = NativeCountdown.Start(MaridiaLargeSnailInitialAttackCooldown);
                 state.RequestedInstructionListIndex = unchecked((ushort)(
                     (state.RequestedInstructionListIndex & 1) | 4));
                 InstallMaridiaLargeSnailInstructionList(slot, state);
@@ -242,11 +242,11 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
                     return;
                 }
 
-                state.RemainingBounces = unchecked((ushort)(state.RemainingBounces - 1));
+                state.RemainingBounces = state.RemainingBounces.Decrement().Remaining;
                 state.YSpeedTableIndex = unchecked((ushort)(
                     state.YSpeedTableIndex - MaridiaLargeSnailImpactIndexLoss));
                 if (unchecked((short)state.YSpeedTableIndex) < 0)
-                    state.RemainingBounces = 0;
+                    state.RemainingBounces = NativeCountdown.Start(0);
                 state.BounceFunction = MaridiaLargeSnailBounceFunction.Rising;
                 return;
 
@@ -475,8 +475,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         state.InstalledInstructionListIndex = state.RequestedInstructionListIndex;
         slot.CurrentInstruction = MaridiaLargeSnailInstructionDefinitions
             .InstructionPointer(state.RequestedInstructionListIndex);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     /// <summary>

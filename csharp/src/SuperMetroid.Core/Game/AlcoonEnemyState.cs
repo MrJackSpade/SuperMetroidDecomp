@@ -128,9 +128,9 @@ public sealed class AlcoonEnemyState
     }
 
     /// <summary>Number of four-step walking cycles remaining before another fire volley.</summary>
-    public ushort StepCounter
+    public NativeCountdown StepCounter
     {
-        get => _stepCounters[_slot.SlotIndex];
-        internal set => _stepCounters[_slot.SlotIndex] = value;
+        get => NativeCountdown.FromRaw(_stepCounters[_slot.SlotIndex]);
+        internal set => _stepCounters[_slot.SlotIndex] = value.RawValue;
     }
 }

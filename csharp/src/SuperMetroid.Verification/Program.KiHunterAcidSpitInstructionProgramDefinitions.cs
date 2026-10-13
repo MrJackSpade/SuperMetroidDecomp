@@ -144,7 +144,7 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
             AssertEqual(installedPreInstruction, projectile.PreInstruction,
                 $"{projectile.Kind} installs its one-shot movement callback");
             RunForcedTicks(projectile, 1);
-            AssertEqual((ushort)0, projectile.InstructionTimer,
+            AssertEqual((ushort)0, projectile.InstructionTimer.RawValue,
                 $"{projectile.Kind} terminal sleep stops its instruction timer");
         }
 
@@ -152,9 +152,9 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
         {
             for (int tick = 0; tick < count; tick++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
-                if (projectile.IsActive && projectile.InstructionTimer != 0)
+                if (projectile.IsActive && !projectile.InstructionTimer.IsZero)
                 {
                     ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));
                     AssertEqual(operand, projectile.PresentationOperandAddress,

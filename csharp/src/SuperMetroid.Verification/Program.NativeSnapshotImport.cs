@@ -67,8 +67,8 @@ internal static class NativeSnapshotImportVerification
             paletteSlot.ColorByteIndex = W(NativeSnapshotMemory.PaletteFxColor + slot * 2);
             paletteSlot.PreInstruction = W(NativeSnapshotMemory.PaletteFxPreInstruction + slot * 2);
             paletteSlot.InstructionPointer = W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2);
-            paletteSlot.InstructionTimer = W(NativeSnapshotMemory.PaletteFxInstructionTimer + slot * 2);
-            paletteSlot.Timer = W(NativeSnapshotMemory.PaletteFxTimer + slot * 2);
+            paletteSlot.InstructionTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxInstructionTimer + slot * 2));
+            paletteSlot.Timer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2));
         }
         runtime.RoomPaletteFx.samusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
         runtime.RoomPaletteFx.previousSamusInHeatPaletteIndex = W(NativeSnapshotMemory.PreviousHeatPalettePhase);
@@ -114,8 +114,8 @@ internal static class NativeSnapshotImportVerification
         samus.HorizontalSpeed.TotalSubspeed = W(NativeSnapshotMemory.TotalHorizontalSubspeed);
         runtime.Projectiles.SlotTable.ProjectileCounter = W(NativeSnapshotMemory.ProjectileCount);
         runtime.Projectiles.Charge.PreviousBeamChargeCounter = W(NativeSnapshotMemory.PreviousCharge);
-        runtime.Projectiles.Firing.ProjectileInvincibilityTimer = W(NativeSnapshotMemory.ProjectileInteractionImmunity);
-        runtime.Projectiles.Charge.ChargedShotGlowTimer = W(NativeSnapshotMemory.ChargedShotGlow);
+        runtime.Projectiles.Firing.ProjectileInvincibilityTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.ProjectileInteractionImmunity));
+        runtime.Projectiles.Charge.ChargedShotGlowTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.ChargedShotGlow));
         runtime.Projectiles.Charge.SamusChargePaletteIndex = W(NativeSnapshotMemory.ChargePaletteIndex);
         runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
         samus.BombSpreadChargeTimeoutCounter = W(NativeSnapshotMemory.BombSpreadChargeTimeout);
@@ -134,8 +134,8 @@ internal static class NativeSnapshotImportVerification
         samus.EquippedBeams = W(NativeSnapshotMemory.Beams);
         samus.Health = W(NativeSnapshotMemory.Health);
         samus.MaxHealth = W(NativeSnapshotMemory.MaxHealth);
-        samus.InvincibilityTimer = W(NativeSnapshotMemory.InvincibilityTimer);
-        samus.KnockbackTimer = W(NativeSnapshotMemory.KnockbackTimer);
+        samus.InvincibilityTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.InvincibilityTimer));
+        samus.KnockbackTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.KnockbackTimer));
         samus.KnockbackDirection = W(NativeSnapshotMemory.KnockbackDirection);
         samus.KnockbackXDirection = W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlashCounter = W(NativeSnapshotMemory.HurtFlashCounter);
@@ -182,8 +182,8 @@ internal static class NativeSnapshotImportVerification
 
         foreach (var trail in runtime.Projectiles.TrailSlots)
         {
-            trail.Left.InstructionTimer = W(NativeSnapshotMemory.TrailLeftInstructionTimer + trail.NativeByteIndex);
-            trail.Right.InstructionTimer = W(NativeSnapshotMemory.TrailRightInstructionTimer + trail.NativeByteIndex);
+            trail.Left.InstructionTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.TrailLeftInstructionTimer + trail.NativeByteIndex));
+            trail.Right.InstructionTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.TrailRightInstructionTimer + trail.NativeByteIndex));
             trail.Left.InstructionPointer = W(NativeSnapshotMemory.TrailLeftInstructionPointer + trail.NativeByteIndex);
             trail.Right.InstructionPointer = W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.NativeByteIndex);
             trail.Left.TileNumberAttributes = W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex);
@@ -250,16 +250,16 @@ internal static class NativeSnapshotImportVerification
             slot.AiHandlerBits = W(address + 18);
             slot.Health = W(address + 20);
             slot.SpritemapPointer = W(address + 22);
-            slot.Timer = W(address + 24);
+            slot.Timer = NativeCountdown.FromRaw(W(address + 24));
             slot.CurrentInstruction = W(address + 26);
-            slot.InstructionTimer = W(address + 28);
+            slot.InstructionTimer = NativeCountdown.FromRaw(W(address + 28));
             slot.PaletteIndex = W(address + 30);
             slot.VramTilesIndex = W(address + 32);
             slot.Layer = W(address + 34);
-            slot.FlashTimer = W(address + 36);
-            slot.FrozenTimer = W(address + 38);
-            slot.InvincibilityTimer = W(address + 40);
-            slot.ShakeTimer = W(address + 42);
+            slot.FlashTimer = NativeCountdown.FromRaw(W(address + 36));
+            slot.FrozenTimer = NativeCountdown.FromRaw(W(address + 38));
+            slot.InvincibilityTimer = NativeCountdown.FromRaw(W(address + 40));
+            slot.ShakeTimer = NativeCountdown.FromRaw(W(address + 42));
             slot.FrameCounter = W(address + 44);
             slot.VariableA = W(address + 48);
             slot.VariableB = W(address + 50);
@@ -331,7 +331,7 @@ internal static class NativeSnapshotImportVerification
                 projectile, kind, W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
             projectile.PreInstruction = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
             projectile.InstructionPointer = W(NativeSnapshotMemory.EnemyProjectileInstruction + index);
-            projectile.InstructionTimer = W(NativeSnapshotMemory.EnemyProjectileInstructionTimer + index);
+            projectile.InstructionTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.EnemyProjectileInstructionTimer + index));
             projectile.GeneralTimer = W(NativeSnapshotMemory.EnemyProjectileTimer + index);
             projectile.Position = projectile.Position
                 .WithFractionX(W(NativeSnapshotMemory.EnemyProjectileXFraction + index))

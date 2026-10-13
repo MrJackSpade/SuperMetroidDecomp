@@ -26,25 +26,25 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 state.Function = DeadSidehopperAiFunction.PostLandingDelay;
-                state.StateTimer = (ushort)raw;
+                state.StateTimer = NativeCountdown.FromRaw((ushort)raw);
                 state.PaletteStage = paletteStage;
                 state.JumpPhase = phase;
                 state.Velocity = new EightEightVector<RoomPixels>(0x1234, 0x1234);
                 slot.CurrentInstruction = 0x5678;
-                slot.InstructionTimer = 9;
-                slot.Timer = 17;
+                slot.InstructionTimer = NativeCountdown.Start(9);
+                slot.Timer = NativeCountdown.Start(17);
                 dispatch(slot, state, null, null, 0);
                 ushort timer = unchecked((ushort)(raw - 1));
                 bool expired = (timer & 0x8000) != 0;
                 bool launch = expired && paletteStage == 0;
-                AssertEqual(timer, state.StateTimer, "Exact native delay decrement and wrap");
+                AssertEqual(timer, state.StateTimer.RawValue, "Exact native delay decrement and wrap");
                 AssertEqual(launch ? vx : (ushort)0x1234, state.Velocity.X.RawValue, "Timer and palette gates control X launch");
                 AssertEqual(launch ? vy : (ushort)0x1234, state.Velocity.Y.RawValue, "Timer and palette gates control Y launch");
                 AssertEqual(expired ? (launch ? DeadSidehopperAiFunction.ActivatedMovement : DeadSidehopperAiFunction.TransformPalette) : DeadSidehopperAiFunction.PostLandingDelay,
                     state.Function, "Exact launch versus transformation handoff");
                 AssertEqual(launch ? (ushort)0xece3 : (ushort)0x5678, slot.CurrentInstruction, "Launch restarts native instruction list");
-                AssertEqual(launch ? (ushort)1 : (ushort)9, slot.InstructionTimer, "Launch instruction timer");
-                AssertEqual(launch ? (ushort)0 : (ushort)17, slot.Timer, "Launch clears instruction loop timer");
+                AssertEqual(launch ? (ushort)1 : (ushort)9, slot.InstructionTimer.RawValue, "Launch instruction timer");
+                AssertEqual(launch ? (ushort)0 : (ushort)17, slot.Timer.RawValue, "Launch clears instruction loop timer");
                 AssertEqual(phase, state.JumpPhase, "Launch does not advance landing-owned phase");
             }
         }

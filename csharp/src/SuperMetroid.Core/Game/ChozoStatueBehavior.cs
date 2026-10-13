@@ -96,8 +96,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             EnemyProperties.ProcessInstructions |
             EnemyProperties.ProcessOffScreen);
         statue.SpritemapPointer = EmptyBankAaSpritemap;
-        statue.InstructionTimer = 1;
-        statue.Timer = 0;
+        statue.InstructionTimer = NativeCountdown.Start(1);
+        statue.Timer = NativeCountdown.Start(0);
         statue.Parameter1 = 0;
         statue.PaletteIndex = 0;
 
@@ -199,7 +199,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
                 {
                     statue.CurrentInstruction =
                         ChozoStatueInstructionProgramDefinitions.LowerNorfairActivated;
-                    statue.InstructionTimer = 1;
+                    statue.InstructionTimer = NativeCountdown.Start(1);
                 }
                 return;
 
@@ -208,7 +208,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
                 {
                     statue.CurrentInstruction =
                         ChozoStatueInstructionProgramDefinitions.WreckedShipActivated;
-                    statue.InstructionTimer = 1;
+                    statue.InstructionTimer = NativeCountdown.Start(1);
                     state.VariableA = unchecked((ushort)-256);
                     state.VariableB = 256;
                 }

@@ -51,7 +51,7 @@ internal sealed class GunshipBehavior
         GunshipSavePromptPending = false;
         GunshipSaveRequested = save;
         top.VariableF = (ushort)GunshipFunction.WaitForExitPadToOpen;
-        pad.InstructionTimer = 1;
+        pad.InstructionTimer = NativeCountdown.Start(1);
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.SavePromptAnswered;
@@ -61,8 +61,8 @@ internal sealed class GunshipBehavior
     {
         slot.Properties = slot.Properties.With(
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.CurrentInstruction = GunshipInstructionProgramDefinitions.TopHull;
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
@@ -89,8 +89,8 @@ internal sealed class GunshipBehavior
     {
         slot.Properties = slot.Properties.With(
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.CurrentInstruction = slot.Parameter2 != 0
             ? GunshipInstructionProgramDefinitions.BottomEntrancePad
             : GunshipInstructionProgramDefinitions.BottomHull;
@@ -290,7 +290,7 @@ internal sealed class GunshipBehavior
         top.VariableC = 0;
         samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.Position.X.Whole + 1)));
         samus.WritePreviousXPosition(samus.Position.X.Whole);
-        pad.InstructionTimer = 1;
+        pad.InstructionTimer = NativeCountdown.Start(1);
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.LandingPadOpened;
@@ -309,7 +309,7 @@ internal sealed class GunshipBehavior
 
         RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
         top.VariableF = (ushort)GunshipFunction.FinishLanding;
-        pad.InstructionTimer = 1;
+        pad.InstructionTimer = NativeCountdown.Start(1);
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.LandingPadClosed;
@@ -381,7 +381,7 @@ internal sealed class GunshipBehavior
             samus.InputLocked = true;
             samus.Presentation.PrimeGraphics(_room.Bus!);
             pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
-            pad.InstructionTimer = 1;
+            pad.InstructionTimer = NativeCountdown.Start(1);
             pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
             top.VariableA = 144;
             LastGunshipEvent = GunshipFrameEvent.EntryStarted;
@@ -406,7 +406,7 @@ internal sealed class GunshipBehavior
 
         RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
         top.VariableF = (ushort)GunshipFunction.WaitForEntranceToClose;
-        pad.InstructionTimer = 1;
+        pad.InstructionTimer = NativeCountdown.Start(1);
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.EntryPadClosing;
@@ -456,7 +456,7 @@ internal sealed class GunshipBehavior
 
         RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
         top.VariableF = (ushort)GunshipFunction.FinishSamusExit;
-        pad.InstructionTimer = 1;
+        pad.InstructionTimer = NativeCountdown.Start(1);
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.ExitPadClosing;

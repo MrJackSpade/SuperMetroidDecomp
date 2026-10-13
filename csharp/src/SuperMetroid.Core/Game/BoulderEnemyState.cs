@@ -61,10 +61,10 @@ public sealed class BoulderEnemyState
     }
 
     /// <summary>Variable D. Its deliberate zero-to-$FFFF underflow ends the bounce phase.</summary>
-    public ushort BounceCounter
+    public NativeCountdown BounceCounter
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => NativeCountdown.FromRaw(_slot.VariableD);
+        internal set => _slot.VariableD = value.RawValue;
     }
 
     /// <summary>Variable E, copied from parameter one's high byte and used as direction.</summary>

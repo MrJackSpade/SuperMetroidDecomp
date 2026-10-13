@@ -93,7 +93,7 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         AssertEqual((ushort)500, body.Position.Y.Whole,
             "walking-backward callbacks balance vertical movement");
         AssertKraidFootSoundAndQuake(enemies, "walking-backward");
-        foot.InstructionTimer = 1;
+        foot.InstructionTimer = NativeCountdown.Start(1);
         InvokeKraidFootInstructionProcessor(rom, executedOperands, enemies, foot);
         AssertEqual((ushort)0x888f, foot.CurrentInstruction,
             "walking-backward goto begins the next real frame");
@@ -158,10 +158,10 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         int calls)
     {
         foot.CurrentInstruction = entry;
-        foot.InstructionTimer = 1;
+        foot.InstructionTimer = NativeCountdown.Start(1);
         for (int call = 0; call < calls; call++)
         {
-            foot.InstructionTimer = 1;
+            foot.InstructionTimer = NativeCountdown.Start(1);
             InvokeKraidFootInstructionProcessor(rom, executedOperands, enemies, foot);
         }
     }
@@ -191,7 +191,7 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
             $"{program} Kraid foot queues native step sound");
         AssertEqual((ushort)1, enemies.Earthquake.EarthquakeType,
             $"{program} Kraid foot selects native quake type");
-        AssertEqual((ushort)10, enemies.Earthquake.EarthquakeTimer,
+        AssertEqual((ushort)10, enemies.Earthquake.EarthquakeTimer.RawValue,
             $"{program} Kraid foot selects native quake duration");
     }
 

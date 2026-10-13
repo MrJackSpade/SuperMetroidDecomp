@@ -101,10 +101,10 @@ public sealed class DeadSidehopperEnemyState
     }
 
     /// <summary>Native AI variable F initialized to $0040 for the post-landing pause; expiry requires decrementing through zero to $FFFF, giving 65 delay-state calls.</summary>
-    public ushort StateTimer
+    public NativeCountdown StateTimer
     {
-        get => Slot.VariableF;
-        internal set => Slot.VariableF = value;
+        get => NativeCountdown.FromRaw(Slot.VariableF);
+        internal set => Slot.VariableF = value.RawValue;
     }
 
     /// <summary>Host diagnostic count of shared rotting-processor calls for this slot since initialization, including the call that completes the final entry.</summary>

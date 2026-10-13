@@ -659,7 +659,7 @@ internal static class RoomPlmPopulationVerification
             "missing Speed Booster disables the FX target");
         AssertEqual(0, unequippedFx.PackedYVelocity,
             "missing Speed Booster clears packed FX velocity");
-        AssertEqual(0, unequippedFx.Timer,
+        AssertEqual(0, unequippedFx.Timer.RawValue,
             "missing Speed Booster clears FX timer");
         AssertEqual(0, earthquakeTimer,
             "missing Speed Booster clears global earthquake timer");
@@ -703,11 +703,11 @@ internal static class RoomPlmPopulationVerification
             activeFx.PackedYVelocity,
             "collected Speed Booster starts the regional lavaquake velocity");
         active.Step(bus, activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0, activeFx.Timer,
+        AssertEqual(0, activeFx.Timer.RawValue,
             "Samus right of $0AE0 leaves FX motion sleeping");
         activeSamus.Position = activeSamus.Position.WithWholeX(SpeedBoosterEscapePlmRomData.StartFxMotionSamusX);
         active.Step(bus, activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(1, activeFx.Timer,
+        AssertEqual(1, activeFx.Timer.RawValue,
             "Samus reaching $0AE0 starts FX motion");
 
         activeSamus.Position = activeSamus.Position.WithWholeX(0x072c);

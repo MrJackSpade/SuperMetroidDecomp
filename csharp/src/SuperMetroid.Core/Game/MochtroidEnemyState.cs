@@ -47,10 +47,10 @@ public sealed class MochtroidEnemyState
     }
 
     /// <summary>Variable E; used only by the shipped-but-unreferenced shake mode.</summary>
-    public ushort ShakeTimer
+    public NativeCountdown ShakeTimer
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => NativeCountdown.FromRaw(_slot.VariableE);
+        internal set => _slot.VariableE = value.RawValue;
     }
 
     /// <summary>Gets the one-update movement selector cleared before each main-AI dispatch.</summary>

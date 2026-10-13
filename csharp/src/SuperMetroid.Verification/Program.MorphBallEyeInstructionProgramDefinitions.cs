@@ -106,7 +106,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
                  call < MorphBallEyeInstructionProgramDefinitions.ActiveFrameCount + 1;
                  call++)
             {
-                slot.InstructionTimer = 1;
+                slot.InstructionTimer = NativeCountdown.Start(1);
                 EnemyInstructionRunner.Process(enemies, arguments);
             }
             AssertEqual(unchecked((ushort)(
@@ -123,7 +123,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int call = 0; call < frames + 1; call++)
             {
-                slot.InstructionTimer = 1;
+                slot.InstructionTimer = NativeCountdown.Start(1);
                 EnemyInstructionRunner.Process(enemies, arguments);
             }
             AssertEqual(sleep, slot.CurrentInstruction,
@@ -221,7 +221,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.CurrentInstruction = entry;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         return slot;
     }
 

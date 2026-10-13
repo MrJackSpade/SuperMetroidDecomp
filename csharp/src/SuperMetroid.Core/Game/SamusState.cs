@@ -100,7 +100,7 @@ public sealed class SamusState
     /// Countdown at WRAM <c>$0A94</c>. Zero and negative-after-decrement both advance,
     /// matching the original routine's BEQ/BPL pair.
     /// </summary>
-    public ushort AnimationFrameTimer { get; internal set; }
+    public NativeCountdown AnimationFrameTimer { get; internal set; }
 
     /// <summary>
     /// Delay added for speed/liquid physics at WRAM <c>$0A9A</c>. The translated standing
@@ -385,14 +385,14 @@ public sealed class SamusState
     /// decrements it once near the end of every gameplay frame, after all those producers
     /// have had an opportunity to reject or publish damage.
     /// </summary>
-    public ushort InvincibilityTimer { get; set; }
+    public NativeCountdown InvincibilityTimer { get; set; }
 
     /// <summary>
     /// WRAM `$18AA`, initialized to five by bank `$A0` damage collision and decremented once
     /// per enemy-processing pass. The translated special handler owns movement only while
     /// this counter remains nonzero.
     /// </summary>
-    public ushort KnockbackTimer { get; set; }
+    public NativeCountdown KnockbackTimer { get; set; }
 
     /// <summary>
     /// Ports the two Samus-owned words from <c>DecrementSamusHurtTimers</c> at
@@ -402,10 +402,8 @@ public sealed class SamusState
     /// </summary>
     public void DecrementHurtTimers()
     {
-        if (InvincibilityTimer != 0)
-            InvincibilityTimer--;
-        if (KnockbackTimer != 0)
-            KnockbackTimer--;
+        InvincibilityTimer = InvincibilityTimer.DecrementToZero();
+        KnockbackTimer = KnockbackTimer.DecrementToZero();
     }
 
     /// <summary>

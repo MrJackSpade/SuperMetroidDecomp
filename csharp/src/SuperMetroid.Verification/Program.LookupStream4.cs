@@ -1176,7 +1176,7 @@ internal static class LookupStream4Verification
                 int address = (EndingCreditsRomData.Rendering.PostCreditsTilemapWord + destination + cell) * 2;
                 AssertEqual(expected[cell], (ushort)(SnesLittleEndian.Word(vram.Bytes[address], vram.Bytes[address + 1])), "Actual subtitle reaches VRAM unchanged");
             }
-            state.instructionTimer = (ushort)1;
+            state.instructionTimer = NativeCountdown.Start((ushort)1);
             state.Step(vram);
             AssertTrue(tilemap.AsSpan(destination, expected.Length).ToArray().All(word => word == EndingCreditsRomData.Rendering.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
@@ -1738,9 +1738,9 @@ internal static class LookupStream4Verification
             var samus = new SamusState { Pose = (SamusPoseId)pose };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new RidleyEnemyState { GrabState = 1, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = 99 };
+            var state = new RidleyEnemyState { GrabState = 1, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = NativeCountdown.Start(99) };
             release(state, samus);
-            AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer, "Actual release preserves native movement-dependent intangibility");
+            AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer.RawValue, "Actual release preserves native movement-dependent intangibility");
             AssertEqual((ushort)0, state.GrabState, "Actual release clears grab");
             AssertEqual((ushort)1, state.TailWhipRequest, "Actual release requests tail whip");
             AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "Actual release resets tail controller");
@@ -1748,7 +1748,7 @@ internal static class LookupStream4Verification
         AssertTrue(!canGrab(null), "Missing Samus remains ungrabbable");
         var absentState = new RidleyEnemyState();
         release(absentState, null);
-        AssertEqual(ordinaryFrames, absentState.IntangibilityTimer, "Missing Samus retains standing release fallback");
+        AssertEqual(ordinaryFrames, absentState.IntangibilityTimer.RawValue, "Missing Samus retains standing release fallback");
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for tail angles")]
@@ -2162,14 +2162,14 @@ internal static class LookupStream4Verification
         var electricity = electricitySystem.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         for (int frame = 0; frame < 160; frame++)
         {
-            electricity.InstructionTimer = 1;
+            electricity.InstructionTimer = NativeCountdown.Start(1);
             electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
             AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
             AssertEqual((ushort)(0xe68b + 4 * (frame % 8)), electricity.InstructionPointer, "stream4 electricity exact frame order");
-            AssertEqual((ushort)1, electricity.InstructionTimer, "stream4 electricity one-frame timing");
+            AssertEqual((ushort)1, electricity.InstructionTimer.RawValue, "stream4 electricity one-frame timing");
             AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
         }
-        electricity.InstructionTimer = 1;
+        electricity.InstructionTimer = NativeCountdown.Start(1);
         electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
         AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
         AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
@@ -2188,10 +2188,10 @@ internal static class LookupStream4Verification
                 active++;
                 for (int loop = 0; loop < 2; loop++)
                 {
-                    particle.InstructionTimer = 1;
+                    particle.InstructionTimer = NativeCountdown.Start(1);
                     system.Projectiles.ProcessEnemyProjectileInstructions(particle, null, Position16<RoomPixels>.Zero);
                     AssertEqual((ushort)(start + 4), particle.InstructionPointer, "stream4 debris goto-self loop pointer");
-                    AssertEqual((ushort)16, particle.InstructionTimer, "stream4 debris sixteen-frame duration");
+                    AssertEqual((ushort)16, particle.InstructionTimer.RawValue, "stream4 debris sixteen-frame duration");
                     ushort nativeSprite = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x860000 | (start + 2));
                     AssertEqual(nativeSprite, particle.SpritemapPointer, "stream4 debris compiled presentation identity");
                 }
@@ -2602,7 +2602,7 @@ internal static class LookupStream4Verification
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=timer; hurt(body,state,null);
+                    body.FlashTimer=NativeCountdown.FromRaw(timer); hurt(body,state,null);
                     for(int color=0;color<16;color++)AssertEqual(Pack((timer==2?document.WhiteFlash:document.Sprite)[color]),cgram.Colors[240+color],"Actual sprite hurt phase and independent edited clear/color targets");
                 }
             }
@@ -2667,7 +2667,7 @@ internal static class LookupStream4Verification
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=timer; hurt(body,state,null);
+                    body.FlashTimer=NativeCountdown.FromRaw(timer); hurt(body,state,null);
                     for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves edited targets and health overlay");
                 }
             }
@@ -2730,9 +2730,9 @@ internal static class LookupStream4Verification
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer copy");
                     cgram.SetColor(89, Bgr555.FromWord(0x1234)); update(state);
                     AssertEqual((ushort)0x1234, cgram.Colors[89], "Same health band does not spuriously recopy colors");
-                    body.FlashTimer = 2; hurt(body,state,null);
+                    body.FlashTimer = NativeCountdown.Start(2); hurt(body,state,null);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
-                    body.FlashTimer = 0; hurt(body,state,null);
+                    body.FlashTimer = NativeCountdown.Start(0); hurt(body,state,null);
                     for (int color = 0; color < 16; color++)
                     {
                         AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");
@@ -2861,13 +2861,13 @@ internal static class LookupStream4Verification
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
                 RidleyEnemyState state = enemies.RidleyEncounter.Ridley!;
-                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = 0;
+                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = NativeCountdown.Start(0);
                 Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)
                 {
                     tick(slot, state);
                     int row = Math.Min(call / 3, 14);
-                    AssertEqual((ushort)(2 - call % 3), state.FunctionTimer, "Actual three-call producer cadence preserved");
+                    AssertEqual((ushort)(2 - call % 3), state.FunctionTimer.RawValue, "Actual three-call producer cadence preserved");
                     AssertEqual(call < 45 ? (ushort)(row + 1) : (ushort)0, state.FadePaletteOffset, "Actual row and zero terminator progression");
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
@@ -2877,7 +2877,7 @@ internal static class LookupStream4Verification
                 }
                 AssertEqual(RidleyAiFunction.ClearVelocity, state.Function, "Native terminator handoff");
                 AssertEqual(RidleyLiquidRomData.BattleHeight, state.FxTargetYPosition, "Native liquid target handoff");
-                AssertEqual((ushort)8, state.WingAnimationTimer, "Native wing timer handoff");
+                AssertEqual((ushort)8, state.WingAnimationTimer.RawValue, "Native wing timer handoff");
                 AssertTrue(state.TailSegments.All(segment => segment.Active), "Native tail activation handoff");
             }
         }

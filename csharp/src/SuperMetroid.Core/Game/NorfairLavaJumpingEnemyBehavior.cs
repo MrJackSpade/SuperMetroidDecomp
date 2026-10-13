@@ -172,7 +172,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         // Requiring a live definition here rejects valid retained-WRAM reads (#322).
 
         follower.FrozenTimer = parent.FrozenTimer;
-        if (parent.FrozenTimer != 0 || (parent.VariableC & 0x8000) == 0)
+        if (!parent.FrozenTimer.IsZero || (parent.VariableC & 0x8000) == 0)
         {
             // The second half appears only while the parent is travelling upward. At the
             // apex and during descent, the parent animation alone owns the visible shape.
@@ -227,8 +227,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
 
         state.InstalledInstructionList = instructionList;
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private NorfairLavaJumpingEnemyState RequireNorfairLavaJumpingEnemyState(RoomEnemySlot slot) =>

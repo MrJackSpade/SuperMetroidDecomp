@@ -50,7 +50,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                 new RoomSpriteObjectSlot(0),
                 new RoomSpriteObjectSlot(1))
             {
-                EscapeTimer = (ushort)timer,
+                EscapeTimer = NativeCountdown.FromRaw((ushort)timer),
                 Function = MetroidAiFunction.PowerBombEscape,
             };
 
@@ -61,7 +61,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                 $"production Metroid escape X timer {timer}");
             AssertEqual(unchecked((ushort)(0xffff + expected.Y)), slot.Position.Y.Whole,
                 $"production Metroid escape Y timer {timer}");
-            AssertEqual(unchecked((ushort)(timer - 1)), state.EscapeTimer,
+            AssertEqual(unchecked((ushort)(timer - 1)), state.EscapeTimer.RawValue,
                 $"production Metroid escape countdown {timer}");
             AssertEqual(timer == 1 ? MetroidAiFunction.Homing : MetroidAiFunction.PowerBombEscape,
                 state.Function,
@@ -88,7 +88,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             slot.CurrentInstruction =
                 MetroidInstructionProgramDefinitions.ChasingSoundCallback;
 
@@ -97,7 +97,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             AssertEqual(MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
                 enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2 ?? ushort.MaxValue,
                 $"production Metroid random cry {random}");
-            AssertEqual(16, slot.InstructionTimer,
+            AssertEqual(16, slot.InstructionTimer.RawValue,
                 $"production Metroid script timer {random}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e9d1), slot.SpritemapPointer,
                 $"production Metroid script spritemap {random}");

@@ -41,17 +41,17 @@ internal static class TorizoPaletteShakeVerification
             AssertEqual((ushort)0xb93b, cursor, "Torizo operand-free cursor");
         }
         enemies.Earthquake.EarthquakeType = 4;
-        enemies.Earthquake.EarthquakeTimer = 32;
+        enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(32);
         // The native awakening loop invokes B271 every four frames. It must not
         // extend a pending landing quake, regardless of the palette target.
         for (int frame = 0; frame < 96; frame++)
         {
             if (frame < 64 && frame % 4 == 0)
                 Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
-            ushort timerBeforeShake = enemies.Earthquake.EarthquakeTimer;
+            ushort timerBeforeShake = enemies.Earthquake.EarthquakeTimer.RawValue;
             var shake = enemies.HandleRoomShaking(false);
             // An accepted shake frame is exactly one that consumes an earthquake-timer tick.
-            AssertEqual(frame < 32, enemies.Earthquake.EarthquakeTimer != timerBeforeShake, $"Palette instruction cannot extend landing shake at frame {frame}");
+            AssertEqual(frame < 32, enemies.Earthquake.EarthquakeTimer.RawValue != timerBeforeShake, $"Palette instruction cannot extend landing shake at frame {frame}");
             if (frame < 32)
             {
                 AssertEqual((short)0, shake.Bg1.X, "Landing BG1 X");
@@ -64,7 +64,7 @@ internal static class TorizoPaletteShakeVerification
             Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
         for (int i = 0; i < 256; i++)
             AssertEqual((ushort)(i is >= 144 and < 176 ? 0 : 0x7fff), cgram.Colors[i], $"Masked fade color {i}");
-        AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer, "Completed fade does not create an earthquake");
+        AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer.RawValue, "Completed fade does not create an earthquake");
         state.PaletteTransition = null;
         for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
         Execute((ushort)TorizoInstruction.Instruction_Torizo_SetupPaletteTransitionToNormalTorizo);

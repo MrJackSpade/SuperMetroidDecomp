@@ -44,7 +44,7 @@ internal static class MotherBrainPlasmaImpactVerification
         AssertTrue(shot.PackedDirection.HasLowByteLifecycleState,
             "Mother Brain plasma-blocking property marks the shot for removal");
         AssertEqual((ushort)0xf00, state.WalkCounter, "Accepted beam preserves native recoil bookkeeping");
-        AssertEqual(EnemyShotTiming.PlasmaInvincibilityFrames, head.InvincibilityTimer,
+        AssertEqual(EnemyShotTiming.PlasmaInvincibilityFrames, head.InvincibilityTimer.RawValue,
             "The no-death damage tail grants Plasma's hit immunity");
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         for (int frame = 0; frame < 3; frame++)
@@ -55,12 +55,12 @@ internal static class MotherBrainPlasmaImpactVerification
             AssertEqual((ushort)0xf00, state.WalkCounter, "Later overlap does not repeat recoil");
         }
         // Later checks are new shots after that immunity has run out.
-        head.InvincibilityTimer = 0;
+        head.InvincibilityTimer = NativeCountdown.Start(0);
         state.Form = 0;
         SeedChargedPlasma();
         Hit();
         AssertEqual((ushort)17550, head.Health, "First form retains its missile-only damage restriction");
-        head.InvincibilityTimer = 0;
+        head.InvincibilityTimer = NativeCountdown.Start(0);
         state.Form = 4;
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
         state.RainbowBeamSequence.Body.Form = 4;
@@ -68,7 +68,7 @@ internal static class MotherBrainPlasmaImpactVerification
         shot.Type = 0x9018; shot.Damage = 1000; shot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
         // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the
         // timer expires, so this case starts once that immunity has run out.
-        head.InvincibilityTimer = 0;
+        head.InvincibilityTimer = NativeCountdown.Start(0);
         AssertEqual(1, Hit(), "Hyper Beam still accepts its later-form damage callback");
         AssertEqual((ushort)16550, head.Health, "Hyper Beam retains its native charged damage selection");
         AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, state.RainbowBeamSequence.Phase3NeckPhase,
@@ -82,7 +82,7 @@ internal static class MotherBrainPlasmaImpactVerification
         {
             shot.Type = 0x8018; shot.Damage = 450; shot.Direction = 2;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
-            shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
+            shot.InstructionPointer = 0x9000; shot.InstructionTimer = NativeCountdown.Start(1);
             shot.PreInstruction = SamusProjectilePreInstruction.NoWaveBeam;
         }
     }

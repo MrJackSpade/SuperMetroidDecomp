@@ -29,7 +29,7 @@ internal static class TorizoLandingLifetimeVerification
         state.Function=TorizoFunction.Active;state.PreInstruction=TorizoPreInstruction.Jump;state.ReturnInstruction=0xbc88;
         state.Velocity=new EightEightVector<RoomPixels>(0,0x400);state.VerticalAcceleration=40;
         body.Health=body.Definition.Health;body.Parameter1=body.Parameter2=0;
-        body.Properties=0x2000;body.CurrentInstruction=0xbc80;body.InstructionTimer=5;
+        body.Properties=0x2000;body.CurrentInstruction=0xbc80;body.InstructionTimer=NativeCountdown.Start(5);
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));
         var words=new ushort[256];for(int i=12*16;i<13*16;i++)words[i]=0x8000;
         var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new byte[8]);
@@ -46,7 +46,7 @@ internal static class TorizoLandingLifetimeVerification
             var result=game.Step(0);
             // Every rendered earthquake type displaces BG1 or BG2, so only an unapplied frame leaves the default delta.
             var shake=runtime.Enemies.Earthquake.LastRoomShake;bool shakeApplied=shake!=default;if(shakeApplied)shaken++;
-            if(frame%8==0 || frame>=30)Console.WriteLine($"frame={frame} actor={body.Position.X.Whole},{body.Position.Y.Whole} hp={body.Health} pre={(int)state.PreInstruction:X4} timer={runtime.Enemies.Earthquake.EarthquakeTimer} shake={shake}");
+            if(frame%8==0 || frame>=30)Console.WriteLine($"frame={frame} actor={body.Position.X.Whole},{body.Position.Y.Whole} hp={body.Health} pre={(int)state.PreInstruction:X4} timer={runtime.Enemies.Earthquake.EarthquakeTimer.RawValue} shake={shake}");
             if(shakeApplied!=(frame<32))throw new InvalidDataException("Full frontend landing-shake lifetime differs from 32 native frames.");
         }
         Console.WriteLine($"shaken={shaken}");

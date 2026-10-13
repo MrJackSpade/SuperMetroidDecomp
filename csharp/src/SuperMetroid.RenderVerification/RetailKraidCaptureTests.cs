@@ -136,7 +136,7 @@ internal static class RetailKraidCaptureTests
         shot.Position = shot.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + left + 2)), unchecked((ushort)(body.Position.Y.Whole + (top + bottom) / 2))));
         shot.Radius = new(2, 2);
         shot.InstructionPointer = KraidCaptureDefinitions.AuditLiveInstruction;
-        shot.InstructionTimer = 1;
+        shot.InstructionTimer = NativeCountdown.Start(1);
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
         shots.SlotTable.ProjectileCounter = (ushort)1;
         // The native walk counts one missile in both its mouth and body passes (#1192, #1247).

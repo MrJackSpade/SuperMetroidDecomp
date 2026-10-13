@@ -33,7 +33,7 @@ internal sealed class SamusEaterPlms
             slot.HeaderPointer = header;
             slot.BlockIndex = block.Index;
             slot.InstructionPointer = definition.InstructionListPointer;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             slot.PlantHeldPosition = new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1))));
             level.SetForegroundEntry(block.Index, (ushort)(block.LevelWord & SamusEaterPlmRomData.DeactivatedTriggerMask));
             return;
@@ -51,6 +51,6 @@ internal sealed class SamusEaterPlms
         samus.Position = samus.Position.WithWhole(new(slot.PlantHeldPosition.X, slot.PlantHeldPosition.Y));
         // Native TSB is bitwise OR, not a clamp or an input lock. Samus's normal
         // movement runs before this placement, preserving cartridge interactions.
-        samus.InvincibilityTimer |= 0x10;
+        samus.InvincibilityTimer = NativeCountdown.FromRaw(unchecked((ushort)(samus.InvincibilityTimer.RawValue | 0x10)));
     }
 }

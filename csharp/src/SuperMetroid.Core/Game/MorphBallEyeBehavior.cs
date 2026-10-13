@@ -42,8 +42,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
 
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.SpritemapPointer = 0x804d;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
 
         if (unchecked((short)slot.Parameter2) >= 0)
         {
@@ -111,8 +111,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
             return;
         }
 
-        state.FunctionTimer = EyeTransitionDuration;
-        eye.InstructionTimer = 1;
+        state.FunctionTimer = NativeCountdown.Start(EyeTransitionDuration);
+        eye.InstructionTimer = NativeCountdown.Start(1);
         eye.CurrentInstruction = (eye.Parameter1 & 1) == 0
             ? MorphBallEyeInstructionProgramDefinitions.FacingRightActivating
             : MorphBallEyeInstructionProgramDefinitions.FacingLeftActivating;
@@ -126,8 +126,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
     {
         // DEC followed by BEQ/BPL expires on zero and also tolerates an already-zero timer's
         // wrapped $FFFF value. This is deliberately not a host-side "if timer > 0" clamp.
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
-        state.FunctionTimer = timer.Value;
+        NativeWordCounterStep timer = state.FunctionTimer.Decrement();
+        state.FunctionTimer = timer.Remaining;
         if (!timer.IsZero && timer.IsNonNegative)
             return;
 
@@ -149,12 +149,12 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         {
             LastMorphBallEyeSoundEffect = EyeDeactivationSound;
             state.ActivatedFlag = 0;
-            state.FunctionTimer = EyeTransitionDuration;
+            state.FunctionTimer = NativeCountdown.Start(EyeTransitionDuration);
             eye.CurrentInstruction = (eye.Parameter1 & 1) == 0
                 ? MorphBallEyeInstructionProgramDefinitions.FacingRightDeactivating
                 : MorphBallEyeInstructionProgramDefinitions.FacingLeftDeactivating;
             state.Function = MorphBallEyeAiFunction.Deactivating;
-            eye.InstructionTimer = 1;
+            eye.InstructionTimer = NativeCountdown.Start(1);
             return;
         }
 
@@ -165,13 +165,13 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         eye.CurrentInstruction = unchecked((ushort)(
             MorphBallEyeInstructionProgramDefinitions.Active +
             ((state.Angle.TableIndex & 0x00f0) >> 2)));
-        eye.InstructionTimer = 1;
+        eye.InstructionTimer = NativeCountdown.Start(1);
     }
 
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
-        state.FunctionTimer = timer.Value;
+        NativeWordCounterStep timer = state.FunctionTimer.Decrement();
+        state.FunctionTimer = timer.Remaining;
         if (timer.IsZeroOrNegative)
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
     }

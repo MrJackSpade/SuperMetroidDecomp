@@ -89,10 +89,10 @@ public sealed class SbugEnemyState
     internal SbugEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Variable A; the long lifetime used only by behavior four.</summary>
-    public ushort StraightMovementTimer
+    public NativeCountdown StraightMovementTimer
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
+        get => NativeCountdown.FromRaw(_slot.VariableA);
+        internal set => _slot.VariableA = value.RawValue;
     }
 
     /// <summary>Variable B; the current same-bank AI dispatch pointer.</summary>
@@ -110,10 +110,10 @@ public sealed class SbugEnemyState
     }
 
     /// <summary>Variable F; the 32-frame segment/wait countdown.</summary>
-    public ushort MovementTimer
+    public NativeCountdown MovementTimer
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => NativeCountdown.FromRaw(_slot.VariableF);
+        internal set => _slot.VariableF = value.RawValue;
     }
 
     /// <summary>Parameter one low byte, multiplied by the ROM trigonometry tables.</summary>

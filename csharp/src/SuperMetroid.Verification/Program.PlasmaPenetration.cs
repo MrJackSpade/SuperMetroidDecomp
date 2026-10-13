@@ -29,7 +29,7 @@ internal static class PlasmaPenetrationVerification
             slot.Damage = 100;
             slot.Direction = (ushort)SamusProjectileDirection.Right;
             slot.InstructionPointer = 0x9000;
-            slot.InstructionTimer = 7;
+            slot.InstructionTimer = NativeCountdown.Start(7);
             var bombs = new SamusBombProjectileSystem();
             for (int hit = 0; hit < 2; hit++)
             {
@@ -38,7 +38,7 @@ internal static class PlasmaPenetrationVerification
                 AssertEqual((ushort)100, slot.Damage, "Plasma preserves original damage");
                 AssertEqual((ushort)SamusProjectileDirection.Right, slot.Direction, "Plasma does not acquire deletion marker");
                 AssertEqual((ushort)0x9000, slot.InstructionPointer, "Plasma retains its animation");
-                AssertEqual((ushort)7, slot.InstructionTimer, "Plasma retains animation timing");
+                AssertEqual((ushort)7, slot.InstructionTimer.RawValue, "Plasma retains animation timing");
             }
         }
     }

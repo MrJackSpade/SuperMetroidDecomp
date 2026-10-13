@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Hardware;
 
 internal static class AttractDemoControllerVerification
 {
@@ -6,7 +7,7 @@ internal static class AttractDemoControllerVerification
     {
         var controller = new ControllerInputState(4, 2);
         controller.Latch((ushort)SnesButton.Start);
-        ushort repeat = controller.RepeatTimer;
+        ushort repeat = controller.RepeatTimer.RawValue;
         // Two consecutive scripted records may deliberately press X anew while still
         // holding it. A second Latch(X) would incorrectly discard that second edge.
         for (int frame = 0; frame < 2; frame++)
@@ -15,7 +16,7 @@ internal static class AttractDemoControllerVerification
             {
                 if (controller.Current != (ushort)SnesButton.X || controller.NewlyPressed != (ushort)SnesButton.X)
                     throw new InvalidDataException("Demo controller did not preserve the explicit scripted edge.");
-                if (controller.Previous != (ushort)SnesButton.Start || controller.RepeatTimer != repeat)
+                if (controller.Previous != (ushort)SnesButton.Start || controller.RepeatTimer.RawValue != repeat)
                     throw new InvalidDataException("Demo override modified the hardware latch history.");
             }
             if (controller.Current != (ushort)SnesButton.Start || controller.NewlyPressed != (ushort)SnesButton.Start)

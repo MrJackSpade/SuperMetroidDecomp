@@ -168,7 +168,7 @@ internal static class HyperBeamFxColorArtworkVerification
                 NewProjectileCompositionForbiddenBus(), extractedCgram, catalog);
             AssertEqual(expectedFrame, extracted.CurrentFrameIndex, "Native FX frame order including loop");
             AssertEqual((call & 1) == 0, extracted.CurrentFrameIndex != frameBefore, "Native FX paint/hold cadence");
-            AssertEqual((ushort)((call & 1) == 0 ? originalDuration : originalDuration - 1), extracted.InstructionTimer, "Native FX timer");
+            AssertEqual((ushort)((call & 1) == 0 ? originalDuration : originalDuration - 1), extracted.InstructionTimer.RawValue, "Native FX timer");
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(extractedCgram)),
                 "Extracted Hyper Beam frame matches full CGRAM including untouched colors");
         }

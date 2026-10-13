@@ -47,7 +47,7 @@ internal static class GrappleTileArtworkVerification
             AssertEqual(0x9a0000 | expected, actual, "Compiled Grapple sector selection matches all 65536 native angles");
             var queue = new VramWriteQueue();
             SamusGrappleMovement.DrawConnectedBeam(guard,
-                new SamusGrappleState { Phase = GrapplePhase.Firing, Angle = SnesAngle.FromRaw((ushort)angle), PointAnimationTimer = 5 },
+                new SamusGrappleState { Phase = GrapplePhase.Firing, Angle = SnesAngle.FromRaw((ushort)angle), PointAnimationTimer = NativeCountdown.Start(5) },
                 new OamBuffer(), queue, new(0, 0));
             AssertEqual(0x9a0000 | expected, queue.Entries[1].SourceAddress, "No-artwork producer uses native sector mapping without pointer ROM");
             AssertEqual((ushort)128, queue.Entries[1].SizeInBytes, "No-artwork producer preserves segment transfer size");
@@ -84,7 +84,7 @@ internal static class GrappleTileArtworkVerification
             cases++;
             SamusGrappleState Seed() => new()
             {
-                Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = timer,
+                Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = NativeCountdown.FromRaw(timer),
                 Angle = SnesAngle.FromRaw((ushort)(sector * 1024 + 1023)), RopeLength = (ushort)(sector % 16 * 8),
                 BeamStart = new(100, 100), Anchor = new(200, 60), FlareCounter = 1,
             };

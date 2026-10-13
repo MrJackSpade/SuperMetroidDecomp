@@ -128,7 +128,7 @@ internal static class ProjectileCompositionsVerification
             var bomb = bombs.Slots[0];
             bomb.InstructionPointer = 1; bomb.SpritemapPointer = id;
             bomb.Type = type; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
-            bomb.BombTimer = 1;
+            bomb.BombTimer = NativeCountdown.Start(1);
             foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
             {
                 var native = new OamBuffer(); var extracted = new OamBuffer();
@@ -148,7 +148,7 @@ internal static class ProjectileCompositionsVerification
             }
             if (type == 0x300)
             {
-                bomb.BombTimer = 0;
+                bomb.BombTimer = NativeCountdown.Start(0);
                 var hidden = new OamBuffer();
                 bombs.Draw(forbidden, hidden, Position16<RoomPixels>.Zero, content);
                 AssertEqual(0, hidden.NextByteOffset, "Detonated power bomb remains hidden with extracted art");

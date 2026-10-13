@@ -13,7 +13,7 @@ internal sealed class CinematicTextGlowSystem
         for (int i = slots.Length - 1; i >= 0; i--)
         {
             if (slots[i].Active) continue;
-            slots[i] = new GlowSlot { Active = true, Cell = cell, Size = size, Timer = 1 };
+            slots[i] = new GlowSlot { Active = true, Cell = cell, Size = size, Timer = NativeCountdown.Start(1) };
             return;
         }
         // Native allocation simply returns when its fixed eight slots are occupied.
@@ -24,7 +24,7 @@ internal sealed class CinematicTextGlowSystem
         for (int i = slots.Length - 1; i >= 0; i--)
         {
             ref GlowSlot slot = ref slots[i];
-            if (!slot.Active || slot.Timer-- != 1) continue;
+            if (!slot.Active || !(slot.Timer = slot.Timer.Decrement().Remaining).IsZero) continue;
             for (int row = 0; row < slot.Size.Y; row++)
             for (int column = 0; column < slot.Size.X; column++)
             {
@@ -37,7 +37,7 @@ internal sealed class CinematicTextGlowSystem
             else
             {
                 slot.Palette++;
-                slot.Timer = CinematicTextGlowRomData.PaletteDuration;
+                slot.Timer = NativeCountdown.Start(CinematicTextGlowRomData.PaletteDuration);
             }
         }
     }
@@ -47,6 +47,7 @@ internal sealed class CinematicTextGlowSystem
         public bool Active;
         public Position16<TilemapCells> Cell;
         public Extent16<TilemapCells> Size;
-        public ushort Timer, Palette;
+        public NativeCountdown Timer;
+        public ushort Palette;
     }
 }

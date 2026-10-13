@@ -18,7 +18,7 @@ internal sealed class RoomFxAnimatedTilesState
 {
     private AnimatedTileObject objectPointer;
     private ushort instructionPointer;
-    private ushort instructionTimer;
+    private NativeCountdown instructionTimer;
     private ushort transferByteCount;
     private ushort encodedVramDestination;
 
@@ -68,7 +68,7 @@ internal sealed class RoomFxAnimatedTilesState
         instructionPointer = compiledMechanics.InstructionPointer;
         transferByteCount = compiledMechanics.TransferByteCount;
         encodedVramDestination = compiledMechanics.EncodedVramDestination;
-        instructionTimer = 1;
+        instructionTimer = NativeCountdown.Start(1);
         IsActive = true;
 
         if (transferByteCount == 0)
@@ -92,8 +92,8 @@ internal sealed class RoomFxAnimatedTilesState
         if (!IsActive)
             return;
 
-        instructionTimer = unchecked((ushort)(instructionTimer - 1));
-        if (instructionTimer != 0)
+        instructionTimer = instructionTimer.Decrement().Remaining;
+        if (!instructionTimer.IsZero)
             return;
 
         ushort cursor = instructionPointer;
@@ -111,7 +111,7 @@ internal sealed class RoomFxAnimatedTilesState
 
                 int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
                     compiledMechanics ?? throw new InvalidOperationException("Room-FX animation lost its mechanics."), cursor);
-                instructionTimer = instructionOrDuration;
+                instructionTimer = NativeCountdown.FromRaw(instructionOrDuration);
                 instructionPointer = unchecked((ushort)(cursor + 4));
                 LastSourceAddress = sourceAddress;
                 if (writes is not null)
@@ -154,7 +154,7 @@ internal sealed class RoomFxAnimatedTilesState
         LastSourceAddress = null;
         objectPointer = AnimatedTileObject.None;
         instructionPointer = 0;
-        instructionTimer = 0;
+        instructionTimer = NativeCountdown.Start(0);
         transferByteCount = 0;
         encodedVramDestination = 0;
         compiledMechanics = null;

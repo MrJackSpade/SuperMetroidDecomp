@@ -29,9 +29,9 @@ internal static class GrappleEndpointGeometryVerification
             {
                 Phase = GrapplePhase.Firing, RopeLength = 8,
                 BeamStart = new(camera, camera),
-                Anchor = new(endpointX, endpointY), PointAnimationTimer = 5,
+                Anchor = new(endpointX, endpointY), PointAnimationTimer = NativeCountdown.Start(5),
             };
-            grapple.SegmentAnimationTimers[15] = 1;
+            grapple.SegmentAnimationTimers[15] = NativeCountdown.Start(1);
             var oam = new OamBuffer();
             SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oam, new VramWriteQueue(), new(camera, camera), samusPose: pose);
             bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
@@ -73,7 +73,7 @@ internal static class GrappleEndpointGeometryVerification
             samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(unchecked((ushort)(runtime.Room.Camera.PixelPosition.Y - 1)));
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole);
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
-            samus.Grapple.SegmentAnimationTimers[15] = 1;
+            samus.Grapple.SegmentAnimationTimers[15] = NativeCountdown.Start(1);
             runtime.Oam.BeginFrame();
             runtime.ActorDrawing.DrawGameplayActors(false, false);
             int endpoints = 0;

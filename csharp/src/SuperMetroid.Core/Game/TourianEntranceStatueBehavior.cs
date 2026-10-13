@@ -45,8 +45,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         }
 
         statue.PaletteIndex = 0;
-        statue.InstructionTimer = 1;
-        statue.Timer = 0;
+        statue.InstructionTimer = NativeCountdown.Start(1);
+        statue.Timer = NativeCountdown.Start(0);
         statue.CurrentInstruction =
             TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(
                 statue.Parameter1);

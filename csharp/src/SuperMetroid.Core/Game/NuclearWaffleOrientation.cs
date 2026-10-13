@@ -40,10 +40,10 @@ public sealed class NuclearWaffleEnemyState
     }
 
     /// <summary>Native variable B: wrapping wait countdown in enemy AI calls, expiring only after decrement produces a signed-negative word and reloaded from the population reset byte.</summary>
-    public ushort WaitingTimer
+    public NativeCountdown WaitingTimer
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => NativeCountdown.FromRaw(_slot.VariableB);
+        internal set => _slot.VariableB = value.RawValue;
     }
 
     /// <summary>Low byte of population parameter one.</summary>

@@ -47,8 +47,8 @@ internal sealed class RioBehavior : IEnemySpecies
         // Rio_Init writes the list directly rather than calling Rio_6. Variable F must
         // therefore remain zero until the first behavioral transition installs a new list.
         slot.CurrentInstruction = RioInstructionProgramDefinitions.Idle;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     /// <summary>Ports <c>Rio_Main</c> and Rio_1..Rio_5 at $A2:BBE3-$BD53.</summary>
@@ -228,8 +228,8 @@ internal sealed class RioBehavior : IEnemySpecies
             return;
         state.InstalledInstructionList = instructionList;
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)

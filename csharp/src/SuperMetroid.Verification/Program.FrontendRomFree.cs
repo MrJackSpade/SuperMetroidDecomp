@@ -325,7 +325,7 @@ internal static class FrontendRomFreeVerification
                             RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.SlotTable.Slots.Single(
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoRightSonicInstructionProgramDefinitions.Start;
-                            boss.InstructionTimer = 1;
+                            boss.InstructionTimer = NativeCountdown.Start(1);
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = GoldenTorizoRightSonicInstructionProgramDefinitions.Start });
                 VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo right-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
@@ -336,7 +336,7 @@ internal static class FrontendRomFreeVerification
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction =
                                 GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward;
-                            boss.InstructionTimer = 1;
+                            boss.InstructionTimer = NativeCountdown.Start(1);
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward });
                 VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo stunned tile loop" }, frameCount: 80, setup: (nativeRoom, installedRoom) =>
@@ -347,7 +347,7 @@ internal static class FrontendRomFreeVerification
                             RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoStunnedInstructionProgramDefinitions.Start;
-                            boss.InstructionTimer = 1;
+                            boss.InstructionTimer = NativeCountdown.Start(1);
                             boss.Parameter2 |= GoldenTorizoBehavioralProperties.Stunned;
                             enemies.BombTorizoBehavior.GoldenTorizo!.ReturnInstruction =
                                 GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
@@ -375,7 +375,7 @@ internal static class FrontendRomFreeVerification
                             RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Start;
-                            boss.InstructionTimer = 1;
+                            boss.InstructionTimer = NativeCountdown.Start(1);
                             enemies.BombTorizoBehavior.GoldenTorizo!.ReturnInstruction =
                                 GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
                         }

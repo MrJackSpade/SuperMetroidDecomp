@@ -66,10 +66,10 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
             RoomEnemyProjectileSlot turretPose = turretSystem.Projectiles.EnemyProjectiles[0];
             turretPose.Kind = RoomEnemyProjectileKind.MotherBrainRoomTurret;
             turretPose.InstructionPointer = turretProgram;
-            turretPose.InstructionTimer = 1;
+            turretPose.InstructionTimer = NativeCountdown.Start(1);
             RunForcedTick(turretSystem, turretPose);
             VerifyPresentation(turretPose, (ushort)(0xc103 + 6 * directionValue));
-            AssertEqual(1, turretPose.InstructionTimer,
+            AssertEqual(1, turretPose.InstructionTimer.RawValue,
                 $"Mother Brain turret direction {directionValue} pose duration");
             AssertEqual(unchecked((ushort)(turretProgram + 4)), turretPose.InstructionPointer,
                 $"Mother Brain turret direction {directionValue} reaches sleep");
@@ -93,7 +93,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
             ushort bulletProgram = MotherBrainTurretInstructionProgramDefinitions
                 .BulletProgram(direction);
             VerifyPresentation(bullet, (ushort)(0xc145 + 6 * directionValue));
-            AssertEqual(1, bullet.InstructionTimer,
+            AssertEqual(1, bullet.InstructionTimer.RawValue,
                 $"Mother Brain turret bullet direction {directionValue} pose duration");
             AssertEqual(unchecked((ushort)(bulletProgram + 4)), bullet.InstructionPointer,
                 $"Mother Brain turret bullet direction {directionValue} selector target");
@@ -118,7 +118,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
         {
             RunForcedTick(contactSystem, contact);
             VerifyPresentation(contact, (ushort)(0xc1a0 + 4 * frame));
-            AssertEqual(contactDurations[frame], contact.InstructionTimer,
+            AssertEqual(contactDurations[frame], contact.InstructionTimer.RawValue,
                 $"Mother Brain turret bullet contact frame {frame} duration");
             AssertEqual(unchecked((ushort)(
                     MotherBrainTurretInstructionProgramDefinitions.BulletTouchOrShot +
@@ -138,7 +138,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
         RoomEnemyProjectileSlot shotTurret = shotSystem.Projectiles.EnemyProjectiles[0];
         shotTurret.Kind = RoomEnemyProjectileKind.MotherBrainRoomTurret;
         shotTurret.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
-        shotTurret.InstructionTimer = 1;
+        shotTurret.InstructionTimer = NativeCountdown.Start(1);
         RunForcedTick(shotSystem, shotTurret);
         AssertTrue(!shotTurret.IsActive,
             "Mother Brain turret shot reaction reaches shared compiled deletion");
@@ -188,7 +188,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
 
         void RunForcedTick(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
         }
     }

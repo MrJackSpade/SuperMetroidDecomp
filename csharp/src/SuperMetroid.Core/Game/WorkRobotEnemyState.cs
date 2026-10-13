@@ -28,10 +28,10 @@ public sealed class WorkRobotEnemyState
     }
 
     /// <summary>Gets or sets variable B, the wrapping countdown that gates the next laser attempt.</summary>
-    public ushort LaserCooldown
+    public NativeCountdown LaserCooldown
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => NativeCountdown.FromRaw(_slot.VariableB);
+        internal set => _slot.VariableB = value.RawValue;
     }
 
     /// <summary>

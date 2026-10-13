@@ -23,7 +23,7 @@ public sealed class GameOverMenuState
     internal int missileTimer = 1;
     private int missileFrame;
     internal ushort babyInstructionPointer;
-    internal ushort babyInstructionTimer;
+    internal NativeCountdown babyInstructionTimer;
     internal ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
     private readonly bool continueLoadsCeresArrival;
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
@@ -145,7 +145,7 @@ public sealed class GameOverMenuState
                 audio.QueueMusicDelayed8(MusicCommand.Stop);
                 audio.QueueMusicDelayed8(MusicCommand.LoadData(GameOverRomData.Music.DataIndex));
                 babyInstructionPointer = 0;
-                babyInstructionTimer = 0;
+                babyInstructionTimer = NativeCountdown.Start(0);
                 StepBabyMetroid();
                 SelectedItem = 0;
                 brightness = 0;
@@ -184,7 +184,7 @@ public sealed class GameOverMenuState
                     // `$81:914B` holds the current Baby frame for 180 ticks once either
                     // answer is accepted, while the selected fade owner continues drawing.
                     babyInstructionTimer =
-                        GameOverRomData.BabyAnimation.AcceptedAnswerHoldDuration;
+                        NativeCountdown.Start(GameOverRomData.BabyAnimation.AcceptedAnswerHoldDuration);
                     if (SelectedItem == 0 && continueLoadsCeresArrival)
                         CeresArrivalRequested = true;
                     else
@@ -267,15 +267,15 @@ public sealed class GameOverMenuState
 
     private void StepCompiledBabyMetroid()
     {
-        if (babyInstructionTimer == 0)
+        if (babyInstructionTimer.IsZero)
         {
             babyInstructionPointer = GameOverBabyAnimationDefinitions.FirstPointer;
             babyInstructionTimer =
-                GameOverBabyAnimationDefinitions.Get(babyInstructionPointer).Duration;
+                NativeCountdown.FromRaw(GameOverBabyAnimationDefinitions.Get(babyInstructionPointer).Duration);
         }
 
-        babyInstructionTimer = unchecked((ushort)(babyInstructionTimer - 1));
-        if (babyInstructionTimer == 0)
+        babyInstructionTimer = babyInstructionTimer.Decrement().Remaining;
+        if (babyInstructionTimer.IsZero)
         {
             GameOverBabyInstruction completed =
                 GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
@@ -283,7 +283,7 @@ public sealed class GameOverMenuState
                 QueueCompiledBabySound(completed.SoundAfter);
             babyInstructionPointer = completed.NextPointer;
             babyInstructionTimer =
-                GameOverBabyAnimationDefinitions.Get(completed.NextPointer).Duration;
+                NativeCountdown.FromRaw(GameOverBabyAnimationDefinitions.Get(completed.NextPointer).Duration);
         }
 
         GameOverBabyInstruction current =

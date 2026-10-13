@@ -85,7 +85,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
 
             for (int call = 1; call <= program.CallsUntilTail; call++)
             {
-                death.InstructionTimer = 1;
+                death.InstructionTimer = NativeCountdown.Start(1);
                 Process(enemies, death);
                 AssertTrue(death.IsActive,
                     $"death variant {program.Variant} remains active through call {call}");
@@ -110,7 +110,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
                     $"death variant {program.Variant} executes its random sprite callbacks");
             }
 
-            death.InstructionTimer = 1;
+            death.InstructionTimer = NativeCountdown.Start(1);
             Process(enemies, death);
             AssertTrue(!death.IsActive,
                 $"death variant {program.Variant} executes the compiled respawn/delete tail");

@@ -93,14 +93,14 @@ internal sealed class ChootBehavior : IEnemySpecies
         if (unchecked((short)(distance - ChootActivationDistance)) >= 0)
             return;
 
-        state.JumpDelayTimer = slot.Parameter2;
+        state.JumpDelayTimer = NativeCountdown.FromRaw(slot.Parameter2);
         state.Function = ChootEnemyFunction.PreparingJump;
     }
 
     internal static void PrepareChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.JumpDelayTimer);
-        state.JumpDelayTimer = timer.Value;
+        NativeWordCounterStep timer = state.JumpDelayTimer.Decrement();
+        state.JumpDelayTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return;
 
@@ -128,8 +128,8 @@ internal sealed class ChootBehavior : IEnemySpecies
         slot.Position = slot.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternIndex = 0;
-        state.FallingPatternLoopCounter = unchecked((ushort)(
-            (SnesLittleEndian.LowByte(slot.Parameter1)) - 1));
+        state.FallingPatternLoopCounter = NativeCountdown.FromRaw(unchecked((ushort)(
+            (SnesLittleEndian.LowByte(slot.Parameter1)) - 1)));
         SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Falling);
         state.Function = ChootEnemyFunction.Falling;
     }
@@ -145,9 +145,8 @@ internal sealed class ChootBehavior : IEnemySpecies
             state.FallingOrigin = state.FallingOrigin.WithY(unchecked((ushort)(
                 state.FallingOrigin.Y + state.FallingPatternYDistance)));
             state.FallingPatternIndex = 0;
-            state.FallingPatternLoopCounter = unchecked((ushort)(
-                state.FallingPatternLoopCounter - 1));
-            if (unchecked((short)state.FallingPatternLoopCounter) >= 0)
+            state.FallingPatternLoopCounter = state.FallingPatternLoopCounter.Decrement().Remaining;
+            if (!state.FallingPatternLoopCounter.IsNegative)
                 return;
 
             // The last terminator restores exact spawn coordinates/subpositions, reinstalls
@@ -189,8 +188,8 @@ internal sealed class ChootBehavior : IEnemySpecies
         ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private ChootEnemyState RequireChootState(RoomEnemySlot slot) =>

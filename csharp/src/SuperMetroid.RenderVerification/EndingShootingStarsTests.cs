@@ -39,7 +39,7 @@ internal static class EndingShootingStarsTests
                 Require((new SnesFixedPosition(star.Position.Y.Whole, star.Position.Y.Fraction).RawValue) == (128u << 16) - (uint)(sum * 256), "Star Y trajectory");
             }
             if (frame == 9)
-                Require(stars.Stars[0].Position.X.Whole == 128 && stars.Stars[0].Velocity.X.RawValue == 0 && stars.Stars[0].Timer == 31,
+                Require(stars.Stars[0].Position.X.Whole == 128 && stars.Stars[0].Velocity.X.RawValue == 0 && stars.Stars[0].Timer.RawValue == 31,
                     "Delay expires on underflow, skips motion, and joins the drawing timer on that call");
             if (frame == 32)
             {
@@ -49,7 +49,7 @@ internal static class EndingShootingStarsTests
             }
         }
         Require(stars.Stars[1].Position.Whole == new Position16<ScreenPixels>(128, 128) && stars.Stars[1].Velocity.X.RawValue == 0 &&
-            stars.Stars[1].IndexAndFrame == 1 && stars.Stars[1].Timer == 32, "Offscreen reset restarts animation without its initial delay");
+            stars.Stars[1].IndexAndFrame == 1 && stars.Stars[1].Timer.RawValue == 32, "Offscreen reset restarts animation without its initial delay");
         using (var saved = new MemoryStream())
         {
             DebuggerObjectGraphSerializer.Serialize(saved, stars);

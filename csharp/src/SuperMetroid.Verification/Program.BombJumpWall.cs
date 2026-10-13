@@ -96,7 +96,7 @@ internal static class BombJumpWallVerification
         AssertTrue(SamusKnockbackMovement.Start(bus, hurt, 0, new KnockbackLaunch { KnockbackXDirection = 0 }), "normal hurt interrupts humanoid bomb start");
         AssertTrue(!hurt.BombJumpStarting && !hurt.BombJumpActive, "hurt replaces the bomb movement owner immediately");
         AssertTrue(hurt.BombJumpPoseInputLocked, "hurt admission preserves independent bomb input lock");
-        hurt.KnockbackTimer = 0;
+        hurt.KnockbackTimer = NativeCountdown.Start(0);
         AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, hurt), "hurt expiry consumes its transitional command");
         AssertTrue(!hurt.BombJumpPoseInputLocked, "hurt expiry restores normal pose input");
     }

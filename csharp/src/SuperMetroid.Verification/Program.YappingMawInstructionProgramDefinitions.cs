@@ -183,7 +183,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         slot.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.CurrentInstruction = entry;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new YappingMawEnemyState(slot);
         var states = (YappingMawEnemyState?[])enemies.YappingMawBehavior._yappingMawStates;
         states[0] = state;
@@ -198,7 +198,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     {
         for (int call = 0; call < count; call++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
     }

@@ -100,7 +100,7 @@ internal static class CeresRidleyColorsVerification
         for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.PaletteStepCount; step++)
         {
             state.FadePaletteOffset = step;
-            state.FunctionTimer = 0;
+            state.FunctionTimer = NativeCountdown.Start(0);
             eyeTick(state);
             int row = CeresRidleyEyeFadeDefinitions.Get(step).PaletteRow;
             AssertEqual(unchecked((ushort)(step + 1)), state.FadePaletteOffset,
@@ -115,7 +115,7 @@ internal static class CeresRidleyColorsVerification
         {
             state.FadePaletteOffset = (ushort)(row *
                 CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort));
-            state.FunctionTimer = 1;
+            state.FunctionTimer = NativeCountdown.Start(1);
             bodyTick(slot, state);
             AssertEqual(row == CeresRidleyPaletteRomData.BodyFadeRowCount - 1
                     ? (ushort)0
@@ -149,7 +149,7 @@ internal static class CeresRidleyColorsVerification
         RidleyEnemyState activeRidley = enemies.RidleyEncounter.Ridley ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
         activeRidley.Function = RidleyAiFunction.CeresRetreatDelay;
-        activeRidley.FunctionTimer = 0;
+        activeRidley.FunctionTimer = NativeCountdown.Start(0);
         activeRidley.MovementAnimationEnabled = 0;
         enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, null, null);
         AssertEqual(RidleyAiFunction.CeresPublishEscapeHandoff, activeRidley.Function,

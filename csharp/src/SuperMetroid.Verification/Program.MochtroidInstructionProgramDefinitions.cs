@@ -109,7 +109,7 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
             [mochtroid, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int call = 0; call < callCount; call++)
         {
-            mochtroid.InstructionTimer = 1;
+            mochtroid.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
     }

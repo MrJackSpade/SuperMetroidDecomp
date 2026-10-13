@@ -101,7 +101,7 @@ public sealed class SamusGrappleState
     /// <summary>Gets or sets the native grapple firing-direction index.</summary>
     public byte FireDirection { get; set; }
     /// <summary>Native $0CF6, GrappleBeam_PoseChangeAutoFireTimer; permits early pose-directed refiring.</summary>
-    public ushort PoseChangeAutoFireTimer { get; set; }
+    public NativeCountdown PoseChangeAutoFireTimer { get; set; }
     /// <summary>Gets or sets the signed 8.8 endpoint extension velocity.</summary>
     public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
@@ -133,7 +133,7 @@ public sealed class SamusGrappleState
     /// <summary>Gets or sets the signed vertical impulse applied by a grapple wall jump.</summary>
     public short JumpImpulse { get; set; }
     /// <summary>Gets or sets the countdown suppressing repeated swing-collision bounces.</summary>
-    public ushort CollisionBounceTimer { get; set; }
+    public NativeCountdown CollisionBounceTimer { get; set; }
     /// <summary>Gets or sets whether the grapple movement uses submerged physics.</summary>
     public bool Submerged { get; set; }
 
@@ -175,7 +175,7 @@ public sealed class SamusGrappleState
     /// Native `$0D30` grace counter. Wall-grab release seeds 30, then `$9B:C832` performs
     /// one DEC/BPL wall-jump check per frame until zero wraps to `$FFFF`.
     /// </summary>
-    public ushort WallJumpTimer { get; set; }
+    public NativeCountdown WallJumpTimer { get; set; }
 
     /// <summary>
     /// Distinguishes `$C856` reached from a locked type-$16 pose from ordinary firing
@@ -194,17 +194,17 @@ public sealed class SamusGrappleState
     public ushort FlareAnimationFrame { get; set; }
 
     /// <summary>Native decrement-before-test animation timer `$0CD8`.</summary>
-    public ushort FlareAnimationTimer { get; set; }
+    public NativeCountdown FlareAnimationTimer { get; set; }
 
     /// <summary>Gets or sets the grapple endpoint animation countdown.</summary>
-    public ushort PointAnimationTimer { get; set; }
+    public NativeCountdown PointAnimationTimer { get; set; }
     /// <summary>Ordinal of the native $200-byte-strided endpoint source, normally zero through three.</summary>
     public byte PointAnimationFrame { get; set; }
     /// <summary>
     /// Sixteen timers at WRAM $7E:0D42. A connected rope draws slots 15 downward; retaining
     /// all sixteen makes shortening and lengthening the rope resume the original slot state.
     /// </summary>
-    public ushort[] SegmentAnimationTimers { get; } = new ushort[16];
+    public NativeCountdown[] SegmentAnimationTimers { get; } = new NativeCountdown[16];
 
     /// <summary>
     /// Readable $21-$24 instruction phases corresponding to WRAM pointers $7E:0D62-$0D80.

@@ -58,8 +58,8 @@ internal sealed class DachoraBehavior : IEnemySpecies
         // Population property $0400 already excludes these actors from host interaction.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.SpritemapPointer = 0x804d;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
 
         short direction = unchecked((short)slot.Parameter1);
         if (direction < 0)
@@ -301,7 +301,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         // The body list is asleep at $F4B7. Adding two enters the same right-facing echo
         // list used by the four trails, exactly as the cartridge does on launch.
         slot.CurrentInstruction = unchecked((ushort)(slot.CurrentInstruction + 2));
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = DachoraAiFunction.Shinesparking;
 
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(slot);
@@ -508,7 +508,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
     private static void InstallDachoraInstruction(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
     private static bool DachoraWithinAxis(ushort actor, ushort samus, int distance) =>

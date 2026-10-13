@@ -82,7 +82,7 @@ internal static class CrocomireInstructionProgramDefinitionsVerification
             ushort presentation =
                 CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             body.CurrentInstruction = unchecked((ushort)(presentation - 2));
-            body.InstructionTimer = 1;
+            body.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
             VerifyExecutedEnemySelector(rom, body, executedOperands);
             AssertEqual(presentation, unchecked((ushort)(body.CurrentInstruction - 2)),

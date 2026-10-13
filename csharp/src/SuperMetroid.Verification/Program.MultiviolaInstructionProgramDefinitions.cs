@@ -57,7 +57,7 @@ internal static class MultiviolaInstructionProgramDefinitionsVerification
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int call = 0; call < 15; call++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, processArguments);
         }
         AssertEqual(unchecked((ushort)(MultiviolaInstructionProgramDefinitions.Flying + 4)),

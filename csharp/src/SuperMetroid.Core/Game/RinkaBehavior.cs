@@ -141,7 +141,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
     private void InitializeRinkaLife(RoomEnemySlot slot, RinkaEnemyState state)
     {
         state.Function = RinkaEnemyFunction.WatchForLeavingViewport;
-        state.DelayTimer = RinkaInitialDelay;
+        state.DelayTimer = NativeCountdown.Start(RinkaInitialDelay);
         state.Velocity = default;
 
         if (IsSpecialRinka(slot))
@@ -157,8 +157,8 @@ internal sealed class RinkaBehavior : IEnemySpecies
         {
             slot.CurrentInstruction = RinkaInstructionProgramDefinitions.OrdinaryInitial;
         }
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>
@@ -209,8 +209,8 @@ internal sealed class RinkaBehavior : IEnemySpecies
                 return;
 
             case RinkaEnemyFunction.AimDelay:
-                state.DelayTimer = unchecked((ushort)(state.DelayTimer - 1));
-                if (!EnemyMath.IsNegative16(state.DelayTimer))
+                state.DelayTimer = state.DelayTimer.Decrement().Remaining;
+                if (!EnemyMath.IsNegative16(state.DelayTimer.RawValue))
                     return;
                 if (samus is null)
                     throw new InvalidOperationException("Rinka homing requires the active Samus actor.");
@@ -240,8 +240,8 @@ internal sealed class RinkaBehavior : IEnemySpecies
                 return;
 
             case RinkaEnemyFunction.DeathRespawnDelay:
-                state.DelayTimer = unchecked((ushort)(state.DelayTimer - 1));
-                if (!EnemyMath.IsNegative16(state.DelayTimer))
+                state.DelayTimer = state.DelayTimer.Decrement().Remaining;
+                if (!EnemyMath.IsNegative16(state.DelayTimer.RawValue))
                     return;
                 slot.Health = RinkaHealth;
                 ReinitializeRinka(slot, state);
@@ -279,14 +279,14 @@ internal sealed class RinkaBehavior : IEnemySpecies
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         SpawnRinkaDustExplosion(slot.Position.Whole);
         state.Function = RinkaEnemyFunction.DeathRespawnDelay;
-        state.DelayTimer = 1;
+        state.DelayTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Runs Rinka's private frozen-AI prelude/tail around common frozen handling.</summary>
     internal bool RunRinkaFrozenTail(RoomEnemySlot slot)
     {
         if (RinkaIsOutsideFlightWindow(slot))
-            slot.FrozenTimer = 0;
+            slot.FrozenTimer = NativeCountdown.Start(0);
         if (_rinkaTerminationFlag == 0)
             return false;
 
@@ -603,7 +603,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
                 : slot.NativeIndex;
             projectile.InstructionPointer = EnemyDeathExplosionDefinitions
                 .InstructionPointer((ushort)EnemyDeathAnimation.SmallExplosion);
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
         }
 
         int slotIndex = slot.SlotIndex;

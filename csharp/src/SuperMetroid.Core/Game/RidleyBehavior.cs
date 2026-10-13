@@ -75,7 +75,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 {
                     // $A6:E4E2 stores 8 to the Ridley timer at $7E:7800 before the goto,
                     // cutting the fireball hover short.
-                    _ridleyEncounter.RequireRidley(slot).FunctionTimer = 8;
+                    _ridleyEncounter.RequireRidley(slot).FunctionTimer = NativeCountdown.Start(8);
                     cursor = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
                         slot,
                         unchecked((ushort)(cursor + 2)));
@@ -243,7 +243,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             MovementMinimum = new Position16<RoomPixels>(64, 64),
             MovementMaximum = new Position16<RoomPixels>(224, 416),
             WingFrame = 0,
-            WingAnimationTimer = 0,
+            WingAnimationTimer = NativeCountdown.Start(0),
             WingAnimationTimerDelta = 0,
             TailFunctionIndex = RidleyTailFunction.None,
             TailAngleDelta = 1,
@@ -320,7 +320,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (_roomStatus.EnemyDoorTransitionActive)
                     return;
                 state.Function = RidleyAiFunction.InitialDelay;
-                state.FunctionTimer = 170;
+                state.FunctionTimer = NativeCountdown.Start(170);
                 CeresRidleyBehavior.TickCeresRidleyInitialDelay(state);
                 return;
 
@@ -339,11 +339,11 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 return;
 
             case RidleyAiFunction.WaitBeforeRoar:
-                state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-                if ((short)state.FunctionTimer < 0)
+                state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+                if (state.FunctionTimer.IsNegative)
                 {
                     CeresRidleyBehavior.SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.OpeningRoar);
-                    state.FunctionTimer = 0;
+                    state.FunctionTimer = NativeCountdown.Start(0);
                     state.Function = RidleyAiFunction.WaitBeforeLiftoff;
                 }
                 return;
@@ -372,7 +372,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
             case RidleyAiFunction.NorfairHoverSetup:
                 state.Function = RidleyAiFunction.NorfairHover;
-                state.FunctionTimer = 128;
+                state.FunctionTimer = NativeCountdown.Start(128);
                 TickNorfairRidleyHover(slot, state);
                 return;
 
@@ -382,7 +382,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
             case RidleyAiFunction.NorfairSwoopSetup:
                 state.Function = RidleyAiFunction.NorfairSwoopMoveToStart;
-                state.SwoopPhaseTimer = 10;
+                state.SwoopPhaseTimer = NativeCountdown.Start(10);
                 state.SwoopAngleAccumulator = 0;
                 TickNorfairRidleySwoopMoveToStart(slot, state);
                 return;
@@ -439,9 +439,9 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
             case RidleyAiFunction.NorfairSwoopRecover:
                 CeresRidleyBehavior.UpdateRidleySwoopVelocity(state, 0, short.MinValue, 448);
-                if (state.SwoopPhaseTimer != 0)
+                if (!state.SwoopPhaseTimer.IsZero)
                 {
-                    state.SwoopPhaseTimer--;
+                    state.SwoopPhaseTimer = state.SwoopPhaseTimer.Decrement().Remaining;
                     return;
                 }
                 state.Function = SamusMovementUsesRidleyGrab(samus)
@@ -453,7 +453,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 state.IdealInterSegmentTailAngle = 11;
                 state.TailExtensionSpeed = 0x180;
                 state.Function = RidleyAiFunction.NorfairPogoDescending;
-                state.FunctionTimer = unchecked((ushort)((_room.Random.Read() & 0x1f) + 32));
+                state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)((_room.Random.Read() & 0x1f) + 32)));
                 TickNorfairRidleyPogo(slot, state, samus, descending: true);
                 return;
 
@@ -502,7 +502,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (TickRidleyFunctionTimer(state))
                 {
                     state.Function = RidleyAiFunction.NorfairCarryRise;
-                    state.FunctionTimer = 32;
+                    state.FunctionTimer = NativeCountdown.Start(32);
                 }
                 return;
 
@@ -513,7 +513,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                     state.TailExtensionSpeed = RidleyTailDefinitions.CarryReleaseExtensionSpeed;
                     ReleaseNorfairRidleyGrab(state, samus);
                     state.Function = RidleyAiFunction.NorfairCarryRelease;
-                    state.FunctionTimer = 64;
+                    state.FunctionTimer = NativeCountdown.Start(64);
                 }
                 else
                     MoveNorfairRidleyToward(slot, state, state.Target.WithY(256), 0);
@@ -576,11 +576,11 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// </summary>
     internal void TickNorfairRidleyArenaReveal(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if ((short)state.FunctionTimer >= 0)
+        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+        if (!state.FunctionTimer.IsNegative)
             return;
 
-        state.FunctionTimer = 2;
+        state.FunctionTimer = NativeCountdown.Start(2);
         ushort row = state.FadePaletteOffset;
         bool hasPalette;
         var colors = _room.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
@@ -598,7 +598,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             RidleyLiquidRomData.RiseVelocity, RidleyLiquidRomData.RiseDelay);
         state.FadePaletteOffset = 0;
         CeresRidleyBehavior.SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.TransitionToFlying);
-        state.WingAnimationTimer = 8;
+        state.WingAnimationTimer = NativeCountdown.Start(8);
         state.WingAnimationTimerDelta = 8;
         foreach (RidleyTailSegment segment in state.TailSegments)
             segment.Active = true;
@@ -674,7 +674,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             return;
 
         state.Function = RidleyAiFunction.NorfairSwoopAimDown;
-        state.SwoopPhaseTimer = 32;
+        state.SwoopPhaseTimer = NativeCountdown.Start(32);
         state.SwoopAngleAccumulator = 0;
     }
 
@@ -687,14 +687,14 @@ internal sealed class RidleyBehavior : IEnemySpecies
         ushort nextTimer)
     {
         CeresRidleyBehavior.UpdateRidleySwoopVelocity(state, angleDelta, targetAngle, targetMagnitude);
-        if (state.SwoopPhaseTimer != 0)
+        if (!state.SwoopPhaseTimer.IsZero)
         {
-            state.SwoopPhaseTimer--;
+            state.SwoopPhaseTimer = state.SwoopPhaseTimer.Decrement().Remaining;
             return false;
         }
 
         state.Function = nextFunction;
-        state.SwoopPhaseTimer = nextTimer;
+        state.SwoopPhaseTimer = NativeCountdown.FromRaw(nextTimer);
         return true;
     }
 
@@ -735,7 +735,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         state.Function = descending
             ? RidleyAiFunction.NorfairPogoAscending
             : RidleyAiFunction.NorfairPogoDescending;
-        state.FunctionTimer = 128;
+        state.FunctionTimer = NativeCountdown.Start(128);
         SelectNorfairRidleyFacingInstruction(slot, state);
     }
 
@@ -756,7 +756,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         {
             SelectNorfairRidleyFacingInstruction(slot, state);
             state.Function = RidleyAiFunction.NorfairFireballMoveToHeight;
-            state.FunctionTimer = 32;
+            state.FunctionTimer = NativeCountdown.Start(32);
             TickNorfairRidleyGroundAttackMoveToHeight(slot, state, samus);
             return;
         }
@@ -778,7 +778,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         _ridleyTail.TickRidleyPogoTail(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Function = RidleyAiFunction.NorfairFireballAttack;
-        state.FunctionTimer = unchecked((ushort)((_room.Random.Read() & 0x3f) + 128));
+        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)((_room.Random.Read() & 0x3f) + 128)));
     }
 
     internal void TickNorfairRidleyGroundAttack(
@@ -810,7 +810,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         SpawnRidleyDust(tip.Position + new Offset16<RoomPixels>(0, 12), variant: 9);
         _audio.QueueEnemySound(SoundEffectLibrary2Sounds.RidleyTailTerrainImpact, maximumQueued: 6);
         _earthquake.EarthquakeType = 13;
-        _earthquake.EarthquakeTimer = 4;
+        _earthquake.EarthquakeTimer = NativeCountdown.Start(4);
         SetRidleyPogoHorizontalDirection(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         for (int index = 0; index < state.TailSegments.Length; index++)
@@ -943,7 +943,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 ? (ushort)256
                 : unchecked((ushort)(slot.Position.Y.Whole - 64)));
         state.Function = RidleyAiFunction.NorfairCarryMoveToAnchor;
-        state.FunctionTimer = 32;
+        state.FunctionTimer = NativeCountdown.Start(32);
         MoveNorfairRidleyToward(slot, state, state.Target, 0);
         TickRidleyFunctionTimer(state);
     }
@@ -958,7 +958,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         if (state.FightMode != RidleyFightMode.Dying)
         {
             SamusMovementType movement = samus?.PoseMetadata.ReadMovementType(_room.Bus!) ?? SamusMovementType.Standing;
-            state.IntangibilityTimer = RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement);
+            state.IntangibilityTimer = NativeCountdown.FromRaw(RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement));
         }
     }
 
@@ -1002,8 +1002,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
     private static bool TickRidleyFunctionTimer(RidleyEnemyState state)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        return (short)state.FunctionTimer < 0;
+        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+        return state.FunctionTimer.IsNegative;
     }
 
     internal static void SelectNorfairRidleyFacingInstruction(RoomEnemySlot slot, RidleyEnemyState state)
@@ -1021,7 +1021,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             state.FacingDirection == RidleyFacing.Left
                 ? RidleyInstructionProgramDefinitions.TurnFromLeftToRight
                 : RidleyInstructionProgramDefinitions.TurnFromRightToLeft);
-        slot.InstructionTimer = 2;
+        slot.InstructionTimer = NativeCountdown.Start(2);
     }
 
     internal static int ReadRidleyHealthMovementDivisorIndex(RidleyEnemyState state) =>
@@ -1266,10 +1266,10 @@ internal sealed class RidleyBehavior : IEnemySpecies
             }
             body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         }
-        if (state.IntangibilityTimer != 0)
+        if (!state.IntangibilityTimer.IsZero)
         {
-            state.IntangibilityTimer--;
-            if (state.IntangibilityTimer == 0)
+            state.IntangibilityTimer = state.IntangibilityTimer.Decrement().Remaining;
+            if (state.IntangibilityTimer.IsZero)
                 body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         }
     }
@@ -1288,7 +1288,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         dust.Position = dust.Position.WithWhole(position);
         dust.InstructionPointer = MiscDustProjectileDefinitions.InstructionList(
             Math.Min(variant, (ushort)0x001d));
-        dust.InstructionTimer = 1;
+        dust.InstructionTimer = NativeCountdown.Start(1);
     }
     /// <summary>Last item-drop request published by Ridley's terminal routine.</summary>
     public bool RidleyDeathDropRequested { get; private set; }
@@ -1327,7 +1327,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     {
         CeresRidleyBehavior.SetRidleyInstruction(body, RidleyInstructionProgramDefinitions.DeathRoar);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
-        state.FunctionTimer = 32;
+        state.FunctionTimer = NativeCountdown.Start(32);
     }
 
     /// <summary>
@@ -1347,10 +1347,10 @@ internal sealed class RidleyBehavior : IEnemySpecies
         state.Velocity = new EightEightVector<RoomPixels>(0, 0);
         _roomFx.PublishRidleyLiquidMotion(state, RidleyLiquidRomData.DrainedHeight,
             RidleyLiquidRomData.DrainVelocity, RidleyLiquidRomData.DrainDelay);
-        state.DeathExplosionTimer = 0;
+        state.DeathExplosionTimer = NativeCountdown.Start(0);
         state.DeathExplosionCount = 0;
         state.Function = RidleyAiFunction.NorfairDeathFall;
-        state.FunctionTimer = 160;
+        state.FunctionTimer = NativeCountdown.Start(160);
         TickNorfairRidleyDeathExplosions(body, state, samus: null);
     }
 
@@ -1387,7 +1387,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         state.MovementAnimationEnabled = 0;
         body.Properties = body.Properties.With(EnemyProperties.Invisible);
         state.Function = RidleyAiFunction.NorfairDeathWait;
-        state.FunctionTimer = 32;
+        state.FunctionTimer = NativeCountdown.Start(32);
     }
 
     /// <summary>$A6:C5C8's deliberate 32-frame pre-wait before the final 256 frames.</summary>
@@ -1396,7 +1396,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         if (!TickRidleyFunctionTimer(state))
             return;
         state.Function = RidleyAiFunction.NorfairDeathFinish;
-        state.FunctionTimer = 256;
+        state.FunctionTimer = NativeCountdown.Start(256);
     }
 
     /// <summary>
@@ -1434,13 +1434,13 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        if (state.DeathExplosionTimer != 0)
+        if (!state.DeathExplosionTimer.IsZero)
         {
-            state.DeathExplosionTimer--;
+            state.DeathExplosionTimer = state.DeathExplosionTimer.Decrement().Remaining;
             return;
         }
 
-        state.DeathExplosionTimer = 4;
+        state.DeathExplosionTimer = NativeCountdown.Start(4);
         state.DeathExplosionCount = unchecked((ushort)(state.DeathExplosionCount + 1));
         if (state.DeathExplosionCount >= 10)
             state.DeathExplosionCount = 0;
@@ -1507,8 +1507,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RidleyExplosionPart part = ClosedNativeWords.Decode<RidleyExplosionPart>(
             fragment.Parameter1, "Ridley explosion part");
 
-        fragment.InstructionTimer = 1;
-        fragment.Timer = 0;
+        fragment.InstructionTimer = NativeCountdown.Start(1);
+        fragment.Timer = NativeCountdown.Start(0);
         fragment.VramTilesIndex = 0;
         fragment.PaletteIndex = EnemyPaletteBits.Palette7;
         fragment.VariableF = RidleyExplosionDefinitions.GetPart(fragment.Parameter1).Lifetime;

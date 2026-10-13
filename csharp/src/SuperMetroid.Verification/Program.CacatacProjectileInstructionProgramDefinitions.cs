@@ -66,7 +66,7 @@ internal static class CacatacProjectileInstructionProgramDefinitionsVerification
             enemies.Projectiles.ProcessEnemyProjectileInstructions(actual, (SamusState?)null, Position16<RoomPixels>.Zero);
             AssertEqual(unchecked((ushort)(program + 4)), actual.InstructionPointer,
                 $"Cacatac spike {direction} sleeps at its terminal instruction");
-            AssertEqual((ushort)0, actual.InstructionTimer,
+            AssertEqual((ushort)0, actual.InstructionTimer.RawValue,
                 $"Cacatac spike {direction} terminal sleep is stable");
         }
 

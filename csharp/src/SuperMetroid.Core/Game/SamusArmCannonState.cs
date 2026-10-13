@@ -99,7 +99,7 @@ public sealed class SamusArmCannonState
 
         // The cannon shares Samus's invincibility flicker, and a closed frame performs
         // neither OAM nor DMA work. Native returns before even consulting pose data.
-        if (Frame == 0 || (samus.InvincibilityTimer != 0 && (nmiFrameCounter & 1) != 0))
+        if (Frame == 0 || (!samus.InvincibilityTimer.IsZero && (nmiFrameCounter & 1) != 0))
             return new SamusArmCannonDrawResult();
 
         ushort drawingData = PoseDrawingData((int)samus.Pose);

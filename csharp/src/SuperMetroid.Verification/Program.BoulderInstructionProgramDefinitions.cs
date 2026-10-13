@@ -156,7 +156,7 @@ internal static class BoulderInstructionProgramDefinitionsVerification
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Boulder;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
             slot.CurrentInstruction = 0x0008;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             slot.Parameter1 = parameter1;
             slot.Parameter2 = 0x0108;
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0200));

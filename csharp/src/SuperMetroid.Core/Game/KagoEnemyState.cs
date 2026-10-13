@@ -41,7 +41,7 @@ public sealed class KagoEnemyState
     /// Extra enemy word four. The ROM decrements first and dies only when the signed result
     /// is negative, so population value ten permits eleven accepted shots.
     /// </summary>
-    public ushort HitCounter { get; internal set; }
+    public NativeCountdown HitCounter { get; internal set; }
 
     /// <summary>Variable F: set after Kago requests death animation variant four.</summary>
     public bool DeathAnimationStarted

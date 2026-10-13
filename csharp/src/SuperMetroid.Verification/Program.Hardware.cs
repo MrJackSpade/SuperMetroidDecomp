@@ -80,14 +80,14 @@ internal static void VerifyTimedHeldInputTimeline()
 
     // Frame 1: held-only input changes from zero to the button and reloads the timer.
     state.UpdateHeldInput(3, button, 0);
-    AssertEqual(3, state.TimedHeldInputTimer, "changed input reloads timer");
+    AssertEqual(3, state.TimedHeldInputTimer.RawValue, "changed input reloads timer");
     AssertEqual(0, state.TimedHeldInput, "changed input stays suppressed");
 
     // Frames 2-4: DEC yields 2, 1, and 0. BPL keeps taking the suppression path.
     for (ushort expectedTimer = 2; ; expectedTimer--)
     {
         state.UpdateHeldInput(3, button, 0);
-        AssertEqual(expectedTimer, state.TimedHeldInputTimer, "stable-input countdown");
+        AssertEqual(expectedTimer, state.TimedHeldInputTimer.RawValue, "stable-input countdown");
         AssertEqual(0, state.TimedHeldInput, "countdown suppression");
         if (expectedTimer == 0)
             break;
@@ -95,7 +95,7 @@ internal static void VerifyTimedHeldInputTimeline()
 
     // Frame 5: zero wraps to $FFFF, which is negative to BPL, and activates the button.
     state.UpdateHeldInput(3, button, 0);
-    AssertEqual(0, state.TimedHeldInputTimer, "expired timer is pinned to zero");
+    AssertEqual(0, state.TimedHeldInputTimer.RawValue, "expired timer is pinned to zero");
     AssertEqual(button, state.TimedHeldInput, "held input activates after underflow");
     AssertEqual(button, state.NewlyTimedHeldInput, "activation creates a rising-edge pulse");
 
@@ -106,7 +106,7 @@ internal static void VerifyTimedHeldInputTimeline()
 
     // Releasing changes the held sample, reloads the timer, and suppresses the output.
     state.UpdateHeldInput(3, 0, 0);
-    AssertEqual(3, state.TimedHeldInputTimer, "release reloads timer");
+    AssertEqual(3, state.TimedHeldInputTimer.RawValue, "release reloads timer");
     AssertEqual(0, state.TimedHeldInput, "release clears filtered input");
     AssertEqual(0, state.NewlyTimedHeldInput, "release is not a new held press");
 
@@ -397,20 +397,20 @@ internal static void VerifyControllerInputLatch()
     AssertEqual(button, input.Current, "controller current on first press");
     AssertEqual(button, input.NewlyPressed, "controller rising edge on first press");
     AssertEqual(button, input.NewlyPressedWithRepeat, "repeat output includes real first press");
-    AssertEqual(2, input.RepeatTimer, "first press loads initial repeat delay");
+    AssertEqual(2, input.RepeatTimer.RawValue, "first press loads initial repeat delay");
 
     input.Latch(button);
     AssertEqual(0, input.NewlyPressed, "stable hold has no new edge");
     AssertEqual(0, input.NewlyPressedWithRepeat, "first held frame has no repeat");
-    AssertEqual(1, input.RepeatTimer, "held input decrements repeat timer");
+    AssertEqual(1, input.RepeatTimer.RawValue, "held input decrements repeat timer");
 
     input.Latch(button);
     AssertEqual(button, input.NewlyPressedWithRepeat, "repeat timer zero emits held input");
-    AssertEqual(1, input.RepeatTimer, "repeat pulse loads subsequent delay");
+    AssertEqual(1, input.RepeatTimer.RawValue, "repeat pulse loads subsequent delay");
 
     input.Latch(0);
     AssertEqual(0, input.NewlyPressed, "release is not a rising edge");
-    AssertEqual(2, input.RepeatTimer, "release reloads initial repeat delay");
+    AssertEqual(2, input.RepeatTimer.RawValue, "release reloads initial repeat delay");
 
     // Direction-sensitive enemy AI masks only the horizontal pair, so unrelated face
     // buttons must not prevent an exact-Right decision while Left+Right must.

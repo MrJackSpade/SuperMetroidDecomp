@@ -66,7 +66,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
 
         body.PaletteIndex = EnemyPaletteBits.Palette7;
         body.CurrentInstruction = DraygonInstructionProgramDefinitions.BodyFacingLeftIdle;
-        body.InstructionTimer = 1;
+        body.InstructionTimer = NativeCountdown.Start(1);
 
         _frameContext._processAllEnemies = true;
         Draygon = new DraygonEnemyState(body)
@@ -86,7 +86,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part appeared before the body record.");
 
-        part.InstructionTimer = 1;
+        part.InstructionTimer = NativeCountdown.Start(1);
         switch (part.EnemyDefinitionPointer)
         {
             case EnemyDefinitionId.DraygonEye:
@@ -266,9 +266,9 @@ internal sealed class DraygonBehavior : IEnemySpecies
         byte frameCounterLow)
     {
         ObserveDraygonTurretCadence(state, samus, frameCounterLow);
-        if (state.FunctionTimer < 0x0100)
+        if (state.FunctionTimer.RawValue < 0x0100)
         {
-            if (state.FunctionTimer == 0)
+            if (state.FunctionTimer.IsZero)
             {
                 RoomEnemyDefinition evir = RoomEnemyDefinitionCatalog.Get(EnemyDefinitionId.Evir);
                 if ((evir.TileDataSize & 0x7fff) !=
@@ -296,12 +296,12 @@ internal sealed class DraygonBehavior : IEnemySpecies
                     }
                 }
             }
-            state.FunctionTimer = unchecked((ushort)(state.FunctionTimer + 1));
+            state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
             return;
         }
 
         state.Function = DraygonAiFunction.IntroDance;
-        state.FunctionTimer = 0;
+        state.FunctionTimer = NativeCountdown.Start(0);
         state.LeftSideResetXPosition = state.Body.Position.X.Whole;
         state.RightSideResetXPosition = unchecked((ushort)(state.Body.Position.X.Whole + 0x02a0));
         state.ResetYPosition = state.Body.Position.Y.Whole;
@@ -316,10 +316,10 @@ internal sealed class DraygonBehavior : IEnemySpecies
         byte frameCounterLow)
     {
         ObserveDraygonTurretCadence(state, samus, frameCounterLow);
-        if (state.FunctionTimer >= DraygonIntroDanceDefinitions.DurationFrames)
+        if (state.FunctionTimer.RawValue >= DraygonIntroDanceDefinitions.DurationFrames)
         {
             state.Function = DraygonAiFunction.SwoopRightSetup;
-            state.FunctionTimer = 0;
+            state.FunctionTimer = NativeCountdown.Start(0);
             return;
         }
 
@@ -350,7 +350,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
         state.FightIntroDanceIndex = unchecked((ushort)(
             state.FightIntroDanceIndex + DraygonIntroDanceDefinitions.StreamIndexAdvance));
         state.IntroDanceFrames++;
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer + 1));
+        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
     }
 
     /// <summary>Ports swoop-right setup and table construction at <c>$A5:87F4-$88B0</c>.</summary>
@@ -653,7 +653,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
             state.Function = movingRight
                 ? DraygonAiFunction.GoopRightTail
                 : DraygonAiFunction.GoopLeftTail;
-            state.GoopCounter = 0x0010;
+            state.GoopCounter = NativeCountdown.Start(0x0010);
             return;
         }
         MoveDraygonAlongGoopPath(state, movingRight);
@@ -678,8 +678,8 @@ internal sealed class DraygonBehavior : IEnemySpecies
         ushort random = _room.Random.Read();
         if ((random & 0x000f) == 0)
         {
-            state.GoopCounter = unchecked((ushort)(state.GoopCounter - 1));
-            if (state.GoopCounter == 0)
+            state.GoopCounter = state.GoopCounter.Decrement().Remaining;
+            if (state.GoopCounter.IsZero)
             {
                 FinishDraygonGoopFiring(state, movingRight);
                 return;
@@ -776,7 +776,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
     private static void InstallDraygonInstruction(RoomEnemySlot part, ushort instruction)
     {
         part.CurrentInstruction = instruction;
-        part.InstructionTimer = 1;
+        part.InstructionTimer = NativeCountdown.Start(1);
     }
 
     private void ObserveDraygonTurretCadence(
@@ -834,8 +834,8 @@ internal sealed class DraygonBehavior : IEnemySpecies
                 ? DraygonInstructionProgramDefinitions.EyeFacingRightLookingUp
                 : DraygonInstructionProgramDefinitions.EyeFacingLeftLookingUp,
         };
-        eye.InstructionTimer = 1;
-        eye.Timer = 0;
+        eye.InstructionTimer = NativeCountdown.Start(1);
+        eye.Timer = NativeCountdown.Start(0);
     }
 
     internal DraygonEnemyState RequireCompleteDraygonState(RoomEnemySlot body)
@@ -876,8 +876,10 @@ internal sealed class DraygonBehavior : IEnemySpecies
                     EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 6)));
                 state.Arms!.CurrentInstruction =
                     EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 8)));
-                state.Body.InstructionTimer = state.Eye.InstructionTimer =
-                    state.Tail.InstructionTimer = state.Arms.InstructionTimer = 1;
+                state.Arms.InstructionTimer = NativeCountdown.Start(1);
+                state.Tail.InstructionTimer = NativeCountdown.Start(1);
+                state.Eye.InstructionTimer = NativeCountdown.Start(1);
+                state.Body.InstructionTimer = NativeCountdown.Start(1);
                 cursor = unchecked((ushort)(cursor + 10));
                 return true;
 
@@ -1113,7 +1115,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
         DraygonEnemyState state,
         SamusState? samus)
     {
-        bool whiteFrame = (body.FlashTimer & 2) != 0;
+        bool whiteFrame = (body.FlashTimer.RawValue & 2) != 0;
         (_room.Artwork?.DraygonColors ?? throw new InvalidOperationException(
             "Draygon damage requires installed color artwork."))
             .ApplyHurt(_presentation._cgram!, whiteFrame, state.HealthPaletteTableByteIndex);
@@ -1259,7 +1261,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
         SpawnDraygonDeathEvirs(state);
         state.Function = DraygonAiFunction.DyingSink;
         state.MusicRequest = MusicCommand.SelectTrack(3);
-        state.FunctionTimer = DraygonDeathWaitFramesUs;
+        state.FunctionTimer = NativeCountdown.Start(DraygonDeathWaitFramesUs);
         InstallDraygonInstruction(body, DraygonInstructionProgramDefinitions.Sleep);
 
         ushort deletedPartProperties = body.Properties.With(EnemyProperties.Deleted);
@@ -1279,8 +1281,8 @@ internal sealed class DraygonBehavior : IEnemySpecies
         byte frameCounterLow)
     {
         SpawnDyingDraygonSmoke(state, frameCounterLow);
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if (state.FunctionTimer == 0)
+        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+        if (state.FunctionTimer.IsZero)
         {
             state.Function = DraygonAiFunction.DyingFinish;
             return;
@@ -1565,7 +1567,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
         // actors are the producers; a low byte of zero inserts one 64-frame tail whip.
         if ((SnesLittleEndian.LowByte(_room.Random.Read())) == 0)
         {
-            state.TailWhipTimer = DraygonTailWhipDuration;
+            state.TailWhipTimer = NativeCountdown.Start(DraygonTailWhipDuration);
             state.Function = DraygonAiFunction.TailWhipWithSamus;
             return;
         }
@@ -1615,14 +1617,14 @@ internal sealed class DraygonBehavior : IEnemySpecies
     private void RunDraygonTailWhip(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
-        state.TailWhipTimer = unchecked((ushort)(state.TailWhipTimer - 1));
-        if (state.TailWhipTimer == 0)
+        state.TailWhipTimer = state.TailWhipTimer.Decrement().Remaining;
+        if (state.TailWhipTimer.IsZero)
         {
             state.Function = DraygonAiFunction.FlailWithSamus;
             return;
         }
 
-        if (state.TailWhipTimer == DraygonTailWhipStartFrame)
+        if (state.TailWhipTimer.RawValue == DraygonTailWhipStartFrame)
         {
             InstallDraygonInstruction(
                 state.Tail!,
@@ -1762,7 +1764,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
     private static void MarkDraygonGrappleShock(DraygonEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        body.FlashTimer = unchecked((ushort)(body.HurtAiTime + 8));
+        body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.HurtAiTime + 8)));
         body.AiHandlerBits = unchecked((ushort)(body.AiHandlerBits | 2));
     }
 
@@ -1803,7 +1805,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
         // `$A5:9B9A` also publishes the same 32-frame, type-seven quake used by the
         // cartridge's grabbed-tail impact. Keeping it on the shared room-enemy surface lets
         // the ordinary camera renderer observe the hit instead of reducing it to HP loss.
-        _earthquake.EarthquakeTimer = 32;
+        _earthquake.EarthquakeTimer = NativeCountdown.Start(32);
         _earthquake.EarthquakeType = 7;
 
         state.TailWhipHits++;
@@ -1935,7 +1937,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
         if (xDistance < 0x0010 && yDistance < 0x0014)
         {
             goop.InstructionPointer = DraygonProjectileInstructionProgramDefinitions.GoopTouch;
-            goop.InstructionTimer = 1;
+            goop.InstructionTimer = NativeCountdown.Start(1);
         }
     }
 
@@ -1959,8 +1961,8 @@ internal sealed class DraygonBehavior : IEnemySpecies
         goop.BlocksSamusProjectiles = false;
         goop.CanDamageSamus = false;
         goop.PersistsOnSamusContact = true;
-        samus.InvincibilityTimer = 0;
-        samus.KnockbackTimer = 0;
+        samus.InvincibilityTimer = NativeCountdown.Start(0);
+        samus.KnockbackTimer = NativeCountdown.Start(0);
     }
 
     internal void RunAttachedDraygonGoop(

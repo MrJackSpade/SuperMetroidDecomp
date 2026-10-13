@@ -61,7 +61,7 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
             EnemyInstructionRunner.Process(enemies, processArguments);
             AssertEqual(unchecked((ushort)(entry + 4)), slot.CurrentInstruction,
                 $"growing-shutter stage {programIndex} advances to terminal sleep");
-            AssertEqual((ushort)1, slot.InstructionTimer,
+            AssertEqual((ushort)1, slot.InstructionTimer.RawValue,
                 $"growing-shutter stage {programIndex} frame duration");
             EnemyInstructionRunner.Process(enemies, processArguments);
             AssertEqual(unchecked((ushort)(entry + 4)), slot.CurrentInstruction,

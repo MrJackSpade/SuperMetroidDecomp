@@ -120,7 +120,7 @@ recordIndex,
             slot.HeaderPointer = record.HeaderPointer;
             slot.BlockIndex = blockIndex;
             slot.InstructionPointer = initialInstruction;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             slot.RoomArgument = record.RoomArgument;
             return slot;
         }
@@ -141,7 +141,7 @@ recordIndex,
         slot.BlockIndex = 0;
         slot.RestoreLevelWord = 0;
         slot.InstructionPointer = 0;
-        slot.InstructionTimer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(0);
         slot.PreInstruction = 0;
         slot.RoomArgument = 0;
         slot.LoopTimer = 0;

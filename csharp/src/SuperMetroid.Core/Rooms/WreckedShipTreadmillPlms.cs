@@ -60,7 +60,7 @@ internal sealed class WreckedShipTreadmillPlms
             slot.HeaderPointer = header;
             slot.BlockIndex = origin;
             slot.InstructionPointer = instructionList;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             slot.Treadmill = new WreckedShipTreadmillPlmState(
                 direction,
                 areaBossDefeated);
@@ -103,7 +103,7 @@ internal sealed class WreckedShipTreadmillPlms
             slot.HeaderPointer = PlmHeaderId.MaridiaElevatube;
             slot.BlockIndex = blockIndex;
             slot.InstructionPointer = RoomPlmInstructionLists.MaridiaElevatube;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }
 

@@ -56,7 +56,7 @@ internal static class DoorEntryRoomFxSoundVerification
 
         // Run real frames until the rising lava's rumble timer will fire on the next HDMA pass.
         StepUntil(() => runtime.RoomLayer3Fx.EarthquakeRequest.HasValue &&
-                runtime.RoomLayer3Fx.earthquakeSoundTimer == 0,
+                runtime.RoomLayer3Fx.earthquakeSoundTimer.IsZero,
             _ => game.Step(0), maximumFrames: 600, context: "Rising Tide rumble timer reaches zero");
 
         var level = runtime.Room.LevelData!;

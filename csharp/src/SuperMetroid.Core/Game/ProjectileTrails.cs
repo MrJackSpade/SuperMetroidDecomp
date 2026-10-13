@@ -40,7 +40,7 @@ internal sealed class ProjectileTrails
             // The original tests only the left timer. A right stream can still be alive in
             // malformed/debug-edited state and will be overwritten when the left sentinel is
             // clear; retain that asymmetric allocation contract rather than being "safer".
-            if (_slotTable._trailSlots[slotIndex].Left.InstructionTimer == 0)
+            if (_slotTable._trailSlots[slotIndex].Left.InstructionTimer.IsZero)
             {
                 trail = _slotTable._trailSlots[slotIndex];
                 break;
@@ -49,8 +49,8 @@ internal sealed class ProjectileTrails
         if (trail is null)
             return;
 
-        trail.Left.InstructionTimer = 1;
-        trail.Right.InstructionTimer = 1;
+        trail.Left.InstructionTimer = NativeCountdown.Start(1);
+        trail.Right.InstructionTimer = NativeCountdown.Start(1);
         trail.Left.InstructionPointer = ProjectileTrailDefinitions.ReadSelector(
             SamusProjectileRomData.Trails.LeftInstructionPointers + pointerIndex * 2);
         trail.Right.InstructionPointer = ProjectileTrailDefinitions.ReadSelector(
@@ -109,13 +109,13 @@ internal sealed class ProjectileTrails
         Assets.ProjectileTrailCatalog? artwork)
     {
         SamusProjectileTrailSide side = isLeft ? pair.Left : pair.Right;
-        if (side.InstructionTimer == 0)
+        if (side.InstructionTimer.IsZero)
             return;
 
         if (!timeIsFrozen)
         {
-            side.InstructionTimer = unchecked((ushort)(side.InstructionTimer - 1));
-            if (side.InstructionTimer == 0)
+            side.InstructionTimer = side.InstructionTimer.Decrement().Remaining;
+            if (side.InstructionTimer.IsZero)
             {
                 ushort pointer = side.InstructionPointer;
                 while (true)
@@ -125,7 +125,7 @@ internal sealed class ProjectileTrails
                         SamusProjectileRomData.Banks.Movement | pointer);
                     if ((instructionOrTimer & 0x8000) == 0)
                     {
-                        side.InstructionTimer = instructionOrTimer;
+                        side.InstructionTimer = NativeCountdown.FromRaw(instructionOrTimer);
                         if (instructionOrTimer == 0)
                             return;
 

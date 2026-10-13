@@ -109,7 +109,7 @@ public sealed class SamusXrayState
     public ushort SpecialPaletteFrame { get; private set; }
 
     /// <summary>WRAM `$0AD0`, the shared five-frame palette cadence timer.</summary>
-    public ushort CommonPaletteTimer { get; private set; }
+    public NativeCountdown CommonPaletteTimer { get; private set; }
 
     /// <summary>Set by command five when sound-library-one effect nine would be queued.</summary>
     public bool ActivationSoundRequested { get; private set; }
@@ -254,7 +254,7 @@ public sealed class SamusXrayState
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishPaletteHandler();
         SpecialPaletteFrame = 0;
-        CommonPaletteTimer = 1;
+        CommonPaletteTimer = NativeCountdown.Start(1);
         ActivationSoundRequested = true;
         OwnsSamusControl = true;
     }
@@ -312,7 +312,7 @@ public sealed class SamusXrayState
         BeamSizeFlag = 0;
         SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
         SpecialPaletteFrame = 0;
-        CommonPaletteTimer = 0;
+        CommonPaletteTimer = NativeCountdown.Start(0);
     }
 
     /// <summary>Another special-palette handler replaces shared WRAM <c>$0A68/$0ACE/$0AD0</c>.</summary>
@@ -320,7 +320,7 @@ public sealed class SamusXrayState
     {
         SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
         SpecialPaletteFrame = 0;
-        CommonPaletteTimer = 0;
+        CommonPaletteTimer = NativeCountdown.Start(0);
         BeamSizeFlag = 0;
     }
 
@@ -365,7 +365,7 @@ public sealed class SamusXrayState
         // Native waits until the final visible turning frame has exactly one tick left.
         // Its beta movement handler is RTS for type `$0E`, so generic animation owns this
         // countdown without X-ray's usual per-frame timer reset.
-        if (samus.AnimationFrame != 2 || samus.AnimationFrameTimer != 1)
+        if (samus.AnimationFrame != 2 || samus.AnimationFrameTimer.RawValue != 1)
             return default;
 
         bool nowFacingLeft = samus.PoseMetadata.IsFacingLeft(bus);
@@ -529,7 +529,7 @@ public sealed class SamusXrayState
             SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
             SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
-            CommonPaletteTimer = 0;
+            CommonPaletteTimer = NativeCountdown.Start(0);
             BeamSizeFlag = 0;
             return true;
         }
@@ -541,16 +541,16 @@ public sealed class SamusXrayState
         {
             // `$91:DCEA` enters the full-beam three-color loop at byte offset six.
             SpecialPaletteFrame = 6;
-            CommonPaletteTimer = 1;
+            CommonPaletteTimer = NativeCountdown.Start(1);
             BeamSizeFlag = 1;
         }
 
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(CommonPaletteTimer);
-        CommonPaletteTimer = timer.Value;
+        NativeWordCounterStep timer = CommonPaletteTimer.Decrement();
+        CommonPaletteTimer = timer.Remaining;
         if (!timer.IsZero && timer.IsNonNegative)
             return false;
 
-        CommonPaletteTimer = SamusXrayRomData.Palette.FrameDelay;
+        CommonPaletteTimer = NativeCountdown.Start(SamusXrayRomData.Palette.FrameDelay);
         // Keep the cartridge read for non-catalog offsets reachable through externally
         // edited debugger state; ordinary widening/cycling uses installed artwork.
         if (PresentationColors is null ||

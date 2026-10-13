@@ -124,15 +124,15 @@ internal sealed class DragonBehavior : IEnemySpecies
         DragonEnemyState bodyState,
         SamusState? samus)
     {
-        bodyState.FunctionTimer = unchecked((ushort)(bodyState.FunctionTimer - 1));
-        if (unchecked((short)bodyState.FunctionTimer) >= 0)
+        bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
+        if (!bodyState.FunctionTimer.IsNegative)
             return;
         if (samus is null)
             throw new InvalidOperationException("Dragon facing selection requires the active Samus actor.");
 
         RoomEnemySlot wing = GetDragonWing(body);
         DragonEnemyState wingState = RequireDragonState(wing);
-        bodyState.FunctionTimer = DragonRiseOrSinkFrames;
+        bodyState.FunctionTimer = NativeCountdown.Start(DragonRiseOrSinkFrames);
         bodyState.Function = DragonEnemyFunction.Rising;
 
         // $E666-$E672 rotates the sign of (Samus X - body X) into bit 15 of variable A,
@@ -154,13 +154,13 @@ internal sealed class DragonBehavior : IEnemySpecies
     /// <summary>Ports Dragon function $A2:E6AD.</summary>
     internal void RunDragonRising(RoomEnemySlot body, DragonEnemyState bodyState)
     {
-        bodyState.FunctionTimer = unchecked((ushort)(bodyState.FunctionTimer - 1));
-        if (unchecked((short)bodyState.FunctionTimer) < 0)
+        bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
+        if (bodyState.FunctionTimer.IsNegative)
         {
             bodyState.RequestedInstructionListIndex =
                 DragonAnimationDefinitions.AttackingWithSameFacing(
                     bodyState.RequestedInstructionListIndex);
-            bodyState.AttackCounter = DragonShotCount;
+            bodyState.AttackCounter = NativeCountdown.Start(DragonShotCount);
             bodyState.Function = DragonEnemyFunction.Attacking;
         }
 
@@ -185,14 +185,14 @@ internal sealed class DragonBehavior : IEnemySpecies
         bodyState.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
         SpawnDragonFireball(body, bodyState);
         LastDragonSoundEffect = DragonFireballSound;
-        bodyState.AttackCounter = unchecked((ushort)(bodyState.AttackCounter - 1));
-        if (bodyState.AttackCounter != 0)
+        bodyState.AttackCounter = bodyState.AttackCounter.Decrement().Remaining;
+        if (!bodyState.AttackCounter.IsZero)
             return;
 
         bodyState.RequestedInstructionListIndex =
             DragonAnimationDefinitions.IdleWithSameFacing(
                 bodyState.RequestedInstructionListIndex);
-        bodyState.FunctionTimer = DragonWaitBeforeSinkFrames;
+        bodyState.FunctionTimer = NativeCountdown.Start(DragonWaitBeforeSinkFrames);
         bodyState.Function = DragonEnemyFunction.WaitToSink;
     }
 
@@ -201,11 +201,11 @@ internal sealed class DragonBehavior : IEnemySpecies
         RoomEnemySlot body,
         DragonEnemyState bodyState)
     {
-        bodyState.FunctionTimer = unchecked((ushort)(bodyState.FunctionTimer - 1));
-        if (bodyState.FunctionTimer != 0)
+        bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
+        if (!bodyState.FunctionTimer.IsZero)
             return;
 
-        bodyState.FunctionTimer = DragonRiseOrSinkFrames;
+        bodyState.FunctionTimer = NativeCountdown.Start(DragonRiseOrSinkFrames);
         bodyState.Function = DragonEnemyFunction.Sinking;
         InstallDragonInstructionList(body, bodyState);
     }
@@ -213,10 +213,10 @@ internal sealed class DragonBehavior : IEnemySpecies
     /// <summary>Ports Dragon function $A2:E749.</summary>
     private void RunDragonSinking(RoomEnemySlot body, DragonEnemyState bodyState)
     {
-        bodyState.FunctionTimer = unchecked((ushort)(bodyState.FunctionTimer - 1));
-        if (unchecked((short)bodyState.FunctionTimer) < 0)
+        bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
+        if (bodyState.FunctionTimer.IsNegative)
         {
-            bodyState.FunctionTimer = DragonWaitBeforeRiseFrames;
+            bodyState.FunctionTimer = NativeCountdown.Start(DragonWaitBeforeRiseFrames);
             bodyState.Function = DragonEnemyFunction.WaitToRise;
         }
 
@@ -278,8 +278,8 @@ internal sealed class DragonBehavior : IEnemySpecies
         state.InstalledInstructionListIndex = state.RequestedInstructionListIndex;
         slot.CurrentInstruction = DragonAnimationDefinitions.InstructionList(
             state.RequestedInstructionListIndex);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private RoomEnemySlot GetDragonWing(RoomEnemySlot body)
@@ -439,7 +439,7 @@ internal sealed class DragonBehavior : IEnemySpecies
             projectile.InstructionPointer = unchecked((short)projectile.Velocity.X.RawValue) < 0
                 ? DragonFireballInstructionProgramDefinitions.FallingLeft
                 : DragonFireballInstructionProgramDefinitions.FallingRight;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             return;
         }
 

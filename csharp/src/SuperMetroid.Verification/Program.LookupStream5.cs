@@ -238,7 +238,7 @@ internal static class LookupStream5Verification
             }
             AssertEqual((ushort)PhantoonAiFunction.NoOperation, body.VariableF, "Selected duration stops moving phase");
             AssertEqual(PhantoonInstructionProgramDefinitions.EyeOpen, eye.CurrentInstruction, "Expiration starts exact eye-opening program");
-            AssertEqual((ushort)1, eye.InstructionTimer, "Eye-opening program executes on next instruction step");
+            AssertEqual((ushort)1, eye.InstructionTimer.RawValue, "Eye-opening program executes on next instruction step");
             AssertEqual((ushort)0, body.Parameter2, "Opening clears flame-rain trigger");
             AssertEqual((ushort)1, mouth.VariableB, "Casual hold still advances on every movement call");
             AssertEqual(1, randomCalls, "Only independent initial direction consumes RNG in this fixture");
@@ -1809,7 +1809,7 @@ internal static class LookupStream5Verification
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })
         for (ushort phase = 0; phase < 4; phase++)
         {
-            door.Position = door.Position.WithWholeX(x); enemies.Earthquake.EarthquakeTimer = phase;
+            door.Position = door.Position.WithWholeX(x); enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(phase);
             var actual = new OamBuffer(); actual.BeginFrame();
             enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(actual, new(camera, 0)); actual.FinalizeFrame();
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase);

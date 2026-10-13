@@ -200,8 +200,8 @@ internal static class RipperInstructionProgramDefinitionsVerification
         {
             AssertEqual(expectedProgram, slot.CurrentInstruction,
                 $"{context} initializer-selected program");
-            slot.InstructionTimer = 1;
-            slot.Timer = 0;
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.Timer = NativeCountdown.Start(0);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < 31; frame++)

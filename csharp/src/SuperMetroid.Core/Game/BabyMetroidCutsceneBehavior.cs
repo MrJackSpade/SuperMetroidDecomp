@@ -96,8 +96,8 @@ internal sealed class BabyMetroidCutsceneBehavior
 
         CopyBabyMetroidActorToPhysicalSlot(slot, baby);
         slot.CurrentInstruction = baby.InstructionList;
-        slot.InstructionTimer = baby.InstructionTimer;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.FromRaw(baby.InstructionTimer);
+        slot.Timer = NativeCountdown.Start(0);
 
         // The writer receives byte index $01E2 and count $000F. Color zero is deliberately
         // skipped at source `$94D2+2`, preserving the room's transparent backdrop entry.
@@ -134,7 +134,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         SamusState target = samus ?? throw new InvalidOperationException(
             "The cutscene Baby requires the live Samus actor.");
 
-        slot.ShakeTimer = 0;
+        slot.ShakeTimer = NativeCountdown.Start(0);
         if (state.PendingBabyCryCount != 0 &&
             baby.Phase is BabyMetroidCutscenePhase.HealSamusToFullHealth or
                 BabyMetroidCutscenePhase.IdleUntilNoHealth)

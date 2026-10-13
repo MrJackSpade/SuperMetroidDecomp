@@ -44,22 +44,22 @@ internal static class RidleyAcidVerification
         // Enter the native palette-reveal phase, then let its real ROM table reach
         // the terminator. This does not inject a liquid command into the fixture.
         state.Function = RidleyAiFunction.WaitBeforeLiftoff;
-        state.FunctionTimer = 0;
+        state.FunctionTimer = NativeCountdown.Start(0);
         state.FadePaletteOffset = 0;
         for (int frame = 0; frame < 200 && state.Function == RidleyAiFunction.WaitBeforeLiftoff; frame++)
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
         AssertEqual((ushort)440, fx.TargetYPosition, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.PackedYVelocity, "native reveal writes rising velocity");
-        AssertEqual((ushort)32, fx.Timer, "native reveal writes rise delay once");
+        AssertEqual((ushort)32, fx.Timer.RawValue, "native reveal writes rise delay once");
         for (int frame = 0; frame < 400; frame++) fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual((ushort)440, fx.BaseYPosition, "acid reaches native visible battle height");
         AssertAcidVisible(true);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
-        state.FunctionTimer = 0;
+        state.FunctionTimer = NativeCountdown.Start(0);
         runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
         AssertEqual((ushort)528, fx.TargetYPosition, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.PackedYVelocity, "native death writes draining velocity");
-        AssertEqual((ushort)1, fx.Timer, "native death writes drain delay once");
+        AssertEqual((ushort)1, fx.Timer.RawValue, "native death writes drain delay once");
         for (int frame = 0; frame < 400; frame++) fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual((ushort)528, fx.BaseYPosition, "acid drains below arena after death");
         AssertAcidVisible(false);

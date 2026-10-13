@@ -63,11 +63,11 @@ internal static class FallingSparkInstructionProgramDefinitionsVerification
         var observedOperands = new HashSet<ushort>();
         for (int frame = 0; frame < 4; frame++)
         {
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, (SamusState?)null, Position16<RoomPixels>.Zero);
             AssertEqual((ushort)(FallingSparkInstructionProgramDefinitions.Falling + 2 + (frame % 3) * 4),
                 projectile.PresentationOperandAddress, "falling spark frame order and loop restart");
-            AssertEqual((ushort)3, projectile.InstructionTimer, "falling spark frame duration");
+            AssertEqual((ushort)3, projectile.InstructionTimer.RawValue, "falling spark frame duration");
             observedOperands.Add(projectile.PresentationOperandAddress);
         }
         AssertEqual(
@@ -82,18 +82,18 @@ internal static class FallingSparkInstructionProgramDefinitionsVerification
             "floor collision selects the named impact program");
         for (int frame = 0; frame < 11; frame++)
         {
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, (SamusState?)null, Position16<RoomPixels>.Zero);
             AssertEqual((ushort)(FallingSparkInstructionProgramDefinitions.HitFloor + 2 + frame * 4),
                 projectile.PresentationOperandAddress, "falling spark impact blink frame order");
-            AssertEqual((ushort)1, projectile.InstructionTimer, "falling spark impact frame duration");
+            AssertEqual((ushort)1, projectile.InstructionTimer.RawValue, "falling spark impact frame duration");
             observedOperands.Add(projectile.PresentationOperandAddress);
         }
         AssertEqual(
             FallingSparkInstructionProgramDefinitions.HitFloorTerminalDelete,
             projectile.InstructionPointer,
             "floor impact reaches the native terminal delete");
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, (SamusState?)null, Position16<RoomPixels>.Zero);
         AssertTrue(!projectile.IsActive,
             "floor impact deletes Falling Spark after all eleven blinking frames");

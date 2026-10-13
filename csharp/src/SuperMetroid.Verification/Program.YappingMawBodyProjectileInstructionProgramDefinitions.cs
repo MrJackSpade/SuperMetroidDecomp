@@ -86,7 +86,7 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerif
                     $"actual {facing}-facing body defers artwork resolution to the draw pass");
                 AssertEqual(unchecked((ushort)(expected + 4)), body.InstructionPointer,
                     $"{facing}-facing Yapping Maw body sleeps at the authored opcode");
-                AssertEqual((ushort)0, body.InstructionTimer,
+                AssertEqual((ushort)0, body.InstructionTimer.RawValue,
                     $"{facing}-facing Yapping Maw sleep leaves the timer stopped");
             }
 
@@ -96,7 +96,7 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerif
                 RoomEnemySystem system,
                 RoomEnemyProjectileSlot body)
             {
-                body.InstructionTimer = 1;
+                body.InstructionTimer = NativeCountdown.Start(1);
                 system.Projectiles.ProcessEnemyProjectileInstructions(body, new SamusState(), Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, body, spriteArtwork, executedOperands);
             }
@@ -106,7 +106,7 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerif
         deletionSystem.BindFixtureBus(guard);
         RoomEnemyProjectileSlot deletion = deletionCandidate!;
         deletion.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
-        deletion.InstructionTimer = 1;
+        deletion.InstructionTimer = NativeCountdown.Start(1);
         deletionSystem.Projectiles.ProcessEnemyProjectileInstructions(deletion, new SamusState(), Position16<RoomPixels>.Zero);
         AssertTrue(!deletion.IsActive,
             "Yapping Maw body shot reaction reaches the compiled shared delete program");

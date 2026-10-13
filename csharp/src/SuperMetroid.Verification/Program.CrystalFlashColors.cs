@@ -69,11 +69,11 @@ internal static class CrystalFlashColorsVerification
             AssertTrue(nativeSamus.CrystalFlash.UpdatePalette(rom, nativeCgram, nativeSamus,
                     colors: native),
                 $"native Crystal Flash call {call} retains palette ownership");
-            AssertEqual(nativeSamus.CrystalFlash.CrystalPaletteTimer,
-                samus.CrystalFlash.CrystalPaletteTimer,
+            AssertEqual(nativeSamus.CrystalFlash.CrystalPaletteTimer.RawValue,
+                samus.CrystalFlash.CrystalPaletteTimer.RawValue,
                 $"color edit preserves body timer on call {call}");
-            AssertEqual(nativeSamus.CrystalFlash.SpecialPaletteTimer,
-                samus.CrystalFlash.SpecialPaletteTimer,
+            AssertEqual(nativeSamus.CrystalFlash.SpecialPaletteTimer.RawValue,
+                samus.CrystalFlash.SpecialPaletteTimer.RawValue,
                 $"color edit preserves bubble timer on call {call}");
             AssertEqual(nativeSamus.CrystalFlash.CommonPaletteTimer,
                 samus.CrystalFlash.CommonPaletteTimer,
@@ -145,7 +145,7 @@ internal static class CrystalFlashColorsVerification
                 PowerBombs = 10,
             };
             started.PoseMetadata.RefreshCollisionRadii(rom);
-            started.HorizontalSpeed.SpecialPaletteTimer = 0;
+            started.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(0);
             AssertTrue(started.CrystalFlash.TryBegin(rom, started, controllerInput: 0,
                 skipInputCheck: true), "start real Crystal Flash palette owner");
             return started;

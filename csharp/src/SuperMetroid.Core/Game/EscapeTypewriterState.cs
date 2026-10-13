@@ -36,7 +36,7 @@ public sealed class EscapeTypewriterState
     /// <summary>Countdown reload in <see cref="Step"/> calls; initially zero and set to the two-call character delay when the program first starts.</summary>
     public ushort Delay { get; private set; }
     /// <summary>Calls still to skip before interpreting another character; a call that decrements it to zero still performs no character work.</summary>
-    public ushort DelayTimer { get; private set; }
+    public NativeCountdown DelayTimer { get; private set; }
     /// <summary>Total non-space glyphs transferred to VRAM; spaces advance the destination but do not increment this count.</summary>
     public int GlyphsWritten { get; private set; }
     /// <summary>True after an eligible interpretation call passes the end of all lines; subsequent calls return completion without writing or requesting sound.</summary>
@@ -75,7 +75,7 @@ public sealed class EscapeTypewriterState
     {
         ClickRequested = false;
         if (Completed) return true;
-        if (DelayTimer != 0) { DelayTimer--; return false; }
+        if (!DelayTimer.IsZero) { DelayTimer = DelayTimer.Decrement().Remaining; return false; }
         EscapeTypewriterProgram program = installedProgram ??
             throw new InvalidOperationException(
                 $"Escape typewriter program {ProgramId} was restored without host content rebind.");
@@ -84,7 +84,7 @@ public sealed class EscapeTypewriterState
 
     private bool StepInstalled(EscapeTypewriterProgram program, SnesVram vram)
     {
-        DelayTimer = Delay;
+        DelayTimer = NativeCountdown.FromRaw(Delay);
         if (!ProgramStarted)
         {
             Delay = EscapeTypewriterDefinitions.CharacterDelayFrames;

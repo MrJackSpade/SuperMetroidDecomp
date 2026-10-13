@@ -82,14 +82,14 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
             }
             AssertEqual(unchecked((ushort)(bouncing + 4)), egg.InstructionPointer,
                 $"Golden Torizo {movingRight} egg sleeps after first pose");
-            AssertEqual((ushort)0, egg.InstructionTimer,
+            AssertEqual((ushort)0, egg.InstructionTimer.RawValue,
                 $"Golden Torizo {movingRight} egg sleep timer");
 
             egg.Variable1 = 0;
             BombTorizoBehavior.RunGoldenTorizoEggPreInstruction(egg, emptyRoom);
             AssertEqual(unchecked((ushort)(bouncing + 6)), egg.InstructionPointer,
                 $"Golden Torizo {movingRight} egg hatch skips sleep");
-            AssertEqual((ushort)1, egg.InstructionTimer,
+            AssertEqual((ushort)1, egg.InstructionTimer.RawValue,
                 $"Golden Torizo {movingRight} egg hatch arms instruction stream");
             AssertEqual(movingRight ? (ushort)256 : unchecked((ushort)-256), egg.Velocity.X.RawValue,
                 $"Golden Torizo {movingRight} egg hatch horizontal launch");
@@ -110,14 +110,14 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
                 $"Golden Torizo {movingRight} egg hatch enables Samus collision");
             AssertTrue(egg.BlocksSamusProjectiles,
                 $"Golden Torizo {movingRight} egg hatch enables shot collision");
-            AssertEqual((ushort)6, egg.InstructionTimer,
+            AssertEqual((ushort)6, egg.InstructionTimer.RawValue,
                 $"Golden Torizo {movingRight} egg enters hatched loop");
             AssertEqual(unchecked((ushort)(hatchedLoop + 4)), egg.InstructionPointer,
                 $"Golden Torizo {movingRight} egg hatched loop cursor");
 
             for (int frame = 1; frame <= 24; frame++)
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(egg, null, Position16<RoomPixels>.Zero);
-            AssertEqual((ushort)6, egg.InstructionTimer,
+            AssertEqual((ushort)6, egg.InstructionTimer.RawValue,
                 $"Golden Torizo {movingRight} egg reloads 24-frame hatched loop");
             AssertEqual(unchecked((ushort)(hatchedLoop + 4)), egg.InstructionPointer,
                 $"Golden Torizo {movingRight} egg stable hatched-loop cursor");
@@ -132,7 +132,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
                 : GoldenTorizoEggInstructionProgramDefinitions.BreakLeft;
             AssertEqual(breakProgram, egg.InstructionPointer,
                 $"Golden Torizo {movingRight} egg floor collision selects break program");
-            AssertEqual((ushort)1, egg.InstructionTimer,
+            AssertEqual((ushort)1, egg.InstructionTimer.RawValue,
                 $"Golden Torizo {movingRight} egg floor collision arms break program");
 
             int breakFrames = movingRight ? 24 : 26;
@@ -166,7 +166,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
         shotEnemies.BombTorizoBehavior.SpawnGoldenTorizoEgg(shotTorizo);
         RoomEnemyProjectileSlot shot = shotEnemies.Projectiles.EnemyProjectiles[^1];
         shot.InstructionPointer = TorizoChozoOrbInstructionProgramDefinitions.WallImpact;
-        shot.InstructionTimer = 1;
+        shot.InstructionTimer = NativeCountdown.Start(1);
         shot.Variable0 = shot.Position.X.Whole;
         shot.Variable1 = shot.Position.Y.Whole;
         for (int frame = 1; frame <= 20; frame++)

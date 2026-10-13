@@ -19,8 +19,8 @@ internal sealed class ProjectileAnimation
     internal bool RunProjectileInstructionHandler(
         SamusProjectileSlot slot)
     {
-        slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
-        if (slot.InstructionTimer != 0)
+        slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
+        if (!slot.InstructionTimer.IsZero)
             return false;
 
         ushort pointer = slot.InstructionPointer;
@@ -29,7 +29,7 @@ internal sealed class ProjectileAnimation
             ushort instructionOrTimer = SamusProjectileInstructionDefinitions.ReadWord(SamusProjectileRomData.Banks.Projectile | pointer);
             if ((instructionOrTimer & 0x8000) == 0)
             {
-                slot.InstructionTimer = instructionOrTimer;
+                slot.InstructionTimer = NativeCountdown.FromRaw(instructionOrTimer);
                 slot.SpritemapPointer = FrameBindings?.Resolve(pointer) ??
                     SamusProjectileInstructionDefinitions.ReadWord(
                         SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));
@@ -99,8 +99,9 @@ internal sealed class ProjectileAnimation
         // The assembly advances only when 16-bit DEC crosses zero into `$FFFF`. A timer
         // value of zero therefore survives one visible call; testing equality here would
         // make every ROM-authored delay one frame too short.
-        _charge._flareTimers[component] = unchecked((ushort)(_charge._flareTimers[component] - 1));
-        if ((_charge._flareTimers[component] & 0x8000) == 0)
+        NativeWordCounterStep timer = _charge._flareTimers[component].Decrement();
+        _charge._flareTimers[component] = timer.Remaining;
+        if (timer.IsNonNegative)
             return;
 
         ushort frame = unchecked((ushort)(_charge._flareFrames[component] + 1));
@@ -137,7 +138,7 @@ internal sealed class ProjectileAnimation
         }
 
         _charge._flareFrames[component] = frame;
-        _charge._flareTimers[component] = delay;
+        _charge._flareTimers[component] = NativeCountdown.Start(delay);
     }
 
     internal void DrawFlareComponent(ISnesAddressSpace bus, OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork)

@@ -81,7 +81,7 @@ internal sealed class TourianPlms
             slot.LoopTimer = 0;
             DoorPlms.SetupDoorTransitionDeactivatedSlot(level, slot);
             slot.InstructionPointer = OldTourianEscapeShaftWallPlmDefinitions.InstructionList;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }
         return false;
@@ -112,7 +112,7 @@ internal sealed class TourianPlms
         // $84:B90B-$B914 advances past the sleep and arms timer one; unlike other wakes it
         // leaves the loop timer alone.
         slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         (_bindings.Enemies ?? throw new InvalidOperationException(
             "Old Tourian escape-shaft wall has no enemy-projectile owner.")).SpawnOldTourianEscapeShaftWallExplosion();
     }
@@ -129,7 +129,7 @@ internal sealed class TourianPlms
             slot.HeaderPointer = definition.HeaderPointer;
             slot.BlockIndex = level.GetBlockIndex(new(6, 12));
             slot.InstructionPointer = definition.InstructionListPointer;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }
         return false;

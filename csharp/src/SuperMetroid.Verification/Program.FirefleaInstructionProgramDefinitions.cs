@@ -67,7 +67,7 @@ internal static class FirefleaInstructionProgramDefinitionsVerification
              call < FirefleaInstructionProgramDefinitions.FrameCount + 1;
              call++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
             ushort operand = FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(
                 call % FirefleaInstructionProgramDefinitions.FrameCount);

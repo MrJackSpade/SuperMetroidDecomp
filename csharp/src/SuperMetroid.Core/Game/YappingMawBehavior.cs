@@ -83,7 +83,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
             Function = YappingMawAiFunction.WaitingForSamus,
             Origin = slot.Position.Whole,
             ActivationDistance = slot.Parameter1,
-            RetractedDelayTimer = YappingMawRetractedDelayFrames,
+            RetractedDelayTimer = NativeCountdown.Start(YappingMawRetractedDelayFrames),
             OriginalPaletteBits = new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits,
         };
         _yappingMawStates[slot.SlotIndex] = state;
@@ -91,8 +91,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         slot.CurrentInstruction = slot.Parameter2 == 0
             ? YappingMawInstructionProgramDefinitions.AttackingFacingDown
             : YappingMawInstructionProgramDefinitions.AttackingFacingUp;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
 
         // SpawnEprojWithGfx searches native indexes $22,$20,... downward. The initializer
         // receives parameters 3,2,1,0 and writes those physical indexes into variables
@@ -141,7 +141,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         SamusState? samus,
         Position16<RoomPixels> camera)
     {
-        state.GrabCooldown = unchecked((ushort)(state.GrabCooldown - 1));
+        state.GrabCooldown = state.GrabCooldown.Decrement().Remaining;
         state.IsOffScreen = IsYappingMawPointOffScreen(slot, camera);
 
         if (samus is null)
@@ -193,7 +193,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         {
             // A target already inside 32 pixels cannot safely trigger an extension and has
             // its grab gate refreshed to 48 every frame. This is why the cooldown must wrap.
-            state.GrabCooldown = YappingMawGrabCooldownFrames;
+            state.GrabCooldown = NativeCountdown.Start(YappingMawGrabCooldownFrames);
             return;
         }
 
@@ -233,8 +233,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         int direction = directionByteOffset / 2;
         slot.CurrentInstruction =
             YappingMawInstructionProgramDefinitions.AttackForDirection(direction);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
 
         state.HeldSamusOffset = YappingMawRomData.HeldSamusOffset(direction);
         state.Function = YappingMawAiFunction.ExtendingOrRetracting;
@@ -302,7 +302,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         }
 
         state.Function = YappingMawAiFunction.RetractedDelay;
-        state.GrabCooldown = YappingMawGrabCooldownFrames;
+        state.GrabCooldown = NativeCountdown.Start(YappingMawGrabCooldownFrames);
 
         // The six retracted lists are not an eight-way table. Straight-ish sectors share a
         // list, while the vertical sectors at byte offsets four and twelve have dedicated
@@ -328,8 +328,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies
             };
             skipHeldPlacement = state.DirectionTableByteOffset is not (4 or 12);
         }
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
 
         if (!skipHeldPlacement && state.HasGrabbedSamus)
             PositionSamusInYappingMaw(slot, state, samus);
@@ -362,14 +362,14 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         if (state.HasGrabbedSamus)
             PositionSamusInYappingMaw(state.Owner, state, samus);
 
-        state.RetractedDelayTimer = unchecked((ushort)(state.RetractedDelayTimer - 1));
-        if (unchecked((short)state.RetractedDelayTimer) >= 0 || samus.DeathSequence.IsActive)
+        state.RetractedDelayTimer = state.RetractedDelayTimer.Decrement().Remaining;
+        if (!state.RetractedDelayTimer.IsNegative || samus.DeathSequence.IsActive)
             return;
 
         samus.InputLocked = false;
         state.HasGrabbedSamus = false;
-        state.GrabCooldown = YappingMawGrabCooldownFrames;
-        state.RetractedDelayTimer = YappingMawRetractedDelayFrames;
+        state.GrabCooldown = NativeCountdown.Start(YappingMawGrabCooldownFrames);
+        state.RetractedDelayTimer = NativeCountdown.Start(YappingMawRetractedDelayFrames);
         state.Function = YappingMawAiFunction.WaitingForSamus;
     }
 
@@ -414,10 +414,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         YappingMawEnemyState state,
         SamusState samus)
     {
-        if (unchecked((short)state.GrabCooldown) >= 0 || state.HasGrabbedSamus)
+        if (!state.GrabCooldown.IsNegative || state.HasGrabbedSamus)
             return;
 
-        state.GrabCooldown = 0;
+        state.GrabCooldown = NativeCountdown.Start(0);
         state.HasGrabbedSamus = true;
         samus.InputLocked = true;
     }
@@ -433,7 +433,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
     {
         if (slot.Health != 0)
         {
-            if (slot.FrozenTimer == 0)
+            if (slot.FrozenTimer.IsZero)
                 return;
 
             ReleaseSamusFromYappingMaw(state, samus);
@@ -462,7 +462,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
     {
         ushort paletteBits = SelectYappingMawFrozenPalette(
             state.OriginalPaletteBits,
-            slot.FrozenTimer);
+            slot.FrozenTimer.RawValue);
         foreach (RoomEnemyProjectileSlot? body in state.BodyProjectiles)
         {
             if (body is not null)

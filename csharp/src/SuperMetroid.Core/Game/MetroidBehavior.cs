@@ -208,12 +208,12 @@ internal sealed class MetroidBehavior : IEnemySpecies
     /// <summary>Ports <c>Metroid_Func_4</c>, including post-decrement timer semantics.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemySlot slot, MetroidEnemyState state)
     {
-        slot.Position += MetroidBehaviorDefinitions.EscapeDisplacement(state.EscapeTimer);
+        slot.Position += MetroidBehaviorDefinitions.EscapeDisplacement(state.EscapeTimer.RawValue);
         StoreMetroidXVelocity(state, 0);
         StoreMetroidYVelocity(state, 0);
 
-        ushort oldTimer = state.EscapeTimer;
-        state.EscapeTimer = unchecked((ushort)(oldTimer - 1));
+        ushort oldTimer = state.EscapeTimer.RawValue;
+        state.EscapeTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
             return;
 
@@ -225,10 +225,10 @@ internal sealed class MetroidBehavior : IEnemySpecies
     internal void RunMetroidFrozen(RoomEnemySlot slot)
     {
         MetroidEnemyState state = RequireMetroidState(slot);
-        if (state.EscapeTimer != 0)
+        if (!state.EscapeTimer.IsZero)
         {
-            state.EscapeTimer = unchecked((ushort)(state.EscapeTimer - 1));
-            slot.FlashTimer = 2;
+            state.EscapeTimer = state.EscapeTimer.Decrement().Remaining;
+            slot.FlashTimer = NativeCountdown.Start(2);
         }
 
         FreezeMetroidOuterBody(state.OuterBodyA, MetroidOuterBodyAFrozenInstructionList);
@@ -239,7 +239,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
     internal void ApplyMetroidHurt(RoomEnemySlot slot)
     {
         MetroidEnemyState state = RequireMetroidState(slot);
-        if ((slot.FlashTimer & 2) != 0)
+        if ((slot.FlashTimer.RawValue & 2) != 0)
         {
             state.OuterBodyA.GraphicsIndex =
                 new SnesObjAttributeWord(state.OuterBodyA.GraphicsIndex)
@@ -353,11 +353,11 @@ internal sealed class MetroidBehavior : IEnemySpecies
         if ((collisionProjectileType & 0x0002) != 0)
         {
             LastMetroidSoundEffectLibrary3 = MetroidIceSoundEffect;
-            slot.FlashTimer = 4;
+            slot.FlashTimer = NativeCountdown.Start(4);
             if (collisionProjectileDamage >= slot.Parameter2)
             {
                 slot.Parameter2 = 0;
-                slot.FrozenTimer = MetroidFrozenDuration;
+                slot.FrozenTimer = NativeCountdown.Start(MetroidFrozenDuration);
                 slot.AiHandlerBits |= 0x0004;
                 return;
             }
@@ -372,7 +372,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
         MetroidEnemyState state,
         SamusState? samus)
     {
-        state.EscapeTimer = MetroidEscapeDuration;
+        state.EscapeTimer = NativeCountdown.Start(MetroidEscapeDuration);
         state.Function = MetroidAiFunction.PowerBombEscape;
         SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.ChasingSamus);
         if (samus is not null)
@@ -450,7 +450,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
     private static void SetMetroidInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
     internal MetroidEnemyState RequireMetroidState(RoomEnemySlot slot) =>
@@ -465,7 +465,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
                                   EnemyCollision.ShotAi(c.Enemy) == EnemyInteractionCallback.MetroidShot,
             c =>
             {
-                if (c.Enemy.FrozenTimer == 0)
+                if (c.Enemy.FrozenTimer.IsZero)
                 {
                     SamusProjectileSlot recoilOrigin = c.OrdinaryProjectiles.Slots[0];
                     ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, c.Bomb.Damage, recoilOrigin.Position.Whole, c.Samus);
@@ -535,7 +535,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
     internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c)
     {
         RoomEnemySlot enemy = c.Enemy;
-        if (enemy.FrozenTimer != 0)
+        if (!enemy.FrozenTimer.IsZero)
         {
             if (c.Family is not SamusProjectileFamily.Missile and not SamusProjectileFamily.SuperMissile)
             {
@@ -555,7 +555,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
             if (frozenVulnerability != 0xff && frozenDamage != 0)
             {
                 ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
-                enemy.FlashTimer = unchecked((ushort)(hurtTime + 8));
+                enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
                 enemy.AiHandlerBits |= 0x0002;
                 enemy.Health = frozenDamage >= enemy.Health
                     ? (ushort)0

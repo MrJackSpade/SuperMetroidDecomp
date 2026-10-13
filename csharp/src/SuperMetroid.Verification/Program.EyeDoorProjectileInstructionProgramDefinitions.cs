@@ -80,7 +80,7 @@ internal static class EyeDoorProjectileInstructionProgramDefinitionsVerification
         AssertEqual((ushort)EnemyProjectilePreInstruction.EyeDoorProjectilePreInstruction,
             impact.PreInstruction,
             "Eye Door setup installs the native flight pre-instruction operand");
-        impact.InstructionTimer = 1;
+        impact.InstructionTimer = NativeCountdown.Start(1);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(impact, samus, Position16<RoomPixels>.Zero);
         CheckPresentation(impact, EyeDoorProjectileInstructionProgramDefinitions.FlyingLoop + 2);
         AssertEqual(
@@ -94,7 +94,7 @@ internal static class EyeDoorProjectileInstructionProgramDefinitionsVerification
             EyeDoorProjectileInstructionProgramDefinitions.Impact,
             impact.InstructionPointer,
             "opened door selects the named Eye Door impact program");
-        AssertEqual((ushort)1, impact.InstructionTimer,
+        AssertEqual((ushort)1, impact.InstructionTimer.RawValue,
             "Eye Door impact handoff requests a same-pass animation tick");
         RunForcedTicks(impact, 4);
         AssertTrue(!impact.IsActive,
@@ -161,7 +161,7 @@ internal static class EyeDoorProjectileInstructionProgramDefinitionsVerification
             ushort start = projectile.InstructionPointer;
             for (int tick = 0; tick < count; tick++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
                 if (projectile.IsActive)
                 {

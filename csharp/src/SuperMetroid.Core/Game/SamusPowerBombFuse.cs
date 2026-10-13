@@ -13,8 +13,9 @@ public static class SamusPowerBombFuse
         if (timer == 0)
             return new(timer, instructionPointer, SpawnExplosion: false, DeleteProjectile: explosionFlag == 0);
 
-        timer = unchecked((ushort)(timer - 1));
-        if (timer == 0)
+        NativeWordCounterStep fuse = NativeWordCounter.Decrement(timer);
+        timer = fuse.Value;
+        if (fuse.IsZero)
             return new(SamusPowerBombFuseData.ExplosionStartedSentinel, instructionPointer,
                 SpawnExplosion: true, DeleteProjectile: false);
         if (timer == SamusPowerBombFuseData.FastAnimationTimer)

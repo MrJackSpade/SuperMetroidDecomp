@@ -93,7 +93,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
             RoomEnemyProjectileKind.NoobTubeCrack,
             parameter: 0);
         shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
-        shot.InstructionTimer = 1;
+        shot.InstructionTimer = NativeCountdown.Start(1);
         Process(shotSystem, shot);
         AssertTrue(!shot.IsActive,
             "n00b-tube shot reaction reaches shared compiled deletion");
@@ -174,7 +174,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
             for (int tick = 1; tick <= maximumTicks; tick++)
             {
                 system.Projectiles.CurrentFrame8 = unchecked((byte)tick);
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 Process(system, projectile);
                 if (!projectile.IsActive)
                     return tick;

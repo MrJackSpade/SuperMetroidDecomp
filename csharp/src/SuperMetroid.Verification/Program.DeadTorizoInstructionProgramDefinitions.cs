@@ -54,9 +54,9 @@ internal static class DeadTorizoInstructionProgramDefinitionsVerification
 
         object?[] processArguments =
             [corpse, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        corpse.InstructionTimer = 1;
+        corpse.InstructionTimer = NativeCountdown.Start(1);
         EnemyInstructionRunner.Process(enemies, processArguments);
-        corpse.InstructionTimer = 1;
+        corpse.InstructionTimer = NativeCountdown.Start(1);
         EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(DeadTorizoInstructionProgramDefinitions.SleepOpcode,
             corpse.CurrentInstruction,

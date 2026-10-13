@@ -33,7 +33,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
         var state = new PuyoEnemyState(slot)
         {
             YSpeedTableIndex = 0,
-            HopCooldownTimer = slot.Parameter1,
+            HopCooldownTimer = NativeCountdown.FromRaw(slot.Parameter1),
             Function = PuyoEnemyFunction.Grounded,
             // InitAI never writes $0FB0 or the inactive extended words. The room loader's
             // cleared enemy allocation therefore leaves them zero until InitiateHop owns
@@ -83,12 +83,12 @@ internal sealed class PuyoBehavior : IEnemySpecies
     {
         // DEC followed by BPL means a zero cooldown waits one frame and then wraps to FFFF
         // before hopping. This is not equivalent to a conventional "if timer != 0" test.
-        state.HopCooldownTimer = unchecked((ushort)(state.HopCooldownTimer - 1));
-        if (!EnemyMath.IsNegative16(state.HopCooldownTimer))
+        state.HopCooldownTimer = state.HopCooldownTimer.Decrement().Remaining;
+        if (!EnemyMath.IsNegative16(state.HopCooldownTimer.RawValue))
             return;
 
         state.Function = PuyoEnemyFunction.Airborne;
-        state.HopCooldownTimer = slot.Parameter1;
+        state.HopCooldownTimer = NativeCountdown.FromRaw(slot.Parameter1);
         state.HoppingAnimationActive = true;
         InitiatePuyoHop(slot, state, samus);
     }
@@ -413,8 +413,8 @@ internal sealed class PuyoBehavior : IEnemySpecies
     private static void SetPuyoInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private PuyoEnemyState RequirePuyoState(RoomEnemySlot slot) =>

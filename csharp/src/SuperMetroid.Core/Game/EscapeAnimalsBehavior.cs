@@ -56,8 +56,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         slot.Properties = slot.Properties.With(
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.PaletteIndex = 0;
 
         EscapeEtecoonInitialization initialization =
@@ -83,8 +83,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         // synthetic/debug population faithful to retail initialization.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.SpritemapPointer = EmptyBankB3Spritemap;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.CurrentInstruction =
             EscapeDachoraInstructionProgramDefinitions.RunningAroundLowTide;
     }
@@ -139,7 +139,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         int horizontalDisplacement = SnesSixteenSixteen.FromEightEight((short)state.HorizontalSpeed);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             state.HorizontalSpeed = unchecked((ushort)-state.HorizontalSpeed);
             slot.CurrentInstruction = unchecked((short)state.HorizontalSpeed) < 0
                 ? EscapeEtecoonInstructionProgramDefinitions.RunningLeftLowTide

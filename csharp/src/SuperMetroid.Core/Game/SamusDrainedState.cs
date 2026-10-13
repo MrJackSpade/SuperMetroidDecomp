@@ -45,7 +45,7 @@ public sealed class SamusDrainedState
     public ushort SpecialPaletteFrame { get; private set; }
 
     /// <summary>Common palette timer initialized to one by command `$16`.</summary>
-    public ushort CommonPaletteTimer { get; private set; }
+    public NativeCountdown CommonPaletteTimer { get; private set; }
 
     /// <summary>Charge-palette index cleared by both rainbow commands.</summary>
     public ushort ChargePaletteIndex { get; private set; }
@@ -144,7 +144,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
         RainbowPaletteEnabled = true;
         SpecialPaletteFrame = 1;
-        CommonPaletteTimer = 1;
+        CommonPaletteTimer = NativeCountdown.Start(1);
         ChargePaletteIndex = 0;
         _suitPaletteRestoreRequested = false;
     }
@@ -168,7 +168,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
         RainbowPaletteEnabled = false;
         SpecialPaletteFrame = 0;
-        CommonPaletteTimer = 0;
+        CommonPaletteTimer = NativeCountdown.Start(0);
         ChargePaletteIndex = 0;
         _suitPaletteRestoreRequested = true;
         samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
@@ -216,12 +216,12 @@ public sealed class SamusDrainedState
             new SamusPalettes(cgram).Suit.Write(index,
                 PresentationColors.Resolve(paletteFrame, index));
 
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(CommonPaletteTimer);
-        CommonPaletteTimer = timer.Value;
+        NativeWordCounterStep timer = CommonPaletteTimer.Decrement();
+        CommonPaletteTimer = timer.Remaining;
         if (!timer.IsZero && timer.IsNonNegative)
             return true;
 
-        CommonPaletteTimer = SpecialPaletteFrame;
+        CommonPaletteTimer = NativeCountdown.FromRaw(SpecialPaletteFrame);
         ChargePaletteIndex = unchecked((ushort)(ChargePaletteIndex + 1));
         if (ChargePaletteIndex >= SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount)
             ChargePaletteIndex = 0;

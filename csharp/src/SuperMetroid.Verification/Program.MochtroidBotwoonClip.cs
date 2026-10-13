@@ -90,7 +90,7 @@ internal static class MochtroidBotwoonClipVerification
             SamusEquipmentFlags.HiJumpBoots);
         samus.EquippedBeams = samus.CollectedBeams = (ushort)SamusBeamFlags.Ice;
         samus.Health = samus.MaxHealth = 1499;
-        samus.InvincibilityTimer = 120;
+        samus.InvincibilityTimer = NativeCountdown.Start(120);
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
@@ -105,7 +105,7 @@ internal static class MochtroidBotwoonClipVerification
             slot.Clear();
         }
         mochtroid.Position = FixedPosition<RoomPixels>.FromWhole(expected.Enemy);
-        mochtroid.FrozenTimer = 1000;
+        mochtroid.FrozenTimer = NativeCountdown.Start(1000);
         mochtroid.AiHandlerBits = 4;
 
         ushort minimumY = samus.Position.Y.Whole;

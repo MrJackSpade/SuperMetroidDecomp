@@ -29,7 +29,7 @@ internal sealed class GrappleBehavior
         foreach (ushort nativeIndex in _dispatch.InteractiveEnemyIndexes)
         {
             RoomEnemySlot enemy = _slotTable.SlotFromNativeIndex(nativeIndex);
-            if (enemy.InvincibilityTimer != 0)
+            if (!enemy.InvincibilityTimer.IsZero)
                 continue;
 
             int xDistance = Math.Abs(unchecked((short)(enemy.Position.X.Whole - endpoint.X)));
@@ -77,19 +77,19 @@ internal sealed class GrappleBehavior
         {
             case GrappleAiRoutine.NoInteraction:
                 enemy.AiHandlerBits = 0;
-                enemy.InvincibilityTimer = 0;
-                enemy.FrozenTimer = 0;
-                enemy.ShakeTimer = 0;
+                enemy.InvincibilityTimer = NativeCountdown.Start(0);
+                enemy.FrozenTimer = NativeCountdown.Start(0);
+                enemy.ShakeTimer = NativeCountdown.Start(0);
                 return true;
 
             case GrappleAiRoutine.Attach:
-                if (enemy.FrozenTimer != 0)
+                if (!enemy.FrozenTimer.IsZero)
                 {
                     enemy.AiHandlerBits = 4;
                 }
                 else
                 {
-                    enemy.FlashTimer = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
+                    enemy.FlashTimer = NativeCountdown.FromRaw(enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime);
                     enemy.AiHandlerBits = 0;
                 }
                 return true;
@@ -108,7 +108,7 @@ internal sealed class GrappleBehavior
                 return true;
 
             case GrappleAiRoutine.AttachWithoutInvincibility:
-                if (enemy.FrozenTimer != 0)
+                if (!enemy.FrozenTimer.IsZero)
                 {
                     enemy.AiHandlerBits = 4;
                     return true;
@@ -122,7 +122,7 @@ internal sealed class GrappleBehavior
                 return true;
 
             case GrappleAiRoutine.AttachAndParalyze:
-                enemy.FlashTimer = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
+                enemy.FlashTimer = NativeCountdown.FromRaw(enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime);
                 enemy.AiHandlerBits = 0;
                 enemy.ExtraProperties = unchecked((ushort)(enemy.ExtraProperties | 1));
                 return true;

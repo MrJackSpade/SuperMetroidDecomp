@@ -26,7 +26,7 @@ internal static class EnemyPickupDefinitionsVerification
                 Variable0 = 0xffff,
                 Variable1 = 0xffff,
                 InstructionPointer = 0xffff,
-                InstructionTimer = 0xffff,
+                InstructionTimer = NativeCountdown.Start(0xffff),
                 PreInstruction = 0xffff,
                 PersistsOnSamusContact = true,
             };
@@ -36,7 +36,7 @@ internal static class EnemyPickupDefinitionsVerification
                 $"production pickup table offset {kind}");
             AssertEqual(expected.InstructionList, projectile.InstructionPointer,
                 $"production pickup instruction {kind}");
-            AssertEqual(1, projectile.InstructionTimer,
+            AssertEqual(1, projectile.InstructionTimer.RawValue,
                 $"production pickup instruction timer {kind}");
             AssertEqual(400, projectile.Variable1,
                 $"production pickup lifetime {kind}");

@@ -51,7 +51,7 @@ internal static class IntroBabyActorDefinitionsVerification
             cartridgeInput.Step(retail, new InertPreInstructionDemoProgram(NativeInputWord));
             AssertEqual(cartridgeInput.InstructionPointer, compiledInput.InstructionPointer,
                 $"SR388 initial demo loop cursor at frame {frame}");
-            AssertEqual(cartridgeInput.InstructionTimer, compiledInput.InstructionTimer,
+            AssertEqual(cartridgeInput.InstructionTimer.RawValue, compiledInput.InstructionTimer.RawValue,
                 $"SR388 initial demo loop timer at frame {frame}");
             AssertEqual(cartridgeInput.Held, compiledInput.Held,
                 $"SR388 initial demo held input at frame {frame}");
@@ -125,7 +125,7 @@ internal static class IntroBabyActorDefinitionsVerification
             reference.Step((ushort)frame, introCrossfadeTimer: 0x007f);
             AssertEqual(nativeDemo.InstructionPointer, demo.InstructionPointer,
                 $"SR388 demo list cursor at frame {frame} matches ROM-backed controller");
-            AssertEqual(nativeDemo.InstructionTimer, demo.InstructionTimer,
+            AssertEqual(nativeDemo.InstructionTimer.RawValue, demo.InstructionTimer.RawValue,
                 $"SR388 demo countdown at frame {frame} matches ROM-backed controller");
             AssertEqual(nativeDemo.Held, demo.Held,
                 $"SR388 held input at frame {frame} matches ROM-backed controller");

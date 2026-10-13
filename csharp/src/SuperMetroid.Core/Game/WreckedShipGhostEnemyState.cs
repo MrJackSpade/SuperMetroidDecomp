@@ -45,10 +45,10 @@ public sealed class WreckedShipGhostEnemyState
     /// Enemy variable B: initial/reappearance delay, flicker interval, or visible lifetime,
     /// depending on <see cref="Function"/>.
     /// </summary>
-    public ushort PhaseTimer
+    public NativeCountdown PhaseTimer
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => NativeCountdown.FromRaw(_slot.VariableB);
+        internal set => _slot.VariableB = value.RawValue;
     }
 
     /// <summary>Enemy variable C: byte offset into the ROM flicker-duration table.</summary>
@@ -88,10 +88,10 @@ public sealed class WreckedShipGhostEnemyState
     public Position16<RoomPixels> SamusUpperBound { get; internal set; }
 
     /// <summary>Extended word $0D: 64-frame timer while Samus remains nearly still.</summary>
-    public ushort StablePositionTimer { get; internal set; }
+    public NativeCountdown StablePositionTimer { get; internal set; }
 
     /// <summary>Extended word $0E: 16-frame timer while Samus keeps one direction.</summary>
-    public ushort StableDirectionTimer { get; internal set; }
+    public NativeCountdown StableDirectionTimer { get; internal set; }
 
     /// <summary>
     /// Actor-selected sixteen-color target palette. Retail stores this in global target

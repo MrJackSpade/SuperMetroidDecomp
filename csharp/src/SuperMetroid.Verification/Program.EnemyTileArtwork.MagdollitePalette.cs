@@ -66,7 +66,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
                 .RejectWrites(address => $"Installed Magdollite palette hook wrote ROM ${address:X6}."));
         enemies.Presentation._cgram = cgram;
         enemies.MagdolliteBehavior._magdollitePaletteAnimationInstalled = true;
-        enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer = (ushort)8;
+        enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer = NativeCountdown.Start((ushort)8);
         enemies.MagdolliteBehavior._magdollitePaletteAnimationIndex = (ushort)0;
         enemies.MagdolliteBehavior._magdollitePaletteBaseByteOffset = (ushort)0x100;
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
@@ -99,7 +99,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         AssertEqual(xBefore, untouched.Position.X.Whole,
             "Magdollite visual-cycle edit does not change enemy position");
         AssertEqual((ushort)8,
-            (ushort)enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer,
+            (ushort)enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer.RawValue,
             "Magdollite color edits preserve the eight-tick cadence");
 
         File.WriteAllBytes(overrideFile, [0]);

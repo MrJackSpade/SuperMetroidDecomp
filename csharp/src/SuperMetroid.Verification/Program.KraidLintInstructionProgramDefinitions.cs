@@ -55,11 +55,11 @@ internal static class KraidLintInstructionProgramDefinitionsVerification
                 lint.EnemyDefinitionPointer = definition;
                 lint.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
                 lint.CurrentInstruction = program;
-                lint.InstructionTimer = 1;
+                lint.InstructionTimer = NativeCountdown.Start(1);
 
                 enemies.Instructions.ProcessInstructions(lint, null, null, Position16<RoomPixels>.Zero, (ushort)0);
                 VerifyExecutedEnemySelector(rom, lint, executedOperands);
-                AssertEqual((ushort)0x7fff, lint.InstructionTimer,
+                AssertEqual((ushort)0x7fff, lint.InstructionTimer.RawValue,
                     $"Kraid lint ${(int)definition:X4}/${program:X4} installs native duration");
                 AssertEqual(unchecked((ushort)(program + 4)), lint.CurrentInstruction,
                     $"Kraid lint ${(int)definition:X4}/${program:X4} advances to sleep");

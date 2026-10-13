@@ -509,7 +509,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         projectile.InstructionPointer = direction == 0
             ? SpacePirateProjectileInstructionProgramDefinitions.ClawLeft
             : SpacePirateProjectileInstructionProgramDefinitions.ClawRight;
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86A05B;
         projectile.Variable0 = 0x0800;
         projectile.Variable1 = 1;
@@ -612,7 +612,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
                 state.ActiveInstruction = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
                     ? NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingRight
                     : NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingLeft;
-                slot.InstructionTimer = 1;
+                slot.InstructionTimer = NativeCountdown.Start(1);
                 // The native instruction returns the selected list, not its next word.
                 // Re-entering that list executes FunctionInY and restores decision AI
                 // after the idle animation explicitly installed the no-op function.
@@ -640,7 +640,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         ushort instructionPointer)
     {
         slot.CurrentInstruction = instructionPointer;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
     private NinjaSpacePirateEnemyState RequireNinjaSpacePirateState(RoomEnemySlot slot) =>

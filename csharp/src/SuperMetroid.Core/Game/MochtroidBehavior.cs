@@ -146,12 +146,12 @@ internal sealed class MochtroidBehavior : IEnemySpecies
     {
         // This third dispatch entry is unused by retail callers but present in the shipped
         // table. The low two even bits select right/up/left/down, then the timer counts down.
-        (int x, int y) = MochtroidShakeDefinitions.Offset(state.ShakeTimer);
+        (int x, int y) = MochtroidShakeDefinitions.Offset(state.ShakeTimer.RawValue);
         slot.Position += new Offset16<RoomPixels>(unchecked((short)(x)), unchecked((short)(y)));
         StoreMochtroidXVelocity(state, 0);
         StoreMochtroidYVelocity(state, 0);
-        state.ShakeTimer = unchecked((ushort)(state.ShakeTimer - 1));
-        if (state.ShakeTimer == 0)
+        state.ShakeTimer = state.ShakeTimer.Decrement().Remaining;
+        if (state.ShakeTimer.IsZero)
             state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
         SetMochtroidInstructionList(
             slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
@@ -176,8 +176,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies
             return;
         state.InstalledInstructionList = instructionList;
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     /// <summary>Ports the family-specific portion of <c>EnemyTouch_Mochtroid</c>.</summary>
@@ -235,8 +235,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         // Unlike every ordinary contact handler, Mochtroid immediately cancels the timers
         // installed by common touch AI. Samus remains attached rather than entering a normal
         // invincibility/knockback grace period, permitting another 80-contact drain cycle.
-        samus.InvincibilityTimer = 0;
-        samus.KnockbackTimer = 0;
+        samus.InvincibilityTimer = NativeCountdown.Start(0);
+        samus.KnockbackTimer = NativeCountdown.Start(0);
     }
 
     private MochtroidEnemyState RequireMochtroidState(RoomEnemySlot slot) =>

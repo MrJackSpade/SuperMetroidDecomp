@@ -111,8 +111,8 @@ internal static class OwtchInstructionProgramDefinitionsVerification
             OwtchEnemyState state = enemies.OwtchStates[0]!;
             state.Behavior = initialState;
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
-            slot.Timer = 0;
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.Timer = NativeCountdown.Start(0);
             RunOwtchProgram(enemies, slot, 25);
 
             AssertEqual(expectedState, state.Behavior,

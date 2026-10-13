@@ -123,7 +123,7 @@ internal static class SbugMovementDefinitionsVerification
                 : EnemyDefinitionId.Sbug2;
             programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             programSlot.CurrentInstruction = entries[entryIndex];
-            programSlot.InstructionTimer = 1;
+            programSlot.InstructionTimer = NativeCountdown.Start(1);
             object?[] arguments =
                 [programSlot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 

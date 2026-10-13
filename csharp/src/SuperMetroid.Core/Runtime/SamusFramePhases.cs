@@ -178,7 +178,7 @@ internal sealed class SamusFramePhases
         if (!_player.Samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             return false;
 
-        return _player.Samus.Xray.TryBegin(_addressSpace, _player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionStatus = _bombProjectiles.PowerBombExplosion.Status, ProjectileCooldownTimer = _bombProjectiles.CooldownTimer, BombCounter = _bombProjectiles.BombCounter }, deferActivation);
+        return _player.Samus.Xray.TryBegin(_addressSpace, _player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionStatus = _bombProjectiles.PowerBombExplosion.Status, ProjectileCooldownTimer = _bombProjectiles.CooldownTimer.RawValue, BombCounter = _bombProjectiles.BombCounter }, deferActivation);
     }
 
     /// <summary>
@@ -320,7 +320,7 @@ internal sealed class SamusFramePhases
                     _system.LoadPersistentMirror(RuntimeMemory.RequireBus(_addressSpace));
 
                 if (!_freeze.TimeIsFrozen)
-                    _bombProjectiles.ResolveSamusOverlap(samus, _projectiles.Firing.ProjectileInvincibilityTimer);
+                    _bombProjectiles.ResolveSamusOverlap(samus, _projectiles.Firing.ProjectileInvincibilityTimer.RawValue);
 
                 // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
                 // immediately clears `$0B5E`. Pose initialization occurs later in the
@@ -1063,7 +1063,7 @@ Landed: true, HitCeiling: false);
             // Hit interruption observes the old movement type before UpdateSamusPose.
             // Its carry-clear bomb rejection still occurs when an animation transition
             // wins pose selection; otherwise a stale request survives unmorph/morph.
-            if (samus.KnockbackTimer == 0 && samus.KnockbackDirection == 0)
+            if (samus.KnockbackTimer.IsZero && samus.KnockbackDirection == 0)
                 samus.PoseMetadata.RejectUnsupportedPublishedBombJump(_addressSpace, _freeze.TimeIsFrozen);
 
             // Command $F8's command-three “super-special” transition wins at this seam.
@@ -1155,7 +1155,7 @@ Landed: true, HitCeiling: false);
             // expiry owns this frame even after clearing those words. This permits
             // a later bomb launch to retain the damaged pose, with input locked by
             // special command three rather than an early speculative pose change.
-            if (!animationTransitionApplied && samus.KnockbackTimer == 0 &&
+            if (!animationTransitionApplied && samus.KnockbackTimer.IsZero &&
                 samus.KnockbackDirection == 0 &&
                 samus.PoseMetadata.TrySetupPublishedBombJump(
                     _addressSpace,
@@ -2110,13 +2110,13 @@ Landed: true, HitCeiling: false);
     /// </summary>
     internal void StepSamusLoadAppearance()
     {
-        if (_player._samusLoadAppearanceFramesRemaining == 0)
+        if (_player._samusLoadAppearanceFramesRemaining.IsZero)
             return;
         SamusState samus = _player.Samus
             ?? throw new InvalidOperationException("Samus load appearance lost its actor.");
 
-        _player._samusLoadAppearanceFramesRemaining--;
-        if (_player._samusLoadAppearanceFramesRemaining != 0)
+        _player._samusLoadAppearanceFramesRemaining = _player._samusLoadAppearanceFramesRemaining.Decrement().Remaining;
+        if (!_player._samusLoadAppearanceFramesRemaining.IsZero)
             return;
         if (_roomPaletteFx.IsDefinitionActive(_player._samusLoadAppearancePaletteFxDefinition))
         {

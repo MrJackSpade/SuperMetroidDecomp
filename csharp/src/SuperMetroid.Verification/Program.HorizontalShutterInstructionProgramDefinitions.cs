@@ -52,7 +52,7 @@ internal static class HorizontalShutterInstructionProgramDefinitionsVerification
                 HorizontalShutterInstructionProgramDefinitions.Stationary + 4)),
             slot.CurrentInstruction,
             "horizontal-shutter timed frame advances to terminal sleep");
-        AssertEqual((ushort)1, slot.InstructionTimer,
+        AssertEqual((ushort)1, slot.InstructionTimer.RawValue,
             "horizontal-shutter stationary frame duration");
         EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(unchecked((ushort)(

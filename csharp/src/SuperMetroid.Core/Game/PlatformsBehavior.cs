@@ -309,8 +309,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies
     private static void InstallPlatformInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     /// <summary>Ports the four equivalent list commands at $A3:9C6B/$9C76/$9C81/$9C8C.</summary>
@@ -332,7 +332,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         {
             AfterCommon = c =>
             {
-                if (c.Enemy.FrozenTimer != 0)
+                if (!c.Enemy.FrozenTimer.IsZero)
                     c.Enemy.SpritemapPointer = TripperKamerVisualDefinitions.FrozenFrame(RequirePlatformState(c.Enemy).XMovement);
             },
         });

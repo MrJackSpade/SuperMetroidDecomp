@@ -37,7 +37,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
             reference.Step(bus, new FlashbackEndDemoProgram(ReferenceWord));
             AssertEqual(reference.InstructionPointer, compiled.InstructionPointer,
                 $"intro Mother Brain demo cursor frame {frame}");
-            AssertEqual(reference.InstructionTimer, compiled.InstructionTimer,
+            AssertEqual(reference.InstructionTimer.RawValue, compiled.InstructionTimer.RawValue,
                 $"intro Mother Brain demo countdown frame {frame}");
             AssertEqual(reference.Held, compiled.Held,
                 $"intro Mother Brain demo held frame {frame}");
@@ -71,7 +71,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
             "production flashback owns the compiled demo header");
         AssertEqual(nativeFirst.InstructionPointer, live.InstructionPointer,
             "production flashback selects the native first record");
-        AssertEqual(nativeFirst.InstructionTimer, live.InstructionTimer,
+        AssertEqual(nativeFirst.InstructionTimer.RawValue, live.InstructionTimer.RawValue,
             "production flashback uses the native first-record timer");
         AssertEqual(nativeFirst.Held, live.Held,
             "production flashback publishes the native first held input");

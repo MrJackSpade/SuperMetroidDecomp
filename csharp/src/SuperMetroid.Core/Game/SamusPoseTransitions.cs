@@ -491,7 +491,7 @@ internal sealed class SamusPoseTransitions
     /// </remarks>
     public void ApplyWallContactAnimationRewind()
     {
-        _samus.AnimationFrameTimer = 1;
+        _samus.AnimationFrameTimer = NativeCountdown.Start(1);
 
         // `$90:9D96-$90:9DA6` gives Screw Attack a longer pre-contact animation. Its first
         // eligible wall frame is 27, so contact rewinds to 26. Ordinary spin and Space Jump
@@ -2568,7 +2568,7 @@ internal sealed class SamusPoseTransitions
         // transition out of the same turn art DOES initialize jump velocity; keeping
         // those two routes distinct preserves both ordinary jumping and Moonfall.
         _samus.MorphBallBounceState = SamusBallBounceState.None;
-        _samus.AnimationFrameTimer = unchecked((ushort)(_samus.AnimationFrameTimer + commandAnimationBuffer));
+        _samus.AnimationFrameTimer = NativeCountdown.FromRaw(unchecked((ushort)(_samus.AnimationFrameTimer.RawValue + commandAnimationBuffer)));
         return true;
     }
 

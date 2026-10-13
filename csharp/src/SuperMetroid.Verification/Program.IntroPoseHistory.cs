@@ -74,7 +74,7 @@ internal static class IntroPoseHistoryVerification
             SamusPoseId olderPose = before?.PoseHistory.LastDifferentPose ?? 0;
             ushort olderMetadata = before?.PoseHistory.LastDifferentDirectionAndMovement ?? 0;
             bool demoEnabled = intro.flashbackDemoInput?.Enabled == true;
-            bool hurtExpiry = before is { KnockbackTimer: 0, KnockbackDirection: not 0 };
+            bool hurtExpiry = before is { KnockbackTimer.IsZero: true, KnockbackDirection: not 0 };
             intro.Render();
             intro.Step(tick % 47 == 0 ? (ushort)SnesButton.A : (ushort)0);
             SamusState? after = intro.flashbackSamus;

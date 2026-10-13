@@ -142,8 +142,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
             CeresDoorInitializationDefinitions.For(variant);
 
         slot.SpritemapPointer = CeresDoorInstructionProgramDefinitions.InitialSpritemap;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.VramTilesIndex = 0;
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
         slot.VariableA = (ushort)initialization.MainFunction;
@@ -233,7 +233,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
     {
         // The door cannot start a second quake while the shared timer is active. A separate
         // engine stage decrements that timer; this actor only chooses the next type/duration.
-        if (_ridleyEncounter.CeresStatus < 2 || _earthquake.EarthquakeTimer != 0)
+        if (_ridleyEncounter.CeresStatus < 2 || !_earthquake.EarthquakeTimer.IsZero)
             return;
 
         Func<ushort> readRandomNumber = _room.Random.Read;
@@ -241,12 +241,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         if (lowTwelveBits < 0x0080)
         {
             // Rarely select the stronger sibling quake six entries after the base type.
-            _earthquake.EarthquakeTimer = 4;
+            _earthquake.EarthquakeTimer = NativeCountdown.Start(4);
             _earthquake.EarthquakeType = unchecked((ushort)(baseEarthquakeType + 6));
             return;
         }
 
-        _earthquake.EarthquakeTimer = 2;
+        _earthquake.EarthquakeTimer = NativeCountdown.Start(2);
         _earthquake.EarthquakeType = baseEarthquakeType;
     }
 

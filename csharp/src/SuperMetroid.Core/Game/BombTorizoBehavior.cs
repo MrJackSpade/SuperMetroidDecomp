@@ -62,7 +62,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             // `$D658`, which accepts common damage only outside the active flash and while
             // `toriz_var_04` is zero. This transitional callback never arms the later
             // counterattack bits or captures a projectile family.
-            if (isBombTorizo || torizo.FlashTimer != 0 || state.ShotGuard != 0)
+            if (isBombTorizo || !torizo.FlashTimer.IsZero || state.ShotGuard != 0)
                 return;
 
             _collision.ApplyCommonNormalBombDamage(torizo, bomb, runGenericDeath: false);
@@ -83,7 +83,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         // Both normal callbacks return during the hurt flash. Bomb Torizo also uses its
         // awakening guard as a hard rejection; Golden's nonzero guard deliberately falls
         // through to common damage instead.
-        if (torizo.FlashTimer != 0 || isBombTorizo && state.ShotGuard != 0)
+        if (!torizo.FlashTimer.IsZero || isBombTorizo && state.ShotGuard != 0)
             return;
 
         if (isGoldenTorizo && state.ShotGuard == 0)
@@ -156,8 +156,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         torizo.ExtraProperties = torizo.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         torizo.Radius = definition.Radius;
-        torizo.InstructionTimer = 1;
-        torizo.Timer = 0;
+        torizo.InstructionTimer = NativeCountdown.Start(1);
+        torizo.Timer = NativeCountdown.Start(0);
         torizo.PaletteIndex = 0;
         torizo.SpritemapPointer = BombTorizoInitialExtendedSpritemap;
 
@@ -289,7 +289,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                     MusicCommandDelay.EightFrames);
                 torizo.Properties = torizo.Properties.Without(EnemyProperties.SolidToSamus);
                 torizo.CurrentInstruction = unchecked((ushort)(torizo.CurrentInstruction + 2));
-                torizo.InstructionTimer = 1;
+                torizo.InstructionTimer = NativeCountdown.Start(1);
                 state.AwakeningReleased = true;
                 return;
 
@@ -303,7 +303,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                 if (samus is not null && samus.Position.Y.Whole > 0x0140 && samus.Position.X.Whole > 0x0170)
                 {
                     torizo.CurrentInstruction = unchecked((ushort)(torizo.CurrentInstruction + 2));
-                    torizo.InstructionTimer = 1;
+                    torizo.InstructionTimer = NativeCountdown.Start(1);
                 }
                 return;
 
@@ -352,7 +352,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         {
             state.InterruptedInstruction = torizo.CurrentInstruction;
             torizo.CurrentInstruction = BombTorizoLowHealthInterruptInstruction;
-            torizo.InstructionTimer = 1;
+            torizo.InstructionTimer = NativeCountdown.Start(1);
             return;
         }
 
@@ -363,7 +363,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                 ? TorizoInstructionLists.AlternateLandingFacingRight
                 : TorizoInstructionLists.AlternateLandingFacingLeft;
             torizo.CurrentInstruction = BombTorizoLowHealthRecoveryInstruction;
-            torizo.InstructionTimer = 1;
+            torizo.InstructionTimer = NativeCountdown.Start(1);
             return;
         }
 
@@ -424,7 +424,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             if (velocity is >= 0 and not 0x0100)
             {
                 _earthquake.EarthquakeType = 4;
-                _earthquake.EarthquakeTimer = 32;
+                _earthquake.EarthquakeTimer = NativeCountdown.Start(32);
                 state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x0100));
             }
             return;
@@ -450,10 +450,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                 SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue)))
         {
             torizo.CurrentInstruction = state.ReturnInstruction;
-            torizo.InstructionTimer = 1;
+            torizo.InstructionTimer = NativeCountdown.Start(1);
             state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x0100));
             _earthquake.EarthquakeType = 4;
-            _earthquake.EarthquakeTimer = 32;
+            _earthquake.EarthquakeTimer = NativeCountdown.Start(32);
             return;
         }
 
@@ -467,10 +467,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         RoomLevelData level)
     {
         bool alternateLanding = (torizo.Parameter2 & 0x4000) != 0;
-        if (state.AirTransitionTimer != 0)
+        if (!state.AirTransitionTimer.IsZero)
         {
-            state.AirTransitionTimer = unchecked((ushort)(state.AirTransitionTimer - 1));
-            if (state.AirTransitionTimer == 0)
+            state.AirTransitionTimer = state.AirTransitionTimer.Decrement().Remaining;
+            if (state.AirTransitionTimer.IsZero)
             {
                 torizo.CurrentInstruction = alternateLanding
                     ? ((torizo.Parameter1 & 0x8000) != 0
@@ -479,7 +479,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                     : ((torizo.Parameter1 & 0x8000) != 0
                         ? TorizoInstructionLists.LandingFacingRight
                         : TorizoInstructionLists.LandingFacingLeft);
-                torizo.InstructionTimer = 1;
+                torizo.InstructionTimer = NativeCountdown.Start(1);
                 return;
             }
         }
@@ -492,7 +492,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             torizo.CurrentInstruction = (torizo.Parameter1 & 0x8000) != 0
                 ? TorizoInstructionLists.AirborneFacingRight
                 : TorizoInstructionLists.AirborneFacingLeft;
-            torizo.InstructionTimer = 1;
+            torizo.InstructionTimer = NativeCountdown.Start(1);
             state.Velocity = new EightEightVector<RoomPixels>(0, 0x0100);
         }
     }
@@ -504,15 +504,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
     {
         // $AA:D5F1 is the Golden analogue of $C752. Its only behavioral difference is the
         // sixteen-frame facing transition and Golden landing lists selected when it expires.
-        if (state.AirTransitionTimer != 0)
+        if (!state.AirTransitionTimer.IsZero)
         {
-            state.AirTransitionTimer = unchecked((ushort)(state.AirTransitionTimer - 1));
-            if (state.AirTransitionTimer == 0)
+            state.AirTransitionTimer = state.AirTransitionTimer.Decrement().Remaining;
+            if (state.AirTransitionTimer.IsZero)
             {
                 torizo.CurrentInstruction = (torizo.Parameter1 & 0x8000) != 0
                     ? TorizoInstructionLists.GoldenLandingFacingRight
                     : TorizoInstructionLists.GoldenLandingFacingLeft;
-                torizo.InstructionTimer = 1;
+                torizo.InstructionTimer = NativeCountdown.Start(1);
                 return;
             }
         }
@@ -525,7 +525,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             torizo.CurrentInstruction = (torizo.Parameter1 & 0x8000) != 0
                 ? TorizoInstructionLists.AirborneFacingRight
                 : TorizoInstructionLists.AirborneFacingLeft;
-            torizo.InstructionTimer = 1;
+            torizo.InstructionTimer = NativeCountdown.Start(1);
             state.Velocity = new EightEightVector<RoomPixels>(0, 0x0100);
         }
     }
@@ -545,7 +545,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
     internal void ApplyBombTorizoHurt(RoomEnemySlot torizo)
     {
         MaybeSpawnBombTorizoLowHealthDrool(torizo);
-        if ((torizo.FlashTimer & 1) == 0)
+        if ((torizo.FlashTimer.RawValue & 1) == 0)
         {
             if (torizo.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo)
                 LoadGoldenTorizoHealthPalette(torizo.Health);
@@ -569,7 +569,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         state.DeathStarted = true;
         state.Function = TorizoFunction.Idle;
         torizo.CurrentInstruction = BombTorizoDeathInstruction;
-        torizo.InstructionTimer = 1;
+        torizo.InstructionTimer = NativeCountdown.Start(1);
         torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 | 0xc000));
         // EnemyShot_Torizo_Normal `$AA:C9B7-$AA:C9BD` sets property $0400 when
         // entering the death stream. This removes the dying actor from Samus contact and
@@ -937,16 +937,16 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                 for (int explosion = 0; explosion < 6; explosion++)
                     SpawnBombTorizoLowHealthExplosion(torizo, ReadOperand0());
                 torizo.CurrentInstruction = unchecked((ushort)(cursor + 4));
-                torizo.FlashTimer = 40;
-                torizo.InstructionTimer = 40;
+                torizo.FlashTimer = NativeCountdown.Start(40);
+                torizo.InstructionTimer = NativeCountdown.Start(40);
                 pauseInterpreter = true;
                 return true;
 
             case TorizoInstruction.Instruction_Torizo_SpawnTorizoDeathExplosion_SleepFor1IFrame:
                 SpawnBombTorizoDeathExplosion(torizo);
                 torizo.CurrentInstruction = unchecked((ushort)(cursor + 2));
-                torizo.FlashTimer = 1;
-                torizo.InstructionTimer = 1;
+                torizo.FlashTimer = NativeCountdown.Start(1);
+                torizo.InstructionTimer = NativeCountdown.Start(1);
                 pauseInterpreter = true;
                 return true;
 
@@ -1361,7 +1361,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         int displacement = SnesSixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
-            state.AirTransitionTimer = 0;
+            state.AirTransitionTimer = NativeCountdown.Start(0);
             return (torizo.Parameter1 & 0x8000) != 0
                 ? (ushort)0xd203
                 : (ushort)0xd2bf;
@@ -1369,9 +1369,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
         if (samus is not null && BombTorizoParameterMatchesSamusDelta(torizo, samus) &&
-            state.AirTransitionTimer == 0)
+            state.AirTransitionTimer.IsZero)
         {
-            state.AirTransitionTimer = 16;
+            state.AirTransitionTimer = NativeCountdown.Start(16);
         }
         return unchecked((ushort)(cursor + 4));
     }
@@ -1383,7 +1383,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         state.Velocity = new EightEightVector<RoomPixels>(
             (torizo.Parameter1 & 0x8000) != 0 ? (short)512 : (short)-512, -1472);
         state.VerticalAcceleration = 40;
-        torizo.InstructionTimer = 1;
+        torizo.InstructionTimer = NativeCountdown.Start(1);
     }
 
     private static void StartGoldenTorizoBackwardJump(
@@ -1393,7 +1393,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         state.Velocity = new EightEightVector<RoomPixels>(
             (torizo.Parameter1 & 0x8000) != 0 ? (short)-768 : (short)768, -1152);
         state.VerticalAcceleration = 40;
-        torizo.InstructionTimer = 1;
+        torizo.InstructionTimer = NativeCountdown.Start(1);
     }
 
     private static SamusState RequireGoldenTorizoSamus(SamusState? samus) =>
@@ -1415,7 +1415,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         int displacement = SnesSixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
-            state.AirTransitionTimer = 0;
+            state.AirTransitionTimer = NativeCountdown.Start(0);
             return (torizo.Parameter1 & 0x8000) != 0
                 ? step.CollisionFacingRight
                 : step.CollisionFacingLeft;
@@ -1423,9 +1423,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
         if (samus is not null && BombTorizoParameterMatchesSamusDelta(torizo, samus) &&
-            state.AirTransitionTimer == 0)
+            state.AirTransitionTimer.IsZero)
         {
-            state.AirTransitionTimer = 72;
+            state.AirTransitionTimer = NativeCountdown.Start(72);
         }
         return unchecked((ushort)(cursor + 4));
     }
@@ -1463,7 +1463,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         state.Velocity = new EightEightVector<RoomPixels>(
             (torizo.Parameter1 & 0x8000) != 0 ? (short)-768 : (short)768, -1152);
         state.VerticalAcceleration = 40;
-        torizo.InstructionTimer = 1;
+        torizo.InstructionTimer = NativeCountdown.Start(1);
         return target;
     }
 
@@ -1792,7 +1792,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         {
             projectile.InstructionPointer =
                 TorizoChozoOrbInstructionProgramDefinitions.WallImpact;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             projectile.CanDamageSamus = false;
             return;
         }
@@ -1804,7 +1804,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                 (projectile.Position.Y.Whole & 0xfff0) + 6)));
             projectile.InstructionPointer =
                 TorizoChozoOrbInstructionProgramDefinitions.FloorImpact;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             projectile.CanDamageSamus = false;
             return;
         }
@@ -1822,7 +1822,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         {
             projectile.InstructionPointer =
                 TorizoSonicBoomInstructionProgramDefinitions.WallImpact;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             projectile.Variable0 = projectile.Position.X.Whole;
             projectile.Variable1 = projectile.Position.Y.Whole;
             projectile.CanDamageSamus = false;
@@ -1848,7 +1848,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         {
             projectile.InstructionPointer =
                 (ushort)BombTorizoDroolProgram.WallImpact;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             return;
         }
 
@@ -1870,7 +1870,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 3)));
             projectile.InstructionPointer =
                 (ushort)BombTorizoDroolProgram.FloorImpact;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             return;
         }
 
@@ -1900,7 +1900,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                     (projectile.Position.Y.Whole & 0xfff0) + 6)));
                 projectile.InstructionPointer =
                     TorizoChozoOrbInstructionProgramDefinitions.FloorImpact;
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 projectile.CanDamageSamus = false;
                 return;
             }
@@ -1917,7 +1917,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         if (unchecked((short)projectile.Variable1) < 0)
         {
             projectile.InstructionPointer = unchecked((ushort)(projectile.InstructionPointer + 2));
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight((projectile.Variable0 & 0x8000) != 0
                 ? (ushort)256
                 : unchecked((ushort)-256)));
@@ -1968,7 +1968,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             projectile.InstructionPointer = (projectile.Variable0 & 0x8000) != 0
                 ? GoldenTorizoEggInstructionProgramDefinitions.BreakRight
                 : GoldenTorizoEggInstructionProgramDefinitions.BreakLeft;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             return;
         }
 
@@ -2004,7 +2004,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         {
             projectile.InstructionPointer =
                 GoldenTorizoSuperMissileInstructionProgramDefinitions.Impact;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             return;
         }
 
@@ -2040,7 +2040,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         {
             projectile.InstructionPointer =
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.WallImpact;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             return;
         }
 
@@ -2050,7 +2050,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                 (projectile.Position.Y.Whole & 0xfff0) + 6)));
             projectile.InstructionPointer =
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.FloorImpact;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
         }
     }
 
@@ -2180,13 +2180,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             // no-death shot damage only while both the flash timer and native `toriz_var_04` are zero. Crucially it
             // never enters `$AA:D667`, so missiles are not caught, Supers are not reflected, and parameter-two
             // counterattack bits are not armed through these transitional body rectangles.
-            if (isBombTorizo || enemy.FlashTimer != 0 || torizoState.ShotGuard != 0)
+            if (isBombTorizo || !enemy.FlashTimer.IsZero || torizoState.ShotGuard != 0)
             {
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                 return true;
             }
         }
-        if (enemy.FlashTimer != 0 || isBombTorizo && torizoState.ShotGuard != 0)
+        if (!enemy.FlashTimer.IsZero || isBombTorizo && torizoState.ShotGuard != 0)
         {
             // Both callbacks return during a damage flash. Bomb Torizo also rejects shots while its awakening guard
             // is set; Golden Torizo's nonzero guard instead routes through common damage below.
@@ -2211,7 +2211,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                 c.Projectile.Direction &= 0xffef;
                 torizoState.Function = TorizoFunction.Idle;
-                enemy.InstructionTimer = 1;
+                enemy.InstructionTimer = NativeCountdown.Start(1);
                 enemy.CurrentInstruction = (enemy.Parameter1 & 0x8000) != 0
                     ? TorizoInstructionLists.CaughtMissileFacingRight
                     : TorizoInstructionLists.CaughtMissileFacingLeft;
@@ -2226,7 +2226,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
                     enemy.Parameter2 |= 0x1000;
                     torizoState.Function = TorizoFunction.Idle;
                     c.Projectile.Direction |= 0x0010;
-                    enemy.InstructionTimer = 1;
+                    enemy.InstructionTimer = NativeCountdown.Start(1);
                     enemy.CurrentInstruction = (enemy.Parameter1 & 0x2000) != 0
                         ? (enemy.Parameter1 & 0x8000) != 0
                             ? TorizoInstructionLists.CaughtSuperFacingRightLeftLegForward

@@ -66,11 +66,11 @@ internal static class KraidNailInstructionProgramDefinitionsVerification
             slot.EnemyDefinitionPointer = definitionPointer;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
             slot.CurrentInstruction = KraidNailInstructionProgramDefinitions.Loop;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
 
             for (int frame = 0; frame < 9; frame++)
             {
-                slot.InstructionTimer = 1;
+                slot.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Instructions.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
             }
             AssertEqual(unchecked((ushort)(KraidNailInstructionProgramDefinitions.Loop + 4)),

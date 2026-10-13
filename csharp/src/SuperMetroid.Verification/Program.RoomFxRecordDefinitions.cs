@@ -59,7 +59,7 @@ internal static class RoomFxRecordDefinitionsVerification
         AssertEqual(nativeFx.TargetYPosition, compiledFx.TargetYPosition, "Ceres compiled FX target Y");
         AssertEqual(nativeFx.PackedYVelocity, compiledFx.PackedYVelocity,
             "Ceres compiled FX velocity");
-        AssertEqual(nativeFx.Timer, compiledFx.Timer, "Ceres compiled FX timer");
+        AssertEqual(nativeFx.Timer.RawValue, compiledFx.Timer.RawValue, "Ceres compiled FX timer");
         AssertEqual(nativeFx.LiquidOptions, compiledFx.LiquidOptions,
             "Ceres compiled FX liquid options");
         AssertTrue(nativeVram.ImageEquals(compiledVram),

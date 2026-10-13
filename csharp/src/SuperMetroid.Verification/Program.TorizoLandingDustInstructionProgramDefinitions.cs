@@ -114,7 +114,7 @@ internal static class TorizoLandingDustInstructionProgramDefinitionsVerification
         {
             for (int step = 0; step < steps; step++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }

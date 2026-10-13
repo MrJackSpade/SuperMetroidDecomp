@@ -88,7 +88,7 @@ internal static class ChootPatternDefinitionsVerification
             ChootEnemyState fallState = fallEnemies.ChootStates[0]!;
             fallState.FallingOrigin = new(0x4000, 0x5000);
             fallState.FallingPatternIndex = 0;
-            fallState.FallingPatternLoopCounter = 1;
+            fallState.FallingPatternLoopCounter = NativeCountdown.Start(1);
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
@@ -110,7 +110,7 @@ internal static class ChootPatternDefinitionsVerification
             runFall(fallSlot, fallState);
             AssertEqual((ushort)0, fallState.FallingPatternIndex,
                 $"Choot production loop cursor reset {patternIndex}");
-            AssertEqual((ushort)0, fallState.FallingPatternLoopCounter,
+            AssertEqual((ushort)0, fallState.FallingPatternLoopCounter.RawValue,
                 $"Choot production loop counter {patternIndex}");
             AssertEqual(unchecked((ushort)(0x5000 + definition.FallingPatternYDistance)),
                 fallState.FallingOrigin.Y,

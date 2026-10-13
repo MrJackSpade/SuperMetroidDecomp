@@ -80,7 +80,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 slot.ExtraProperties = population.ExtraProperties;
                 slot.Parameter1 = population.Parameter1;
                 slot.Parameter2 = population.Parameter2;
-                slot.InstructionTimer = 1;
+                slot.InstructionTimer = NativeCountdown.Start(1);
                 slot.AiBank = definition.Bank;
 
                 bool translatedRecord = true;

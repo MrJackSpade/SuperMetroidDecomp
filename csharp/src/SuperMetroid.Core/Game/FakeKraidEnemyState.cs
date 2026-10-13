@@ -36,10 +36,10 @@ public sealed class FakeKraidEnemyState
     }
 
     /// <summary>Number of animation decision points before the next spit attack.</summary>
-    public ushort SpitDecisionTimer
+    public NativeCountdown SpitDecisionTimer
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => NativeCountdown.FromRaw(_slot.VariableE);
+        internal set => _slot.VariableE = value.RawValue;
     }
 
     /// <summary>

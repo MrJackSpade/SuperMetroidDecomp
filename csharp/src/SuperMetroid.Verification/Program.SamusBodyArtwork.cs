@@ -194,7 +194,7 @@ internal static class SamusBodyArtworkVerification
             AssertTrue(nativeEffectOam.NextByteOffset > 0 &&
                 nativeEffectOam.ImageEquals(installedEffectOam) &&
                 nativeEffects.Slots[0].FrameAndType == installedEffects.Slots[0].FrameAndType &&
-                nativeEffects.Slots[0].AnimationTimer == installedEffects.Slots[0].AnimationTimer,
+                nativeEffects.Slots[0].AnimationTimer.RawValue == installedEffects.Slots[0].AnimationTimer.RawValue,
                 $"direct atmospheric type {type} frame {frame} installed/native OAM and timing parity");
         }
         AssertTrue(!stock.Atmosphere.TryResolve(2, 0, out _),
@@ -315,8 +315,8 @@ internal static class SamusBodyArtworkVerification
                     stock.DeathPalettes);
                 AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(installedColors)) &&
                     nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
-                    nativeSamus.DeathSequence.AnimationTimer ==
-                        installedSamus.DeathSequence.AnimationTimer &&
+                    nativeSamus.DeathSequence.AnimationTimer.RawValue ==
+                        installedSamus.DeathSequence.AnimationTimer.RawValue &&
                     nativeSamus.DeathSequence.AnimationCounter ==
                         installedSamus.DeathSequence.AnimationCounter,
                     $"death suit {suit} frame {frame} native/installed colors and timing");

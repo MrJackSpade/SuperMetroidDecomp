@@ -311,7 +311,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
             handBeamEnemies.Projectiles.ProcessEnemyProjectileInstructions(handBeam, handBeamTarget, Position16<RoomPixels>.Zero);
             AssertEqual(referenceOperand, handBeam.PresentationOperandAddress,
                 $"hand-beam frame {frame} selects the native visual operand");
-            AssertEqual((ushort)referenceTimer, handBeam.InstructionTimer,
+            AssertEqual((ushort)referenceTimer, handBeam.InstructionTimer.RawValue,
                 $"hand-beam frame {frame} preserves the native remaining duration");
             observedHandBeamOperands.Add(handBeam.PresentationOperandAddress);
         }
@@ -353,7 +353,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
 
         ring.InstructionPointer =
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBlueRingTouch;
-        ring.InstructionTimer = 1;
+        ring.InstructionTimer = NativeCountdown.Start(1);
         ring.PreInstruction =
             (ushort)EnemyProjectilePreInstruction.MotherBrainsOnionRings;
         ring.GraphicsIndex = 0x0400;
@@ -392,9 +392,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
 
         void Process(RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile, SamusState target)
         {
-            bool selectsFrame = projectile.InstructionTimer == 1;
+            bool selectsFrame = projectile.InstructionTimer.RawValue == 1;
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, target, Position16<RoomPixels>.Zero);
-            if (!projectile.IsActive || !selectsFrame || projectile.InstructionTimer == 0 || projectile.PresentationOperandAddress == 0)
+            if (!projectile.IsActive || !selectsFrame || projectile.InstructionTimer.IsZero || projectile.PresentationOperandAddress == 0)
                 return;
             ushort operand = projectile.PresentationOperandAddress;
             AssertEqual(unchecked((ushort)(projectile.InstructionPointer - 2)), operand,
@@ -406,7 +406,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
             if (bus is CartridgeReadGuard)
             {
                 ushort native = ReadNativeEnemyProjectileProgramWord(nativeReference, unchecked((ushort)(operand - 2)));
-                AssertEqual(native, projectile.InstructionTimer, "real projectile frame retains exact native duration");
+                AssertEqual(native, projectile.InstructionTimer.RawValue, "real projectile frame retains exact native duration");
             }
         }
         RoomEnemySystem CreateRoomEnemySystem()
@@ -425,7 +425,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         {
             for (int tick = 0; tick < count; tick++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 Process(enemies, projectile, samus);
             }
         }

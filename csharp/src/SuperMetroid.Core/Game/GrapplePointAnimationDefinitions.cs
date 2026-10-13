@@ -18,9 +18,9 @@ internal static class GrapplePointAnimationDefinitions
 
     internal static void Advance(SamusGrappleState state)
     {
-        state.PointAnimationTimer = unchecked((ushort)(state.PointAnimationTimer - 1));
-        if ((short)state.PointAnimationTimer >= 0) return;
-        state.PointAnimationTimer = Delay;
+        state.PointAnimationTimer = state.PointAnimationTimer.Decrement().Remaining;
+        if (!state.PointAnimationTimer.IsNegative) return;
+        state.PointAnimationTimer = NativeCountdown.Start(Delay);
         ushort pointer = unchecked((ushort)(SourceAddress(state.PointAnimationFrame) + FrameStride));
         if (unchecked((short)(pointer - EndPointer)) >= 0) pointer = BeginPointer;
         // Keep the existing saved ordinal field, but do the native 16-bit pointer

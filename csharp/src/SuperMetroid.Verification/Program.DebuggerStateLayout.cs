@@ -22,9 +22,9 @@ internal static class DebuggerStateLayoutVerification
     /// </summary>
     internal static void VerifyDebuggerStateRejectsStaleLayouts()
     {
-        var state = new SamusGrappleState { PoseChangeAutoFireTimer = 7 };
+        var state = new SamusGrappleState { PoseChangeAutoFireTimer = NativeCountdown.Start(7) };
         byte[] current = SerializeDebuggerGraph(state);
-        AssertEqual(7, DeserializeDebuggerGraph<SamusGrappleState>(current).PoseChangeAutoFireTimer,
+        AssertEqual(7, DeserializeDebuggerGraph<SamusGrappleState>(current).PoseChangeAutoFireTimer.RawValue,
             "a current-layout graph round-trips");
 
         // Same-length replacements keep every length prefix valid, so only the identity changes.

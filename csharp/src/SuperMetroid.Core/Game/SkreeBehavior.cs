@@ -108,12 +108,12 @@ internal sealed class SkreeBehavior : IEnemySpecies
     {
         // The USA/Japan build reloads 21 every airborne frame. It becomes the complete
         // burrow lifetime only on the frame whose six-pixel downward probe collides.
-        state.BurrowTimer = 21;
+        state.BurrowTimer = NativeCountdown.Start(21);
         slot.Properties = unchecked((ushort)(slot.Properties | 3));
         if (EnemyTerrain.EnemyHasSolidHighBitAhead(level, slot, 6 << 16, movingDown: true))
         {
-            slot.InstructionTimer = 1;
-            slot.Timer = 0;
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.Timer = NativeCountdown.Start(0);
             state.Function = SkreeEnemyFunction.Burrowing;
             // The floor collision has its own distinct impact/burrow request at `$A3:C771`.
             LastSkreeSoundEffect = 0x005c;
@@ -128,8 +128,8 @@ internal sealed class SkreeBehavior : IEnemySpecies
 
     private void RunSkreeBurrow(RoomEnemySlot slot, SkreeEnemyState state)
     {
-        state.BurrowTimer = unchecked((ushort)(state.BurrowTimer - 1));
-        if (state.BurrowTimer == 0)
+        state.BurrowTimer = state.BurrowTimer.Decrement().Remaining;
+        if (state.BurrowTimer.IsZero)
         {
             slot.PaletteIndex = EnemyPaletteBits.Palette5;
             slot.VramTilesIndex = 0;
@@ -137,7 +137,7 @@ internal sealed class SkreeBehavior : IEnemySpecies
             return;
         }
 
-        if (state.BurrowTimer == 8)
+        if (state.BurrowTimer.RawValue == 8)
             _projectiles.SpawnSkreeParticleBurst(slot);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
     }
@@ -152,8 +152,8 @@ internal sealed class SkreeBehavior : IEnemySpecies
         state.InstalledInstructionIndex = state.RequestedInstructionIndex;
         slot.CurrentInstruction = SkreeMetareeAnimationDefinitions.SkreeInstructionList(
             state.RequestedInstructionIndex);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private SkreeEnemyState RequireSkreeState(RoomEnemySlot slot) =>

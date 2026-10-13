@@ -50,8 +50,8 @@ internal static class RidleyPlayerOpeningVerification
         var enemies = runtime.Enemies;
         var body = enemies.SlotTable.Slots[0]; var state = enemies.RidleyEncounter.Ridley!; var samus = runtime.Player.Samus!;
         var seed = Read(375);
-        body.CurrentInstruction = W(seed, 0xf92); body.InstructionTimer = W(seed, 0xf94);
-        body.Timer = W(seed, 0xf90); body.FrameCounter = W(seed, 0xfa4);
+        body.CurrentInstruction = W(seed, 0xf92); body.InstructionTimer = NativeCountdown.FromRaw(W(seed, 0xf94));
+        body.Timer = NativeCountdown.FromRaw(W(seed, 0xf90)); body.FrameCounter = W(seed, 0xfa4);
         body.SpritemapPointer = W(seed, 0xf8e);
         body.Position = body.Position.WithFractionX(W(seed, 0xf7c)); body.Position = body.Position.WithFractionY(W(seed, 0xf80));
         ushort random = 0;
@@ -68,7 +68,7 @@ internal static class RidleyPlayerOpeningVerification
             string actual = $"{(ushort)state.Function:X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
             string native = string.Join(",", new[] {0xfa8,0xf7a,0xf7c,0xf7e,0xf80,0xfaa,0xfac}.Select(a => W(expected,a).ToString("X4")));
             if (actual != native)
-                throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={body.CurrentInstruction:X4}/{body.InstructionTimer}; timer={state.FunctionTimer} native={W(expected,0xfb2)}");
+                throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={body.CurrentInstruction:X4}/{body.InstructionTimer.RawValue}; timer={state.FunctionTimer.RawValue} native={W(expected,0xfb2)}");
         }
         Console.WriteLine("Ridley player opening trajectory matches native movie frames 375..744.");
     }

@@ -90,7 +90,7 @@ internal sealed class StationPlms
         station.SavePhase = SaveStationPhase.Animating;
         station.AnimationFrame = 0;
         station.SaveAnimationLoopsRemaining =
-            SaveStationAnimationDefinitions.SaveAnimationLoops;
+            NativeCountdown.Start(SaveStationAnimationDefinitions.SaveAnimationLoops);
         // `$84:AFF4` queues library-one sound $2E right after centring Samus.
         _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary1Sounds.Saving, MaximumQueued: 6));
         _drawing._tilemapUpdates.Clear();
@@ -443,7 +443,7 @@ internal sealed class StationPlms
                 // six locked Samus in setup; this pass does not lock her again, so one an
                 // intervening unpause freed ($90:F2A2) stays free.
                 station.OperationPhase = StationOperationPhase.Extending;
-                station.OperationTimer = StationAccessMovementFrames;
+                station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                 operationStartedThisPass = true;
                 _sounds._soundRequests.Add(_sounds.CreateSoundRequest(RoomPlmSounds.StationExtension, MaximumQueued: 6));
                 DrawStationAccess(bus, level, streamer, station, extended: false, view: view);
@@ -458,15 +458,15 @@ internal sealed class StationPlms
         if (!operationStartedThisPass &&
             station.OperationPhase is not (StationOperationPhase.Idle or StationOperationPhase.AwaitingMapUnpause))
         {
-            station.OperationTimer--;
-            if (station.OperationTimer == 0)
+            station.OperationTimer = station.OperationTimer.Decrement().Remaining;
+            if (station.OperationTimer.IsZero)
             {
                 switch (station.OperationPhase)
                 {
                     case StationOperationPhase.Extending:
                         DrawStationAccess(bus, level, streamer, station, extended: true, view: view);
                         station.OperationPhase = StationOperationPhase.Extended;
-                        station.OperationTimer = StationAccessExtendedHoldFrames;
+                        station.OperationTimer = NativeCountdown.Start(StationAccessExtendedHoldFrames);
                         break;
                     case StationOperationPhase.Extended:
                         PublishStationActivation(station, slot, samus);
@@ -476,17 +476,17 @@ internal sealed class StationPlms
                         if (station.Kind != StationKind.Map)
                             samus.InputLocked = false;
                         station.OperationPhase = StationOperationPhase.PostActivationHold;
-                        station.OperationTimer = StationAccessMovementFrames;
+                        station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
                     case StationOperationPhase.PostActivationHold:
                         _sounds._soundRequests.Add(_sounds.CreateSoundRequest(RoomPlmSounds.StationRetraction, MaximumQueued: 6));
                         station.OperationPhase = StationOperationPhase.Retracting;
-                        station.OperationTimer = StationAccessMovementFrames;
+                        station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
                     case StationOperationPhase.Retracting:
                         DrawStationAccess(bus, level, streamer, station, extended: false, view: view);
                         station.OperationPhase = StationOperationPhase.FinalRetractionHold;
-                        station.OperationTimer = StationAccessMovementFrames;
+                        station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
                     case StationOperationPhase.FinalRetractionHold:
                         station.OperationPhase = station.Kind == StationKind.Map && samus.InputLocked
@@ -509,16 +509,16 @@ internal sealed class StationPlms
         if (station.Kind == StationKind.Save && station.InitialDrawCompleted)
             return true;
 
-        station.AnimationTimer--;
-        if (station.AnimationTimer != 0)
+        station.AnimationTimer = station.AnimationTimer.Decrement().Remaining;
+        if (!station.AnimationTimer.IsZero)
             return true;
 
         StationAnimationProgramDefinitions.Frame frame =
             StationAnimationProgramDefinitions.Resolve(
                 station.AnimationList, station.AnimationFrame);
-        ushort timer = frame.Duration;
+        NativeCountdown timer = NativeCountdown.FromRaw(frame.Duration);
         ushort draw = frame.DrawPointer;
-        if ((timer & 0x8000) != 0 || timer == 0)
+        if (timer.IsNegative || timer.IsZero)
         {
             throw new InvalidDataException(
                 $"{station.Kind} station animation $84:{(int)station.AnimationList:X4} " +
@@ -546,14 +546,14 @@ internal sealed class StationPlms
                 $"Save station has unknown phase {station.SavePhase}.");
         }
 
-        station.AnimationTimer--;
-        if (station.AnimationTimer != 0)
+        station.AnimationTimer = station.AnimationTimer.Decrement().Remaining;
+        if (!station.AnimationTimer.IsZero)
             return true;
 
         // `$84:B002` runs when the second frame's four frames expire. After the last of
         // the 21 loops it falls through to `$84:B006`, the saved-game message, instead of
         // returning to the first frame. (The loop is counted at the second draw here.)
-        if (station.AnimationFrame == 0 && station.SaveAnimationLoopsRemaining == 0)
+        if (station.AnimationFrame == 0 && station.SaveAnimationLoopsRemaining.IsZero)
         {
             station.SavePhase = SaveStationPhase.AwaitingCompletionMessageClose;
             _stationActivationEvents.Add(new StationActivationEvent(
@@ -582,10 +582,10 @@ internal sealed class StationPlms
                 $"Save-station animation list $84:{(int)list:X4} has timer {frame.Duration}, expected 4.");
         }
         _drawing.DrawPlmInstruction(bus, level, streamer, blockIndex, frame.DrawPointer, view);
-        station.AnimationTimer = frame.Duration;
+        station.AnimationTimer = NativeCountdown.FromRaw(frame.Duration);
         station.AnimationFrame ^= 1;
         if (station.AnimationFrame == 0)
-            station.SaveAnimationLoopsRemaining--;
+            station.SaveAnimationLoopsRemaining = station.SaveAnimationLoopsRemaining.Decrement().Remaining;
     }
 
     private void PublishStationActivation(
@@ -623,7 +623,7 @@ internal sealed class StationPlms
         }
 
         station.AnimationFrame = 0;
-        station.AnimationTimer = 1;
+        station.AnimationTimer = NativeCountdown.Start(1);
         _stationActivationEvents.Add(new StationActivationEvent(
             station.Kind,
             message,
@@ -655,15 +655,15 @@ internal sealed class StationPlms
         public StationAnimationList CompletedAnimationList { get; } = completedAnimationList;
         public int AnimationFrameCount { get; } = animationFrameCount;
         public int AnimationFrame { get; set; }
-        public ushort AnimationTimer { get; set; } = 1;
+        public NativeCountdown AnimationTimer { get; set; } = NativeCountdown.Start(1);
         public bool InitialDrawCompleted { get; set; }
         public bool Triggered { get; set; }
         public StationOperationPhase OperationPhase { get; set; }
-        public ushort OperationTimer { get; set; }
+        public NativeCountdown OperationTimer { get; set; }
         public int AccessBlockIndex { get; set; } = -1;
         public StationAccessBehavior? AccessBehavior { get; set; }
         public SaveStationPhase SavePhase { get; set; }
-        public ushort SaveAnimationLoopsRemaining { get; set; }
+        public NativeCountdown SaveAnimationLoopsRemaining { get; set; }
     }
 
     internal enum StationOperationPhase : byte

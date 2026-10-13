@@ -79,7 +79,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
                 WalkingSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
             var (enemies, slot, _, samus) = CreateSystem();
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | address)),
                 slot.SpritemapPointer,
@@ -117,7 +117,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             samus.Position = samus.Position.WithWholeX(movingRight ? (ushort)0x0180 : (ushort)0x0080);
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, 113);
             AssertEqual(expectedCursor, slot.CurrentInstruction,
                 $"walking Pirate {(movingRight ? "right" : "left")} attack loops");
@@ -136,7 +136,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, frames);
             AssertEqual(expectedCursor, slot.CurrentInstruction,
                 $"walking Pirate program $B2:{program:X4} cursor");

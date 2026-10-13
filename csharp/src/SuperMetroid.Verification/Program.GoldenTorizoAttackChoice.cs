@@ -37,7 +37,7 @@ internal static class GoldenTorizoAttackChoiceVerification
         samus.Position = samus.Position.WithWholeX(0x01b8);
         samus.Missiles = 187;
         torizo.CurrentInstruction = landedFacingLeft;
-        torizo.InstructionTimer = 1;
+        torizo.InstructionTimer = NativeCountdown.Start(1);
         runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Room.Camera!.PixelPosition.X, runtime.Room.Camera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, Level = runtime.Room.LevelData, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, NmiFrameCounter8 = 0x2d, NmiFrameCounter = 0xefd8 });
         AssertTrue(torizo.CurrentInstruction is > sonicBoomsFacingLeft and
                 < 0xcc57,

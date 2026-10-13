@@ -143,7 +143,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             system.SpawnDefinition(guardedRom, pointer, equippedItems: 0);
             var slot = ActivePaletteFxSlot(system);
             AssertEqual(pointer, slot.Id, $"${pointer:X4} production ID");
-            AssertEqual((ushort)1, slot.InstructionTimer,
+            AssertEqual((ushort)1, slot.InstructionTimer.RawValue,
                 $"${pointer:X4} production timer");
             AssertEqual(
                 definition.SetupCallback == PaletteFxSetup.Intro

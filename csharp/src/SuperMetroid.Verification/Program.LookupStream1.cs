@@ -191,7 +191,7 @@ internal static class LookupStream1Verification
                 for (int held = 0; held < duration; held++)
                 {
                     EnemyInstructionRunner.Process(enemies, arguments); calls++;
-                    AssertEqual((ushort)(duration - held), slot.InstructionTimer, "Every uninterrupted escape Dachora exposure tick");
+                    AssertEqual((ushort)(duration - held), slot.InstructionTimer.RawValue, "Every uninterrupted escape Dachora exposure tick");
                     AssertEqual(visual, slot.SpritemapPointer, "Native escape Dachora pose order");
                     AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Escape Dachora exact timed cursor");
                     AssertEqual(unchecked((ushort)expectedX), slot.Position.X.Whole, "Native callback displacement occurs only at pose completion");
@@ -203,7 +203,7 @@ internal static class LookupStream1Verification
             AssertEqual(unchecked((ushort)expectedX), slot.Position.X.Whole, "Final movement callback is preserved");
             ushort next = program == 0 ? (ushort)0xe968 : program == 1 ? (ushort)0xe9d4 : (ushort)0xea80;
             AssertEqual((ushort)(next + 4), slot.CurrentInstruction, "Pacing reversal/maximum speed loop selects exact native record");
-            AssertEqual(Word(0xb30000 | next), slot.InstructionTimer, "Loop reload keeps native cadence");
+            AssertEqual(Word(0xb30000 | next), slot.InstructionTimer.RawValue, "Loop reload keeps native cadence");
             AssertEqual(0, guard.ForbiddenReadAttempts, "Escape Dachora mechanics avoid cartridge reads");
         }
         Console.WriteLine("Escape Dachora cadence:139 native records,463 uninterrupted ticks,two complete pacing round trips and full accelerating departure pass.");
@@ -234,7 +234,7 @@ internal static class LookupStream1Verification
             body.Position = body.Position.WithWholeY(100);
             var slot = isBody ? body : balloon;
             slot.CurrentInstruction = root;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             int calls = 0;
             for (int pose = 0; pose < 3; pose++)
@@ -245,7 +245,7 @@ internal static class LookupStream1Verification
                 for (int held = 0; held < duration; held++)
                 {
                     EnemyInstructionRunner.Process(enemies, arguments); calls++;
-                    AssertEqual((ushort)(duration - held), slot.InstructionTimer, "Every uninterrupted Powamp hold tick");
+                    AssertEqual((ushort)(duration - held), slot.InstructionTimer.RawValue, "Every uninterrupted Powamp hold tick");
                     AssertEqual(sprite, slot.SpritemapPointer, "Native Powamp held visual");
                     AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Powamp held cursor");
                     if (!isBody)
@@ -261,17 +261,17 @@ internal static class LookupStream1Verification
             if (isBody)
             {
                 AssertEqual((ushort)(root + 4), slot.CurrentInstruction, "Actual Powamp Goto repeats first pose");
-                AssertEqual(Word(0xa80000 | root), slot.InstructionTimer, "Powamp loop first hold reload");
+                AssertEqual(Word(0xa80000 | root), slot.InstructionTimer.RawValue, "Powamp loop first hold reload");
             }
             else
             {
                 AssertEqual((ushort)(root + 12), slot.CurrentInstruction, "Powamp Sleep parks at existing terminal cursor");
-                AssertEqual((ushort)0, slot.InstructionTimer, "Powamp Sleep follows full terminal hold");
+                AssertEqual((ushort)0, slot.InstructionTimer.RawValue, "Powamp Sleep follows full terminal hold");
                 ushort terminalY = balloon.Position.Y.Whole;
                 PowampBehavior.AlignPowampBalloonY(body, balloon);
                 AssertEqual(terminalY, balloon.Position.Y.Whole, "Sleep preserves terminal balloon collision center");
                 EnemyInstructionRunner.Process(enemies, arguments);
-                AssertEqual(ushort.MaxValue, slot.InstructionTimer, "Sleeping Powamp retains native timer underflow");
+                AssertEqual(ushort.MaxValue, slot.InstructionTimer.RawValue, "Sleeping Powamp retains native timer underflow");
             }
             AssertEqual(0, guard.ForbiddenReadAttempts, "Powamp timing uses no cartridge mechanics reads");
         }
@@ -297,13 +297,13 @@ internal static class LookupStream1Verification
                 ushort duration = Word(0xa30000 | address), visual = Word(0xa30000 | (address + 2));
                 AssertEqual(duration, MetroidInstructionProgramDefinitions.ReadMechanicsWord(address), "Native Metroid pulse duration");
                 EnemyInstructionRunner.Process(enemies, arguments); calls++;
-                AssertEqual(duration, slot.InstructionTimer, "Actual Metroid duration reload");
+                AssertEqual(duration, slot.InstructionTimer.RawValue, "Actual Metroid duration reload");
                 AssertEqual(visual, slot.SpritemapPointer, "Actual native inside-pose identity");
                 AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Metroid selected record ordering");
                 for (int held = 1; held < duration; held++)
                 {
                     EnemyInstructionRunner.Process(enemies, arguments); calls++;
-                    AssertEqual((ushort)(duration - held), slot.InstructionTimer, "Every actual Metroid exposure tick");
+                    AssertEqual((ushort)(duration - held), slot.InstructionTimer.RawValue, "Every actual Metroid exposure tick");
                     AssertEqual(visual, slot.SpritemapPointer, "Held Metroid inside pose stays selected");
                 }
                 AssertEqual(0, randomCalls, "No Metroid RNG call before complete pulse loop");
@@ -315,7 +315,7 @@ internal static class LookupStream1Verification
             ushort expectedSound = chasing ? Word(0xa3ead6 + 5 * 2) : Word(0xa3eaa8);
             AssertEqual((ushort?)expectedSound, enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2, "Native loop callback sound");
             AssertEqual((ushort)(root + 4), slot.CurrentInstruction, "Callback loops to first timed record");
-            AssertEqual(Word(0xa30000 | root), slot.InstructionTimer, "Loop reload preserves first native hold");
+            AssertEqual(Word(0xa30000 | root), slot.InstructionTimer.RawValue, "Loop reload preserves first native hold");
             AssertEqual(0, guard.ForbiddenReadAttempts, "Metroid pulse mechanics use no cartridge reads");
         }
         Console.WriteLine("Metroid pulse:25 native records,320 actual exposure ticks,two callback boundaries and exact sound/RNG ownership pass.");
@@ -3036,7 +3036,7 @@ internal static class LookupStream1Verification
                 AssertEqual(done, actual.Step(actualVram), "escape text native completion");
                 AssertEqual(destination, actual.Destination, "escape text native destination");
                 AssertEqual(delay, actual.Delay, "escape text native delay");
-                AssertEqual(timer, actual.DelayTimer, "escape text native countdown");
+                AssertEqual(timer, actual.DelayTimer.RawValue, "escape text native countdown");
                 AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");
                 AssertEqual(click, actual.ClickRequested, "escape text native click order");
                 AssertTrue(expectedVram.ImageEquals(actualVram), "escape text native per-character VRAM");
@@ -3230,9 +3230,9 @@ internal static class LookupStream1Verification
             {
                 ushort duration = Word(0x930000 | pointer);
                 ushort sprite = edited ? (ushort)0xa117 : Word(0x930000 | (pointer + 2));
-                var slot = new SamusProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer };
+                var slot = new SamusProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), InstructionPointer = pointer };
                 AssertTrue(!shots.Animation.RunProjectileInstructionHandler(slot), "Actual native timed frame survives");
-                AssertEqual(duration, slot.InstructionTimer, "Actual timer unchanged");
+                AssertEqual(duration, slot.InstructionTimer.RawValue, "Actual timer unchanged");
                 AssertEqual(sprite, slot.SpritemapPointer, "Independent installed artwork selection");
                 AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius independent of art edit");
                 AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), slot.Radius.Y, "Actual Y radius independent of art edit");
@@ -3240,9 +3240,9 @@ internal static class LookupStream1Verification
                 AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
                 interpreted++;
                 if (duration == 0) continue; // Existing bomb contract excludes zero-duration timed records.
-                var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer, Type = 0x0500 };
+                var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), InstructionPointer = pointer, Type = 0x0500 };
                 AssertTrue(!bombs.RunProjectileInstructionHandler(bomb), "Actual bomb timed frame survives");
-                AssertEqual(duration, bomb.InstructionTimer, "Actual bomb timer unchanged");
+                AssertEqual(duration, bomb.InstructionTimer.RawValue, "Actual bomb timer unchanged");
                 AssertEqual(sprite, bomb.SpritemapPointer, "Independent bomb artwork selection");
                 AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), bomb.Radius.X, "Actual bomb X radius");
                 AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), bomb.Radius.Y, "Actual bomb Y radius");
@@ -3321,8 +3321,8 @@ internal static class LookupStream1Verification
         {
             var shots = new SamusProjectileSystem { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
-            var slot = new SamusProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = program.Start, Damage = 30 };
-            var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = program.Start, Type = 0x0500 };
+            var slot = new SamusProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), InstructionPointer = program.Start, Damage = 30 };
+            var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), InstructionPointer = program.Start, Type = 0x0500 };
             ushort timer = 1, pointer = program.Start, sprite = 0, x = 0, y = 0, trail = 0;
             var visited = new HashSet<ushort>();
             bool finished = false;
@@ -3358,10 +3358,10 @@ internal static class LookupStream1Verification
                     deletions++; finished = true; break;
                 }
                 AssertEqual((timer, pointer, sprite, x, y, trail),
-                    (slot.InstructionTimer, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame),
+                    (slot.InstructionTimer.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame),
                     "Every scheduled projectile exposure/physical envelope/trail phase matches native");
                 AssertEqual((timer, pointer, sprite, x, y),
-                    (bomb.InstructionTimer, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
+                    (bomb.InstructionTimer.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
                     "Every scheduled bomb exposure/physical envelope matches native");
                 slot.AnimationFrame = 0xbeef;
                 AssertEqual(trail, ProjectileTrails.GetTrailAnimationFrame(slot), "Actual trail consumer reads prior record, not next phase or cached frame");

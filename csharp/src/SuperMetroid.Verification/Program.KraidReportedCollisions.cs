@@ -28,7 +28,7 @@ internal static class KraidReportedCollisionsVerification
             samus.Position = samus.Position.WithWhole(new(120, 491));
             body.Position = body.Position.WithWhole(new(176, 592));
             body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
-            state.ThinkingTimer = 100;
+            state.ThinkingTimer = NativeCountdown.Start(100);
             body.VariableB = closed ? KraidHeadInstructionDefinitions.RoarInitial : (ushort)0x96ec;
             runtime.Enemies.KraidBehavior.ExecuteKraidHeadInstruction(body, state);
             bool marked = false;
@@ -53,7 +53,8 @@ internal static class KraidReportedCollisionsVerification
         {
             samus.Position = samus.Position.WithWhole(new(x, y));
             samus.Health = 999; samus.EquippedItems = 0;
-            samus.InvincibilityTimer = samus.KnockbackTimer = 0;
+            samus.KnockbackTimer = NativeCountdown.Start(0);
+            samus.InvincibilityTimer = NativeCountdown.Start(0);
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(0, 0));
             samus.Kinematics.Radius = new(8, 16);
@@ -108,7 +109,7 @@ internal static class KraidReportedCollisionsVerification
         {
             body.Position = body.Position.WithWhole(new(176, 592));
             body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
-            state.ThinkingTimer = 100;
+            state.ThinkingTimer = NativeCountdown.Start(100);
             ResetSamus(180, 500);
             runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>((ushort)0, (ushort)384), null, null, null);
             AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid ejects Samus eight pixels left");

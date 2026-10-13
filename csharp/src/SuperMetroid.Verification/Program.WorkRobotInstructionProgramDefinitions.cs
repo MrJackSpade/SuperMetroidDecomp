@@ -89,9 +89,9 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
             robot.CurrentInstruction = entry;
             for (int call = 0; call < 400; call++)
             {
-                robot.InstructionTimer = 1;
+                robot.InstructionTimer = NativeCountdown.Start(1);
                 robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
-                enemies.WorkRobotStates[0]!.LaserCooldown = ushort.MaxValue;
+                enemies.WorkRobotStates[0]!.LaserCooldown = NativeCountdown.Start(ushort.MaxValue);
                 enemies.Instructions.ProcessInstructions(robot, null, level, new Position16<RoomPixels>((ushort)384, (ushort)192), (ushort)0);
             }
         }

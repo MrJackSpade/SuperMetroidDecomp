@@ -240,7 +240,7 @@ internal sealed class BeamFiring
         // frame and cooldown `$0CCC` supplies the native rate limit; charged releases reach
         // the same gate once.
         if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
-            (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer)) != 0)
+            (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer.RawValue)) != 0)
         {
             return (null, 0);
         }
@@ -276,9 +276,9 @@ internal sealed class BeamFiring
 
         slot.Direction = direction;
         InitializePosition(bus, samus, slot);
-        slot.TrailTimer = 4;
+        slot.TrailTimer = NativeCountdown.Start(4);
         slot.Type = SamusProjectileTypeWord.CreateBeam(samus.EquippedBeams, charged);
-        ProjectileInvincibilityTimer = 10;
+        ProjectileInvincibilityTimer = NativeCountdown.Start(10);
 
         // The four low bits are a direct ROM table index, not four independent animation
         // layers composed by the host. In particular, Spazer's familiar three streaks live
@@ -304,7 +304,7 @@ internal sealed class BeamFiring
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
                 unchecked((ushort)(slot.InstructionPointer + 5)))));
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
 
         // $90:B8ED checks Charge equipment and both input-edge latches before
         // selecting ordinary cooldown. Only uncharged auto-fire without those
@@ -320,7 +320,7 @@ internal sealed class BeamFiring
 
         ushort sound = SamusProjectileSoundRoutingDefinitions.Resolve(charged, beamType);
         if (charged)
-            _charge.ChargedShotGlowTimer = 4;
+            _charge.ChargedShotGlowTimer = NativeCountdown.Start(4);
 
         // FireUnchargedBeam and FireChargedBeam explicitly zero both speed words and call
         // CheckBeamCollByDir/WaveBeam_CheckColl before installing the pre-instruction and
@@ -355,7 +355,7 @@ internal sealed class BeamFiring
         // `$90:AC39` is shared with normal beams: five counted ordinary slots and a nonzero
         // low cooldown byte reject firing before any slot fields are touched.
         if (_slotTable.ProjectileCounter >= SamusProjectileSystem.SlotCount ||
-            (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer)) != 0)
+            (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer.RawValue)) != 0)
         {
             return (null, 0);
         }
@@ -380,7 +380,7 @@ internal sealed class BeamFiring
         slot.Direction = direction;
 
         InitializePosition(bus, samus, slot);
-        ProjectileInvincibilityTimer = 10;
+        ProjectileInvincibilityTimer = NativeCountdown.Start(10);
 
         // The literal `$9018` is charged Plasma for bank-$93 data/art purposes even though
         // acquisition equips `$1009` Wave+Plasma tiles/palette. InitializeProjectile first
@@ -402,7 +402,7 @@ internal sealed class BeamFiring
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
                 unchecked((ushort)(slot.InstructionPointer + 5)))));
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Damage = 1000;
 
         // Hyper uses WaveBeam_CheckColl at this same producer seam. It publishes door and
@@ -420,11 +420,11 @@ internal sealed class BeamFiring
         // These are literal stores at `$90:BD29-$BD52`. `$8014` is not an ordinary four-call
         // glow timer: its sign bit identifies Hyper's palette phase to the later consumer.
         sharedProjectiles.SetSharedCooldown(21);
-        _charge.ChargedShotGlowTimer = 0x8014;
+        _charge.ChargedShotGlowTimer = NativeCountdown.Start(0x8014);
         _charge._flareFrames[0] = 29;
         _charge._flareFrames[1] = 5;
         _charge._flareFrames[2] = 5;
-        _charge._flareTimers[0] = _charge._flareTimers[1] = _charge._flareTimers[2] = 3;
+        _charge._flareTimers[0] = _charge._flareTimers[1] = _charge._flareTimers[2] = NativeCountdown.Start(3);
         _charge.FlareCounter = 0x8000;
 
         ushort sound = SamusProjectileSoundRoutingDefinitions.Resolve(
@@ -455,7 +455,7 @@ internal sealed class BeamFiring
         ushort ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SamusProjectileRomData.NonBeam.SuperMissileAdmissionLimit : SamusProjectileSystem.SlotCount;
         if (_slotTable.ProjectileCounter >= admissionLimit ||
-            (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer)) != 0)
+            (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer.RawValue)) != 0)
         {
             return (null, 0);
         }
@@ -477,12 +477,12 @@ internal sealed class BeamFiring
 
         InitializePosition(bus, samus, slot);
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
-        ProjectileInvincibilityTimer = 20;
+        ProjectileInvincibilityTimer = NativeCountdown.Start(20);
         if (isSuperMissile)
             samus.SuperMissiles = unchecked((ushort)(samus.SuperMissiles - 1));
         else
             samus.Missiles = unchecked((ushort)(samus.Missiles - 1));
-        slot.TrailTimer = 4;
+        slot.TrailTimer = NativeCountdown.Start(4);
         slot.Type = isSuperMissile ? (ushort)0x8200 : (ushort)0x8100;
         slot.Variable = 0;
 
@@ -505,7 +505,7 @@ internal sealed class BeamFiring
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
                 unchecked((ushort)(slot.InstructionPointer + 5)))));
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         slot.PreInstruction = isSuperMissile
             ? SamusProjectilePreInstruction.SuperMissile
             : SamusProjectilePreInstruction.Missile;
@@ -571,12 +571,11 @@ internal sealed class BeamFiring
     /// WRAM <c>$18AC</c>; humanoid shots temporarily suppress Samus/projectile
     /// interaction, including bomb jumps. Decremented by the shared gameplay tail.
     /// </summary>
-    public ushort ProjectileInvincibilityTimer { get; internal set; }
+    public NativeCountdown ProjectileInvincibilityTimer { get; internal set; }
 
     /// <summary>Decrements the projectile-owned word of native DecrementSamusTimers.</summary>
     public void DecrementInteractionTimer()
     {
-        if (ProjectileInvincibilityTimer != 0)
-            ProjectileInvincibilityTimer--;
+        ProjectileInvincibilityTimer = ProjectileInvincibilityTimer.DecrementToZero();
     }
 }

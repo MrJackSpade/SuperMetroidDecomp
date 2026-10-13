@@ -157,8 +157,8 @@ public sealed class IntroCinematicState
     internal IntroCeresFlightState? ceresFlight;
     internal DemoInputState? flashbackDemoInput;
     internal RoomLevelData? flashbackLevel;
-    private ushort crossfadeCounter;
-    private ushort introCrossfadeCounter;
+    private NativeCountdown crossfadeCounter;
+    private NativeCountdown introCrossfadeCounter;
     private ushort nmiFrameCounter;
     /// <summary>$51: the INIDISP byte the cinematic fades; the intro starts in forced blank.</summary>
     internal int inidisp = ScreenFade.ForcedBlank;
@@ -551,7 +551,7 @@ public sealed class IntroCinematicState
                 cgram,
                 introPalette,
                 nmiFrameCounter,
-                crossfadeCounter);
+                crossfadeCounter.RawValue);
             // $8B:B842: deleting Mother Brain after the page-two crossfade hides Samus from
             // the next dispatch on.
             if (!flashbackMotherBrain.IsVisible)
@@ -584,13 +584,13 @@ public sealed class IntroCinematicState
             // The eight actors are allocated while object zero is already being processed,
             // so their first generic-handler call occurs on the following frame. Hit count
             // four is reached on the spawn frame, after the handler passed their free slots.
-            flashbackMotherBrainExplosions?.Step(bus, crossfadeCounter);
+            flashbackMotherBrainExplosions?.Step(bus, crossfadeCounter.RawValue);
         }
 
         // Handle_CinematicSpriteObjects ($8B:93EF) runs after the cinematic function, so the
         // actors a scene setup spawns take their first step in that same dispatch.
-        babyDiscovery?.Step(nmiFrameCounter, crossfadeCounter);
-        scientistCutscene?.Step(crossfadeCounter, introCrossfadeCounter);
+        babyDiscovery?.Step(nmiFrameCounter, crossfadeCounter.RawValue);
+        scientistCutscene?.Step(crossfadeCounter.RawValue, introCrossfadeCounter.RawValue);
     }
 
     /// <summary>Renders the current cinematic phase into the reusable 256-by-224 RGBA frame buffer.</summary>
@@ -683,7 +683,7 @@ public sealed class IntroCinematicState
 
         // The sprite setup stored 127 in both cinematic_var13 and (through sprite object
         // $CE55's setup) cinematic_var4. $B250 tests the old counter, then decrements it.
-        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.MotherBrainCrossfade;
     }
 
@@ -697,15 +697,15 @@ public sealed class IntroCinematicState
     {
         // $8B:B250 updates only when the pre-decrement counter is divisible by four.
         // Values 124..0 therefore yield exactly 32 component updates.
-        if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
+        if ((crossfadeCounter.RawValue & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
         {
             FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
             FadeInPaletteSpans(IntroCinematicRomData.Palette.Narration);
             paletteFader!.ComposeInto(cgram);
         }
 
-        crossfadeCounter = unchecked((ushort)(crossfadeCounter - 1));
-        if ((crossfadeCounter & IntroCinematicRomData.Palette.CounterSignBit) == 0)
+        crossfadeCounter = crossfadeCounter.Decrement().Remaining;
+        if (!crossfadeCounter.IsNegative)
             return;
 
         // Transition completion sets TM=$15 and clears English words 128..767 to tile
@@ -722,7 +722,7 @@ public sealed class IntroCinematicState
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageTwoCrossfade;
     }
 
@@ -735,15 +735,15 @@ public sealed class IntroCinematicState
 
     private void StepReverseGameplayToTextCrossfade(IntroCinematicPhase completedPhase)
     {
-        if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
+        if ((crossfadeCounter.RawValue & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
         {
             FadeInPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
             FadeOutPaletteSpans(IntroCinematicRomData.Palette.Narration);
             paletteFader!.ComposeInto(cgram);
         }
 
-        crossfadeCounter = unchecked((ushort)(crossfadeCounter - 1));
-        if ((crossfadeCounter & IntroCinematicRomData.Palette.CounterSignBit) != 0)
+        crossfadeCounter = crossfadeCounter.Decrement().Remaining;
+        if (crossfadeCounter.IsNegative)
             Phase = completedPhase;
     }
 
@@ -772,21 +772,21 @@ public sealed class IntroCinematicState
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.Narration);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.BabyDiscoveryCrossfade;
     }
 
     internal void StepBabyDiscoveryCrossfade()
     {
-        if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
+        if ((crossfadeCounter.RawValue & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
         {
             FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
             FadeInPaletteSpans(IntroCinematicRomData.Palette.Narration);
             paletteFader!.ComposeInto(cgram);
         }
 
-        crossfadeCounter = unchecked((ushort)(crossfadeCounter - 1));
-        if ((crossfadeCounter & IntroCinematicRomData.Palette.CounterSignBit) == 0)
+        crossfadeCounter = crossfadeCounter.Decrement().Remaining;
+        if (!crossfadeCounter.IsNegative)
             return;
 
         // $8B:B29F leaves TM=$15 and clears the English text region after the final fade
@@ -804,7 +804,7 @@ public sealed class IntroCinematicState
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageThreeCrossfade;
     }
 
@@ -833,8 +833,8 @@ public sealed class IntroCinematicState
 
         // The native intro alternates two adjacent WRAM counters. Page-three setup left
         // CinematicFunctionTimer at $007F; this setup writes the separate intro counter.
-        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
-        introCrossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        introCrossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
     }
 
@@ -847,15 +847,15 @@ public sealed class IntroCinematicState
 
     private void StepTextToScientistCrossfade(IntroCinematicPhase completedPhase)
     {
-        if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
+        if ((crossfadeCounter.RawValue & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
         {
             FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
             FadeInPaletteSpans(IntroCinematicRomData.Palette.Discovery);
             paletteFader!.ComposeInto(cgram);
         }
 
-        crossfadeCounter = unchecked((ushort)(crossfadeCounter - 1));
-        if ((crossfadeCounter & IntroCinematicRomData.Palette.CounterSignBit) == 0)
+        crossfadeCounter = crossfadeCounter.Decrement().Remaining;
+        if (!crossfadeCounter.IsNegative)
             return;
 
         ClearVisibleNarrationText();
@@ -871,7 +871,7 @@ public sealed class IntroCinematicState
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageFourCrossfade;
     }
 
@@ -884,15 +884,15 @@ public sealed class IntroCinematicState
 
     private void StepScientistToTextCrossfade(IntroCinematicPhase completedPhase)
     {
-        if ((introCrossfadeCounter & 3) == 0)
+        if ((introCrossfadeCounter.RawValue & 3) == 0)
         {
             FadeInPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
             FadeOutPaletteSpans(IntroCinematicRomData.Palette.Discovery);
             paletteFader!.ComposeInto(cgram);
         }
 
-        introCrossfadeCounter = unchecked((ushort)(introCrossfadeCounter - 1));
-        if ((introCrossfadeCounter & IntroCinematicRomData.Palette.CounterSignBit) != 0)
+        introCrossfadeCounter = introCrossfadeCounter.Decrement().Remaining;
+        if (introCrossfadeCounter.IsNegative)
             Phase = completedPhase;
     }
 
@@ -906,8 +906,8 @@ public sealed class IntroCinematicState
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.Discovery);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
-        introCrossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        introCrossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.BabyMetroidExaminationCrossfade;
     }
 
@@ -920,7 +920,7 @@ public sealed class IntroCinematicState
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageFiveCrossfade;
     }
 
@@ -931,7 +931,7 @@ public sealed class IntroCinematicState
     {
         // $8B:B1EB seeds IntroCrossFadeTimer. English takes B1F4's direct fall-through into
         // B207; Japanese text selects B207 as the next dispatch's cinematic function.
-        introCrossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        introCrossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         if (subtitles.Enabled)
             Phase = IntroCinematicPhase.StartPageSix;
         else
@@ -1064,10 +1064,10 @@ public sealed class IntroCinematicState
         // sprite pass. Keeping this after animation matches SamusNewStateHandler_IntroDemo:
         // the hit frame finishes its standing animation before command one installs $53/$54.
         if (!samus.KnockbackActive &&
-            samus.KnockbackTimer != 0 &&
+            !samus.KnockbackTimer.IsZero &&
             samus.KnockbackDirection == 0)
         {
-            SamusKnockbackMovement.Start(bus, samus, demoInput, new KnockbackLaunch { KnockbackXDirection = samus.KnockbackXDirection, KnockbackTimer = samus.KnockbackTimer });
+            SamusKnockbackMovement.Start(bus, samus, demoInput, new KnockbackLaunch { KnockbackXDirection = samus.KnockbackXDirection, KnockbackTimer = samus.KnockbackTimer.RawValue });
             transitionAccepted = true;
         }
 

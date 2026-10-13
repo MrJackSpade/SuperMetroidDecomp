@@ -71,8 +71,8 @@ internal sealed class CeresSteamBehavior
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.PaletteIndex = CeresSteamPaletteIndex;
 
         // `$A6:EFD9-$EFE0` masks the live RNG to 0..31 and adds one. Variable D is then

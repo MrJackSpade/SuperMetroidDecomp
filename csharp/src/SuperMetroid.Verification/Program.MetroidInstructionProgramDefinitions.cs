@@ -148,7 +148,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         slot.CurrentInstruction = entry;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         return (enemies, slot);
     }
 
@@ -160,7 +160,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
     {
         for (int call = 0; call < count; call++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
     }

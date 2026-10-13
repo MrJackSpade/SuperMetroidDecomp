@@ -188,7 +188,7 @@ internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
             AssertEqual(EnemyProjectileDrawPriority.Low, drool.DrawPriority,
                 $"drool selector {selection} clears priority before 64-frame loop");
             AssertEqual((ushort)0xa484, drool.PresentationOperandAddress, "drool loop pose operand" );
-            AssertEqual((ushort)0x0040, drool.InstructionTimer,
+            AssertEqual((ushort)0x0040, drool.InstructionTimer.RawValue,
                 $"drool selector {selection} installs exact loop duration");
         }
 
@@ -209,7 +209,7 @@ internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
         AssertEqual(0, initialRandom.Count, "initial drool consumes exactly two RNG words");
 
         initial.InstructionPointer = (ushort)BombTorizoDroolProgram.WallImpact;
-        initial.InstructionTimer = 1;
+        initial.InstructionTimer = NativeCountdown.Start(1);
         initialEnemies.Projectiles.ProcessEnemyProjectileInstructions(initial, null, Position16<RoomPixels>.Zero);
         AssertTrue(!initial.IsActive, "drool wall impact clears callback and deletes immediately");
 
@@ -221,7 +221,7 @@ internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
         RoomEnemyProjectileSlot floor = floorEnemies.Projectiles.EnemyProjectiles[^1];
         floor.PreInstruction = BombTorizoDroolInstructionProgramDefinitions.FallingPreInstruction;
         floor.InstructionPointer = (ushort)BombTorizoDroolProgram.FloorImpact;
-        floor.InstructionTimer = 1;
+        floor.InstructionTimer = NativeCountdown.Start(1);
         for (int frame = 0; frame < 24; frame++)
         {
             floorEnemies.Projectiles.ProcessEnemyProjectileInstructions(floor, null, Position16<RoomPixels>.Zero);

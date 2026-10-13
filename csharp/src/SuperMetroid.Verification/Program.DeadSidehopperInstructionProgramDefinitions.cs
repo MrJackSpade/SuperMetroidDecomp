@@ -132,7 +132,7 @@ internal static class DeadSidehopperInstructionProgramDefinitionsVerification
         corpse.CurrentInstruction = program;
         for (int frame = 0; frame <= frameCount; frame++)
         {
-            corpse.InstructionTimer = 1;
+            corpse.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, processArguments);
         }
     }

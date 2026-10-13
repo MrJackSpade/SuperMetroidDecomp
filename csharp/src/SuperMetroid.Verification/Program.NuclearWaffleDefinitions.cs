@@ -103,7 +103,7 @@ internal static class NuclearWaffleDefinitionsVerification
         programSlot.EnemyDefinitionPointer = EnemyDefinitionId.Puromi;
         programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         programSlot.CurrentInstruction = NuclearWaffleInstructionProgramDefinitions.BodyLoop;
-        programSlot.InstructionTimer = 1;
+        programSlot.InstructionTimer = NativeCountdown.Start(1);
         object?[] arguments =
             [programSlot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 

@@ -28,7 +28,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
     // not per enemy. Multiple blocks repeatedly select the same graphics-set palette during
     // main AI, and whichever eligible block runs last therefore owns this one shared base.
     private bool _blueBrinstarFaceBlockPaletteHookInstalled;
-    private ushort _blueBrinstarFaceBlockPaletteTimer;
+    private NativeCountdown _blueBrinstarFaceBlockPaletteTimer;
     private ushort _blueBrinstarFaceBlockPaletteFrame;
     private int _blueBrinstarFaceBlockPaletteRow;
 
@@ -37,7 +37,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
     {
         Array.Clear(_blueBrinstarFaceBlockStates);
         _blueBrinstarFaceBlockPaletteHookInstalled = false;
-        _blueBrinstarFaceBlockPaletteTimer = 0;
+        _blueBrinstarFaceBlockPaletteTimer = NativeCountdown.Start(0);
         _blueBrinstarFaceBlockPaletteFrame = 0;
         _blueBrinstarFaceBlockPaletteRow = 0;
     }
@@ -51,8 +51,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         // `$E828` is a one-frame neutral map followed by the common sleep instruction. All
         // authored directional lists use the same neutral map as their first frame.
         slot.CurrentInstruction = BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
 
         // The initializer always primes the shared countdown, even before Morph Ball exists.
         // It installs the hook only when collected-items bit two is already present. Main AI
@@ -60,7 +60,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         // room to become active immediately after the item is acquired.
         if (HasCollectedMorphBall(samus))
             InstallBlueBrinstarFaceBlockPaletteHook(slot);
-        _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
+        _blueBrinstarFaceBlockPaletteTimer = NativeCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
 
         // Native keeps only parameter two bit zero and moves it to the sign bit. This looks
         // backwards until main AI is read: activation requires the Samus delta sign to be
@@ -105,13 +105,13 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         slot.CurrentInstruction = horizontalSign != 0
             ? BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusLeft
             : BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusRight;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         state.Activated = true;
 
         // Activation restarts the singleton palette hook at the cartridge's sixteen-frame
         // cadence but deliberately does not reset its frame index.
-        _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
+        _blueBrinstarFaceBlockPaletteTimer = NativeCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
     }
 
     private static bool HasCollectedMorphBall(SamusState? samus) =>
@@ -146,12 +146,11 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         if (!_blueBrinstarFaceBlockPaletteHookInstalled || _elevatorBehavior.ElevatorDoorTransitionActive)
             return;
 
-        _blueBrinstarFaceBlockPaletteTimer = unchecked((ushort)(
-            _blueBrinstarFaceBlockPaletteTimer - 1));
-        if (_blueBrinstarFaceBlockPaletteTimer != 0)
+        _blueBrinstarFaceBlockPaletteTimer = _blueBrinstarFaceBlockPaletteTimer.Decrement().Remaining;
+        if (!_blueBrinstarFaceBlockPaletteTimer.IsZero)
             return;
 
-        _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
+        _blueBrinstarFaceBlockPaletteTimer = NativeCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
         int frame = _blueBrinstarFaceBlockPaletteFrame & (BlueBrinstarFaceBlockPaletteFrameCount - 1);
         var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
             "Face-block palette animation requires installed artwork.");

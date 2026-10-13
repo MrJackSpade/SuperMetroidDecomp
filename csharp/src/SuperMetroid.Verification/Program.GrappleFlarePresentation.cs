@@ -39,7 +39,7 @@ internal static class GrappleFlarePresentationVerification
                 samus.Grapple.FireDirection = (byte)(pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose ? 7 : 2);
                 samus.Grapple.FlareCounter = counter;
                 samus.Grapple.FlareAnimationFrame = 29;
-                samus.Grapple.FlareAnimationTimer = 0;
+                samus.Grapple.FlareAnimationTimer = NativeCountdown.Start(0);
                 samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(coordinate); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(coordinate);
                 samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithX(70); samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithY(80);
                 samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(200); samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(100);
@@ -74,7 +74,7 @@ internal static class GrappleFlarePresentationVerification
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.FlareCounter = 2;
             samus.Grapple.FlareAnimationFrame = frame;
-            samus.Grapple.FlareAnimationTimer = timer;
+            samus.Grapple.FlareAnimationTimer = NativeCountdown.FromRaw(timer);
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(256);
             Check(samus, Clone(samus), Clone(samus));
         }
@@ -89,7 +89,7 @@ internal static class GrappleFlarePresentationVerification
                 samus.Presentation.TileTransfers.BindArtwork(body);
                 samus.Grapple.FlarePlacement = flarePlacement;
             }
-            ushort expectedFrame = native.Grapple.FlareAnimationFrame, expectedTimer = native.Grapple.FlareAnimationTimer;
+            ushort expectedFrame = native.Grapple.FlareAnimationFrame, expectedTimer = native.Grapple.FlareAnimationTimer.RawValue;
             if (SamusGrappleMovement.UsesBeamSpecificDrawingPath(native.Grapple.Phase) && native.Grapple.FlareCounter != 0)
             {
                 if (native.Grapple.FlareCounter == 1) { expectedFrame = 16; expectedTimer = 3; }
@@ -111,7 +111,7 @@ internal static class GrappleFlarePresentationVerification
             bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(bus, native, a, Position16<RoomPixels>.Zero, stock);
             AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, actual, b, Position16<RoomPixels>.Zero, stock), "Grapple catalog retains native flare visibility");
             AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, changed, c, Position16<RoomPixels>.Zero, edited), "Grapple art edit retains origin visibility gate");
-            AssertEqual((expectedFrame, expectedTimer), (actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer), "Grapple shared compiled cadence matches independent native reads");
+            AssertEqual((expectedFrame, expectedTimer), (actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.ImageEquals(b) && a.NextByteOffset == b.NextByteOffset, "Grapple stock parts preserve native complete OAM");
             AssertEqual(a.NextByteOffset, c.NextByteOffset, "Grapple art edit preserves sprite count");
             for (int i = 0; i < a.NextByteOffset / 4; i++)
@@ -149,7 +149,7 @@ internal static class GrappleFlarePresentationVerification
         samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
-        samus.Grapple.FlareCounter = 2; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = 100;
+        samus.Grapple.FlareCounter = 2; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = NativeCountdown.Start(100);
         var game = new SuperMetroidGame(bus);
         game.runtime = runtime;
         byte[] original = Draw(runtime);

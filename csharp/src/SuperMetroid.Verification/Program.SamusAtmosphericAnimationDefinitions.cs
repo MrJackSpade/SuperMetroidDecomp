@@ -96,7 +96,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
                 oam.BeginFrame();
                 effects.UpdateAndDraw(guarded, oam, Position16<RoomPixels>.Zero, fxYPosition: drawY,
                     directArtwork: atmosphericArt);
-                AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer,
+                AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer.RawValue,
                     $"production atmospheric type {type} frame {frame} expiry timer");
                 AssertEqual(frame + 1 == frameCount ? 0 : frame + 1,
                     effects.Slots[0].AnimationFrame,
@@ -108,7 +108,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
                 oam.BeginFrame();
                 effects.UpdateAndDraw(guarded, oam, Position16<RoomPixels>.Zero, fxYPosition: drawY,
                     directArtwork: atmosphericArt);
-                AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer,
+                AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer.RawValue,
                     $"production atmospheric type {type} frame {frame} delayed timer");
                 AssertEqual(frame, effects.Slots[0].AnimationFrame,
                     $"production atmospheric type {type} frame {frame} delayed handoff");

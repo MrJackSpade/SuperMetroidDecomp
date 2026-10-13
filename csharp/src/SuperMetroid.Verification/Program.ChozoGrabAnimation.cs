@@ -35,7 +35,7 @@ internal static class ChozoGrabAnimationVerification
         samus.Presentation.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
         samus.AnimationFrame = 2;
-        samus.AnimationFrameTimer = (ushort)3;
+        samus.AnimationFrameTimer = NativeCountdown.Start((ushort)3);
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
         var level = runtime.Room.LevelData!;
         var block = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(0x4a, 0x17)));
@@ -59,7 +59,7 @@ internal static class ChozoGrabAnimationVerification
         AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked && samus.InputLocked,
             "hand trigger installs native stationary handlers");
         AssertEqual((ushort)2, samus.AnimationFrame, "grab preserves captured ball frame");
-        AssertEqual((ushort)3, samus.AnimationFrameTimer, "grab preserves captured ball timer");
+        AssertEqual((ushort)3, samus.AnimationFrameTimer.RawValue, "grab preserves captured ball timer");
         ushort startX = samus.Position.X.Whole, startY = samus.Position.Y.Whole;
         bool carried = false;
         int frames = 0;
@@ -84,7 +84,7 @@ internal static class ChozoGrabAnimationVerification
             if (samus.ScriptLocks.StationaryScriptControlLocked)
             {
                 AssertEqual((ushort)2, samus.AnimationFrame, "ball frame remains frozen while carried");
-                AssertEqual((ushort)3, samus.AnimationFrameTimer, "ball animation timer remains frozen while carried");
+                AssertEqual((ushort)3, samus.AnimationFrameTimer.RawValue, "ball animation timer remains frozen while carried");
             }
             carried |= samus.Position.X.Whole != startX || samus.Position.Y.Whole != startY;
             frames++;
@@ -114,7 +114,7 @@ internal static class ChozoGrabAnimationVerification
                 AssertEqual(expectedExplosion.FixedColorBlue, actual.FixedColorBlue, "carried blast blue");
                 AssertEqual(expectedExplosion.Status, actual.Status, $"carried Power Bomb cleanup at frame {frames}");
             }
-            animationResumed |= samus.AnimationFrame != 2 || samus.AnimationFrameTimer != 3;
+            animationResumed |= samus.AnimationFrame != 2 || samus.AnimationFrameTimer.RawValue != 3;
         }
         AssertTrue(animationResumed, "ball animation resumes after release");
         if (powerBomb) Console.WriteLine("Power Bomb continues through capture: exact phases, radii, rendered state, colors and flag cleanup pass.");

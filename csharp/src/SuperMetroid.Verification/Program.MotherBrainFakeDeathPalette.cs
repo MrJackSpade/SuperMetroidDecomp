@@ -25,7 +25,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
                     ? MotherBrainBodyFunction.FakeDeathDescentFadeToGray
                     : MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray,
                 TubeCollapseFunction = MotherBrainTubeCollapseFunction.Finished,
-                FakeDeathExplosionTimer = 100,
+                FakeDeathExplosionTimer = NativeCountdown.Start(100),
             };
             Action<MotherBrainEnemyState> step = toGrey
                 ? enemies.MotherBrainBehavior.RunMotherBrainFadeToGray
@@ -40,18 +40,18 @@ internal static class MotherBrainFakeDeathPaletteVerification
                 SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(expected, rom, MotherBrainRainbowPaletteRomData.SourceBank | pointer,
                     MotherBrainFakeDeathPaletteRomData.ColorCount,
                     MotherBrainFakeDeathPaletteRomData.BrainColor);
-                state.FunctionTimer = 0;
+                state.FunctionTimer = NativeCountdown.Start(0);
                 step(state);
                 AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                     $"installed Mother Brain fake-death {(toGrey ? "descent" : "ascent")} frame {frame} matches full native CGRAM");
                 AssertEqual((ushort)(frame + 1), toGrey ? state.GrayFadeIndex : state.GrayTransitionCounter,
                     "native grey fade cursor increments once per selected frame");
-                AssertEqual(toGrey ? (ushort)8 : (ushort)4, state.FunctionTimer,
+                AssertEqual(toGrey ? (ushort)8 : (ushort)4, state.FunctionTimer.RawValue,
                     "installed color frame preserves native function timer");
             }
 
             // The ninth selection is the native zero-terminator, not an editable color.
-            state.FunctionTimer = 0;
+            state.FunctionTimer = NativeCountdown.Start(0);
             step(state);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                 "fake-death grey terminator leaves every CGRAM word unchanged");
@@ -83,12 +83,12 @@ internal static class MotherBrainFakeDeathPaletteVerification
                 ? MotherBrainBodyFunction.FakeDeathDescentFadeToGray
                 : MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray,
             TubeCollapseFunction = MotherBrainTubeCollapseFunction.Finished,
-            FakeDeathExplosionTimer = 100,
+            FakeDeathExplosionTimer = NativeCountdown.Start(100),
         };
         Action<MotherBrainEnemyState> step = toGrey
             ? enemies.MotherBrainBehavior.RunMotherBrainFadeToGray
             : enemies.MotherBrainBehavior.TransitionMotherBrainFromGray;
         step(state);
-        return (cgram.Colors.ToArray(), state.FunctionTimer, state.Function);
+        return (cgram.Colors.ToArray(), state.FunctionTimer.RawValue, state.Function);
     }
 }

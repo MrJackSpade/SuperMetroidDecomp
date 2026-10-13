@@ -39,7 +39,7 @@ internal static class YappingMawGrappleReleaseVerification
         var maw = runtime.Enemies.YappingMawStates.Single(state => state?.Origin.X == 936)!;
         maw.Function = YappingMawAiFunction.RetractedDelay;
         maw.HasGrabbedSamus = true;
-        maw.RetractedDelayTimer = 1;
+        maw.RetractedDelayTimer = NativeCountdown.Start(1);
         maw.HeldSamusOffset = new Offset16<RoomPixels>(0, -20);
         // The grapple handler runs in Samus's alpha pass, before EnemyMain. The Maw's
         // command three therefore queues $9B:C8C5 after this frame's swing, and the drop

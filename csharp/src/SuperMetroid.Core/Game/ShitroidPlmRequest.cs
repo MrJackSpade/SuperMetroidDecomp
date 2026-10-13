@@ -109,14 +109,14 @@ public sealed class ShitroidEnemyState
     }
 
     /// <summary>Gets the current AI state's general-purpose countdown.</summary>
-    public ushort StateTimer
+    public NativeCountdown StateTimer
     {
-        get => Slot.VariableF;
-        internal set => Slot.VariableF = value;
+        get => NativeCountdown.FromRaw(Slot.VariableF);
+        internal set => Slot.VariableF = value.RawValue;
     }
 
     /// <summary>Native extended word 01: randomized vertical-follow duration.</summary>
-    public ushort HoverTimer { get; internal set; }
+    public NativeCountdown HoverTimer { get; internal set; }
 
     /// <summary>Native extended word 02: consecutive horizontal-lock accumulator.</summary>
     public ushort HorizontalLockAccumulator { get; internal set; }

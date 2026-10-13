@@ -91,7 +91,7 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
         RunToSleep(right, MagdolliteLavaInstructionProgramDefinitions.Right, "right");
 
         left.InstructionPointer = MagdolliteLavaInstructionProgramDefinitions.Shot;
-        left.InstructionTimer = 1;
+        left.InstructionTimer = NativeCountdown.Start(1);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(left, null, Position16<RoomPixels>.Zero);
         AssertTrue(!left.IsActive,
             "Magdollite shot program follows its native goto into shared delete");
@@ -155,12 +155,12 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
 
         void ObserveFrame(RoomEnemyProjectileSlot projectile)
         {
-            if (!projectile.IsActive || projectile.InstructionTimer == 0) return;
+            if (!projectile.IsActive || projectile.InstructionTimer.IsZero) return;
             ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));
             AssertEqual(operand, projectile.PresentationOperandAddress,
                 "timed projectile frame retains its installed visual operand");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | (unchecked((ushort)(operand - 2)))),
-                projectile.InstructionTimer, "projectile frame duration matches cartridge data");
+                projectile.InstructionTimer.RawValue, "projectile frame duration matches cartridge data");
             observedOperands.Add(projectile.PresentationOperandAddress);
         }
         void RunToSleep(
@@ -168,15 +168,15 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
             ushort program,
             string direction)
         {
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
             ObserveFrame(projectile);
             AssertEqual(unchecked((ushort)(program + 4)), projectile.InstructionPointer,
                 $"{direction} Magdollite-lava pose reaches terminal sleep");
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
             ObserveFrame(projectile);
-            AssertEqual((ushort)0, projectile.InstructionTimer,
+            AssertEqual((ushort)0, projectile.InstructionTimer.RawValue,
                 $"{direction} Magdollite-lava terminal sleep parks the program");
         }
     }

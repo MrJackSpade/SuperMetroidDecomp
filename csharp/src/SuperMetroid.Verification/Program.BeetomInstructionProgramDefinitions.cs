@@ -203,12 +203,12 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         {
             random = (ushort)value;
             fixture.State.Function = BeetomEnemyFunction.DecideActionSamusNotInProximity;
-            fixture.State.FunctionTimer = 0x1234;
+            fixture.State.FunctionTimer = NativeCountdown.Start(0x1234);
             ushort instruction = fixture.Enemies.SlotTable.Slots[0].CurrentInstruction;
             fixture.Choose(fixture.State);
             ushort expected = ReadBeetomInstructionWord(rom, (ushort)(0xb74e + 2 * (value & 7)));
             AssertEqual(expected, (ushort)fixture.State.Function, "Beetom distant action matches native pointer for every RNG word");
-            AssertEqual((ushort)0x1234, fixture.State.FunctionTimer, "Beetom choice preserves timer until setup runs");
+            AssertEqual((ushort)0x1234, fixture.State.FunctionTimer.RawValue, "Beetom choice preserves timer until setup runs");
             AssertEqual(instruction, fixture.Enemies.SlotTable.Slots[0].CurrentInstruction, "Beetom choice preserves program until setup runs");
             AssertEqual(value + 1, randomCalls, "Beetom consumes exactly one random value per choice");
         }
@@ -289,7 +289,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         AssertEqual(entry, slot.CurrentInstruction, "Beetom compiled loop entry");
         for (int call = 0; call < callsThroughGoto; call++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
         AssertEqual(unchecked((ushort)(loop + 4)), slot.CurrentInstruction,
@@ -307,10 +307,10 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         AssertEqual(entry, slot.CurrentInstruction, "Beetom compiled sleep-program entry");
         for (int frame = 0; frame < timedFrames; frame++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         EnemyInstructionRunner.Process(enemies, arguments);
         AssertEqual(sleep, slot.CurrentInstruction,
             "Beetom hop program reaches terminal sleep");

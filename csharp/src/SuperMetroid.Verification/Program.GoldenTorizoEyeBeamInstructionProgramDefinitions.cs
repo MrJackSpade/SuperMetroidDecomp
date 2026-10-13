@@ -79,7 +79,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
                 AssertTrue(beam.IsActive,
                     $"Golden Torizo {facingRight} eye beam normal frame {frame}");
             }
-            AssertEqual((ushort)1, beam.InstructionTimer,
+            AssertEqual((ushort)1, beam.InstructionTimer.RawValue,
                 $"Golden Torizo {facingRight} eye beam reloads five-frame loop");
             AssertEqual(unchecked((ushort)(
                     GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal + 4)),
@@ -111,7 +111,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
         AssertEqual(GoldenTorizoEyeBeamInstructionProgramDefinitions.WallImpact,
             wallBeam.InstructionPointer,
             "Golden Torizo eye beam wall collision selects wall impact");
-        AssertEqual((ushort)1, wallBeam.InstructionTimer,
+        AssertEqual((ushort)1, wallBeam.InstructionTimer.RawValue,
             "Golden Torizo eye beam wall impact is immediately armed");
         for (int frame = 1; frame <= 20; frame++)
         {
@@ -149,7 +149,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
             AssertTrue(disabledBeam.IsActive,
                 $"disabled Golden Torizo eye-beam floor loop frame {frame}");
         }
-        AssertEqual((ushort)8, disabledBeam.InstructionTimer,
+        AssertEqual((ushort)8, disabledBeam.InstructionTimer.RawValue,
             "disabled Golden Torizo eye-beam explosion reloads blank wait");
         AssertEqual(unchecked((ushort)(
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.FloorImpactLoop + 4)),
@@ -243,7 +243,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
             AssertEqual(GoldenTorizoEyeBeamInstructionProgramDefinitions.FloorImpact,
                 beam.InstructionPointer,
                 "Golden Torizo eye beam floor collision selects floor impact");
-            AssertEqual((ushort)1, beam.InstructionTimer,
+            AssertEqual((ushort)1, beam.InstructionTimer.RawValue,
                 "Golden Torizo eye beam floor impact is immediately armed");
             AssertEqual((ushort)6, unchecked((ushort)(beam.Position.Y.Whole & 0x000f)),
                 "Golden Torizo eye beam floor impact uses native low-nibble alignment");

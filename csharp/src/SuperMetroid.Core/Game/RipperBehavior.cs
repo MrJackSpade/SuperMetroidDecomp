@@ -152,8 +152,8 @@ internal sealed class RipperBehavior : IEnemySpecies
         slot.CurrentInstruction = nowMovingRight
             ? RipperInstructionProgramDefinitions.RipperMovingRight
             : RipperInstructionProgramDefinitions.RipperMovingLeft;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     internal static void LoadRipperVelocity(RoomEnemySlot slot, bool movingRight)
@@ -170,7 +170,7 @@ internal sealed class RipperBehavior : IEnemySpecies
     /// </summary>
     private static void ResolveGRipperRipper2ShotAfterCommon(RoomEnemySlot slot)
     {
-        if (slot.FrozenTimer == 0)
+        if (slot.FrozenTimer.IsZero)
             return;
         slot.SpritemapPointer = unchecked((short)slot.VariableD) < 0
             ? RipperInstructionProgramDefinitions.FrozenFacingLeftSpritemap
@@ -211,8 +211,8 @@ internal sealed class RipperBehavior : IEnemySpecies
     private static void SetRipperInstructionList(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private RipperVariantEnemyState RequireRipperVariantState(RoomEnemySlot slot) =>

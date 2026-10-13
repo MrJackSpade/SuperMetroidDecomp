@@ -84,7 +84,7 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
         RoomEnemyProjectileSlot shot = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
-        shot.InstructionTimer = 1;
+        shot.InstructionTimer = NativeCountdown.Start(1);
         Process(shotSystem, shot);
         AssertTrue(!shot.IsActive,
             "save-station electricity shot reaction reaches shared compiled deletion");
@@ -133,7 +133,7 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
 
         void RunForcedTick()
         {
-            electricity.InstructionTimer = 1;
+            electricity.InstructionTimer = NativeCountdown.Start(1);
             Process(enemies, electricity);
         }
 

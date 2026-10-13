@@ -215,14 +215,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         LastCrocomireSoundEffect = 0x003b;
         CrocomireDeathState death = RequireCrocomireDeath();
         death.BridgeFragmentCursor = 0;
-        death.AcidSmokeTimer = 1;
-        death.AcidSoundTimer = 1;
+        death.AcidSmokeTimer = NativeCountdown.Start(1);
+        death.AcidSoundTimer = NativeCountdown.Start(1);
 
         PublishCrocomireBridgeCollapsePlms();
 
         if (state.Tongue is { } tongue)
         {
-            tongue.InstructionTimer = 0x7fff;
+            tongue.InstructionTimer = NativeCountdown.Start(0x7fff);
             tongue.CurrentInstruction =
                 CrocomireTongueInstructionProgramDefinitions.Sleep;
             tongue.Properties = tongue.Properties.With(EnemyProperties.Invisible);
@@ -250,7 +250,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     /// <summary>Ports Crocomire's eight-color body hurt flash at $A4:8CCB.</summary>
     internal void ApplyCrocomireHurtPalette(RoomEnemySlot body)
     {
-        bool white = body.FlashTimer != 0 && (_frameContext._randomEnemyCounter & 2) != 0;
+        bool white = !body.FlashTimer.IsZero && (_frameContext._randomEnemyCounter & 2) != 0;
         if (!white)
         {
             (_room.Artwork?.CrocomireColors ?? throw new InvalidDataException(
@@ -263,8 +263,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     private static void InstallCrocomireInstructionList(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private CrocomireEnemyState RequireCrocomire(RoomEnemySlot slot) =>
@@ -630,7 +630,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         SamusProjectileTypeWord projectileType,
         Position16<RoomPixels> projectile)
     {
-        body.InvincibilityTimer = 0;
+        body.InvincibilityTimer = NativeCountdown.Start(0);
 
         // The off-screen branch bypasses projectile-family selection and still publishes
         // the pending-hit state. This wrapped signed comparison is the cartridge's exact
@@ -645,7 +645,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             {
                 if (!projectileType.IsChargedBeam)
                 {
-                    body.InstructionTimer = 8;
+                    body.InstructionTimer = NativeCountdown.Start(8);
                     SpawnCrocomireShotDust(projectileType, projectile);
                     return;
                 }
@@ -673,16 +673,16 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 // Both regional constants at $A4:8692/$8694 are eight. Keep the branch
                 // explicit because the source distinguishes projectile-attack state even
                 // though this ROM revision stores identical delay values.
-                body.InstructionTimer = unchecked((ushort)(
-                    body.InstructionTimer +
-                    (state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8)));
+                body.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(
+                    body.InstructionTimer.RawValue +
+                    (state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8))));
             }
             state.FightFlags = unchecked((ushort)(
                 lowCount | (state.FightFlags & 0xb7f0) | 0x0800));
             state.ReactionTimer = 10;
         }
 
-        body.FlashTimer = unchecked((ushort)(body.FlashTimer + 14));
+        body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 14)));
         body.AiHandlerBits |= 0x0002;
     }
 
@@ -709,7 +709,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
 
         state.FightFlags = unchecked((ushort)((state.FightFlags & 0x3ff0) | 0x8000));
         state.ReactionTimer = 10;
-        body.FlashTimer = unchecked((ushort)(body.FlashTimer + 4));
+        body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 4)));
         body.AiHandlerBits |= 0x0002;
         state.FightFunction = CrocomireFightFunction.PowerBombCharge;
 
@@ -904,12 +904,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     private void RunCrocomireAcidSoundTimer()
     {
         CrocomireDeathState death = RequireCrocomireDeath();
-        if (death.AcidSoundTimer == 0)
+        if (death.AcidSoundTimer.IsZero)
             return;
-        death.AcidSoundTimer--;
-        if (death.AcidSoundTimer != 0)
+        death.AcidSoundTimer = death.AcidSoundTimer.Decrement().Remaining;
+        if (!death.AcidSoundTimer.IsZero)
             return;
-        death.AcidSoundTimer = 32;
+        death.AcidSoundTimer = NativeCountdown.Start(32);
         LastCrocomireSoundEffect = 0x0022;
     }
 
@@ -1007,10 +1007,10 @@ internal sealed class CrocomireBehavior : IEnemySpecies
     private void SpawnCrocomireAcidSmoke(CrocomireEnemyState state, SamusState? samus)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
-        death.AcidSmokeTimer = unchecked((ushort)(death.AcidSmokeTimer - 1));
-        if (death.AcidSmokeTimer != 0)
+        death.AcidSmokeTimer = death.AcidSmokeTimer.Decrement().Remaining;
+        if (!death.AcidSmokeTimer.IsZero)
             return;
-        death.AcidSmokeTimer = 6;
+        death.AcidSmokeTimer = NativeCountdown.Start(6);
 
         ushort random = ReadCrocomireRandom();
         ushort xOffset = unchecked((ushort)(random & 0x003f));
@@ -1097,7 +1097,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
 
         CrocomireDeathState death = RequireCrocomireDeath();
         death.RumbleYOffset = 0;
-        death.RumbleCooldown = 10;
+        death.RumbleCooldown = NativeCountdown.Start(10);
         death.RumbleDelta = 1;
         state.FightFlags = 0;
         body.Radius = body.Radius.WithY(56);
@@ -1124,15 +1124,15 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         {
             if (unchecked((short)target) < 0)
             {
-                if (death.RumbleCooldown != 0)
+                if (!death.RumbleCooldown.IsZero)
                 {
-                    death.RumbleCooldown--;
+                    death.RumbleCooldown = death.RumbleCooldown.Decrement().Remaining;
                     state.StepCounter -= 2;
                     LastCrocomireSoundEffect = 0x002b;
                     return;
                 }
 
-                death.RumbleCooldown = definition.Cooldown;
+                death.RumbleCooldown = NativeCountdown.FromRaw(definition.Cooldown);
                 death.RumbleDelta = definition.Delta;
             }
             state.StepCounter = definition.NextTargetOffset;
@@ -1156,7 +1156,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
 
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(480, 54));
-        death.RumbleCooldown = 80;
+        death.RumbleCooldown = NativeCountdown.Start(80);
         state.ReactionTimer = 0;
         state.ProjectileCounter = 0;
         PublishCrocomirePlm(new Position16<RoomBlocks>(0x20, 0x03), PlmHeaderId.ClearCrocomireInvisibleWall);
@@ -1193,10 +1193,10 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 state.ProjectileCounter));
         }
 
-        if (death.RumbleCooldown == 0)
+        if (death.RumbleCooldown.IsZero)
             return;
-        death.RumbleCooldown--;
-        if (death.RumbleCooldown != 0)
+        death.RumbleCooldown = death.RumbleCooldown.Decrement().Remaining;
+        if (!death.RumbleCooldown.IsZero)
             return;
         state.ReactionTimer = 0;
         InstallCrocomireInstructionList(
@@ -1385,7 +1385,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 return true;
             case CrocomireInstruction.ShakeScreen:
                 _earthquake.EarthquakeType = 4;
-                _earthquake.EarthquakeTimer = 5;
+                _earthquake.EarthquakeTimer = NativeCountdown.Start(5);
                 LastCrocomireSoundEffect = 0x0076;
                 cursor = next;
                 return true;
@@ -1499,7 +1499,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         switch (state.FightFunction)
         {
             case CrocomireFightFunction.ResetAnimation:
-                state.Body.InstructionTimer = 1;
+                state.Body.InstructionTimer = NativeCountdown.Start(1);
                 return CrocomireInstructionProgramDefinitions.Initial;
 
             case CrocomireFightFunction.StepForward:
@@ -1621,7 +1621,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 return CrocomireInstructionProgramDefinitions.RoarCloseMouth;
 
             case CrocomireFightFunction.ResetAnimationUnused:
-                state.Body.InstructionTimer = 1;
+                state.Body.InstructionTimer = NativeCountdown.Start(1);
                 state.FightFlags |= 0x0200;
                 state.StepCounter = 32;
                 state.FightFunction = CrocomireFightFunction.ChooseAttackUnused;
@@ -1630,7 +1630,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             case CrocomireFightFunction.ChooseAttackUnused:
                 if ((state.FightFlags & 0x0100) != 0)
                 {
-                    state.Body.InstructionTimer = 1;
+                    state.Body.InstructionTimer = NativeCountdown.Start(1);
                     state.StepCounter = 16;
                     state.FightFunction = CrocomireFightFunction.MoveUntilSamusUnused;
                     return CrocomireInstructionProgramDefinitions.Initial;
@@ -1639,7 +1639,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 return CrocomireInstructionProgramDefinitions.UnusedChargeForwardOneStep;
 
             case CrocomireFightFunction.StepForwardUnused:
-                state.Body.InstructionTimer = 1;
+                state.Body.InstructionTimer = NativeCountdown.Start(1);
                 if (state.StepCounter == 0)
                 {
                     state.FightFlags |= 0x2000;
@@ -1689,7 +1689,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                 if (state.StepCounter == 0)
                 {
                     state.FightFlags &= 0xbfff;
-                    state.Body.InstructionTimer = 1;
+                    state.Body.InstructionTimer = NativeCountdown.Start(1);
                     state.FightFunction = (CrocomireFightFunction)state.ProjectileCounter;
                     return CrocomireInstructionProgramDefinitions.MovingClaws;
                 }

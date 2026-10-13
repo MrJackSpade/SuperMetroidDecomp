@@ -71,11 +71,11 @@ public sealed class PowampEnemyState
     /// <summary>Body variable C, the zero-based index 0-11 into the signed three-pixel wiggle wave; phases zero and six are centered.</summary>
     public ushort WiggleIndex { get => _slot.VariableC; internal set => _slot.VariableC = value; }
     /// <summary>Body variable D, an AI-update countdown reset to five for each horizontal wiggle offset; aliases balloon <see cref="BalloonGrappleTravelDistance"/>.</summary>
-    public ushort WiggleTimer { get => _slot.VariableD; internal set => _slot.VariableD = value; }
+    public NativeCountdown WiggleTimer { get => NativeCountdown.FromRaw(_slot.VariableD); internal set => _slot.VariableD = value.RawValue; }
     /// <summary>Balloon variable D, copied from population parameter two; room-pixel distance subtracted from the balloon's spawn Y to obtain the grappled body target height.</summary>
     public ushort BalloonGrappleTravelDistance { get => _slot.VariableD; internal set => _slot.VariableD = value; }
     /// <summary>Body variable E, decremented once per relevant main-AI invocation; initialized to 60 for rest, ten for inflation/deflation, or 32 for death, and expires at zero or signed underflow.</summary>
-    public ushort FunctionTimer { get => _slot.VariableE; internal set => _slot.VariableE = value; }
+    public NativeCountdown FunctionTimer { get => NativeCountdown.FromRaw(_slot.VariableE); internal set => _slot.VariableE = value.RawValue; }
     /// <summary>Variable F at first-slot WRAM $0FB2, interpreted as the bank-$A8 main-AI function pointer; balloon slots retain the no-op entry.</summary>
     public PowampEnemyFunction Function
     {

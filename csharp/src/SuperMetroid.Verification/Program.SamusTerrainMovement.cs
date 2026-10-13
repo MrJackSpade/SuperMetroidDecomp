@@ -339,10 +339,10 @@ internal static void VerifySamusBlockCollision()
         AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PeriodicDamage,
             $"spike-block BTS ${spikeBehavior:X2} publishes cartridge damage");
         AssertEqual(expectedDamage == 0 ? 0 : SamusTerrainHazardRomData.InvincibilityFrames,
-            spikeSamus.InvincibilityTimer,
+            spikeSamus.InvincibilityTimer.RawValue,
             $"spike-block BTS ${spikeBehavior:X2} publishes invincibility timer");
         AssertEqual(expectedDamage == 0 ? 0 : SamusTerrainHazardRomData.KnockbackFrames,
-            spikeSamus.KnockbackTimer,
+            spikeSamus.KnockbackTimer.RawValue,
             $"spike-block BTS ${spikeBehavior:X2} publishes knockback timer");
         AssertEqual(0, spikeSamus.KnockbackXDirection,
             $"right-facing spike-block BTS ${spikeBehavior:X2} knocks left");
@@ -406,7 +406,7 @@ internal static void VerifySamusBlockCollision()
             spikeAirSamus.LiquidPhysics.PeriodicDamage,
             $"inside-block spike-air damages at sampled row {spikeRow}");
         AssertEqual(SamusTerrainHazardRomData.InvincibilityFrames,
-            spikeAirSamus.InvincibilityTimer,
+            spikeAirSamus.InvincibilityTimer.RawValue,
             $"inside-block spike-air starts invincibility at sampled row {spikeRow}");
     }
 
@@ -767,7 +767,7 @@ internal static void VerifySamusGroundedReversal()
     AssertTrue(animatedTurn.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "turn animation transition applies");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, animatedTurn.Pose, "turn animation ends facing left");
     AssertEqual(0, animatedTurn.AnimationFrame, "turn completion resets animation frame");
-    AssertEqual(10, animatedTurn.AnimationFrameTimer, "left-standing delay initializes from ROM stream");
+    AssertEqual(10, animatedTurn.AnimationFrameTimer.RawValue, "left-standing delay initializes from ROM stream");
 
     animatedTurn.PoseTransitions.ApplyStandingLeftToRunningLeft(bus);
     AssertEqual(SamusPoseId.MovingLeftNormalPose, animatedTurn.Pose, "held left starts ordinary left run");
@@ -886,7 +886,7 @@ internal static void VerifySamusGroundedReversal()
         AssertTrue(aimedTurn.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), $"aimed turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, aimedTurn.Pose, $"aimed turn destination case {caseIndex}");
         AssertEqual(0, aimedTurn.AnimationFrame, $"aimed turn target frame zero case {caseIndex}");
-        AssertEqual(testCase.DestinationDelay, aimedTurn.AnimationFrameTimer,
+        AssertEqual(testCase.DestinationDelay, aimedTurn.AnimationFrameTimer.RawValue,
             $"aimed turn uses the native standing-aim delay case {caseIndex}");
     }
 
@@ -1461,7 +1461,7 @@ internal static void VerifySamusRanIntoWall()
         stopped.Presentation.InitializeAnimation(bus);
         stopped.Presentation.SetAnimationFrameFromSpecialHandler(0, 9);
         stopped.PoseTransitions.ApplyRanIntoWallPoseChange(bus, pose);
-        AssertEqual(9, stopped.AnimationFrameTimer,
+        AssertEqual(9, stopped.AnimationFrameTimer.RawValue,
             $"same wall pose ${(int)pose:X2} preserves the running animation timer");
     }
 

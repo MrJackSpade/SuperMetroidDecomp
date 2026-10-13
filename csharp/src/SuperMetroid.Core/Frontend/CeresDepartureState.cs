@@ -20,7 +20,7 @@ public sealed class CeresDepartureState
     public CeresDeparturePhase Phase { get; private set; } = CeresDeparturePhase.Inactive;
 
     /// <summary>Live state-$20 countdown seeded to 60 by Samus code two.</summary>
-    public ushort HoldFramesRemaining { get; private set; }
+    public NativeCountdown HoldFramesRemaining { get; private set; }
 
     /// <summary>Low nibble of native INIDISP while state $21 fades out.</summary>
     public byte Brightness { get; private set; } = 15;
@@ -32,7 +32,7 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.Inactive)
             throw new InvalidOperationException("Ceres elevator departure was started twice.");
 
-        HoldFramesRemaining = CeresElevatorShaftRoomMainState.DepartureHoldFrames;
+        HoldFramesRemaining = NativeCountdown.Start(CeresElevatorShaftRoomMainState.DepartureHoldFrames);
         Brightness = 15;
         Phase = CeresDeparturePhase.HoldingOnElevator;
     }
@@ -50,8 +50,8 @@ public sealed class CeresDepartureState
         // The native routine decrements after GameState_8 returns, then accepts both zero
         // and signed underflow. Begin() always seeds 60, so zero is the reachable result;
         // preserving the signed check documents and tests the actual 16-bit contract.
-        HoldFramesRemaining = unchecked((ushort)(HoldFramesRemaining - 1));
-        if (HoldFramesRemaining != 0 && unchecked((short)HoldFramesRemaining) >= 0)
+        HoldFramesRemaining = HoldFramesRemaining.Decrement().Remaining;
+        if (!HoldFramesRemaining.IsZero && !HoldFramesRemaining.IsNegative)
             return false;
 
         Phase = CeresDeparturePhase.FadingToBlack;

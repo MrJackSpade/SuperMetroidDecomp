@@ -66,11 +66,11 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
 
                 for (int frame = 0; frame < 4; frame++)
                 {
-                    projectile.InstructionTimer = 1;
+                    projectile.InstructionTimer = NativeCountdown.Start(1);
                     enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, (SamusState?)null, Position16<RoomPixels>.Zero);
                     AssertEqual((ushort)(program + 2 + 4 * (frame % 3)), projectile.PresentationOperandAddress,
                         "Fune/Namihe fireball frame order including loop restart");
-                    AssertEqual((ushort)5, projectile.InstructionTimer,
+                    AssertEqual((ushort)5, projectile.InstructionTimer.RawValue,
                         "Fune/Namihe fireball frame duration");
                     observedVisuals.Add(projectile.PresentationOperandAddress);
                 }

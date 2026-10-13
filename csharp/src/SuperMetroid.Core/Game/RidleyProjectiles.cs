@@ -134,9 +134,9 @@ internal sealed class RidleyProjectiles
 
     internal void SpawnNextAfterburn(RoomEnemyProjectileSlot source)
     {
-        byte lowCount = unchecked((byte)(source.RemainingAfterburns - 1));
-        source.RemainingAfterburns = SnesLittleEndian.Word(lowCount, SnesLittleEndian.HighByte(source.RemainingAfterburns));
-        if ((lowCount & 0x80) != 0)
+        NativeLowByteCounterStep step = NativeWordCounter.DecrementLowByte(source.RemainingAfterburns);
+        source.RemainingAfterburns = step.Remaining;
+        if (step.IsNegative)
             return;
         SpawnDirectionalAfterburn(
             source,
@@ -148,7 +148,7 @@ internal sealed class RidleyProjectiles
     {
         projectile.InstructionPointer =
             CeresRidleyProjectileInstructionProgramDefinitions.AfterburnFinal;
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
         // $86:950D/$9522 replace the list; its clear-pre-instruction stops motion.
         // Velocity words and contact properties remain unchanged. The final list
         // clears movement, draws five frames, then deletes; it never disables damage.

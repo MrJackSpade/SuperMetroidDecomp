@@ -113,9 +113,9 @@ public sealed class ScreenFade
     /// <summary>8-bit DEC $0723 with BEQ/BPL: true while the decremented byte stays positive.</summary>
     private bool ConsumeSlowDelay()
     {
-        byte next = unchecked((byte)(Delay - 1));
-        Delay = (ushort)((SnesLittleEndian.HighByteInPlace(Delay)) | next);
-        return next is > 0 and < 0x80;
+        NativeLowByteCounterStep step = NativeWordCounter.DecrementLowByte(Delay);
+        Delay = step.Remaining;
+        return !step.IsZeroOrNegative;
     }
 
     /// <summary>8-bit LDA $0725 : STA $0723.</summary>

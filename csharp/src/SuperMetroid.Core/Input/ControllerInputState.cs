@@ -45,7 +45,7 @@ public sealed class ControllerInputState
     public ushort Previous { get; private set; }
 
     /// <summary>Current 16-bit repeat countdown at direct page <c>$9B</c>.</summary>
-    public ushort RepeatTimer { get; private set; }
+    public NativeCountdown RepeatTimer { get; private set; }
 
     /// <summary>
     /// Temporarily publishes the demo's explicit held/edge pair, as bank-$90 demo alpha
@@ -91,18 +91,18 @@ public sealed class ControllerInputState
             // DEC is 16-bit and wraps. If RepeatTimer is zero, it becomes $FFFF and does
             // not pulse—a detail retained because the retail repeat delays remain zero in
             // the known initialization paths and this output is marked unused.
-            RepeatTimer = unchecked((ushort)(RepeatTimer - 1));
-            if (RepeatTimer == 0)
+            RepeatTimer = RepeatTimer.Decrement().Remaining;
+            if (RepeatTimer.IsZero)
             {
                 NewlyPressedWithRepeat = Current;
-                RepeatTimer = SubsequentRepeatDelay;
+                RepeatTimer = NativeCountdown.FromRaw(SubsequentRepeatDelay);
             }
         }
         else
         {
             // A release, first press, or change in a multi-button chord all reload the
             // longer initial delay. The genuine newly-pressed output remains unaffected.
-            RepeatTimer = InitialRepeatDelay;
+            RepeatTimer = NativeCountdown.FromRaw(InitialRepeatDelay);
         }
 
         Previous = Current;

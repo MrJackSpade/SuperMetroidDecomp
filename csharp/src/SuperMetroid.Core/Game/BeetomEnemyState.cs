@@ -101,9 +101,9 @@ public sealed class BeetomEnemyState
     /// <summary>Native variable C: bank-$A8 function address dispatched once per enemy gameplay update, including separate decision and setup frames.</summary>
     public BeetomEnemyFunction Function { get => (BeetomEnemyFunction)_slot.VariableC; internal set => _slot.VariableC = (ushort)value; }
     /// <summary>Native variable D: idle/crawl countdown measured in gameplay frames; expiration tests the signed decrement result, not equality with zero.</summary>
-    public ushort FunctionTimer { get => _slot.VariableD; internal set => _slot.VariableD = value; }
+    public NativeCountdown FunctionTimer { get => NativeCountdown.FromRaw(_slot.VariableD); internal set => _slot.VariableD = value.RawValue; }
     /// <summary>Native variable E: remaining controller-word changes needed to escape attachment, reset to $40 by the initial touch.</summary>
-    public ushort ButtonCounter { get => _slot.VariableE; internal set => _slot.VariableE = value; }
+    public NativeCountdown ButtonCounter { get => NativeCountdown.FromRaw(_slot.VariableE); internal set => _slot.VariableE = value.RawValue; }
     /// <summary>Native variable F: input word last observed by initialization or the attached counter; any differing word, including releases, decrements <see cref="ButtonCounter"/>.</summary>
     public ushort PreviousController1Input { get => _slot.VariableF; internal set => _slot.VariableF = value; }
     /// <summary>Native $7E:7800,x cached bank-$A8 list pointer selected by setup; installation also resets the common instruction timer and loop counter.</summary>

@@ -152,7 +152,7 @@ internal static class SporeSpawnInstructionProgramDefinitionsVerification
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         body.CurrentInstruction = initialPointer;
-        body.InstructionTimer = 1;
+        body.InstructionTimer = NativeCountdown.Start(1);
 
         var state = new SporeSpawnEnemyState(body)
         {

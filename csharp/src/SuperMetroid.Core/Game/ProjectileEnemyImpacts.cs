@@ -122,7 +122,7 @@ internal sealed class ProjectileEnemyImpacts
         slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(slot.InstructionPointer + 5))));
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
 
         if (family == SamusProjectileFamily.Missile)
         {

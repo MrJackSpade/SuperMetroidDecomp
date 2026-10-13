@@ -232,7 +232,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
         slot.CurrentInstruction = entry;
         for (int call = 0; call < calls; call++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             ushort previousSprite = slot.SpritemapPointer;
             EnemyInstructionRunner.Process(enemies, [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
             ushort record = unchecked((ushort)(slot.CurrentInstruction - 4));

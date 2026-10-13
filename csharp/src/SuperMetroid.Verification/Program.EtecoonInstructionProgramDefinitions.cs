@@ -106,7 +106,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             AssertEqual(program.Terminal, etecoon.CurrentInstruction,
                 $"Etecoon {program.Name} terminal instruction");
             if (program.Program == EtecoonInstructionProgramDefinitions.Flexing)
-                AssertEqual((ushort)0, etecoon.Timer, "Etecoon flex loop count expires");
+                AssertEqual((ushort)0, etecoon.Timer.RawValue, "Etecoon flex loop count expires");
         }
 
         AssertEqual(EtecoonInstructionProgramDefinitions.PresentationWordCount,
@@ -155,7 +155,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             [etecoon, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int call = 0; call < callCount; call++)
         {
-            etecoon.InstructionTimer = 1;
+            etecoon.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
             VerifyExecutedEnemySelector(rom, etecoon, executedOperands);
         }

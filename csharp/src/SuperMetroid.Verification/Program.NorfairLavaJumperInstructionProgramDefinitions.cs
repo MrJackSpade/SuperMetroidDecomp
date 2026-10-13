@@ -86,7 +86,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
         processArguments[0] = follower;
         for (int frame = 0; frame < 7; frame++)
         {
-            follower.InstructionTimer = 1;
+            follower.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, processArguments);
         }
         AssertEqual(unchecked((ushort)(
@@ -132,10 +132,10 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
         AssertEqual(entry, slot.CurrentInstruction, "lava-jumper compiled program entry");
         for (int frame = 0; frame < timedFrames; frame++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         EnemyInstructionRunner.Process(enemies, arguments);
         AssertEqual(terminalSleep, slot.CurrentInstruction,
             "lava-jumper program reaches terminal sleep");

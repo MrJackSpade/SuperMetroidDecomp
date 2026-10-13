@@ -208,8 +208,8 @@ internal sealed class BoyonBehavior : IEnemySpecies
     private static void SetBoyonInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private BoyonEnemyState RequireBoyonState(RoomEnemySlot slot) =>

@@ -101,7 +101,7 @@ internal static class YardInstructionProgramDefinitionsVerification
             yard.CurrentInstruction = entry;
             for (int call = 0; call < 80; call++)
             {
-                yard.InstructionTimer = 1;
+                yard.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Instructions.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, (ushort)0);
             }
         }

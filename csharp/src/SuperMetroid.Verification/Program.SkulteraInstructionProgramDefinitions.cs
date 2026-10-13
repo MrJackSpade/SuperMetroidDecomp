@@ -88,7 +88,7 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
             RoomEnemySystem enemies = CreateSkulteraProgramSystem(guard,
                 startsLeft: true, out RoomEnemySlot slot);
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | address)),
                 slot.SpritemapPointer,
@@ -132,7 +132,7 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
             slot.Parameter2 = 0x0120;
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0200));
             initialize(slot);
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             return enemies;
         }
 

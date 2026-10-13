@@ -88,8 +88,8 @@ internal sealed class EvirBehavior : IEnemySpecies
             // rather than X. The byte read is absolute enemy RAM chosen by the speed index
             // alone: in the 100% movie's Botwoon-hallway Evirs (speed 12) it is the high
             // byte of slot 2's palette word, so the first half-cycle is not always zero.
-            state.MovementTimer = (ushort)(ReadAliasedEnemyRamByte(
-                EvirInitDefinitions.AliasedTimerAddress + speedOffset) >> 1);
+            state.MovementTimer = NativeCountdown.FromRaw((ushort)(ReadAliasedEnemyRamByte(
+                EvirInitDefinitions.AliasedTimerAddress + speedOffset) >> 1));
         }
 
         state.MovementDirection = 0;
@@ -169,10 +169,10 @@ internal sealed class EvirBehavior : IEnemySpecies
 
         // DEC/BPL means zero expires immediately into $FFFF. Every later reset uses the
         // unshifted high parameter byte, despite initialization's unrelated aliasing bug.
-        state.MovementTimer = unchecked((ushort)(state.MovementTimer - 1));
-        if ((state.MovementTimer & 0x8000) != 0)
+        state.MovementTimer = state.MovementTimer.Decrement().Remaining;
+        if (state.MovementTimer.IsNegative)
         {
-            state.MovementTimer = SnesLittleEndian.HighByte(slot.Parameter2);
+            state.MovementTimer = NativeCountdown.FromRaw(SnesLittleEndian.HighByte(slot.Parameter2));
             state.MovementDirection ^= 1;
         }
     }
@@ -183,7 +183,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         SamusState? samus,
         Position16<RoomPixels> camera)
     {
-        if (slot.FrozenTimer == 0)
+        if (slot.FrozenTimer.IsZero)
         {
             if (state.MovingFlag != 0)
             {
@@ -337,7 +337,7 @@ internal sealed class EvirBehavior : IEnemySpecies
             -2,
             EnemyDefinitionId.Evir,
             "projectile body");
-        if (body.FrozenTimer != 0)
+        if (!body.FrozenTimer.IsZero)
             return;
 
         state.MovingFlag = 0;
@@ -356,7 +356,7 @@ internal sealed class EvirBehavior : IEnemySpecies
             -2,
             EnemyDefinitionId.Evir,
             "projectile body");
-        if (body.FrozenTimer != 0)
+        if (!body.FrozenTimer.IsZero)
             return;
 
         if (state.RegenerationFlag == 0)
@@ -427,8 +427,8 @@ internal sealed class EvirBehavior : IEnemySpecies
             return;
         slot.CurrentInstruction = state.RequestedInstructionList;
         state.InstalledInstructionList = state.RequestedInstructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private RoomEnemySlot RequireEvirRelativeSlot(
@@ -484,7 +484,7 @@ internal sealed class EvirBehavior : IEnemySpecies
             secondRelative.Properties = secondRelative.Properties.With(EnemyProperties.Deleted);
         }
 
-        if (actor.FrozenTimer == 0)
+        if (actor.FrozenTimer.IsZero)
             return;
         firstRelative.FrozenTimer = actor.FrozenTimer;
         firstRelative.AiHandlerBits = unchecked((ushort)(firstRelative.AiHandlerBits | 0x0004));

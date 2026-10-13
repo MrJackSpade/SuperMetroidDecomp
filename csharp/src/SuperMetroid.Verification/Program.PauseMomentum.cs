@@ -18,7 +18,7 @@ internal static class PauseMomentumVerification
                 BaseSpeed = 1, BaseSubspeed = 0x4000,
                 ExtraRunSpeed = 2, ExtraRunSubspeed = 0x8000,
                 SpeedBoostCounter = 0x0402,
-                SpecialPaletteFrame = 6, SpecialPaletteTimer = 3,
+                SpecialPaletteFrame = 6, SpecialPaletteTimer = NativeCountdown.Start(3),
             };
             // Populate both echo slots through their production capture path, then
             // put them in departure mode. Unpause must erase rather than restart it.
@@ -38,7 +38,7 @@ internal static class PauseMomentumVerification
             if (!equipped)
             {
                 AssertEqual(0, speed.SpecialPaletteFrame, "unpause clears boost palette frame");
-                AssertEqual(0, speed.SpecialPaletteTimer, "unpause clears boost palette timer");
+                AssertEqual(0, speed.SpecialPaletteTimer.RawValue, "unpause clears boost palette timer");
                 AssertEqual(0, speed.SpeedEchoIndex, "unpause resets echo index without departure mode");
                 AssertEqual(0, speed.FirstSpeedEchoPosition.X | speed.SecondSpeedEchoPosition.X |
                     speed.FirstSpeedEchoPosition.Y | speed.SecondSpeedEchoPosition.Y |
@@ -47,7 +47,7 @@ internal static class PauseMomentumVerification
             else if (momentum && counter == 0)
             {
                 AssertEqual(0, speed.SpecialPaletteFrame, "newly enabled boost resets palette frame");
-                AssertEqual(0, speed.SpecialPaletteTimer, "unpause arms boost with native zero palette timer");
+                AssertEqual(0, speed.SpecialPaletteTimer.RawValue, "unpause arms boost with native zero palette timer");
             }
         }
     }

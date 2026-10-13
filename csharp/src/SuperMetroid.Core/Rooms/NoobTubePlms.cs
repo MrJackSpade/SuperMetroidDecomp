@@ -46,7 +46,7 @@ internal sealed class NoobTubePlms
                 if (projectileFamily == SamusProjectileFamily.PowerBomb)
                 {
                     slot.InstructionPointer = slot.LinkInstruction;
-                    slot.InstructionTimer = 1;
+                    slot.InstructionTimer = NativeCountdown.Start(1);
                 }
                 else if (slot.LoopTimer != 0)
                 {
@@ -63,7 +63,7 @@ internal sealed class NoobTubePlms
                 if ((controllerNewInput & NoobTubePlmRomData.AcceptedWakeInputMask) != 0)
                 {
                     slot.InstructionPointer = slot.LinkInstruction;
-                    slot.InstructionTimer = 1;
+                    slot.InstructionTimer = NativeCountdown.Start(1);
                 }
                 return;
 

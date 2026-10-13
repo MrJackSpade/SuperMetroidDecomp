@@ -491,14 +491,14 @@ internal static void VerifySamusAimedAerialMovement()
     // over `$F0` and loads the literal `$10` delay. This seemingly odd two-frame sequence
     // is why treating an unknown command as a normal delay—or simply skipping it—drifts.
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(1, samus.AnimationFrameTimer, "aimed-fall initial delay counts down");
+    AssertEqual(1, samus.AnimationFrameTimer.RawValue, "aimed-fall initial delay counts down");
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(1, samus.AnimationFrame, "aimed-fall reaches F0 command index");
-    AssertEqual(0, samus.AnimationFrameTimer, "F0 leaves expired timer at zero");
+    AssertEqual(0, samus.AnimationFrameTimer.RawValue, "F0 leaves expired timer at zero");
     AssertEqual(0xf0, samus.LastAnimationDelayCommand!.Value, "aimed-fall records F0 command");
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(2, samus.AnimationFrame, "timer underflow advances beyond F0");
-    AssertEqual(16, samus.AnimationFrameTimer, "post-F0 frame loads literal delay");
+    AssertEqual(16, samus.AnimationFrameTimer.RawValue, "post-F0 frame loads literal delay");
 
     samus.PoseTransitions.ApplyAerialAimTransition(bus, SamusPoseId.FallingAimDiagonalDownRightPose);
     AssertEqual(0x29, (byte)samus.PoseMetadata.ReadNoInputFallbackPose(bus), "aimed fall fallback target");
@@ -680,12 +680,12 @@ internal static void VerifySamusGunExtendedMovement()
     running.PoseMetadata.RefreshCollisionRadii(bus);
     running.Presentation.InitializeAnimation(bus, initialFrame: 4);
     ushort runningFrame = running.AnimationFrame;
-    ushort runningTimer = running.AnimationFrameTimer;
+    ushort runningTimer = running.AnimationFrameTimer.RawValue;
     int runningDelayList = running.AnimationDelayListAddress;
     running.PoseTransitions.ApplyGroundedAimTransition(bus, SamusPoseId.MovingRightGunExtendedPose);
     AssertEqual(SamusPoseId.MovingRightGunExtendedPose, running.Pose, "running gun extension installs pose $0B");
     AssertEqual(runningFrame, running.AnimationFrame, "running gun extension preserves frame");
-    AssertEqual(runningTimer, running.AnimationFrameTimer, "running gun extension preserves timer");
+    AssertEqual(runningTimer, running.AnimationFrameTimer.RawValue, "running gun extension preserves timer");
     AssertEqual(runningDelayList, running.AnimationDelayListAddress, "running gun extension retains shared delay list");
     running.PoseTransitions.ApplyGroundedAimTransition(bus, running.PoseMetadata.ReadNoInputFallbackPose(bus));
     AssertEqual(SamusPoseId.FacingRightNormalPose, running.Pose,

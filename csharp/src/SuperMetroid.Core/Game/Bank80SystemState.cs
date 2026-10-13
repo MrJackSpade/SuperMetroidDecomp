@@ -197,7 +197,7 @@ public sealed class Bank80SystemState
     /// Countdown at WRAM <c>$05DB</c>. A signed underflow from zero to <c>$FFFF</c>
     /// causes the held input to become active.
     /// </summary>
-    public ushort TimedHeldInputTimer { get; internal set; }
+    public NativeCountdown TimedHeldInputTimer { get; internal set; }
 
     /// <summary>
     /// Reload value at WRAM <c>$05DD</c>. A value of N requires N + 1 stable update
@@ -287,15 +287,15 @@ public sealed class Bank80SystemState
         {
             // Any change, including releasing one member of a multi-button chord, restarts
             // the delay and suppresses filtered input for this update.
-            TimedHeldInputTimer = TimedHeldInputTimerReset;
+            TimedHeldInputTimer = NativeCountdown.FromRaw(TimedHeldInputTimerReset);
             TimedHeldInput = 0;
         }
         else
         {
             // DEC is an unsigned 16-bit wrap, but BPL interprets bit 15 as the sign bit.
             // Therefore zero decrements to $FFFF and takes the activation path.
-            NativeWordCounterStep timer = NativeWordCounter.Decrement(TimedHeldInputTimer);
-            TimedHeldInputTimer = timer.Value;
+            NativeWordCounterStep timer = TimedHeldInputTimer.Decrement();
+            TimedHeldInputTimer = timer.Remaining;
 
             if (timer.IsNonNegative)
             {
@@ -305,7 +305,7 @@ public sealed class Bank80SystemState
             {
                 // The ROM pins the expired timer to zero. Continued stable input therefore
                 // underflows again on every update, keeping TimedHeldInput active.
-                TimedHeldInputTimer = 0;
+                TimedHeldInputTimer = NativeCountdown.Start(0);
                 TimedHeldInputPrevious = TimedHeldInput;
                 TimedHeldInput = heldInput;
             }

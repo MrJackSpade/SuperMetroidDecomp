@@ -105,7 +105,7 @@ internal static class DragonAnimationDefinitionsVerification
             facingLeft ? "live left-facing Dragon wing" : "live right-facing Dragon wing",
             expectedInstructionTimer: facingLeft ? (ushort)0 : (ushort)1);
 
-        bodyState.FunctionTimer = 0;
+        bodyState.FunctionTimer = NativeCountdown.Start(0);
         enemies.DragonBehavior.RunDragonRising(body, bodyState);
         enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
         DragonAnimationSelector attacking = facingLeft
@@ -121,8 +121,8 @@ internal static class DragonAnimationDefinitionsVerification
     private static RoomEnemySlot NewDragonAnimationSlot(int index) => new(index)
     {
         CurrentInstruction = 0x7777,
-        InstructionTimer = 0x2222,
-        Timer = 0x3333,
+        InstructionTimer = NativeCountdown.Start(0x2222),
+        Timer = NativeCountdown.Start(0x3333),
     };
 
     private static DragonEnemyState NewDragonAnimationState(RoomEnemySlot slot) =>
@@ -144,9 +144,9 @@ internal static class DragonAnimationDefinitionsVerification
         AssertEqual(DragonAnimationDefinitions.InstructionList(expected),
             slot.CurrentInstruction,
             $"{context} instruction");
-        AssertEqual(expectedInstructionTimer, slot.InstructionTimer,
+        AssertEqual(expectedInstructionTimer, slot.InstructionTimer.RawValue,
             $"{context} instruction timer");
-        AssertEqual(0, slot.Timer, $"{context} loop timer");
+        AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }
 
     private static CartridgeReadGuard NewDragonAnimationReadGuard(ISnesAddressSpace source) =>

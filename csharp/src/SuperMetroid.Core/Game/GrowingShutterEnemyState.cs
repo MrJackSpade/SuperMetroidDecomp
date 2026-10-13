@@ -140,7 +140,7 @@ public sealed class VerticalShutterEnemyState
     }
 
     /// <summary>Variable B: wrapping AI-update countdown; initial waiting activates at zero, while endpoint resting resumes on signed underflow.</summary>
-    public ushort FunctionTimer { get => _slot.VariableB; internal set => _slot.VariableB = value; }
+    public NativeCountdown FunctionTimer { get => NativeCountdown.FromRaw(_slot.VariableB); internal set => _slot.VariableB = value.RawValue; }
     /// <summary>Variable C: low word of downward 16.16 pixels-per-update velocity, whose carry contributes to the whole-pixel movement.</summary>
     public ushort DownSubvelocity { get => _slot.VariableC; internal set => _slot.VariableC = value; }
     /// <summary>Variable D: signed high word of downward 16.16 pixels-per-update velocity from the common linear-speed table.</summary>
@@ -199,7 +199,7 @@ public sealed class HorizontalShutterEnemyState
     }
 
     /// <summary>Variable B: wrapping AI-update countdown; initial wait tests for zero after decrement, whereas endpoint rests test for signed underflow.</summary>
-    public ushort FunctionTimer { get => _slot.VariableB; internal set => _slot.VariableB = value; }
+    public NativeCountdown FunctionTimer { get => NativeCountdown.FromRaw(_slot.VariableB); internal set => _slot.VariableB = value.RawValue; }
     /// <summary>Variable C: low word of rightward 16.16 pixels-per-update velocity, also supplied to an overlapping Samus's extra-X displacement.</summary>
     public ushort RightSubvelocity { get => _slot.VariableC; internal set => _slot.VariableC = value; }
     /// <summary>Variable D: signed whole word of rightward 16.16 pixels-per-update velocity.</summary>

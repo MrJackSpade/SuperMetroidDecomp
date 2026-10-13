@@ -36,13 +36,13 @@ internal static class MotherBrainFallingTubeInstructionDefinitionsVerification
                 EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainTubes,
                 Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 },
                 CurrentInstruction = start,
-                InstructionTimer = 1,
+                InstructionTimer = NativeCountdown.Start(1),
             };
             object?[] args = [tube, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             EnemyInstructionRunner.Process(enemies, args);
             AssertEqual((ushort)(start + 4), tube.CurrentInstruction,
                 $"falling tube {index} advances from frame to terminal opcode");
-            AssertEqual((ushort)1, tube.InstructionTimer,
+            AssertEqual((ushort)1, tube.InstructionTimer.RawValue,
                 $"falling tube {index} retains its native one-frame duration");
             AssertEqual(MotherBrainFallingTubeInstructionDefinitions.ReadVisualSelector(
                     unchecked((ushort)(start + 2))), tube.SpritemapPointer,

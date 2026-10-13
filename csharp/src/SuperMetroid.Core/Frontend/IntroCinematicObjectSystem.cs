@@ -22,9 +22,9 @@ internal sealed class IntroCinematicObjectSystem
     private readonly SnesVram vram;
     private readonly ushort[] textTilemap;
     internal ushort eyeInstructionPointer = CinematicCodePointers.BackgroundLists.SamusBlinking;
-    internal ushort eyeInstructionTimer = 1;
+    internal NativeCountdown eyeInstructionTimer = NativeCountdown.Start(1);
     private ushort textInstructionPointer;
-    private ushort textInstructionTimer;
+    private NativeCountdown textInstructionTimer;
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
     [NonSerialized] private IntroEyeTilemapPresentation? eyeArtwork;
     private ushort currentEyeFramePointer;
@@ -36,7 +36,7 @@ internal sealed class IntroCinematicObjectSystem
     private bool narrationFinalHoldStarted;
     private ushort spriteInstructionPointer =
         CinematicCodePointers.Lists.IntroTextCaret;
-    private ushort spriteInstructionTimer = 1;
+    private NativeCountdown spriteInstructionTimer = NativeCountdown.Start(1);
     private bool typewriterSoundToggle;
     // Created when the first character glows.
     private CinematicTextGlowSystem? textGlow;
@@ -174,7 +174,7 @@ internal sealed class IntroCinematicObjectSystem
         // B4BC observes the page-six cinematic function and permanently changes the eye
         // object to its closed/half-open/deadpan sequence at $8C:D613.
         eyeInstructionPointer = CinematicCodePointers.BackgroundLists.SamusBlinkingPage6;
-        eyeInstructionTimer = 1;
+        eyeInstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Runs the same post-state-function object order as game state $25.</summary>
@@ -217,7 +217,7 @@ internal sealed class IntroCinematicObjectSystem
 
     private void StartNarration(IntroNarrationPageId page)
     {
-        textInstructionTimer = IntroNarrationDefinitions.InitialMarkerDelayFrames;
+        textInstructionTimer = NativeCountdown.Start(IntroNarrationDefinitions.InitialMarkerDelayFrames);
         narrationCharacterIndex = 0;
         narrationInitialMarkerPending = true;
         narrationFinalHoldStarted = false;
@@ -232,7 +232,8 @@ internal sealed class IntroCinematicObjectSystem
 
     private void StepInstalledNarration()
     {
-        if (textInstructionTimer-- != 1)
+        textInstructionTimer = textInstructionTimer.Decrement().Remaining;
+        if (!textInstructionTimer.IsZero)
             return;
         if (narrationInitialMarkerPending)
         {
@@ -240,7 +241,7 @@ internal sealed class IntroCinematicObjectSystem
             subtitles.BeginPage(narrationPage ?? throw new InvalidDataException(
                 "Installed narration started without an active page identity."));
             narrationInitialMarkerPending = false;
-            textInstructionTimer = IntroNarrationDefinitions.InitialMarkerDelayFrames;
+            textInstructionTimer = NativeCountdown.Start(IntroNarrationDefinitions.InitialMarkerDelayFrames);
             return;
         }
 
@@ -279,7 +280,7 @@ internal sealed class IntroCinematicObjectSystem
             textTilemap[character.Row * IntroCinematicRomData.Layers.TilemapWidth +
                 character.Column] = character.TilemapWord;
             narrationCharacterIndex++;
-            textInstructionTimer = IntroNarrationDefinitions.CharacterDelayFrames;
+            textInstructionTimer = NativeCountdown.Start(IntroNarrationDefinitions.CharacterDelayFrames);
             return;
         }
 
@@ -287,7 +288,7 @@ internal sealed class IntroCinematicObjectSystem
         {
             SetCaretBlinking();
             narrationFinalHoldStarted = true;
-            textInstructionTimer = IntroNarrationDefinitions.FinalPageHoldFrames;
+            textInstructionTimer = NativeCountdown.Start(IntroNarrationDefinitions.FinalPageHoldFrames);
             return;
         }
 
@@ -327,7 +328,7 @@ internal sealed class IntroCinematicObjectSystem
 
     private void StepSpriteObject()
     {
-        if (spriteInstructionPointer == 0 || spriteInstructionTimer-- != 1)
+        if (spriteInstructionPointer == 0 || !(spriteInstructionTimer = spriteInstructionTimer.Decrement().Remaining).IsZero)
             return;
 
         ushort pointer = spriteInstructionPointer;
@@ -336,7 +337,7 @@ internal sealed class IntroCinematicObjectSystem
             ushort instructionOrDuration = ReadBank8B(pointer);
             if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
             {
-                spriteInstructionTimer = instructionOrDuration;
+                spriteInstructionTimer = NativeCountdown.FromRaw(instructionOrDuration);
                 SpriteMapPointer = ReadBank8B(Add(
                     pointer,
                     IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
@@ -372,9 +373,9 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
-    private void StepBgObject(ref ushort instructionPointer, ref ushort instructionTimer)
+    private void StepBgObject(ref ushort instructionPointer, ref NativeCountdown instructionTimer)
     {
-        if (instructionPointer == 0 || instructionTimer-- != 1)
+        if (instructionPointer == 0 || !(instructionTimer = instructionTimer.Decrement().Remaining).IsZero)
             return;
 
         ushort pointer = instructionPointer;
@@ -383,7 +384,7 @@ internal sealed class IntroCinematicObjectSystem
             ushort instructionOrDuration = ReadBank8C(pointer);
             if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
             {
-                instructionTimer = instructionOrDuration;
+                instructionTimer = NativeCountdown.FromRaw(instructionOrDuration);
                 ushort tilePosition = ReadBank8C(Add(
                     pointer,
                     IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
@@ -522,7 +523,7 @@ internal sealed class IntroCinematicObjectSystem
         // restoring its non-blinking list. Position is state, not a renderer constant.
         Caret = new(IntroCinematicRomData.ObjectSystem.CaretLeftX, IntroCinematicRomData.ObjectSystem.CaretFirstTextY);
         spriteInstructionPointer = CinematicCodePointers.Lists.IntroTextCaret;
-        spriteInstructionTimer = 1;
+        spriteInstructionTimer = NativeCountdown.Start(1);
     }
 
     internal void SetCaretBlinking()
@@ -530,7 +531,7 @@ internal sealed class IntroCinematicObjectSystem
         // Instruction_SetCaretToBlink points the existing slot at $CC03 and primes timer
         // one, allowing the generic sprite list handler to select the first frame now.
         spriteInstructionPointer = CinematicCodePointers.Lists.IntroTextCaretBlink;
-        spriteInstructionTimer = 1;
+        spriteInstructionTimer = NativeCountdown.Start(1);
     }
 
     private static void ValidateRectangle(Position16<TilemapCells> origin, Extent16<TilemapCells> size)

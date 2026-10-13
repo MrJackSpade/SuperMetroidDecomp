@@ -81,7 +81,7 @@ internal static class DoorAnimatedTilesVerification
 
         static string StatueSnapshot(SuperMetroid.Core.Runtime.SuperMetroidRuntime source)
         {
-            return string.Join(" ", source.TourianStatues.objects.Select(o => $"{o.Pointer}/{o.Timer}"));
+            return string.Join(" ", source.TourianStatues.objects.Select(o => $"{o.Pointer}/{o.Timer.RawValue}"));
         }
     }
 

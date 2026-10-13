@@ -203,14 +203,14 @@ internal static class AlcoonFireballInstructionProgramDefinitionsVerification
         {
             for (int tick = 0; tick < count; tick++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 if (projectile.IsActive)
                 {
                     ushort expectedOperand = (ushort)(0x9ea0 + 4 * (tick % 4));
                     AssertEqual(expectedOperand, projectile.PresentationOperandAddress,
                         "Alcoon-fireball frame order including loop restart");
-                    AssertEqual((ushort)3, projectile.InstructionTimer,
+                    AssertEqual((ushort)3, projectile.InstructionTimer.RawValue,
                         "Alcoon-fireball selected frame duration");
                     observedVisualOperands.Add(projectile.PresentationOperandAddress);
                 }

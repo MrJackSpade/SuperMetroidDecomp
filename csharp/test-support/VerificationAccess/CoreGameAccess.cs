@@ -1107,9 +1107,9 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         /// </summary>
         internal ushort StepBrainShakeForDraw()
         {
-            if (self.BrainMainShakeTimer != 0)
-                self.BrainMainShakeTimer = unchecked((ushort)(self.BrainMainShakeTimer - 1));
-            return unchecked((ushort)(self.BrainMainShakeTimer & 6));
+            if (!self.BrainMainShakeTimer.IsZero)
+                self.BrainMainShakeTimer = self.BrainMainShakeTimer.Decrement().Remaining;
+            return unchecked((ushort)(self.BrainMainShakeTimer.RawValue & 6));
         }
     }
 }
@@ -1829,7 +1829,7 @@ internal static class SamusBombProjectileSlotAccess
         /// True after a normal bomb selects `$93:A06B`, or while a Power Bomb's timer-zero
         /// slot owns the expanding bank-$88 terrain scan, and before native-style deletion.
         /// </summary>
-        internal bool IsExploding => self.IsActive && self.BombTimer == 0;
+        internal bool IsExploding => self.IsActive && self.BombTimer.IsZero;
     }
 }
 
@@ -1922,7 +1922,7 @@ internal static class SamusGrappleMovementAccess
             grapple.DirectionInputAcceleration = 0;
             grapple.GravityAcceleration = 0;
             grapple.JumpImpulse = 0;
-            grapple.CollisionBounceTimer = 0;
+            grapple.CollisionBounceTimer = NativeCountdown.Start(0);
             grapple.Submerged = false;
             // This public helper is the debugger's already-accepted-anchor seam. Its caller may
             // deliberately place an anchor where the current room has no grapple block (the
@@ -1931,7 +1931,7 @@ internal static class SamusGrappleMovementAccess
             grapple.ValidateAnchorBlock = false;
             grapple.ValidateAnchorEnemy = false;
             grapple.SpecialAngleHandling = false;
-            grapple.WallJumpTimer = 0;
+            grapple.WallJumpTimer = NativeCountdown.Start(0);
             grapple.CancelFromConnectedPose = false;
             SamusGrappleMovement.InitializeBeamAnimation((SamusGrappleState)(grapple));
 
@@ -2038,7 +2038,7 @@ internal static class SamusProjectileTrailSlotAccess
     {
         internal int NativeByteIndex => self.SlotIndex * 2;
 
-        internal bool IsActive => self.Left.InstructionTimer != 0;
+        internal bool IsActive => !self.Left.InstructionTimer.IsZero;
     }
 }
 

@@ -43,8 +43,8 @@ internal static class PipeBugAnimationDefinitionsVerification
                 {
                     Parameter1 = strong ? (ushort)1 : (ushort)0,
                     CurrentInstruction = 0x7777,
-                    InstructionTimer = 0x2222,
-                    Timer = 0x3333,
+                    InstructionTimer = NativeCountdown.Start(0x2222),
+                    Timer = NativeCountdown.Start(0x3333),
                 };
                 var state = new PipeBugEnemyState(slot)
                 {
@@ -58,9 +58,9 @@ internal static class PipeBugAnimationDefinitionsVerification
                     $"production {(strong ? "strong" : "normal")} Pipe Bug selector {selector}");
                 AssertEqual(expected, slot.CurrentInstruction,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug instruction {selector}");
-                AssertEqual(1, slot.InstructionTimer,
+                AssertEqual(1, slot.InstructionTimer.RawValue,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug timer {selector}");
-                AssertEqual(0, slot.Timer,
+                AssertEqual(0, slot.Timer.RawValue,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug loop {selector}");
             }
         }

@@ -60,17 +60,17 @@ public sealed class DragonEnemyState
     }
 
     /// <summary>Variable D while waiting, rising, or sinking.</summary>
-    public ushort FunctionTimer
+    public NativeCountdown FunctionTimer
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => NativeCountdown.FromRaw(_slot.VariableD);
+        internal set => _slot.VariableD = value.RawValue;
     }
 
     /// <summary>Variable D while attacking; initialized to three before the first volley.</summary>
-    public ushort AttackCounter
+    public NativeCountdown AttackCounter
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => NativeCountdown.FromRaw(_slot.VariableD);
+        internal set => _slot.VariableD = value.RawValue;
     }
 
     /// <summary>Variable F, represented by its literal bank-$A2 function pointer.</summary>

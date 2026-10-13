@@ -29,10 +29,10 @@ public sealed class DemoInputState
     public ushort InstructionPointer { get; private set; }
 
     /// <summary>Frames remaining in the active input record, with native word wrapping.</summary>
-    public ushort InstructionTimer { get; private set; }
+    public NativeCountdown InstructionTimer { get; private set; }
 
     /// <summary>General loop timer manipulated by instructions <c>$844F/$8459</c>.</summary>
-    public ushort Timer { get; private set; }
+    public NativeCountdown Timer { get; private set; }
 
     /// <summary>Initializer parameter stored at WRAM <c>$0A80</c>.</summary>
     public ushort InitializationParameter { get; private set; }
@@ -67,8 +67,8 @@ public sealed class DemoInputState
         Enabled = false;
         PreInstructionPointer = 0;
         InstructionPointer = 0;
-        InstructionTimer = 0;
-        Timer = 0;
+        InstructionTimer = NativeCountdown.Start(0);
+        Timer = NativeCountdown.Start(0);
         InitializationParameter = 0;
         Held = 0;
         NewlyPressed = 0;
@@ -90,8 +90,8 @@ public sealed class DemoInputState
         InitializationParameter = objectPointer;
         PreInstructionPointer = definition.PreInstruction;
         InstructionPointer = definition.Start;
-        InstructionTimer = 1;
-        Timer = 0;
+        InstructionTimer = NativeCountdown.Start(1);
+        Timer = NativeCountdown.Start(0);
     }
 
     /// <summary>Publishes one compiled stock title-demo frame using native timer semantics.</summary>
@@ -99,8 +99,8 @@ public sealed class DemoInputState
     {
         if (!Enabled || InstructionPointer == 0) return;
         preInstruction(this, PreInstructionPointer);
-        InstructionTimer = NativeWordCounter.Decrement(InstructionTimer).Value;
-        if (InstructionTimer == 0)
+        InstructionTimer = InstructionTimer.Decrement().Remaining;
+        if (InstructionTimer.IsZero)
         {
             ushort cursor = InstructionPointer;
             while (true)
@@ -118,7 +118,7 @@ public sealed class DemoInputState
                 }
                 if (command.Kind != StockAttractInputPrograms.Operation.Input)
                     throw new InvalidDataException("Invalid compiled attract operation.");
-                InstructionTimer = command.Duration;
+                InstructionTimer = NativeCountdown.FromRaw(command.Duration);
                 Held = (ushort)command.Held;
                 NewlyPressed = (ushort)command.NewlyPressed;
                 InstructionPointer = command.Next;
@@ -149,7 +149,7 @@ public sealed class DemoInputState
     {
         PreInstructionPointer = preInstructionPointer;
         InstructionPointer = instructionPointer;
-        InstructionTimer = instructionTimer;
+        InstructionTimer = NativeCountdown.FromRaw(instructionTimer);
     }
 
     /// <summary>
@@ -172,8 +172,8 @@ public sealed class DemoInputState
         ushort initializerPointer = Read(objectPointer);
         PreInstructionPointer = Read(unchecked((ushort)(objectPointer + 2)));
         InstructionPointer = Read(unchecked((ushort)(objectPointer + 4)));
-        InstructionTimer = 1;
-        Timer = 0;
+        InstructionTimer = NativeCountdown.Start(1);
+        Timer = NativeCountdown.Start(0);
 
         if (initializer is not null)
             initializer(this, initializerPointer);
@@ -209,8 +209,8 @@ public sealed class DemoInputState
         // 65,536 handler calls; using an int countdown would quietly change malformed or
         // intentionally unusual ROM data.
         NativeWordCounterStep instructionTimer =
-            NativeWordCounter.Decrement(InstructionTimer);
-        InstructionTimer = instructionTimer.Value;
+            InstructionTimer.Decrement();
+        InstructionTimer = instructionTimer.Remaining;
         if (instructionTimer.IsZero)
             ProcessInstructionList(program);
 
@@ -231,7 +231,7 @@ public sealed class DemoInputState
             ushort word = Read(cursor);
             if ((word & DemoInputRomData.Instructions.OpcodeBit) == 0)
             {
-                InstructionTimer = word;
+                InstructionTimer = NativeCountdown.FromRaw(word);
                 ushort rawHeld = Read(unchecked((ushort)(cursor + 2)));
                 ushort rawNewlyPressed = Read(unchecked((ushort)(cursor + 4)));
                 Held = (ushort)SnesButtons.FromRaw(rawHeld, "demo held-input record");
@@ -296,15 +296,15 @@ public sealed class DemoInputState
                     break;
 
                 case DemoInputInstruction.DecrementTimerAndGoto:
-                    NativeWordCounterStep timer = NativeWordCounter.Decrement(Timer);
-                    Timer = timer.Value;
+                    NativeWordCounterStep timer = Timer.Decrement();
+                    Timer = timer.Remaining;
                     cursor = !timer.IsZero
                         ? Read(cursor)
                         : unchecked((ushort)(cursor + 2));
                     break;
 
                 case DemoInputInstruction.SetTimer:
-                    Timer = Read(cursor);
+                    Timer = NativeCountdown.FromRaw(Read(cursor));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
 

@@ -73,8 +73,8 @@ internal sealed class HibashiBehavior : IEnemySpecies
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
         // the instruction-driven eruption list and initializes the state-machine words below.
         slot.CurrentInstruction = HibashiDefinitions.HitboxInstructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         if (state.Part != 0)
             return;
 
@@ -114,15 +114,15 @@ internal sealed class HibashiBehavior : IEnemySpecies
     {
         // DEC/BPL means timer zero deliberately becomes $FFFF and erupts immediately. A
         // reset value N later produces N+1 inactive actor frames because zero is nonnegative.
-        state.InactiveTimer = unchecked((ushort)(state.InactiveTimer - 1));
-        if (!EnemyMath.IsNegative16(state.InactiveTimer))
+        state.InactiveTimer = state.InactiveTimer.Decrement().Remaining;
+        if (!EnemyMath.IsNegative16(state.InactiveTimer.RawValue))
             return;
 
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         state.Function = HibashiEnemyFunction.Active;
         state.FinishedActivityFlag = 0;
-        graphics.InstructionTimer = 1;
-        graphics.Timer = 0;
+        graphics.InstructionTimer = NativeCountdown.Start(1);
+        graphics.Timer = NativeCountdown.Start(0);
         graphics.CurrentInstruction = HibashiDefinitions.GraphicsInstructionList;
 
         // Property $0100 controls rendering only. Property $0400 controls admission to
@@ -138,7 +138,7 @@ internal sealed class HibashiBehavior : IEnemySpecies
         if (state.FinishedActivityFlag == 0)
             return;
 
-        state.InactiveTimer = state.InactiveTimerResetValue;
+        state.InactiveTimer = NativeCountdown.FromRaw(state.InactiveTimerResetValue);
         graphics.Properties = graphics.Properties.With(EnemyProperties.Invisible);
         state.Function = HibashiEnemyFunction.Inactive;
     }

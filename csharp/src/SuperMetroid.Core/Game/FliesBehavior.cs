@@ -23,7 +23,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         _flyStates[slot.SlotIndex] = state;
         slot.CurrentInstruction = FlyInstructionProgramDefinitions.Flight;
         slot.SpritemapPointer = 0x804d;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
     private void RunFlyMain(RoomEnemySlot slot, SamusState? samus)
@@ -48,10 +48,10 @@ internal sealed class FliesBehavior : IEnemySpecies
                 return;
             case FlyEnemyFunction.Retreat:
                 MoveFlyAccordingToVelocities(slot, state);
-                state.RetreatTimer = unchecked((ushort)(state.RetreatTimer - 1));
-                if ((short)state.RetreatTimer < 0)
+                state.RetreatTimer = state.RetreatTimer.Decrement().Remaining;
+                if (state.RetreatTimer.IsNegative)
                 {
-                    state.RetreatTimer = 24;
+                    state.RetreatTimer = NativeCountdown.Start(24);
                     state.Function = FlyEnemyFunction.ClockwiseCircle;
                 }
                 return;
@@ -67,9 +67,9 @@ internal sealed class FliesBehavior : IEnemySpecies
         SamusState samus,
         bool clockwise)
     {
-        if (state.RetreatTimer != 0)
+        if (!state.RetreatTimer.IsZero)
         {
-            state.RetreatTimer = unchecked((ushort)(state.RetreatTimer - 1));
+            state.RetreatTimer = state.RetreatTimer.Decrement().Remaining;
         }
         else if (Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) <
             FlyAttackHorizontalRange)
@@ -105,7 +105,7 @@ internal sealed class FliesBehavior : IEnemySpecies
     private static void RunFlyAttack(RoomEnemySlot slot, FlyEnemyState state)
     {
         MoveFlyAccordingToVelocities(slot, state);
-        state.RetreatTimer = unchecked((ushort)(state.RetreatTimer + 1));
+        state.RetreatTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.RetreatTimer.RawValue + 1)));
 
         bool crossedTarget = state.Velocity.Y.SignedRawValue < 0
             ? slot.Position.Y.Whole < state.TargetYPosition

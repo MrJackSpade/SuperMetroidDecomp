@@ -180,7 +180,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         if (unchecked((short)(body.Position.Y.Whole - SporeSpawnDeathCenterY)) >= 0)
         {
             body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.FightStarted;
-            body.InstructionTimer = 1;
+            body.InstructionTimer = NativeCountdown.Start(1);
         }
 
         state.MaximumXRadius = 48;
@@ -437,7 +437,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
     private void ResolveSporeSpawnShotAfterCommon(RoomEnemySlot body)
     {
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
-        if (body.FlashTimer != 0)
+        if (!body.FlashTimer.IsZero)
         {
             state.Function = SporeSpawnFunction.Moving;
 
@@ -457,7 +457,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
                 state.AngleDelta = unchecked((ushort)-state.AngleDelta);
                 state.DamagedFlag = 1;
                 body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.CloseAndMove;
-                body.InstructionTimer = 1;
+                body.InstructionTimer = NativeCountdown.Start(1);
 
                 ushort paletteOffset = body.Health >= 770
                     ? (ushort)0
@@ -490,8 +490,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
 
         state.DeathStarted = true;
         state.SporeGenerationFlag = 0;
-        body.InvincibilityTimer = 0;
-        body.FlashTimer = 0;
+        body.InvincibilityTimer = NativeCountdown.Start(0);
+        body.FlashTimer = NativeCountdown.Start(0);
         body.AiHandlerBits = 0;
         // Literal property $0400 removes the dead body from the interactive-enemy list.
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -502,7 +502,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             _projectiles.EnemyProjectiles[projectileSlot].Clear();
 
         body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.Death;
-        body.InstructionTimer = 1;
+        body.InstructionTimer = NativeCountdown.Start(1);
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         state.ScrollClampHookActive = false;
         PublishSporeSpawnPlm(header: PlmHeaderId.CrumbleSporeSpawnCeiling);
@@ -777,7 +777,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         if (spawner.Variable1 == 0)
         {
             spawner.InstructionPointer = SporeSpawnSpawnerSpawnInstruction;
-            spawner.InstructionTimer = 1;
+            spawner.InstructionTimer = NativeCountdown.Start(1);
             spawner.Variable1 = unchecked((ushort)(_room.Random.Generate() & 0x01ff));
         }
         spawner.Variable1 = unchecked((ushort)(spawner.Variable1 - 1));

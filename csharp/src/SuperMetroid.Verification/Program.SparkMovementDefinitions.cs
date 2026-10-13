@@ -89,7 +89,7 @@ internal static class SparkMovementDefinitionsVerification
             programSlot.EnemyDefinitionPointer = EnemyDefinitionId.Spark;
             programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             programSlot.CurrentInstruction = entry;
-            programSlot.InstructionTimer = 1;
+            programSlot.InstructionTimer = NativeCountdown.Start(1);
             programSlot.Properties = entry == SparkInstructionProgramDefinitions.FlickerOn
                 ? (ushort)EnemyProperties.IgnoreSamusCollision
                 : (ushort)0;

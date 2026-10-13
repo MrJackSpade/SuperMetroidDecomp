@@ -195,8 +195,8 @@ internal sealed class CacatacBehavior : IEnemySpecies
     internal static void SetCacatacInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private CacatacEnemyState RequireCacatacState(RoomEnemySlot slot) =>

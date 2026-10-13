@@ -139,7 +139,7 @@ public sealed class DraygonEnemyState
     public ushort GoopYOscillationAngle { get; internal set; }
 
     /// <summary>Native long count initialized to sixteen when a firing pass begins.</summary>
-    public ushort GoopCounter { get; internal set; }
+    public NativeCountdown GoopCounter { get; internal set; }
 
     /// <summary>Count of wall-turret projectiles admitted to the shared pool; disabled cannons and exhausted allocations do not increment it.</summary>
     public int WallTurretsSpawned { get; internal set; }
@@ -169,7 +169,7 @@ public sealed class DraygonEnemyState
     public ushort SpiralAngleDelta { get; internal set; }
 
     /// <summary>Native <c>$7E:7818</c> countdown for an incidental 64-frame tail whip.</summary>
-    public ushort TailWhipTimer { get; internal set; }
+    public NativeCountdown TailWhipTimer { get; internal set; }
 
     /// <summary>Debugger-visible proof that the physical chase reached its grab window.</summary>
     public int SuccessfulGrabs { get; internal set; }
@@ -246,9 +246,9 @@ public sealed class DraygonEnemyState
     }
 
     /// <summary>Body <c>var_B</c>: intro elapsed-frame count, swoop-table byte offset advanced by four, or burial-wait countdown according to <see cref="Function"/>.</summary>
-    public ushort FunctionTimer
+    public NativeCountdown FunctionTimer
     {
-        get => Body.VariableB;
-        internal set => Body.VariableB = value;
+        get => NativeCountdown.FromRaw(Body.VariableB);
+        internal set => Body.VariableB = value.RawValue;
     }
 }

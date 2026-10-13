@@ -90,11 +90,11 @@ internal sealed class EnemyDrawList
                 // room's BG displacement. Ceres quake types >=$12 reload ShakeTimer for
                 // every active enemy, which is why its ordinary door sprites visibly move
                 // with the station instead of remaining pinned to host screen space.
-                if (slot.ShakeTimer != 0)
+                if (!slot.ShakeTimer.IsZero)
                 {
                     origin = origin.WithX(unchecked((ushort)(origin.X +
                         ((slot.FrameCounter & 2) != 0 ? -1 : 1))));
-                    slot.ShakeTimer--;
+                    slot.ShakeTimer = slot.ShakeTimer.Decrement().Remaining;
                 }
                 ushort drawPaletteIndex = SelectCommonEnemyDrawPalette(slot);
                 if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer))
@@ -172,11 +172,11 @@ internal sealed class EnemyDrawList
         if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) && _ridleyEncounter.Ridley is not null)
             return _ridleyEncounter.Ridley.CommonDrawPaletteIndex;
 
-        if (slot.FlashTimer != 0 && (_frameContext._randomEnemyCounter & 2) != 0)
+        if (!slot.FlashTimer.IsZero && (_frameContext._randomEnemyCounter & 2) != 0)
             return 0;
 
-        if (slot.FrozenTimer != 0 &&
-            (slot.FrozenTimer >= 0x005a || (slot.FrozenTimer & 2) != 0))
+        if (!slot.FrozenTimer.IsZero &&
+            (slot.FrozenTimer.RawValue >= 0x005a || (slot.FrozenTimer.RawValue & 2) != 0))
         {
             return 0x0c00;
         }

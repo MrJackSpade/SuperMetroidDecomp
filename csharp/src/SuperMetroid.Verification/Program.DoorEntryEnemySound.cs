@@ -40,7 +40,7 @@ internal static class DoorEntryEnemySoundVerification
         state.Function = KiHunterEnemyFunction.NoOp;
         // The real spit opcode (library two $4C) executes during the entry frame's enemy pass.
         body.CurrentInstruction = (ushort)(KiHunterInstructionProgramDefinitions.SpitRight + 0x10);
-        body.InstructionTimer = 1;
+        body.InstructionTimer = NativeCountdown.Start(1);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         game.runtime = runtime;

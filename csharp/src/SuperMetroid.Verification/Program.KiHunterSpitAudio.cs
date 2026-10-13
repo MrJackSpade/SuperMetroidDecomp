@@ -42,7 +42,7 @@ internal static class KiHunterSpitAudioVerification
         state.Function = KiHunterEnemyFunction.NoOp;
         // Stage the real spit opcode; subsequent frames must not replay its one-shot call.
         body.CurrentInstruction = (ushort)(KiHunterInstructionProgramDefinitions.SpitRight + 0x10);
-        body.InstructionTimer = 1;
+        body.InstructionTimer = NativeCountdown.Start(1);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         game.runtime = runtime;
@@ -68,7 +68,7 @@ internal static class KiHunterSpitAudioVerification
         AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == spit && request.MaximumQueued == 6), "spit calls library two Max6");
         // Remain in the post-spit waiting state without introducing another attack.
         body.CurrentInstruction = (ushort)(KiHunterInstructionProgramDefinitions.SpitRight + 0x1c);
-        body.InstructionTimer = 1;
+        body.InstructionTimer = NativeCountdown.Start(1);
         for (int frame = 1; frame < 20; frame++) Step();
         Console.WriteLine($"One KiHunter spit: {requests} requests, {writes} APU writes over 20 frames.");
         var level = runtime.Room.LevelData!;

@@ -45,7 +45,7 @@ internal static class WallJumpDustVerification
             // These exact four native output words are independently checked by the
             // cartridge-byte fixture: GrapplePoseAudit audit.exe ROM wall-jump-dust.
             AssertEqual(suppressed ? 0x0102 : 0x0600, dust.FrameAndType, context + " type/frame");
-            AssertEqual(suppressed ? 7 : 3, dust.AnimationTimer, context + " timer");
+            AssertEqual(suppressed ? 7 : 3, dust.AnimationTimer.RawValue, context + " timer");
             AssertEqual(suppressed ? 33 : facingRight ? 122 : 134, dust.Position.X, context + " X");
             AssertEqual(suppressed ? 44 : 114, dust.Position.Y, context + " Y");
             AssertEqual(0x0101, liquid.AtmosphericEffects.Slots[2].FrameAndType, context + " preserves other slot");

@@ -133,7 +133,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
                 // The final native Goto operand returns to the fourth frame, after the prefix.
                 if (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | nativeCursor) == (ushort)EnemyProjectileInstruction.GotoY)
                     nativeCursor = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | ((ushort)(nativeCursor + 2)));
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 if (projectile.IsActive)
                 {
@@ -142,7 +142,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
                         "Work Robot laser selects native presentation operand after instruction control flow");
                     AssertTrue(EnemyProjectilePresentationFrameDefinitions.Contains(expectedOperand),
                         "Work Robot laser selected operand belongs to installed artwork");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | nativeCursor), projectile.InstructionTimer,
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | nativeCursor), projectile.InstructionTimer.RawValue,
                         "Work Robot laser native duration survives calculated mechanics");
                     observedInstalledOperands.Add(projectile.PresentationOperandAddress);
                 }

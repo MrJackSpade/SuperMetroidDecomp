@@ -76,7 +76,7 @@ internal static class ChargeFlareProductionVerification
         runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
         runtime.Player.Samus.Presentation.InitializeAnimation(bus); runtime.Player.Samus.Presentation.PrimeGraphics(bus);
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
-        Array.Fill(runtime.Projectiles.Charge._flareTimers, (ushort)100);
+        Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
         var game = new SuperMetroidGame(bus);
         game.runtime = runtime;
         byte[] baseline = Draw(runtime);
@@ -132,7 +132,7 @@ internal static class ChargeFlareProductionVerification
             system.Charge.FlareCounter = (ushort)30;
             var frames = system.Charge._flareFrames;
             Array.Fill(frames, (ushort)3);
-            Array.Fill(system.Charge._flareTimers, (ushort)3);
+            Array.Fill(system.Charge._flareTimers, NativeCountdown.Start(3));
             return system;
         }
     }

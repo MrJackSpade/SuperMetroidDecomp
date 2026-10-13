@@ -205,8 +205,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         ushort yRadius)
     {
         slot.CurrentInstruction = instruction;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.Radius = slot.Radius.WithY(yRadius);
     }
     private const short HorizontalShutterManualPushPixels = 4;
@@ -242,7 +242,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         }
         state.TravelDistance = SnesLittleEndian.HighByte(slot.Parameter1);
         state.HorizontalProximityOrWaitTime = slot.Parameter2;
-        state.FunctionTimer = slot.Parameter2;
+        state.FunctionTimer = NativeCountdown.FromRaw(slot.Parameter2);
 
         state.MinimumXPosition = slot.Position.X.Whole;
         state.MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + state.TravelDistance));
@@ -278,10 +278,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies
                 break;
 
             case HorizontalShutterFunction.WaitForTimer:
-                state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-                if (state.FunctionTimer == 0)
+                state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+                if (state.FunctionTimer.IsZero)
                 {
-                    state.FunctionTimer = state.HorizontalProximityOrWaitTime;
+                    state.FunctionTimer = NativeCountdown.FromRaw(state.HorizontalProximityOrWaitTime);
                     ActivateHorizontalShutter(state);
                 }
                 break;
@@ -389,7 +389,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             state.Function = HorizontalShutterFunction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = state.MovedLeftRestTime;
+        state.FunctionTimer = NativeCountdown.FromRaw(state.MovedLeftRestTime);
         state.Function = HorizontalShutterFunction.StoppedAfterMovingLeft;
     }
 
@@ -424,14 +424,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             state.Function = HorizontalShutterFunction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = state.MovedRightRestTime;
+        state.FunctionTimer = NativeCountdown.FromRaw(state.MovedRightRestTime);
         state.Function = HorizontalShutterFunction.StoppedAfterMovingRight;
     }
 
     private static void RunHorizontalShutterStoppedAfterLeft(HorizontalShutterEnemyState state)
     {
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
-        state.FunctionTimer = timer.Value;
+        NativeWordCounterStep timer = state.FunctionTimer.Decrement();
+        state.FunctionTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return;
         state.Function = state.TriggerMode == 1 && state.PrimaryDirection != 0
@@ -441,8 +441,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies
 
     private static void RunHorizontalShutterStoppedAfterRight(HorizontalShutterEnemyState state)
     {
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
-        state.FunctionTimer = timer.Value;
+        NativeWordCounterStep timer = state.FunctionTimer.Decrement();
+        state.FunctionTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return;
         state.Function = state.TriggerMode == 1 && state.PrimaryDirection == 0
@@ -504,8 +504,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies
     private static void InstallHorizontalShutterInstruction(RoomEnemySlot slot)
     {
         slot.CurrentInstruction = HorizontalShutterInstructionProgramDefinitions.Stationary;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
 
@@ -784,7 +784,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         }
         state.TravelDistance = SnesLittleEndian.HighByte(slot.Parameter1);
         state.HorizontalProximityOrWaitTime = slot.Parameter2;
-        state.FunctionTimer = slot.Parameter2;
+        state.FunctionTimer = NativeCountdown.FromRaw(slot.Parameter2);
 
         state.MinimumYPosition = slot.Position.Y.Whole;
         state.MaximumYPosition = unchecked((ushort)(slot.Position.Y.Whole + state.TravelDistance));
@@ -819,10 +819,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             ? SelectInitialVerticalShutterFunction(state) : state.Function)
         {
             case VerticalShutterFunction.WaitForTimer:
-                state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-                if (state.FunctionTimer == 0)
+                state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+                if (state.FunctionTimer.IsZero)
                 {
-                    state.FunctionTimer = state.HorizontalProximityOrWaitTime;
+                    state.FunctionTimer = NativeCountdown.FromRaw(state.HorizontalProximityOrWaitTime);
                     ActivateVerticalShutter(slot, state, camera);
                 }
                 break;
@@ -960,7 +960,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             state.Function = VerticalShutterFunction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = state.MovedUpRestTime;
+        state.FunctionTimer = NativeCountdown.FromRaw(state.MovedUpRestTime);
         state.Function = VerticalShutterFunction.StoppedAfterMovingUp;
     }
 
@@ -971,7 +971,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             state.Function = VerticalShutterFunction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = state.MovedDownRestTime;
+        state.FunctionTimer = NativeCountdown.FromRaw(state.MovedDownRestTime);
         state.Function = VerticalShutterFunction.StoppedAfterMovingDown;
     }
 
@@ -980,8 +980,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         VerticalShutterEnemyState state,
         Position16<RoomPixels> camera)
     {
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
-        state.FunctionTimer = timer.Value;
+        NativeWordCounterStep timer = state.FunctionTimer.Decrement();
+        state.FunctionTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return;
 
@@ -996,8 +996,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         VerticalShutterEnemyState state,
         Position16<RoomPixels> camera)
     {
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
-        state.FunctionTimer = timer.Value;
+        NativeWordCounterStep timer = state.FunctionTimer.Decrement();
+        state.FunctionTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return;
 
@@ -1042,8 +1042,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies
     private static void InstallVerticalShutterInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     /// <inheritdoc/>

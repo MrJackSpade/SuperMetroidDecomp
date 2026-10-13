@@ -65,8 +65,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         // `$B3:9583` installs InstList_Botwoon_Hide: the head starts hidden in its hole.
         state.HeadProgram = BotwoonHeadProgram.Hidden;
         state.HeadAnimationPosition = 0;
-        head.InstructionTimer = 1;
-        head.Timer = 0;
+        head.InstructionTimer = NativeCountdown.Start(1);
+        head.Timer = NativeCountdown.Start(0);
 
         // A previously defeated Botwoon does not allocate body actors. The room loader
         // installs the permanent open wall and makes both one-screen scroll entries blue.
@@ -88,7 +88,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         state.Function = BotwoonEnemyFunction.InitialDelay;
         state.MovementFunction = BotwoonMovementFunction.MoveTowardHole;
         state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
-        state.InitialDelayTimer = 256;
+        state.InitialDelayTimer = NativeCountdown.Start(256);
         var initialSpeed = BotwoonSpeedDefinitions.ForHealthPhase(0);
         state.Speed = initialSpeed.MovementSpeed;
         state.SegmentSpacingBytes = initialSpeed.SegmentSpacingBytes;
@@ -135,8 +135,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         switch (state.Function)
         {
             case BotwoonEnemyFunction.InitialDelay:
-                state.InitialDelayTimer = unchecked((ushort)(state.InitialDelayTimer - 1));
-                if (state.InitialDelayTimer == 0)
+                state.InitialDelayTimer = state.InitialDelayTimer.Decrement().Remaining;
+                if (state.InitialDelayTimer.IsZero)
                     state.Function = BotwoonEnemyFunction.ChooseNextAction;
                 break;
 
@@ -584,8 +584,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies
             return;
         state.HeadProgram = program;
         state.HeadAnimationPosition = 0;
-        head.InstructionTimer = 1;
-        head.Timer = 0;
+        head.InstructionTimer = NativeCountdown.Start(1);
+        head.Timer = NativeCountdown.Start(0);
     }
 
     /// <summary>
@@ -595,8 +595,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies
     /// </summary>
     internal void AdvanceBotwoonHeadAnimation(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        ushort oldTimer = head.InstructionTimer;
-        head.InstructionTimer = unchecked((ushort)(oldTimer - 1));
+        ushort oldTimer = head.InstructionTimer.RawValue;
+        head.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
         {
             head.ExtraProperties = head.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
@@ -610,7 +610,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         // A hold is the native sleep: the timer wraps from zero and the last frame stays.
         if (advance.Held)
             return;
-        head.InstructionTimer = (ushort)advance.Duration;
+        head.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
         head.SpritemapPointer = BotwoonVisualDefinitions.HeadSpritemap(advance.Frame);
         head.ExtraProperties = head.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
@@ -723,8 +723,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }
         state.DropRequested = true;
         state.WallExplosionFrame = 0;
-        state.LargeExplosionTimer = 0;
-        state.SmallExplosionTimer = 0;
+        state.LargeExplosionTimer = NativeCountdown.Start(0);
+        state.SmallExplosionTimer = NativeCountdown.Start(0);
     }
 
     private void RunBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
@@ -745,11 +745,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         if (state.WallExplosionFrame >= 64)
         {
             NativeWordCounterStep largeExplosionTimer =
-                NativeWordCounter.Decrement(state.LargeExplosionTimer);
-            state.LargeExplosionTimer = largeExplosionTimer.Value;
+                state.LargeExplosionTimer.Decrement();
+            state.LargeExplosionTimer = largeExplosionTimer.Remaining;
             if (largeExplosionTimer.IsNegative)
             {
-                state.LargeExplosionTimer = 12;
+                state.LargeExplosionTimer = NativeCountdown.Start(12);
                 _spriteObjects.SpawnRoomSpriteObject(
                     new(unchecked((ushort)((_room.Random.Generate() & 0x001f) + 232)), unchecked((ushort)(state.WallExplosionFrame + (_room.Random.Generate() & 0x001f) - 8))),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
@@ -758,11 +758,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies
             }
 
             NativeWordCounterStep smallExplosionTimer =
-                NativeWordCounter.Decrement(state.SmallExplosionTimer);
-            state.SmallExplosionTimer = smallExplosionTimer.Value;
+                state.SmallExplosionTimer.Decrement();
+            state.SmallExplosionTimer = smallExplosionTimer.Remaining;
             if (smallExplosionTimer.IsNegative)
             {
-                state.SmallExplosionTimer = 4;
+                state.SmallExplosionTimer = NativeCountdown.Start(4);
                 for (int explosion = 0; explosion < 2; explosion++)
                 {
                     _spriteObjects.SpawnRoomSpriteObject(
@@ -957,7 +957,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
                 segment.DirectionParameter = unchecked((ushort)(segment.DirectionParameter + 1));
                 if (unchecked((short)(segment.DirectionParameter - 256)) >= 0)
                     segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Falling));
-                segment.InstructionTimer = 0;
+                segment.InstructionTimer = NativeCountdown.Start(0);
                 ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
                 return;
 
@@ -980,7 +980,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         BotwoonProjectileAnimation animation = segment.Animation as BotwoonProjectileAnimation
             ?? throw new InvalidOperationException($"Botwoon body segment {segment.SlotIndex} has no segment animation.");
         if (animation.Install(BotwoonSegmentProgram.FromSelector(segment.DirectionParameter)))
-            segment.InstructionTimer = 1;
+            segment.InstructionTimer = NativeCountdown.Start(1);
         ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
     }
 
@@ -991,7 +991,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         segment.GraphicsIndex = new SnesObjAttributeWord(segment.GraphicsIndex)
             .WithPaletteBits(SnesObjPalettes.Index7.PaletteBits);
         RoomEnemySlot head = _slotTable._slots[0];
-        if (head.FlashTimer != 0 && (randomEnemyCounter & 2) != 0)
+        if (!head.FlashTimer.IsZero && (randomEnemyCounter & 2) != 0)
             segment.GraphicsIndex = new SnesObjAttributeWord(segment.GraphicsIndex)
                 .WithPaletteIndex(0);
     }
@@ -1008,7 +1008,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         if (unchecked((short)(segment.Position.Y.Whole - 200)) < 0)
         {
             segment.Velocity = segment.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(segment.Velocity.Y.RawValue + 192))));
-            segment.InstructionTimer = 0;
+            segment.InstructionTimer = NativeCountdown.Start(0);
             ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
             return;
         }

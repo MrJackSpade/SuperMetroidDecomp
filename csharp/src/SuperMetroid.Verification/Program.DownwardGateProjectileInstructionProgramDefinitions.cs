@@ -108,7 +108,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
             shotSystem,
             RoomEnemyProjectileKind.DownwardGateClosed);
         shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
-        shot.InstructionTimer = 1;
+        shot.InstructionTimer = NativeCountdown.Start(1);
         Process(shotSystem, shot);
         AssertTrue(!shot.IsActive,
             "downward-gate shot reaction reaches shared compiled deletion");

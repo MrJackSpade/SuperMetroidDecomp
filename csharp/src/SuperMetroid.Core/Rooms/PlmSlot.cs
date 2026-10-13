@@ -19,7 +19,7 @@ internal sealed class PlmSlot
     /// </summary>
     public ushort RestoreLevelWord { get; set; }
     public ushort InstructionPointer { get; set; }
-    public ushort InstructionTimer { get; set; }
+    public NativeCountdown InstructionTimer { get; set; }
     /// <summary>Native bank-$84 pre-instruction pointer run before the timer/list pass.</summary>
     public ushort PreInstruction { get; set; }
     /// <summary>Native room argument word owned independently by every physical PLM slot.</summary>

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Game;
 internal sealed class RoomEarthquake
 {
     /// <summary>Shared wrapping room-shake lifetime word, written by actor/effect producers and decremented by <see cref="Advance"/> for supported types while time is not frozen.</summary>
-    public ushort EarthquakeTimer { get; set; }
+    public NativeCountdown EarthquakeTimer { get; set; }
 
     /// <summary>Native room-shake type selecting background/projectile offsets and whether actors shake; types $00..$23 are consumed by <see cref="Advance"/>, while $24 and above are ignored there.</summary>
     public ushort EarthquakeType { get; set; }
@@ -25,10 +25,10 @@ internal sealed class RoomEarthquake
     /// <summary>Ports $86:8427, evaluated at each projectile draw pass before room-shake timer consumption.</summary>
     internal Offset16<RoomPixels> GetEnemyProjectileShake(bool timeIsFrozen)
     {
-        if (EarthquakeTimer == 0 || timeIsFrozen || EarthquakeType >= RoomFxRomData.Earthquake.FirstNonRenderedType)
+        if (EarthquakeTimer.IsZero || timeIsFrozen || EarthquakeType >= RoomFxRomData.Earthquake.FirstNonRenderedType)
             return default;
         RoomShakeDefinition definition = RoomShakeDefinitions.ForType(EarthquakeType);
-        return (EarthquakeTimer & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0
+        return (EarthquakeTimer.RawValue & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0
             ? -definition.Projectile
             : definition.Projectile;
     }
@@ -44,7 +44,7 @@ internal sealed class RoomEarthquake
         // Hardware leaves both the timer and scroll words untouched while time is frozen.
         // Types $24+ are also deliberately ignored; their values are outside the 36-entry
         // displacement table and are owned by other effects rather than room shaking.
-        if (EarthquakeTimer == 0 ||
+        if (EarthquakeTimer.IsZero ||
             timeIsFrozen ||
             EarthquakeType >= RoomFxRomData.Earthquake.FirstNonRenderedType)
             return false;
@@ -55,13 +55,13 @@ internal sealed class RoomEarthquake
 
         // Bit one alternates which side of the origin is shown. Native code forms the
         // negative half with EOR #$FFFF / INC before adding the same table word.
-        if ((EarthquakeTimer & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0)
+        if ((EarthquakeTimer.RawValue & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0)
         {
             bg1 = -bg1;
             bg2 = -bg2;
         }
 
-        EarthquakeTimer = unchecked((ushort)(EarthquakeTimer - 1));
+        EarthquakeTimer = EarthquakeTimer.Decrement().Remaining;
         LastRoomShake = new RoomShakeFrameResult(bg1, bg2);
         // Types $12-$23 shake every actor selected by DetermineWhichEnemiesToProcess.
         return EarthquakeType >= RoomFxRomData.Earthquake.FirstEnemyShakingType;

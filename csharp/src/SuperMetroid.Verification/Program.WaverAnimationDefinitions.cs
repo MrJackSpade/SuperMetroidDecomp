@@ -21,8 +21,8 @@ internal static class WaverAnimationDefinitionsVerification
             var slot = new RoomEnemySlot(0)
             {
                 CurrentInstruction = 0x7777,
-                InstructionTimer = 0x2222,
-                Timer = 0x3333,
+                InstructionTimer = NativeCountdown.Start(0x2222),
+                Timer = NativeCountdown.Start(0x3333),
             };
             var state = new WaverEnemyState(slot)
             {
@@ -37,9 +37,9 @@ internal static class WaverAnimationDefinitionsVerification
             AssertEqual(WaverAnimationDefinitions.InstructionList(selector),
                 slot.CurrentInstruction,
                 $"production Waver instruction {selector}");
-            AssertEqual(1, slot.InstructionTimer,
+            AssertEqual(1, slot.InstructionTimer.RawValue,
                 $"production Waver instruction timer {selector}");
-            AssertEqual(0, slot.Timer,
+            AssertEqual(0, slot.Timer.RawValue,
                 $"production Waver loop timer {selector}");
         }
 

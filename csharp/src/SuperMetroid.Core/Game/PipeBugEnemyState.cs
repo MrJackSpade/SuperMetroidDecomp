@@ -136,7 +136,7 @@ public sealed class PipeBugEnemyState
     /// <summary>Gets the fractional word of a yellow Pipe Bug's negative 16.16 velocity.</summary>
     public ushort NegativeVelocityFraction { get; internal set; }
     /// <summary>Gets the yellow Pipe Bug's countdown before straight flight begins.</summary>
-    public ushort EmergenceDelay { get; internal set; }
+    public NativeCountdown EmergenceDelay { get; internal set; }
     /// <summary>Gets the quadratic-speed table counter used by a yellow Pipe Bug's arc.</summary>
     public ushort ArcCounter { get; internal set; }
     /// <summary>Gets whether the yellow Pipe Bug arc is in its rising or returning phase.</summary>

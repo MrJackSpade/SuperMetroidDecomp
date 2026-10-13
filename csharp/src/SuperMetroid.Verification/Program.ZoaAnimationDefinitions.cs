@@ -92,8 +92,8 @@ internal static class ZoaAnimationDefinitionsVerification
     private static RoomEnemySlot NewZoaAnimationSlot() => new(0)
     {
         CurrentInstruction = 0x7777,
-        InstructionTimer = 0x2222,
-        Timer = 0x3333,
+        InstructionTimer = NativeCountdown.Start(0x2222),
+        Timer = NativeCountdown.Start(0x3333),
     };
 
     private static void AssertZoaAnimationHandoff(
@@ -109,8 +109,8 @@ internal static class ZoaAnimationDefinitionsVerification
         AssertEqual(ZoaAnimationDefinitions.InstructionList(expected),
             slot.CurrentInstruction,
             $"{context} instruction");
-        AssertEqual(1, slot.InstructionTimer, $"{context} instruction timer");
-        AssertEqual(0, slot.Timer, $"{context} loop timer");
+        AssertEqual(1, slot.InstructionTimer.RawValue, $"{context} instruction timer");
+        AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }
 
     private static CartridgeReadGuard NewZoaAnimationReadGuard(ISnesAddressSpace source) =>

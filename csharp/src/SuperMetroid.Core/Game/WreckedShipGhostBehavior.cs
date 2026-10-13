@@ -41,14 +41,14 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
             EnemyProperties.ProcessInstructions |
             EnemyProperties.IgnoreSamusCollision |
             EnemyProperties.Invisible);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.CurrentInstruction = WreckedShipGhostInstructionProgramDefinitions.Floating;
 
         var state = new WreckedShipGhostEnemyState(slot)
         {
             Function = WreckedShipGhostAiFunction.InitialInvisibleDelay,
-            PhaseTimer = WreckedShipGhostInitialDelay,
+            PhaseTimer = NativeCountdown.Start(WreckedShipGhostInitialDelay),
         };
 
         // Retail clears the actor palette's target-buffer entries here. Its room fade then
@@ -102,12 +102,11 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
     /// </summary>
     private static void RunWreckedShipGhostInitialDelay(WreckedShipGhostEnemyState state)
     {
-        if (state.PhaseTimer != 0)
-            state.PhaseTimer = unchecked((ushort)(state.PhaseTimer - 1));
-        if (state.PhaseTimer != 0)
+        state.PhaseTimer = state.PhaseTimer.DecrementToZero();
+        if (!state.PhaseTimer.IsZero)
             return;
 
-        state.PhaseTimer = 1;
+        state.PhaseTimer = NativeCountdown.Start(1);
         state.FlickerTableOffset = 2;
         state.Function = WreckedShipGhostAiFunction.TrackingSamusForSpawn;
     }
@@ -136,8 +135,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
 
         if (withinPreviousBox)
         {
-            state.StablePositionTimer = unchecked((ushort)(state.StablePositionTimer - 1));
-            if (state.StablePositionTimer == 0)
+            state.StablePositionTimer = state.StablePositionTimer.Decrement().Remaining;
+            if (state.StablePositionTimer.IsZero)
             {
                 // Remaining inside the tiny box for 64 frames means "stationary" on both
                 // axes and therefore selects the central spawn offset.
@@ -149,7 +148,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         }
         else
         {
-            state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
+            state.StablePositionTimer = NativeCountdown.Start(WreckedShipGhostStablePositionDuration);
             Offset16<RoomPixels> motion = samusPosition - state.PreviousSamusPosition;
             ushort horizontalClass = motion.X switch
             {
@@ -161,7 +160,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
             if (horizontalClass != state.SpawnColumnOffset)
             {
                 state.SpawnColumnOffset = horizontalClass;
-                state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
+                state.StableDirectionTimer = NativeCountdown.Start(WreckedShipGhostStableDirectionDuration);
             }
             else
             {
@@ -175,12 +174,12 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
                 if (verticalClass != state.SpawnRowOffset)
                 {
                     state.SpawnRowOffset = verticalClass;
-                    state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
+                    state.StableDirectionTimer = NativeCountdown.Start(WreckedShipGhostStableDirectionDuration);
                 }
                 else
                 {
-                    state.StableDirectionTimer = unchecked((ushort)(state.StableDirectionTimer - 1));
-                    if (state.StableDirectionTimer == 0)
+                    state.StableDirectionTimer = state.StableDirectionTimer.Decrement().Remaining;
+                    if (state.StableDirectionTimer.IsZero)
                     {
                         SpawnWreckedShipGhost(slot, state, samusPosition);
                         return;
@@ -213,8 +212,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         (short xOffset, short yOffset) = WreckedShipGhostAppearanceDefinitions.SpawnOffset(byteOffset / 4);
         slot.Position = slot.Position.WithWhole(samusPosition + new Offset16<RoomPixels>(xOffset, yOffset));
         state.Function = WreckedShipGhostAiFunction.BrighteningAndFlickering;
-        state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
-        state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
+        state.StablePositionTimer = NativeCountdown.Start(WreckedShipGhostStablePositionDuration);
+        state.StableDirectionTimer = NativeCountdown.Start(WreckedShipGhostStableDirectionDuration);
     }
 
     /// <summary>Ports the white-flash ramp at $A8:9B42 and its flicker helper.</summary>
@@ -255,7 +254,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
     {
         int componentsChanged = StepWreckedShipGhostPaletteTowardTarget(slot, state);
         AdvanceWreckedShipGhostFlicker(slot, state);
-        if (state.PhaseTimer != 0 || componentsChanged != 0)
+        if (!state.PhaseTimer.IsZero || componentsChanged != 0)
             return;
 
         // Clearing $0500 makes the fully materialized ghost visible and eligible for the
@@ -264,7 +263,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
             EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
         state.Function = WreckedShipGhostAiFunction.BobbingWhileVisible;
         state.BobbingOriginY = slot.Position.Y.Whole;
-        state.PhaseTimer = WreckedShipGhostVisibleDuration;
+        state.PhaseTimer = NativeCountdown.Start(WreckedShipGhostVisibleDuration);
         state.FlickerTableOffset = 2;
         state.VerticalVelocityFraction = 0;
         state.VerticalVelocityWhole = WreckedShipGhostInitialVerticalVelocityWhole;
@@ -273,8 +272,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         state.PreviousSamusPosition = samus.Position.Whole;
         state.SamusLowerBound = samus.Position.Whole;
         state.SamusUpperBound = samus.Position.Whole;
-        state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
-        state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
+        state.StablePositionTimer = NativeCountdown.Start(WreckedShipGhostStablePositionDuration);
+        state.StableDirectionTimer = NativeCountdown.Start(WreckedShipGhostStableDirectionDuration);
     }
 
     /// <summary>Ports the signed 16.16 oscillation and 120-frame visible lifetime at $A8:9C8A.</summary>
@@ -294,8 +293,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         state.VerticalVelocityWhole = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
         state.VerticalVelocityFraction = unchecked((ushort)velocity);
 
-        state.PhaseTimer = unchecked((ushort)(state.PhaseTimer - 1));
-        if (state.PhaseTimer != 0)
+        state.PhaseTimer = state.PhaseTimer.Decrement().Remaining;
+        if (!state.PhaseTimer.IsZero)
             return;
 
         state.Function = WreckedShipGhostAiFunction.WaitingForWhiteFade;
@@ -313,7 +312,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
 
         state.Function = WreckedShipGhostAiFunction.InitialInvisibleDelay;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        state.PhaseTimer = WreckedShipGhostVisibleDuration;
+        state.PhaseTimer = NativeCountdown.Start(WreckedShipGhostVisibleDuration);
     }
 
     /// <summary>
@@ -324,10 +323,10 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
     {
-        if (state.PhaseTimer != 0)
+        if (!state.PhaseTimer.IsZero)
         {
-            state.PhaseTimer = unchecked((ushort)(state.PhaseTimer - 1));
-            if (state.PhaseTimer != 0)
+            state.PhaseTimer = state.PhaseTimer.Decrement().Remaining;
+            if (!state.PhaseTimer.IsZero)
                 return;
 
             int tableIndex = state.FlickerTableOffset / 2;
@@ -340,12 +339,12 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
             short duration = WreckedShipGhostAppearanceDefinitions.FlickerDuration(tableIndex);
             if (duration < 0)
             {
-                state.PhaseTimer = 0;
+                state.PhaseTimer = NativeCountdown.Start(0);
                 state.FlickerTableOffset = 0;
                 return;
             }
 
-            state.PhaseTimer = unchecked((ushort)duration);
+            state.PhaseTimer = NativeCountdown.FromRaw(unchecked((ushort)duration));
             ushort oldOffset = state.FlickerTableOffset;
             state.FlickerTableOffset = unchecked((ushort)(oldOffset + 2));
             if ((oldOffset & 2) != 0)

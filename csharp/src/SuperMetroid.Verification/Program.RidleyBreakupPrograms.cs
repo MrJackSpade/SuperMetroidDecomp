@@ -32,7 +32,7 @@ internal static class RidleyBreakupProgramsVerification
         body.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
         var state = new RidleyEnemyState
         {
-            GrabState = 1, FunctionTimer = 0,
+            GrabState = 1, FunctionTimer = NativeCountdown.Start(0),
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 { Angle = index == 6 ? (ushort)0x10 : (ushort)0, Position = new Position16<RoomPixels>(128, 128) }).ToArray(),
         };
@@ -82,7 +82,7 @@ internal static class RidleyBreakupProgramsVerification
             }
             var fragment = fragments[0];
             fragment.CurrentInstruction = start;
-            fragment.InstructionTimer = 1;
+            fragment.InstructionTimer = NativeCountdown.Start(1);
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);

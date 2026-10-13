@@ -54,7 +54,7 @@ internal static class IntroProjectileArtworkVerification
         document["frames"]![ProjectileTrailVisualDefinitions.Name(frame)]!["flipX"] = true;
         var editedTrails = ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
         var side = projectiles.TrailSlots[0].Left;
-        side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = 100;
+        side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = NativeCountdown.Start(100);
         side.Position = side.Position.WithX(100).WithY(100); side.TileNumberAttributes = trails.Resolve(frame);
         byte[] nativeTrail = Draw(intro);
         game.BindArtwork(game.Artwork with
@@ -67,7 +67,7 @@ internal static class IntroProjectileArtworkVerification
             TrailArtwork = editedTrails,
         });
         AssertTrue(!nativeTrail.SequenceEqual(Draw(intro)), "Intro trail pass consumes selected appearance");
-        AssertEqual(97, side.InstructionTimer, "Intro preparation advances trail exactly once per call");
+        AssertEqual(97, side.InstructionTimer.RawValue, "Intro preparation advances trail exactly once per call");
         game.BindArtwork(game.Artwork with
         {
             TrailArtwork = null,

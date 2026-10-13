@@ -152,7 +152,7 @@ internal static class ChargeFlarePlacementVerification
         runtime.Player.Samus.Presentation.InitializeAnimation(bus); runtime.Player.Samus.Presentation.PrimeGraphics(bus);
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        Array.Fill(runtime.Projectiles.Charge._flareTimers, (ushort)100);
+        Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
         var game = CreateRetailGameFixture(bus);
         game.runtime = runtime;
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)

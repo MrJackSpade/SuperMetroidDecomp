@@ -132,7 +132,7 @@ internal static class GunshipInstructionProgramDefinitionsVerification
             slot.EnemyDefinitionPointer = enemyDefinition;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
 
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
@@ -140,7 +140,7 @@ internal static class GunshipInstructionProgramDefinitionsVerification
                 EnemyInstructionRunner.Process(enemies, arguments);
 
             AssertEqual(expectedCursor, slot.CurrentInstruction, assertion + " cursor");
-            AssertEqual(expectedTimer, slot.InstructionTimer, assertion + " timer");
+            AssertEqual(expectedTimer, slot.InstructionTimer.RawValue, assertion + " timer");
             AssertEqual(expectedSpritemap, slot.SpritemapPointer,
                 assertion + " spritemap");
         }

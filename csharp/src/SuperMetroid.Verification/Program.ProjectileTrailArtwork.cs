@@ -45,7 +45,7 @@ internal static class ProjectileTrailArtworkVerification
             {
                 var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.InstructionTimer = 1; side.Position = side.Position.WithX(100).WithY(100); }
+                { side.InstructionPointer = start; side.InstructionTimer = NativeCountdown.Start(1); side.Position = side.Position.WithX(100).WithY(100); }
             }
             for (int frame = 0; frame < 80; frame++)
             {
@@ -57,7 +57,7 @@ internal static class ProjectileTrailArtworkVerification
                 foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
                     AssertEqual(sides.Item1.InstructionPointer, sides.Item2.InstructionPointer, "Trail artwork cannot change instruction cursor");
-                    AssertEqual(sides.Item1.InstructionTimer, sides.Item2.InstructionTimer, "Trail artwork cannot change live timing");
+                    AssertEqual(sides.Item1.InstructionTimer.RawValue, sides.Item2.InstructionTimer.RawValue, "Trail artwork cannot change live timing");
                     AssertEqual(sides.Item1.Position.Y, sides.Item2.Position.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
@@ -88,7 +88,7 @@ internal static class ProjectileTrailArtworkVerification
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (frame + 2));
             var system = new SamusProjectileSystem();
             var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
-            side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = 3;
+            side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = NativeCountdown.Start(3);
             side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.TileNumberAttributes = attributes;
             var native = new OamBuffer(); var authored = new OamBuffer();
             for (int i = 0; i < preceding; i++)
@@ -97,7 +97,7 @@ internal static class ProjectileTrailArtworkVerification
             system.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), authored, Position16<RoomPixels>.Zero, true, catalog);
             AssertTrue(native.ImageEquals(authored), "Trail catalog preserves native culling and complete OAM bytes");
             AssertEqual(native.NextByteOffset, authored.NextByteOffset, "Trail catalog retains OAM capacity behavior");
-            AssertEqual(3, side.InstructionTimer, "Frozen draw cannot advance trail animation");
+            AssertEqual(3, side.InstructionTimer.RawValue, "Frozen draw cannot advance trail animation");
             AssertEqual(attributes, side.TileNumberAttributes, "Artwork selection does not mutate stored trail attributes");
             draws++;
         }
@@ -110,7 +110,7 @@ internal static class ProjectileTrailArtworkVerification
         AssertEqual((ushort)(catalog.Resolve(first) ^ 0x4000), edited.Resolve(first), "Trail flip edit changes only horizontal-flip bit");
         var animation = new SamusProjectileSystem();
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
-        trail.InstructionPointer = first; trail.InstructionTimer = 1; trail.Position = trail.Position.WithX(100).WithY(100);
+        trail.InstructionPointer = first; trail.InstructionTimer = NativeCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);
         var frozen = new OamBuffer();
         animation.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), frozen, Position16<RoomPixels>.Zero, true, edited);
         AssertEqual(0, frozen.GetEntry(0).TileNumber, "New frozen trail retains native uninitialized tile rather than starting artwork early");
@@ -119,7 +119,7 @@ internal static class ProjectileTrailArtworkVerification
         animation.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), original, Position16<RoomPixels>.Zero, true, catalog);
         animation.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), changed, Position16<RoomPixels>.Zero, true, edited);
         AssertTrue(original.GetEntry(0).FlipX != changed.GetEntry(0).FlipX, "Edited trail flip reaches production draw");
-        AssertEqual(1, trail.InstructionTimer, "Rebound art retains current timer");
+        AssertEqual(1, trail.InstructionTimer.RawValue, "Rebound art retains current timer");
         document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!["duration"] = 0;
         AssertThrows<InvalidDataException>(() => Load(document), "Trail art cannot change duration");
         document = JsonNode.Parse(json)!;
@@ -138,8 +138,8 @@ internal static class ProjectileTrailArtworkVerification
     {
         foreach (SamusProjectileTrailSide side in new[] { pair.Left, pair.Right })
         {
-            if (side.InstructionTimer == 0) continue;
-            if (!frozen && --side.InstructionTimer == 0)
+            if (side.InstructionTimer.IsZero) continue;
+            if (!frozen && (side.InstructionTimer = side.InstructionTimer.Decrement().Remaining).IsZero)
             {
                 ushort cursor = side.InstructionPointer;
                 for (int operations = 0; ; operations++)
@@ -148,7 +148,7 @@ internal static class ProjectileTrailArtworkVerification
                     ushort command = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x900000 | cursor);
                     if (command < 0x8000)
                     {
-                        side.InstructionTimer = command;
+                        side.InstructionTimer = NativeCountdown.FromRaw(command);
                         if (command != 0)
                         {
                             side.TileNumberAttributes = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x900000 | (unchecked((ushort)(cursor + 2))));
@@ -165,7 +165,7 @@ internal static class ProjectileTrailArtworkVerification
                         default: throw new InvalidDataException($"Unknown native trail command ${command:X4}.");
                     }
                 }
-                if (side.InstructionTimer == 0) continue;
+                if (side.InstructionTimer.IsZero) continue;
             }
             if (side.Position.X < 256 && side.Position.Y < 256)
                 oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.Position.X, (byte)side.Position.Y),
@@ -181,7 +181,7 @@ internal static class ProjectileTrailArtworkVerification
         runtime.Freeze.GameplayTimeFrozen = true;
         var side = runtime.Projectiles.TrailSlots[0].Left;
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
-        side.InstructionTimer = 3; side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
+        side.InstructionTimer = NativeCountdown.Start(3); side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
         side.Position = side.Position.WithX((ushort)(runtime.Room.Camera!.PixelPosition.X + 100)).WithY((ushort)(runtime.Room.Camera.PixelPosition.Y + 100));
         var game = CreateRetailGameFixture(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -229,7 +229,7 @@ internal static class ProjectileTrailArtworkVerification
     TrailArtwork = edited,
 });
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Old state draws current selected trail appearance after rebind");
-        AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer, "Trail rebind preserves saved timing");
+        AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer.RawValue, "Trail rebind preserves saved timing");
     }
     internal static void VerifyTrailMutableAlias()
     {

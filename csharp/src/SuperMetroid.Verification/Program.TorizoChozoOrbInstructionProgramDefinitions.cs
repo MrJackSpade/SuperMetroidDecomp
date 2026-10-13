@@ -62,7 +62,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
                 AssertTrue(orb.IsActive,
                     $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} orb loop frame {frame}");
             }
-            AssertEqual((ushort)0x0055, orb.InstructionTimer,
+            AssertEqual((ushort)0x0055, orb.InstructionTimer.RawValue,
                 $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} orb reloads 85-frame pose");
             AssertEqual(unchecked((ushort)(expectedProgram + 4)), orb.InstructionPointer,
                 $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} orb loop cursor");
@@ -73,7 +73,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
         spawnBomb(wallEnemies, wallTorizo);
         RoomEnemyProjectileSlot wall = wallEnemies.Projectiles.EnemyProjectiles[^1];
         wall.InstructionPointer = TorizoChozoOrbInstructionProgramDefinitions.WallImpact;
-        wall.InstructionTimer = 1;
+        wall.InstructionTimer = NativeCountdown.Start(1);
         for (int frame = 1; frame <= 20; frame++)
         {
             wallEnemies.Projectiles.ProcessEnemyProjectileInstructions(wall, null, Position16<RoomPixels>.Zero);
@@ -94,7 +94,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
         AssertTrue(!floor.CanDamageSamus,
             "Golden Torizo airborne orb starts unable to damage Samus");
         floor.InstructionPointer = TorizoChozoOrbInstructionProgramDefinitions.FloorImpact;
-        floor.InstructionTimer = 1;
+        floor.InstructionTimer = NativeCountdown.Start(1);
         for (int frame = 1; frame <= 39; frame++)
         {
             floorEnemies.Projectiles.ProcessEnemyProjectileInstructions(floor, null, Position16<RoomPixels>.Zero);
@@ -160,7 +160,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
             RoomEnemyProjectileSlot orb = enemies.Projectiles.EnemyProjectiles[^1];
             orb.Position = orb.Position.WithWhole(new(0x0350, 0x0260));
             orb.InstructionPointer = TorizoChozoOrbInstructionProgramDefinitions.Shot;
-            orb.InstructionTimer = 1;
+            orb.InstructionTimer = NativeCountdown.Start(1);
             for (int frame = 1; frame <= 20; frame++)
             {
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(orb, null, Position16<RoomPixels>.Zero);

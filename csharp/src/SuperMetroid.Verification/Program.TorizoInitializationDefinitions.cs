@@ -35,7 +35,10 @@ internal static class TorizoInitializationDefinitionsVerification
                 actor.Radius = new(0xffff, 0xffff);
                 actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
                 actor.Health = 0x3456;
-                actor.CurrentInstruction = actor.InstructionTimer = actor.Timer = actor.PaletteIndex = 0xffff;
+                actor.PaletteIndex = 0xffff;
+                actor.Timer = NativeCountdown.Start(0xffff);
+                actor.InstructionTimer = NativeCountdown.Start(0xffff);
+                actor.CurrentInstruction = 0xffff;
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
@@ -47,8 +50,8 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual((ushort)0x1234, actor.Position.X.Fraction, "Torizo initialization preserves X fraction");
                 AssertEqual((ushort)0xabcd, actor.Position.Y.Fraction, "Torizo initialization preserves Y fraction");
                 AssertEqual((ushort)0x3456, actor.Health, "Torizo initialization preserves population health");
-                AssertEqual((ushort)1, actor.InstructionTimer, "Initial instruction timer");
-                AssertEqual((ushort)0, actor.Timer, "Initial actor timer");
+                AssertEqual((ushort)1, actor.InstructionTimer.RawValue, "Initial instruction timer");
+                AssertEqual((ushort)0, actor.Timer.RawValue, "Initial actor timer");
                 AssertEqual((ushort)0, actor.PaletteIndex, "Initial palette index");
                 var state = variant == 0 ? enemies.BombTorizo! : enemies.BombTorizoBehavior.GoldenTorizo!;
                 AssertEqual((ushort)0, state.Velocity.X.RawValue, "Initial horizontal velocity");

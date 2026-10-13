@@ -55,7 +55,7 @@ internal static class AttractDemoSceneVerification
             throw new InvalidDataException("Demo room sentinel did not terminate the set.");
         var input = new ReferenceAttractInput(bus, expected);
         input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
-        if (input.Script.Held != (ushort)SnesButton.Left || input.Script.InstructionTimer != 5)
+        if (input.Script.Held != (ushort)SnesButton.Left || input.Script.InstructionTimer.RawValue != 5)
             throw new InvalidDataException("Title demo did not publish its first timed input record.");
         input.Step(bus, SuperMetroidGameState.TransitionFromDemoB, SamusMovementType.Standing);
         if (input.Script.InstructionPointer != 0 || input.Script.Held != 0)
@@ -66,7 +66,7 @@ internal static class AttractDemoSceneVerification
         if (input.Script.Held != (ushort)SnesButton.Left)
             throw new InvalidDataException("Native type-$1A branch should leave the current script intact.");
         input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
-        if (input.Script.Held != (ushort)SnesButton.Right || input.Script.InstructionTimer != 7 ||
+        if (input.Script.Held != (ushort)SnesButton.Right || input.Script.InstructionTimer.RawValue != 7 ||
             input.Script.PreInstructionPointer != (ushort)AttractDemoPreInstruction.CheckLeave)
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
@@ -224,7 +224,7 @@ internal static class AttractDemoSceneVerification
 
         static string Snapshot(DemoInputState state) =>
             $"{state.Enabled}/{state.InitializationParameter}/{state.PreInstructionPointer}/" +
-            $"{state.InstructionPointer}/{state.InstructionTimer}/{state.Timer}/{state.Held}/" +
+            $"{state.InstructionPointer}/{state.InstructionTimer.RawValue}/{state.Timer.RawValue}/{state.Held}/" +
             $"{state.NewlyPressed}/{state.PreviousHeld}/{state.PreviousNewlyPressed}/" +
             $"{state.PublishedPreviousHeld}/{state.PublishedPreviousNewlyPressed}";
     }

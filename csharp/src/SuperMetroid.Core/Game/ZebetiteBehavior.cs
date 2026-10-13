@@ -62,8 +62,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         // raw while naming only the independently verified instruction-processing bit.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
         slot.VramTilesIndex = 0x0080;
         state.PaletteCycle = 0;
@@ -93,8 +93,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
     /// <summary>Ports the indirect main dispatcher at <c>$A6:FC33</c>.</summary>
     private void RunZebetiteMain(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
-        if (_earthquake.EarthquakeTimer == 0)
-            slot.ShakeTimer = 0;
+        if (_earthquake.EarthquakeTimer.IsZero)
+            slot.ShakeTimer = NativeCountdown.Start(0);
 
         switch (state.Function)
         {
@@ -187,8 +187,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         slot.CurrentInstruction = ZebetiteDefinitions.HealthInstruction(
             linkedPair: (state.GenerationFlags & 0x8000) != 0,
             slot.Health);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     internal RoomEnemySlot SpawnZebetite(bool linkedHalf)
@@ -251,7 +251,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
             projectile.KilledEnemyNativeIndex = slot.NativeIndex;
             projectile.InstructionPointer = EnemyDeathExplosionDefinitions
                 .InstructionPointer((ushort)EnemyDeathAnimation.SmallExplosion);
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
         }
 
         int slotIndex = slot.SlotIndex;

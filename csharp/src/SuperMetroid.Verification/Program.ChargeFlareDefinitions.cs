@@ -25,23 +25,24 @@ internal static class ChargeFlareDefinitionsVerification
         var timers = system.Charge._flareTimers;
         for (int component = 0; component < 3; component++)
         {
-            frames[component] = 0; timers[component] = 0;
+            frames[component] = 0; timers[component] = NativeCountdown.Start(0);
             ushort expectedFrame = 0, expectedTimer = 0;
             for (int tick = 0; tick < 1024; tick++)
             {
                 Reference(component, ref expectedFrame, ref expectedTimer);
                 advance(component);
-                AssertEqual((expectedFrame, expectedTimer), (frames[component], timers[component]), "Flare production cadence matches native repeated rewind/restart trajectory");
+                AssertEqual((expectedFrame, expectedTimer), (frames[component], timers[component].RawValue), "Flare production cadence matches native repeated rewind/restart trajectory");
             }
             int maximumLiveFrame = component == 0 ? 29 : 5;
             foreach (ushort timer in new ushort[] { 0, 1, 2, 0x8000, 0xffff })
             for (int frame = 0; frame <= maximumLiveFrame; frame++)
             {
                 expectedFrame = frames[component] = frame == 256 ? ushort.MaxValue : (ushort)frame;
-                expectedTimer = timers[component] = timer;
+                timers[component] = NativeCountdown.FromRaw(timer);
+                expectedTimer = timer;
                 Reference(component, ref expectedFrame, ref expectedTimer);
                 advance(component);
-                AssertEqual((expectedFrame, expectedTimer), (frames[component], timers[component]), "Flare timer sign and authored frame boundaries match native");
+                AssertEqual((expectedFrame, expectedTimer), (frames[component], timers[component].RawValue), "Flare timer sign and authored frame boundaries match native");
             }
         }
         Console.WriteLine("Charge flare: 52 compiled bytes, loud non-catalog rejection, 3072 loop ticks and 210 authored boundary-state advances preserve native cadence with timing ROM reads forbidden.");

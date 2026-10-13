@@ -66,10 +66,10 @@ public sealed class MetroidEnemyState
     }
 
     /// <summary>Variable E; four-frame escape timer and frozen-shake countdown.</summary>
-    public ushort EscapeTimer
+    public NativeCountdown EscapeTimer
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => NativeCountdown.FromRaw(_slot.VariableE);
+        internal set => _slot.VariableE = value.RawValue;
     }
 
     /// <summary>Variable F at native $0FB2: zero-based movement dispatcher index 0..3 into $A3:EC09, not an AI routine pointer.</summary>

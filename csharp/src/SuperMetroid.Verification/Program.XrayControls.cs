@@ -57,11 +57,11 @@ internal static class XrayControlsVerification
             pendingBomb.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
                 (SamusProjectileRomData.Banks.Projectile | bombData) + sizeof(ushort));
             pendingBomb.SpritemapPointer = runtime.Artwork.ProjectileFrameBindings!.Resolve(pendingBomb.InstructionPointer);
-            pendingBomb.InstructionTimer = 100;
-            pendingBomb.BombTimer = 60;
+            pendingBomb.InstructionTimer = NativeCountdown.Start(100);
+            pendingBomb.BombTimer = NativeCountdown.Start(60);
             runtime.StepFrame((ushort)(runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
-            AssertEqual(60, pendingBomb.BombTimer, "X-ray activation freezes an existing bomb fuse immediately");
-            AssertEqual(100, pendingBomb.InstructionTimer, "X-ray activation skips existing bomb animation immediately");
+            AssertEqual(60, pendingBomb.BombTimer.RawValue, "X-ray activation freezes an existing bomb fuse immediately");
+            AssertEqual(100, pendingBomb.InstructionTimer.RawValue, "X-ray activation skips existing bomb animation immediately");
             pendingBomb.ClearFields();
             AssertTrue(samus.Xray.IsActive && runtime.Freeze.TimeIsFrozen,
                 "configured Run takes priority over Shoot and activates scanning");
@@ -88,12 +88,12 @@ internal static class XrayControlsVerification
             AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "Run release tears down scanning");
             AssertEqual(SamusXrayRomData.SelectedHudItem, samus.SelectedHudItem, "release preserves X-ray selection");
             // $90:AC32 held the cooldown at $20 while time was frozen; it drains only now.
-            AssertTrue(runtime.BombProjectiles.CooldownTimer is > 0 and <= 0x20,
+            AssertTrue(runtime.BombProjectiles.CooldownTimer.RawValue is > 0 and <= 0x20,
                 "frozen-time cooldown still delays the first post-scan shot");
             int cooldownFrames = 0;
-            while (runtime.BombProjectiles.CooldownTimer != 0 && cooldownFrames++ <= 0x20)
+            while (!runtime.BombProjectiles.CooldownTimer.IsZero && cooldownFrames++ <= 0x20)
                 runtime.StepFrame(0);
-            AssertEqual(0, (int)runtime.BombProjectiles.CooldownTimer, "frozen-time cooldown drains after scan release");
+            AssertEqual(0, (int)runtime.BombProjectiles.CooldownTimer.RawValue, "frozen-time cooldown drains after scan release");
             runtime.StepFrame(runtime.Options.ControllerBindings.Shoot);
             AssertTrue(runtime.Projectiles.LastFiredProjectileSnapshot is not null,
                 "Shoot resumes actual beam firing after scan release without deselecting scope");

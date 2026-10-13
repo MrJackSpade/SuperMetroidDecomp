@@ -65,7 +65,7 @@ internal static class EscapeRunningFootstepsVerification
             AssertEqual(DrainedGetUpHandler.Inactive, samus.Drained.GetUpHandler,
                 "escape timer replaces the drained hack handler");
             AssertEqual((ushort)9, samus.AnimationFrame, "Up edge in acid advances the running animation normally");
-            AssertTrue(samus.AnimationFrameTimer > 0, "running cadence receives its real next-frame delay");
+            AssertTrue(!samus.AnimationFrameTimer.IsZero, "running cadence receives its real next-frame delay");
         }
         Console.WriteLine("Escape running footsteps: native timer handoff displaces both drained handlers; Up/jump in acid preserves both running animations and the cutscene failed-stand branch.");
     }

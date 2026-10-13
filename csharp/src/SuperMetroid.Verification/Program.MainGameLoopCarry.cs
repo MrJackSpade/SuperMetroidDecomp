@@ -36,11 +36,11 @@ internal static class MainGameLoopCarryVerification
         foreach (bool carry in new[] { true, false })
         {
             var state = new RoomLayer3FxState();
-            state.earthquakeSoundTimer = (ushort)0;
+            state.earthquakeSoundTimer = NativeCountdown.Start((ushort)0);
             state.earthquakeSoundSequenceIndex = 0;
             // Native update 330722: the first entry (base 1) with RNG & 3 = 0 reloads to 2.
             state.PublishStatueEarthquakeSound(0xac0c, carry);
-            AssertEqual((ushort)(carry ? 2 : 1), state.earthquakeSoundTimer,
+            AssertEqual((ushort)(carry ? 2 : 1), state.earthquakeSoundTimer.RawValue,
                 $"earthquake reload with main-loop carry {carry}");
         }
         Console.WriteLine("Main-loop carry: boot SRAM decides it, and the earthquake timer reload adds it.");

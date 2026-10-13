@@ -55,7 +55,7 @@ internal static class MotherBrainTubeDescentVerification
             "Trajectory includes continuous descent both before hiding and before landing");
         AssertTrue(tube.Properties.HasAny(EnemyProperties.Deleted), "Landing deletes the main tube");
         AssertEqual(MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3, state.Function, "Landing starts room rebuild");
-        AssertEqual((ushort)0x20, enemies.Earthquake.EarthquakeTimer, "Landing retains native earthquake duration");
+        AssertEqual((ushort)0x20, enemies.Earthquake.EarthquakeTimer.RawValue, "Landing retains native earthquake duration");
         Console.WriteLine($"Mother Brain tube descent: {frame + 1} exact trajectory frames, hide threshold and landing passed.");
         return 0;
     }

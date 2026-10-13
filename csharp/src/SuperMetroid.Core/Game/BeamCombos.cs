@@ -60,7 +60,7 @@ internal sealed class BeamCombos
                     SamusComboKind.Plasma => SamusProjectilePreInstruction.PlasmaCombo,
                     _ => throw new InvalidOperationException($"Undefined combo {kind}."),
                 };
-                if (kind != SamusComboKind.Plasma) slot.TrailTimer = kind == SamusComboKind.Spazer && i < 2 ? (ushort)0 : (ushort)4;
+                if (kind != SamusComboKind.Plasma) slot.TrailTimer = NativeCountdown.FromRaw(kind == SamusComboKind.Spazer && i < 2 ? (ushort)0 : (ushort)4);
                 slot.Variable = kind is SamusComboKind.Ice or SamusComboKind.Plasma
                     ? SamusComboMechanicsDefinitions.GetOriginAngle(i)
                     : (ushort)0;
@@ -107,7 +107,7 @@ internal sealed class BeamCombos
         slot.Damage = SamusProjectileDamageDefinitions.Read(data);
         if ((slot.Damage & 0x8000) != 0) throw new InvalidDataException("Negative native combo projectile damage.");
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(data + 2 + (ordinary || echo ? (slot.Direction & 15) * 2 : 0));
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         if (ordinary)
         {
             slot.Radius = new(SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 4)), SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 5)));
@@ -125,11 +125,11 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(slot);
             return outward ? (ushort)0 : (ushort)0x24;
         }
-        ushort oldTimer = slot.TrailTimer;
-        slot.TrailTimer = unchecked((ushort)(oldTimer - 1));
+        ushort oldTimer = slot.TrailTimer.RawValue;
+        slot.TrailTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer == 1)
         {
-            slot.TrailTimer = 4;
+            slot.TrailTimer = NativeCountdown.Start(4);
             _trails.SpawnTrail(bus, slot);
         }
         ushort distance = outward ? unchecked((ushort)slot.Velocity.X.SignedRawValue) : (ushort)32;
@@ -253,11 +253,11 @@ internal sealed class BeamCombos
             if (!falling) _animation.ClearProjectile(_slotTable._slots[partner]);
             return 0;
         }
-        ushort previousTimer = slot.TrailTimer;
-        slot.TrailTimer = unchecked((ushort)(previousTimer - 1));
+        ushort previousTimer = slot.TrailTimer.RawValue;
+        slot.TrailTimer = NativeCountdown.FromRaw(unchecked((ushort)(previousTimer - 1)));
         if (previousTimer == 1)
         {
-            slot.TrailTimer = 4;
+            slot.TrailTimer = NativeCountdown.Start(4);
             _trails.SpawnTrail(bus, slot);
         }
         if (falling)
@@ -329,7 +329,7 @@ internal sealed class BeamCombos
     {
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (slot.SlotIndex < 2 ? 16 : -16))));
         slot.Direction = 5;
-        slot.TrailTimer = 4;
+        slot.TrailTimer = NativeCountdown.Start(4);
         slot.PreInstruction = SamusProjectilePreInstruction.SpazerComboFalling;
         if (slot.SlotIndex < 2)
         {
@@ -357,11 +357,11 @@ internal sealed class BeamCombos
             return SamusComboRomData.WaveRemovalSound;
         }
         short oldXSpeed = slot.Velocity.X.SignedRawValue;
-        ushort oldTimer = slot.TrailTimer;
-        slot.TrailTimer = unchecked((ushort)(oldTimer - 1));
+        ushort oldTimer = slot.TrailTimer.RawValue;
+        slot.TrailTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer == 1)
         {
-            slot.TrailTimer = 4;
+            slot.TrailTimer = NativeCountdown.Start(4);
             _trails.SpawnTrail(bus, slot);
         }
         slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(AccelerateWaveAxis(slot.Velocity.X.SignedRawValue, unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)))));

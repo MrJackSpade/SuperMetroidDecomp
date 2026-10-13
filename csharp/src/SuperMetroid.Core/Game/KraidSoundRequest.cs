@@ -141,10 +141,10 @@ public sealed class KraidPartState
     public ushort NextWord { get; internal set; }
 
     /// <summary>Gets the second-phase foot's think-timer view of the shared next-word alias.</summary>
-    public ushort ThinkTimer
+    public NativeCountdown ThinkTimer
     {
-        get => NextWord;
-        internal set => NextWord = value;
+        get => NativeCountdown.FromRaw(NextWord);
+        internal set => NextWord = value.RawValue;
     }
 
     /// <summary>Gets the typed function view of the shared next-word alias when the current part treats it as a bank-$A7 pointer.</summary>
@@ -176,7 +176,7 @@ public sealed class KraidEnemyState
     /// <summary>Gets the retained native word at $7E:7802; mouth-reopen continuations write two at $A7:AF24/$BC58 without an established broader meaning.</summary>
     public ushort Unknown2 { get; internal set; }
     /// <summary>Gets the body think countdown selected from the native random-delay table and consumed before the next mouth attack.</summary>
-    public ushort ThinkingTimer { get; internal set; }
+    public NativeCountdown ThinkingTimer { get; internal set; }
     /// <summary>Gets the minimum whole-pixel world Y allowed when Kraid's body ejects Samus; growth changes the floor-relative clamp from 324 to 164.</summary>
     public ushort MinimumYPositionForEjection { get; internal set; }
     /// <summary>Gets the native mouth-reopen word: low bits retain collision/reopen state and the high byte counts pending reopen continuations.</summary>
@@ -192,7 +192,7 @@ public sealed class KraidEnemyState
     /// <summary>Gets the hurt-palette countdown phase, normally started at six by a vulnerable mouth hit and decremented by its frame timer.</summary>
     public ushort HurtFrame { get; internal set; }
     /// <summary>Gets the countdown pacing hurt-palette phases, normally reloaded to two and reused by background fades during death.</summary>
-    public ushort HurtFrameTimer { get; internal set; }
+    public NativeCountdown HurtFrameTimer { get; internal set; }
     /// <summary>Gets the bank-$A7 tilemap offset selected by the current private eight-byte head instruction.</summary>
     public ushort CurrentHeadTilemap { get; internal set; }
     /// <summary>Gets the native bank-$A7 mouth-hitbox record offset accepting damaging shots for the current head frame.</summary>
@@ -258,7 +258,7 @@ public sealed class KraidEnemyState
     /// <summary>Gets whether growth has relinquished the first-screen camera lock for the enlarged encounter.</summary>
     public bool CameraReleasedForSecondPhase { get; internal set; }
     /// <summary>Gets the sinking sound countdown, initially forty-three and reloaded to thirty after each request.</summary>
-    public ushort DeathSoundTimer { get; internal set; }
+    public NativeCountdown DeathSoundTimer { get; internal set; }
     /// <summary>Gets the number of authored sinking-table events consumed during the death descent.</summary>
     public int SinkTableEventCount { get; internal set; }
     /// <summary>Gets the number of pickup actors requested by Kraid's authored death scatter, independent of pool allocation success.</summary>

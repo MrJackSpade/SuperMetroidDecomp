@@ -41,8 +41,8 @@ internal static class RidleyShotHealthStageVerification
         ridley.Position = ridley.Position.WithWhole(new(0x00a4, 0x0148));
         ridley.SpritemapPointer = 0xe983;
         ridley.Properties = 0x3800;
-        ridley.InvincibilityTimer = 0;
-        ridley.InstructionTimer = 0x7fff;
+        ridley.InvincibilityTimer = NativeCountdown.Start(0);
+        ridley.InstructionTimer = NativeCountdown.Start(0x7fff);
         ridley.Health = 9340;
         state.FightMode = RidleyFightMode.PowerBombDodge;
         state.HealthStage = 0;
@@ -53,7 +53,7 @@ internal static class RidleyShotHealthStageVerification
             shot.Type = 0x8200; shot.Damage = 300; shot.Direction = 2;
             shot.Position = shot.Position.WithWhole(new(0x00c5, 0x0164));
             shot.Radius = new(8, 8);
-            shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
+            shot.InstructionPointer = 0x9000; shot.InstructionTimer = NativeCountdown.Start(1);
         }
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: ridley.NativeIndex);

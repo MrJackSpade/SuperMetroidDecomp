@@ -59,7 +59,7 @@ public static class CorpseRottingTableProcessor
             ushort timer = table.Delay(entryIndex);
             if (timer != 0)
             {
-                timer = unchecked((ushort)(timer - 1));
+                timer = NativeWordCounter.Decrement(timer).Value;
                 table.SetDelay(entryIndex, timer);
                 if (timer < 4)
                 {

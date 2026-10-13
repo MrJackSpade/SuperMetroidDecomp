@@ -24,12 +24,12 @@ internal sealed class PolypBehavior : IEnemySpecies
         Action<ushort> setRandomNumber = _room.Random.Seed;
 
         slot.CurrentInstruction = PolypInstructionProgramDefinitions.Stationary;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         _polypStates[slot.SlotIndex] = new PolypEnemyState(slot)
         {
             Function = PolypEnemyFunction.WaitingForSamus,
-            CooldownTimer = 0,
+            CooldownTimer = NativeCountdown.Start(0),
         };
 
         // Every Polyp initializer writes $0011 to the shared seed. In Volcano the fourth
@@ -67,8 +67,8 @@ internal sealed class PolypBehavior : IEnemySpecies
                 return;
 
             case PolypEnemyFunction.Cooldown:
-                NativeWordCounterStep timer = NativeWordCounter.Decrement(state.CooldownTimer);
-                state.CooldownTimer = timer.Value;
+                NativeWordCounterStep timer = state.CooldownTimer.Decrement();
+                state.CooldownTimer = timer.Remaining;
                 if (timer.IsNegative)
                     state.Function = PolypEnemyFunction.WaitingForSamus;
                 return;
@@ -88,7 +88,7 @@ internal sealed class PolypBehavior : IEnemySpecies
         SpawnPolypRock(slot, initialYSpeed, xVelocity);
 
         state.Function = PolypEnemyFunction.Cooldown;
-        state.CooldownTimer = PolypLaunchDefinitions.Cooldown(_room.Random.Generate());
+        state.CooldownTimer = NativeCountdown.FromRaw(PolypLaunchDefinitions.Cooldown(_room.Random.Generate()));
     }
 
     /// <summary>

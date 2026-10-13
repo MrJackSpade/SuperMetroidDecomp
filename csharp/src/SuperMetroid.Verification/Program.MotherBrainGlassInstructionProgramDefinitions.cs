@@ -50,7 +50,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
             for (int frame = 0; frame < shardDurations.Length; frame++)
             {
                 RunForcedTick(shardSystem, shard);
-                AssertEqual(shardDurations[frame], shard.InstructionTimer,
+                AssertEqual(shardDurations[frame], shard.InstructionTimer.RawValue,
                     $"glass shard program {programIndex} frame {frame} duration");
                 AssertEqual(unchecked((ushort)(program + (frame + 1) * 4)),
                     shard.InstructionPointer,
@@ -58,7 +58,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
             }
 
             RunForcedTick(shardSystem, shard);
-            AssertEqual(4, shard.InstructionTimer,
+            AssertEqual(4, shard.InstructionTimer.RawValue,
                 $"glass shard program {programIndex} loop restarts first duration");
             AssertEqual(unchecked((ushort)(program + 4)), shard.InstructionPointer,
                 $"glass shard program {programIndex} loops to its own first frame");
@@ -82,7 +82,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
         for (int frame = 0; frame < sparkleDurations.Length; frame++)
         {
             RunForcedTick(sparkleSystem, sparkle);
-            AssertEqual(sparkleDurations[frame], sparkle.InstructionTimer,
+            AssertEqual(sparkleDurations[frame], sparkle.InstructionTimer.RawValue,
                 $"Mother Brain glass sparkle frame {frame} duration");
             AssertEqual(unchecked((ushort)(
                     MotherBrainGlassInstructionProgramDefinitions.Sparkle + (frame + 1) * 4)),
@@ -144,7 +144,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
 
         void RunForcedTick(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
         }
     }

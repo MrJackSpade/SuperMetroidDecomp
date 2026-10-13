@@ -15,8 +15,8 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class IntroMotherBrainSpriteState
 {
     private ushort instructionPointer = IntroMotherBrainDefinitions.MotherBrain.InstructionList;
-    private ushort instructionTimer = 1;
-    private ushort hurtFlashTimer;
+    private NativeCountdown instructionTimer = NativeCountdown.Start(1);
+    private NativeCountdown hurtFlashTimer;
     private ushort explodingTimer;
     private bool pageTwoInstructionStarted;
     private bool crossfadingToPageTwo;
@@ -73,7 +73,7 @@ internal sealed class IntroMotherBrainSpriteState
         {
             // $B80F primes list $CB19. The generic handler below executes its two control
             // instructions during this same cinematic-object call.
-            instructionTimer = 1;
+            instructionTimer = NativeCountdown.Start(1);
             instructionPointer = CinematicCodePointers.Lists.IntroMotherBrainStartPage2;
             pageTwoInstructionStarted = true;
         }
@@ -85,18 +85,18 @@ internal sealed class IntroMotherBrainSpriteState
     public void ApplyHurtFlash(SnesCgram cgram, ReadOnlySpan<Bgr555> introPalette)
     {
         Ensure.NotNull(cgram);
-        if (hurtFlashTimer == 0)
+        if (hurtFlashTimer.IsZero)
             return;
 
-        bool normalPalette = (hurtFlashTimer & 1) != 0;
+        bool normalPalette = (hurtFlashTimer.RawValue & 1) != 0;
         new FrontendPalettes(cgram).WriteIntroMotherBrain(introPalette, flashWhite: !normalPalette);
-        hurtFlashTimer--;
+        hurtFlashTimer = hurtFlashTimer.Decrement().Remaining;
     }
 
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>
     public bool RegisterMissileHit()
     {
-        hurtFlashTimer = 8;
+        hurtFlashTimer = NativeCountdown.Start(8);
         HitCount++;
         if (HitCount != 4)
             return false;
@@ -112,7 +112,7 @@ internal sealed class IntroMotherBrainSpriteState
     public void Step(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        if (instructionTimer-- != 1)
+        if (!(instructionTimer = instructionTimer.Decrement().Remaining).IsZero)
             return;
 
         ushort pointer = instructionPointer;
@@ -121,7 +121,7 @@ internal sealed class IntroMotherBrainSpriteState
             ushort instructionOrDuration = IntroMotherBrainInstructionDefinitions.ReadWord(pointer);
             if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
             {
-                instructionTimer = instructionOrDuration;
+                instructionTimer = NativeCountdown.FromRaw(instructionOrDuration);
                 SpriteMapPointer = IntroMotherBrainInstructionDefinitions.ReadWord(Add(pointer, 2));
                 instructionPointer = Add(pointer, 4);
                 return;

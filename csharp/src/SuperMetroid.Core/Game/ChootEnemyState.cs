@@ -69,10 +69,10 @@ public sealed class ChootEnemyState
     }
 
     /// <summary>Signed-underflow loop counter initialized to parameter-one low minus one.</summary>
-    public ushort FallingPatternLoopCounter
+    public NativeCountdown FallingPatternLoopCounter
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => NativeCountdown.FromRaw(_slot.VariableD);
+        internal set => _slot.VariableD = value.RawValue;
     }
 
     /// <summary>Same-bank pointer to one of five ROM-authored X/Y offset streams.</summary>
@@ -121,9 +121,9 @@ public sealed class ChootEnemyState
     /// Parameter-two countdown. The jump begins only after decrementing through zero to
     /// <c>$FFFF</c>, so a population delay of zero launches on the first preparation frame.
     /// </summary>
-    public ushort JumpDelayTimer
+    public NativeCountdown JumpDelayTimer
     {
-        get => _jumpDelayTimers[_slot.SlotIndex];
-        internal set => _jumpDelayTimers[_slot.SlotIndex] = value;
+        get => NativeCountdown.FromRaw(_jumpDelayTimers[_slot.SlotIndex]);
+        internal set => _jumpDelayTimers[_slot.SlotIndex] = value.RawValue;
     }
 }

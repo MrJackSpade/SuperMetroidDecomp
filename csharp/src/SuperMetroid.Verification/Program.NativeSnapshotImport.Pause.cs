@@ -38,7 +38,7 @@ internal static class NativeSnapshotImportPauseVerification
         game.screenFade.Delay = W(PauseMemory.ScreenFadeDelay);
         game.screenFade.Counter = W(PauseMemory.ScreenFadeCounter);
 
-        runtime.System.TimedHeldInputTimer = W(PauseMemory.TimedHeldTimer);
+        runtime.System.TimedHeldInputTimer = NativeCountdown.FromRaw(W(PauseMemory.TimedHeldTimer));
         runtime.System.TimedHeldInputTimerReset = W(PauseMemory.TimedHeldReset);
         runtime.System.TimedHeldInput = W(PauseMemory.TimedHeldInput);
         runtime.System.NewlyTimedHeldInput = W(PauseMemory.TimedHeldNew);

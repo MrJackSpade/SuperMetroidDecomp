@@ -71,7 +71,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int call = 0; call < frameCount + 1; call++)
             {
-                slot.InstructionTimer = 1;
+                slot.InstructionTimer = NativeCountdown.Start(1);
                 EnemyInstructionRunner.Process(enemies, arguments);
             }
             AssertEqual(unchecked((ushort)(entry + 4)), slot.CurrentInstruction,
@@ -123,7 +123,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int call = 0; call < 10; call++)
             {
-                slot.InstructionTimer = 1;
+                slot.InstructionTimer = NativeCountdown.Start(1);
                 EnemyInstructionRunner.Process(enemies, arguments);
                 if (call == 0)
                     AssertEqual((ushort)8, state.RegenerationXOffset,
@@ -195,7 +195,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         slot.EnemyDefinitionPointer = definition;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.CurrentInstruction = entry;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
     private static int ProbeEvirInstructionMechanicsAllocation()

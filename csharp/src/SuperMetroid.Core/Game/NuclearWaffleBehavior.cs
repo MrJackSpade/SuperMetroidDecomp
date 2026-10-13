@@ -28,14 +28,14 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         _nuclearWaffleStates[slot.SlotIndex] = state;
 
         slot.CurrentInstruction = NuclearWaffleDefinitions.InitialInstructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
 
         state.AngularSpeedIndex = unchecked((byte)slot.Parameter1);
         state.OrbitRadius = SnesLittleEndian.HighByte(slot.Parameter1);
         state.Direction = unchecked((byte)slot.Parameter2);
         state.WaitingTimerReset = SnesLittleEndian.HighByte(slot.Parameter2);
-        state.WaitingTimer = state.WaitingTimerReset;
+        state.WaitingTimer = NativeCountdown.FromRaw(state.WaitingTimerReset);
         state.Function = NuclearWaffleEnemyFunction.Waiting;
 
         NuclearWaffleSweepDefinition sweep = NuclearWaffleDefinitions.Sweep(state.Direction);
@@ -89,11 +89,11 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state)
     {
-        state.WaitingTimer = unchecked((ushort)(state.WaitingTimer - 1));
-        if (!EnemyMath.IsNegative16(state.WaitingTimer))
+        state.WaitingTimer = state.WaitingTimer.Decrement().Remaining;
+        if (!EnemyMath.IsNegative16(state.WaitingTimer.RawValue))
             return;
 
-        state.WaitingTimer = state.WaitingTimerReset;
+        state.WaitingTimer = NativeCountdown.FromRaw(state.WaitingTimerReset);
         state.CurrentAngle = state.SweepStartAngle;
         state.AngleSubposition = 0;
         state.Function = NuclearWaffleEnemyFunction.Sweeping;

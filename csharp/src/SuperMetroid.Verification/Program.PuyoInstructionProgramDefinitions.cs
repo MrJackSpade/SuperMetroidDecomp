@@ -121,7 +121,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     {
         for (int call = 0; call < calls; call++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
     }

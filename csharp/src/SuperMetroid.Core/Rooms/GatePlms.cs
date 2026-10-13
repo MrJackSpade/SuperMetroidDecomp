@@ -172,7 +172,7 @@ internal sealed class GatePlms
             return;
 
         slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         slot.PreInstruction = (ushort)DownwardGatePreInstruction.Inert;
     }
 

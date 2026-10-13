@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 internal static class GoldenTorizoRoomSetupVerification
 {
@@ -45,7 +46,7 @@ internal static class GoldenTorizoRoomSetupVerification
                     GoldenTorizoLeftTurnInstructionProgramDefinitions.FacingScreenFrame,
                 "forced left-turn starts before the shared facing-screen frame");
             boss.CurrentInstruction = instruction;
-            boss.InstructionTimer = 1;
+            boss.InstructionTimer = NativeCountdown.Start(1);
         }
     }
 }

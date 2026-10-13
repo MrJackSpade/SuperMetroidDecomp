@@ -62,7 +62,7 @@ internal static class GunshipDustInstructionProgramDefinitionsVerification
             for (int frame = 0; frame < program.Durations.Length; frame++)
             {
                 RunForcedTick(enemies, dust);
-                AssertEqual(program.Durations[frame], dust.InstructionTimer,
+                AssertEqual(program.Durations[frame], dust.InstructionTimer.RawValue,
                     $"gunship dust program {programIndex} frame {frame} duration");
                 AssertEqual(
                     unchecked((ushort)(program.FirstFrame + (frame + 1) * 4)),
@@ -120,7 +120,7 @@ internal static class GunshipDustInstructionProgramDefinitionsVerification
             RoomEnemySystem enemies,
             RoomEnemyProjectileSlot projectile)
         {
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
         }
     }

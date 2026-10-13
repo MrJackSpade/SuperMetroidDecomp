@@ -56,10 +56,10 @@ public sealed class RinkaEnemyState
     }
 
     /// <summary>Wrapping 16-bit countdown used both before flight and before special respawn.</summary>
-    public ushort DelayTimer
+    public NativeCountdown DelayTimer
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => NativeCountdown.FromRaw(_slot.VariableF);
+        internal set => _slot.VariableF = value.RawValue;
     }
 }
 

@@ -410,7 +410,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
             {
                 state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(-4, 0));
                 state.Function = KiHunterEnemyFunction.NoOp;
-                state.WaitTimer = KiHunterGroundWaitFrames;
+                state.WaitTimer = NativeCountdown.Start(KiHunterGroundWaitFrames);
                 InstallKiHunterInstruction(
                     body,
                     state.Velocity.X.WholePixels < 0
@@ -439,8 +439,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         KiHunterEnemyState state,
         SamusState samus)
     {
-        state.WaitTimer = unchecked((ushort)(state.WaitTimer - 1));
-        if (state.WaitTimer != 0)
+        state.WaitTimer = state.WaitTimer.Decrement().Remaining;
+        if (!state.WaitTimer.IsZero)
             return;
 
         ushort distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(body.Position.X.Whole - samus.Position.X.Whole)));
@@ -683,7 +683,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         LastKiHunterSoundEffect = SoundEffectLibrary2Sounds.KiHunterAcidSpit.Value;
         _audio.QueueEnemySound(SoundEffectLibrary2Sounds.KiHunterAcidSpit, maximumQueued: 6);
         SpawnKiHunterAcidSpit(body, movingRight);
-        RequireKiHunterState(body).WaitTimer = KiHunterSpitWaitFrames;
+        RequireKiHunterState(body).WaitTimer = NativeCountdown.Start(KiHunterSpitWaitFrames);
     }
 
     private void SetKiHunterPairFacing(RoomEnemySlot body, bool movingRight)
@@ -780,8 +780,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies
     private static void InstallKiHunterInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     /// <summary>The <c>$0000:E000</c> 16.16 downward acceleration added to a falling or hopping body each frame.</summary>
@@ -963,7 +963,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
         {
             projectile.InstructionPointer = KiHunterAcidSpitInstructionProgramDefinitions.HitFloor;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             return;
         }
 

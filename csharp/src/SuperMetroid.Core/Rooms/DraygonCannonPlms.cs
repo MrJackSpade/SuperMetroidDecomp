@@ -81,7 +81,7 @@ internal sealed class DraygonCannonPlms
         slot.LoopTimer = 0;
         state.HasPendingHit = false;
         slot.InstructionPointer = slot.LinkInstruction;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
     internal bool TryExecuteDraygonCannonInstruction(

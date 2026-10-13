@@ -42,12 +42,12 @@ internal static class MotherBrainHeadHitboxVerification
         state.Form = 2;
         head.Health = 18000;
         head.Position = head.Position.WithWhole(new(0x007c, 0x0058));
-        head.InvincibilityTimer = 0;
+        head.InvincibilityTimer = NativeCountdown.Start(0);
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(0x0000, 0x0000));
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x901b; shot.Damage = 900; shot.Direction = 8;
         shot.Position = shot.Position.WithWhole(new(0x009e, 0x0081)); shot.Radius = new(24, 24);
-        shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
+        shot.InstructionPointer = 0x9000; shot.InstructionTimer = NativeCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus!);
         AssertEqual((ushort)17100, head.Health, "the charged beam lands on the head's native hitbox");
         Console.WriteLine("Mother Brain head hitbox: the head enemy keeps $A320; the brain list runs separately.");

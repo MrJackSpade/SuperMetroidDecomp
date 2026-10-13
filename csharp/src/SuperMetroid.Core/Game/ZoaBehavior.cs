@@ -162,8 +162,8 @@ internal sealed class ZoaBehavior : IEnemySpecies
         state.PreviousInstructionListTableIndex = state.InstructionListTableIndex;
         slot.CurrentInstruction = ZoaAnimationDefinitions.InstructionList(
             state.InstructionListTableIndex);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private ZoaEnemyState RequireZoaState(RoomEnemySlot slot) =>

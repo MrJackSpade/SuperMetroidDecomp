@@ -37,8 +37,8 @@ internal sealed class KzanBehavior : IEnemySpecies
         _kzanStates[slot.SlotIndex] = state;
 
         slot.CurrentInstruction = KzanInstructionProgramDefinitions.Idle;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         state.Function = KzanEnemyFunction.WaitingToFall;
 
         // init0's low byte is a logical speed-table index. The 65C816 multiplies it by
@@ -57,7 +57,7 @@ internal sealed class KzanBehavior : IEnemySpecies
             slot.Position.Y.Whole + (SnesLittleEndian.HighByte(slot.Parameter2))));
         state.RisingTargetYPosition = slot.Position.Y.Whole;
         state.FallWaitTimerResetValue = unchecked((byte)slot.Parameter2);
-        state.FallWaitTimer = state.FallWaitTimerResetValue;
+        state.FallWaitTimer = NativeCountdown.FromRaw(state.FallWaitTimerResetValue);
     }
 
     /// <summary>Ports <c>InitAI_KzanBottom</c> at <c>$A6:8B85</c>.</summary>
@@ -113,11 +113,11 @@ internal sealed class KzanBehavior : IEnemySpecies
     /// <summary>Ports <c>Function_Kzan_WaitingToFall</c> at <c>$A6:8BB4</c>.</summary>
     private static void RunKzanWaitingToFall(RoomEnemySlot slot, KzanEnemyState state)
     {
-        state.FallWaitTimer = unchecked((ushort)(state.FallWaitTimer - 1));
-        if (state.FallWaitTimer != 0)
+        state.FallWaitTimer = state.FallWaitTimer.Decrement().Remaining;
+        if (!state.FallWaitTimer.IsZero)
             return;
 
-        state.FallWaitTimer = state.FallWaitTimerResetValue;
+        state.FallWaitTimer = NativeCountdown.FromRaw(state.FallWaitTimerResetValue);
         state.FallingYSpeedTableIndex = unchecked((ushort)(
             (SnesLittleEndian.LowByte(slot.Parameter1)) << 3));
         state.Function = KzanEnemyFunction.Falling;
@@ -139,7 +139,7 @@ internal sealed class KzanBehavior : IEnemySpecies
         // same cartridge behavior.
         if (!EnemyMath.IsNegative16(slot.Position.Y.Whole - state.FallingTargetYPosition))
         {
-            state.RiseWaitTimer = KzanNtscRiseWaitFrames;
+            state.RiseWaitTimer = NativeCountdown.Start(KzanNtscRiseWaitFrames);
             state.Function = KzanEnemyFunction.WaitingToRise;
             slot.Position = slot.Position.WithWholeY(state.FallingTargetYPosition);
             LastKzanSoundEffect = KzanLandingSoundEffect;
@@ -159,8 +159,8 @@ internal sealed class KzanBehavior : IEnemySpecies
     /// <summary>Ports <c>Function_Kzan_WaitingToRise</c> at <c>$A6:8C4A</c>.</summary>
     private static void RunKzanWaitingToRise(KzanEnemyState state)
     {
-        state.RiseWaitTimer = unchecked((ushort)(state.RiseWaitTimer - 1));
-        if (state.RiseWaitTimer == 0)
+        state.RiseWaitTimer = state.RiseWaitTimer.Decrement().Remaining;
+        if (state.RiseWaitTimer.IsZero)
             state.Function = KzanEnemyFunction.Rising;
     }
 

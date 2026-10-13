@@ -137,16 +137,16 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public MotherBrainNeckMovement UpperNeckMovementIndex { get; internal set; }
 
     /// <summary>Native body function timer at enemy word <c>$0FB0</c>.</summary>
-    public ushort FunctionTimer { get; internal set; }
+    public NativeCountdown FunctionTimer { get; internal set; }
 
     /// <summary>Rainbow-beam angular width, initialized and floored at <c>$0200</c>.</summary>
     public ushort AngularWidth { get; internal set; }
 
     /// <summary>Native signed SFX queue countdown. Six produces seven queue attempts.</summary>
-    public ushort SoundQueueCount { get; internal set; }
+    public NativeCountdown SoundQueueCount { get; internal set; }
 
     /// <summary>Rainbow-beam explosion timer at Mother Brain body extra word <c>$0FA8</c>.</summary>
-    public ushort ExplosionTimer { get; private set; }
+    public NativeCountdown ExplosionTimer { get; private set; }
 
     /// <summary>Monotonic explosion index; only its low three bits select an offset pair.</summary>
     public ushort ExplosionIndex { get; private set; }
@@ -174,7 +174,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public ushort UpperNeckAngle { get; internal set; } = 0x2000;
 
     /// <summary>Main brain-shake timer seeded to fifty by <c>$A9:BE96</c> when clear.</summary>
-    public ushort BrainMainShakeTimer { get; internal set; }
+    public NativeCountdown BrainMainShakeTimer { get; internal set; }
 
     /// <summary>Current zero-based painful-walk stage at WRAM <c>$7E:802A</c>.</summary>
     public ushort PainfulWalkingStage { get; internal set; }
@@ -183,7 +183,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public ushort PainfulWalkingAnimationDelay { get; internal set; }
 
     /// <summary>Pause timer used after each completed forward/backward body list.</summary>
-    public ushort PainfulWalkingFunctionTimer { get; private set; }
+    public NativeCountdown PainfulWalkingFunctionTimer { get; private set; }
 
     /// <summary>True while the nested painful-walk function is on its forward half.</summary>
     public bool PainfulWalkingForward { get; internal set; }
@@ -287,7 +287,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         MotherBrainPhase3NeckPhase.Inactive;
 
     /// <summary>Signed-underflow timer shared by the two phase-three recoil functions.</summary>
-    public ushort Phase3NeckFunctionTimer { get; private set; }
+    public NativeCountdown Phase3NeckFunctionTimer { get; private set; }
 
     /// <summary>
     /// Native attack-disable word at <c>$7E:803E</c>. Hyper Beam recoil sets one and the
@@ -319,7 +319,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Native word <c>$0FF0</c>: the explosion interval timer of <c>$A9:B03E</c> and
     /// <c>$A9:B346</c>, aliased with the body sub-function pointer.
     /// </summary>
-    public ushort DeathExplosionIntervalTimer { get; internal set; }
+    public NativeCountdown DeathExplosionIntervalTimer { get; internal set; }
 
     /// <summary>
     /// Native word <c>$0FF2</c>, one word under three names: the ascent dust's body
@@ -327,14 +327,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// four-record escape-door dust index (<c>$A9:B355</c>). Each effect inherits the value
     /// the previous one left unless native code explicitly clears it.
     /// </summary>
-    public ushort DeathAndEscapeExplosionIndex { get; internal set; }
+    public NativeCountdown DeathAndEscapeExplosionIndex { get; internal set; }
 
     /// <summary>
     /// Inherits word <c>$0FF2</c> from the room's encounter state when the live sequence
     /// attaches; the fake-death ascent dust last wrote it.
     /// </summary>
     internal void InheritDeathAndEscapeExplosionIndex(ushort bodySubFunctionTimer) =>
-        DeathAndEscapeExplosionIndex = bodySubFunctionTimer;
+        DeathAndEscapeExplosionIndex = NativeCountdown.FromRaw(bodySubFunctionTimer);
 
     /// <summary>Palette selector forced to `$0E00` when the dying brain effects shut down.</summary>
     public ushort BrainPaletteIndex { get; internal set; }
@@ -436,8 +436,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         SetHeadInstructionList(HeadFiringRainbowInstructionList);
         AngularWidth = 0x0200;
         ExplosionIndex = 0;
-        ExplosionTimer = 0;
-        SoundQueueCount = 6;
+        ExplosionTimer = NativeCountdown.Start(0);
+        SoundQueueCount = NativeCountdown.Start(6);
         RainbowBeamSoundPlaying = false;
         HdmaActive = true;
         EarthquakeType = 0;
@@ -530,7 +530,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             // The neck function itself runs on Mother Brain's next ordinary phase-three
             // main call.
             Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
-            FunctionTimer = 0;
+            FunctionTimer = NativeCountdown.Start(0);
         }
     }
 
@@ -554,7 +554,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
         UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
         Phase = MotherBrainRainbowBeamAttackPhase.StartCharging;
-        FunctionTimer = 0x0100;
+        FunctionTimer = NativeCountdown.Start(0x0100);
     }
 
     private void SetHeadInstructionList(ushort pointer)
@@ -581,10 +581,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // The native stores four separate function pointers (request forward, wait forward,
         // request backward, wait backward). Two booleans express the same state without
         // hiding when a body instruction list is actually installed.
-        if (PainfulWalkingFunctionTimer != 0)
+        if (!PainfulWalkingFunctionTimer.IsZero)
         {
-            PainfulWalkingFunctionTimer = unchecked((ushort)(PainfulWalkingFunctionTimer - 1));
-            if (PainfulWalkingFunctionTimer == 0)
+            PainfulWalkingFunctionTimer = PainfulWalkingFunctionTimer.Decrement().Remaining;
+            if (PainfulWalkingFunctionTimer.IsZero)
             {
                 PainfulWalkingStage++;
                 PainfulWalkingForward = !PainfulWalkingForward;
@@ -598,7 +598,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         if (walk.ReachedTarget)
         {
             int timerIndex = Math.Min(PainfulWalkingStage, (ushort)7);
-            PainfulWalkingFunctionTimer = MotherBrainPainfulWalkingDefinitions.FunctionTimer(timerIndex);
+            PainfulWalkingFunctionTimer = NativeCountdown.Start(MotherBrainPainfulWalkingDefinitions.FunctionTimer(timerIndex));
         }
         return walk.Requested;
     }
@@ -708,17 +708,16 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
                 UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.RecoilRecovery;
-                Phase3NeckFunctionTimer = 0x0010;
+                Phase3NeckFunctionTimer = NativeCountdown.Start(0x0010);
 
                 // `$C354` falls directly into `$C37B`; the newly loaded sixteen is already
                 // fifteen when this single handler call returns.
                 goto case MotherBrainPhase3NeckPhase.RecoilRecovery;
 
             case MotherBrainPhase3NeckPhase.RecoilRecovery:
-                if (Phase3NeckFunctionTimer != 0)
+                if (!Phase3NeckFunctionTimer.IsZero)
                 {
-                    Phase3NeckFunctionTimer =
-                        unchecked((ushort)(Phase3NeckFunctionTimer - 1));
+                    Phase3NeckFunctionTimer = Phase3NeckFunctionTimer.Decrement().Remaining;
                     return;
                 }
 
@@ -732,21 +731,20 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 NeckMovementEnabled = 1;
                 Phase3DisableAttacks = 1;
                 SetHeadInstructionList(HeadHyperBeamRecoilInstructionList);
-                BrainMainShakeTimer = 0x0032;
+                BrainMainShakeTimer = NativeCountdown.Start(0x0032);
                 NeckAngleDelta = 0x0900;
                 LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
                 UpperNeckMovementIndex = MotherBrainNeckMovement.Raise;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
-                Phase3NeckFunctionTimer = 0x000b;
+                Phase3NeckFunctionTimer = NativeCountdown.Start(0x000b);
 
                 // Setup also falls through, making the externally visible first timer `$0A`.
                 goto case MotherBrainPhase3NeckPhase.HyperBeamRecoil;
 
             case MotherBrainPhase3NeckPhase.HyperBeamRecoil:
-                if (Phase3NeckFunctionTimer != 0)
+                if (!Phase3NeckFunctionTimer.IsZero)
                 {
-                    Phase3NeckFunctionTimer =
-                        unchecked((ushort)(Phase3NeckFunctionTimer - 1));
+                    Phase3NeckFunctionTimer = Phase3NeckFunctionTimer.Decrement().Remaining;
                     return;
                 }
 
@@ -953,17 +951,17 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // `$B03E` decrements before testing BPL. A cleared timer therefore wraps and emits
         // immediately. Crucially, the interval literal remains in A across the memory DEC,
         // so the smoky/mixed caller writes exactly `$10`/`$08` after an expiry.
-        DeathExplosionIntervalTimer = unchecked((ushort)(DeathExplosionIntervalTimer - 1));
-        if ((DeathExplosionIntervalTimer & 0x8000) == 0)
+        DeathExplosionIntervalTimer = DeathExplosionIntervalTimer.Decrement().Remaining;
+        if (!DeathExplosionIntervalTimer.IsNegative)
             return;
 
-        DeathExplosionIntervalTimer = mixed ? (ushort)0x0008 : (ushort)0x0010;
-        DeathAndEscapeExplosionIndex = unchecked((ushort)(DeathAndEscapeExplosionIndex - 1));
-        if ((DeathAndEscapeExplosionIndex & 0x8000) != 0)
-            DeathAndEscapeExplosionIndex = MotherBrainDeathExplosionDefinitions.GroupCount - 1;
+        DeathExplosionIntervalTimer = NativeCountdown.Start(mixed ? 0x0008 : 0x0010);
+        DeathAndEscapeExplosionIndex = DeathAndEscapeExplosionIndex.Decrement().Remaining;
+        if (DeathAndEscapeExplosionIndex.IsNegative)
+            DeathAndEscapeExplosionIndex = NativeCountdown.Start(MotherBrainDeathExplosionDefinitions.GroupCount - 1);
 
         int simultaneousCount = mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : 2;
-        int pairIndex = DeathAndEscapeExplosionIndex * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
+        int pairIndex = DeathAndEscapeExplosionIndex.RawValue * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
         for (int explosionIndex = 0; explosionIndex < simultaneousCount; explosionIndex++)
         {
             // The global RNG is called once per projectile, not once per visual batch. A
@@ -992,26 +990,26 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     {
         // `$B346` shares the old death-explosion interval word but replaces its cadence with
         // four. A cleared word underflows on the first call, so a new explosion is immediate.
-        DeathExplosionIntervalTimer = unchecked((ushort)(DeathExplosionIntervalTimer - 1));
-        if ((DeathExplosionIntervalTimer & 0x8000) == 0)
+        DeathExplosionIntervalTimer = DeathExplosionIntervalTimer.Decrement().Remaining;
+        if (!DeathExplosionIntervalTimer.IsNegative)
             return null;
 
-        DeathExplosionIntervalTimer = 0x0004;
-        DeathAndEscapeExplosionIndex = unchecked((ushort)(DeathAndEscapeExplosionIndex - 1));
-        if ((DeathAndEscapeExplosionIndex & 0x8000) != 0)
-            DeathAndEscapeExplosionIndex = 3;
+        DeathExplosionIntervalTimer = NativeCountdown.Start(0x0004);
+        DeathAndEscapeExplosionIndex = DeathAndEscapeExplosionIndex.Decrement().Remaining;
+        if (DeathAndEscapeExplosionIndex.IsNegative)
+            DeathAndEscapeExplosionIndex = NativeCountdown.Start(3);
 
         // The table is stored as interleaved X/Y words and indexed by `index * 4` bytes.
         // Spell out the semantic pairs so neither host endianness nor array stride can alter
         // the native 3,2,1,0 repeating order.
-        Position16<RoomPixels> position = DeathAndEscapeExplosionIndex switch
+        Position16<RoomPixels> position = DeathAndEscapeExplosionIndex.RawValue switch
         {
             0 => new(0x0008, 0x006c),
             1 => new(0x0018, 0x0080),
             2 => new(0x0009, 0x0090),
             3 => new(0x0018, 0x0074),
             _ => throw new InvalidOperationException(
-                $"Escape-door explosion index ${DeathAndEscapeExplosionIndex:X4} escaped its native 0..3 range."),
+                $"Escape-door explosion index ${DeathAndEscapeExplosionIndex.RawValue:X4} escaped its native 0..3 range."),
         };
 
         if (nextRandomNumber is null)
@@ -1048,9 +1046,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     {
         // `$A9:BB2E` checks the signed counter before DEC. Starting at six therefore queues
         // on values 6,5,4,3,2,1,0 and leaves `$FFFF` to suppress all later calls.
-        if ((SoundQueueCount & 0x8000) == 0)
+        if (!SoundQueueCount.IsNegative)
         {
-            SoundQueueCount = unchecked((ushort)(SoundQueueCount - 1));
+            SoundQueueCount = SoundQueueCount.Decrement().Remaining;
             RainbowBeamSoundPlaying = true;
             soundQueued = true;
         }
@@ -1079,11 +1077,11 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     private MotherBrainRainbowExplosionRequest? StepExplosionTimer()
     {
-        ExplosionTimer = unchecked((ushort)(ExplosionTimer - 1));
-        if ((ExplosionTimer & 0x8000) == 0)
+        ExplosionTimer = ExplosionTimer.Decrement().Remaining;
+        if (!ExplosionTimer.IsNegative)
             return null;
 
-        ExplosionTimer = 8;
+        ExplosionTimer = NativeCountdown.Start(8);
         ExplosionIndex++;
         int offsetIndex = ExplosionIndex & 7;
         return new MotherBrainRainbowExplosionRequest(
@@ -1198,8 +1196,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.StartCharging:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     SetHeadInstructionList(HeadChargingRainbowInstructionList);
                     Phase = MotherBrainRainbowBeamAttackPhase.RetractNeck;
@@ -1214,14 +1212,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 {
                     RetractHead();
                     Phase = MotherBrainRainbowBeamAttackPhase.WaitForCharge;
-                    FunctionTimer = 0x0100;
+                    FunctionTimer = NativeCountdown.Start(0x0100);
                     goto case MotherBrainRainbowBeamAttackPhase.WaitForCharge;
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.WaitForCharge:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     chargeSoundQueued = true; // Sound library two, effect `$71`.
                     Phase = MotherBrainRainbowBeamAttackPhase.ExtendNeckDown;
@@ -1235,7 +1233,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
                 NeckAngleDelta = 0x0500; // NTSC value of regional `$0500/$0700`.
                 Phase = MotherBrainRainbowBeamAttackPhase.StartFiring;
-                FunctionTimer = 0x0010; // NTSC value of regional `$0010/$000C`.
+                FunctionTimer = NativeCountdown.Start(0x0010); // NTSC value of regional `$0010/$000C`.
                 goto case MotherBrainRainbowBeamAttackPhase.StartFiring;
 
             case MotherBrainRainbowBeamAttackPhase.StartFiring:
@@ -1243,8 +1241,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 IncreaseWidthAndAim(samus);
                 if (!frame.PowerBombActive)
                 {
-                    FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                    if ((FunctionTimer & 0x8000) != 0)
+                    FunctionTimer = FunctionTimer.Decrement().Remaining;
+                    if (FunctionTimer.IsNegative)
                     {
                         // The cartridge redundantly rereads the power-bomb flag here. The
                         // parameter is one stable WRAM sample for this translated AI call.
@@ -1266,7 +1264,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 if (movement.Value.NativeCarry)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.OneFrameDelay;
-                    FunctionTimer = 0;
+                    FunctionTimer = NativeCountdown.Start(0);
                 }
                 break;
 
@@ -1281,8 +1279,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 movement = _movement.MoveTowardWall(bus, samus);
 
                 // `$A9:BA0F` decrements zero to `$FFFF`; BPL fails on this very call.
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     EarthquakeType = 8;
                     EarthquakeTimer = 8;
@@ -1294,7 +1292,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // `$A9:BA27` installs draining, seeds both timers with `$012B`, and falls
                 // through into the draining function in the same enemy-processing call.
                 Phase = MotherBrainRainbowBeamAttackPhase.DrainingSamus;
-                FunctionTimer = 0x012b;
+                FunctionTimer = NativeCountdown.Start(0x012b);
                 EarthquakeTimer = 0x012b;
                 EarthquakeType = 8;
                 goto case MotherBrainRainbowBeamAttackPhase.DrainingSamus;
@@ -1311,8 +1309,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 DecrementAmmoDueToRainbowBeam(samus, frame.MainEnemyExecutionCounter);
                 movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
 
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                     Phase = MotherBrainRainbowBeamAttackPhase.FinishFiring;
                 break;
 
@@ -1358,12 +1356,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // Neck words are presentation/actor-animation state. This phase's movement-
                 // relevant effect is the exact function/timer handoff to `$A9:BB06`.
                 Phase = MotherBrainRainbowBeamAttackPhase.DecideNextAction;
-                FunctionTimer = 0x0080;
+                FunctionTimer = NativeCountdown.Start(0x0080);
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.DecideNextAction:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     if (NativeAtLeast(samus.Health, 0x0190))
                     {
@@ -1427,7 +1425,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 if (MakeBodyStandUp(out bodyPostureRequested))
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.AdmireJobWellDone;
-                    FunctionTimer = 0x0010;
+                    FunctionTimer = NativeCountdown.Start(0x0010);
                     goto case MotherBrainRainbowBeamAttackPhase.AdmireJobWellDone;
                 }
                 break;
@@ -1435,18 +1433,18 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.AdmireJobWellDone:
                 // Stand-up falls through here, so the freshly written `$10` becomes `$0F`
                 // on the same AI call. BPL accepts zero and expires only after underflow.
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     SetHeadInstructionList(HeadStretchingPhase2InstructionList);
                     Phase = MotherBrainRainbowBeamAttackPhase.ChargeFinalRainbowBeam;
-                    FunctionTimer = 0x0100;
+                    FunctionTimer = NativeCountdown.Start(0x0100);
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.ChargeFinalRainbowBeam:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     SetHeadInstructionList(HeadChargingRainbowInstructionList);
                     Phase = MotherBrainRainbowBeamAttackPhase.LoadBabyMetroidTiles;
@@ -1465,13 +1463,13 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     BabyMetroidSpawned = true;
                     babySpawnRequested = true;
                     Phase = MotherBrainRainbowBeamAttackPhase.FireFinalRainbowBeam;
-                    FunctionTimer = 0x0100;
+                    FunctionTimer = NativeCountdown.Start(0x0100);
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.FireFinalRainbowBeam:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     RainbowBeamPaletteAnimationIndex = 0;
                     SetHeadInstructionList(HeadFiringRainbowInstructionList);
@@ -1498,13 +1496,13 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 UpperNeckMovementIndex = MotherBrainNeckMovement.Raise;
                 NeckAngleDelta = 0x0700;
                 Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance;
-                FunctionTimer = 0x0030;
+                FunctionTimer = NativeCountdown.Start(0x0030);
                 goto case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance;
 
             case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance:
                 paletteRequested = true;
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     // `$BE80-$BE83` contains an apparent missing STA: it loads one and then
                     // immediately reloads the neck-enable flag. Preserve that no-op rather
@@ -1512,7 +1510,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     PainfulWalkingForward = true;
                     PainfulWalkingStage = 0;
                     PainfulWalkingAnimationDelay = 2;
-                    PainfulWalkingFunctionTimer = 0;
+                    PainfulWalkingFunctionTimer = NativeCountdown.Start(0);
                     LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
                     UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
                     Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam;
@@ -1523,8 +1521,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // `$BE96` refreshes the shake timer only if another subsystem has cleared it.
                 // The head animation owns any decrement; retaining the write gate avoids
                 // fabricating a body-side countdown that does not exist in this routine.
-                if (BrainMainShakeTimer == 0)
-                    BrainMainShakeTimer = 0x0032;
+                if (BrainMainShakeTimer.IsZero)
+                    BrainMainShakeTimer = NativeCountdown.Start(0x0032);
                 paletteRequested = true;
                 bodyWalkRequested = StepPainfulWalking();
 
@@ -1585,26 +1583,26 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     Body.SetInstructionList(BodyCrouchingFastInstructionList);
                     bodyPostureRequested = true;
                     Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidPrepareTransitionToGrey;
-                    FunctionTimer = 0x0040;
+                    FunctionTimer = NativeCountdown.Start(0x0040);
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidPrepareTransitionToGrey:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     GreyTransitionCounter = 0;
                     Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey;
-                    FunctionTimer = 0x0010;
+                    FunctionTimer = NativeCountdown.Start(0x0010);
                     goto case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey;
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
-                    FunctionTimer = 0x0010;
+                    FunctionTimer = NativeCountdown.Start(0x0010);
 
                     // Bank `$AD:EF4A` has eight nonzero palette pointers followed by zero.
                     // The caller increments its counter, passes the old index, and treats
@@ -1627,30 +1625,30 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // `$C059` only installs the next function and its `$0300` timer. It does not
                 // fall through, so the first pre-decrement belongs to the following call.
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfShowSignsOfLife;
-                FunctionTimer = 0x0300;
+                FunctionTimer = NativeCountdown.Start(0x0300);
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfShowSignsOfLife:
                 // BPL accepts zero: 768 reaches zero without advancing and only the 769th
                 // call underflows to `$FFFF`. Revival then re-enables both breath producers,
                 // seeds `$E0`, and falls through two function installations to `$C08F`.
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     WriteSmallPurpleBreathGeneration(true);
                     DroolGenerationEnabled = true;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey;
-                    FunctionTimer = 0x00e0;
+                    FunctionTimer = NativeCountdown.Start(0x00e0);
                     GreyTransitionCounter = 0;
                     goto case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey;
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
-                    FunctionTimer = 0x0010;
+                    FunctionTimer = NativeCountdown.Start(0x0010);
 
                     // `$AD:ED9C` reverses the same eight grey palettes used by the corpse
                     // transition and follows them with zero. The body counter is incremented
@@ -1679,18 +1677,18 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     NeckAngleDelta = 0x0500;
                     NeckMovementEnabled = 1;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUpStretch;
-                    FunctionTimer = 0x0010;
+                    FunctionTimer = NativeCountdown.Start(0x0010);
                     goto case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUpStretch;
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUpStretch:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     SetHeadInstructionList(HeadStretchingPhase3InstructionList);
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWalkUpToBabyMetroid;
-                    FunctionTimer = 0x0080;
+                    FunctionTimer = NativeCountdown.Start(0x0080);
                     goto case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWalkUpToBabyMetroid;
                 }
                 break;
@@ -1698,8 +1696,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWalkUpToBabyMetroid:
                 // Once `$80` underflows, the timer deliberately remains negative and the
                 // helper is retried after every body-program call until X has overshot `$50`.
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     bodyWalkRequested = RequestWalkForward(0x0050, 0x0004).Requested;
                     bool reachedWalkTarget = unchecked((short)(0x0050 - Body.Position.X)) < 0 ||
@@ -1744,13 +1742,13 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                         ? HeadAttackingBabyMetroidInstructionList
                         : (ushort)0x9dbb);
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttackCooldown;
-                    FunctionTimer = 0x0040;
+                    FunctionTimer = NativeCountdown.Start(0x0040);
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttackCooldown:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttack;
                 break;
 
@@ -1777,7 +1775,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // legitimately reject it at the arena's hard left limit.
                 Body.Form = 4;
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneSetupForFighting;
-                FunctionTimer = 0x0020;
+                FunctionTimer = NativeCountdown.Start(0x0020);
                 bodyWalkRequested = RequestWalkBackward(
                     unchecked((ushort)(Body.Position.X - 0x000e)),
                     animationDelay: 0x0002).Requested;
@@ -1786,8 +1784,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneSetupForFighting:
                 // `$20` remains valid through zero and expires only when DEC wraps negative,
                 // yielding 33 setup calls after the one-frame `$C1CF` producer above.
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3FightingMain;
                     Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
@@ -1829,14 +1827,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 }
 
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown;
-                FunctionTimer = 0x0040;
+                FunctionTimer = NativeCountdown.Start(0x0040);
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown:
                 // `$C24E` accepts timer zero and returns to main only after underflow. It
                 // does not fall through, so neck and walking handlers pause for all 65 calls.
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3FightingMain;
                 break;
 
@@ -1853,7 +1851,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 if (dyingRetreat.ReachedTarget)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding;
-                    FunctionTimer = 0x0080;
+                    FunctionTimer = NativeCountdown.Start(0x0080);
                     goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding;
                 }
                 break;
@@ -1861,8 +1859,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding:
                 GenerateDeathExplosions(
                     mixed: false, frame.NextRandomNumber, deathExplosions);
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStumbleToMiddleOfRoom;
                 break;
 
@@ -1881,15 +1879,15 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
                     NeckAngleDelta = 0x0500;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects;
-                    FunctionTimer = 0x0020;
+                    FunctionTimer = NativeCountdown.Start(0x0020);
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects:
                 GenerateDeathExplosions(
                     mixed: false, frame.NextRandomNumber, deathExplosions);
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     // `$AF5C-$AF94` removes the neck/breath/palette producers, copies sprite
                     // palette 1 into palette 7, performs one health-palette refresh, and then
@@ -1903,8 +1901,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     BrainPaletteIndex = EnemyPaletteBits.Palette7;
                     paletteRequested = true;
                     // `$AF91/$AF94` clear words $0FF0 and $0FF2 before the fade-out explosions.
-                    DeathExplosionIntervalTimer = 0;
-                    DeathAndEscapeExplosionIndex = 0;
+                    DeathExplosionIntervalTimer = NativeCountdown.Start(0);
+                    DeathAndEscapeExplosionIndex = NativeCountdown.Start(0);
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut;
                     goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut;
                 }
@@ -1913,12 +1911,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut:
                 GenerateDeathExplosions(
                     mixed: true, frame.NextRandomNumber, deathExplosions);
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     GreyTransitionCounter = 0;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody;
-                    FunctionTimer = 0;
+                    FunctionTimer = NativeCountdown.Start(0);
                     goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody;
                 }
                 break;
@@ -1930,10 +1928,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 BodyFlickerCallCount++;
                 GenerateDeathExplosions(
                     mixed: true, frame.NextRandomNumber, deathExplosions);
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
-                    FunctionTimer = 0x0010;
+                    FunctionTimer = NativeCountdown.Start(0x0010);
                     ushort paletteIndex = GreyTransitionCounter;
                     GreyTransitionCounter++;
                     paletteRequested |= paletteIndex < 16;
@@ -1945,7 +1943,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                             .Without(EnemyProperties.ProcessInstructions);
                         BodyProperties2 = 0;
                         Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFinalFewExplosions;
-                        FunctionTimer = 0x0010;
+                        FunctionTimer = NativeCountdown.Start(0x0010);
                     }
                 }
                 break;
@@ -1953,8 +1951,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFinalFewExplosions:
                 GenerateDeathExplosions(
                     mixed: true, frame.NextRandomNumber, deathExplosions);
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceRealizeDecapitation;
                 break;
 
@@ -1963,7 +1961,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // setup, clears its 8.8 falling velocity, then falls through immediately.
                 SetHeadInstructionList(HeadDecapitatedInstructionList);
                 BrainDrawSetupRequested = true;
-                FunctionTimer = 0;
+                FunctionTimer = NativeCountdown.Start(0);
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBrainFallsToGround;
                 goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBrainFallsToGround;
 
@@ -1971,8 +1969,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // `$B12D` treats FunctionTimer as unsigned 8.8 velocity: add `$20`, use only
                 // its high byte as this frame's whole-pixel displacement, and accumulate Y.
                 // Crossing `$C4` clamps the head and publishes earthquake type two for 20.
-                FunctionTimer = unchecked((ushort)(FunctionTimer + 0x0020));
-                ushort fallingDisplacement = (ushort)(SnesLittleEndian.HighByte(FunctionTimer));
+                FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(FunctionTimer.RawValue + 0x0020)));
+                ushort fallingDisplacement = (ushort)(SnesLittleEndian.HighByte(FunctionTimer.RawValue));
                 ushort candidateBrainY = unchecked((ushort)(BrainPosition.Y + fallingDisplacement));
                 if (candidateBrainY >= 0x00c4)
                 {
@@ -1981,7 +1979,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     BrainPosition = BrainPosition.WithY(0x00c4);
                     CorpseTileTransferIndex = 0;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadCorpseTiles;
-                    FunctionTimer = 0x0100;
+                    FunctionTimer = NativeCountdown.Start(0x0100);
                 }
                 else
                 {
@@ -1996,43 +1994,43 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 if (CorpseTileTransferIndex == MotherBrainCorpseArtworkDefinitions.RowCount)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupFadeToGrey;
-                    FunctionTimer = 0x0020;
+                    FunctionTimer = NativeCountdown.Start(0x0020);
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupFadeToGrey:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     GreyTransitionCounter = 0;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeToGrey;
-                    FunctionTimer = 0;
+                    FunctionTimer = NativeCountdown.Start(0);
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeToGrey:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     ushort paletteIndex = GreyTransitionCounter;
                     GreyTransitionCounter++;
                     paletteRequested = paletteIndex < 8;
                     if (paletteIndex < 8)
                     {
-                        FunctionTimer = 0x0010;
+                        FunctionTimer = NativeCountdown.Start(0x0010);
                     }
                     else
                     {
                         SetHeadInstructionList(HeadCorpseInstructionList);
                         Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseTipsOver;
-                        FunctionTimer = 0x0100;
+                        FunctionTimer = NativeCountdown.Start(0x0100);
                     }
                 }
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseTipsOver:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseRotsAway;
                     BrainProperties = BrainProperties.With(EnemyProperties.IgnoreSamusCollision);
@@ -2070,12 +2068,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 musicStopQueued = true;   // Queue music value `$0000`.
                 escapeMusicQueued = true; // Queue music value `$FF24`.
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay;
-                FunctionTimer = 0x0014;
+                FunctionTimer = NativeCountdown.Start(0x0014);
                 goto case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     // The decapitated brain remains at the corpse coordinates for the full
                     // delay. `$B216/$B219` finally park it at (0,0) before escape-timer tile
@@ -2116,7 +2114,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 escapePaletteFxRequests.Add(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ArkanoidDefinitionPointer);
                 MotherBrainUnpauseHookEnabled = false;
                 escapeTypewriterSetupRequested = true;
-                FunctionTimer = 0x0020;
+                FunctionTimer = NativeCountdown.Start(0x0020);
                 Phase = frame.AlternateEscapeText
                     ? MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSpawnTimeBombSetSubtitle
                     : MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText;
@@ -2129,8 +2127,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // spawns the persistent Japanese subtitle projectile, and falls through to
                 // that same typewriter call. Keep the producer request separate because the
                 // bank-$86 allocator owns whether a physical slot is actually available.
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText;
                     timeBombSetSubtitleSpawnRequested = true;
@@ -2145,7 +2143,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 if (frame.TypewriterFinished)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer;
-                    FunctionTimer = 0x0020;
+                    FunctionTimer = NativeCountdown.Start(0x0020);
                 }
                 break;
 
@@ -2154,8 +2152,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // countdown. The freshly loaded `$20` therefore receives 33 calls (32..0,
                 // then `$FFFF`) and can emit dust even on the transition call.
                 escapeDoorExplosion = GenerateEscapeDoorExplosion(frame.NextRandomNumber);
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) == 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (!FunctionTimer.IsNegative)
                     break;
 
                 // Samus command `$0F`, TimerStatus `$0002`, boss bit `$02`, and event `$0E`
@@ -2166,8 +2164,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 motherBrainBossBitRequested = true;
                 zebesTimebombEventRequested = true;
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor;
-                DeathExplosionIntervalTimer = 0;
-                DeathAndEscapeExplosionIndex = 0;
+                DeathExplosionIntervalTimer = NativeCountdown.Start(0);
+                DeathAndEscapeExplosionIndex = NativeCountdown.Start(0);
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor:

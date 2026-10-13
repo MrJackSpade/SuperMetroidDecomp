@@ -53,10 +53,10 @@ public sealed class KzanEnemyState
     }
 
     /// <summary>Top-position wait in actor updates, backed by variable B at <c>$0FAA,x</c>; decremented with 16-bit wrapping, so an initial zero does not expire immediately.</summary>
-    public ushort FallWaitTimer
+    public NativeCountdown FallWaitTimer
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => NativeCountdown.FromRaw(_slot.VariableB);
+        internal set => _slot.VariableB = value.RawValue;
     }
 
     /// <summary>Original top-slot Y coordinate in whole room pixels, backed by variable C at <c>$0FAC,x</c>; upward motion clamps here before restarting the wait.</summary>
@@ -114,9 +114,9 @@ public sealed class KzanEnemyState
     }
 
     /// <summary>Post-landing wait in actor updates, backed by <c>$7E:7806,x</c>; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>
-    public ushort RiseWaitTimer
+    public NativeCountdown RiseWaitTimer
     {
-        get => _riseWaitTimers[_slot.SlotIndex];
-        internal set => _riseWaitTimers[_slot.SlotIndex] = value;
+        get => NativeCountdown.FromRaw(_riseWaitTimers[_slot.SlotIndex]);
+        internal set => _riseWaitTimers[_slot.SlotIndex] = value.RawValue;
     }
 }

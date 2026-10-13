@@ -86,14 +86,14 @@ public sealed class MamaTurtleEnemyState
     private SnesSignedSixteenSixteen _verticalVelocity;
 
     /// <summary>Wake counter at variable F; each Baby touch or shot decrements it.</summary>
-    public ushort AsleepFlag
+    public NativeCountdown AsleepFlag
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => NativeCountdown.FromRaw(_slot.VariableF);
+        internal set => _slot.VariableF = value.RawValue;
     }
 
     /// <summary>Gets the phase-specific countdown used by peak and transition states.</summary>
-    public ushort FunctionTimer { get; internal set; }
+    public NativeCountdown FunctionTimer { get; internal set; }
     /// <summary>Gets the fractional word of signed horizontal 16.16 acceleration.</summary>
     public ushort XSubAcceleration { get; internal set; }
     /// <summary>Gets the whole word of signed horizontal 16.16 acceleration.</summary>
@@ -159,7 +159,7 @@ public sealed class BabyTurtleEnemyState
     private short _verticalVelocity;
 
     /// <summary>Gets the phase-specific Baby Turtle countdown.</summary>
-    public ushort FunctionTimer { get; internal set; }
+    public NativeCountdown FunctionTimer { get; internal set; }
     /// <summary>Gets the reaction countdown used while the child is not carrying Samus.</summary>
-    public ushort NotCarryingSamusReactionTimer { get; internal set; }
+    public NativeCountdown NotCarryingSamusReactionTimer { get; internal set; }
 }

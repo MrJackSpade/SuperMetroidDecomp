@@ -267,12 +267,12 @@ internal sealed class IntroBabyDiscoveryState
                 return;
 
             case ConfusedBabyPreInstruction.Idling:
-                BabyIdleTimer = unchecked((ushort)(BabyIdleTimer - 1));
-                if (unchecked((short)BabyIdleTimer) <= 0)
+                BabyIdleTimer = BabyIdleTimer.Decrement().Remaining;
+                if (unchecked((short)BabyIdleTimer.RawValue) <= 0)
                 {
                     confusedBaby.PreInstructionPointerForDiscovery(
                         (ushort)ConfusedBabyPreInstruction.Dancing);
-                    BabyIdleTimer = 0;
+                    BabyIdleTimer = NativeCountdown.Start(0);
                     BabyVelocity = BabyVelocity.WithY(default);
                     confusedBaby.GeneralTimer = 0;
                 }
@@ -289,7 +289,7 @@ internal sealed class IntroBabyDiscoveryState
 
     private EightEightVector<ScreenPixels> BabyVelocity { get; set; }
 
-    private ushort BabyIdleTimer { get; set; }
+    private NativeCountdown BabyIdleTimer { get; set; }
 
     private void StepHatchedBaby()
     {
@@ -322,7 +322,7 @@ internal sealed class IntroBabyDiscoveryState
         // then holds for $80 frames before enabling the two-axis dance around Samus.
         if (unchecked((short)BabyVelocity.Y.RawValue) >= 0)
         {
-            BabyIdleTimer = 0x0080;
+            BabyIdleTimer = NativeCountdown.Start(0x0080);
             confusedBaby.PreInstructionPointerForDiscovery(
                 (ushort)ConfusedBabyPreInstruction.Idling);
         }

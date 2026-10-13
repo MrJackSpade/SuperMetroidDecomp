@@ -40,17 +40,17 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 RequestedInstructionListIndex = animationIndex,
                 InstalledInstructionListIndex = ushort.MaxValue,
             };
-            slot.InstructionTimer = 0x1234;
-            slot.Timer = 0x5678;
+            slot.InstructionTimer = NativeCountdown.Start(0x1234);
+            slot.Timer = NativeCountdown.Start(0x5678);
 
             MaridiaLargeSnailBehavior.InstallMaridiaLargeSnailInstructionList(slot, state);
             AssertEqual(animationIndex, state.InstalledInstructionListIndex,
                 $"production Maridia Large Snail installed selector {animationIndex}");
             AssertEqual(expected, slot.CurrentInstruction,
                 $"production Maridia Large Snail instruction {animationIndex}");
-            AssertEqual((ushort)1, slot.InstructionTimer,
+            AssertEqual((ushort)1, slot.InstructionTimer.RawValue,
                 $"production Maridia Large Snail instruction timer {animationIndex}");
-            AssertEqual((ushort)0, slot.Timer,
+            AssertEqual((ushort)0, slot.Timer.RawValue,
                 $"production Maridia Large Snail general timer {animationIndex}");
         }
 
@@ -186,7 +186,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             [snail, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int call = 0; call < callCount; call++)
         {
-            snail.InstructionTimer = 1;
+            snail.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
             VerifyExecutedEnemySelector(rom, snail, executedOperands);
         }

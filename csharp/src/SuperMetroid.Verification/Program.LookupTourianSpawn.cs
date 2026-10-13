@@ -34,7 +34,7 @@ internal static class LookupTourianSpawnVerification
             AssertEqual(expected[index], (ushort)definition.ObjectPointer, "Native spawn/handler order");
             AssertEqual(ReadVerificationWord(rom, 0x870000 | expected[index]),
                 tile.Pointer, "Original initial program");
-            AssertEqual((ushort)1, tile.Timer, "Spawned instruction timer");
+            AssertEqual((ushort)1, tile.Timer.RawValue, "Spawned instruction timer");
         }
     }
 }

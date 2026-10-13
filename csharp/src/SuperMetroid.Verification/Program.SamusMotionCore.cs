@@ -181,11 +181,11 @@ internal static void VerifySamusHorizontalSpeed()
     for (int tick = 0; tick < 2; tick++)
         dashAnimation.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = (ushort)SnesButton.B });
     AssertEqual(1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
-    AssertEqual(2, dashAnimation.AnimationFrameTimer, "Dash selects native frame-one delay");
+    AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash selects native frame-one delay");
     for (int tick = 0; tick < 18; tick++)
         dashAnimation.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = (ushort)SnesButton.B });
     AssertEqual(0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
-    AssertEqual(2, dashAnimation.AnimationFrameTimer, "Dash restart uses shared frame-zero delay");
+    AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash restart uses shared frame-zero delay");
 
     // Native stages zero through three last one command loop; stage four lasts two.
     // Their compiled cadence still publishes the native echo/contact-damage events.
@@ -197,7 +197,7 @@ internal static void VerifySamusHorizontalSpeed()
         speedBoosterEquipped: true);
     AssertTrue(booster.HasRunningMomentum, "Speed Booster establishes momentum");
     AssertEqual(1, booster.SpeedBoostCounter, "Speed Booster seeds native stage-zero countdown");
-    AssertEqual(1, booster.SpecialPaletteTimer, "Speed Booster seeds special-palette timer");
+    AssertEqual(1, booster.SpecialPaletteTimer.RawValue, "Speed Booster seeds special-palette timer");
 
     // Hexadecimal `.1000` is one sixteenth, so 112 movement calls reach 7.0000 exactly.
     for (int frame = 1; frame < 112; frame++)
@@ -271,7 +271,7 @@ internal static void VerifySamusHorizontalSpeed()
         "stage-four palette timer one copies immediately");
     AssertEqual(0x1234, boostCgram.Colors[192], "first Speed Booster palette comes from bank $9B");
     AssertEqual(2, booster.SpecialPaletteFrame, "Speed Booster palette advances to pointer offset two");
-    AssertEqual(4, booster.SpecialPaletteTimer, "Speed Booster palette reloads four-frame timer");
+    AssertEqual(4, booster.SpecialPaletteTimer.RawValue, "Speed Booster palette reloads four-frame timer");
     for (int paletteTick = 0; paletteTick < 3; paletteTick++)
     {
         AssertTrue(!booster.UpdateSpeedBoosterPalette(bus, boostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0x2000 }),
@@ -297,7 +297,7 @@ internal static void VerifySamusHorizontalSpeed()
         "submerged Varia Suit suppresses active Speed Booster palette copy");
     AssertEqual(0x7777, submergedBoostCgram.Colors[192],
         "submerged Speed Booster leaves live Samus palette untouched");
-    AssertEqual(0, submergedBoost.SpecialPaletteTimer,
+    AssertEqual(0, submergedBoost.SpecialPaletteTimer.RawValue,
         "submerged Speed Booster freezes common palette timer");
     AssertEqual(0, submergedBoost.SpecialPaletteFrame,
         "submerged Speed Booster freezes palette-list offset");

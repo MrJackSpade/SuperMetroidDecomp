@@ -80,10 +80,10 @@ public sealed class EtecoonEnemyState
     }
 
     /// <summary>Wrapped countdown in variable E.</summary>
-    public ushort FunctionTimer
+    public NativeCountdown FunctionTimer
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => NativeCountdown.FromRaw(_slot.VariableE);
+        internal set => _slot.VariableE = value.RawValue;
     }
 
     /// <summary>Bank-$A7 function address in variable F.</summary>

@@ -81,7 +81,7 @@ internal static class TorizoSonicBoomInstructionProgramDefinitionsVerification
             ushort movingProgram = facingRight
                 ? TorizoSonicBoomInstructionProgramDefinitions.MovingRight
                 : TorizoSonicBoomInstructionProgramDefinitions.MovingLeft;
-            AssertEqual((ushort)0x0050, boom.InstructionTimer,
+            AssertEqual((ushort)0x0050, boom.InstructionTimer.RawValue,
                 $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} reloads moving pose");
             AssertEqual(unchecked((ushort)(movingProgram + 4)), boom.InstructionPointer,
                 $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} moving loop cursor");
@@ -122,7 +122,7 @@ internal static class TorizoSonicBoomInstructionProgramDefinitionsVerification
         AssertEqual(TorizoSonicBoomInstructionProgramDefinitions.WallImpact,
             impact.InstructionPointer,
             "Torizo sonic boom wall collision selects compiled impact program");
-        AssertEqual((ushort)1, impact.InstructionTimer,
+        AssertEqual((ushort)1, impact.InstructionTimer.RawValue,
             "Torizo sonic boom wall collision arms impact immediately");
         AssertEqual((ushort)157, impact.Variable0,
             "Torizo sonic boom retains wall-aligned impact X center");

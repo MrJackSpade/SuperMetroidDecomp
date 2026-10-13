@@ -170,9 +170,9 @@ internal static void VerifySamusMorphBallMovement()
 
     // Changing to the moving record preserves the shared rolling frame/timer. Movement
     // type four uses native 0.C000 acceleration and remains floor-constrained.
-    ushort timerBeforeRoll = samus.AnimationFrameTimer;
+    ushort timerBeforeRoll = samus.AnimationFrameTimer.RawValue;
     samus.PoseTransitions.ApplyMorphBallPoseChange(bus, SamusPoseId.MorphBallMovingRightPose);
-    AssertEqual(timerBeforeRoll, samus.AnimationFrameTimer, "ball direction change preserves timer");
+    AssertEqual(timerBeforeRoll, samus.AnimationFrameTimer.RawValue, "ball direction change preserves timer");
     MorphBallMovementResult rolling = SamusMorphBallMovement.StepGrounded(
         bus, floor, samus, nmiFrameCounter: 0);
     AssertTrue(rolling.Vertical.Collided, "rolling ball retains floor contact");
@@ -549,12 +549,12 @@ internal static void VerifySamusMorphBallMovement()
     AssertTrue(!spring.PoseTransitions.ApplySpringBallLanding(bus, controllerInput: 0),
         "Spring Ball hard impact rebounds");
     AssertEqual(SamusBallBounceState.SpringBallFirstRebound, spring.MorphBallBounceState, "Spring Ball first bounce state");
-    var springLandingAnimation = (spring.AnimationFrame, spring.AnimationFrameTimer);
+    var springLandingAnimation = (spring.AnimationFrame, spring.AnimationFrameTimer.RawValue);
     AssertTrue(!spring.PoseTransitions.ApplySpringBallLanding(bus, (ushort)SnesButton.A),
         "held Jump immediately relaunches Spring Ball");
     AssertEqual(SamusBallBounceState.None, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
     AssertEqual(SamusPoseId.SpringBallFallingRightPose, spring.Pose, "held-Jump landing retains its existing airborne pose");
-    AssertEqual(springLandingAnimation, (spring.AnimationFrame, spring.AnimationFrameTimer),
+    AssertEqual(springLandingAnimation, (spring.AnimationFrame, spring.AnimationFrameTimer.RawValue),
         "held-Jump landing does not restart the rolling animation");
 
     // F1FC/F25E branch on the sign of the wrapping word subtraction speed-3.
@@ -620,8 +620,8 @@ internal static void VerifySamusMorphBallMovement()
     AssertTrue(bombs.Slots[0].IsActive && bombs.Slots.Skip(1).All(slot => !slot.IsActive),
         "first normal bomb uses physical slot zero");
     AssertEqual(1, bombs.BombCounter, "placement increments native bomb counter");
-    AssertEqual(0x0010, bombs.CooldownTimer, "normal bomb loads cooldown table entry five");
-    AssertEqual(59, bombs.Slots[0].BombTimer, "placement frame immediately decrements timer 60 to 59");
+    AssertEqual(0x0010, bombs.CooldownTimer.RawValue, "normal bomb loads cooldown table entry five");
+    AssertEqual(59, bombs.Slots[0].BombTimer.RawValue, "placement frame immediately decrements timer 60 to 59");
     AssertEqual(0x001e, bombs.Slots[0].Damage, "bomb damage follows bank-$93 data pointer");
     AssertEqual(0xad45, bombs.Slots[0].SpritemapPointer, "first instruction selects ROM bomb spritemap");
     AssertEqual(4, bombs.Slots[0].Radius.X, "first instruction publishes ROM X radius");
@@ -651,7 +651,7 @@ internal static void VerifySamusMorphBallMovement()
         fixtureSamus.PoseMetadata.RefreshCollisionRadii(fixtureBus);
         var fixtureSystem = CreateBombFixture();
         fixtureSystem.StepFrame(new SamusTerrain { Bus = fixtureBus, Level = fixtureFloor }, fixtureSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
-        while (fixtureSystem.Slots[0].BombTimer > 9)
+        while (fixtureSystem.Slots[0].BombTimer.RawValue > 9)
             fixtureSystem.StepFrame(new SamusTerrain { Bus = fixtureBus, Level = fixtureFloor }, fixtureSamus, 0, 0);
         return (fixtureSystem, fixtureSamus);
     }
@@ -678,11 +678,11 @@ internal static void VerifySamusMorphBallMovement()
     // Continue the original straight fixture through timer zero. It must enter fast art at
     // fifteen, publish direction at eight, emit a five-block no-op reaction cross at zero,
     // animate all five explosion records, execute delete, and decrement BombCounter.
-    while (bombs.Slots[0].BombTimer > 15)
+    while (bombs.Slots[0].BombTimer.RawValue > 15)
         bombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, bombProjectileSamus, 0, 0);
     AssertTrue(bombs.Slots[0].InstructionPointer >= 0x9fe3,
         "timer fifteen advances the live instruction pointer into fast animation");
-    while (bombs.Slots[0].BombTimer > 8)
+    while (bombs.Slots[0].BombTimer.RawValue > 8)
         bombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, bombProjectileSamus, 0, 0);
     AssertEqual(2, bombProjectileSamus.BombJumpDirection,
         "same-X timer-eight overlap publishes straight direction");
@@ -746,7 +746,7 @@ internal static void VerifySamusMorphBallMovement()
         "bomb spread queues cartridge library-one sound two with Max9");
     AssertEqual(5, spreadBombs.BombCounter,
         "bomb spread occupies all five physical bomb slots");
-    AssertEqual(0x0010, spreadBombs.CooldownTimer,
+    AssertEqual(0x0010, spreadBombs.CooldownTimer.RawValue,
         "bomb spread selects non-beam cooldown entry five");
     AssertEqual(0, spreadSamus.ProjectileFlareCounter,
         "bomb spread clears mirrored flare counter");
@@ -791,7 +791,7 @@ internal static void VerifySamusMorphBallMovement()
         SamusBombProjectileSlot slot = spreadBombs.Slots[index];
         AssertTrue(slot.IsBombSpread, $"spread slot {index} selects spread pre-instruction");
         AssertEqual(0x8500, slot.Type, $"spread slot {index} uses bomb family/type `$8500`");
-        AssertEqual(expectedSpreadTimers[index], slot.BombTimer,
+        AssertEqual(expectedSpreadTimers[index], slot.BombTimer.RawValue,
             $"spread slot {index} consumes first ROM fuse tick");
         AssertEqual(expectedSpreadX[index], slot.Position.X.Whole,
             $"spread slot {index} applies encoded X velocity");
@@ -878,7 +878,7 @@ internal static void VerifySamusMorphBallMovement()
         "power-bomb placement decrements ammo exactly once");
     AssertEqual(3, powerBombSamus.SelectedHudItem,
         "remaining power-bomb ammo retains HUD selection");
-    AssertEqual(0x0028, powerBombs.CooldownTimer,
+    AssertEqual(0x0028, powerBombs.CooldownTimer.RawValue,
         "power bomb loads non-beam cooldown table entry three");
     AssertEqual(0x0300, powerBombs.Slots[0].Type,
         "power-bomb projectile family is HUD index in high byte");
@@ -900,7 +900,7 @@ internal static void VerifySamusMorphBallMovement()
         "negative power-bomb flag rejects a second placement");
     AssertEqual(1, powerBombs.BombCounter,
         "armed rejection preserves bomb aggregate");
-    while (powerBombs.Slots[0].BombTimer > 15)
+    while (powerBombs.Slots[0].BombTimer.RawValue > 15)
         powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
     AssertTrue(powerBombs.Slots[0].InstructionPointer >= 0x9fa3,
         "power-bomb timer fifteen enters retail fast list");
@@ -913,7 +913,7 @@ internal static void VerifySamusMorphBallMovement()
     BombProjectileFrameResult powerBombFuse = default;
     while (!powerBombs.PowerBombExplosion.IsActive)
         powerBombFuse = powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
-    AssertEqual(0, powerBombs.Slots[0].BombTimer,
+    AssertEqual(0, powerBombs.Slots[0].BombTimer.RawValue,
         "$FFFF fuse sentinel is consumed by first mode-three collision call");
     AssertEqual(PowerBombExplosionPhase.PendingPreExplosionSetup,
         powerBombs.PowerBombExplosion.Phase,

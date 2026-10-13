@@ -74,7 +74,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
         processArguments[0] = kamer;
         for (int frame = 0; frame < 5; frame++)
         {
-            kamer.InstructionTimer = 1;
+            kamer.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, processArguments);
         }
         AssertEqual(unchecked((ushort)(

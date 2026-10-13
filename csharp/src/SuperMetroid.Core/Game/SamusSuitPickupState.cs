@@ -42,7 +42,7 @@ public sealed class SamusSuitPickupState
     /// first call ends on a one-frame table entry and its second installs the
     /// pre-instruction and sleeps ($91:D5A2/$D67A), so the first stage runs on the third.
     /// </summary>
-    private byte _preInstructionInstallCallsRemaining;
+    private int _preInstructionInstallCallsRemaining;
 
     /// <summary>The suit whose native stage-three function is installed.</summary>
     public SamusSuitPickupKind Kind { get; private set; }

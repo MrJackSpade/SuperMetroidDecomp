@@ -41,12 +41,12 @@ internal static class EvirInitTimerVerification
                 0x3f => aliased.Parameter2,
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };
-            AssertEqual((ushort)((SnesLittleEndian.HighByte(word)) >> 1), runtime.Enemies.EvirStates[slot.SlotIndex]!.MovementTimer,
+            AssertEqual((ushort)((SnesLittleEndian.HighByte(word)) >> 1), runtime.Enemies.EvirStates[slot.SlotIndex]!.MovementTimer.RawValue,
                 $"Evir body in slot {slot.SlotIndex} takes its first half-cycle from aliased enemy RAM");
             checkedBodies++;
         }
         AssertEqual(3, checkedBodies, "room $D4C2 has three Evir bodies");
-        AssertEqual((ushort)1, runtime.Enemies.EvirStates[3]!.MovementTimer,
+        AssertEqual((ushort)1, runtime.Enemies.EvirStates[3]!.MovementTimer.RawValue,
             "the speed-12 body reads slot 2's palette high byte (2) halved");
         Console.WriteLine("Evir init timer: $A8:8811's Y-indexed read takes absolute enemy RAM.");
     }

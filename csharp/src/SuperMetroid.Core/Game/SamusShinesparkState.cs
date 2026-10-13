@@ -41,13 +41,13 @@ public sealed class SamusShinesparkState
     public SamusSpecialPaletteType PaletteType { get; private set; }
 
     /// <summary>WRAM <c>$0A6A</c>: 180 stored, 60 windup, and 15 during active motion.</summary>
-    public ushort ShineTimer { get; private set; }
+    public NativeCountdown ShineTimer { get; private set; }
 
     /// <summary>WRAM <c>$0ACE</c>, retained as native even byte offsets 0/2/4/….</summary>
     public ushort PaletteFrameOffset { get; private set; }
 
     /// <summary>WRAM <c>$0A64</c>, the shared 30-frame windup/crash countdown.</summary>
-    public ushort StartStopTimer { get; internal set; }
+    public NativeCountdown StartStopTimer { get; internal set; }
 
     /// <summary>
     /// Whole word of vertical spark acceleration. Native aliases it to <c>substate</c> and
@@ -96,7 +96,7 @@ public sealed class SamusShinesparkState
     internal void RelinquishToCrystalFlash()
     {
         Phase = ShinesparkPhase.Inactive;
-        ShineTimer = 0;
+        ShineTimer = NativeCountdown.Start(0);
         PaletteType = SamusSpecialPaletteType.None;
         PaletteFrameOffset = 0;
     }
@@ -203,7 +203,7 @@ public sealed class SamusShinesparkState
     /// </summary>
     internal void RelinquishPaletteToXray()
     {
-        ShineTimer = 0;
+        ShineTimer = NativeCountdown.Start(0);
         PaletteType = SamusSpecialPaletteType.None;
         PaletteFrameOffset = 0;
         if (Phase == ShinesparkPhase.Stored)
@@ -233,7 +233,7 @@ public sealed class SamusShinesparkState
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter)) < 0)
             return false;
 
-        ShineTimer = 180;
+        ShineTimer = NativeCountdown.Start(180);
         PaletteType = SamusSpecialPaletteType.SpeedBoosterShine;
         PaletteFrameOffset = 0;
         Phase = ShinesparkPhase.Stored;
@@ -305,8 +305,8 @@ public sealed class SamusShinesparkState
 
         VerticalAccelerationSpeed = 7;
         VerticalAccelerationSubspeed = 0;
-        StartStopTimer = 30;
-        ShineTimer = 60;
+        StartStopTimer = NativeCountdown.Start(30);
+        ShineTimer = NativeCountdown.Start(60);
         PaletteType = SamusSpecialPaletteType.Shinesparking;
         PaletteFrameOffset = 0;
         Phase = ShinesparkPhase.Windup;
@@ -373,8 +373,8 @@ public sealed class SamusShinesparkState
         if (Phase == ShinesparkPhase.Windup)
         {
             // DEC/BEQ/BMI at `$90:D068`: exact zero and signed underflow both launch up.
-            NativeWordCounterStep timer = NativeWordCounter.Decrement(StartStopTimer);
-            StartStopTimer = timer.Value;
+            NativeWordCounterStep timer = StartStopTimer.Decrement();
+            StartStopTimer = timer.Remaining;
             bool timedOut = timer.IsZeroOrNegative;
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
@@ -471,14 +471,14 @@ false);
         if (PaletteType is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))
             return false;
 
-        if (PaletteType == SamusSpecialPaletteType.SpeedBoosterShine && ShineTimer == 170)
+        if (PaletteType == SamusSpecialPaletteType.SpeedBoosterShine && ShineTimer.RawValue == 170)
         {
             StoredShineWarningSoundRequested = true;
             StoredShineWarningSoundSuppressed = _audioPowerBomb?.IsActive == true;
         }
 
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(ShineTimer);
-        ShineTimer = timer.Value;
+        NativeWordCounterStep timer = ShineTimer.Decrement();
+        ShineTimer = timer.Remaining;
         bool expired = timer.IsZeroOrNegative;
         if (expired)
         {
@@ -553,7 +553,7 @@ false);
     private ShinesparkMovementResult StepCrashOrbit(
         SamusState samus)
     {
-        ShineTimer = 15;
+        ShineTimer = NativeCountdown.Start(15);
         switch (CrashSubphase)
         {
             case 0:
@@ -580,7 +580,7 @@ false);
                 if (CrashRadius == 0)
                 {
                     Phase = ShinesparkPhase.CrashEchoCircle;
-                    StartStopTimer = 30;
+                    StartStopTimer = NativeCountdown.Start(30);
                     CrashSubphase = 0;
                     FirstCrashEchoAngle = SnesAngle.Zero;
                     SecondCrashEchoAngle = SnesAngle.Zero;
@@ -609,9 +609,9 @@ false);
     /// <summary>Ports the 30-frame center echo hold at `$90:D3F3`.</summary>
     private ShinesparkMovementResult StepCrashEchoCircle()
     {
-        ShineTimer = 15;
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(StartStopTimer);
-        StartStopTimer = timer.Value;
+        ShineTimer = NativeCountdown.Start(15);
+        NativeWordCounterStep timer = StartStopTimer.Decrement();
+        StartStopTimer = timer.Remaining;
         if (timer.IsZeroOrNegative)
             Phase = ShinesparkPhase.CrashFinish;
         return new ShinesparkMovementResult(
@@ -649,7 +649,7 @@ false);
             projectiles?.Shinespark.InitializeShinesparkEcho(4, departureAngles.Second);
         }
 
-        ShineTimer = 1;
+        ShineTimer = NativeCountdown.Start(1);
         VerticalAccelerationSpeed = 0;
         VerticalAccelerationSubspeed = 0;
         Phase = ShinesparkPhase.Inactive;
@@ -794,7 +794,7 @@ false,             CrashSequenceFinished: true);
         SamusState samus,
         RoomPlmSystem? plms)
     {
-        ShineTimer = 15;
+        ShineTimer = NativeCountdown.Start(15);
         uint accelerated = unchecked(SnesSixteenSixteen.Compose(
             samus.HorizontalSpeed.ExtraRunSpeed,
             samus.HorizontalSpeed.ExtraRunSubspeed) + SnesSixteenSixteen.Compose(
@@ -819,7 +819,7 @@ false,             CrashSequenceFinished: true);
         ushort nmiFrameCounter,
         RoomPlmSystem? plms)
     {
-        ShineTimer = 15;
+        ShineTimer = NativeCountdown.Start(15);
         uint acceleration = unchecked(SnesSixteenSixteen.Compose(
             VerticalAccelerationSpeed,
             VerticalAccelerationSubspeed) + SnesSixteenSixteen.Compose(

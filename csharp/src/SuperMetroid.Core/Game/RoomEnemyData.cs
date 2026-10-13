@@ -146,11 +146,11 @@ public sealed class RoomEnemySlot
     /// <summary>Enemy.spritemap at +$16: current bank-relative drawing frame or extended-map identity selected by the actor.</summary>
     public ushort SpritemapPointer { get; internal set; }
     /// <summary>Enemy.loopCounter at +$18: actor/instruction-owned loop or delay word; it is not a universal elapsed-frame counter.</summary>
-    public ushort Timer { get; internal set; }
+    public NativeCountdown Timer { get; internal set; }
     /// <summary>Enemy.instList at +$1A: current bank-relative animation instruction pointer, initially populated from the actor-specific initialization parameter.</summary>
     public ushort CurrentInstruction { get; internal set; }
     /// <summary>Enemy.instTimer at +$1C: animation instruction countdown in processing updates; initialization starts it at one.</summary>
-    public ushort InstructionTimer { get; internal set; }
+    public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Enemy.palette at +$1E: native OBJ palette attribute bits, normally the graphics-set palette index shifted left nine, rather than a CGRAM color index.</summary>
     public ushort PaletteIndex { get; internal set; }
     /// <summary>Enemy.GFXOffset at +$20: sprite character-index offset assigned by the graphics set, in 32-byte planar tile units.</summary>
@@ -158,13 +158,13 @@ public sealed class RoomEnemySlot
     /// <summary>Enemy.layer at +$22: drawing-queue layer word, initialized from the definition's byte-sized layer.</summary>
     public ushort Layer { get; internal set; }
     /// <summary>Enemy.flashTimer at +$24: hurt-flash countdown consumed by enemy processing and palette selection; reaching the native threshold clears hurt-AI dispatch.</summary>
-    public ushort FlashTimer { get; internal set; }
+    public NativeCountdown FlashTimer { get; internal set; }
     /// <summary>Enemy.freezeTimer at +$26: remaining freeze-processing countdown; frozen palette blinking and thaw decisions read the same native word.</summary>
-    public ushort FrozenTimer { get; internal set; }
+    public NativeCountdown FrozenTimer { get; internal set; }
     /// <summary>Enemy.invincibilityTimer at +$28: damage-interaction suppression countdown, sampled before its per-enemy decrement.</summary>
-    public ushort InvincibilityTimer { get; internal set; }
+    public NativeCountdown InvincibilityTimer { get; internal set; }
     /// <summary>Enemy.shakeTimer at +$2A: remaining draw calls applying the enemy's one-pixel horizontal shake, decremented during drawing.</summary>
-    public ushort ShakeTimer { get; internal set; }
+    public NativeCountdown ShakeTimer { get; internal set; }
     /// <summary>Enemy.frameCounter at +$2C: wrapping enemy-processing counter used by actor behavior and drawing, independent of the global NMI counter.</summary>
     public ushort FrameCounter { get; internal set; }
     /// <summary>Low byte of Enemy.bank at +$2E: bank used to resolve the current actor's code and animation pointers.</summary>
@@ -198,9 +198,18 @@ public sealed class RoomEnemySlot
         Position = FixedPosition<RoomPixels>.Zero;
         Radius = Extent16<RoomPixels>.Zero;
         Properties = ExtraProperties = AiHandlerBits = Health = 0;
-        SpritemapPointer = Timer = CurrentInstruction = InstructionTimer = 0;
-        PaletteIndex = VramTilesIndex = Layer = FlashTimer = FrozenTimer = 0;
-        InvincibilityTimer = ShakeTimer = FrameCounter = 0;
+        InstructionTimer = NativeCountdown.Start(0);
+        CurrentInstruction = 0;
+        Timer = NativeCountdown.Start(0);
+        SpritemapPointer = 0;
+        FrozenTimer = NativeCountdown.Start(0);
+        FlashTimer = NativeCountdown.Start(0);
+        Layer = 0;
+        VramTilesIndex = 0;
+        PaletteIndex = 0;
+        FrameCounter = 0;
+        ShakeTimer = NativeCountdown.Start(0);
+        InvincibilityTimer = NativeCountdown.Start(0);
         AiBank = HurtAiTime = 0;
         Parameter1 = Parameter2 = 0;
         VariableA = VariableB = VariableC = VariableD = VariableE = VariableF = 0;
@@ -227,16 +236,16 @@ public sealed class RoomEnemySlot
         0x12 => AiHandlerBits,
         0x14 => Health,
         0x16 => SpritemapPointer,
-        0x18 => Timer,
+        0x18 => Timer.RawValue,
         0x1a => CurrentInstruction,
-        0x1c => InstructionTimer,
+        0x1c => InstructionTimer.RawValue,
         0x1e => PaletteIndex,
         0x20 => VramTilesIndex,
         0x22 => Layer,
-        0x24 => FlashTimer,
-        0x26 => FrozenTimer,
-        0x28 => InvincibilityTimer,
-        0x2a => ShakeTimer,
+        0x24 => FlashTimer.RawValue,
+        0x26 => FrozenTimer.RawValue,
+        0x28 => InvincibilityTimer.RawValue,
+        0x2a => ShakeTimer.RawValue,
         0x2c => FrameCounter,
         0x30 => VariableA,
         0x32 => VariableB,

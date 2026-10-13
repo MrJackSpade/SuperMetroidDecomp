@@ -34,11 +34,11 @@ internal static class GrappleRopeGeometryVerification
                 Phase = GrapplePhase.Firing, RopeLength = length,
                 BeamStart = new((ushort)origin, 128),
                 Anchor = new((ushort)(origin + direction * 100), 28),
-                PointAnimationTimer = 5,
+                PointAnimationTimer = NativeCountdown.Start(5),
             };
             for (int slot = 0; slot < 16; slot++)
             {
-                grapple.SegmentAnimationTimers[slot] = 1;
+                grapple.SegmentAnimationTimers[slot] = NativeCountdown.Start(1);
                 grapple.SegmentAnimationFrames[slot] = (byte)(slot & 3);
             }
             // Equal-magnitude up/right and up/left vectors select $20/$E0.
@@ -71,7 +71,7 @@ internal static class GrappleRopeGeometryVerification
                 AssertEqual(expected[i].Y, oam.LowTable[i * 4 + 1], "Native fractional rope Y: " + context);
             }
             for (int slot = 0; slot < 16; slot++)
-                AssertEqual((ushort)(slot >= 16 - visited ? 5 : 1), grapple.SegmentAnimationTimers[slot], "Native rope ticks only visited slots: " + context);
+                AssertEqual((ushort)(slot >= 16 - visited ? 5 : 1), grapple.SegmentAnimationTimers[slot].RawValue, "Native rope ticks only visited slots: " + context);
         }
         Console.WriteLine("Grapple rope geometry: 42 diagonal, viewport-edge, short/wrapped-count and signed-length cases match native positions and visited timers.");
     }

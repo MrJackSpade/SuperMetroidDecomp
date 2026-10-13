@@ -34,15 +34,15 @@ internal static class MotherBrainWalkBackwardsPoseVerification
 
         MotherBrainRainbowBeamAttackSequence midStep = Walking(0x0029, pose: MotherBrainBodyPose.Walking);
         midStep.StepPainfulWalking();
-        AssertEqual((ushort)0, midStep.PainfulWalkingFunctionTimer, "a mid-step body short of the target has not arrived");
+        AssertEqual((ushort)0, midStep.PainfulWalkingFunctionTimer.RawValue, "a mid-step body short of the target has not arrived");
 
         MotherBrainRainbowBeamAttackSequence standing = Walking(0x0029, pose: MotherBrainBodyPose.Standing);
         standing.StepPainfulWalking();
-        AssertEqual((ushort)0x0010, standing.PainfulWalkingFunctionTimer, "a standing body inside the $30 limit has arrived");
+        AssertEqual((ushort)0x0010, standing.PainfulWalkingFunctionTimer.RawValue, "a standing body inside the $30 limit has arrived");
 
         MotherBrainRainbowBeamAttackSequence arrived = Walking(0x0026, pose: MotherBrainBodyPose.Walking);
         arrived.StepPainfulWalking();
-        AssertEqual((ushort)0x0010, arrived.PainfulWalkingFunctionTimer, "a mid-step body at the target has arrived");
+        AssertEqual((ushort)0x0010, arrived.PainfulWalkingFunctionTimer.RawValue, "a mid-step body at the target has arrived");
         Console.WriteLine("Mother Brain walk backwards: pose gates the $30 limit, not the target.");
     }
 

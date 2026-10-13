@@ -21,7 +21,7 @@ internal static class GrappleTileBindingVerification
         samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
         samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
-        samus.Grapple.PointAnimationFrame = 1; samus.Grapple.PointAnimationTimer = 4;
+        samus.Grapple.PointAnimationFrame = 1; samus.Grapple.PointAnimationTimer = NativeCountdown.Start(4);
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.Angle = SnesAngle.FromRaw(0x6000);
         var game = CreateRetailGameFixture(bus);

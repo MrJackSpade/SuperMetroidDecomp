@@ -51,7 +51,7 @@ internal static class WorkRobotVisualsVerification
             enemies.TileArtwork = stock;
             robot.EnemyDefinitionPointer = definition;
             robot.CurrentInstruction = unchecked((ushort)(operand - 2));
-            robot.InstructionTimer = 1;
+            robot.InstructionTimer = NativeCountdown.Start(1);
             enemies.Instructions.ProcessInstructions(robot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
             AssertEqual(installedPointer, robot.SpritemapPointer,
                 $"installed Work Robot instruction {index} selects native frame");

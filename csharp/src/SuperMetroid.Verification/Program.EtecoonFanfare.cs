@@ -43,7 +43,7 @@ internal static class EtecoonFanfareVerification
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "transition does not consume the Etecoon fanfare");
             foreach (var state in enemies.EtecoonStates.Where(state => state is not null))
-                AssertEqual((ushort)0xffff, state!.FunctionTimer, "transition preserves dormant Etecoon timer");
+                AssertEqual((ushort)0xffff, state!.FunctionTimer.RawValue, "transition preserves dormant Etecoon timer");
         }
         enemies.ElevatorBehavior.ElevatorDoorTransitionActive = false;
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
@@ -52,7 +52,7 @@ internal static class EtecoonFanfareVerification
         AssertEqual(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x35), request.SoundEffect,
             "native Etecoon fanfare identity");
         AssertEqual(15, request.MaximumQueued, "native wake request uses Max15");
-        AssertEqual((ushort)256, enemies.EtecoonStates[0]!.FunctionTimer, "wake begins flexing timer");
+        AssertEqual((ushort)256, enemies.EtecoonStates[0]!.FunctionTimer.RawValue, "wake begins flexing timer");
 
         var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
         var queue = new CartridgeAudioState();

@@ -90,7 +90,7 @@ public sealed class BabyMetroidCutsceneState
     public ushort Angle { get; private set; }
 
     /// <summary>Native function timer, decremented with 16-bit wrap and BMI tests.</summary>
-    public ushort FunctionTimer { get; private set; }
+    public NativeCountdown FunctionTimer { get; private set; }
 
     /// <summary>Normal-palette handler delay initialized to ten and changed to one at latch.</summary>
     public ushort PaletteHandlerDelay { get; private set; }
@@ -118,7 +118,7 @@ public sealed class BabyMetroidCutsceneState
     /// writes <c>$10</c> here. Main AI observes the nonzero value as a doubled shake, then
     /// the later flashing handler decrements it and alternates the enemy palette.
     /// </summary>
-    public ushort OnionRingHitFlashTimer { get; private set; }
+    public NativeCountdown OnionRingHitFlashTimer { get; private set; }
 
     /// <summary>
     /// The low-health palette countdown installed by <c>$A9:CADA</c> when the ordinary
@@ -130,13 +130,13 @@ public sealed class BabyMetroidCutsceneState
     public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
 
     /// <summary>Reload-eight timer producing the native nine-call black-palette cadence.</summary>
-    public ushort FadeToBlackPaletteTimer { get; private set; }
+    public NativeCountdown FadeToBlackPaletteTimer { get; private set; }
 
     /// <summary>Current `$AD:E8E2` black-fade palette index; valid stored values are 0..6.</summary>
     public ushort FadeToBlackPaletteIndex { get; private set; }
 
     /// <summary>Five-call cadence word for the dust explosions surrounding the dying Baby.</summary>
-    public ushort DeathExplosionTimer { get; private set; }
+    public NativeCountdown DeathExplosionTimer { get; private set; }
 
     /// <summary>
     /// Host name for the native layout alias called Mother Brain body's walk counter.
@@ -183,12 +183,12 @@ public sealed class BabyMetroidCutsceneState
         HealthBasedPaletteEnabled = false;
         MovementTablePointer = 0;
         Health = 3200;
-        OnionRingHitFlashTimer = 0;
+        OnionRingHitFlashTimer = NativeCountdown.Start(0);
         LowHealthPaletteTimer = 0;
         FatalBlowOrigin = Position16<RoomPixels>.Zero;
-        FadeToBlackPaletteTimer = 0;
+        FadeToBlackPaletteTimer = NativeCountdown.Start(0);
         FadeToBlackPaletteIndex = 0;
-        DeathExplosionTimer = 0;
+        DeathExplosionTimer = NativeCountdown.Start(0);
         DeathExplosionPatternIndex = 0;
         AttackTileTransferIndex = 0;
         RoomLightsTransitionCounter = 0;
@@ -199,7 +199,7 @@ public sealed class BabyMetroidCutsceneState
         Speed = 0;
         Angle = 0;
         Phase = BabyMetroidCutscenePhase.DashOntoScreen;
-        FunctionTimer = 0x00f8;
+        FunctionTimer = NativeCountdown.Start(0x00f8);
     }
 
     /// <summary>
@@ -263,24 +263,24 @@ public sealed class BabyMetroidCutsceneState
                 // `$F8` is decremented before BMI, so calls 1..248 leave the Baby still and
                 // call 249 wraps zero to `$FFFF`. The expiry call immediately executes the
                 // first curve update before the common mover consumes its new velocity.
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     Angle = 0xd800;
                     Speed = 0x0a00;
                     Phase = BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
-                    FunctionTimer = 0x000a;
+                    FunctionTimer = NativeCountdown.Start(0x000a);
                     goto case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
                 }
                 break;
 
             case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
                 UpdateSpeedAndAngle(angleDelta: 0xfe80, targetAngle: 0xb000, targetSpeed: 0x0a00);
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     Phase = BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace;
-                    FunctionTimer = 0x0009;
+                    FunctionTimer = NativeCountdown.Start(0x0009);
                 }
                 break;
 
@@ -294,8 +294,8 @@ public sealed class BabyMetroidCutsceneState
                 // approach calls and expires when the tenth decrement wraps to `$FFFF`.
                 if (!brainCollision)
                 {
-                    FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                    brainCollision = (FunctionTimer & 0x8000) != 0;
+                    FunctionTimer = FunctionTimer.Decrement().Remaining;
+                    brainCollision = FunctionTimer.IsNegative;
                 }
 
                 if (brainCollision)
@@ -352,7 +352,7 @@ public sealed class BabyMetroidCutsceneState
                 if (motherBrain.Phase2CorpseState != 0)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
-                    FunctionTimer = 0x0040;
+                    FunctionTimer = NativeCountdown.Start(0x0040);
                 }
                 break;
             }
@@ -361,13 +361,13 @@ public sealed class BabyMetroidCutsceneState
                 // Shaking ceases immediately: every wait call pins to the unoffset brain
                 // coordinate before decrementing `$40`. BMI expires only after 65 calls.
                 Position = Position.WithWhole(head + BrainLatchOffset);
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     SetInstructionList(InitialInstructionList);
                     PaletteHandlerDelay = 0x000a;
                     Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
-                    FunctionTimer = 0x0020;
+                    FunctionTimer = NativeCountdown.Start(0x0020);
                     Velocity = default;
                 }
                 break;
@@ -376,8 +376,8 @@ public sealed class BabyMetroidCutsceneState
                 // `$C94B` branches *into* `$C959` while the timer is nonnegative. Thus the
                 // Baby accelerates ceilingward for all 32 visible release calls; the dust
                 // burst happens on call 33 and that call also performs another acceleration.
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     // `SpawnThreeDustCloudsOnMotherBrainHead` performs these calls in this
                     // exact order. Each helper adds its signed word offsets to the brain
@@ -514,9 +514,9 @@ public sealed class BabyMetroidCutsceneState
                 // `$A9:CABD` consumes Mother Brain's one-shot cry flag before inspecting
                 // the hit-flash word. Sound queuing is returned by the ring system; this
                 // actor owns only the resulting shake and health-to-function transition.
-                if (OnionRingHitFlashTimer != 0)
+                if (!OnionRingHitFlashTimer.IsZero)
                 {
-                    int shakingIndex = (OnionRingHitFlashTimer & 6) >> 1;
+                    int shakingIndex = (OnionRingHitFlashTimer.RawValue & 6) >> 1;
                     Offset16<RoomPixels> shake = ShakingOffsets[shakingIndex];
                     Position = Position.WithWhole(samus.Position.Whole + shake + shake + SamusLatchOffset);
                 }
@@ -626,7 +626,7 @@ public sealed class BabyMetroidCutsceneState
                         MotherBrainBabyInstructionProgramDefinitions.TakingFatalBlow);
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
-                    FunctionTimer = 0x0010;
+                    FunctionTimer = NativeCountdown.Start(0x0010);
                     FatalBlowOrigin = Position.Whole;
                     goto case BabyMetroidCutscenePhase.TakeFinalBlow;
                 }
@@ -640,12 +640,12 @@ public sealed class BabyMetroidCutsceneState
                 Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(Velocity.Y.RawValue + 0xffff))));
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
                 Position = Position.WithWhole(FatalBlowOrigin + ShakingOffsets[shakingIndex]);
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     Position = Position.WithWhole(FatalBlowOrigin);
                     Phase = BabyMetroidCutscenePhase.PlaySamusTheme;
-                    FunctionTimer = 0x0038;
+                    FunctionTimer = NativeCountdown.Start(0x0038);
                     goto case BabyMetroidCutscenePhase.PlaySamusTheme;
                 }
                 break;
@@ -654,18 +654,18 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.PlaySamusTheme:
                 // The expiry call queues the two delayed music words and immediately
                 // performs the first `$000C` prepare-Hyper-Beam decrement.
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     Phase = BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
-                    FunctionTimer = 0x000c;
+                    FunctionTimer = NativeCountdown.Start(0x000c);
                     goto case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
                 }
                 break;
 
             case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     // Samus command `$19` freezes the drained animation at byte-index 28.
                     // `$CC8B` also installs the first rainbow handler; neither handler is
@@ -685,7 +685,7 @@ public sealed class BabyMetroidCutsceneState
                     // installs `$CCC0`, and waits through `$80..0` before the first DMA.
                     Properties = Properties.With(EnemyProperties.Invisible);
                     Phase = BabyMetroidCutscenePhase.UnloadTiles;
-                    FunctionTimer = 0x0080;
+                    FunctionTimer = NativeCountdown.Start(0x0080);
                 }
                 else
                 {
@@ -699,8 +699,8 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.UnloadTiles:
                 StepSamusRainbowPaletteAnimation(samus, ref samusRainbowActivated);
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     int transferIndex = AttackTileTransferIndex;
                     MotherBrainSpecialSpriteSheetDefinition attack =
@@ -723,15 +723,15 @@ public sealed class BabyMetroidCutsceneState
                         // publishing entry four. Native falls straight into `$CCDE`, so the
                         // newly written `$B0` becomes `$AF` on this same call.
                         Phase = BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
-                        FunctionTimer = 0x00b0;
+                        FunctionTimer = NativeCountdown.Start(0x00b0);
                         goto case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
                     }
                 }
                 break;
 
             case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore:
-                FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
-                if ((FunctionTimer & 0x8000) != 0)
+                FunctionTimer = FunctionTimer.Decrement().Remaining;
+                if (FunctionTimer.IsNegative)
                 {
                     Phase = BabyMetroidCutscenePhase.FinalCutscene;
                     RoomLightsTransitionCounter = 0;
@@ -775,10 +775,10 @@ public sealed class BabyMetroidCutsceneState
         // extra word that onion-ring hits write and shows palette zero while bit one of the
         // decremented value is set. Starting from `$10`, the first post-hit enemy call sees
         // `$10` for its shake above, then displays the normal palette with timer `$0F`.
-        if (OnionRingHitFlashTimer != 0)
+        if (!OnionRingHitFlashTimer.IsZero)
         {
-            OnionRingHitFlashTimer = unchecked((ushort)(OnionRingHitFlashTimer - 1));
-            Palette = (OnionRingHitFlashTimer & 2) != 0 ? (ushort)0 : EnemyPaletteBits.Palette7;
+            OnionRingHitFlashTimer = OnionRingHitFlashTimer.Decrement().Remaining;
+            Palette = (OnionRingHitFlashTimer.RawValue & 2) != 0 ? (ushort)0 : EnemyPaletteBits.Palette7;
         }
         else
         {
@@ -813,7 +813,7 @@ public sealed class BabyMetroidCutsceneState
         if (healthBefore == 0)
             return new BabyMetroidOnionRingHitResult();
 
-        OnionRingHitFlashTimer = 0x0010;
+        OnionRingHitFlashTimer = NativeCountdown.Start(0x0010);
         Health = healthBefore < damage
             ? (ushort)0
             : unchecked((ushort)(healthBefore - damage));
@@ -871,11 +871,11 @@ public sealed class BabyMetroidCutsceneState
         if (unchecked((short)(Position.Y.Whole - 0x0080)) < 0)
             return false;
 
-        FadeToBlackPaletteTimer = unchecked((ushort)(FadeToBlackPaletteTimer - 1));
-        if ((FadeToBlackPaletteTimer & 0x8000) == 0)
+        FadeToBlackPaletteTimer = FadeToBlackPaletteTimer.Decrement().Remaining;
+        if (!FadeToBlackPaletteTimer.IsNegative)
             return false;
 
-        FadeToBlackPaletteTimer = 8;
+        FadeToBlackPaletteTimer = NativeCountdown.Start(8);
         ushort nextIndex = unchecked((ushort)(FadeToBlackPaletteIndex + 1));
         if (nextIndex >= 7)
             return true;
@@ -891,11 +891,11 @@ public sealed class BabyMetroidCutsceneState
 
     private BabyMetroidDeathExplosionRequest? StepDeathExplosion()
     {
-        DeathExplosionTimer = unchecked((ushort)(DeathExplosionTimer - 1));
-        if ((DeathExplosionTimer & 0x8000) == 0)
+        DeathExplosionTimer = DeathExplosionTimer.Decrement().Remaining;
+        if (!DeathExplosionTimer.IsNegative)
             return null;
 
-        DeathExplosionTimer = 4;
+        DeathExplosionTimer = NativeCountdown.Start(4);
         DeathExplosionPatternIndex++;
         if (DeathExplosionPatternIndex >= DeathExplosionScatterDefinitions.Count)
             DeathExplosionPatternIndex = 0;
@@ -976,8 +976,8 @@ public sealed class BabyMetroidCutsceneState
     private bool TouchesSamus(SamusState samus)
     {
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
-            samus.InvincibilityTimer = 0;
-        else if (samus.InvincibilityTimer != 0)
+            samus.InvincibilityTimer = NativeCountdown.Start(0);
+        else if (!samus.InvincibilityTimer.IsZero)
             return false;
         return AxisTouches(samus.Position.X.Whole, Position.X.Whole, samus.Kinematics.Radius.X, XHitboxRadius) &&
             AxisTouches(samus.Position.Y.Whole, Position.Y.Whole, samus.Kinematics.Radius.Y, YHitboxRadius);

@@ -109,8 +109,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         PhantoonEnemyState state = Phantoon ??
             throw new InvalidOperationException("Phantoon body must initialize before its parts.");
         part.SpritemapPointer = 0xa5df; // Spritemap_Common_Nothing in bank $A7.
-        part.InstructionTimer = 1;
-        part.Timer = 0;
+        part.InstructionTimer = NativeCountdown.Start(1);
+        part.Timer = NativeCountdown.Start(0);
         part.PaletteIndex = state.Body.PaletteIndex;
         part.VramTilesIndex = state.Body.VramTilesIndex;
         part.CurrentInstruction = instruction;
@@ -375,7 +375,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             return;
 
         body.VariableF = (ushort)PhantoonAiFunction.NoOperation;
-        state.Eye.InstructionTimer = 1;
+        state.Eye.InstructionTimer = NativeCountdown.Start(1);
         state.Eye.CurrentInstruction = PhantoonInstructionProgramDefinitions.EyeOpen;
         body.Parameter2 = 0;
         SpawnPhantoonSpiralFlames(body);
@@ -531,7 +531,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
                 mouth.VariableC = 0xffff;
             int timerIndex = exhausted ? 1 : mouth.VariableC + 1;
             mouth.VariableB = PhantoonCasualFlameDefinitions.Pattern(mouth.VariableA)[timerIndex];
-            mouth.InstructionTimer = 1;
+            mouth.InstructionTimer = NativeCountdown.Start(1);
             mouth.CurrentInstruction = PhantoonInstructionProgramDefinitions.MouthFollowUp;
             return;
         }
@@ -781,7 +781,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         RoomEnemySlot body = state.Body;
         if (body.EnemyDefinitionPointer != EnemyDefinitionId.PhantoonBody ||
             body.SpritemapPointer is 0 or 0x804d ||
-            body.InvincibilityTimer != 0 ||
+            !body.InvincibilityTimer.IsZero ||
             body.Properties.HasAny(
                 EnemyProperties.Deleted |
                 EnemyProperties.IgnoreSamusCollision))
@@ -824,7 +824,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             // no-op shell hit therefore still marks the beam and shakes for a Super Missile.
             if (family == SamusProjectileFamily.SuperMissile)
             {
-                _earthquake.EarthquakeTimer = SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration;
+                _earthquake.EarthquakeTimer = NativeCountdown.Start(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration);
                 _earthquake.EarthquakeType = SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType;
             }
 
@@ -860,9 +860,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies
                 EnemyCollision.ReadNormalShotVulnerability(body, new SamusProjectileTypeWord(projectileType));
             if (vulnerability.FreezeImmediately)
             {
-                body.FrozenTimer = 400;
+                body.FrozenTimer = NativeCountdown.Start(400);
                 body.AiHandlerBits |= 0x0004;
-                body.InvincibilityTimer = 10;
+                body.InvincibilityTimer = NativeCountdown.Start(10);
             }
             else
             {
@@ -870,12 +870,12 @@ internal sealed class PhantoonBehavior : IEnemySpecies
                 if (damage != 0)
                 {
                     ushort hurtTime = body.HurtAiTime == 0 ? (ushort)4 : body.HurtAiTime;
-                    body.FlashTimer = unchecked((ushort)(hurtTime + 8));
+                    body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
                     body.AiHandlerBits |= 0x0002;
                     // Plasma alone installs this clock; ordinary missiles retain
                     // the timer behavior of the shared native damage helper.
                     if ((projectileType & (ushort)SamusBeamFlags.Plasma) != 0)
-                        body.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
+                        body.InvincibilityTimer = NativeCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
                     body.Health = damage >= body.Health
                         ? (ushort)0
                         : unchecked((ushort)(body.Health - damage));
@@ -1009,7 +1009,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     internal void ApplyPhantoonHurt(RoomEnemySlot body, PhantoonEnemyState state)
     {
         RoomEnemySlot tentacles = state.Tentacles!;
-        bool restoreHealthPalette = body.FlashTimer == 8 ||
+        bool restoreHealthPalette = body.FlashTimer.RawValue == 8 ||
             (body.FrameCounter & 2) == 0 && (SnesLittleEndian.HighByteInPlace(tentacles.Parameter2)) != 0;
         if (restoreHealthPalette)
         {
@@ -1479,7 +1479,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         RoomEnemySlot slot,
         ushort instruction)
     {
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         slot.CurrentInstruction = instruction;
     }
     private const ushort PhantoonDeathWaveDelta = 0x0100;
@@ -1772,12 +1772,12 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     {
         state.Tentacles!.VariableA = 0;
         RoomEnemySlot body = state.Body;
-        body.InstructionTimer = 1;
+        body.InstructionTimer = NativeCountdown.Start(1);
         body.CurrentInstruction = PhantoonInstructionProgramDefinitions.EyeHitboxBody;
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         body.VariableE = PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Generate() & 7];
         body.VariableF = (ushort)PhantoonAiFunction.EyeTracksSamus;
-        state.Eye!.InstructionTimer = 1;
+        state.Eye!.InstructionTimer = NativeCountdown.Start(1);
         state.Eye.CurrentInstruction = PhantoonInstructionProgramDefinitions.EyeballCentered;
     }
 
@@ -1942,7 +1942,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
                 flame.Position = flame.Position.WithWhole(new(state.Body.Position.X.Whole, unchecked((ushort)(state.Body.Position.Y.Whole + 16))));
                 flame.InstructionPointer =
                     PhantoonProjectileInstructionProgramDefinitions.Delete;
-                flame.InstructionTimer = 1;
+                flame.InstructionTimer = NativeCountdown.Start(1);
                 return;
             }
         }
@@ -1969,7 +1969,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_HitGround;
         flame.InstructionPointer =
             PhantoonProjectileInstructionProgramDefinitions.CasualHitGround;
-        flame.InstructionTimer = 1;
+        flame.InstructionTimer = NativeCountdown.Start(1);
         flame.Variable0 = 8;
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
     }
@@ -1987,7 +1987,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             (ushort)EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Bouncing;
         flame.InstructionPointer =
             PhantoonProjectileInstructionProgramDefinitions.CasualBouncing;
-        flame.InstructionTimer = 1;
+        flame.InstructionTimer = NativeCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole - 8)));
         flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(0xfd00));
         flame.Variable0 = 0;
@@ -2020,7 +2020,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     {
         flame.InstructionPointer =
             PhantoonProjectileInstructionProgramDefinitions.CasualResting;
-        flame.InstructionTimer = 1;
+        flame.InstructionTimer = NativeCountdown.Start(1);
         flame.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_869A44;
     }
 
@@ -2060,7 +2060,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, horizontal: false))
             return;
         flame.InstructionPointer = PhantoonProjectileInstructionProgramDefinitions.RainImpact;
-        flame.InstructionTimer = 1;
+        flame.InstructionTimer = NativeCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
         flame.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_869A44;
         _audio.QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
@@ -2112,7 +2112,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             unchecked((short)flame.Position.Y.Whole) < 0 || flame.Position.Y.Whole >= 256)
         {
             flame.InstructionPointer = PhantoonProjectileInstructionProgramDefinitions.Delete;
-            flame.InstructionTimer = 1;
+            flame.InstructionTimer = NativeCountdown.Start(1);
         }
     }
 

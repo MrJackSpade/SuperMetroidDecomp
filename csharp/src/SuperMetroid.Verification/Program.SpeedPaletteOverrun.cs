@@ -30,7 +30,7 @@ internal static class SpeedPaletteOverrunVerification
         int traceRow = 1;
         foreach (ushort phase in new ushort[] { 8, 10 })
         {
-            var speed = new SamusHorizontalSpeedState { SpeedBoostCounter = 0x0400, SpecialPaletteTimer = 1 };
+            var speed = new SamusHorizontalSpeedState { SpeedBoostCounter = 0x0400, SpecialPaletteTimer = NativeCountdown.Start(1) };
             var cgram = new SnesCgram();
             ushort equipped = (ushort)(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpeedBooster);
             for (int call = 0; call < phase / 2; call++)
@@ -47,8 +47,8 @@ internal static class SpeedPaletteOverrunVerification
                 AssertEqual(expected, cgram.Colors[192 + color], $"phase {phase} native overrun color {color}");
             }
             AssertEqual((ushort)6, speed.SpecialPaletteFrame, "native clamps the phase only after the overrun read");
-            AssertEqual((ushort)4, speed.SpecialPaletteTimer, "native reloads the four-frame timer");
-            string actualTrace = $"{phase},{speed.SpecialPaletteFrame},{speed.SpecialPaletteTimer}," +
+            AssertEqual((ushort)4, speed.SpecialPaletteTimer.RawValue, "native reloads the four-frame timer");
+            string actualTrace = $"{phase},{speed.SpecialPaletteFrame},{speed.SpecialPaletteTimer.RawValue}," +
                 string.Concat(cgram.Colors.Slice(192, 16).ToArray().Select(color => color.ToWord().ToString("X4")));
             AssertEqual(nativeTrace[traceRow++], actualTrace, "port colors/phase/timer match execution of original ROM on the 65816 core");
             var first = cgram.Colors.ToArray();

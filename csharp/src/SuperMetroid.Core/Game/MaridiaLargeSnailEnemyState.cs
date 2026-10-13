@@ -93,10 +93,10 @@ public sealed class MaridiaLargeSnailEnemyState
     }
 
     /// <summary>Common variable C: signed-underflow attack cooldown, initialized to 128.</summary>
-    public ushort AttackCooldown
+    public NativeCountdown AttackCooldown
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        get => NativeCountdown.FromRaw(_slot.VariableC);
+        internal set => _slot.VariableC = value.RawValue;
     }
 
     /// <summary>Common variable D: zero moves right; one moves left.</summary>
@@ -107,10 +107,10 @@ public sealed class MaridiaLargeSnailEnemyState
     }
 
     /// <summary>Common variable E: remaining landing impacts before Oum is settled.</summary>
-    public ushort RemainingBounces
+    public NativeCountdown RemainingBounces
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => NativeCountdown.FromRaw(_slot.VariableE);
+        internal set => _slot.VariableE = value.RawValue;
     }
 
     /// <summary>Common variable F: falling/rising half of the quadratic bounce.</summary>

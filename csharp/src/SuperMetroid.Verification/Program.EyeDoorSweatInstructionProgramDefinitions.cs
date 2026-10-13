@@ -89,7 +89,7 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
         AssertEqual((ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction,
             sweat.PreInstruction,
             "Eye Door sweat impact disables movement with the native inert pre-instruction");
-        AssertEqual((ushort)1, sweat.InstructionTimer,
+        AssertEqual((ushort)1, sweat.InstructionTimer.RawValue,
             "Eye Door sweat impact requests a same-pass animation tick");
         AssertEqual((ushort)76, sweat.Position.Y.Whole,
             "Eye Door sweat applies the native four-pixel floor-impact correction");
@@ -146,19 +146,19 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
 
         void ObserveFrame(RoomEnemyProjectileSlot projectile)
         {
-            if (!projectile.IsActive || projectile.InstructionTimer == 0) return;
+            if (!projectile.IsActive || projectile.InstructionTimer.IsZero) return;
             ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));
             AssertEqual(operand, projectile.PresentationOperandAddress,
                 "timed projectile frame retains its installed visual operand");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | (unchecked((ushort)(operand - 2)))),
-                projectile.InstructionTimer, "projectile frame duration matches cartridge data");
+                projectile.InstructionTimer.RawValue, "projectile frame duration matches cartridge data");
             observedOperands.Add(projectile.PresentationOperandAddress);
         }
         void RunForcedTicks(RoomEnemyProjectileSlot projectile, int count)
         {
             for (int tick = 0; tick < count; tick++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
                 ObserveFrame(projectile);
             }

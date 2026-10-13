@@ -28,10 +28,10 @@ public sealed class MetareeEnemyState
     internal MetareeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Reloaded to 21 during flight, then counted down while underground.</summary>
-    public ushort BurrowTimer
+    public NativeCountdown BurrowTimer
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
+        get => NativeCountdown.FromRaw(_slot.VariableA);
+        internal set => _slot.VariableA = value.RawValue;
     }
 
     /// <summary>Direct bank-$A3 state-function pointer dispatched by main AI.</summary>

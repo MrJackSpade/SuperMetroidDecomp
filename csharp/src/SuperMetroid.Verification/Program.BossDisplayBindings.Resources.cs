@@ -89,7 +89,7 @@ internal static class BossDisplayBindingsResourcesVerification
                 AssertTrue(CompiledEnemyVisualSelectors.TryGet(baseline.Actor.Definition.Bank,
                     checked((ushort)(program.Program + index * 4 + 2)), out ushort expected), "declared program selector is compiled");
                 AssertEqual(expected, changed.Actor.SpritemapPointer, "exact physical sequence ignores visual remapping");
-                AssertEqual((ushort)(program.Duration - frame % program.Duration), changed.Actor.InstructionTimer, "exact native hold/goto clock");
+                AssertEqual((ushort)(program.Duration - frame % program.Duration), changed.Actor.InstructionTimer.RawValue, "exact native hold/goto clock");
                 bool fresh = frame % program.Duration == 0;
                 AssertEqual(fresh, changed.Actor.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), "exact new-frame schedule");
                 if (fresh) transitions++;

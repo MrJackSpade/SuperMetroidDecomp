@@ -77,7 +77,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         var death = new CrocomireDeathState
         {
             RumbleYOffset = 0,
-            RumbleCooldown = 10,
+            RumbleCooldown = NativeCountdown.Start(10),
             RumbleDelta = 1,
         };
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -92,7 +92,7 @@ internal static class CrocomireRumbleDefinitionsVerification
 
         ushort referenceIndex = state.StepCounter;
         ushort referenceY = death.RumbleYOffset;
-        ushort referenceCooldown = death.RumbleCooldown;
+        ushort referenceCooldown = death.RumbleCooldown.RawValue;
         ushort referenceDelta = death.RumbleDelta;
         ushort referenceDeathIndex = (ushort)state.DeathSequenceIndex;
         int frames = 0;
@@ -112,7 +112,7 @@ internal static class CrocomireRumbleDefinitionsVerification
                 $"Crocomire rumble frame {frames} target index");
             AssertEqual(referenceY, death.RumbleYOffset,
                 $"Crocomire rumble frame {frames} Y offset");
-            AssertEqual(referenceCooldown, death.RumbleCooldown,
+            AssertEqual(referenceCooldown, death.RumbleCooldown.RawValue,
                 $"Crocomire rumble frame {frames} cooldown");
             AssertEqual(referenceDelta, death.RumbleDelta,
                 $"Crocomire rumble frame {frames} delta");

@@ -27,7 +27,7 @@ public sealed class HyperBeamPaletteFxState
     /// Native per-object instruction timer. Spawn initializes it to one; the handler
     /// decrements before testing, so the first palette record executes on its first call.
     /// </summary>
-    public ushort InstructionTimer { get; private set; }
+    public NativeCountdown InstructionTimer { get; private set; }
 
     /// <summary>Last palette record written, or -1 before the first handler call.</summary>
     public int CurrentFrameIndex { get; private set; } = -1;
@@ -45,7 +45,7 @@ public sealed class HyperBeamPaletteFxState
         // one, then calls the object's no-op setup routine. This specialized state has no
         // reusable slot fields to clear, but preserves every observable field and delay.
         IsActive = true;
-        InstructionTimer = 1;
+        InstructionTimer = NativeCountdown.Start(1);
         CurrentFrameIndex = -1;
         CompletedCycles = 0;
         _instructionPointer = HyperBeamPaletteFxProgramDefinitions.InitialInstructionPointer;
@@ -76,8 +76,8 @@ public sealed class HyperBeamPaletteFxState
 
         // `$8D:C552` decrements before testing. A timer of two therefore displays a frame
         // on the load call and one following call, then advances on the third handler call.
-        InstructionTimer = unchecked((ushort)(InstructionTimer - 1));
-        if (InstructionTimer != 0)
+        InstructionTimer = InstructionTimer.Decrement().Remaining;
+        if (!InstructionTimer.IsZero)
         {
             return new HyperBeamPaletteFxStepResult();
         }
@@ -93,7 +93,7 @@ public sealed class HyperBeamPaletteFxState
             "Hyper Beam palette FX requires installed colors."))
             .Apply(cgram, frame.Index, DestinationColorIndex);
 
-        InstructionTimer = frame.Duration;
+        InstructionTimer = NativeCountdown.FromRaw(frame.Duration);
         CurrentFrameIndex = frame.Index;
         _instructionPointer = frame.NextInstructionPointer;
         return new HyperBeamPaletteFxStepResult();

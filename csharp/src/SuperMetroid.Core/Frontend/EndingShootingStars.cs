@@ -16,7 +16,7 @@ internal sealed class EndingShootingStars
             ushort delay = EndingShootingStarDefinitions.Records[index].Delay;
             if (delay == 0) continue;
             stars[index].IndexAndFrame |= 0x8000;
-            stars[index].Timer = delay;
+            stars[index].Timer = NativeCountdown.FromRaw(delay);
         }
     }
 
@@ -28,9 +28,9 @@ internal sealed class EndingShootingStars
             var definition = EndingShootingStarDefinitions.Records[index];
             if ((short)star.IndexAndFrame < 0)
             {
-                star.Timer = unchecked((ushort)(star.Timer - 1));
-                if ((short)star.Timer >= 0) continue;
-                star.Timer = EndingShootingStarDefinitions.InitialTimer;
+                star.Timer = star.Timer.Decrement().Remaining;
+                if (!star.Timer.IsNegative) continue;
+                star.Timer = NativeCountdown.Start(EndingShootingStarDefinitions.InitialTimer);
                 star.IndexAndFrame = (ushort)index;
                 // Expiring delay skips motion, but joins the same call's drawing pass.
             }
@@ -48,10 +48,10 @@ internal sealed class EndingShootingStars
                 Reset(ref star, (ushort)index);
                 continue;
             }
-            star.Timer = unchecked((ushort)(star.Timer - 1));
-            if ((short)star.Timer <= 0)
+            star.Timer = star.Timer.Decrement().Remaining;
+            if ((short)star.Timer.RawValue <= 0)
             {
-                star.Timer = definition.Period;
+                star.Timer = NativeCountdown.FromRaw(definition.Period);
                 star.IndexAndFrame = unchecked((ushort)(star.IndexAndFrame + EndingShootingStarDefinitions.AnimationIncrement));
             }
         }
@@ -72,13 +72,14 @@ internal sealed class EndingShootingStars
     {
         IndexAndFrame = index,
         Position = new(new(EndingShootingStarDefinitions.Origin, 0), new(EndingShootingStarDefinitions.Origin, 0)),
-        Timer = EndingShootingStarDefinitions.InitialTimer
+        Timer = NativeCountdown.Start(EndingShootingStarDefinitions.InitialTimer)
     };
 }
 
 internal struct EndingShootingStar
 {
-    internal ushort IndexAndFrame, Timer;
+    internal ushort IndexAndFrame;
+    internal NativeCountdown Timer;
     internal FixedPosition<ScreenPixels> Position;
     internal EightEightVector<ScreenPixels> Velocity;
 }

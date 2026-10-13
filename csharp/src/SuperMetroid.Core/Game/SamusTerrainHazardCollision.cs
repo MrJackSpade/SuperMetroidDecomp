@@ -44,7 +44,7 @@ public static class SamusTerrainHazardCollision
         SamusState samus,
         RoomCollisionBlock block)
     {
-        if (samus.InvincibilityTimer != 0)
+        if (!samus.InvincibilityTimer.IsZero)
             return;
 
         // Every other spike-block BTS value selects a harmless reaction.
@@ -85,7 +85,7 @@ public static class SamusTerrainHazardCollision
         // while the common invincibility timer is nonzero. It also restores the normal-air
         // horizontal table before returning, independently of whether damage was admitted.
         samus.HorizontalSpeed.SelectNormalAirSpeedTable();
-        if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None || samus.InvincibilityTimer != 0)
+        if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None || !samus.InvincibilityTimer.IsZero)
             return;
 
         PublishDamage(bus, samus, SamusTerrainHazardRomData.LightSpikeDamage);
@@ -97,8 +97,8 @@ public static class SamusTerrainHazardCollision
         ushort wholeDamage)
     {
         samus.LiquidPhysics.AccumulatePeriodicDamage(subDamage: 0, wholeDamage);
-        samus.InvincibilityTimer = SamusTerrainHazardRomData.InvincibilityFrames;
-        samus.KnockbackTimer = SamusTerrainHazardRomData.KnockbackFrames;
+        samus.InvincibilityTimer = NativeCountdown.Start(SamusTerrainHazardRomData.InvincibilityFrames);
+        samus.KnockbackTimer = NativeCountdown.Start(SamusTerrainHazardRomData.KnockbackFrames);
 
         // The native expression `((pose_x_dir ^ $0C) & $08) != 0` maps right-facing
         // records to leftward knockback and both left/front-special records to the other

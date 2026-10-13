@@ -99,7 +99,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             _alcoonStepCounters);
         _alcoonStates[slot.SlotIndex] = state;
 
-        state.StepCounter = 0;
+        state.StepCounter = NativeCountdown.Start(0);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.CurrentInstruction = AlcoonInstructionProgramDefinitions.WalkingLeft;
@@ -241,7 +241,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.WalkingRight);
         }
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
-        state.StepCounter = 1;
+        state.StepCounter = NativeCountdown.Start(1);
     }
 
     private void RunEmergedAlcoon(
@@ -273,7 +273,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             return;
         }
 
-        if (state.StepCounter != 0)
+        if (!state.StepCounter.IsZero)
             return;
 
         bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
@@ -346,7 +346,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     private static void InstallAlcoonInstruction(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Implements Alcoon instruction <c>$A8:DF3F</c> and returns native Y.</summary>
@@ -355,7 +355,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         Func<ushort> readRandomNumber = _room.Random.Read;
         ushort count = unchecked((ushort)(readRandomNumber() & 3));
-        state.StepCounter = count == 0 ? (ushort)2 : count;
+        state.StepCounter = NativeCountdown.FromRaw(count == 0 ? (ushort)2 : count);
         return state.Velocity.X.WholePixels < 0
             ? AlcoonInstructionProgramDefinitions.WalkingLeft
             : AlcoonInstructionProgramDefinitions.WalkingRight;
@@ -375,8 +375,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         if (level is null)
             throw new InvalidOperationException("Alcoon movement instruction requires room collision data.");
 
-        if (decrementStepCounter && state.StepCounter != 0)
-            state.StepCounter = unchecked((ushort)(state.StepCounter - 1));
+        if (decrementStepCounter && !state.StepCounter.IsZero)
+            state.StepCounter = state.StepCounter.Decrement().Remaining;
 
         int displacement = state.Velocity.X.RawValue;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))

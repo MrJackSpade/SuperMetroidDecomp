@@ -34,7 +34,7 @@ internal static class MotherBrainLaterContactVerification
         {
             body.Position = body.Position.WithWhole(new(128, 128));
             state.Function = MotherBrainBodyFunction.FakeDeathAscentContinuePausing;
-            state.FunctionTimer = contact == "post-dispatch position" ? (ushort)0 : (ushort)100;
+            state.FunctionTimer = NativeCountdown.Start(contact == "post-dispatch position" ? 0 : 100);
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(158, 128)), Health = 500 };
             samus.Kinematics.Radius = new(8, 16);
             ushort expectedX = 20;
@@ -46,8 +46,8 @@ internal static class MotherBrainLaterContactVerification
                 samus.Health, $"Later-phase {contact} applies native contact damage");
             AssertEqual(expectedX, samus.Kinematics.ExtraDisplacement.X.WholePixels, $"{contact} horizontal displacement");
             AssertEqual((ushort)4, samus.Kinematics.ExtraDisplacement.Y.WholePixels, $"{contact} vertical displacement");
-            AssertEqual((ushort)96, samus.InvincibilityTimer, "Native contact invincibility timer");
-            AssertEqual((ushort)5, samus.KnockbackTimer, "Native contact knockback timer");
+            AssertEqual((ushort)96, samus.InvincibilityTimer.RawValue, "Native contact invincibility timer");
+            AssertEqual((ushort)5, samus.KnockbackTimer.RawValue, "Native contact knockback timer");
         }
         // Isolate the actual body callback in the ordinary radius collision pass.
         // Shot blocking is native behavior and must remain a dud, not body damage.
@@ -63,7 +63,7 @@ internal static class MotherBrainLaterContactVerification
             var shot = shots.Slots[0];
             shot.Type = type; shot.Damage = 100; shot.Direction = 2;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
-            shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
+            shot.InstructionPointer = 0x9000; shot.InstructionTimer = NativeCountdown.Start(1);
             shot.PreInstruction = type == 0x8100 ? SamusProjectilePreInstruction.Missile : SamusProjectilePreInstruction.NoWaveBeam;
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), new SamusState()),
                 "Mother Brain body accepts the projectile collision callback");

@@ -34,7 +34,7 @@ internal static class OwtchMovementDefinitionsVerification
                     OwtchEnemyState state = enemies.OwtchStates[0]!;
                     ushort distance = OwtchMovementDefinitions.TravelDistance(distanceIndex);
                     AssertEqual(OwtchMovementDefinitions.UndergroundTimer(timerIndex),
-                        state.UndergroundTimer,
+                        state.UndergroundTimer.RawValue,
                         $"Owtch production timer {spawnX:X4}/{timerIndex}/{distanceIndex}");
                     AssertEqual(unchecked((ushort)(spawnX - distance)), state.MinimumXPosition,
                         $"Owtch minimum X {spawnX:X4}/{timerIndex}/{distanceIndex}");

@@ -168,9 +168,9 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         // Footstep publication occurs only on the last tick of a frame. Let the
         // actual compiled animation delay count down to that tick rather than
         // writing a synthetic one-tick stream into a now-immutable ROM table.
-        AssertTrue(samus.AnimationFrameTimer is > 0 and <= 32,
+        AssertTrue(samus.AnimationFrameTimer.RawValue is > 0 and <= 32,
             "running fixture starts with a bounded native animation delay");
-        while (samus.AnimationFrameTimer > 1)
+        while (samus.AnimationFrameTimer.RawValue > 1)
             samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     }
 

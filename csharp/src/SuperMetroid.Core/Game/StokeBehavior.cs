@@ -184,8 +184,8 @@ internal sealed class StokeBehavior : IEnemySpecies
     private static void SetStokeInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private StokeEnemyState RequireStokeState(RoomEnemySlot slot) =>

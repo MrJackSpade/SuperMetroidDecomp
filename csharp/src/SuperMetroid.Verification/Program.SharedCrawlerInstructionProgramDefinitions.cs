@@ -113,7 +113,7 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int call = 0; call < callCount; call++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
     }

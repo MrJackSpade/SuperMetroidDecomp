@@ -210,7 +210,7 @@ internal static class CoreAccess
 
     extension(SuperMetroidRuntime runtime)
     {
-        internal ushort SamusLoadAppearanceFramesRemaining => runtime.Player._samusLoadAppearanceFramesRemaining;
+        internal ushort SamusLoadAppearanceFramesRemaining => runtime.Player._samusLoadAppearanceFramesRemaining.RawValue;
         internal bool SamusLoadAppearanceActive => runtime.SamusLoadAppearanceFramesRemaining != 0;
     }
 

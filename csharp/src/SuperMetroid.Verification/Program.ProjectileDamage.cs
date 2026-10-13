@@ -42,7 +42,7 @@ internal static class ProjectileDamageVerification
             AssertEqual(Word(data + 2 + direction * 2), slot.InstructionPointer, "Animation list selection unchanged");
             AssertEqual((ushort)rom.ReadCartridgeByte(0x930000 | (slot.InstructionPointer + 4)), slot.Radius.X, "Physical X radius unchanged");
             AssertEqual((ushort)rom.ReadCartridgeByte(0x930000 | (slot.InstructionPointer + 5)), slot.Radius.Y, "Physical Y radius unchanged");
-            AssertEqual((ushort)1, slot.InstructionTimer, "Initializer timer unchanged");
+            AssertEqual((ushort)1, slot.InstructionTimer.RawValue, "Initializer timer unchanged");
         }
         for (ushort beam = 0; beam < 12; beam++)
         foreach (bool charged in new[] { false, true })

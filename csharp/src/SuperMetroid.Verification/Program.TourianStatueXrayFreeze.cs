@@ -34,7 +34,7 @@ internal static class TourianStatueXrayFreezeVerification
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var objects = runtime.TourianStatues.objects;
-        string Snapshot() => string.Join(" ", objects.Select(o => $"{o.Pointer}/{o.Timer}"));
+        string Snapshot() => string.Join(" ", objects.Select(o => $"{o.Pointer}/{o.Timer.RawValue}"));
 
         runtime.StepFrame(0);
         runtime.Player.Samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.All;

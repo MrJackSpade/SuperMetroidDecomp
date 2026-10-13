@@ -34,7 +34,7 @@ internal static class MaridiaPuyoPileVerification
             AssertEqual(EnemyDefinitionId.Puyo, actor.EnemyDefinitionPointer, "pile actor is retail Puyo");
             AssertEqual(population[i].X, actor.Position.X.Whole, "native pile spawn X");
             AssertEqual(population[i].Y, actor.Position.Y.Whole, "native pile spawn Y");
-            AssertEqual(population[i].Delay, enemies.PuyoStates[i]!.HopCooldownTimer, "native full-word initial cooldown");
+            AssertEqual(population[i].Delay, enemies.PuyoStates[i]!.HopCooldownTimer.RawValue, "native full-word initial cooldown");
         }
         var firstHop = Enumerable.Repeat(-1, population.Length).ToArray();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 128)), Health = 999, MaxHealth = 999 };

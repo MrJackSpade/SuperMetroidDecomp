@@ -67,22 +67,22 @@ internal static class ReserveAutoFrontendVerification
             "entry preserves the completed gameplay presentation instead of a blank frame");
         runtime.BombProjectiles.SetSharedCooldown(10);
         ushort lockedAnimationFrame = samus.AnimationFrame;
-        ushort lockedAnimationTimer = samus.AnimationFrameTimer;
+        ushort lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
         game.StepCaptured(0, ++hostSequence, 1);
         AssertEqual(lockedAnimationFrame, samus.AnimationFrame,
             "automatic refill command-zero beta preserves the current Samus animation frame");
-        AssertEqual(lockedAnimationTimer, samus.AnimationFrameTimer,
+        AssertEqual(lockedAnimationTimer, samus.AnimationFrameTimer.RawValue,
             "automatic refill command-zero beta does not advance Samus animation timer");
         AssertEqual(1, samus.Health, "automatic refill first frame");
         AssertTrue(samus.HealthWarning.IsActive, "native external health check starts warning during frozen refill");
         AssertTrue(runtime.Freeze.TimeIsFrozen && samus.InputLocked, "nonfinal refill keeps native freeze and input lock");
         AssertTrue(runtime.Player.LastGroundedSamusMovement is null, "nonfinal refill does not execute grounded movement");
-        AssertEqual(10, runtime.BombProjectiles.CooldownTimer, "nonfinal refill freezes shared projectile clock");
+        AssertEqual(10, runtime.BombProjectiles.CooldownTimer.RawValue, "nonfinal refill freezes shared projectile clock");
         game.StepCaptured((ushort)SnesButton.Right, ++hostSequence, 1);
         AssertEqual(2, samus.Health, "automatic refill completion frame");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "completion restores outer gameplay state");
         AssertTrue(!runtime.Freeze.TimeIsFrozen && !samus.InputLocked, "completion clears native freeze and input lock");
-        AssertEqual(9, runtime.BombProjectiles.CooldownTimer,
+        AssertEqual(9, runtime.BombProjectiles.CooldownTimer.RawValue,
             "completion unfreezes the gameplay projectile pass on the same frame");
         AssertTrue(runtime.Player.LastGroundedSamusMovement is not null,
             "native $82:DC18 unfreezes BEFORE the completion frame gameplay/movement pass");
@@ -98,7 +98,7 @@ internal static class ReserveAutoFrontendVerification
         var digitImages = new Dictionary<int, Rgba32[]>();
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
         lockedAnimationFrame = samus.AnimationFrame;
-        lockedAnimationTimer = samus.AnimationFrameTimer;
+        lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
         game.GameState = SuperMetroidGameState.ReserveTanksAuto;
         var positions = audio._soundWritePositions;
         var queues = audio._soundQueues;
@@ -112,7 +112,7 @@ internal static class ReserveAutoFrontendVerification
             {
                 AssertEqual(lockedAnimationFrame, samus.AnimationFrame,
                     "all nonfinal recovery frames retain Samus animation cursor");
-                AssertEqual(lockedAnimationTimer, samus.AnimationFrameTimer,
+                AssertEqual(lockedAnimationTimer, samus.AnimationFrameTimer.RawValue,
                     "all nonfinal recovery frames retain Samus animation delay");
             }
             else

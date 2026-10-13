@@ -81,7 +81,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
                         (ushort)EnemyProjectilePreInstruction.BombTorizoChozoBreaking_Falling,
                         fragment.PreInstruction,
                         $"Bomb Torizo statue fragment {index} installs falling callback");
-                    AssertEqual((ushort)0x0070, fragment.InstructionTimer,
+                    AssertEqual((ushort)0x0070, fragment.InstructionTimer.RawValue,
                         $"Bomb Torizo statue fragment {index} installs falling lifetime");
                     AssertEqual(unchecked((ushort)(program + 15)), fragment.InstructionPointer,
                         $"Bomb Torizo statue fragment {index} advances to deletion");

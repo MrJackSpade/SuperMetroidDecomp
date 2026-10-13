@@ -47,7 +47,7 @@ internal static class YardVisualsVerification
                 guard, out RoomEnemySlot yard);
             enemies.TileArtwork = stock;
             yard.CurrentInstruction = unchecked((ushort)(operand - 2));
-            yard.InstructionTimer = 1;
+            yard.InstructionTimer = NativeCountdown.Start(1);
             enemies.Instructions.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, (ushort)0);
             AssertEqual(installedPointer, yard.SpritemapPointer,
                 $"installed Yard instruction {index} selects native frame");

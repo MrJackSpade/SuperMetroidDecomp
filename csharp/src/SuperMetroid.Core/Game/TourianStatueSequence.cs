@@ -44,7 +44,8 @@ public sealed class TourianStatueSequence
     internal sealed class TileObject
     {
         public required TourianStatueAnimatedTileProgramDefinition Definition;
-        public ushort Pointer, Timer = 1;
+        public ushort Pointer;
+        public NativeCountdown Timer = NativeCountdown.Start(1);
     }
     internal readonly List<TileObject> objects = [];
     private int delay = -2;
@@ -121,7 +122,7 @@ public sealed class TourianStatueSequence
         var bus = _addressSpace;
         foreach (TileObject tile in objects)
         {
-            if (tile.Pointer == 0 || --tile.Timer != 0) continue;
+            if (tile.Pointer == 0 || !(tile.Timer = tile.Timer.Decrement().Remaining).IsZero) continue;
             for (int guard = 0; ; guard++)
             {
                 if (guard == 64) throw new InvalidDataException("Statue animated tile instruction loop exceeded its bound.");
@@ -130,7 +131,7 @@ public sealed class TourianStatueSequence
                 if (code < 0x8000)
                 {
                     if (code == 0) throw new InvalidDataException("Zero-duration statue tile frame.");
-                    tile.Timer = code;
+                    tile.Timer = NativeCountdown.FromRaw(code);
                     int sourceAddress = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(
                         tile.Definition, unchecked((ushort)operand));
                     _vramWrites.Enqueue(
@@ -221,7 +222,7 @@ public sealed class TourianStatueSequence
             return;
         }
         _enemies.Earthquake.EarthquakeType = TourianStatueRomData.DescentEarthquakeType;
-        _enemies.Earthquake.EarthquakeTimer |= TourianStatueRomData.DescentEarthquakeTimer;
+        _enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(unchecked((ushort)(_enemies.Earthquake.EarthquakeTimer.RawValue | TourianStatueRomData.DescentEarthquakeTimer)));
         _roomLayer3Fx.PublishStatueEarthquakeSound(
             _system.RandomNumber, _system.MainGameLoopCarry);
         if (delay >= 0)

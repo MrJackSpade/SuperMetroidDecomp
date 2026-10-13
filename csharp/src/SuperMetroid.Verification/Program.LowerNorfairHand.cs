@@ -83,7 +83,7 @@ internal static class LowerNorfairHandVerification
             if (!sawStartCommand && runtime.Enemies.ChozoStatueBehavior.ChozoStatueFxTimer != 0)
             {
                 sawStartCommand = true;
-                AssertEqual((ushort)32, runtime.RoomLayer3Fx.Timer, "start instruction writes live delay once");
+                AssertEqual((ushort)32, runtime.RoomLayer3Fx.Timer.RawValue, "start instruction writes live delay once");
                 AssertEqual((ushort)64, runtime.RoomLayer3Fx.PackedYVelocity, "start instruction writes live 8.8 velocity");
             }
             sawAcidDrain |= runtime.RoomLayer3Fx.BaseYPosition > startingAcidY &&

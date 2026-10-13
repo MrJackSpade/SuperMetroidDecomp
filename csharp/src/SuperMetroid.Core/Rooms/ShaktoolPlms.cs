@@ -26,7 +26,7 @@ internal sealed class ShaktoolPlms
             slot.HeaderPointer = PlmHeaderId.ShaktoolsRoom;
             slot.BlockIndex = 0;
             slot.InstructionPointer = ShaktoolRoomPlmRomData.InstructionList;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
                 scrolls.SetStorage(cell, cell == 0 ? RoomScrollState.Blue : RoomScrollState.RedBoundary);
             return true;

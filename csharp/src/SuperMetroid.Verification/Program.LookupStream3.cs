@@ -1353,7 +1353,7 @@ internal static class LookupStream3Verification
             scatter.Body.Position = new(320, 192);
             for (int burst = 0; burst < 8; burst++)
             {
-                scatter.DeathExplosionIntervalTimer = (ushort)0;
+                scatter.DeathExplosionIntervalTimer = NativeCountdown.Start(0);
                 int calls = 0;
                 Func<ushort> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();
@@ -1365,7 +1365,7 @@ internal static class LookupStream3Verification
                 {
                     short x = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 16 * group + 4 * item));
                     short y = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 16 * group + 4 * item));
-                    AssertEqual((ushort)group, scatter.DeathAndEscapeExplosionIndex, "stream 3 death scatter reverse group order");
+                    AssertEqual((ushort)group, scatter.DeathAndEscapeExplosionIndex.RawValue, "stream 3 death scatter reverse group order");
                     AssertEqual((x, y), (requests[item].Offset.X, requests[item].Offset.Y), "stream 3 selected death scatter anchors");
                     AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.Body.Position.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
                     AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.Body.Position.Y + requests[item].Offset.Y)), "stream 3 death scatter body-relative Y");
@@ -1409,7 +1409,7 @@ internal static class LookupStream3Verification
             sequence.Body.Position = sequence.Body.Position.WithX(0);
             sequence.PainfulWalkingStage = stage;
             sequence.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * Math.Min(stage, (ushort)7))), sequence.PainfulWalkingFunctionTimer,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * Math.Min(stage, (ushort)7))), sequence.PainfulWalkingFunctionTimer.RawValue,
                 "stream 3 real stagger timer clamps terminal stages");
         }
     }

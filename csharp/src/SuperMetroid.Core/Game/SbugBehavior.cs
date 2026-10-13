@@ -102,12 +102,12 @@ internal sealed class SbugBehavior : IEnemySpecies
                 state.Function = SbugEnemyFunction.ChooseRandomDirectionUntilCollision;
                 return;
             case SbugEnemyFunction.ActivateRandomAndReverseWhenFar:
-                state.StraightMovementTimer = SbugLongRandomLifetime;
+                state.StraightMovementTimer = NativeCountdown.Start(SbugLongRandomLifetime);
                 SetSbugRandomSeed();
                 state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
                 return;
             case SbugEnemyFunction.ActivateMoveForwardThenWait:
-                state.MovementTimer = SbugMovementSegmentFrames;
+                state.MovementTimer = NativeCountdown.Start(SbugMovementSegmentFrames);
                 state.Function = SbugEnemyFunction.MoveForwardThenWait;
                 return;
             case SbugEnemyFunction.ActivateMoveTowardSamus:
@@ -195,8 +195,8 @@ internal sealed class SbugBehavior : IEnemySpecies
 
     private static void RunSbugForwardThenWait(RoomEnemySlot slot, SbugEnemyState state)
     {
-        state.MovementTimer = unchecked((ushort)(state.MovementTimer - 1));
-        if ((short)state.MovementTimer < 0)
+        state.MovementTimer = state.MovementTimer.Decrement().Remaining;
+        if (state.MovementTimer.IsNegative)
         {
             state.Function = SbugEnemyFunction.WaitForSamus;
             return;
@@ -210,8 +210,8 @@ internal sealed class SbugBehavior : IEnemySpecies
         SbugEnemyState state,
         RoomLevelData? level)
     {
-        state.MovementTimer = unchecked((ushort)(state.MovementTimer - 1));
-        if ((short)state.MovementTimer < 0)
+        state.MovementTimer = state.MovementTimer.Decrement().Remaining;
+        if (state.MovementTimer.IsNegative)
         {
             state.Function = SbugEnemyFunction.ChooseRandomDirectionUntilCollision;
             return;
@@ -239,11 +239,11 @@ internal sealed class SbugBehavior : IEnemySpecies
         SbugEnemyState state,
         SamusState samus)
     {
-        state.StraightMovementTimer = unchecked((ushort)(state.StraightMovementTimer - 1));
-        if ((short)state.StraightMovementTimer >= 0)
+        state.StraightMovementTimer = state.StraightMovementTimer.Decrement().Remaining;
+        if (!state.StraightMovementTimer.IsNegative)
         {
-            state.MovementTimer = unchecked((ushort)(state.MovementTimer - 1));
-            if ((short)state.MovementTimer < 0)
+            state.MovementTimer = state.MovementTimer.Decrement().Remaining;
+            if (state.MovementTimer.IsNegative)
             {
                 state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
                 return;
@@ -271,7 +271,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         ushort angleDelta = unchecked((byte)(randomLow - 0x40));
         state.CustomAngle = unchecked((ushort)(state.CustomAngle + angleDelta));
         RecalculateSbugCustomDirection(slot, state);
-        state.MovementTimer = SbugMovementSegmentFrames;
+        state.MovementTimer = NativeCountdown.Start(SbugMovementSegmentFrames);
         state.Function = reverseWhenFar
             ? SbugEnemyFunction.MoveStraightAndReverseWhenFar
             : SbugEnemyFunction.MoveRandomlyUntilCollision;
@@ -418,8 +418,8 @@ internal sealed class SbugBehavior : IEnemySpecies
 
         state.InstalledInstructionList = state.RequestedInstructionList;
         slot.CurrentInstruction = state.RequestedInstructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private void SetSbugRandomSeed()

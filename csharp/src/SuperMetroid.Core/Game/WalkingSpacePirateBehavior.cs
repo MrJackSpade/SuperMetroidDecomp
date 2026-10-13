@@ -325,7 +325,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         ushort instructionPointer)
     {
         slot.CurrentInstruction = instructionPointer;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Ports firing opcodes <c>$B2:FC68/$FC90</c> and initializer $86:A009.</summary>
@@ -390,7 +390,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         projectile.InstructionPointer = movingRight
             ? SpacePirateProjectileInstructionProgramDefinitions.LaserRight
             : SpacePirateProjectileInstructionProgramDefinitions.LaserLeft;
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
 
         // Although the definition names A05C as its pre-instruction, initializer A009
         // deliberately replaces it with A05B. The three two-frame muzzle maps are thus
@@ -546,7 +546,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         }
         if (pirateAction == EnemyCollision.PirateHitboxShotAction.Reflect)
         {
-            c.Enemy.InvincibilityTimer = 10;
+            c.Enemy.InvincibilityTimer = NativeCountdown.Start(10);
             c.Projectile.Direction = (c.Projectile.Direction & 0x000f) switch
             {
                 (ushort)SamusProjectileDirection.Left => (ushort)SamusProjectileDirection.UpRight,

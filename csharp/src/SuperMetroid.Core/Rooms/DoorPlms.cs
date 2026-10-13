@@ -72,7 +72,7 @@ internal sealed class DoorPlms
             }
 
             resident.InstructionPointer = closingList;
-            resident.InstructionTimer = 1;
+            resident.InstructionTimer = NativeCountdown.Start(1);
 
             // Native retains every scalar owned by the resident slot while only replacing
             // its instruction pointer. Preserve the equivalent C# family data and mark the
@@ -99,7 +99,7 @@ internal sealed class DoorPlms
             slot.HeaderPointer = fallback.Header;
             slot.BlockIndex = blockIndex;
             slot.InstructionPointer = fallback.InitialInstructionList;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             SetupDoorTransitionDeactivatedSlot(level, slot);
             return true;
         }
@@ -118,7 +118,7 @@ internal sealed class DoorPlms
             target == coloredDoor.InitialList)
         {
             slot.InstructionPointer = target;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             slot.PreInstruction = 0;
             coloredDoor.Phase = ColoredDoorPhase.Waiting;
             coloredDoor.InitialDrawCompleted = true;
@@ -131,7 +131,7 @@ internal sealed class DoorPlms
             target == greyDoor.InitialList)
         {
             slot.InstructionPointer = target;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             slot.PreInstruction = 0;
             greyDoor.Phase = GreyDoorPhase.Locked;
             greyDoor.InitialDrawCompleted = true;
@@ -296,7 +296,7 @@ internal sealed class DoorPlms
             door.Phase = ColoredDoorPhase.Opening;
             slot.PreInstruction = 0;
             slot.InstructionPointer = door.OpeningList;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             return false;
         }
 
@@ -305,7 +305,7 @@ internal sealed class DoorPlms
         // the common interpreter hands the actor back to Waiting.
         door.Phase = ColoredDoorPhase.Flashing;
         slot.InstructionPointer = unchecked((ushort)(door.HitList + 5));
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         return false;
     }
 
@@ -412,7 +412,7 @@ internal sealed class DoorPlms
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
             slot.InstructionPointer = instructionPointer;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             slot.PreInstruction = 0;
             slot.RoomArgument = 0;
             slot.LoopTimer = 0;

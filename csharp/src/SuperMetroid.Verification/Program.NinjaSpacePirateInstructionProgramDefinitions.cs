@@ -90,7 +90,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, 140);
         }
 
@@ -115,7 +115,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
             var (enemies, slot, samus) = CreateSystem();
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | address)),
                 slot.SpritemapPointer,
@@ -146,7 +146,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, 40);
             NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]!;
             AssertEqual(1, state.SpawnedClawCount,
@@ -162,7 +162,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, 3);
             AssertEqual(function, enemies.NinjaSpacePirateStates[0]!.Function,
                 $"ninja Pirate dive program $B2:{program:X4} function");

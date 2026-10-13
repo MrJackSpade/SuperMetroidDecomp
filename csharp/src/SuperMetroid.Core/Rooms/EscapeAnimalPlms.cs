@@ -53,7 +53,7 @@ internal sealed class EscapeAnimalPlms
             slot.HeaderPointer = PlmHeaderId.CrateriaMainstreetEscapePassage;
             slot.LoopTimer = 0;
             slot.InstructionPointer = CrateriaMainstreetEscapePassagePlmDefinitions.InstructionList;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }
         return false;
@@ -75,7 +75,7 @@ internal sealed class EscapeAnimalPlms
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.InstructionPointer = EscapeAnimalPlmRomData.ReactionList;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             slot.RestoreLevelWord = (ushort)((block.LevelWord & EscapeAnimalPlmRomData.ReactionCollisionMask) | EscapeAnimalPlmRomData.ReactionVisualBlock);
             level.SetForegroundEntry(blockIndex, (ushort)(slot.RestoreLevelWord & EscapeAnimalPlmRomData.ReactionTemporaryCollisionMask));

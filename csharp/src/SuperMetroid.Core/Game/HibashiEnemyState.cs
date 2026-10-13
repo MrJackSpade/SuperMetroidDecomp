@@ -31,10 +31,10 @@ public sealed class HibashiEnemyState
     }
 
     /// <summary>Raw countdown in common variable B, decremented once per inactive AI update; zero wraps to $FFFF and erupts immediately, while a nonnegative reset N waits N+1 updates.</summary>
-    public ushort InactiveTimer
+    public NativeCountdown InactiveTimer
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => NativeCountdown.FromRaw(_slot.VariableB);
+        internal set => _slot.VariableB = value.RawValue;
     }
 
     /// <summary>Animation-to-AI handshake in common variable C: cleared on eruption start, set to one by $A6:8FD1 after disabling the hitbox, and tested as nonzero by active AI.</summary>

@@ -118,22 +118,22 @@ internal static class MurderBeamVerification
         AssertEqual((ushort)0, shot.InstructionPointer,
             "Murder Beam remains zero-list after enemy impact");
 
-        target.InvincibilityTimer = 0;
+        target.InvincibilityTimer = NativeCountdown.Start(0);
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             combat.Bus, projectiles, shared, samus),
             "persistent Murder Beam can damage again after invincibility");
         AssertEqual((ushort)600, target.Health,
             "second Murder Beam contact repeats the native damage");
 
-        target.InvincibilityTimer = 0;
-        target.FrozenTimer = 0;
+        target.InvincibilityTimer = NativeCountdown.Start(0);
+        target.FrozenTimer = NativeCountdown.Start(0);
         target.Health = 100;
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             combat.Bus, projectiles, shared, samus),
             "lethal Murder Beam contact reaches Ice substitution");
         AssertEqual((ushort)100, target.Health,
             "lethal Ice-bearing Murder Beam preserves health while freezing");
-        AssertEqual((ushort)400, target.FrozenTimer,
+        AssertEqual((ushort)400, target.FrozenTimer.RawValue,
             "Murder Beam freezes a vulnerable non-Norfair enemy");
 
         var phaseBoundary = new MotherBrainRainbowBeamAttackSequence();

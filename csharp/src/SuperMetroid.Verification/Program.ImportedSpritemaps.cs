@@ -55,7 +55,7 @@ internal static class ImportedSpritemapsVerification
     internal static void VerifyExecutedEnemySelector(ISnesAddressSpace rom,
         RoomEnemySlot slot, HashSet<ushort> executedOperands)
     {
-        if (slot.InstructionTimer == 0) return;
+        if (slot.InstructionTimer.IsZero) return;
         ushort operand = unchecked((ushort)(slot.CurrentInstruction - 2));
         int bank = (int)new SnesAddress(slot.Definition.Bank, 0);
         ushort native = (ushort)(SnesLittleEndian.Word(ExecutedEnemySelectorRomByte(rom, bank | operand), ExecutedEnemySelectorRomByte(rom, bank | unchecked((ushort)(operand + 1)))));
@@ -73,7 +73,7 @@ internal static class ImportedSpritemapsVerification
         RoomEnemyProjectileSlot projectile, EnemyProjectileSpritemapCatalog artwork,
         HashSet<ushort> executedOperands, ushort? expectedOperand = null)
     {
-        if (!projectile.IsActive || projectile.InstructionTimer == 0) return;
+        if (!projectile.IsActive || projectile.InstructionTimer.IsZero) return;
         ushort operand = expectedOperand ?? unchecked((ushort)(projectile.InstructionPointer - 2));
         ushort nativePointer = (ushort)(SnesLittleEndian.Word(ExecutedProjectileFrameRomByte(rom, 0x860000 | operand), ExecutedProjectileFrameRomByte(rom, 0x860000 | unchecked((ushort)(operand + 1)))));
         executedOperands.Add(operand);

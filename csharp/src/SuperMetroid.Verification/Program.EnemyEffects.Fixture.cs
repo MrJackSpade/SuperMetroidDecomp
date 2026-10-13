@@ -25,7 +25,7 @@ internal static class EnemyEffectsFixtureVerification
             Actor = new CrocomireEnemyState(Enemies.SlotTable.Slots[0]) { Tongue = Enemies.SlotTable.Slots[1] };
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
-            Effect.AcidSmokeTimer = 1;
+            Effect.AcidSmokeTimer = NativeCountdown.Start(1);
             Effect.MutableMeltingGraphics.Fill(0x39);
             Effect.MutableBg2WorkingTilemap.Fill(0x137);
             Effect.MutableBg2ScrollByScanline.Fill(19);

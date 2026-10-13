@@ -131,7 +131,7 @@ internal static void VerifySamusDrainedController()
     AssertEqual(DrainedSamusPhase.Falling, right.Drained.Phase,
         "F7 installs drained movement handler");
     AssertEqual(5, right.AnimationFrame, "F7 performs its second frame increment");
-    AssertEqual(1, right.AnimationFrameTimer, "F7 selects following literal delay");
+    AssertEqual(1, right.AnimationFrameTimer.RawValue, "F7 selects following literal delay");
 
     right.Kinematics.YAcceleration = 0;
     right.Kinematics.YSubacceleration = 0x4000;
@@ -155,7 +155,7 @@ internal static void VerifySamusDrainedController()
     AssertEqual(DrainedSamusPhase.OnFloor, right.Drained.Phase,
         "collision restores normal movement pointer");
     AssertEqual(7, right.AnimationFrame, "collision jumps to crouched floor art");
-    AssertEqual(8, right.AnimationFrameTimer, "collision loads literal floor-art timer");
+    AssertEqual(8, right.AnimationFrameTimer.RawValue, "collision loads literal floor-art timer");
     AssertTrue(landing.ImpactYSpeed != 0 || landing.ImpactYSubspeed != 0,
         "drained landing preserves pre-clear impact magnitude");
 
@@ -163,11 +163,11 @@ internal static void VerifySamusDrainedController()
     AssertEqual(SamusPoseId.DrainedStandingRightPose, right.Pose,
         "controller one selects standing right");
     AssertEqual(0, right.AnimationFrame, "standing drained starts index zero");
-    AssertEqual(16, right.AnimationFrameTimer, "standing drained timer is literal sixteen");
+    AssertEqual(16, right.AnimationFrameTimer.RawValue, "standing drained timer is literal sixteen");
 
     right.Drained.Release(bus, right);
     AssertEqual(4, right.AnimationFrame, "standing release writes byte index four");
-    AssertEqual(1, right.AnimationFrameTimer, "standing release writes timer one");
+    AssertEqual(1, right.AnimationFrameTimer.RawValue, "standing release writes timer one");
     for (int tick = 0; tick < 8 && right.PendingTransitionalPose is null; tick++)
         right.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, right.PendingTransitionalPose,
@@ -188,7 +188,7 @@ internal static void VerifySamusDrainedController()
     AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, left.Pose,
         "controller four selects left crouching/falling pose");
     AssertEqual(8, left.AnimationFrame, "controller four writes byte index eight");
-    AssertEqual(16, left.AnimationFrameTimer, "controller four writes timer sixteen");
+    AssertEqual(16, left.AnimationFrameTimer.RawValue, "controller four writes timer sixteen");
     left.Drained.Release(bus, left);
     AssertEqual(13, left.AnimationFrame,
         "crouched release preserves literal operand-adjacent byte index thirteen");
@@ -206,7 +206,7 @@ internal static void VerifySamusDrainedController()
         "controller three sets hyper beam flag");
     AssertTrue(left.Drained.HyperBeamPaletteFxRequested,
         "controller three spawns Hyper Beam palette-FX object");
-    AssertEqual(1, left.Drained.HyperBeamPaletteFx.InstructionTimer,
+    AssertEqual(1, left.Drained.HyperBeamPaletteFx.InstructionTimer.RawValue,
         "palette-FX spawn installs native timer one");
     AssertEqual(0xd900, left.Drained.HyperBeamPaletteFx.InstructionPointer,
         "palette-FX spawn installs object instruction pointer");
@@ -220,7 +220,7 @@ internal static void VerifySamusDrainedController()
     for (int call = 0; call < 21; call++)
     {
         // `$8D:C552` writes a palette record only when its pre-decrement timer is one.
-        bool paletteWritten = left.Drained.HyperBeamPaletteFx.InstructionTimer == 1;
+        bool paletteWritten = left.Drained.HyperBeamPaletteFx.InstructionTimer.RawValue == 1;
         left.Drained.HyperBeamPaletteFx.Step(hyperBeamGuard, drainedCgram, projectileColors);
         int expectedFrame = (call / 2) % HyperBeamPaletteFxState.FrameCount;
         AssertEqual(expectedFrame, left.Drained.HyperBeamPaletteFx.CurrentFrameIndex,
@@ -269,7 +269,7 @@ internal static void VerifySamusDrainedController()
     AssertTrue(able.Drained.StepGetUpHandler(able, newlyPressedInput: 0x0800),
         "able timer handler accepts Up from E9 frame eight");
     AssertEqual(13, able.AnimationFrame, "able timer handler selects stand-up frame thirteen");
-    AssertEqual(1, able.AnimationFrameTimer, "able timer handler selects one-tick timer");
+    AssertEqual(1, able.AnimationFrameTimer.RawValue, "able timer handler selects one-tick timer");
     AssertEqual(DrainedGetUpHandler.Inactive, able.Drained.GetUpHandler,
         "able timer handler replaces itself with RTS");
 
@@ -294,7 +294,7 @@ internal static void VerifySamusDrainedController()
         // new pose or reinitialize a delay stream.
         SamusDrainedState.FreezeForHyperBeamAcquisition(unable);
     AssertEqual(28, unable.AnimationFrame, "command $19 freezes drained art at frame $1C");
-    AssertEqual(1, unable.AnimationFrameTimer, "command $19 freeze timer");
+    AssertEqual(1, unable.AnimationFrameTimer.RawValue, "command $19 freeze timer");
     // Command `$16` starts negative-super-special palette zero with one-call cadence. After
     // the Baby raises its delay to two, index two must remain visible for two calls before
     // advancing. Each call loads before decrementing, matching `$91:D96F-$D997` ordering.
@@ -308,7 +308,7 @@ internal static void VerifySamusDrainedController()
         "one-call rainbow cadence advances immediately");
     unable.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
     unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors);
-    AssertEqual(2, unable.Drained.CommonPaletteTimer,
+    AssertEqual(2, unable.Drained.CommonPaletteTimer.RawValue,
         "Baby-raised rainbow delay reloads two");
     AssertEqual(2, unable.Drained.ChargePaletteIndex,
         "rainbow second palette advances into delayed index");
@@ -323,7 +323,7 @@ internal static void VerifySamusDrainedController()
 
     unable.Drained.DisableRainbowAndStartStandingAnimation(unable);
     AssertEqual(13, unable.AnimationFrame, "command $17 resumes standing animation at frame thirteen");
-    AssertEqual(1, unable.AnimationFrameTimer, "command $17 resume timer");
+    AssertEqual(1, unable.AnimationFrameTimer.RawValue, "command $17 resume timer");
     AssertTrue(unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors),
         "command $17 restores selected suit palette");
     AssertEqual(0x3000, drainedCgram.Colors[192],

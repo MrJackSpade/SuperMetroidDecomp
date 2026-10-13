@@ -56,7 +56,7 @@ internal static class GrappleBodyPlacementVerification
             AssertEqual(unchecked((ushort)(g.RopeStart.X + x)), samus.Position.X.Whole, "Art override cannot move Grapple collision-body X");
             AssertEqual(unchecked((ushort)(g.RopeStart.Y + y)), samus.Position.Y.Whole, "Art override cannot move Grapple collision-body Y");
             AssertEqual(replaceArt ? (nativeFrame + 11) & 31 : nativeFrame, samus.AnimationFrame, "Visual frame override still applies");
-            AssertEqual(15, samus.AnimationFrameTimer, "Native swing animation timer");
+            AssertEqual(15, samus.AnimationFrameTimer.RawValue, "Native swing animation timer");
             AssertEqual(g.RopeStart.X, g.BeamStart.X, "Swing Flare follows physical Start X");
             AssertEqual(g.RopeStart.Y, g.BeamStart.Y, "Swing Flare follows physical Start Y");
         }
@@ -78,7 +78,7 @@ internal static class GrappleBodyPlacementVerification
                 ushort input = (ushort)(SuperMetroid.Core.Input.SnesButton.X | (tick < 8 ? SuperMetroid.Core.Input.SnesButton.Left : SuperMetroid.Core.Input.SnesButton.Right));
                 AssertEqual(SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = empty }, native, input, 0), SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = empty }, changed, input, 0), "Edited swing frames preserve actual pendulum results");
                 AssertEqual((native.AnimationFrame + 11) & 31, changed.AnimationFrame, "Edited frame reaches actual pendulum updater");
-                AssertEqual(native.AnimationFrameTimer, changed.AnimationFrameTimer, "Visual mapping cannot change swing timing");
+                AssertEqual(native.AnimationFrameTimer.RawValue, changed.AnimationFrameTimer.RawValue, "Visual mapping cannot change swing timing");
                 ushort displayed = changed.AnimationFrame;
                 changed.Presentation.SetGrappleSwingAnimationFrame(native.AnimationFrame);
                 AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Entire swing simulation state matches except displayed frame");

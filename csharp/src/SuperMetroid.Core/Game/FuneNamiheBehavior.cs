@@ -168,8 +168,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         RoomEnemySlot slot,
         FuneNamiheEnemyState state)
     {
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.CurrentInstruction = ReadFuneNamiheInstructionList(
             state.InstructionListPointerTableCursor);
     }

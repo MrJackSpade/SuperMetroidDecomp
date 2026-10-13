@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class SamusFrameState
 {
-    internal ushort _samusLoadAppearanceFramesRemaining;
+    internal NativeCountdown _samusLoadAppearanceFramesRemaining;
     internal ushort _samusLoadAppearancePaletteFxDefinition;
 
     /// <summary>

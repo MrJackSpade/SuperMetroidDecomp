@@ -144,7 +144,7 @@ internal static class RioInstructionProgramDefinitionsVerification
         rio.CurrentInstruction = program;
         for (int call = 0; call < callCount; call++)
         {
-            rio.InstructionTimer = 1;
+            rio.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, processArguments);
         }
     }

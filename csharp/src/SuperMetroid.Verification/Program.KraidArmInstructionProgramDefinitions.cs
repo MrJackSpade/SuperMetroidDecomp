@@ -66,7 +66,7 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
 
         body.Health = 51;
         arm.CurrentInstruction = 0x8a3b;
-        arm.InstructionTimer = 1;
+        arm.InstructionTimer = NativeCountdown.Start(1);
         InvokeKraidArmInstructionProcessor(rom, executedOperands, enemies, arm);
         AssertEqual(unchecked((ushort)(KraidArmInstructionProgramDefinitions.Slow + 4)),
             arm.CurrentInstruction,
@@ -132,10 +132,10 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         int calls)
     {
         arm.CurrentInstruction = entry;
-        arm.InstructionTimer = 1;
+        arm.InstructionTimer = NativeCountdown.Start(1);
         for (int call = 0; call < calls; call++)
         {
-            arm.InstructionTimer = 1;
+            arm.InstructionTimer = NativeCountdown.Start(1);
             InvokeKraidArmInstructionProcessor(rom, executedOperands, enemies, arm);
         }
     }

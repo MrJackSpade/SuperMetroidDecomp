@@ -29,10 +29,10 @@ public sealed class SkreeEnemyState
     internal SkreeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets or sets variable A, reloaded to 21 while diving and counted down while burrowing.</summary>
-    public ushort BurrowTimer
+    public NativeCountdown BurrowTimer
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
+        get => NativeCountdown.FromRaw(_slot.VariableA);
+        internal set => _slot.VariableA = value.RawValue;
     }
 
     /// <summary>Gets or sets variable B, the literal bank-$A3 phase-function pointer.</summary>

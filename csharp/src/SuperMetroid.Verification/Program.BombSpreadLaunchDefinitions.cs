@@ -28,7 +28,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
             {
                 var slot=bombs.Slots[i]; var expected=reference[i];
                 ushort y=unchecked((ushort)-(expected.YSpeed+((hold>>6)&3)));
-                AssertEqual(expected.FuseTimer,slot.BombTimer,"Spread fuse by physical slot");
+                AssertEqual(expected.FuseTimer,slot.BombTimer.RawValue,"Spread fuse by physical slot");
                 AssertEqual(expected.XVelocity,slot.BombSpreadDirectionMagnitude,"Spread native direction/magnitude word");
                 AssertEqual(expected.YSubspeed,slot.BombSpreadInitialYSubvelocity,"Spread initial subvelocity");
                 AssertEqual(expected.YSubspeed,slot.BombSpreadYSubvelocity,"Spread live subvelocity");

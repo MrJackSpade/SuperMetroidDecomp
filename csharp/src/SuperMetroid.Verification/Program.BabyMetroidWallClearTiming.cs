@@ -40,7 +40,7 @@ internal static class BabyMetroidWallClearTimingVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var shitroid = (ShitroidEnemyState)runtime.Enemies.ShitroidBehavior._shitroid;
         shitroid.Function = ShitroidAiFunction.RiseAfterFeeding;
-        shitroid.StateTimer = 0;
+        shitroid.StateTimer = NativeCountdown.Start(0);
 
         // A dash like the movie's: the wall's left edge is three pixels ahead and she moves 2.F000.
         SamusState samus = runtime.Player.Samus!;

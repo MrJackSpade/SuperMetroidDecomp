@@ -12,7 +12,7 @@ internal static class GrapplePointAnimationVerification
         Suite(nameof(VerifyGrappleRopeGeometry), () => VerifyGrappleRopeGeometry(bus));
         ushort begin = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusGrappleRomData.Rendering.PointTilePointers);
         ushort end = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusGrappleRomData.Rendering.PointTilePointers + 2);
-        var grapple = new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = 5 };
+        var grapple = new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = NativeCountdown.Start(5) };
         ushort expectedTimer = 5, expectedPointer = begin;
         for (int tick = 0; tick < 48; tick++)
         {
@@ -25,14 +25,14 @@ internal static class GrapplePointAnimationVerification
             }
             var queue = new VramWriteQueue();
             SamusGrappleMovement.DrawConnectedBeam(bus, grapple, new OamBuffer(), queue, new(0, 0));
-            AssertEqual(expectedTimer, grapple.PointAnimationTimer, "Grapple endpoint timer matches native DEC/BPL");
+            AssertEqual(expectedTimer, grapple.PointAnimationTimer.RawValue, "Grapple endpoint timer matches native DEC/BPL");
             AssertEqual(0x9a0000 | expectedPointer, queue.Entries[0].SourceAddress, $"Grapple endpoint follows four-frame native stride at tick {tick}");
             AssertEqual(2, queue.Entries.Count, "Zero-length rope still queues native endpoint and segment tiles");
         }
         foreach (ushort timer in new ushort[] { 0, 1, 5, 32768, 32769, 65535 })
         for (int frame = 0; frame < 256; frame++)
         {
-            grapple.PointAnimationFrame = (byte)frame; grapple.PointAnimationTimer = timer;
+            grapple.PointAnimationFrame = (byte)frame; grapple.PointAnimationTimer = NativeCountdown.FromRaw(timer);
             expectedPointer = unchecked((ushort)(begin + frame * 512));
             expectedTimer = unchecked((ushort)(timer - 1));
             if ((short)expectedTimer < 0)
@@ -42,7 +42,7 @@ internal static class GrapplePointAnimationVerification
             }
             var queue = new VramWriteQueue();
             SamusGrappleMovement.DrawConnectedBeam(bus, grapple, new OamBuffer(), queue, new(0, 0));
-            AssertEqual(expectedTimer, grapple.PointAnimationTimer, "Endpoint boundary timer matches native signed decrement");
+            AssertEqual(expectedTimer, grapple.PointAnimationTimer.RawValue, "Endpoint boundary timer matches native signed decrement");
             AssertEqual(0x9a0000 | expectedPointer, queue.Entries[0].SourceAddress, "Endpoint ordinal retains native wrapped pointer arithmetic");
         }
         Console.WriteLine("Grapple endpoint animation: two four-frame cycles and 1536 restored frame/timer boundaries preserve native upload source and six-call cadence.");

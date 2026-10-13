@@ -64,23 +64,23 @@ internal sealed class EnemyInstructionInterpreter
                 return;
             case CommonEnemyInstruction.DecrementTimerAndGoto:
             case CommonEnemyInstruction.DecrementTimerAndGotoDuplicate:
-                slot.Timer = unchecked((ushort)(slot.Timer - 1));
-                cursor = slot.Timer != 0
+                slot.Timer = slot.Timer.Decrement().Remaining;
+                cursor = !slot.Timer.IsZero
                     ? ReadEnemyInstructionMechanicsWord(
                         slot,
                         unchecked((ushort)(cursor + 2)))
                     : unchecked((ushort)(cursor + 4));
                 return;
             case CommonEnemyInstruction.SetTimer:
-                slot.Timer = ReadEnemyInstructionMechanicsWord(
+                slot.Timer = NativeCountdown.FromRaw(ReadEnemyInstructionMechanicsWord(
                     slot,
-                    unchecked((ushort)(cursor + 2)));
+                    unchecked((ushort)(cursor + 2))));
                 cursor = unchecked((ushort)(cursor + 4));
                 return;
             case CommonEnemyInstruction.WaitFrames:
-                slot.InstructionTimer = ReadEnemyInstructionMechanicsWord(
+                slot.InstructionTimer = NativeCountdown.FromRaw(ReadEnemyInstructionMechanicsWord(
                     slot,
-                    unchecked((ushort)(cursor + 2)));
+                    unchecked((ushort)(cursor + 2))));
                 slot.CurrentInstruction = unchecked((ushort)(cursor + 4));
                 yieldInterpreter = true;
                 return;
@@ -230,8 +230,8 @@ internal sealed class EnemyInstructionInterpreter
             return;
         }
 
-        ushort oldTimer = slot.InstructionTimer;
-        slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
+        ushort oldTimer = slot.InstructionTimer.RawValue;
+        slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
         if (oldTimer != 1)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
@@ -244,7 +244,7 @@ internal sealed class EnemyInstructionInterpreter
             ushort word = ReadEnemyInstructionMechanicsWord(slot, cursor);
             if ((word & 0x8000) == 0)
             {
-                slot.InstructionTimer = word;
+                slot.InstructionTimer = NativeCountdown.FromRaw(word);
                 slot.SpritemapPointer = ReadEnemyVisualSelector(slot,
                     unchecked((ushort)(cursor + 2)));
                 slot.CurrentInstruction = unchecked((ushort)(cursor + 4));

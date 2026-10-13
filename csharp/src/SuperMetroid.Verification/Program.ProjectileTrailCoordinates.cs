@@ -108,7 +108,7 @@ internal static class ProjectileTrailCoordinatesVerification
             spawn(NewTrailCoordinateGuard(bus), shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(expected, (actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y), "Real trail spawn matches four native signed positions at coordinate wrap boundaries");
-            AssertEqual(1, actual.Left.InstructionTimer, "Compiled coordinates retain spawn timing");
+            AssertEqual(1, actual.Left.InstructionTimer.RawValue, "Compiled coordinates retain spawn timing");
             cases++;
         }
         // $90:BE17 reflects a projectile onto the start of its new direction's list. A trail

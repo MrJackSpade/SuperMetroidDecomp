@@ -40,8 +40,8 @@ internal sealed class PowampBehavior : IEnemySpecies
         // instruction interpreter's loop counter before choosing the half-specific list.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.SpritemapPointer = 0x804d;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
 
         if (!state.IsBalloon)
         {
@@ -49,7 +49,7 @@ internal sealed class PowampBehavior : IEnemySpecies
             // $40-byte negative index. Reject malformed populations instead of accidentally
             // binding a body to an unrelated actor.
             RequirePowampBalloon(slot);
-            state.FunctionTimer = PowampRestFrames;
+            state.FunctionTimer = NativeCountdown.Start(PowampRestFrames);
             state.Function = PowampEnemyFunction.DeflatedResting;
             SetPowampInstruction(slot, PowampInstructionProgramDefinitions.BodySlow);
             return;
@@ -118,7 +118,7 @@ internal sealed class PowampBehavior : IEnemySpecies
         {
             SetPowampInstruction(balloon, PowampInstructionProgramDefinitions.BalloonInflate0);
             state.Function = PowampEnemyFunction.Inflating;
-            state.FunctionTimer = PowampTransitionFrames;
+            state.FunctionTimer = NativeCountdown.Start(PowampTransitionFrames);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -261,7 +261,7 @@ internal sealed class PowampBehavior : IEnemySpecies
         {
             body.Position = body.Position.WithWholeY(spawnY);
             state.Function = PowampEnemyFunction.DeflatedResting;
-            state.FunctionTimer = PowampRestFrames;
+            state.FunctionTimer = NativeCountdown.Start(PowampRestFrames);
             SetPowampInstruction(body, PowampInstructionProgramDefinitions.BodySlow);
         }
         AlignPowampBalloonY(body, balloon);
@@ -295,7 +295,7 @@ internal sealed class PowampBehavior : IEnemySpecies
         }
 
         state.Function = PowampEnemyFunction.DeathSequence;
-        state.FunctionTimer = PowampDeathDelayFrames;
+        state.FunctionTimer = NativeCountdown.Start(PowampDeathDelayFrames);
         AlignPowampBalloonY(body, balloon);
     }
 
@@ -378,11 +378,11 @@ internal sealed class PowampBehavior : IEnemySpecies
         RoomEnemySlot balloon,
         bool stopWhenCentered)
     {
-        state.WiggleTimer = unchecked((ushort)(state.WiggleTimer - 1));
-        if (state.WiggleTimer != 0 && !EnemyMath.IsNegative16(state.WiggleTimer))
+        state.WiggleTimer = state.WiggleTimer.Decrement().Remaining;
+        if (!state.WiggleTimer.IsZero && !EnemyMath.IsNegative16(state.WiggleTimer.RawValue))
             return false;
 
-        state.WiggleTimer = PowampWiggleFramesPerOffset;
+        state.WiggleTimer = NativeCountdown.Start(PowampWiggleFramesPerOffset);
         if (state.WiggleIndex >= PowampMotionDefinitions.WigglePhaseCount)
         {
             throw new InvalidDataException(
@@ -429,7 +429,7 @@ internal sealed class PowampBehavior : IEnemySpecies
     private static void StartPowampDeflating(PowampEnemyState state, RoomEnemySlot balloon)
     {
         state.Function = PowampEnemyFunction.Deflating;
-        state.FunctionTimer = PowampTransitionFrames;
+        state.FunctionTimer = NativeCountdown.Start(PowampTransitionFrames);
         SetPowampInstruction(
             balloon,
             PowampInstructionProgramDefinitions.BalloonStartSinking);
@@ -437,8 +437,8 @@ internal sealed class PowampBehavior : IEnemySpecies
 
     private static bool TickPowampTimer(PowampEnemyState state)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        return state.FunctionTimer == 0 || EnemyMath.IsNegative16(state.FunctionTimer);
+        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+        return state.FunctionTimer.IsZero || EnemyMath.IsNegative16(state.FunctionTimer.RawValue);
     }
 
     private static int ComposePowampVerticalDisplacement(PowampEnemyState state) =>
@@ -449,8 +449,8 @@ internal sealed class PowampBehavior : IEnemySpecies
     private static void SetPowampInstruction(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private static RoomLevelData RequirePowampLevel(RoomLevelData? level) =>
@@ -613,7 +613,7 @@ internal sealed class PowampBehavior : IEnemySpecies
         // The list contains the common delete opcode as its first word. Installing timer
         // one lets the shared instruction interpreter consume it later in this same frame.
         spike.InstructionPointer = PowampSpikeInstructionProgramDefinitions.Delete;
-        spike.InstructionTimer = 1;
+        spike.InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <inheritdoc/>

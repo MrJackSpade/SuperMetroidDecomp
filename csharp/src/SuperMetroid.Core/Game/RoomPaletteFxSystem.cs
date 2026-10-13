@@ -144,8 +144,8 @@ public sealed class RoomPaletteFxSystem
 
             // `$8D:C552` decrements before comparing with one. Unsigned underflow is
             // intentional cartridge behavior for malformed or externally edited state.
-            slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
-            if (slot.InstructionTimer != 0)
+            slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
+            if (!slot.InstructionTimer.IsZero)
                 continue;
 
             ExecuteProgram(cgram, colors, slot);
@@ -177,8 +177,8 @@ public sealed class RoomPaletteFxSystem
         slot.ColorByteIndex = 0;
         slot.PreInstruction = (ushort)PaletteFxPreInstruction.Null;
         slot.InstructionPointer = compiled.InitialInstructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
 
         PaletteFxSetup setup = compiled.SetupCallback;
         switch (setup)
@@ -236,7 +236,7 @@ public sealed class RoomPaletteFxSystem
                 if (conditions.SamusY <
                     CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY)
                 {
-                    slot.InstructionTimer = 1;
+                    slot.InstructionTimer = NativeCountdown.Start(1);
                     slot.InstructionPointer = PaletteFxInstructionListPointers.AboveY380;
                 }
                 return;
@@ -245,7 +245,7 @@ public sealed class RoomPaletteFxSystem
                 if (conditions.SamusY <
                     CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY)
                 {
-                    slot.InstructionTimer = 1;
+                    slot.InstructionTimer = NativeCountdown.Start(1);
                     slot.InstructionPointer = PaletteFxInstructionListPointers.AboveY380Second;
                 }
                 return;
@@ -310,7 +310,7 @@ public sealed class RoomPaletteFxSystem
             return;
 
         previousSamusInHeatPaletteIndex = samusInHeatPaletteIndex;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         slot.InstructionPointer = PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems(
             equippedItems,
             samusInHeatPaletteIndex);
@@ -327,7 +327,7 @@ public sealed class RoomPaletteFxSystem
             ushort word = ReadBank8dWord(cursor);
             if ((word & 0x8000) == 0)
             {
-                slot.InstructionTimer = word;
+                slot.InstructionTimer = NativeCountdown.FromRaw(word);
                 WritePaletteRecord(cgram, colors, slot, unchecked((ushort)(cursor + 2)));
                 return;
             }
@@ -360,8 +360,8 @@ public sealed class RoomPaletteFxSystem
                     break;
 
                 case PaletteFxInstruction.DecrementTimerAndGoto:
-                    slot.Timer = unchecked((ushort)(slot.Timer - 1));
-                    cursor = slot.Timer == 0
+                    slot.Timer = slot.Timer.Decrement().Remaining;
+                    cursor = slot.Timer.IsZero
                         ? unchecked((ushort)(cursor + 4))
                         : ReadBank8dWord(unchecked((ushort)(cursor + 2)));
                     break;
@@ -369,8 +369,8 @@ public sealed class RoomPaletteFxSystem
                 case PaletteFxInstruction.SetTimer:
                     // The assembly writes only the low byte addressed by the physical
                     // object index. The high byte was cleared at spawn and remains intact.
-                    slot.Timer = (ushort)((SnesLittleEndian.HighByteInPlace(slot.Timer)) |
-                        ReadBank8dByte(unchecked((ushort)(cursor + 2))));
+                    slot.Timer = NativeCountdown.FromRaw((ushort)((SnesLittleEndian.HighByteInPlace(slot.Timer.RawValue)) |
+                        ReadBank8dByte(unchecked((ushort)(cursor + 2)))));
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
 
@@ -574,8 +574,8 @@ public sealed class RoomPaletteFxSystem
         public ushort ColorByteIndex { get; set; }
         public ushort PreInstruction { get; set; }
         public ushort InstructionPointer { get; set; }
-        public ushort InstructionTimer { get; set; }
-        public ushort Timer { get; set; }
+        public NativeCountdown InstructionTimer { get; set; }
+        public NativeCountdown Timer { get; set; }
 
         public void Clear()
         {
@@ -583,8 +583,8 @@ public sealed class RoomPaletteFxSystem
             ColorByteIndex = 0;
             PreInstruction = 0;
             InstructionPointer = 0;
-            InstructionTimer = 0;
-            Timer = 0;
+            InstructionTimer = NativeCountdown.Start(0);
+            Timer = NativeCountdown.Start(0);
         }
     }
 }

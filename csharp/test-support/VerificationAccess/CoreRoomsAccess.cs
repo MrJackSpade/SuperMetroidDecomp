@@ -1119,12 +1119,12 @@ internal static class RoomPlmSystemAccess
                 throw new InvalidOperationException(
                     "Instruction probe requires exactly one active PLM slot.");
             active[0].InstructionPointer = instructionPointer;
-            active[0].InstructionTimer = 1;
+            active[0].InstructionTimer = NativeCountdown.Start(1);
         }
 
         /// <summary>Current PLM instruction countdown, or zero after deletion.</summary>
         internal ushort MotherBrainGlassInstructionTimer => MotherBrainGlassSlot(self) is { } slot
-            ? slot.InstructionTimer
+            ? slot.InstructionTimer.RawValue
             : (ushort)0;
 
         /// <summary>
@@ -1181,7 +1181,7 @@ internal static class RoomPlmSystemAccess
                 RoomArgument: slot.RoomArgument,
                 InstructionPointer: slot.InstructionPointer,
                 PreInstruction: slot.PreInstruction,
-                InstructionTimer: slot.InstructionTimer,
+                InstructionTimer: slot.InstructionTimer.RawValue,
                 LinkInstruction: slot.LinkInstruction,
                 LoopTimer: slot.LoopTimer);
         }
@@ -1329,7 +1329,7 @@ internal static class RoomPlmSystemAccess
                 PlmPopulationLoader.ClearSlot(slot);
                 slot.Active = true;
                 slot.BlockIndex = blockIndex;
-                slot.InstructionTimer = 1;
+                slot.InstructionTimer = NativeCountdown.Start(1);
                 slot.RestoreLevelWord = 0;
 
                 if (areaDependent)

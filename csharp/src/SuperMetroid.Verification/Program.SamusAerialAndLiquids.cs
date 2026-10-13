@@ -1068,7 +1068,7 @@ internal static void VerifySamusAtmosphericEffects()
     samus.LiquidPhysics.PrepareAnimationFrame(bus, samus, nmiFrameCounter: 1);
     SamusAtmosphericEffectSlot entrySplash = samus.LiquidPhysics.AtmosphericEffects.Slots[0];
     AssertEqual(3, entrySplash.Type, "water entry selects diving-splash type");
-    AssertEqual(2, entrySplash.AnimationTimer, "diving splash initial timer");
+    AssertEqual(2, entrySplash.AnimationTimer.RawValue, "diving splash initial timer");
     AssertEqual(100, entrySplash.Position.X, "diving splash Samus X");
     AssertEqual(110, entrySplash.Position.Y, "diving splash surface Y");
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0d), 6),
@@ -1121,7 +1121,7 @@ internal static void VerifySamusAtmosphericEffects()
     oam.BeginFrame();
     effects.UpdateAndDraw(bus, oam, camera: new(0, 0), fxYPosition: 0,
         directArtwork: atmosphericArt);
-    AssertEqual(1, effects.Slots[0].AnimationTimer, "atmospheric positive timer decrements");
+    AssertEqual(1, effects.Slots[0].AnimationTimer.RawValue, "atmospheric positive timer decrements");
     AssertEqual(105, effects.Slots[0].Position.X, "lava slot zero drifts right");
     AssertEqual(103, effects.Slots[0].Position.Y, "lava spray rises one pixel");
     AssertEqual(0x048, oam.GetEntry(0).TileNumber, "lava frame zero direct OAM tile");
@@ -1132,7 +1132,7 @@ internal static void VerifySamusAtmosphericEffects()
         directArtwork: atmosphericArt);
     AssertEqual(1, effects.Slots[0].AnimationFrame,
         "timer zero reloads old frame then advances packed word");
-    AssertEqual(2, effects.Slots[0].AnimationTimer,
+    AssertEqual(2, effects.Slots[0].AnimationTimer.RawValue,
         "frame advance reloads literal ROM duration");
     AssertEqual(0x049, oam.GetEntry(0).TileNumber, "lava frame one direct OAM tile");
 
@@ -1166,21 +1166,21 @@ internal static void VerifySamusAtmosphericEffects()
     AssertEqual(7, runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
         "boost-stage-four foot contact creates dust");
     AssertEqual(0x8002,
-        runner.LiquidPhysics.AtmosphericEffects.Slots[0].AnimationTimer,
+        runner.LiquidPhysics.AtmosphericEffects.Slots[0].AnimationTimer.RawValue,
         "first foot effect uses delayed-start sentinel");
     AssertEqual(3,
-        runner.LiquidPhysics.AtmosphericEffects.Slots[1].AnimationTimer,
+        runner.LiquidPhysics.AtmosphericEffects.Slots[1].AnimationTimer.RawValue,
         "second foot effect starts immediately");
 
     // $90:A40E reads $0A68 (stored-shine timer), not the boost palette timer
     // at $0AD0. Boost buildup must still publish footsteps into the real queue.
     runner.HorizontalSpeed.SpeedBoostCounter = 0x0301;
-    runner.HorizontalSpeed.SpecialPaletteTimer = 1;
+    runner.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(1);
     runner.LiquidPhysics.PrepareAnimationFrame(bus, runner, nmiFrameCounter: 1);
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 6), 6),
         runner.LiquidPhysics.SoundRequests.Single(), "boost palette timer does not suppress footsteps");
     AssertTrue(runner.Shinespark.TryStoreFromSpeedBooster(0x0400), "seed stored shine sound gate");
-    runner.HorizontalSpeed.SpecialPaletteTimer = 0;
+    runner.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(0);
     runner.LiquidPhysics.PrepareAnimationFrame(bus, runner, nmiFrameCounter: 1);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "stored shine timer suppresses footsteps");
 
@@ -1261,7 +1261,7 @@ internal static void VerifySamusAtmosphericEffects()
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(7, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "submerged landing leaves prior atmospheric slot untouched");
-    AssertEqual(9, landing.LiquidPhysics.AtmosphericEffects.Slots[2].AnimationTimer,
+    AssertEqual(9, landing.LiquidPhysics.AtmosphericEffects.Slots[2].AnimationTimer.RawValue,
         "submerged return does not clear stale timer");
 
     // Ceres/debug deletion writes only frame/type. Position and timer are observable stale
@@ -1274,7 +1274,7 @@ internal static void VerifySamusAtmosphericEffects()
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(0, landing.LiquidPhysics.AtmosphericEffects.Slots[2].FrameAndType,
         "Ceres deletes landing packed word");
-    AssertEqual(9, landing.LiquidPhysics.AtmosphericEffects.Slots[2].AnimationTimer,
+    AssertEqual(9, landing.LiquidPhysics.AtmosphericEffects.Slots[2].AnimationTimer.RawValue,
         "Ceres delete preserves atmospheric timer");
     AssertEqual(77, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Position.X,
         "Ceres delete preserves atmospheric X");

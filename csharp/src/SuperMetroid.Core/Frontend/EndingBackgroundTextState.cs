@@ -19,7 +19,7 @@ internal sealed class EndingBackgroundTextState
     private readonly EndingInventorySnapshot inventory;
     private readonly bool japaneseText;
     private ushort instructionPointer;
-    internal ushort instructionTimer = 1;
+    internal NativeCountdown instructionTimer = NativeCountdown.Start(1);
     private readonly ushort tilemapDestination;
     [NonSerialized] private EndingTextPresentation? presentation;
     [NonSerialized] private EndingTextCharacter[]? installedProgram;
@@ -72,11 +72,11 @@ internal sealed class EndingBackgroundTextState
 
     private void StepInstalled(SnesVram vram)
     {
-        if (Completed || instructionTimer-- != 1) return;
+        if (Completed || !(instructionTimer = instructionTimer.Decrement().Remaining).IsZero) return;
         if (installedInitialMarkerPending)
         {
             installedInitialMarkerPending = false;
-            instructionTimer = EndingTextDefinitions.InitialDelayFrames;
+            instructionTimer = NativeCountdown.Start(EndingTextDefinitions.InitialDelayFrames);
             return;
         }
         if (installedCharacterIndex < installedProgram!.Length)
@@ -86,7 +86,7 @@ internal sealed class EndingBackgroundTextState
             tilemap[target] = character.TopWord;
             if (character.BottomWord is { } bottom)
                 tilemap[target + EndingTextDefinitions.TilemapWidth] = bottom;
-            instructionTimer = EndingTextDefinitions.CharacterDelayFrames;
+            instructionTimer = NativeCountdown.Start(EndingTextDefinitions.CharacterDelayFrames);
             Upload(vram);
             return;
         }
@@ -98,7 +98,7 @@ internal sealed class EndingBackgroundTextState
                     EndingCreditsRomData.Text.JapaneseSubtitleDestination,
                     EndingCreditsRomData.Text.JapaneseSubtitleWords));
             installedHoldStarted = true;
-            instructionTimer = EndingTextDefinitions.PercentageHoldFrames;
+            instructionTimer = NativeCountdown.Start(EndingTextDefinitions.PercentageHoldFrames);
             Upload(vram);
             return;
         }

@@ -193,7 +193,7 @@ internal static class CeresDoorInstructionProgramDefinitionsVerification
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             samus = new SamusState();
             return enemies;
         }

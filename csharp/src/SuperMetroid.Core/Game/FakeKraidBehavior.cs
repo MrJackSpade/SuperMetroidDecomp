@@ -94,15 +94,15 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         ushort random = ReadFakeKraidRandomNumber();
         ushort seedDelay = unchecked((ushort)((random & 3) + 2));
         state.WalkStepTimer = seedDelay;
-        state.SpitDecisionTimer = seedDelay;
+        state.SpitDecisionTimer = NativeCountdown.FromRaw(seedDelay);
         state.SpikeTimers[0] = unchecked((ushort)(seedDelay + 64));
         state.SpikeTimers[1] = unchecked((ushort)(seedDelay + 96));
         state.SpikeTimers[2] = unchecked((ushort)(seedDelay + 48));
         state.SpikeTimerByteOffset = 0;
 
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         state.WalkDelta = -4;
         state.FacingDelta = -4;
         slot.CurrentInstruction =
@@ -162,8 +162,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
                 "Fake Kraid walk bytecode requires Samus and room collision data.");
         }
 
-        if (state.SpitDecisionTimer != 0)
-            state.SpitDecisionTimer = unchecked((ushort)(state.SpitDecisionTimer - 1));
+        state.SpitDecisionTimer = state.SpitDecisionTimer.DecrementToZero();
 
         // C's post-decrement comparison is exact here: when the old value is one, reload
         // seven through ten and reverse without moving. Otherwise attempt the signed four-
@@ -198,7 +197,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
     private ushort SelectFakeKraidInstruction(
         FakeKraidEnemyState state)
     {
-        if (state.SpitDecisionTimer != 0)
+        if (!state.SpitDecisionTimer.IsZero)
         {
             if (state.FacingDelta < 0)
             {
@@ -212,8 +211,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
                 : FakeKraidInstructionProgramDefinitions.StepForwardsFacingRight;
         }
 
-        state.SpitDecisionTimer = unchecked((ushort)(
-            (ReadFakeKraidRandomNumber() & 3) + 3));
+        state.SpitDecisionTimer = NativeCountdown.FromRaw(unchecked((ushort)(
+            (ReadFakeKraidRandomNumber() & 3) + 3)));
         return state.FacingDelta < 0
             ? FakeKraidInstructionProgramDefinitions.FireSpitFacingLeft
             : FakeKraidInstructionProgramDefinitions.FireSpitFacingRight;

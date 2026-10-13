@@ -177,7 +177,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (int step = 0; step < steps; step++)
         {
             (ushort X, ushort Y) before = (segment.Position.X.Whole, segment.Position.Y.Whole);
-            segment.InstructionTimer = 1;
+            segment.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
             moved |= segment.Position.X.Whole != before.X || segment.Position.Y.Whole != before.Y;
         }

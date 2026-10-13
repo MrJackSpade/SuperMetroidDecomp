@@ -70,7 +70,7 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
         AssertEqual(PolypRockInstructionProgramDefinitions.Sleep,
             rock.InstructionPointer,
             "Polyp rock remains at its authored terminal sleep");
-        AssertEqual((ushort)0, rock.InstructionTimer,
+        AssertEqual((ushort)0, rock.InstructionTimer.RawValue,
             "Polyp-rock sleep leaves the instruction timer stopped");
 
         rock.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
@@ -109,7 +109,7 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
 
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
         }
     }

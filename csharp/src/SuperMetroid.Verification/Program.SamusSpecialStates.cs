@@ -111,7 +111,7 @@ internal static void VerifySamusCrystalFlash()
         Missiles = 10,
         SuperMissiles = 10,
         PowerBombs = 10,
-        InvincibilityTimer = 96,
+        InvincibilityTimer = NativeCountdown.Start(96),
     };
     samus.PoseMetadata.RefreshCollisionRadii(bus);
 
@@ -121,7 +121,7 @@ internal static void VerifySamusCrystalFlash()
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
     AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord | (ushort)SnesButton.A),
         "Crystal Flash rejects extra held input");
-    AssertEqual(96, samus.InvincibilityTimer, "rejected Crystal Flash preserves hit immunity");
+    AssertEqual(96, samus.InvincibilityTimer.RawValue, "rejected Crystal Flash preserves hit immunity");
     samus.Kinematics.YSubspeed = 1;
     AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord),
         "Crystal Flash rejects fractional vertical movement");
@@ -130,7 +130,7 @@ internal static void VerifySamusCrystalFlash()
         "rejected Crystal Flash must not shift history");
     AssertTrue(samus.CrystalFlash.TryBegin(bus, samus, chord),
         "Crystal Flash accepts exact chord and resources");
-    AssertEqual(0, samus.InvincibilityTimer, "Crystal Flash activation clears native hit immunity");
+    AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash activation clears native hit immunity");
     AssertEqual(SamusPoseId.CrystalFlashRightPose, samus.Pose,
         "source direction selects right Crystal Flash pose");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "Crystal Flash shifts previous pose");
@@ -153,15 +153,15 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash bubble palette begins at color ten");
     AssertEqual(0x0205, crystalCgram.Colors[0xef],
         "Crystal Flash bubble palette copies six colors");
-    AssertEqual(5, samus.CrystalFlash.SpecialPaletteTimer,
+    AssertEqual(5, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
         "Crystal Flash bubble timer reloads five");
-    AssertEqual(10, samus.CrystalFlash.CrystalPaletteTimer,
+    AssertEqual(10, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
         "Crystal Flash body timer comes from interleaved ROM record");
     AssertEqual(4, samus.CrystalFlash.CommonPaletteTimer,
         "Crystal Flash body record advances four bytes");
     AssertEqual(2, samus.HorizontalSpeed.SpecialPaletteFrame,
         "Crystal Flash publishes aliased $0ACE palette frame");
-    AssertEqual(4, samus.HorizontalSpeed.SpecialPaletteTimer,
+    AssertEqual(4, samus.HorizontalSpeed.SpecialPaletteTimer.RawValue,
         "Crystal Flash publishes aliased $0AD0 record offset");
 
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
@@ -170,23 +170,23 @@ internal static void VerifySamusCrystalFlash()
         samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus, beamPalettes, crystalColors);
     AssertEqual(0x0220, crystalCgram.Colors[0xea],
         "Crystal Flash bubble palette advances independently");
-    AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer,
+    AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
         "Crystal Flash body palette retains independent countdown");
 
     ushort initialY = samus.Position.Y.Whole;
-    samus.InvincibilityTimer = 77;
+    samus.InvincibilityTimer = NativeCountdown.Start(77);
     for (int frame = 0; frame < 9; frame++)
     {
         samus.CrystalFlash.Step(bus, samus, (ushort)frame);
         AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
             $"raise frame {frame} retains start handler");
-        AssertEqual(77, samus.InvincibilityTimer, "ordinary raise handler does not clear immunity");
+        AssertEqual(77, samus.InvincibilityTimer.RawValue, "ordinary raise handler does not clear immunity");
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = chord });
     }
     AssertEqual((initialY - 18), samus.Position.Y.Whole, "first nine raise calls move 18 pixels");
 
     samus.CrystalFlash.Step(bus, samus, 9);
-    AssertEqual(0, samus.InvincibilityTimer, "raise completion clears hit immunity");
+    AssertEqual(0, samus.InvincibilityTimer.RawValue, "raise completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
         "tenth raise call installs ammo handler");
     AssertEqual((initialY - 20), samus.Position.Y.Whole, "complete raise is 20 pixels");
@@ -250,28 +250,28 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(0, crystalWindow.Status,
         "Crystal Flash HDMA cleanup clears shared status");
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = chord });
-    AssertEqual(2, samus.AnimationFrameTimer,
+    AssertEqual(2, samus.AnimationFrameTimer.RawValue,
         "same beta frame decrements forced timer three to two");
 
     // Call only accepted NMI counters divisible by eight. These are the only handler calls
     // that can consume ammo or restore energy; skipped counters are checked separately.
-    samus.InvincibilityTimer = 77;
-    samus.KnockbackTimer = 5;
+    samus.InvincibilityTimer = NativeCountdown.Start(77);
+    samus.KnockbackTimer = NativeCountdown.Start(5);
     var resourcesBeforeSkipped =
         (samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs);
     samus.CrystalFlash.Step(bus, samus, 15);
-    AssertEqual(0, samus.InvincibilityTimer, "non-draining main frame still clears hit immunity");
-    AssertEqual(0, samus.KnockbackTimer, "non-draining main frame still clears knockback timer");
+    AssertEqual(0, samus.InvincibilityTimer.RawValue, "non-draining main frame still clears hit immunity");
+    AssertEqual(0, samus.KnockbackTimer.RawValue, "non-draining main frame still clears knockback timer");
     AssertEqual(resourcesBeforeSkipped,
         (samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs),
         "non-mod-eight frame leaves Crystal Flash resources untouched");
     for (ushort drain = 1; drain <= 30; drain++)
     {
-        samus.InvincibilityTimer = 77;
-        samus.KnockbackTimer = 5;
+        samus.InvincibilityTimer = NativeCountdown.Start(77);
+        samus.KnockbackTimer = NativeCountdown.Start(5);
         samus.CrystalFlash.Step(bus, samus, unchecked((ushort)(drain * 8)));
-        AssertEqual(0, samus.InvincibilityTimer, "ammo-drain frame clears hit immunity, including final drain");
-        AssertEqual(0, samus.KnockbackTimer, "ammo-drain frame clears knockback timer");
+        AssertEqual(0, samus.InvincibilityTimer.RawValue, "ammo-drain frame clears hit immunity, including final drain");
+        AssertEqual(0, samus.KnockbackTimer.RawValue, "ammo-drain frame clears knockback timer");
     }
 
     AssertEqual(0, samus.Missiles, "Crystal Flash consumes ten missiles");
@@ -297,12 +297,12 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash standing transition is applied");
     AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
         "pose transition does not prematurely replace installed handler");
-    samus.InvincibilityTimer = 77;
+    samus.InvincibilityTimer = NativeCountdown.Start(77);
     samus.CrystalFlash.Step(bus, samus, 0x0200);
-    AssertEqual(0, samus.InvincibilityTimer, "Crystal Flash normal-input completion clears hit immunity");
+    AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash normal-input completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.Inactive, samus.CrystalFlash.Phase,
         "following beta pass restores normal movement handler");
-    AssertEqual(0xffff, samus.CrystalFlash.SpecialPaletteTimer,
+    AssertEqual(0xffff, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
         "cleanup requests normal palette restoration");
     AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus, beamPalettes, crystalColors),
         "Crystal Flash finish restores beam palette");
@@ -418,7 +418,7 @@ internal static void VerifySamusXray()
     AssertEqual(SamusPoseId.XrayingStandingRightPose, standing.Pose, "right standing X-ray pose");
     AssertEqual(21, standing.Kinematics.Radius.Y, "standing X-ray radius");
     AssertEqual(2, standing.AnimationFrame, "command five starts X-ray frame two");
-    AssertEqual(0x3f, standing.AnimationFrameTimer, "command five X-ray timer");
+    AssertEqual(0x3f, standing.AnimationFrameTimer.RawValue, "command five X-ray timer");
     AssertEqual(SnesAngle.QuarterTurn.TableIndex, standing.Xray.Angle.TableIndex,
         "right X-ray initial angle");
     AssertEqual(XraySetupStage.FreezeTimeBackupBg2Registers, standing.Xray.SetupStage, "X-ray starts setup stage one");
@@ -431,9 +431,9 @@ internal static void VerifySamusXray()
 
     AssertEqual(2, standing.Xray.StepMovement(bus, standing)!.Value,
         "angle 40 selects forward X-ray frame");
-    AssertEqual(15, standing.AnimationFrameTimer, "X-ray movement forces timer fifteen");
+    AssertEqual(15, standing.AnimationFrameTimer.RawValue, "X-ray movement forces timer fifteen");
     standing.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(14, standing.AnimationFrameTimer,
+    AssertEqual(14, standing.AnimationFrameTimer.RawValue,
         "generic animation follows X-ray movement timer write");
 
     // Palette handler eight runs in the palette-FX phase. Timer one expires immediately,
@@ -442,7 +442,7 @@ internal static void VerifySamusXray()
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, cgram.Colors[196], "first widening visor color");
     AssertEqual(2, standing.Xray.SpecialPaletteFrame, "widening palette offset advances");
-    AssertEqual(SamusXrayRomData.Palette.FrameDelay, standing.Xray.CommonPaletteTimer,
+    AssertEqual(SamusXrayRomData.Palette.FrameDelay, standing.Xray.CommonPaletteTimer.RawValue,
         "widening palette timer reload");
 
     // Eight instruction-list setup functions execute before the main bank-$88 preinstruction.
@@ -536,7 +536,7 @@ internal static void VerifySamusXray()
     for (int tick = 0; tick < 5; tick++)
         standing.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(2, standing.AnimationFrame, "X-ray turn reaches frame two");
-    AssertEqual(1, standing.AnimationFrameTimer, "X-ray turn reaches timer one");
+    AssertEqual(1, standing.AnimationFrameTimer.RawValue, "X-ray turn reaches timer one");
     standing.Xray.HandlePoseInput(bus, standing, 0);
     AssertTrue((int)standing.Pose != 0x25, "X-ray completes standing turn");
     AssertEqual(SamusPoseId.TurningRightToLeftPose, standing.PoseHistory.LastDifferentPose, "X-ray completion shifts turning pose");
@@ -797,7 +797,7 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(5, samus.AnimationFrame, "ordinary death starts unmorphed frame five");
     AssertEqual(new Position16<ScreenPixels>(0x00a0, 0x00c0), samus.DeathSequence.ScreenPosition, "death captures screen position");
     AssertTrue(!samus.DeathSequence.SpinJumpSoundRequested, "ordinary death does not request spin SFX");
-    AssertEqual(2, samus.AnimationFrameTimer, "death pose retains two-tick delay");
+    AssertEqual(2, samus.AnimationFrameTimer.RawValue, "death pose retains two-tick delay");
 
     var cgram = new SnesCgram();
     var writes = new VramWriteQueue();
@@ -837,7 +837,7 @@ internal static void VerifySamusDeathSequence()
     }
     AssertEqual(0, samus.DeathSequence.AnimationIndex,
         "explosion begins at index zero");
-    AssertEqual(20, samus.DeathSequence.AnimationTimer,
+    AssertEqual(20, samus.DeathSequence.AnimationTimer.RawValue,
         "same-call first explosion decrement");
     AssertEqual(0x081c, samus.DeathSequence.ExplosionSpritemapIndex!.Value,
         "right explosion base spritemap");

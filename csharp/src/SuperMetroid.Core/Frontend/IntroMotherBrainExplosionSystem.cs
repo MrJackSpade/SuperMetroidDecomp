@@ -60,7 +60,7 @@ internal sealed class IntroMotherBrainExplosionSystem
     internal sealed class ExplosionActor
     {
         private ushort instructionPointer;
-        private ushort instructionTimer;
+        private NativeCountdown instructionTimer;
 
         private ExplosionActor(
             Position16<ScreenPixels> position,
@@ -69,7 +69,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         {
             Position = position;
             this.instructionPointer = instructionPointer;
-            this.instructionTimer = instructionTimer;
+            this.instructionTimer = NativeCountdown.FromRaw(instructionTimer);
         }
 
         public Position16<ScreenPixels> Position { get; }
@@ -108,12 +108,12 @@ internal sealed class IntroMotherBrainExplosionSystem
             // makes deletion occur in this same handler call.
             if (introCrossfadeTimer == 0)
             {
-                instructionTimer = 1;
+                instructionTimer = NativeCountdown.Start(1);
                 instructionPointer = CinematicCodePointers.Lists.Delete;
             }
 
-            instructionTimer = unchecked((ushort)(instructionTimer - 1));
-            if (instructionTimer != 0)
+            instructionTimer = instructionTimer.Decrement().Remaining;
+            if (!instructionTimer.IsZero)
                 return;
 
             ushort pointer = instructionPointer;
@@ -123,7 +123,7 @@ internal sealed class IntroMotherBrainExplosionSystem
                     IntroMotherBrainExplosionInstructionDefinitions.ReadWord(pointer);
                 if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
                 {
-                    instructionTimer = instructionOrDuration;
+                    instructionTimer = NativeCountdown.FromRaw(instructionOrDuration);
                     SpriteMapPointer = IntroMotherBrainExplosionInstructionDefinitions.ReadWord(
                         Add(pointer, 2));
                     instructionPointer = Add(pointer, 4);

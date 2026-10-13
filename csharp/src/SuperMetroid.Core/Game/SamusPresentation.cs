@@ -94,7 +94,7 @@ internal sealed class SamusPresentation
                 $"Samus pose ${(int)_samus.Pose:X2} cannot initialize directly on delay command ${initialDelay:X2}.");
         }
 
-        _samus.AnimationFrameTimer = unchecked((ushort)(_samus.AnimationFrameBuffer + initialDelay));
+        _samus.AnimationFrameTimer = NativeCountdown.FromRaw(unchecked((ushort)(_samus.AnimationFrameBuffer + initialDelay)));
         _samus.LastAnimationDelayCommand = null;
         _samus.PendingTransitionalPose = null;
     }
@@ -141,7 +141,7 @@ internal sealed class SamusPresentation
             _samus.PoseMetadata.RefreshCollisionRadii(bus);
         _samus.AnimationDelayListAddress = ResolveAnimationDelayList();
         _samus.AnimationFrame = frame;
-        _samus.AnimationFrameTimer = timer;
+        _samus.AnimationFrameTimer = NativeCountdown.FromRaw(timer);
         _samus.LastAnimationDelayCommand = null;
         _samus.PendingTransitionalPose = null;
     }
@@ -157,7 +157,7 @@ internal sealed class SamusPresentation
         if (_samus.Pose is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose))
             throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose ${(int)_samus.Pose:X2}.");
         _samus.AnimationFrame = frame;
-        _samus.AnimationFrameTimer = 15;
+        _samus.AnimationFrameTimer = NativeCountdown.Start(15);
     }
 
     /// <summary>
@@ -189,15 +189,15 @@ internal sealed class SamusPresentation
         if (_samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
             _samus.Kinematics.YDirection != SamusVerticalDirection.Down &&
             _samus.AnimationFrame == 1 &&
-            _samus.AnimationFrameTimer == 1)
+            _samus.AnimationFrameTimer.RawValue == 1)
         {
-            _samus.AnimationFrameTimer = 4;
+            _samus.AnimationFrameTimer = NativeCountdown.Start(4);
         }
 
         // DEC is 16-bit. A timer accidentally initialized to zero becomes $FFFF; BMI then
         // advances just like BEQ does for an ordinary 1 -> 0 expiration.
-        _samus.AnimationFrameTimer = unchecked((ushort)(_samus.AnimationFrameTimer - 1));
-        if (_samus.AnimationFrameTimer != 0 && (_samus.AnimationFrameTimer & 0x8000) == 0)
+        _samus.AnimationFrameTimer = _samus.AnimationFrameTimer.Decrement().Remaining;
+        if (!_samus.AnimationFrameTimer.IsZero && !_samus.AnimationFrameTimer.IsNegative)
             return;
 
         _samus.AnimationFrame = unchecked((ushort)(_samus.AnimationFrame + 1));
@@ -213,8 +213,8 @@ internal sealed class SamusPresentation
     {
         Ensure.NotNull(bus);
         EnsureAnimationInitialized();
-        _samus.AnimationFrameTimer = unchecked((ushort)(_samus.AnimationFrameTimer - 1));
-        if (_samus.AnimationFrameTimer != 0 && (_samus.AnimationFrameTimer & 0x8000) == 0)
+        _samus.AnimationFrameTimer = _samus.AnimationFrameTimer.Decrement().Remaining;
+        if (!_samus.AnimationFrameTimer.IsZero && !_samus.AnimationFrameTimer.IsNegative)
             return;
         _samus.AnimationFrame = unchecked((ushort)(_samus.AnimationFrame + 1));
         HandleAnimationDelay(bus, controllerInput: 0);
@@ -232,7 +232,7 @@ internal sealed class SamusPresentation
     internal void SetAnimationFrameFromSpecialHandler(ushort frame, ushort timer)
     {
         _samus.AnimationFrame = frame;
-        _samus.AnimationFrameTimer = timer;
+        _samus.AnimationFrameTimer = NativeCountdown.FromRaw(timer);
     }
 
     private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput,
@@ -254,7 +254,7 @@ internal sealed class SamusPresentation
                     ? _samus.HorizontalSpeed.ReadSpeedBoosterAnimationByte(bus, _samus.AnimationFrame)
                     : ReadDefaultRunningAnimationByte(bus, _samus.AnimationFrame)
                 : delayOrCommand;
-            _samus.AnimationFrameTimer = unchecked((ushort)(_samus.AnimationFrameBuffer + runningOrPoseDelay));
+            _samus.AnimationFrameTimer = NativeCountdown.FromRaw(unchecked((ushort)(_samus.AnimationFrameBuffer + runningOrPoseDelay)));
             return;
         }
 
@@ -280,7 +280,7 @@ internal sealed class SamusPresentation
                     queueEchoSound))
                 {
                     _samus.AnimationFrame = stagedFrame;
-                    _samus.AnimationFrameTimer = stagedTimer;
+                    _samus.AnimationFrameTimer = NativeCountdown.FromRaw(stagedTimer);
                     _samus.LastAnimationDelayCommand = delayOrCommand;
                     return;
                 }
@@ -292,8 +292,8 @@ internal sealed class SamusPresentation
             {
                 _samus.AnimationFrame = 0;
                 _samus.LastAnimationDelayCommand = delayOrCommand;
-                _samus.AnimationFrameTimer = unchecked((ushort)(
-                    _samus.AnimationFrameBuffer + ReadDefaultRunningAnimationByte(bus, byteIndex: 0)));
+                _samus.AnimationFrameTimer = NativeCountdown.FromRaw(unchecked((ushort)(
+                    _samus.AnimationFrameBuffer + ReadDefaultRunningAnimationByte(bus, byteIndex: 0))));
                 return;
             }
         }
@@ -438,7 +438,7 @@ internal sealed class SamusPresentation
             throw new InvalidDataException(
                 $"Samus animation command ${delayOrCommand:X2} selected another command ${selectedDelay:X2}.");
         }
-        _samus.AnimationFrameTimer = unchecked((ushort)(_samus.AnimationFrameBuffer + selectedDelay));
+        _samus.AnimationFrameTimer = NativeCountdown.FromRaw(unchecked((ushort)(_samus.AnimationFrameBuffer + selectedDelay)));
     }
 
     private void EnsureAnimationInitialized()
@@ -502,8 +502,8 @@ internal sealed class SamusPresentation
         // Samus. Active knockback and any nonzero stored/active shine timer independently
         // force the body visible, even though the separately drawn arm cannon follows its
         // stricter `$90:C663` rule and may still disappear on that same odd frame.
-        bool bodyVisible = _samus.KnockbackTimer != 0 ||
-            _samus.InvincibilityTimer == 0 ||
+        bool bodyVisible = !_samus.KnockbackTimer.IsZero ||
+            _samus.InvincibilityTimer.IsZero ||
             _samus.InputSnapshot.SharedShineTimer != 0 ||
             (nmiFrameCounter & 1) == 0;
         if (!bodyVisible)

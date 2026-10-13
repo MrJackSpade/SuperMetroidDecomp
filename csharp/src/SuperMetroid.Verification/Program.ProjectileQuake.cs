@@ -44,7 +44,7 @@ internal static class ProjectileQuakeVerification
             actor.DrawPriority = priority;
             actor.Position = actor.Position.WithWhole(new(unchecked((ushort)position), unchecked((ushort)position)));
             enemies.Earthquake.EarthquakeType = type;
-            enemies.Earthquake.EarthquakeTimer = timer;
+            enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(timer);
             short dx = 0, dy = 0;
             if (timer != 0 && type < 36 && !frozen)
             {
@@ -69,7 +69,7 @@ internal static class ProjectileQuakeVerification
             string quakeCase = $"type={type}, timer={timer}, priority={priority}, origin={position}";
             AssertSameBytes(expected.LowTable, actual.LowTable, $"native quake OAM low table: {quakeCase}");
             AssertSameBytes(expected.HighTable, actual.HighTable, $"native quake OAM high table: {quakeCase}");
-            AssertEqual(timer, enemies.Earthquake.EarthquakeTimer, "drawing leaves quake timer untouched");
+            AssertEqual(timer, enemies.Earthquake.EarthquakeTimer.RawValue, "drawing leaves quake timer untouched");
             AssertEqual(unchecked((ushort)position), actor.Position.X.Whole, "drawing preserves world X");
             AssertEqual(unchecked((ushort)position), actor.Position.Y.Whole, "drawing preserves world Y");
             cases++;

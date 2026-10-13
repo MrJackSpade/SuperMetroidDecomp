@@ -66,7 +66,7 @@ public sealed class SamusVisorPaletteState
         // DEC is deliberately word-wide. Normally only the low timer changes, but if an
         // external debugger supplies timer zero the borrow also decrements the high offset,
         // exactly as the adjacent native WRAM bytes do.
-        PackedTimerIndex = unchecked((ushort)(PackedTimerIndex - 1));
+        PackedTimerIndex = NativeWordCounter.Decrement(PackedTimerIndex).Value;
         if (Timer != 0)
         {
             return new SamusVisorPaletteStepResult();

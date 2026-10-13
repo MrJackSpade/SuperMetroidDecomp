@@ -201,12 +201,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
 
             case DeadSidehopperAiFunction.BeginPostLandingDelay:
                 state.Function = DeadSidehopperAiFunction.PostLandingDelay;
-                state.StateTimer = 64;
+                state.StateTimer = NativeCountdown.Start(64);
                 return;
 
             case DeadSidehopperAiFunction.PostLandingDelay:
-                state.StateTimer = unchecked((ushort)(state.StateTimer - 1));
-                if ((state.StateTimer & 0x8000) == 0)
+                state.StateTimer = state.StateTimer.Decrement().Remaining;
+                if (!state.StateTimer.IsNegative)
                     return;
 
                 if (state.PaletteStage != 0)
@@ -539,8 +539,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     internal static void SetDeadSidehopperInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private DeadSidehopperEnemyState RequireDeadSidehopperState(RoomEnemySlot slot)

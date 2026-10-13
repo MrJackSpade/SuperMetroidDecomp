@@ -48,7 +48,7 @@ internal static class SpeedBoosterPickupVerification
             AssertTrue(fixture.Samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
                 "Speed Booster acquired before message continuation");
             AssertEqual((ushort)0, fx.PackedYVelocity, "message has not yet armed lava");
-            AssertEqual((ushort)0x20, fx.Timer, "pickup preserves native liquid delay");
+            AssertEqual((ushort)0x20, fx.Timer.RawValue, "pickup preserves native liquid delay");
             AssertEqual((ushort)0xda, fx.BaseYPosition, "pickup preserves native liquid surface");
 
             // Runtime suspends gameplay while the message is active and invokes this
@@ -57,7 +57,7 @@ internal static class SpeedBoosterPickupVerification
             AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.PackedYVelocity,
                 "only the Chozo instruction list writes the native upward velocity");
             fx.Step(cartridge, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
-            AssertEqual((ushort)0x20, fx.Timer, "first FX pass selects waiting phase");
+            AssertEqual((ushort)0x20, fx.Timer.RawValue, "first FX pass selects waiting phase");
             for (int frame = 0; frame < 32; frame++)
             {
                 fx.Step(cartridge, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });

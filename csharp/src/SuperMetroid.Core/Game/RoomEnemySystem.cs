@@ -658,7 +658,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         RoomStatus.EnemyDoorTransitionActive = false;
         Projectiles.LastEnemyProjectileDudSoundEffect = null;
         RoomStatus.FirefleaDarknessLevel = 0;
-        Earthquake.EarthquakeTimer = 0;
+        Earthquake.EarthquakeTimer = NativeCountdown.Start(0);
         Earthquake.EarthquakeType = 0;
         Earthquake.LastRoomShake = default;
         RidleyEncounter.Ridley = null;
@@ -729,9 +729,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             // before checking time freeze. X-ray therefore stops their movement but
             // not this clock. Remember the entry value: the call that reaches zero
             // still skips collision, and a new AI-owned timer must not lose a tick.
-            bool invincibleAtEntry = slot.InvincibilityTimer != 0;
+            bool invincibleAtEntry = !slot.InvincibilityTimer.IsZero;
             if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) && invincibleAtEntry)
-                slot.InvincibilityTimer = unchecked((ushort)(slot.InvincibilityTimer - 1));
+                slot.InvincibilityTimer = slot.InvincibilityTimer.Decrement().Remaining;
             // EnemyMain checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
             // bank $90 consumes the carry; a late touch pass would retrigger that support.
@@ -788,16 +788,16 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                     // immediately. That branch stores the remaining AI bits into BOTH
                     // words; replacing the clock with literal zero loses retail behavior
                     // when hurt and frozen dispatch coexist.
-                    slot.FlashTimer = 0;
-                    bool thaw = slot.FrozenTimer == 0 ||
+                    slot.FlashTimer = NativeCountdown.Start(0);
+                    bool thaw = slot.FrozenTimer.IsZero ||
                         (frame.Samus is not null &&
                             (frame.Samus.EquippedBeams & (ushort)SamusBeamFlags.Ice) == 0);
                     if (!thaw)
-                        slot.FrozenTimer = unchecked((ushort)(slot.FrozenTimer - 1));
+                        slot.FrozenTimer = slot.FrozenTimer.Decrement().Remaining;
                     else
                     {
                         slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0004));
-                        slot.FrozenTimer = slot.AiHandlerBits;
+                        slot.FrozenTimer = NativeCountdown.FromRaw(slot.AiHandlerBits);
                     }
                     Ai.RunFrozen(slot);
                     // The native frame clock advances after every selected AI call,
@@ -841,13 +841,13 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             // $A0:9128 performs this after the enemy has been admitted to its draw queue.
             // Keeping it here also makes the boss's latched draw palettes describe the
             // frame just processed rather than the already-decremented following frame.
-            if (!frame.TimeIsFrozen && slot.FlashTimer != 0)
+            if (!frame.TimeIsFrozen && !slot.FlashTimer.IsZero)
             {
-                slot.FlashTimer = unchecked((ushort)(slot.FlashTimer - 1));
+                slot.FlashTimer = slot.FlashTimer.Decrement().Remaining;
                 // `$A0:9128` clears hurt dispatch once the post-decrement timer is below
                 // eight. This is a signed comparison and applies even when another AI bit
                 // remains set; omitting it would strand Metroid in custom hurt forever.
-                if (unchecked((short)(slot.FlashTimer - 8)) < 0)
+                if (unchecked((short)(slot.FlashTimer.RawValue - 8)) < 0)
                     slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0002));
             }
         }
@@ -863,7 +863,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 nativeIndex,
                 slot.Position.Whole,
                 new(slot.Radius.X, slot.Radius.Y),
-                slot.FrozenTimer,
+                slot.FrozenTimer.RawValue,
                 slot.Properties));
         }
         FrameContext._randomEnemyCounter = unchecked((ushort)(FrameContext._randomEnemyCounter + 1));
@@ -898,8 +898,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         slot.AiHandlerBits = 0;
         slot.Parameter1 = population.Parameter1;
         slot.Parameter2 = population.Parameter2;
-        slot.Timer = 0;
-        slot.InstructionTimer = 1;
+        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = NativeCountdown.Start(1);
         slot.FrameCounter = 0;
         slot.AiBank = definition.Bank;
         slot.HurtAiTime = definition.HurtAiTime;
@@ -971,7 +971,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         if (Earthquake.Advance(timeIsFrozen))
         {
             foreach (ushort nativeIndex in ProcessingWindow._activeEnemyIndexes)
-                SlotTable.SlotFromNativeIndex(nativeIndex).ShakeTimer = RoomFxRomData.Earthquake.EnemyShakeDuration;
+                SlotTable.SlotFromNativeIndex(nativeIndex).ShakeTimer = NativeCountdown.Start(RoomFxRomData.Earthquake.EnemyShakeDuration);
         }
         return Earthquake.LastRoomShake;
     }

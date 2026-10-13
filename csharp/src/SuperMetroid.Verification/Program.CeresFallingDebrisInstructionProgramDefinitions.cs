@@ -63,11 +63,11 @@ internal static class CeresFallingDebrisInstructionProgramDefinitionsVerificatio
             RunForcedTick(enemies, debris);
             AssertEqual(sleep, debris.InstructionPointer,
                 "Ceres debris terminal sleep retains its own opcode");
-            AssertEqual((ushort)0, debris.InstructionTimer,
+            AssertEqual((ushort)0, debris.InstructionTimer.RawValue,
                 "Ceres debris terminal sleep stores the native zero timer");
 
             debris.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
-            debris.InstructionTimer = 1;
+            debris.InstructionTimer = NativeCountdown.Start(1);
             RunForcedTick(enemies, debris);
             AssertTrue(!debris.IsActive,
                 "Ceres debris shot reaction reaches the compiled shared delete program");
@@ -116,7 +116,7 @@ internal static class CeresFallingDebrisInstructionProgramDefinitionsVerificatio
 
         void RunForcedTick(RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile)
         {
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }

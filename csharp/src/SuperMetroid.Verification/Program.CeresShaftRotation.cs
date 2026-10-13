@@ -27,7 +27,7 @@ internal static class CeresShaftRotationVerification
                 timer = rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + offset);
             var actual = state.Step(empty, null, 0x8000, allowDeparture: false, scratch);
             AssertEqual(changed, actual.MatrixChanged, "shaft matrix publication frame");
-            AssertEqual(timer, state.RotationTimer, "shaft native timer every frame");
+            AssertEqual(timer, state.RotationTimer.RawValue, "shaft native timer every frame");
             if (changed)
             {
                 AssertEqual(rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 4)), actual.Transform.MatrixA, "shaft native cosine every publication");

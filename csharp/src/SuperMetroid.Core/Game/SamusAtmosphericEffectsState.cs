@@ -59,7 +59,7 @@ public sealed class SamusAtmosphericEffectsState
 
         SamusAtmosphericEffectSlot slot = _slots[slotIndex];
         slot.FrameAndType = unchecked((ushort)(SnesLittleEndian.Word(animationFrame, type)));
-        slot.AnimationTimer = animationTimer;
+        slot.AnimationTimer = NativeCountdown.FromRaw(animationTimer);
         slot.Position = anchor;
     }
 
@@ -108,15 +108,15 @@ public sealed class SamusAtmosphericEffectsState
 
             byte type = slot.Type;
             byte frameBeforeTimer = slot.AnimationFrame;
-            slot.AnimationTimer = unchecked((ushort)(slot.AnimationTimer - 1));
+            slot.AnimationTimer = slot.AnimationTimer.Decrement().Remaining;
 
-            if (slot.AnimationTimer == 0)
+            if (slot.AnimationTimer.IsZero)
             {
                 // `$90:8A86` reloads using the OLD frame and only then increments the
                 // packed word. That ordering is why a newly created timer-three frame is
                 // visible for two calls before frame one begins.
                 slot.AnimationTimer =
-                    SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer);
+                    NativeCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer));
                 slot.FrameAndType = unchecked((ushort)(slot.FrameAndType + 1));
                 if (slot.AnimationFrame >=
                     SamusAtmosphericAnimationDefinitions.FrameCount(type))
@@ -125,14 +125,14 @@ public sealed class SamusAtmosphericEffectsState
                     continue;
                 }
             }
-            else if (unchecked((short)slot.AnimationTimer) < 0)
+            else if (slot.AnimationTimer.IsNegative)
             {
                 // Negative timers suppress both drawing and motion. Exactly `$8000` is a
                 // delayed-start marker: reload the current frame's ROM duration and draw it.
-                if (slot.AnimationTimer != 0x8000)
+                if (slot.AnimationTimer.RawValue != 0x8000)
                     continue;
                 slot.AnimationTimer =
-                    SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer);
+                    NativeCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer));
             }
 
             switch (type)
@@ -255,7 +255,7 @@ public sealed class SamusAtmosphericEffectSlot
     public byte Type => SnesLittleEndian.HighByte(FrameAndType);
 
     /// <summary>$0AD4 array countdown in update calls; negative words suppress motion/drawing until decrement reaches $8000 and reloads the current frame duration.</summary>
-    public ushort AnimationTimer { get; internal set; }
+    public NativeCountdown AnimationTimer { get; internal set; }
 
     /// <summary>
     /// $0ADC/$0AE4 array anchor in whole room pixels; camera subtraction occurs only when
@@ -267,7 +267,7 @@ public sealed class SamusAtmosphericEffectSlot
     internal void Clear()
     {
         FrameAndType = 0;
-        AnimationTimer = 0;
+        AnimationTimer = NativeCountdown.Start(0);
         Position = Position16<RoomPixels>.Zero;
     }
 }

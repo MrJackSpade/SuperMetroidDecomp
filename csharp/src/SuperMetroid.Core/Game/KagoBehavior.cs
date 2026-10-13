@@ -35,13 +35,13 @@ internal sealed class KagoBehavior : IEnemySpecies
         // Kago's population word already carries the other authored property bits. Native
         // init ORs only $2000 so the common instruction interpreter animates the shell.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.VariableE = 0;
         slot.CurrentInstruction = KagoInstructionProgramDefinitions.Slow;
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
-        state.HitCounter = slot.Parameter1;
+        state.HitCounter = NativeCountdown.FromRaw(slot.Parameter1);
     }
 
     /// <summary>Ports <c>Kago_Main</c> and its one useful indirect target.</summary>
@@ -68,17 +68,17 @@ internal sealed class KagoBehavior : IEnemySpecies
     internal void ResolveKagoShotAfterCommon(RoomEnemySlot slot, KagoEnemyState state)
     {
         _earthquake.EarthquakeType = 2;
-        _earthquake.EarthquakeTimer = 16;
+        _earthquake.EarthquakeTimer = NativeCountdown.Start(16);
 
         if (!state.UsesFastAnimation)
         {
             state.UsesFastAnimation = true;
             slot.CurrentInstruction = KagoInstructionProgramDefinitions.Fast;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
         }
 
-        state.HitCounter = unchecked((ushort)(state.HitCounter - 1));
-        if (unchecked((short)state.HitCounter) < 0)
+        state.HitCounter = state.HitCounter.Decrement().Remaining;
+        if (state.HitCounter.IsNegative)
         {
             // Common shot AI can theoretically kill the 1600-health shell first with a
             // debug-edited projectile. Do not count the same native death request twice.
@@ -257,7 +257,7 @@ internal sealed class KagoBehavior : IEnemySpecies
 
         projectile.InstructionPointer =
             KagoBugProjectileInstructionProgramDefinitions.JumpStart;
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86D0EB;
     }
 
@@ -307,7 +307,7 @@ internal sealed class KagoBehavior : IEnemySpecies
             projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86D0EB;
             projectile.InstructionPointer =
                 KagoBugProjectileInstructionProgramDefinitions.Landed;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             return;
         }
 
@@ -319,7 +319,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         projectile.PreInstruction =
             (ushort)EnemyProjectilePreInstruction.KagoBug_Falling;
         projectile.InstructionPointer = KagoBugProjectileInstructionProgramDefinitions.Falling;
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Ports instruction <c>$86:D15C</c>, including its unusual RNG reuse.</summary>

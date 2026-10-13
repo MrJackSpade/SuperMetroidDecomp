@@ -198,7 +198,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the shared tail-contact damage value before Samus's suit reduction.</summary>
     public ushort TailDamage { get; internal set; }
     /// <summary>Gets the current AI phase's native countdown word; Ceres self-destruct reuses it as the even dispatch index 0, 2, 4, 6, 8, 10, or 12.</summary>
-    public ushort FunctionTimer { get; internal set; }
+    public NativeCountdown FunctionTimer { get; internal set; }
     /// <summary>Gets the current row index in the shared eye/body reveal palette fade.</summary>
     public ushort FadePaletteOffset { get; internal set; }
     /// <summary>Gets the movement clamp's minimum whole-pixel corner, retaining negative limits as wrapped native words.</summary>
@@ -212,7 +212,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the shared wing animation phase, cycling through ten frames when its timer underflows.</summary>
     public ushort WingFrame { get; internal set; }
     /// <summary>Gets the wing animation's native countdown accumulator, reloaded to $20 after signed underflow.</summary>
-    public ushort WingAnimationTimer { get; internal set; }
+    public NativeCountdown WingAnimationTimer { get; internal set; }
     /// <summary>Gets the decrement selected from velocity magnitude for the wing accumulator; nonnegative vertical motion halves it.</summary>
     public ushort WingAnimationTimerDelta { get; internal set; }
     /// <summary>Gets the shared native tail-controller index; zero retains offsets, one selects neutral control, and the other defined indexes select pogo/stab variants.</summary>
@@ -246,7 +246,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the signed 8.8 velocity computed from the clamped fireball aim angle.</summary>
     public EightEightVector<RoomPixels> FireballVelocity { get; internal set; }
     /// <summary>$7E:7800, independent swoop phase countdown used by $A6:B441-$B594.</summary>
-    public ushort SwoopPhaseTimer { get; internal set; }
+    public NativeCountdown SwoopPhaseTimer { get; internal set; }
     /// <summary>Gets the wrapped swoop angle accumulator; its high byte indexes the native sine table.</summary>
     public ushort SwoopAngleAccumulator { get; internal set; }
     /// <summary>Gets the unsigned 8.8 swoop speed magnitude converged toward each phase's target before resolving axis velocities.</summary>
@@ -259,7 +259,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the Lower Norfair nonzero grabbed-Samus state controlling claw attachment and release.</summary>
     public ushort GrabState { get; internal set; }
     /// <summary>Gets the Lower Norfair countdown keeping the body intangible after a grab release.</summary>
-    public ushort IntangibilityTimer { get; internal set; }
+    public NativeCountdown IntangibilityTimer { get; internal set; }
     /// <summary>Gets the current Lower Norfair movement target's whole-pixel room position.</summary>
     public Position16<RoomPixels> Target { get; internal set; }
     /// <summary>Gets the Lower Norfair pogo bounce counter, reset after its two-bounce threshold.</summary>
@@ -275,7 +275,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the number of zero-health Lower Norfair lunges completed before the authored death transition.</summary>
     public ushort ZeroHealthLungeCount { get; internal set; }
     /// <summary>Gets the Lower Norfair small-explosion countdown, reloaded to four for one explosion every five calls.</summary>
-    public ushort DeathExplosionTimer { get; internal set; }
+    public NativeCountdown DeathExplosionTimer { get; internal set; }
     /// <summary>Gets the Lower Norfair index cycling through ten authored death-explosion placements.</summary>
     public ushort DeathExplosionCount { get; internal set; }
     /// <summary>Gets the native whole-pixel room-liquid target published by Lower Norfair death or combat logic.</summary>

@@ -245,7 +245,7 @@ internal sealed class EnemyProjectileEngine
         // not abort the remaining descending-slot scan. This distinction is observable for
         // Puromi/Nuclear Waffle, whose four persistent body links begin co-located.
         bool collisionPassEnabled = samus is not null &&
-            samus.InvincibilityTimer == 0 &&
+            samus.InvincibilityTimer.IsZero &&
             samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None;
         if (!collisionPassEnabled)
             return;
@@ -268,7 +268,7 @@ internal sealed class EnemyProjectileEngine
         if (finalKnockbackXDirection.HasValue)
         {
             samus!.KnockbackXDirection = finalKnockbackXDirection.Value;
-            samus.KnockbackTimer = 5;
+            samus.KnockbackTimer = NativeCountdown.Start(5);
         }
     }
 
@@ -638,7 +638,7 @@ internal sealed class EnemyProjectileEngine
         samus.Health = samus.Health <= damage
             ? (ushort)0
             : unchecked((ushort)(samus.Health - damage));
-        samus.InvincibilityTimer = projectile.InvincibilityFrames;
+        samus.InvincibilityTimer = NativeCountdown.FromRaw(projectile.InvincibilityFrames);
         ushort knockbackXDirection = unchecked((short)(
             samus.Position.X.Whole - projectile.Position.X.Whole)) >= 0
             ? (ushort)1
@@ -672,8 +672,8 @@ internal sealed class EnemyProjectileEngine
             return;
         }
 
-        ushort oldTimer = projectile.InstructionTimer;
-        projectile.InstructionTimer = unchecked((ushort)(projectile.InstructionTimer - 1));
+        ushort oldTimer = projectile.InstructionTimer.RawValue;
+        projectile.InstructionTimer = projectile.InstructionTimer.Decrement().Remaining;
         if (oldTimer != 1)
             return;
 
@@ -685,7 +685,7 @@ internal sealed class EnemyProjectileEngine
             {
                 if (word == 0)
                     throw new InvalidDataException($"Enemy projectile frame $86:{cursor:X4} has zero duration.");
-                projectile.InstructionTimer = word;
+                projectile.InstructionTimer = NativeCountdown.FromRaw(word);
                 ushort visualOperand = unchecked((ushort)(cursor + 2));
                 SetEnemyProjectileVisualOperand(projectile, visualOperand);
                 projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
@@ -816,7 +816,7 @@ internal sealed class EnemyProjectileEngine
                     // pops the instruction-handler return address, and leaves timer zero.
                     // Subsequent frames wrap zero to FFFF and therefore never parse again.
                     projectile.InstructionPointer = cursor;
-                    projectile.InstructionTimer = 0;
+                    projectile.InstructionTimer = NativeCountdown.Start(0);
                     return;
                 case EnemyProjectileInstruction.PreInstructionInY:
                     projectile.PreInstruction = ReadEnemyProjectileInstructionMechanicsWord(
@@ -888,7 +888,7 @@ internal sealed class EnemyProjectileEngine
                         unchecked((ushort)(cursor +
                             ((CurrentFrame8 & 1) != 0 ? 2 : 4))));
                     projectile.InstructionPointer = unchecked((ushort)(cursor + 6));
-                    projectile.InstructionTimer = 1;
+                    projectile.InstructionTimer = NativeCountdown.Start(1);
                     return;
                 case EnemyProjectileInstruction.NoobTubeShardFlicker:
                     projectile.Position = projectile.Position.WithWholeX((CurrentFrame8 & 1) != 0
@@ -897,7 +897,7 @@ internal sealed class EnemyProjectileEngine
                     SetEnemyProjectileVisualOperand(projectile,
                         unchecked((ushort)(cursor + 2)));
                     projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
-                    projectile.InstructionTimer = 1;
+                    projectile.InstructionTimer = NativeCountdown.Start(1);
                     return;
                 case EnemyProjectileInstruction.RTS_8681DE:
                     // Bomb Torizo's impact list uses this address as a compact no-op before
@@ -1387,7 +1387,7 @@ internal sealed class EnemyProjectileEngine
         // indexes this literal thirty-word table with the spawn parameter. Parameter three
         // selects $E138 for Rinka; Boulder passes $11 for its impact cloud.
         projectile.InstructionPointer = instructionList;
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>
@@ -1461,7 +1461,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         projectile.Variable0 = parameter;
         projectile.InstructionPointer = definition.Instruction;
-        projectile.InstructionTimer = 1;
+        projectile.InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Spawns the four bank-$86 particles emitted by a dying/burrowing Skree.</summary>

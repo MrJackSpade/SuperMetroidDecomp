@@ -94,7 +94,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         Type type = typeof(RoomEnemySystem);
         enemies.BindFixtureBus(guard);
         enemies.Presentation._cgram = cgram;
-        enemies.WorkRobotBehavior._workRobotPaletteAnimationTimer = (ushort)1;
+        enemies.WorkRobotBehavior._workRobotPaletteAnimationTimer = NativeCountdown.Start((ushort)1);
         enemies.WorkRobotBehavior._workRobotPaletteAnimationTableOffset = (ushort)0;
         enemies.WorkRobotBehavior._workRobotPaletteAnimationPaletteIndex = (ushort)0;
         var step = new Action(enemies.WorkRobotBehavior.StepWorkRobotPaletteAnimation);
@@ -119,7 +119,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
                 WorkRobotPaletteTimingDefinitions.DurationForByteOffset(
                     unchecked((ushort)(record *
                         WorkRobotPaletteTimingDefinitions.RecordByteCount))),
-                (ushort)enemies.WorkRobotBehavior._workRobotPaletteAnimationTimer,
+                (ushort)enemies.WorkRobotBehavior._workRobotPaletteAnimationTimer.RawValue,
                 $"production Work Robot palette load {nextLoad} timer");
             for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
             {

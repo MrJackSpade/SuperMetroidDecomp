@@ -118,7 +118,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         _yardStates[slot.SlotIndex] = state;
 
         slot.SpritemapPointer = YardNothingSpritemap;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
 
         YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(direction);
         slot.CurrentInstruction = definition.CrawlingInstructionList;
@@ -158,7 +158,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         // A super-missile earthquake drops an attached/hiding Yard, but cannot restart one
         // that is already falling, kicked, or shot through the air.
         if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched) &&
-            _earthquake.EarthquakeTimer == 0x001e && _earthquake.EarthquakeType == 0x0014)
+            _earthquake.EarthquakeTimer.RawValue == 0x001e && _earthquake.EarthquakeType == 0x0014)
         {
             DropYard(slot, state);
         }
@@ -217,8 +217,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             {
                 slot.CurrentInstruction = state.HidingInstructionList;
                 slot.SpritemapPointer = YardNothingSpritemap;
-                slot.InstructionTimer = 1;
-                slot.Timer = 0;
+                slot.InstructionTimer = NativeCountdown.Start(1);
+                slot.Timer = NativeCountdown.Start(0);
                 state.Behavior = YardBehavior.Hiding;
                 return;
             }
@@ -386,7 +386,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;
     }
@@ -484,8 +484,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         slot.SpritemapPointer = YardNothingSpritemap;
         state.MovementFunction = YardMovementFunction.InstructionPending;
         slot.CurrentInstruction = state.HidingInstructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private static void SetYardAirborneLists(
@@ -496,8 +496,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             YardDirectionDefinitions.ForAirborneFacing(state.AirborneFacingDirection);
         slot.CurrentInstruction = definition.VisibleInstructionList;
         state.HidingInstructionList = definition.HidingInstructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private static bool MakeYardFaceSamusHorizontally(

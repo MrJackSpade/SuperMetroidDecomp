@@ -177,8 +177,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies
         state.Function = currentlyMovingLeft
             ? SkulteraEnemyFunction.TurningRight
             : SkulteraEnemyFunction.TurningLeft;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.CurrentInstruction = currentlyMovingLeft
             ? SkulteraInstructionProgramDefinitions.TurningRight
             : SkulteraInstructionProgramDefinitions.TurningLeft;
@@ -198,8 +198,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
         state.AngleDelta = unchecked((short)-state.AngleDelta);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.CurrentInstruction = nowMovingLeft
             ? SkulteraInstructionProgramDefinitions.SwimmingLeft
             : SkulteraInstructionProgramDefinitions.SwimmingRight;

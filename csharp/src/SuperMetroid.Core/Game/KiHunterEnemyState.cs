@@ -128,7 +128,7 @@ public sealed class KiHunterEnemyState
     /// <summary>Body $7E:7818/$781A,x initial room position retained from body initialization rather than the changing patrol position; collision recovery returns to patrol after rising above its Y.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
     /// <summary>Body $7E:781E,x gameplay-frame thinking countdown: twelve after landing or twenty-four after acid emission, consumed once the animation selects ground wait.</summary>
-    public ushort WaitTimer { get; internal set; }
+    public NativeCountdown WaitTimer { get; internal set; }
     /// <summary>Body $7E:7820,x swipe-animation latch, cleared on swoop setup and set once the angle passes its facing-specific trigger.</summary>
     public bool SwoopAnimationChanged { get; internal set; }
     /// <summary>Body $7E:7822/$7824,x whole-pixel swoop ellipse radii: the absolute horizontal separation from Samus and Samus Y minus body Y when a swoop begins.</summary>

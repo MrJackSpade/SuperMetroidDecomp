@@ -72,7 +72,7 @@ public sealed class OwtchEnemyState
     }
 
     /// <summary>Native extended word <c>$7E:7800,x</c>.</summary>
-    public ushort UndergroundTimer { get; internal set; }
+    public NativeCountdown UndergroundTimer { get; internal set; }
 
     /// <summary>Native extended word <c>$7E:7802,x</c>.</summary>
     public ushort MinimumXPosition { get; internal set; }

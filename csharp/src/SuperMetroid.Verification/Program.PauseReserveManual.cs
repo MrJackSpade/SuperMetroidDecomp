@@ -88,7 +88,7 @@ internal static class PauseReserveManualVerification
                     DebuggerObjectGraphSerializer.Serialize(state, pause);
                     state.Position = 0;
                     var restored = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(state);
-                    AssertEqual((ushort)15, restored.reserveTransferSoundDelay, "debugger state preserves pending transfer delay");
+                    AssertEqual((ushort)15, restored.reserveTransferSoundDelay.RawValue, "debugger state preserves pending transfer delay");
                 }
             }
             AssertEqual(0, samus.ReserveEnergy, "retail consumes all reserves on exhaustion or max health");

@@ -34,7 +34,7 @@ internal static class GunshipDustDefinitionsVerification
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word(0x86a2c5))), slot.Position.Y.Whole, "Actual dust Y placement and wrap");
                 AssertEqual(instruction, slot.InstructionPointer, "Actual dust program selection");
                 AssertEqual(parameter, slot.Variable0, "Dust retains native even parameter");
-                AssertEqual((ushort)1, slot.InstructionTimer, "Dust begins on first program tick");
+                AssertEqual((ushort)1, slot.InstructionTimer.RawValue, "Dust begins on first program tick");
                 AssertEqual((ushort)0, slot.Position.X.Fraction, "Dust clears stale X fraction");
                 AssertEqual((ushort)0, slot.Position.Y.Fraction, "Dust clears stale Y fraction");
                 AssertEqual((ushort)0, slot.Velocity.X.RawValue, "Dust clears stale X velocity");

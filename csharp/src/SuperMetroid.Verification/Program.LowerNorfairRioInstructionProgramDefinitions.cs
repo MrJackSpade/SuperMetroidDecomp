@@ -176,7 +176,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Holtz;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.CurrentInstruction = entry;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new LowerNorfairRioEnemyState(slot);
         var states = (LowerNorfairRioEnemyState?[])enemies.LowerNorfairRioBehavior._lowerNorfairRioStates;
         states[0] = state;
@@ -191,7 +191,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     {
         for (int call = 0; call < count; call++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
     }

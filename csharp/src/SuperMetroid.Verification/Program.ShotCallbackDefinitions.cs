@@ -138,7 +138,7 @@ internal static class ShotCallbackDefinitionsVerification
             projectile.Position = projectile.Position.WithWhole(enemy.Position.Whole);
             projectile.Radius = new(4, 4);
             projectile.InstructionPointer = 0x9000;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
 
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(
                     guard,

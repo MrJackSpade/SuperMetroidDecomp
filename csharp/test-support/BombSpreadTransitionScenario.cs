@@ -97,7 +97,7 @@ internal sealed class BombSpreadTransitionScenario
             var slot = Runtime.BombProjectiles.Slots[slotIndex];
             string bomb = $"bomb,{slotIndex},{(slot.IsActive ? 1 : 0)}";
             if (slot.IsActive)
-                bomb += $",{slot.Type:X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{slot.BombSpreadDirectionMagnitude:X4},{slot.BombSpreadYVelocity:X4},{slot.BombSpreadYSubvelocity:X4},{slot.BombTimer:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{slot.InstructionPointer:X4},{slot.InstructionTimer:X4},{slot.SpritemapPointer:X4}";
+                bomb += $",{slot.Type:X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{slot.BombSpreadDirectionMagnitude:X4},{slot.BombSpreadYVelocity:X4},{slot.BombSpreadYSubvelocity:X4},{slot.BombTimer.RawValue:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{slot.InstructionPointer:X4},{slot.InstructionTimer.RawValue:X4},{slot.SpritemapPointer:X4}";
             yield return bomb;
         }
     }

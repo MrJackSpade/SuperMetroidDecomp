@@ -239,7 +239,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
 
         NorfairRioEnemyState parentState = RequireNorfairRioState(parent);
         follower.FrozenTimer = parent.FrozenTimer;
-        if (parent.FrozenTimer != 0 ||
+        if (!parent.FrozenTimer.IsZero ||
             parentState.InstalledInstructionList == NorfairRioInstructionProgramDefinitions.Idle)
         {
             follower.Properties = follower.Properties.With(EnemyProperties.Invisible);
@@ -295,8 +295,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
 
         state.InstalledInstructionList = instructionList;
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private RoomEnemySlot GetPrecedingNorfairRioSlot(RoomEnemySlot follower)

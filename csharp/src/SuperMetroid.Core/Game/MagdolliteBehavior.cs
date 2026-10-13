@@ -25,7 +25,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
 
     internal readonly MagdolliteEnemyState?[] _magdolliteStates =
         new MagdolliteEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    internal ushort _magdollitePaletteAnimationTimer;
+    internal NativeCountdown _magdollitePaletteAnimationTimer;
     internal ushort _magdollitePaletteAnimationIndex;
     internal ushort _magdollitePaletteBaseByteOffset;
     internal bool _magdollitePaletteAnimationInstalled;
@@ -40,7 +40,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         LastMagdolliteSoundEffect = null;
         LastMagdolliteLavaDropRequest = null;
         _magdollitePaletteAnimationInstalled = false;
-        _magdollitePaletteAnimationTimer = 0;
+        _magdollitePaletteAnimationTimer = NativeCountdown.Start(0);
         _magdollitePaletteAnimationIndex = 0;
         _magdollitePaletteBaseByteOffset = 0;
     }
@@ -98,7 +98,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
             slot.PaletteIndex).PaletteIndex;
         _magdollitePaletteBaseByteOffset = unchecked((ushort)(
             paletteNumber * 0x20 + 0x0100));
-        _magdollitePaletteAnimationTimer = 8;
+        _magdollitePaletteAnimationTimer = NativeCountdown.Start(8);
         _magdollitePaletteAnimationIndex = 0;
     }
 
@@ -147,7 +147,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         state.OriginY = slot.Position.Y.Whole;
         state.InitializationOriginX = slot.Position.X.Whole;
         state.InstalledInstructionList = 0;
-        state.AttackTimer = 0;
+        state.AttackTimer = NativeCountdown.Start(0);
         state.DesiredInstructionList = MagdolliteInstructionProgramDefinitions.PillarCap;
         InstallMagdolliteInstructionList(slot, state);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 32)));
@@ -161,7 +161,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         MagdolliteEnemyState state,
         SamusState? samus)
     {
-        state.AttackTimer = unchecked((ushort)(state.AttackTimer - 1));
+        state.AttackTimer = state.AttackTimer.Decrement().Remaining;
         switch (state.Function)
         {
             case MagdolliteEnemyFunction.HeadWaiting:
@@ -222,10 +222,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
 
         (_, _, RoomEnemySlot overlay) = RequireMagdolliteComposite(head);
         MagdolliteEnemyState overlayState = RequireMagdolliteState(overlay);
-        if (!EnemyMath.IsNegative16(overlayState.AttackTimer))
+        if (!EnemyMath.IsNegative16(overlayState.AttackTimer.RawValue))
             return;
 
-        overlayState.AttackTimer = 0;
+        overlayState.AttackTimer = NativeCountdown.Start(0);
         ushort range = unchecked((byte)head.Parameter2);
         if (!EnemyMath.IsWithinStrictModularDistance(head.Position.X.Whole, samus.Position.X.Whole, range))
             return;
@@ -495,8 +495,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
             return;
         slot.CurrentInstruction = state.DesiredInstructionList;
         state.InstalledInstructionList = state.DesiredInstructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private MagdolliteEnemyState RequireMagdolliteState(RoomEnemySlot slot) =>
@@ -529,12 +529,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         if (!_magdollitePaletteAnimationInstalled)
             return;
 
-        _magdollitePaletteAnimationTimer = unchecked((ushort)(
-            _magdollitePaletteAnimationTimer - 1));
-        if (_magdollitePaletteAnimationTimer != 0)
+        _magdollitePaletteAnimationTimer = _magdollitePaletteAnimationTimer.Decrement().Remaining;
+        if (!_magdollitePaletteAnimationTimer.IsZero)
             return;
 
-        _magdollitePaletteAnimationTimer = 8;
+        _magdollitePaletteAnimationTimer = NativeCountdown.Start(8);
         _magdollitePaletteAnimationIndex = unchecked((ushort)(
             _magdollitePaletteAnimationIndex + 1));
         int paletteFrame = _magdollitePaletteAnimationIndex &
@@ -649,7 +648,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
                 slot.Position = slot.Position.WithWhole(state.ThrowOrigin + new Offset16<RoomPixels>(-8, -4));
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_SetCooldownTimerTo100:
-                state.AttackTimer = 256;
+                state.AttackTimer = NativeCountdown.Start(256);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MagdolliteInstruction)} {opcode:X4}.");
@@ -687,7 +686,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
                 secondFollowing.Properties = secondFollowing.Properties.With(EnemyProperties.Deleted);
         }
 
-        if (current.FrozenTimer == 0)
+        if (current.FrozenTimer.IsZero)
             return;
         if (following is not null)
         {

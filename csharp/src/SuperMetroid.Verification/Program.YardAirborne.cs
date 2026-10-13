@@ -45,7 +45,7 @@ internal static class YardAirborneVerification
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0]!;
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));
-            actor.InstructionTimer = ushort.MaxValue;
+            actor.InstructionTimer = NativeCountdown.Start(ushort.MaxValue);
             state.MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = behavior;
             state.AirborneVelocity = new FixedVector<RoomPixels>(

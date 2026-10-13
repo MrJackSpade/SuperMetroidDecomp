@@ -127,9 +127,9 @@ internal static class ShitroidInstructionProgramDefinitionsVerification
         shitroid.CurrentInstruction = program;
         for (int call = 0; call < callCount; call++)
         {
-            shitroid.InstructionTimer = 1;
+            shitroid.InstructionTimer = NativeCountdown.Start(1);
             interpreter.Instructions.ProcessInstructions(shitroid, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
-            if (shitroid.InstructionTimer != 0)
+            if (!shitroid.InstructionTimer.IsZero)
             {
                 ushort operand = unchecked((ushort)(shitroid.CurrentInstruction - 2));
                 executedOperands.Add(operand);

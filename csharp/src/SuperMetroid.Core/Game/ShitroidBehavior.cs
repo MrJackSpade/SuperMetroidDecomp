@@ -213,7 +213,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
 
             case ShitroidAiFunction.BeginEntranceDelay:
                 state.Function = ShitroidAiFunction.EntranceDelay;
-                state.StateTimer = 464;
+                state.StateTimer = NativeCountdown.Start(464);
                 goto case ShitroidAiFunction.EntranceDelay;
 
             case ShitroidAiFunction.EntranceDelay:
@@ -258,7 +258,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             case ShitroidAiFunction.ActivateSidehopperCorpse:
                 _deadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireShitroidVictim(slot), state);
                 state.Function = ShitroidAiFunction.RiseAfterFeeding;
-                state.StateTimer = 192;
+                state.StateTimer = NativeCountdown.Start(192);
                 goto case ShitroidAiFunction.RiseAfterFeeding;
 
             case ShitroidAiFunction.RiseAfterFeeding:
@@ -303,14 +303,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies
 
             case ShitroidAiFunction.BeginPostDrainPause:
                 state.Function = ShitroidAiFunction.PostDrainPause;
-                state.StateTimer = 120;
+                state.StateTimer = NativeCountdown.Start(120);
                 goto case ShitroidAiFunction.PostDrainPause;
 
             case ShitroidAiFunction.PostDrainPause:
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.RiseAfterDrainingSamus;
-                    state.StateTimer = 192;
+                    state.StateTimer = NativeCountdown.Start(192);
                     goto case ShitroidAiFunction.RiseAfterDrainingSamus;
                 }
                 return;
@@ -323,7 +323,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
                 {
                     LastShitroidSoundEffectLibrary2 = 0x007d;
                     state.Function = ShitroidAiFunction.FlyLeft;
-                    state.StateTimer = 88;
+                    state.StateTimer = NativeCountdown.Start(88);
                     SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.LatchedOn);
                     goto case ShitroidAiFunction.FlyLeft;
                 }
@@ -342,7 +342,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.FlyRight;
-                    state.StateTimer = 88;
+                    state.StateTimer = NativeCountdown.Start(88);
                     goto case ShitroidAiFunction.FlyRight;
                 }
                 return;
@@ -360,7 +360,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.HoldSamusBeforeRelease;
-                    state.StateTimer = 256;
+                    state.StateTimer = NativeCountdown.Start(256);
                     SetShitroidInstruction(slot, ShitroidInstructionProgramDefinitions.Remorse);
                 }
                 return;
@@ -456,7 +456,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         state.Function = ShitroidAiFunction.DrainSidehopper;
         state.PaletteDelay = 1;
         slot.Parameter2 = 0;
-        state.StateTimer = 320;
+        state.StateTimer = NativeCountdown.Start(320);
     }
 
     private void DrainShitroidVictim(RoomEnemySlot slot, ShitroidEnemyState state)
@@ -465,8 +465,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
         slot.Position = slot.Position.WithWhole(
             victim.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(0, -32));
-        ushort oldTimer = state.StateTimer;
-        state.StateTimer = unchecked((ushort)(oldTimer - 1));
+        ushort oldTimer = state.StateTimer.RawValue;
+        state.StateTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer == 1)
         {
             state.Function = ShitroidAiFunction.ActivateSidehopperCorpse;
@@ -499,13 +499,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies
 
     private ushort SelectShitroidHoverY(ShitroidEnemyState state, ushort followedY)
     {
-        if (state.HoverTimer != 0)
+        if (!state.HoverTimer.IsZero)
         {
-            state.HoverTimer = unchecked((ushort)(state.HoverTimer - 1));
+            state.HoverTimer = state.HoverTimer.Decrement().Remaining;
             return followedY;
         }
         if ((_room.Random.Read() & 0x0fff) >= 0x0fe0)
-            state.HoverTimer = 32;
+            state.HoverTimer = NativeCountdown.Start(32);
         return 80;
     }
 
@@ -807,8 +807,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies
     private static void SetShitroidInstruction(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     internal RoomEnemySlot RequireShitroidVictim(RoomEnemySlot slot)
@@ -833,8 +833,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies
 
     private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state)
     {
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(state.StateTimer);
-        state.StateTimer = timer.Value;
+        NativeWordCounterStep timer = state.StateTimer.Decrement();
+        state.StateTimer = timer.Remaining;
         return timer.IsNegative;
     }
 

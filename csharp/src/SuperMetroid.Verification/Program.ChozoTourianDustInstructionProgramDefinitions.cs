@@ -145,7 +145,7 @@ internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
         {
             for (int frame = 0; frame < frames; frame++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
             }
         }

@@ -99,9 +99,9 @@ internal sealed class CeresRidleyBehavior
         // 14 only when that shift produced carry. In host terms this is precisely old bit
         // zero; testing bit one (or simply toggling the new value) changes repeated-hit
         // timing and eventually moves the escape threshold relative to the hurt palette.
-        slot.FlashTimer = slot.FlashTimer != 0 && (slot.FlashTimer & 1) != 0
+        slot.FlashTimer = NativeCountdown.FromRaw(!slot.FlashTimer.IsZero && (slot.FlashTimer.RawValue & 1) != 0
             ? (ushort)14
-            : (ushort)13;
+            : (ushort)13);
         state.HitCounter = unchecked((ushort)(state.HitCounter + 1));
 
         // The cartridge draws the hurt palette from the enemy frame that just completed.
@@ -164,7 +164,7 @@ internal sealed class CeresRidleyBehavior
             BabyCurrentSpritemap = 0,
             BabyPosition = slot.Position.Whole + CeresBabyArmsAnchor,
             WingFrame = 5,
-            WingAnimationTimer = 0,
+            WingAnimationTimer = NativeCountdown.Start(0),
             WingAnimationTimerDelta = 0,
             TailFunctionIndex = RidleyTailFunction.None,
             TailAngleDelta = 1,
@@ -220,7 +220,7 @@ internal sealed class CeresRidleyBehavior
                 if (_roomStatus.EnemyDoorTransitionActive)
                     break;
                 state.Function = RidleyAiFunction.InitialDelay;
-                state.FunctionTimer = 512;
+                state.FunctionTimer = NativeCountdown.Start(512);
                 TickCeresRidleyInitialDelay(state);
                 break;
 
@@ -237,25 +237,25 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyAiFunction.WaitBeforeRoar:
-                state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-                if ((short)state.FunctionTimer < 0)
+                state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+                if (state.FunctionTimer.IsNegative)
                 {
                     SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.OpeningRoar);
-                    state.FunctionTimer = 252;
+                    state.FunctionTimer = NativeCountdown.Start(252);
                     state.Function = RidleyAiFunction.WaitBeforeLiftoff;
                 }
                 break;
 
             case RidleyAiFunction.WaitBeforeLiftoff:
-                state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-                if ((short)state.FunctionTimer < 0)
+                state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+                if (state.FunctionTimer.IsNegative)
                 {
                     state.FadePaletteOffset = 0;
                     SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.TransitionToFlying);
                     // Function_Ridley_RoarBeforeFly at $A6:A4B4-A4CB primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in
                     // the same transition that installs instruction list $E91D.
-                    state.WingAnimationTimer = 8;
+                    state.WingAnimationTimer = NativeCountdown.Start(8);
                     state.WingAnimationTimerDelta = 8;
                     foreach (RidleyTailSegment segment in state.TailSegments)
                         segment.Active = true;
@@ -297,7 +297,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyAiFunction.CeresLungeSetup:
                 SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.CeresLunge);
                 state.Function = RidleyAiFunction.CeresLungeMain;
-                state.FunctionTimer = 64;
+                state.FunctionTimer = NativeCountdown.Start(64);
                 TickCeresRidleyLunge(slot, state, samus);
                 break;
 
@@ -307,7 +307,7 @@ internal sealed class CeresRidleyBehavior
 
             case RidleyAiFunction.CeresSwoopSetup:
                 state.Function = RidleyAiFunction.CeresSwoopMoveToPosition;
-                state.FunctionTimer = 10;
+                state.FunctionTimer = NativeCountdown.Start(10);
                 state.SwoopAngleAccumulator = 0;
                 state.IdleTailWhipEnabled = 0;
                 TickCeresRidleySwoopMoveToPosition(slot, state);
@@ -358,8 +358,8 @@ internal sealed class CeresRidleyBehavior
             case RidleyAiFunction.CeresSwoopAscendingAimingUpFaster:
                 UpdateRidleySwoopVelocity(
                     state, angleDelta: -768, targetAngle: -30720, targetMagnitude: 768);
-                state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-                if ((short)state.FunctionTimer < 0)
+                state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+                if (state.FunctionTimer.IsNegative)
                 {
                     state.Function = RidleyAiFunction.CeresHovering;
                     state.HoverCounter = 0;
@@ -376,8 +376,8 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyAiFunction.CeresWaitBeforeRetrievingBaby:
-                state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-                if ((short)state.FunctionTimer < 0)
+                state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+                if (state.FunctionTimer.IsNegative)
                 {
                     SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.RetrieveBabyMetroid);
                     state.Function = RidleyAiFunction.CeresRetrieveBaby;
@@ -451,12 +451,12 @@ internal sealed class CeresRidleyBehavior
         RidleyEnemyState state,
         ushort enemyMainExecutionCounter)
     {
-        state.CommonDrawPaletteIndex = slot.FlashTimer != 0 &&
+        state.CommonDrawPaletteIndex = !slot.FlashTimer.IsZero &&
             (enemyMainExecutionCounter & 2) != 0
                 ? (ushort)0
                 : slot.PaletteIndex;
 
-        state.SpritemapPaletteIndex = slot.FlashTimer > 1 &&
+        state.SpritemapPaletteIndex = slot.FlashTimer.RawValue > 1 &&
             (unchecked((ushort)(enemyMainExecutionCounter + 1)) & 2) != 0
                 ? (ushort)0
                 : EnemyPaletteBits.Palette7;
@@ -562,7 +562,7 @@ internal sealed class CeresRidleyBehavior
         // assignment out produces correct boss motion with a conspicuously silent attack.
         SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Fireballing);
         state.Function = RidleyAiFunction.CeresFireballShooting;
-        state.FunctionTimer = 224;
+        state.FunctionTimer = NativeCountdown.Start(224);
         TickCeresRidleyFireballShooting(slot, state);
     }
 
@@ -582,8 +582,8 @@ internal sealed class CeresRidleyBehavior
             state,
             new(unchecked((ushort)xSum), unchecked((ushort)(state.FireballBasePosition.Y + jitter + carry))),
             0);
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if ((short)state.FunctionTimer < 0)
+        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+        if (state.FunctionTimer.IsNegative)
         {
             state.HoverCounter = 0;
             state.Function = RidleyAiFunction.CeresHovering;
@@ -603,8 +603,8 @@ internal sealed class CeresRidleyBehavior
             : unchecked((ushort)(samus.Position.Y.Whole - 68));
         AccelerateRidleyToward(slot, state, new(samus.Position.X.Whole, targetY), 13);
         bool reached = IsWithinRidleyRectangle(slot, new(samus.Position.X.Whole, targetY), new(2, 2));
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if (reached || (short)state.FunctionTimer < 0)
+        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+        if (reached || state.FunctionTimer.IsNegative)
         {
             state.HoverCounter = 0;
             state.Function = RidleyAiFunction.CeresHovering;
@@ -619,7 +619,7 @@ internal sealed class CeresRidleyBehavior
         if (unchecked((short)(slot.Position.Y.Whole - 96)) < 0)
         {
             state.Function = RidleyAiFunction.CeresSwoopDescendingAimingDown;
-            state.FunctionTimer = 10;
+            state.FunctionTimer = NativeCountdown.Start(10);
             state.SwoopAngleAccumulator = 0;
         }
     }
@@ -633,11 +633,11 @@ internal sealed class CeresRidleyBehavior
         ushort nextTimer)
     {
         UpdateRidleySwoopVelocity(state, angleDelta, targetAngle, targetMagnitude);
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if ((short)state.FunctionTimer < 0)
+        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+        if (state.FunctionTimer.IsNegative)
         {
             state.Function = nextFunction;
-            state.FunctionTimer = nextTimer;
+            state.FunctionTimer = NativeCountdown.FromRaw(nextTimer);
         }
     }
 
@@ -696,7 +696,7 @@ internal sealed class CeresRidleyBehavior
         {
             state.BabyFunction = CeresBabyFunction.Drop;
             state.Function = RidleyAiFunction.CeresWaitBeforeRetrievingBaby;
-            state.FunctionTimer = 21;
+            state.FunctionTimer = NativeCountdown.Start(21);
         }
     }
 
@@ -774,7 +774,7 @@ internal sealed class CeresRidleyBehavior
         if (unchecked((short)(slot.Position.Y.Whole + 128)) < 0)
         {
             state.Function = RidleyAiFunction.CeresRetreatDelay;
-            state.FunctionTimer = 64;
+            state.FunctionTimer = NativeCountdown.Start(64);
             TickCeresRidleyRetreatDelay(state);
         }
     }
@@ -782,8 +782,8 @@ internal sealed class CeresRidleyBehavior
     /// <summary><c>Function_RidleyCeres_RealRetreat_WritePalettesSpawnWalls</c> ($A6:A9A0).</summary>
     private void TickCeresRidleyRetreatDelay(RidleyEnemyState state)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if ((short)state.FunctionTimer >= 0)
+        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+        if (!state.FunctionTimer.IsNegative)
             return;
 
         // $A6:A9A5 spawns the two $E23F wall actors before the following
@@ -900,7 +900,7 @@ internal sealed class CeresRidleyBehavior
                 Math.Abs((int)state.Velocity.Y.SignedRawValue)) >= RidleyWallImpactDefinitions.MinimumSpeed)
         {
             _earthquake.EarthquakeType = RidleyWallImpactDefinitions.EarthquakeType;
-            _earthquake.EarthquakeTimer = RidleyWallImpactDefinitions.Duration;
+            _earthquake.EarthquakeTimer = NativeCountdown.Start(RidleyWallImpactDefinitions.Duration);
         }
         (SnesFixedPosition x, ushort xVelocity) = IntegrateAxis(
             slot.Position.X,
@@ -957,23 +957,23 @@ internal sealed class CeresRidleyBehavior
 
     internal static void TickCeresRidleyInitialDelay(RidleyEnemyState state)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-        if ((short)state.FunctionTimer >= 0)
+        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
+        if (!state.FunctionTimer.IsNegative)
             return;
 
         state.Function = RidleyAiFunction.FadeInEyes;
         state.FadePaletteOffset = 0;
-        state.FunctionTimer = 0;
+        state.FunctionTimer = NativeCountdown.Start(0);
     }
 
     internal void TickCeresRidleyEyeFade(RidleyEnemyState state)
     {
         // The original INC/BNE sequence advances once per AI call for every reachable
         // counter value, resetting the scratch timer immediately afterward.
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer + 1));
-        if (state.FunctionTimer == 0)
+        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
+        if (state.FunctionTimer.IsZero)
             return;
-        state.FunctionTimer = 0;
+        state.FunctionTimer = NativeCountdown.Start(0);
 
         CeresRidleyEyeFadeStep fadeStep =
             CeresRidleyEyeFadeDefinitions.Get(state.FadePaletteOffset);
@@ -993,10 +993,10 @@ internal sealed class CeresRidleyBehavior
 
     internal void TickCeresRidleyBodyFade(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer + 1));
-        if (state.FunctionTimer < 2)
+        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
+        if (state.FunctionTimer.RawValue < 2)
             return;
-        state.FunctionTimer = 0;
+        state.FunctionTimer = NativeCountdown.Start(0);
 
         int row = state.FadePaletteOffset /
             (CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort));
@@ -1018,7 +1018,7 @@ internal sealed class CeresRidleyBehavior
         slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         state.FadePaletteOffset = 0;
         state.Function = RidleyAiFunction.WaitBeforeRoar;
-        state.FunctionTimer = 4;
+        state.FunctionTimer = NativeCountdown.Start(4);
         // `$A6:A449` queues track five immediately after the final body-palette row.
         // This is the Ceres battle/escape track; it intentionally continues after Ridley
         // retreats, so omitting this single publication silences both scenes.
@@ -1028,8 +1028,8 @@ internal sealed class CeresRidleyBehavior
     internal static void SetRidleyInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     internal void RegisterCeresRidleyBombReactions(EnemyAiTable table)
@@ -1085,12 +1085,12 @@ internal sealed class CeresRidleyBehavior
             state.WingAnimationTimerDelta = delta;
         }
 
-        state.WingAnimationTimer = unchecked((ushort)(
-            state.WingAnimationTimer - state.WingAnimationTimerDelta));
-        if (unchecked((short)state.WingAnimationTimer) >= 0)
+        state.WingAnimationTimer = NativeCountdown.FromRaw(unchecked((ushort)(
+            state.WingAnimationTimer.RawValue - state.WingAnimationTimerDelta)));
+        if (!state.WingAnimationTimer.IsNegative)
             return;
 
-        state.WingAnimationTimer = 0x0020;
+        state.WingAnimationTimer = NativeCountdown.Start(0x0020);
         state.WingFrame = unchecked((ushort)((state.WingFrame + 1) % 10));
     }
 
@@ -1210,7 +1210,7 @@ internal sealed class CeresRidleyBehavior
             // index is the low two bits of the earthquake timer, but the table contains
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
-            int quakeXOffset = CeresDoorQuakeDefinitions.XOffset(_earthquake.EarthquakeTimer);
+            int quakeXOffset = CeresDoorQuakeDefinitions.XOffset(_earthquake.EarthquakeTimer.RawValue);
             _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresDoorInstructionProgramDefinitions.Bank, Pointer = CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
         }
     }
@@ -1354,7 +1354,7 @@ internal sealed class CeresRidleyBehavior
         if (_ridleyEncounter.Ridley is null ||
             !RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
             slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != 0 ||
-            samus.InvincibilityTimer != 0)
+            !samus.InvincibilityTimer.IsZero)
         {
             return false;
         }
@@ -1524,7 +1524,7 @@ internal sealed class CeresRidleyBehavior
             // special push/fall handler remains responsible for restoring normal input;
             // ending Mode 7 itself does not unlock her in the cartridge.
             state.Function = RidleyAiFunction.CeresActivateSelfDestruct;
-            state.FunctionTimer = 0;
+            state.FunctionTimer = NativeCountdown.Start(0);
             return;
         }
 
@@ -1605,7 +1605,7 @@ internal sealed class CeresRidleyBehavior
         RidleyEnemyState state,
         VramWriteQueue? vramWriteQueue)
     {
-        switch (state.FunctionTimer)
+        switch (state.FunctionTimer.RawValue)
         {
             case 0:
                 // $A6:C062 copies four already-live colors before the warning graphics
@@ -1613,14 +1613,14 @@ internal sealed class CeresRidleyBehavior
                 CopyCeresWarningColors(_presentation.CgramRows.BackgroundRow(0), _presentation.CgramRows.BackgroundRow(6));
                 CopyCeresWarningColors(_presentation.CgramRows.BackgroundRow(1), _presentation.CgramRows.BackgroundRow(5));
                 state.CeresEscapeTransferListPointer = CeresEscapeVramTransferDefinitions.TimerSprites;
-                state.FunctionTimer = 2;
+                state.FunctionTimer = NativeCountdown.Start(2);
                 goto case 2;
 
             case 2:
                 if (QueueNextCeresEscapeTransfer(state, vramWriteQueue))
                 {
                     state.CeresEscapeTransferListPointer = CeresEscapeVramTransferDefinitions.TimerBackgrounds;
-                    state.FunctionTimer = 4;
+                    state.FunctionTimer = NativeCountdown.Start(4);
                     goto case 4;
                 }
                 return;
@@ -1637,7 +1637,7 @@ internal sealed class CeresRidleyBehavior
                     // static warning tilemap page. The frontend consumes this typed request
                     // through the same bank-$80 queue used by every other music producer.
                     state.MusicRequest = MusicCommand.SelectTrack(7);
-                    state.FunctionTimer = 6;
+                    state.FunctionTimer = NativeCountdown.Start(6);
                     state.CeresEscapeTextDelayTimer = 128;
                 }
                 return;
@@ -1664,7 +1664,7 @@ internal sealed class CeresRidleyBehavior
                 // translation incorrectly counted the two INC instructions as four phase
                 // entries and jumped English directly to phase 12, suppressing every
                 // character below "EMERGENCY".
-                state.FunctionTimer = _roomStatus.JapaneseText ? (ushort)8 : (ushort)10;
+                state.FunctionTimer = NativeCountdown.FromRaw(_roomStatus.JapaneseText ? (ushort)8 : (ushort)10);
                 return;
 
             case 8:
@@ -1673,24 +1673,24 @@ internal sealed class CeresRidleyBehavior
                 state.CeresEscapeTextDelayTimer = unchecked((ushort)(oldJapaneseDelay - 1));
                 if (oldJapaneseDelay == 1)
                 {
-                    state.FunctionTimer = 10;
+                    state.FunctionTimer = NativeCountdown.Start(10);
                     QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay,
                         vramWriteQueue);
                 }
                 if (StepCeresEscapeTypewriter(state))
-                    state.FunctionTimer = unchecked((ushort)(state.FunctionTimer + 2));
+                    state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 2)));
                 return;
 
             case 10:
                 UpdateCeresSelfDestructPalette(state, _slotTable._slots[0].FrameCounter);
                 if (StepCeresEscapeTypewriter(state))
-                    state.FunctionTimer = 12;
+                    state.FunctionTimer = NativeCountdown.Start(12);
                 return;
 
             case 12:
                 UpdateCeresSelfDestructPalette(state, _slotTable._slots[0].FrameCounter);
                 state.Velocity = new EightEightVector<RoomPixels>(0, 0);
-                state.FunctionTimer = 0;
+                state.FunctionTimer = NativeCountdown.Start(0);
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
                 _ridleyEncounter.CeresStatus = 2;
                 // $A6:C131 sets the area-boss bit inside Ridley's AI, so later slots (the
@@ -1701,7 +1701,7 @@ internal sealed class CeresRidleyBehavior
 
             default:
                 throw new InvalidDataException(
-                    $"Ceres self-destruct phase ${state.FunctionTimer:X4} is not a native even dispatcher value.");
+                    $"Ceres self-destruct phase ${state.FunctionTimer.RawValue:X4} is not a native even dispatcher value.");
         }
     }
 
@@ -1806,7 +1806,7 @@ internal sealed class CeresRidleyBehavior
         bool completed = installed.Step(_presentation._vram!);
         state.CeresEscapeTextPointer = unchecked((ushort)installed.Pointer);
         state.CeresEscapeTextDestination = installed.Destination;
-        state.CeresEscapeTextDelayTimer = installed.DelayTimer;
+        state.CeresEscapeTextDelayTimer = installed.DelayTimer.RawValue;
         state.CeresEscapeTextDelay = installed.Delay;
         state.CeresEscapeTextSoundCounter = unchecked((ushort)(installed.GlyphsWritten & 1));
         if (installed.ClickRequested)

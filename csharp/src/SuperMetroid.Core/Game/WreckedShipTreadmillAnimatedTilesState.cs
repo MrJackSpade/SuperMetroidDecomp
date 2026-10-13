@@ -25,7 +25,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
 
     private AnimatedTileObject _objectPointer;
     private ushort _instructionPointer;
-    private ushort _instructionTimer;
+    private NativeCountdown _instructionTimer;
     private ushort _transferByteCount;
     private ushort _encodedVramDestination;
 
@@ -55,7 +55,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         LastSourceAddress = null;
         _objectPointer = AnimatedTileObject.None;
         _instructionPointer = 0;
-        _instructionTimer = 0;
+        _instructionTimer = NativeCountdown.Start(0);
         _transferByteCount = 0;
         _encodedVramDestination = 0;
         _compiledMechanics = null;
@@ -97,7 +97,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         _instructionPointer = _compiledMechanics.WaitInstructionPointer;
         _transferByteCount = WreckedShipTreadmillRomData.TransferByteCount;
         _encodedVramDestination = WreckedShipTreadmillRomData.EncodedVramDestination;
-        _instructionTimer = 1;
+        _instructionTimer = NativeCountdown.Start(1);
 
         if (_transferByteCount == 0)
         {
@@ -122,8 +122,8 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         if (!IsActive)
             return;
 
-        _instructionTimer = unchecked((ushort)(_instructionTimer - 1));
-        if (_instructionTimer != 0)
+        _instructionTimer = _instructionTimer.Decrement().Remaining;
+        if (!_instructionTimer.IsZero)
             return;
 
         ushort cursor = _instructionPointer;
@@ -138,7 +138,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
                         $"Animated-tile object $87:{(int)_objectPointer:X4} has a zero-duration " +
                         $"frame at $87:{cursor:X4}.");
                 }
-                _instructionTimer = word;
+                _instructionTimer = NativeCountdown.FromRaw(word);
                 int sourceAddress = (_compiledMechanics ?? throw new InvalidOperationException(
                     "Wrecked Ship treadmill lost its compiled mechanics.")).FrameSourceAddress(cursor);
                 _instructionPointer = unchecked((ushort)(cursor + 4));
@@ -164,7 +164,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
                 case AnimatedTileInstruction.WaitUntilAreaBossIsDead:
                     if (!areaBossDefeated)
                     {
-                        _instructionTimer = 1;
+                        _instructionTimer = NativeCountdown.Start(1);
                         return;
                     }
                     cursor = unchecked((ushort)(cursor + 2));

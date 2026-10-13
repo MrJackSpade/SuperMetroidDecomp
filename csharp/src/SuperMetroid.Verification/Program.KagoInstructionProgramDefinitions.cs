@@ -57,7 +57,7 @@ internal static class KagoInstructionProgramDefinitionsVerification
         AssertEqual(unchecked((ushort)(KagoInstructionProgramDefinitions.Slow + 4)),
             slot.CurrentInstruction,
             "Kago slow program completes its native animation loop");
-        AssertEqual((ushort)10, slot.InstructionTimer,
+        AssertEqual((ushort)10, slot.InstructionTimer.RawValue,
             "Kago slow loop restores its ten-frame duration");
 
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException(
@@ -73,7 +73,7 @@ internal static class KagoInstructionProgramDefinitionsVerification
         AssertEqual(unchecked((ushort)(KagoInstructionProgramDefinitions.Fast + 4)),
             slot.CurrentInstruction,
             "Kago fast program completes its native animation loop");
-        AssertEqual((ushort)3, slot.InstructionTimer,
+        AssertEqual((ushort)3, slot.InstructionTimer.RawValue,
             "Kago fast loop restores its three-frame duration");
 
         AssertEqual(0, guard.ObservedWords.Count,

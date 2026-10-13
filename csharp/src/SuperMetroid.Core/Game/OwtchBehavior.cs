@@ -84,7 +84,7 @@ internal sealed class OwtchBehavior : IEnemySpecies
             LeftSubvelocity = left.Fraction,
             Behavior = (OwtchBehaviorState)initialState,
             SinkYOffset = 0,
-            UndergroundTimer = undergroundTimer,
+            UndergroundTimer = NativeCountdown.FromRaw(undergroundTimer),
             MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - travelDistance)),
             MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + travelDistance)),
         };
@@ -115,8 +115,8 @@ internal sealed class OwtchBehavior : IEnemySpecies
                 return;
 
             case OwtchBehaviorState.Underground:
-                state.UndergroundTimer = unchecked((ushort)(state.UndergroundTimer - 1));
-                if (state.UndergroundTimer == 0)
+                state.UndergroundTimer = state.UndergroundTimer.Decrement().Remaining;
+                if (state.UndergroundTimer.IsZero)
                     state.Behavior = OwtchBehaviorState.Rising;
                 return;
 
@@ -126,8 +126,8 @@ internal sealed class OwtchBehavior : IEnemySpecies
                 if (unchecked((short)(state.SinkYOffset - OwtchMaximumBurialDepth)) >= 0)
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = OwtchMovementDefinitions.UndergroundTimer(
-                        SnesLittleEndian.HighByte(slot.Parameter1));
+                    state.UndergroundTimer = NativeCountdown.FromRaw(OwtchMovementDefinitions.UndergroundTimer(
+                        SnesLittleEndian.HighByte(slot.Parameter1)));
                 }
                 return;
 
@@ -228,8 +228,8 @@ internal sealed class OwtchBehavior : IEnemySpecies
     private static void SetOwtchInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private OwtchEnemyState RequireOwtchState(RoomEnemySlot slot) =>

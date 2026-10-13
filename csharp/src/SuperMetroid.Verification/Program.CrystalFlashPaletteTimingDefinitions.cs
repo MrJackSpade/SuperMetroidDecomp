@@ -55,7 +55,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             PowerBombs = 10,
         };
         samus.PoseMetadata.RefreshCollisionRadii(rom);
-        samus.HorizontalSpeed.SpecialPaletteTimer = 0;
+        samus.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(0);
         AssertTrue(
             samus.CrystalFlash.TryBegin(
                 rom, samus, controllerInput: 0, skipInputCheck: true),
@@ -78,7 +78,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             ushort expectedOffset = unchecked((ushort)(
                 (loadedRecord + 1) % CrystalFlashPaletteTimingDefinitions.RecordCount *
                 CrystalFlashPaletteTimingDefinitions.RecordByteCount));
-            AssertEqual(expectedTimer, samus.CrystalFlash.CrystalPaletteTimer,
+            AssertEqual(expectedTimer, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
                 $"production Crystal Flash body timer call {call}");
             AssertEqual(expectedOffset, samus.CrystalFlash.CommonPaletteTimer,
                 $"production Crystal Flash body record call {call}");

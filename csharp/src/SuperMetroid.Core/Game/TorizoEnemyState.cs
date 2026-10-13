@@ -33,7 +33,7 @@ public sealed class TorizoEnemyState
     public ushort InterruptedInstruction { get; internal set; }
 
     /// <summary>Native <c>toriz_var_03</c>: delayed in-air transition counter.</summary>
-    public ushort AirTransitionTimer { get; internal set; }
+    public NativeCountdown AirTransitionTimer { get; internal set; }
 
     /// <summary>
     /// Native <c>toriz_var_04</c>. Nonzero frames reject shots before common damage AI.

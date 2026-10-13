@@ -625,7 +625,7 @@ internal static void VerifyDemoInputObject()
     // Loading a record and publishing its first visible frame happen in the same handler
     // call. Consequently the last of its 70 visible frames leaves timer one; the following
     // call decrements to zero and fetches the next record.
-    AssertEqual(1, demo.InstructionTimer, "final visible record frame retains timer one");
+    AssertEqual(1, demo.InstructionTimer.RawValue, "final visible record frame retains timer one");
 
     string retailPath = Path.GetFullPath("Super Metroid.smc");
     if (File.Exists(retailPath))
@@ -665,12 +665,12 @@ internal static void VerifyDemoInputObject()
     demo.LoadObject(bus, 0x8720, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
     demo.Step(bus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(bus, pointer)));
     AssertEqual(fixtureHeld, demo.Held, "demo opcode fixture first held word");
-    AssertEqual(2, demo.Timer, "demo set-timer opcode");
+    AssertEqual(2, demo.Timer.RawValue, "demo set-timer opcode");
     demo.Step(bus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(bus, pointer)));
-    AssertEqual(1, demo.Timer, "demo decrement/goto loops while nonzero");
+    AssertEqual(1, demo.Timer.RawValue, "demo decrement/goto loops while nonzero");
     AssertEqual(fixtureHeld, demo.Held, "demo loop replays input record");
     demo.Step(bus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(bus, pointer)));
-    AssertEqual(0, demo.Timer, "demo decrement/goto falls through at zero");
+    AssertEqual(0, demo.Timer.RawValue, "demo decrement/goto falls through at zero");
     AssertEqual(0, demo.InstructionPointer, "demo delete clears list pointer");
     AssertEqual(0, demo.Held, "demo delete clears held input");
     AssertEqual(0, demo.NewlyPressed, "demo delete clears new input");

@@ -173,7 +173,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.CurrentInstruction = entry;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new NorfairRioEnemyState(slot);
         var states = (NorfairRioEnemyState?[])enemies.NorfairRioBehavior._norfairRioStates;
         states[0] = state;
@@ -188,7 +188,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     {
         for (int call = 0; call < count; call++)
         {
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
     }

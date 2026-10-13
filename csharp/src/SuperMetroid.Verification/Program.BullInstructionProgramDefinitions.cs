@@ -55,7 +55,7 @@ internal static class BullInstructionProgramDefinitionsVerification
         AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
             slot.CurrentInstruction,
             "Bull normal program completes its native animation loop");
-        AssertEqual((ushort)10, slot.InstructionTimer,
+        AssertEqual((ushort)10, slot.InstructionTimer.RawValue,
             "Bull normal loop restores its ten-frame duration");
 
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
@@ -68,7 +68,7 @@ internal static class BullInstructionProgramDefinitionsVerification
         AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
             slot.CurrentInstruction,
             "Bull shot program repeats five times and returns to normal");
-        AssertEqual((ushort)0, slot.Timer, "Bull shot loop exhausts its native repeat timer");
+        AssertEqual((ushort)0, slot.Timer.RawValue, "Bull shot loop exhausts its native repeat timer");
 
         AssertEqual(0, guard.ObservedWords.Count,
             "all Bull spritemap words select compiled presentation frames");

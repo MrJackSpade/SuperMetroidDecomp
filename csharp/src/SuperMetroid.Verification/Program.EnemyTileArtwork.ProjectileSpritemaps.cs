@@ -935,7 +935,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             foreach (RoomEnemyProjectileSlot particle in enemies.Projectiles.EnemyProjectiles
                          .Where(particle => particle.IsActive))
             {
-                particle.InstructionTimer = 1;
+                particle.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(particle, new SamusState(), Position16<RoomPixels>.Zero);
             }
             var oam = new OamBuffer();
@@ -960,7 +960,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.GraphicsIndex = 0x0a04;
             slot.InstructionPointer = unchecked((ushort)(operand - 2));
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(), Position16<RoomPixels>.Zero);
             var oam = new OamBuffer();
             oam.BeginFrame();
@@ -981,7 +981,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.GraphicsIndex = 0x0a04;
             slot.InstructionPointer = unchecked((ushort)(
                 NoobTubeProjectileInstructionProgramDefinitions.ShardInstructionLists[0] + 4));
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(), Position16<RoomPixels>.Zero);
             var oam = new OamBuffer();
             oam.BeginFrame();

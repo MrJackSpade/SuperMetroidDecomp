@@ -76,7 +76,7 @@ public static class SamusGrappleMovement
 
         grapple.Phase = GrapplePhase.Firing;
         grapple.FireDirection = direction;
-        grapple.PoseChangeAutoFireTimer = SamusGrappleRomData.Firing.PoseChangeAutoFireFrames;
+        grapple.PoseChangeAutoFireTimer = NativeCountdown.Start(SamusGrappleRomData.Firing.PoseChangeAutoFireFrames);
         var launch = GrappleFiringDefinitions.Launch(direction);
         grapple.ExtensionVelocity = new(launch.XVelocity, launch.YVelocity);
         grapple.Angle = SnesAngle.FromRaw(launch.Angle);
@@ -107,12 +107,12 @@ public static class SamusGrappleMovement
         grapple.GravityAcceleration = 0;
         grapple.VelocityCorrection = 0;
         grapple.JumpImpulse = 0;
-        grapple.CollisionBounceTimer = 0;
+        grapple.CollisionBounceTimer = NativeCountdown.Start(0);
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;
         grapple.SpecialAngleHandling = false;
         grapple.SlowScrolling = false; // $9B:C66F
-        grapple.WallJumpTimer = 0;
+        grapple.WallJumpTimer = NativeCountdown.Start(0);
         grapple.CancelFromConnectedPose = false;
         InitializeBeamAnimation(grapple);
 
@@ -203,11 +203,11 @@ public static class SamusGrappleMovement
         if (grapple.FlareCounter == 1)
         {
             grapple.FlareAnimationFrame = ChargeFlareAnimationDefinitions.GrappleInitialFrame;
-            grapple.FlareAnimationTimer = ChargeFlareAnimationDefinitions.GrappleInitialDelay;
+            grapple.FlareAnimationTimer = NativeCountdown.Start(ChargeFlareAnimationDefinitions.GrappleInitialDelay);
         }
 
-        grapple.FlareAnimationTimer = unchecked((ushort)(grapple.FlareAnimationTimer - 1));
-        if (unchecked((short)grapple.FlareAnimationTimer) < 0)
+        grapple.FlareAnimationTimer = grapple.FlareAnimationTimer.Decrement().Remaining;
+        if (grapple.FlareAnimationTimer.IsNegative)
         {
             grapple.FlareAnimationFrame = unchecked((ushort)(grapple.FlareAnimationFrame + 1));
             byte delay = ChargeFlareAnimationDefinitions.ReadByte(
@@ -229,7 +229,7 @@ public static class SamusGrappleMovement
                         grapple.FlareAnimationFrame);
             }
 
-            grapple.FlareAnimationTimer = delay;
+            grapple.FlareAnimationTimer = NativeCountdown.FromRaw(delay);
         }
 
         ushort screenX = unchecked((ushort)(grapple.BeamStart.X - layer1.X));
@@ -604,7 +604,7 @@ public static class SamusGrappleMovement
         samus.Health = samus.Health <= damage
             ? (ushort)0
             : unchecked((ushort)(samus.Health - damage));
-        samus.InvincibilityTimer = 0x0060;
+        samus.InvincibilityTimer = NativeCountdown.Start(0x0060);
 
         // Facing left is knocked right and facing right is knocked left. Start owns the
         // authentic pose, animation, vertical speed, contact-damage cancellation, and
@@ -636,7 +636,7 @@ public static class SamusGrappleMovement
 
         // `$9B:C81B` writes decimal 30 and changes only the grapple function. The contact
         // pose and beam remain visible throughout the following grace-window probes.
-        grapple.WallJumpTimer = 30;
+        grapple.WallJumpTimer = NativeCountdown.Start(30);
         grapple.Phase = GrapplePhase.WallGrabRelease;
         return new GrappleMovementResult(
             grapple.Phase);
@@ -652,8 +652,8 @@ public static class SamusGrappleMovement
 
         // DEC/BPL at `$9B:C832` gives values 29..0 thirty eligible checks. The next call
         // wraps zero to `$FFFF`, queues dropped, and deliberately performs no wall probe.
-        grapple.WallJumpTimer = unchecked((ushort)(grapple.WallJumpTimer - 1));
-        if ((grapple.WallJumpTimer & 0x8000) != 0)
+        grapple.WallJumpTimer = grapple.WallJumpTimer.Decrement().Remaining;
+        if (grapple.WallJumpTimer.IsNegative)
         {
             grapple.Phase = GrapplePhase.Dropped;
             return new GrappleMovementResult(
@@ -786,7 +786,7 @@ public static class SamusGrappleMovement
             samus.PoseMetadata.RefreshCollisionRadii(bus);
             samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
             grapple.Phase = phase;
-            grapple.WallJumpTimer = 0;
+            grapple.WallJumpTimer = NativeCountdown.Start(0);
             grapple.SlowScrolling = false; // $9B:BB0D
 
             Position16<RoomPixels> cameraPrevious = ClampPreviousPosition(samus.Position.Whole, previousPosition);
@@ -1127,7 +1127,7 @@ public static class SamusGrappleMovement
         grapple.ValidateAnchorBlock = validateAnchorBlock;
         grapple.ValidateAnchorEnemy = validateAnchorEnemy;
         grapple.SpecialAngleHandling = false;
-        grapple.WallJumpTimer = 0;
+        grapple.WallJumpTimer = NativeCountdown.Start(0);
         grapple.CancelFromConnectedPose = false;
 
         // The connection helper clears delta while choosing the new pose, but its caller
@@ -1261,8 +1261,8 @@ public static class SamusGrappleMovement
         // begins at the same authentic first flare state rather than inventing a static OBJ.
         grapple.FlareCounter = 1;
         grapple.FlareAnimationFrame = 0;
-        grapple.FlareAnimationTimer = 0;
-        grapple.PointAnimationTimer = GrapplePointAnimationDefinitions.Delay;
+        grapple.FlareAnimationTimer = NativeCountdown.Start(0);
+        grapple.PointAnimationTimer = NativeCountdown.Start(GrapplePointAnimationDefinitions.Delay);
         grapple.PointAnimationFrame = 0;
         // GrappleFunc_AF87 at $94:AF87 seeds sixteen independent segment instruction
         // slots. Slot 15 starts on tile $24, slot 14 on $23, slot 13 on $22, slot 12 on
@@ -1270,7 +1270,7 @@ public static class SamusGrappleMovement
         // consume each initial record on its first draw.
         for (int slot = 0; slot < grapple.SegmentAnimationFrames.Length; slot++)
         {
-            grapple.SegmentAnimationTimers[slot] = 1;
+            grapple.SegmentAnimationTimers[slot] = NativeCountdown.Start(1);
             grapple.SegmentAnimationFrames[slot] = unchecked((byte)(slot & 3));
             grapple.SegmentAnimationStarted[slot] = false;
         }
@@ -1388,9 +1388,9 @@ public static class SamusGrappleMovement
             // Keeping the one-time first expiry explicit preserves the native five-draw
             // interval without pretending that all rope pieces share one animation frame.
             int instructionSlot = SamusGrappleRomData.Rendering.FirstSegmentSlot - segment;
-            if (grapple.SegmentAnimationTimers[instructionSlot]-- == 1)
+            if ((grapple.SegmentAnimationTimers[instructionSlot] = grapple.SegmentAnimationTimers[instructionSlot].Decrement().Remaining).IsZero)
             {
-                grapple.SegmentAnimationTimers[instructionSlot] = SamusGrappleRomData.Rendering.SegmentAnimationDelay;
+                grapple.SegmentAnimationTimers[instructionSlot] = NativeCountdown.Start(SamusGrappleRomData.Rendering.SegmentAnimationDelay);
                 if (grapple.SegmentAnimationStarted[instructionSlot])
                 {
                     grapple.SegmentAnimationFrames[instructionSlot] = unchecked((byte)(
@@ -1490,7 +1490,7 @@ public static class SamusGrappleMovement
         grapple.Phase = GrapplePhase.Inactive;
         // $9B:C66F/$C884 (cancel) and $90:F4E9 (kill) clear the slow-scroll flag.
         grapple.SlowScrolling = false;
-        grapple.PoseChangeAutoFireTimer = 0;
+        grapple.PoseChangeAutoFireTimer = NativeCountdown.Start(0);
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;
         grapple.ExtensionVelocity = default(EightEightVector<RoomPixels>);
@@ -1521,13 +1521,13 @@ public static class SamusGrappleMovement
         ISnesAddressSpace bus, RoomLevelData level, SamusState samus, ushort controllerInput)
     {
         var grapple = samus.Grapple;
-        if (grapple.PoseChangeAutoFireTimer != 0) grapple.PoseChangeAutoFireTimer--;
+        grapple.PoseChangeAutoFireTimer = grapple.PoseChangeAutoFireTimer.DecrementToZero();
         byte direction = samus.PoseMetadata.ReadShotDirection(bus);
         bool banned = GrappleConnectionDefinitions.CancelsFiring(samus.PoseMetadata.ReadMovementType(bus));
         if (!banned && (direction & 0xf0) == 0)
         {
             if (direction == grapple.FireDirection) return null;
-            if (grapple.PoseChangeAutoFireTimer != 0)
+            if (!grapple.PoseChangeAutoFireTimer.IsZero)
             {
                 // Native changes the function pointer before dispatch: restart from
                 // the current pose and hand position this frame, without extending.
@@ -1641,7 +1641,7 @@ public static class SamusGrappleMovement
         grapple.VelocityCorrection = 0;
         grapple.JumpImpulse = 0;
         grapple.RopeLengthDelta = 0;
-        grapple.CollisionBounceTimer = 0;
+        grapple.CollisionBounceTimer = NativeCountdown.Start(0);
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;
         ClearFlareAnimation(grapple);
@@ -1669,11 +1669,11 @@ public static class SamusGrappleMovement
         grapple.GravityAcceleration = 0;
         grapple.VelocityCorrection = 0;
         grapple.JumpImpulse = 0;
-        grapple.CollisionBounceTimer = 0;
+        grapple.CollisionBounceTimer = NativeCountdown.Start(0);
         grapple.SpecialAngleHandling = false;
         // $9B:C979 (dropped) and $9B:CA24 (wall jumping) clear the slow-scroll flag.
         grapple.SlowScrolling = false;
-        grapple.WallJumpTimer = 0;
+        grapple.WallJumpTimer = NativeCountdown.Start(0);
         grapple.CancelFromConnectedPose = false;
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;
@@ -1686,7 +1686,7 @@ public static class SamusGrappleMovement
         // words before restoring the ordinary draw handler and projectile palette.
         grapple.FlareCounter = 0;
         grapple.FlareAnimationFrame = 0;
-        grapple.FlareAnimationTimer = 0;
+        grapple.FlareAnimationTimer = NativeCountdown.Start(0);
     }
 
     private static int ScaleCoordinate(short sine, int length) => sine switch
@@ -1900,7 +1900,7 @@ public static class SamusGrappleMovement
         // Inputs here are normalized: A is Jump, B is Run. The native BIT JumpBinding
         // must agree with the release-window check, or tight anchors become inescapable
         // using Jump even though the unrelated Run button accidentally supplies the kick.
-        if (grapple.CollisionBounceTimer != 0 &&
+        if (!grapple.CollisionBounceTimer.IsZero &&
             (newlyPressedInput & (ushort)SnesButton.A) != 0)
         {
             grapple.JumpImpulse = grapple.AngularVelocity switch
@@ -1970,7 +1970,7 @@ public static class SamusGrappleMovement
                 }
                 else
                 {
-                    grapple.CollisionBounceTimer = 16;
+                    grapple.CollisionBounceTimer = NativeCountdown.Start(16);
                     grapple.AngularVelocity = NegatedArithmeticHalf(grapple.AngularVelocity);
                     grapple.JumpImpulse = NegatedArithmeticHalf(grapple.JumpImpulse);
                 }
@@ -1991,8 +1991,7 @@ public static class SamusGrappleMovement
         grapple.MirroredAngle = targetAngle;
         grapple.SpecialAngleHandling = false;
 
-        if (grapple.CollisionBounceTimer != 0)
-            grapple.CollisionBounceTimer--;
+        grapple.CollisionBounceTimer = grapple.CollisionBounceTimer.DecrementToZero();
 
         // $94:ACFE damps the temporary jump impulse toward zero by six after a successful
         // angle step. This word is separate from angular velocity and must not be folded in.
@@ -2156,7 +2155,7 @@ public static class SamusGrappleMovement
         // Both native handlers return immediately while `$18A8` is nonzero or when BTS is
         // negative. This shared guard is observable because one sweep can sample the same
         // damaging block up to six times, yet only its first sample may publish damage.
-        if (samus.InvincibilityTimer != 0 || (behavior & 0x80) != 0)
+        if (!samus.InvincibilityTimer.IsZero || new RoomBlockBehavior(behavior).RejectsGrappleReaction)
             return;
 
         ushort damage = solidSpike
@@ -2175,8 +2174,8 @@ public static class SamusGrappleMovement
         samus.LiquidPhysics.AccumulatePeriodicDamage(
             subDamage: 0,
             wholeDamage: damage);
-        samus.InvincibilityTimer = 0x003c;
-        samus.KnockbackTimer = 0x000a;
+        samus.InvincibilityTimer = NativeCountdown.Start(0x003c);
+        samus.KnockbackTimer = NativeCountdown.Start(0x000a);
     }
 
     private static short NegatedArithmeticHalf(short value) =>

@@ -41,7 +41,7 @@ internal static class MotherBrainGlitchMechanicsVerification
         // invincible Samus, and uses the Baby's position before this frame's main AI moves it.
         ushort LatchVelocity(int startDx, ushort invincibility)
         {
-            var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x00a0)), InvincibilityTimer = invincibility };
+            var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x00a0)), InvincibilityTimer = NativeCountdown.FromRaw(invincibility) };
             samus.PoseMetadata.RefreshCollisionRadii(bus);
             var baby = new BabyMetroidCutsceneState();
             baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);

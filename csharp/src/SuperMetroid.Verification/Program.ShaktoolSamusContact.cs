@@ -2,6 +2,7 @@ using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Hardware;
 
 internal static class ShaktoolSamusContactVerification
 {
@@ -26,7 +27,7 @@ internal static class ShaktoolSamusContactVerification
         SamusState samus = runtime.Player.Samus!;
         samus.Position = samus.Position.WithWhole(segment.Position.Whole);
         samus.Kinematics.Radius = new(5, 19);
-        samus.InvincibilityTimer = 0;
+        samus.InvincibilityTimer = NativeCountdown.Start(0);
         ushort healthBefore = samus.Health;
 
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(
@@ -36,7 +37,7 @@ internal static class ShaktoolSamusContactVerification
 
         AssertTrue(touched, "the overlapping Shaktool segment runs its touch reaction");
         AssertTrue(samus.Health < healthBefore, "$AA:DF2F deals common contact damage");
-        AssertTrue(samus.InvincibilityTimer != 0, "Shaktool contact damage starts invincibility");
+        AssertTrue(!samus.InvincibilityTimer.IsZero, "Shaktool contact damage starts invincibility");
         Console.WriteLine("  Shaktool Samus contact: a touching segment damages Samus through the common touch.");
     }
 

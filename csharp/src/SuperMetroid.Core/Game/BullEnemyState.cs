@@ -73,17 +73,17 @@ public sealed class BullEnemyState
     }
 
     /// <summary>Native variable E: wrapping movement-delay counter initialized/reloaded to $0010, with targeting selected when its decrement reaches exactly zero.</summary>
-    public ushort ActivationTimer
+    public NativeCountdown ActivationTimer
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => NativeCountdown.FromRaw(_slot.VariableE);
+        internal set => _slot.VariableE = value.RawValue;
     }
 
     /// <summary>Native variable F: shared acceleration/deceleration interval countdown, decremented on eligible speed-update calls and reloaded from the current phase's reset value on exact-zero expiry.</summary>
-    public ushort AccelerationIntervalTimer
+    public NativeCountdown AccelerationIntervalTimer
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => NativeCountdown.FromRaw(_slot.VariableF);
+        internal set => _slot.VariableF = value.RawValue;
     }
 
     /// <summary>Native extension offset $00: unsigned 8.8 maximum-speed threshold selected by population parameter two; prevents further acceleration when reached but does not clamp an overshooting update.</summary>
@@ -129,10 +129,10 @@ public sealed class BullEnemyState
     }
 
     /// <summary>Native extension offset $0E: wrapping guard timer set to $0030 by an immune-shot kick and decremented each main-AI call; reaching zero clears the flag and pins the timer to one, while an initial zero first wraps to $FFFF.</summary>
-    public ushort ShotReactionDisableTimer
+    public NativeCountdown ShotReactionDisableTimer
     {
-        get => _shotReactionDisableTimers[_slot.SlotIndex];
-        internal set => _shotReactionDisableTimers[_slot.SlotIndex] = value;
+        get => NativeCountdown.FromRaw(_shotReactionDisableTimers[_slot.SlotIndex]);
+        internal set => _shotReactionDisableTimers[_slot.SlotIndex] = value.RawValue;
     }
 
     /// <summary>Native parallel $7E:8800 health snapshot taken before projectile damage, retained so unchanged health can select the actor's immune-shot kick instead of treating it as ordinary damage.</summary>

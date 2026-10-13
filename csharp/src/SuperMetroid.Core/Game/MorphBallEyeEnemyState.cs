@@ -51,10 +51,10 @@ public sealed class MorphBallEyeEnemyState
     }
 
     /// <summary>Activation/deactivation countdown in native variable E.</summary>
-    public ushort FunctionTimer
+    public NativeCountdown FunctionTimer
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => NativeCountdown.FromRaw(_slot.VariableE);
+        internal set => _slot.VariableE = value.RawValue;
     }
 
     /// <summary>Indirect bank-$A8 function word in native variable F.</summary>

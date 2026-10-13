@@ -22,10 +22,10 @@ public sealed class SamusDeathSequenceState
     public bool IsActive => Phase != SamusDeathSequencePhase.Inactive;
 
     /// <summary>WRAM `$0A9A`; sixteen calls precede the alternating yellow flash.</summary>
-    public ushort PreFlashingTimer { get; private set; }
+    public NativeCountdown PreFlashingTimer { get; private set; }
 
     /// <summary>WRAM `$0A9C`; reused by flash and suit-explosion palette timing.</summary>
-    public ushort AnimationTimer { get; private set; }
+    public NativeCountdown AnimationTimer { get; private set; }
 
     /// <summary>WRAM `$0A9E`; flash selector zero/one, then explosion index zero through nine.</summary>
     public ushort AnimationIndex { get; private set; }
@@ -109,8 +109,8 @@ public sealed class SamusDeathSequenceState
         // screen-space pair here for the eventual explosion-spritemap path.
         ScreenPosition = samus.Position.Whole.ToScreen(layer1);
 
-        PreFlashingTimer = SamusSpecialSequenceRomData.Death.PreFlashFrameCount;
-        AnimationTimer = 3;
+        PreFlashingTimer = NativeCountdown.Start(SamusSpecialSequenceRomData.Death.PreFlashFrameCount);
+        AnimationTimer = NativeCountdown.Start(3);
         AnimationIndex = 0;
         AnimationCounter = 0;
         SpinJumpSoundRequested = sourceMovementType == SamusMovementType.SpinJumping;
@@ -153,8 +153,8 @@ public sealed class SamusDeathSequenceState
                 // State `$17` freezes that final body frame while its palettes alternate.
                 samus.Presentation.AnimateDeathFrame(bus);
                 drawPose = true;
-                PreFlashingTimer = unchecked((ushort)(PreFlashingTimer - 1));
-                if (PreFlashingTimer == 0 || (PreFlashingTimer & 0x8000) != 0)
+                PreFlashingTimer = PreFlashingTimer.Decrement().Remaining;
+                if (PreFlashingTimer.IsZero || PreFlashingTimer.IsNegative)
                     Phase = SamusDeathSequencePhase.Flashing;
                 break;
 
@@ -172,7 +172,7 @@ public sealed class SamusDeathSequenceState
                     paletteChanged = true;
                     QueueSegment(vramWrites, segmentIndex: 4);
                     AnimationTimer =
-                        SamusDeathExplosionTimingDefinitions.DurationForIndex(index: 0);
+                        NativeCountdown.FromRaw(SamusDeathExplosionTimingDefinitions.DurationForIndex(index: 0));
                     AnimationIndex = 0;
                     AnimationCounter = 0;
                     Phase = SamusDeathSequencePhase.SuitExplosion;
@@ -186,18 +186,18 @@ public sealed class SamusDeathSequenceState
                 }
                 else
                 {
-                    AnimationTimer = unchecked((ushort)(AnimationTimer - 1));
-                    if (AnimationTimer == 0 || (AnimationTimer & 0x8000) != 0)
+                    AnimationTimer = AnimationTimer.Decrement().Remaining;
+                    if (AnimationTimer.IsZero || AnimationTimer.IsNegative)
                     {
                         if (AnimationIndex == 0)
                         {
                             AnimationIndex = 1;
-                            AnimationTimer = 1;
+                            AnimationTimer = NativeCountdown.Start(1);
                         }
                         else
                         {
                             AnimationIndex = 0;
-                            AnimationTimer = 3;
+                            AnimationTimer = NativeCountdown.Start(3);
                         }
                         WritePalettePair(samus, cgram, AnimationIndex, artwork);
                         paletteChanged = true;
@@ -257,8 +257,8 @@ public sealed class SamusDeathSequenceState
         if (applyWhiteoutFirst)
             whiteoutChanged = ApplyWhiteout(cgram, artwork);
 
-        AnimationTimer = unchecked((ushort)(AnimationTimer - 1));
-        if (AnimationTimer != 0 && (AnimationTimer & 0x8000) == 0)
+        AnimationTimer = AnimationTimer.Decrement().Remaining;
+        if (!AnimationTimer.IsZero && !AnimationTimer.IsNegative)
             return true;
 
         AnimationIndex = unchecked((ushort)(AnimationIndex + 1));
@@ -273,7 +273,7 @@ public sealed class SamusDeathSequenceState
         }
 
         AnimationTimer =
-            SamusDeathExplosionTimingDefinitions.DurationForIndex(AnimationIndex);
+            NativeCountdown.FromRaw(SamusDeathExplosionTimingDefinitions.DurationForIndex(AnimationIndex));
         ushort paletteIndex = (artwork ?? throw new InvalidOperationException(
             "Samus death requires installed palette artwork.")).ExplosionPaletteIndex(AnimationIndex);
         WritePalettePair(samus, cgram, paletteIndex, artwork);

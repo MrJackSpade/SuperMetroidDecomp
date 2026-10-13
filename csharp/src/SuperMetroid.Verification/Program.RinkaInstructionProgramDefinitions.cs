@@ -127,7 +127,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         rinka.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         rinka.Parameter1 = special ? (ushort)1 : (ushort)0;
         rinka.CurrentInstruction = initialPointer;
-        rinka.InstructionTimer = 1;
+        rinka.InstructionTimer = NativeCountdown.Start(1);
 
         var state = new RinkaEnemyState(rinka)
         {

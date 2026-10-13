@@ -36,10 +36,10 @@ public sealed class CrocomireDeathState
     public ushort BridgeFragmentCursor { get; internal set; }
 
     /// <summary>Six-frame acid smoke cadence at $7E:9018.</summary>
-    public ushort AcidSmokeTimer { get; internal set; }
+    public NativeCountdown AcidSmokeTimer { get; internal set; }
 
     /// <summary>Thirty-two-frame acid damage sound cadence (Crocomire var $20).</summary>
-    public ushort AcidSoundTimer { get; internal set; }
+    public NativeCountdown AcidSoundTimer { get; internal set; }
 
     /// <summary>One-shot dust latch for the $0600 bridge approach threshold.</summary>
     public bool BridgeDustAt1536Spawned { get; internal set; }
@@ -84,7 +84,7 @@ public sealed class CrocomireDeathState
     public ushort RumbleYOffset { get; internal set; }
 
     /// <summary>Countdown consumed by negative rumble-table entries.</summary>
-    public ushort RumbleCooldown { get; internal set; }
+    public NativeCountdown RumbleCooldown { get; internal set; }
 
     /// <summary>Unsigned per-frame rumble approach delta.</summary>
     public ushort RumbleDelta { get; internal set; }

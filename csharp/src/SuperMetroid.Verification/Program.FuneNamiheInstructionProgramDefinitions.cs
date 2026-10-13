@@ -224,7 +224,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         slot.Parameter2 = 0;
         slot.Position = slot.Position.WithWhole(new(128, 128));
         slot.CurrentInstruction = program.Entry;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
 
         var state = new FuneNamiheEnemyState(slot)
         {

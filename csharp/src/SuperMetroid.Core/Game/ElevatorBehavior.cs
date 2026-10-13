@@ -146,8 +146,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         _elevatorStates[slot.SlotIndex] = state;
 
         slot.SpritemapPointer = ElevatorNothingSpritemap;
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
         slot.CurrentInstruction = ElevatorInstructionProgramDefinitions.Loop;
         slot.Parameter1 = unchecked((ushort)(slot.Parameter1 * 2));
         state.RestingYPosition = slot.Position.Y.Whole;

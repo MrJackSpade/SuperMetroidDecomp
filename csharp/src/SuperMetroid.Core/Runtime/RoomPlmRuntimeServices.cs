@@ -21,7 +21,7 @@ internal sealed class RoomPlmRuntimeServices(
 
     public bool IsFinished => enemies.TourianEntranceStatueBehavior.TourianEntranceStatueFinished;
 
-    public void SetTimer(ushort timer) => enemies.Earthquake.EarthquakeTimer = timer;
+    public void SetTimer(ushort timer) => enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(timer);
 
     public void SetType(ushort type) => enemies.Earthquake.EarthquakeType = type;
 

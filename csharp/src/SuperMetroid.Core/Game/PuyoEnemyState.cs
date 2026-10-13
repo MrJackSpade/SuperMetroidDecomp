@@ -87,10 +87,10 @@ public sealed class PuyoEnemyState
     }
 
     /// <summary>Grounded-frame countdown copied from population parameter one.</summary>
-    public ushort HopCooldownTimer
+    public NativeCountdown HopCooldownTimer
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => NativeCountdown.FromRaw(_slot.VariableB);
+        internal set => _slot.VariableB = value.RawValue;
     }
 
     /// <summary>Current top-level bank-$A2 function pointer.</summary>

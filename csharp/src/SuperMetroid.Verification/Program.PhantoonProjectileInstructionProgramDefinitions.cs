@@ -75,7 +75,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
         RunForcedTicks(hitGroundSystem, hitGround, 2);
         AssertEqual((ushort)0x9770, hitGround.InstructionPointer,
             "Phantoon ground-impact pose reaches terminal sleep");
-        AssertEqual((ushort)0, hitGround.InstructionTimer,
+        AssertEqual((ushort)0, hitGround.InstructionTimer.RawValue,
             "Phantoon terminal sleep preserves the native zero timer");
 
         RoomEnemySystem bouncingSystem = NewSystem();
@@ -172,7 +172,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
         {
             RoomEnemyProjectileSlot projectile = SpawnDestroyable(enemies, 0x0200);
             projectile.InstructionPointer = program;
-            projectile.InstructionTimer = 1;
+            projectile.InstructionTimer = NativeCountdown.Start(1);
             return projectile;
         }
 
@@ -183,7 +183,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
         {
             for (int tick = 0; tick < count; tick++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }

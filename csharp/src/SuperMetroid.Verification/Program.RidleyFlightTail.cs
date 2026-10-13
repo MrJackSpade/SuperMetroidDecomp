@@ -57,7 +57,7 @@ internal static class RidleyFlightTailVerification
         slot.Position = slot.Position.WithWhole(new(128, 128));
         state = new RidleyEnemyState
         {
-            Function = RidleyAiFunction.NorfairFireballMoveToHeight, FunctionTimer = 0,
+            Function = RidleyAiFunction.NorfairFireballMoveToHeight, FunctionTimer = NativeCountdown.Start(0),
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
                 Active = true, StaggerAngle = ushort.MaxValue, MovementDirection = 0,

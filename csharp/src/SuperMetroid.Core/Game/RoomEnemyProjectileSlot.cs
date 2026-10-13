@@ -35,7 +35,7 @@ public sealed class RoomEnemyProjectileSlot
     /// </summary>
     internal EnemyProjectileAnimation? Animation { get; private set; }
     /// <summary>Gets the native draw-instruction countdown; allocation starts it at one so the initial list runs on its first reached pass.</summary>
-    public ushort InstructionTimer { get; internal set; }
+    public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Gets the native spritemap identity selected by the current draw instruction, initially the blank map.</summary>
     public ushort SpritemapPointer { get; internal set; }
     /// <summary>
@@ -116,7 +116,7 @@ public sealed class RoomEnemyProjectileSlot
     {
         Animation = Ensure.NotNull(animation);
         InstructionPointer = 0;
-        InstructionTimer = 1;
+        InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Runs the native instruction list at <paramref name="instructionList"/> from the next pass, ending any typed animation.</summary>
@@ -124,7 +124,7 @@ public sealed class RoomEnemyProjectileSlot
     {
         Animation = null;
         InstructionPointer = instructionList;
-        InstructionTimer = 1;
+        InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>
@@ -139,7 +139,10 @@ public sealed class RoomEnemyProjectileSlot
         // $86:8016/8154 release identity only. SpawnEprojInner clears fractions,
         // but leaves whole coordinates and velocities for the family initializer.
         Position = Position.WithFractionX(0).WithFractionY(0);
-        InstructionPointer = InstructionTimer = SpritemapPointer = PreInstruction = 0;
+        PreInstruction = 0;
+        SpritemapPointer = 0;
+        InstructionTimer = NativeCountdown.Start(0);
+        InstructionPointer = 0;
         Animation = null;
         PresentationOperandAddress = 0;
         Radius = Extent16<RoomPixels>.Zero;

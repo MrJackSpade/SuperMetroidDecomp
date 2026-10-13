@@ -83,14 +83,14 @@ internal static void VerifySamusStoredShineAndShinespark()
         "stage three cannot store shine");
     AssertTrue(shine.Shinespark.TryStoreFromSpeedBooster(0x0400),
         "stage four stores shine");
-    AssertEqual(180, shine.Shinespark.ShineTimer, "stored shine begins at 180");
+    AssertEqual(180, shine.Shinespark.ShineTimer.RawValue, "stored shine begins at 180");
     AssertEqual(SamusSpecialPaletteType.SpeedBoosterShine, shine.Shinespark.PaletteType, "stored shine installs palette handler one");
 
     var cgram = new SnesCgram();
     AssertTrue(shine.Shinespark.UpdatePalette(bus, cgram, equippedItems: 0, suitColors, cycleColors),
         "stored shine copies first ROM palette");
     AssertEqual(0x1100, cgram.Colors[192], "stored shine follows double pointer");
-    AssertEqual(179, shine.Shinespark.ShineTimer, "stored palette decrements every frame");
+    AssertEqual(179, shine.Shinespark.ShineTimer.RawValue, "stored palette decrements every frame");
     AssertEqual(2, shine.Shinespark.PaletteFrameOffset,
         "stored palette advances an even pointer offset");
 
@@ -103,7 +103,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         "frontend can consume the stored-shine warning exactly once");
     AssertTrue(!shine.Shinespark.ConsumeStoredShineWarningSoundRequest(),
         "consumed stored-shine warning cannot replay");
-    AssertEqual(169, shine.Shinespark.ShineTimer,
+    AssertEqual(169, shine.Shinespark.ShineTimer.RawValue,
         "warning frame still decrements timer");
 
     shine.PoseMetadata.RefreshCollisionRadii(bus);
@@ -111,7 +111,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     shine.Shinespark.BeginWindup(shine);
     AssertEqual(ShinesparkPhase.Windup, shine.Shinespark.Phase,
         "stored shine installs windup handler");
-    AssertEqual(30, shine.Shinespark.StartStopTimer, "windup timer is 30");
+    AssertEqual(30, shine.Shinespark.StartStopTimer.RawValue, "windup timer is 30");
     AssertEqual(8, shine.HorizontalSpeed.ExtraRunSpeed,
         "windup seeds exact 8.0000 extra speed");
     AssertEqual(0x0400, shine.HorizontalSpeed.SpeedBoostCounter,
@@ -345,7 +345,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, horizontal, new ShinesparkFrame { NmiFrameCounter = unchecked((ushort)(7 + frame)) }));
     AssertEqual(ShinesparkPhase.CrashEchoCircle, horizontal.Shinespark.Phase,
         "crash orbit contracts into echo-circle hold");
-    AssertEqual(30, horizontal.Shinespark.StartStopTimer,
+    AssertEqual(30, horizontal.Shinespark.StartStopTimer.RawValue,
         "echo circle begins at 30 frames");
 
     StepFrames(30, frame =>

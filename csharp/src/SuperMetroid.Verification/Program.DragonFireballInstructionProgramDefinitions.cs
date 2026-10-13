@@ -91,16 +91,16 @@ internal static class DragonFireballInstructionProgramDefinitionsVerification
             DragonFireballInstructionProgramDefinitions.FallingRight,
             right.InstructionPointer,
             "right Dragon fireball zero crossing selects its falling loop");
-        AssertEqual((ushort)1, left.InstructionTimer,
+        AssertEqual((ushort)1, left.InstructionTimer.RawValue,
             "left Dragon fireball zero crossing requests a same-pass animation tick");
-        AssertEqual((ushort)1, right.InstructionTimer,
+        AssertEqual((ushort)1, right.InstructionTimer.RawValue,
             "right Dragon fireball zero crossing requests a same-pass animation tick");
 
         RunLoop(left, DragonFireballInstructionProgramDefinitions.FallingLeft, "falling left");
         RunLoop(right, DragonFireballInstructionProgramDefinitions.FallingRight, "falling right");
 
         left.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
-        left.InstructionTimer = 1;
+        left.InstructionTimer = NativeCountdown.Start(1);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(left, null, Position16<RoomPixels>.Zero);
         AssertTrue(!left.IsActive,
             "Dragon's shared shot list deletes through the common projectile owner");
@@ -150,7 +150,7 @@ internal static class DragonFireballInstructionProgramDefinitionsVerification
             projectile.InstructionPointer = program;
             for (int step = 0; step < 3; step++)
             {
-                projectile.InstructionTimer = 1;
+                projectile.InstructionTimer = NativeCountdown.Start(1);
                 enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
                 AssertEqual((ushort)(program + 2 + (step % 2) * 4), projectile.PresentationOperandAddress,
                     $"Dragon-fireball {name} selects the exact native frame operand");

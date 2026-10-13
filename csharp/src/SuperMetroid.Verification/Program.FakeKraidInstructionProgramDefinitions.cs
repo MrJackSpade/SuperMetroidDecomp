@@ -133,17 +133,17 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
             state.WalkStepTimer = 0x0100;
-            state.SpitDecisionTimer = 0x0100;
+            state.SpitDecisionTimer = NativeCountdown.Start(0x0100);
 
             RunFrames(enemies, slot, samus, level, 60);
 
             AssertEqual((ushort)0x00ff, state.WalkStepTimer,
                 $"Fake Kraid $A6:{program:X4} executes its walk callback");
-            AssertEqual((ushort)0x00ff, state.SpitDecisionTimer,
+            AssertEqual((ushort)0x00ff, state.SpitDecisionTimer.RawValue,
                 $"Fake Kraid $A6:{program:X4} executes its action callback");
         }
 
@@ -155,9 +155,9 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             state.WalkStepTimer = 0x0100;
-            state.SpitDecisionTimer = 0x0100;
+            state.SpitDecisionTimer = NativeCountdown.Start(0x0100);
 
             RunFrames(enemies, slot, samus, level, 60);
 

@@ -77,7 +77,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 WallSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
             var (enemies, slot, _, samus) = CreateSystem();
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, [slot, samus, level, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | address)),
                 slot.SpritemapPointer,
@@ -117,7 +117,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, level, 70);
             AssertEqual(expectedCursor, slot.CurrentInstruction,
                 $"wall Pirate {(movingRight ? "right" : "left")} attack sleeps");
@@ -138,7 +138,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             ushort initialY = slot.Position.Y.Whole;
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, level, frames);
             AssertEqual(expectedFunction, state.Function,
                 $"wall Pirate program $B2:{program:X4} climb function");
@@ -156,7 +156,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             slot.CurrentInstruction = onRightWall
                 ? WallSpacePirateInstructionProgramDefinitions.MovingDownRightWall
                 : WallSpacePirateInstructionProgramDefinitions.MovingDownLeftWall;
-            slot.InstructionTimer = 1;
+            slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(
                 enemies,
                 slot,

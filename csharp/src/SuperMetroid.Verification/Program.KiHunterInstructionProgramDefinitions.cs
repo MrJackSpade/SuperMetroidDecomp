@@ -155,7 +155,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             RunFrames(enemies, body, 90);
             AssertEqual(KiHunterEnemyFunction.GroundWait, state.Function,
                 $"KiHunter {(movingRight ? "right" : "left")} spit restores ground wait");
-            AssertEqual((ushort)24, state.WaitTimer,
+            AssertEqual((ushort)24, state.WaitTimer.RawValue,
                 $"KiHunter {(movingRight ? "right" : "left")} spit wait timer");
             AssertEqual((ushort)0x004c, enemies.KiHunterBehavior.LastKiHunterSoundEffect!.Value,
                 $"KiHunter {(movingRight ? "right" : "left")} spit sound");
@@ -192,8 +192,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         static void Install(RoomEnemySlot slot, ushort program)
         {
             slot.CurrentInstruction = program;
-            slot.InstructionTimer = 1;
-            slot.Timer = 0;
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.Timer = NativeCountdown.Start(0);
         }
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)

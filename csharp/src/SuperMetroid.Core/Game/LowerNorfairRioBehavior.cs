@@ -221,7 +221,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
 
         LowerNorfairRioEnemyState parentState = RequireLowerNorfairRioState(parent);
         follower.FrozenTimer = parent.FrozenTimer;
-        if (parent.FrozenTimer != 0 || !parentState.FollowerVisible)
+        if (!parent.FrozenTimer.IsZero || !parentState.FollowerVisible)
         {
             follower.Properties = follower.Properties.With(EnemyProperties.Invisible);
             return;
@@ -280,8 +280,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
             return;
         state.InstalledInstructionList = instructionList;
         slot.CurrentInstruction = ListStart(instructionList);
-        slot.InstructionTimer = 1;
-        slot.Timer = 0;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
     private RoomEnemySlot GetPrecedingLowerNorfairRioSlot(RoomEnemySlot follower)

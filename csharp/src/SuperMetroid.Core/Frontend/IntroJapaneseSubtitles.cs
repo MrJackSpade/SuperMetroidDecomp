@@ -27,7 +27,7 @@ internal sealed class IntroJapaneseSubtitles
     public bool Enabled { get; }
 
     /// <summary><c>CinematicSpriteObject_IntroSubtitleTimer</c> ($1BA3), cleared by intro setup at $8B:A56B.</summary>
-    public ushort Timer { get; private set; }
+    public NativeCountdown Timer { get; private set; }
 
     /// <summary>
     /// <c>Instruction_HandleCreatingSubtitle_PageN</c> ($8B:AE43 and siblings), the first
@@ -59,9 +59,9 @@ internal sealed class IntroJapaneseSubtitles
     /// </summary>
     public bool HoldInputWait()
     {
-        if (Timer == 0)
+        if (Timer.IsZero)
             return false;
-        Timer--;
+        Timer = Timer.Decrement().Remaining;
         return true;
     }
 
@@ -106,7 +106,7 @@ internal sealed class IntroJapaneseSubtitles
     private sealed class SubtitleObject(IntroNarrationPageId page, SubtitleStage stage)
     {
         private SubtitleStage stage = stage;
-        private ushort instructionTimer = 1;
+        private NativeCountdown instructionTimer = NativeCountdown.Start(1);
 
         /// <summary>
         /// <c>Process_Mode7Objects_InstList</c> ($8B:9537): the pre-instruction, then the
@@ -119,20 +119,20 @@ internal sealed class IntroJapaneseSubtitles
                 // $8B:B585 and siblings: show the second subtitle, hold the input wait it
                 // will start, and switch to the done-input list on this same frame.
                 stage = SubtitleStage.StartInputWait;
-                instructionTimer = 1;
-                owner.Timer = SecondSubtitleHoldFrames;
+                instructionTimer = NativeCountdown.Start(1);
+                owner.Timer = NativeCountdown.Start(SecondSubtitleHoldFrames);
             }
-            if (--instructionTimer != 0)
+            if (!(instructionTimer = instructionTimer.Decrement().Remaining).IsZero)
                 return false;
             switch (stage)
             {
                 case SubtitleStage.LoadFirstSubtitle:
                     stage = SubtitleStage.FinishFirstSubtitle;
-                    instructionTimer = 1;
+                    instructionTimer = NativeCountdown.Start(1);
                     return false;
                 case SubtitleStage.AwaitSecondSubtitleInput:
                     // $8B:D39D: one-frame transfer record, then goto itself.
-                    instructionTimer = 1;
+                    instructionTimer = NativeCountdown.Start(1);
                     return false;
                 case SubtitleStage.FinishFirstSubtitle:
                     return true;

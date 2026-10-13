@@ -345,7 +345,7 @@ internal static class SamusHyperBeamColorsVerification
         }
         var shotSamus = new SamusState { HyperBeam = 0x8000, Presentation = { ChargeColors = shot } };
         var projectiles = new SamusProjectileSystem();
-        projectiles.Charge.ChargedShotGlowTimer = (ushort)0x8014;
+        projectiles.Charge.ChargedShotGlowTimer = NativeCountdown.Start((ushort)0x8014);
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 20; call++)
         {
@@ -371,7 +371,7 @@ internal static class SamusHyperBeamColorsVerification
             // timer/reload are1, so every call advances and wraps at native limit10.
             AssertEqual((ushort)((call + 1) % 10), installedSamus.Drained.ChargePaletteIndex,
                 $"Hyper Beam call {call} next frame");
-            AssertEqual((ushort)1, installedSamus.Drained.CommonPaletteTimer,
+            AssertEqual((ushort)1, installedSamus.Drained.CommonPaletteTimer.RawValue,
                 $"Hyper Beam call {call} native timer");
             ushort originalPointer = ReadVerificationWord(rom, 0x91d99e + 2 * (call % 10));
             for (int color = 0; color < 16; color++)

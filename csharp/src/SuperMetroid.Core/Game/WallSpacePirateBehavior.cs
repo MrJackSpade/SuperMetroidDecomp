@@ -187,7 +187,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         ushort instructionPointer)
     {
         slot.CurrentInstruction = instructionPointer;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
     private void MoveWallSpacePirateAndReverseOnCollision(
@@ -461,7 +461,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
                 }
                 // `$B2:876C` returns before common touch AI while frozen. The overlap was
                 // still found, but neither Samus nor the Pirate receives contact damage.
-                if (context.Slot.FrozenTimer != 0)
+                if (!context.Slot.FrozenTimer.IsZero)
                     return;
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
             });

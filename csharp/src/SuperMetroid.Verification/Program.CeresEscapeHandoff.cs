@@ -139,7 +139,7 @@ internal static class CeresEscapeHandoffVerification
             position: new(32, 100));
 
         StepFrames(60, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true, scratch));
-        AssertEqual(0, state.RotationTimer, "shaft door delay retains zero for one room-main call");
+        AssertEqual(0, state.RotationTimer.RawValue, "shaft door delay retains zero for one room-main call");
         AssertEqual(
             CeresElevatorShaftRoomMainState.InitialRotationIndex,
             scratch.Var1,
@@ -159,9 +159,9 @@ internal static class CeresEscapeHandoffVerification
         // Consume records 35..67. The final forward phase is encoded as $8044 rather
         // than 68; one more call proves the wrapped multiplication selects record 68.
         for (int i = 0; i < 33; i++)
-            StepFrames(state.RotationTimer + 1, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true, scratch));
+            StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true, scratch));
         AssertEqual(0x8044, scratch.Var1, "shaft forward sweep enters encoded reverse phase");
-        StepFrames(state.RotationTimer + 1, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true, scratch));
+        StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true, scratch));
         AssertEqual(0x8043, scratch.Var1, "shaft encoded reverse phase decrements");
         AssertEqual(0x00fe, state.Transform.MatrixA, "encoded phase maps to record 68");
         AssertEqual(34, state.Transform.MatrixB, "reverse endpoint sine");
@@ -192,11 +192,11 @@ internal static class CeresEscapeHandoffVerification
     {
         var departure = new CeresDepartureState();
         departure.Begin();
-        AssertEqual(60, departure.HoldFramesRemaining, "Ceres state 20 starts at 60");
+        AssertEqual(60, departure.HoldFramesRemaining.RawValue, "Ceres state 20 starts at 60");
 
         StepFrames(59, _ =>
             AssertTrue(!departure.StepHoldAfterGameplay(), "first 59 state-20 calls retain hold"));
-        AssertEqual(1, departure.HoldFramesRemaining, "state 20 has one call remaining");
+        AssertEqual(1, departure.HoldFramesRemaining.RawValue, "state 20 has one call remaining");
         AssertTrue(departure.StepHoldAfterGameplay(), "60th state-20 call enters blackout");
         AssertEqual(CeresDeparturePhase.FadingToBlack, departure.Phase, "state 21 is active");
 

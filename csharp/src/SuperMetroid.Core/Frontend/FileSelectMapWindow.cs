@@ -10,7 +10,7 @@ public sealed class FileSelectMapWindow
 {
     private readonly uint[] velocities = new uint[4];
     internal readonly uint[] edges = new uint[4];
-    private ushort timer;
+    private NativeCountdown timer;
 
     /// <summary>Creates the area-to-room expanding window at the installed label anchor, with collapsed edges and native area-specific 16.16 velocities/timer; editable anchors do not change compiled motion.</summary>
     /// <param name="bus">Non-null runtime address-space dependency; this setup uses compiled motion rather than reading cartridge tables.</param>
@@ -34,8 +34,8 @@ public sealed class FileSelectMapWindow
         ushort y = (ushort)installedLabels.Get(area).Y;
         edges[0] = edges[1] = SnesSixteenSixteen.FromWhole((uint)x);
         edges[2] = edges[3] = SnesSixteenSixteen.FromWhole((uint)y);
-        timer = motion.Timer;
-        if ((short)timer < 0)
+        timer = NativeCountdown.FromRaw(motion.Timer);
+        if (timer.IsNegative)
             throw new InvalidDataException("Map-window timer must begin before signed underflow.");
         velocities[0] = motion.Left;
         velocities[1] = motion.Right;
@@ -61,7 +61,7 @@ public sealed class FileSelectMapWindow
     {
         var window = new FileSelectMapWindow(bus, area, labels);
         window.IsReturning = true;
-        window.timer = unchecked((ushort)(window.timer - FileSelectMapRomData.ReturnWindowTimerReduction));
+        window.timer = NativeCountdown.FromRaw(unchecked((ushort)(window.timer.RawValue - FileSelectMapRomData.ReturnWindowTimerReduction)));
         int inset = FileSelectMapRomData.ReturnWindowInset;
         window.edges[0] = window.edges[2] = SnesSixteenSixteen.FromWhole((uint)inset);
         window.edges[1] = SnesSixteenSixteen.FromWhole((uint)(FrontendFrame.Width - inset));
@@ -87,8 +87,8 @@ public sealed class FileSelectMapWindow
             ClampWholeWord(2, 1, lowerBound: true);
             ClampWholeWord(3, 224, lowerBound: false);
         }
-        timer = unchecked((ushort)(timer - 1));
-        IsComplete = (short)timer < 0;
+        timer = timer.Decrement().Remaining;
+        IsComplete = timer.IsNegative;
         return IsComplete;
     }
 

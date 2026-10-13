@@ -60,7 +60,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         int? baseX = null;
         for (ushort phase = 0; phase < expectedOffsets.Length; phase++)
         {
-            enemies.Earthquake.EarthquakeTimer = phase;
+            enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(phase);
             var oam = new OamBuffer();
             oam.BeginFrame();
             enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(oam, new(0, 0));
@@ -71,7 +71,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         }
 
         enemies.BindFixtureBus(NewCeresDoorQuakeReadGuard(rom, blockOverlay: true));
-        enemies.Earthquake.EarthquakeTimer = 0;
+        enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(0);
         var nativeOverlay = new OamBuffer();
         nativeOverlay.BeginFrame();
         DrawImportedEnemySpritemap(rom, nativeOverlay, new EnemySpritemapDraw { Bank = 0xa6, Pointer = 0xa329, Origin = new(100, 80), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });

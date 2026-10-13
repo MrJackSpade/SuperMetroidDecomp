@@ -761,7 +761,7 @@ internal static class RoomFxRetailInventoryVerification
                 firstMovementFrame = frame;
             if (targetFrame < 0 && runtime.RoomLayer3Fx.PackedYVelocity == 0)
                 targetFrame = frame;
-            if (targetFrame >= 0 && runtime.Enemies.Earthquake.EarthquakeTimer == 0)
+            if (targetFrame >= 0 && runtime.Enemies.Earthquake.EarthquakeTimer.IsZero)
                 break;
         }
 

@@ -82,7 +82,7 @@ internal static class FullBodyPalettePointerListsVerification
                 var speed = new SamusHorizontalSpeedState
                 {
                     SpeedBoostCounter = 0x0400,
-                    SpecialPaletteTimer = 1,
+                    SpecialPaletteTimer = NativeCountdown.Start(1),
                     SpecialPaletteFrame = (ushort)(phase * 2),
                 };
                 var actual = new SnesCgram();
@@ -144,7 +144,7 @@ internal static class FullBodyPalettePointerListsVerification
         var adjacentBoost = new SamusHorizontalSpeedState
         {
             SpeedBoostCounter = 0x0400,
-            SpecialPaletteTimer = 1,
+            SpecialPaletteTimer = NativeCountdown.Start(1),
             SpecialPaletteFrame = 8,
         };
         var adjacentBoostColors = new SnesCgram();

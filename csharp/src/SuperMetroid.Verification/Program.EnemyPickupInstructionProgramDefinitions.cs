@@ -78,7 +78,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
 
             for (int frame = 0; frame < program.FrameCount; frame++)
             {
-                pickup.InstructionTimer = 1;
+                pickup.InstructionTimer = NativeCountdown.Start(1);
                 Process(pickup);
                 AssertTrue(pickup.IsActive,
                     $"{program.Kind} remains active through animation frame {frame + 1}");
@@ -86,7 +86,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
 
             AssertEqual(program.Branch, pickup.InstructionPointer,
                 $"{program.Kind} reaches its authored loop branch");
-            pickup.InstructionTimer = 1;
+            pickup.InstructionTimer = NativeCountdown.Start(1);
             Process(pickup);
             AssertEqual(unchecked((ushort)(program.Initial + 4)), pickup.InstructionPointer,
                 $"{program.Kind} branch displays its first frame in the same tick");
@@ -94,11 +94,11 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
             if (program.Sleep != 0)
             {
                 pickup.InstructionPointer = program.Sleep;
-                pickup.InstructionTimer = 1;
+                pickup.InstructionTimer = NativeCountdown.Start(1);
                 Process(pickup);
                 AssertEqual(program.Sleep, pickup.InstructionPointer,
                     $"{program.Kind} terminal sleep retains its own opcode");
-                AssertEqual((ushort)0, pickup.InstructionTimer,
+                AssertEqual((ushort)0, pickup.InstructionTimer.RawValue,
                     $"{program.Kind} terminal sleep leaves the timer dormant");
             }
         }
@@ -108,7 +108,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
             Kind = RoomEnemyProjectileKind.EnemyDeathExplosion,
         };
         EnemyDeathsAndDrops.BeginEnemyPickup(convertedDeath, EnemyPickupKind.SmallEnergy);
-        convertedDeath.InstructionTimer = 1;
+        convertedDeath.InstructionTimer = NativeCountdown.Start(1);
         Process(convertedDeath);
         AssertEqual(
             unchecked((ushort)(EnemyPickupInstructionProgramDefinitions.SmallEnergy + 4)),

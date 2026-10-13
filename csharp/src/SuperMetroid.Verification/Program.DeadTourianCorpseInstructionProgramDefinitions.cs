@@ -72,7 +72,7 @@ internal static class DeadTourianCorpseInstructionProgramDefinitionsVerification
                     [corpse, null, null, Position16<RoomPixels>.Zero, (ushort)0];
                 for (int call = 0; call < 2; call++)
                 {
-                    corpse.InstructionTimer = 1;
+                    corpse.InstructionTimer = NativeCountdown.Start(1);
                     EnemyInstructionRunner.Process(enemies, processArguments);
                 }
                 AssertEqual(

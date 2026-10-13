@@ -38,7 +38,7 @@ internal static class WrapShotEnemiesVerification
             int target = left ? 0x123f : 0x0280;
             enemy.Position = enemy.Position.WithWhole(new((ushort)((target % 64) * 16 + 8), (ushort)((target / 64) * 16 + 8)));
             enemy.Properties |= (ushort)EnemyProperties.ProcessOffScreen;
-            enemy.InvincibilityTimer = 0;
+            enemy.InvincibilityTimer = NativeCountdown.Start(0);
             // Populate the real interactive list while freezing AI movement. The
             // remote enemy must be eligible, not silently excluded as offscreen.
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = runtime.Room.LevelData });
@@ -67,7 +67,7 @@ internal static class WrapShotEnemiesVerification
             }
             AssertEqual(0x0052, level.GetCollisionBlockByIndex(target).LevelWord, "Same shot actually triggers the remote tile");
             AssertEqual(health, enemy.Health, "Remote enemy health is unchanged");
-            AssertEqual(0, enemy.FlashTimer, "Remote enemy receives no impact flash");
+            AssertEqual(0, enemy.FlashTimer.RawValue, "Remote enemy receives no impact flash");
 
             // Positive control: move only the eligible enemy onto the unchanged
             // live projectile. A real collision proves the negative was spatial,

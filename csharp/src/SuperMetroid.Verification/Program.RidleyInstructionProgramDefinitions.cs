@@ -135,7 +135,7 @@ internal static class RidleyInstructionProgramDefinitionsVerification
 
         slot.EnemyDefinitionPointer = enemyDefinition;
         slot.CurrentInstruction = program;
-        slot.InstructionTimer = 1;
+        slot.InstructionTimer = NativeCountdown.Start(1);
         enemies.RidleyEncounter.Ridley!.FacingDirection = facingDirection;
         var samus = new SamusState { Health = 99 };
         object?[] arguments =
@@ -144,14 +144,14 @@ internal static class RidleyInstructionProgramDefinitionsVerification
         for (int frame = 0; frame < 1000; frame++)
         {
             EnemyInstructionRunner.Process(enemies, arguments);
-            if (slot.InstructionTimer != 0)
+            if (!slot.InstructionTimer.IsZero)
             {
                 ushort operand = unchecked((ushort)(slot.CurrentInstruction - 2));
                 executedOperands.Add(operand);
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | operand)), slot.SpritemapPointer,
                     $"executed Ridley frame $A6:{operand:X4} matches the native extended sprite selector");
             }
-            if (slot.InstructionTimer == 0 &&
+            if (slot.InstructionTimer.IsZero &&
                 RidleyInstructionProgramDefinitions.ReadMechanicsWord(
                     slot.CurrentInstruction) == (ushort)CommonEnemyInstruction.Sleep)
             {

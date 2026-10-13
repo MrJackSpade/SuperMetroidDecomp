@@ -85,7 +85,7 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerif
                 (ushort)EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Thrown,
                 missile.PreInstruction,
                 $"Golden Torizo {facingRight} Super Missile installs flight callback");
-            AssertEqual((ushort)2, missile.InstructionTimer,
+            AssertEqual((ushort)2, missile.InstructionTimer.RawValue,
                 $"Golden Torizo {facingRight} Super Missile enters two-frame loop");
             AssertEqual(unchecked((ushort)(loop + 4)), missile.InstructionPointer,
                 $"Golden Torizo {facingRight} Super Missile loop cursor");
@@ -96,7 +96,7 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerif
 
             for (int frame = 1; frame <= 16; frame++)
                 Process(enemies, missile, samus);
-            AssertEqual((ushort)2, missile.InstructionTimer,
+            AssertEqual((ushort)2, missile.InstructionTimer.RawValue,
                 $"Golden Torizo {facingRight} Super Missile reloads sixteen-frame loop");
             AssertEqual(unchecked((ushort)(loop + 4)), missile.InstructionPointer,
                 $"Golden Torizo {facingRight} Super Missile stable loop cursor");
@@ -125,7 +125,7 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerif
         AssertEqual(GoldenTorizoSuperMissileInstructionProgramDefinitions.Impact,
             impact.InstructionPointer,
             "Golden Torizo Super Missile wall collision selects compiled impact");
-        AssertEqual((ushort)1, impact.InstructionTimer,
+        AssertEqual((ushort)1, impact.InstructionTimer.RawValue,
             "Golden Torizo Super Missile impact is immediately armed");
         AssertEqual(GoldenTorizoSuperMissileInstructionProgramDefinitions.Impact,
             EnemyProjectileDefinitionCatalog.Get(

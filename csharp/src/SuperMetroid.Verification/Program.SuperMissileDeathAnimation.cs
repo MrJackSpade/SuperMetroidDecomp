@@ -42,19 +42,19 @@ internal static class SuperMissileDeathAnimationVerification
         samus.InputLocked = true;
         RoomEnemySlot enemy = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == enemyDefinition);
         enemy.Health = 1;
-        enemy.InvincibilityTimer = 0;
+        enemy.InvincibilityTimer = NativeCountdown.Start(0);
         // A surfaced Dragon shows $E80C, as at native update 40203; the room loads it
         // submerged on the empty map, which the shot pass skips. Sova's first frame is kept.
         if (enemy.SpritemapPointer == 0x804d)
             enemy.SpritemapPointer = 0xe80c;
-        enemy.InstructionTimer = 0x7fff;
+        enemy.InstructionTimer = NativeCountdown.Start(0x7fff);
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(enemy.Position.Whole);
 
         SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x0200; shot.Damage = 300; shot.Direction = 2;
         shot.Position = shot.Position.WithWhole(enemy.Position.Whole);
         shot.Radius = new(4, 4);
-        shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
+        shot.InstructionPointer = 0x9000; shot.InstructionTimer = NativeCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: enemy.NativeIndex);
 

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroDiscoverySprite
 {
-    private ushort instructionTimer = 1;
+    private NativeCountdown instructionTimer = NativeCountdown.Start(1);
 
     public IntroDiscoverySprite(
         Position16<ScreenPixels> position,
@@ -57,7 +57,7 @@ internal sealed class IntroDiscoverySprite
     public void Redirect(ushort pointer)
     {
         InstructionPointer = pointer;
-        instructionTimer = 1;
+        instructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ internal sealed class IntroDiscoverySprite
     {
         if (frames == 0)
             throw new ArgumentOutOfRangeException(nameof(frames), "A native instruction delay must be nonzero.");
-        instructionTimer = frames;
+        instructionTimer = NativeCountdown.FromRaw(frames);
     }
 
     /// <summary>
@@ -114,8 +114,8 @@ internal sealed class IntroDiscoverySprite
         if (!IsActive)
             return;
 
-        instructionTimer = unchecked((ushort)(instructionTimer - 1));
-        if (instructionTimer != 0)
+        instructionTimer = instructionTimer.Decrement().Remaining;
+        if (!instructionTimer.IsZero)
             return;
 
         ushort Read(ushort pointer) => (instructionWord ?? throw new InvalidOperationException(
@@ -127,7 +127,7 @@ internal sealed class IntroDiscoverySprite
             ushort word = Read(cursor);
             if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
             {
-                instructionTimer = word;
+                instructionTimer = NativeCountdown.FromRaw(word);
                 SpriteMapPointer = Read(Add(cursor, 2));
                 InstructionPointer = Add(cursor, 4);
                 return;

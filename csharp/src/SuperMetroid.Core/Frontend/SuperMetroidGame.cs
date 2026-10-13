@@ -281,6 +281,8 @@ public sealed class SuperMetroidGame
 
     /// <summary>Boot-time <see cref="Bank80SystemState.MainGameLoopCarry"/>; fixed for the session.</summary>
     private readonly bool bootMainLoopCarry;
+    /// <summary>Boot-time <c>NumberOfDemoSets</c> ($1F59); fixed for the session.</summary>
+    private readonly int bootDemoSetCount;
     internal readonly CartridgeAudioState audio = new();
     private TitleSequenceState? title;
     private FileSelectMenuState? fileSelect;
@@ -348,6 +350,7 @@ public sealed class SuperMetroidGame
         selectedSaveSlot = saveRam.ReadSelectedSlot();
         // Construction is power-on: boot evaluates SRAM once before entering MainGameLoop.
         bootMainLoopCarry = saveRam.DetermineBootMainLoopCarry();
+        bootDemoSetCount = saveRam.DetermineNumberOfDemoSets();
     }
 
     /// <summary>
@@ -2207,14 +2210,7 @@ public sealed class SuperMetroidGame
         display.PublishBlack();
     }
 
-    internal int AvailableDemoSetCount()
-    {
-        // VerifySRAM unlocks the fourth set only when at least one valid slot exists.
-        // Do not mutate an invalid save's marker merely to evaluate demo eligibility.
-        if (saveRam.ReadSlot(0) is null && saveRam.ReadSlot(1) is null && saveRam.ReadSlot(2) is null)
-            return AttractDemoRomData.DefaultSetCount;
-        return saveRam.HasCompletedGame ? AttractDemoRomData.SetCount : AttractDemoRomData.DefaultSetCount;
-    }
+    internal int AvailableDemoSetCount() => bootDemoSetCount;
 
     /// <summary>
     /// Copies diagnostic state without reading cartridge data or invoking gameplay.

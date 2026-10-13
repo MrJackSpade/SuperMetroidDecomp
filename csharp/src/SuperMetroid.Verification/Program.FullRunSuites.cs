@@ -179,6 +179,7 @@ using static LowPercentIntroTimelineVerification;
 using static MagdolliteApexThresholdVerification;
 using static MagicNumberAuditVerification;
 using static MainGameLoopCarryVerification;
+using static BootDemoSetCountVerification;
 using static MamaTurtleEnemyDefinitionsVerification;
 using static MamaTurtleShellContourVerification;
 using static ManagedAudioVerification;
@@ -739,6 +740,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPuromiArcPosition), () => VerifyPuromiArcPosition()),
         new(nameof(VerifySpringBallBounce), () => VerifySpringBallBounce()),
         new(nameof(VerifyMainGameLoopCarry), () => VerifyMainGameLoopCarry()),
+        new(nameof(VerifyBootDemoSetCount), () => VerifyBootDemoSetCount()),
         new(nameof(VerifyDoorEntryRoomFxSound), () => VerifyDoorEntryRoomFxSound()),
         new(nameof(VerifyGoldNinjaDeathDrops), () => VerifyGoldNinjaDeathDrops()),
         new(nameof(VerifyDoorEntryEnemySound), () => VerifyDoorEntryEnemySound()),

@@ -70,22 +70,19 @@ internal static class AttractDemoSceneVerification
             input.Script.PreInstructionPointer != (ushort)AttractDemoPreInstruction.CheckLeave)
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
-        var frontend = new SuperMetroidGame(bus);
-        frontend.BindArtwork(frontend.Artwork with
-        {
-            MapPresentation = RetailPresentationFixture(),
-        });
-        if (frontend.AvailableDemoSetCount() != 3)
+        // $80:8261 fixes NumberOfDemoSets once at boot, so each eligibility case boots a session.
+        if (new SuperMetroidGame(bus).AvailableDemoSetCount() != 3)
             throw new InvalidDataException("An empty save must expose only the three ordinary demo sets.");
         var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         saveRam.SetGameCompleted(true);
-        if (frontend.AvailableDemoSetCount() != 3)
+        if (new SuperMetroidGame(bus).AvailableDemoSetCount() != 3)
             throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked set four.");
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot());
-        if (frontend.AvailableDemoSetCount() != 4)
+        saveRam.SetGameCompleted(true);
+        if (new SuperMetroidGame(bus).AvailableDemoSetCount() != 4)
             throw new InvalidDataException("Valid completed-game save did not unlock the fourth demo set.");
         saveRam.SetGameCompleted(false);
-        if (frontend.AvailableDemoSetCount() != 3)
+        if (new SuperMetroidGame(bus).AvailableDemoSetCount() != 3)
             throw new InvalidDataException("Incomplete-game save incorrectly unlocked set four.");
     }
 

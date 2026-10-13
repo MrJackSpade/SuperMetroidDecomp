@@ -121,6 +121,12 @@ public static class SaveRamLayout
     public const int CompletionMarkerOffset = 0x1fe0;
     /// <summary>$80:824F writes these twelve bytes after the ending.</summary>
     public static ReadOnlySpan<byte> CompletionMarker => "supermetroid"u8;
+    /// <summary>
+    /// <c>Text_madadameyohn</c> ($80:82AD): boot's <c>DetermineNumberOfDemoSets</c> writes these
+    /// twelve bytes over the completion marker when all three slots fail <c>LoadFromSRAM</c>
+    /// ($80:8283-8290).
+    /// </summary>
+    public static ReadOnlySpan<byte> CorruptSramMarker => "madadameyohn"u8;
 
     /// <summary>Slot-relative offset of the sub-second gameplay counter at WRAM <c>$7E:D7F8</c>.</summary>
     public const int GameTimeFramesOffset = 0x0038;

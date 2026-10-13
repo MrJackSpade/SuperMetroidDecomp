@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 
@@ -274,6 +275,26 @@ public sealed class SuperMetroidSaveRam
                 return sram >= text;
         }
         return true;
+    }
+
+    /// <summary>
+    /// Boot's <c>DetermineNumberOfDemoSets</c> ($80:8261), called once from $80:8564. When all
+    /// three slots fail <c>LoadFromSRAM</c> it overwrites the completion marker with
+    /// <see cref="SaveRamLayout.CorruptSramMarker"/> ($80:8283-8290) and enables three demo
+    /// sets; otherwise the full completion marker enables the fourth. The cartridge never
+    /// re-evaluates the count before reset.
+    /// </summary>
+    /// <returns>The attract-demo set count fixed for the session.</returns>
+    public int DetermineNumberOfDemoSets()
+    {
+        if (!IsSlotValid(0) && !IsSlotValid(1) && !IsSlotValid(2))
+        {
+            ReadOnlySpan<byte> corrupt = SaveRamLayout.CorruptSramMarker;
+            for (int index = 0; index < corrupt.Length; index++)
+                WriteSramByte(SaveRamLayout.CompletionMarkerOffset + index, corrupt[index]);
+            return AttractDemoRomData.DefaultSetCount;
+        }
+        return HasCompletedGame ? AttractDemoRomData.SetCount : AttractDemoRomData.DefaultSetCount;
     }
 
     /// <summary>True for the native completed-game signature, independent of slot checksums.</summary>

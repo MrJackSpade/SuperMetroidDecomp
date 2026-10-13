@@ -104,11 +104,12 @@ internal static class SaveSchemaTranslationVerification
         {
             MapPresentation = RetailPresentationFixture(),
         });
+        // $80:8261 fixes the demo-set count at boot, so each marker state boots a session.
         ram.SelectSlot(2);
         ram.SetGameCompleted(false);
-        AssertEqual(3, frontend.AvailableDemoSetCount(), "incomplete save exposes three demo sets");
+        AssertEqual(3, new SuperMetroidGame(bus).AvailableDemoSetCount(), "incomplete save exposes three demo sets");
         ram.SetGameCompleted(true);
-        AssertEqual(4, frontend.AvailableDemoSetCount(), "completed save exposes fourth demo set");
+        AssertEqual(4, new SuperMetroidGame(bus).AvailableDemoSetCount(), "completed save exposes fourth demo set");
         AssertEqual(2, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
         ram.SetGameCompleted(false);
         var native = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

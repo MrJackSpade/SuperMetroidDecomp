@@ -1583,12 +1583,17 @@ internal sealed class CeresRidleyBehavior
         state.Mode7Angle = state.Mode7Angle.AddRaw(0x0030);
         UpdateCeresRidleyMode7Matrix(state);
 
+        // Both animations queue into this frame's Mode 7 transfer queue, the capsule first, so
+        // the wing descriptors start after the capsule's. Their bytes outlive the transfer.
+        var queue = new Mode7TransferQueue(_room.Bus ?? throw new InvalidOperationException(
+            "The Ceres Ridley getaway requires a loaded room bus for its Mode 7 transfer queue."));
+
         // $A6:ACBC advances the Baby capsule on every fourth NMI using 0,1,2,1. The transfer
         // lists patch only the two two-byte rows occupied by that animation in the map.
         if ((nmiFrameCounter & 3) == 0)
         {
             state.Mode7BabyFrame = unchecked((ushort)((state.Mode7BabyFrame + 1) & 3));
-            ApplyMode7TransferList(CeresMode7TransferDefinitions.BabyFrameForPhase(state.Mode7BabyFrame));
+            ApplyMode7TransferList(CeresMode7TransferDefinitions.BabyFrameForPhase(state.Mode7BabyFrame), ref queue);
         }
 
         // $A6:AD27 alternates the six sparse wing rows on every eighth NMI.
@@ -1597,8 +1602,9 @@ internal sealed class CeresRidleyBehavior
             state.Mode7WingFrame = unchecked((ushort)((state.Mode7WingFrame + 1) & 1));
             ApplyMode7TransferList(state.Mode7WingFrame == 0
                 ? CeresMode7TransferList.WingFrame0
-                : CeresMode7TransferList.WingFrame1);
+                : CeresMode7TransferList.WingFrame1, ref queue);
         }
+        queue.CompleteTransfers();
     }
 
     /// <summary>Updates the getaway's Mode-7 transform matrix from its zoom and rotation words.</summary>
@@ -1630,12 +1636,19 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>
-    /// Replays one compiled $80:8B4F Mode-7 transfer list synchronously. Its source
-    /// bytes are immutable cartridge definitions, so gameplay needs no bank-$A6 read.
+    /// Replays one compiled $80:8B4F Mode-7 transfer list synchronously and queues its native
+    /// descriptors. Its source bytes are immutable cartridge definitions, so gameplay needs no
+    /// bank-$A6 read.
     /// </summary>
-    private void ApplyMode7TransferList(CeresMode7TransferList pointer)
+    private void ApplyMode7TransferList(CeresMode7TransferList pointer, ref Mode7TransferQueue queue)
     {
         CeresMode7TransferDefinitions.ApplyTo(_presentation._vram!, pointer);
+        foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(pointer))
+        {
+            queue.QueueVramTilemapTransfer(
+                new SnesAddress(Mode7TransferQueueLayout.CeresSourceBank, transfer.SourceOffset),
+                (ushort)transfer.TileNumbers.Count, transfer.DestinationWord);
+        }
     }
     /// <summary>Bank-$A6 tilemap source for the Japanese warning overlay.</summary>
     private const ushort CeresJapaneseText = 0xc450;

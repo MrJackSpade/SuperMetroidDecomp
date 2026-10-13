@@ -5,8 +5,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One $A6 Mode 7 low-byte tilemap DMA descriptor and its authored source bytes.</summary>
 /// <param name="DestinationWord">VRAM word address of the first map cell; each tile replaces its low byte while preserving the high-byte Mode 7 character data.</param>
 /// <param name="TileNumbers">Ordered eight-bit character selectors for consecutive map cells, not character pixel bytes.</param>
+/// <param name="SourceOffset">Bank-<c>$A6</c> offset of the descriptor's native source bytes, which the queued descriptor records.</param>
 public readonly record struct CeresMode7Transfer(
-ushort DestinationWord, CeresMode7TransferDefinitions.TileSequence TileNumbers);
+ushort DestinationWord, CeresMode7TransferDefinitions.TileSequence TileNumbers, ushort SourceOffset);
 
 /// <summary>The seven fixed bank-<c>$A6</c> Ceres Mode 7 transfer lists.</summary>
 public enum CeresMode7TransferList : ushort
@@ -57,6 +58,14 @@ public static class CeresMode7TransferDefinitions
     private const int PlatformColumn = 14, PlatformRow = 12;
     /// <summary>$A6:ACE2/ACF5/AD08: baby map position (4,10), an authored layout placement.</summary>
     private const int BabyColumn = 4, BabyRow = 10;
+    /// <summary>$A6:F918/F91C: the light and dark platform tilemap rows.</summary>
+    private const ushort PlatformLightSource = 0xf918, PlatformDarkSource = 0xf91c;
+    /// <summary>$A6:AD1B: the six two-byte capsule rows, frame by frame, upper row first.</summary>
+    private const ushort BabySources = 0xad1b;
+    /// <summary>Each capsule row transfers two tile bytes.</summary>
+    private const int BabyRowBytes = 2;
+    /// <summary>$A6:ADB7: the wing rows, each storing frame zero's run followed by frame one's.</summary>
+    private const ushort WingSources = 0xadb7;
     /// <summary>Starting map column and authored transfer width for one Ridley wing row.</summary>
     private readonly record struct WingRegion(int Column, int Width);
     /// <summary>$A6:AD49/AD80: the six wing row extents trace the drawn wing silhouette and are authored drawing content; row stepping and packed paired-frame addresses derive from them (see residualScalarInputsReview).</summary>
@@ -88,18 +97,20 @@ public static class CeresMode7TransferDefinitions
             {
                 if ((uint)index >= Count) throw new IndexOutOfRangeException();
                 if (pointer is CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark)
-                    return new(                        (ushort)(PlatformRow * MapColumns + PlatformColumn), new(pointer, index, 4));
+                    return new((ushort)(PlatformRow * MapColumns + PlatformColumn), new(pointer, index, 4),
+                        pointer == CeresMode7TransferList.ElevatorLight ? PlatformLightSource : PlatformDarkSource);
                 if (pointer is CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2)
                 {
                     int frame = (pointer - CeresMode7TransferList.BabyFrame0) / (2 * 9 + 1);
-                    return new(                        (ushort)((BabyRow + index) * MapColumns + BabyColumn), new(pointer, index, 2));
+                    return new((ushort)((BabyRow + index) * MapColumns + BabyColumn), new(pointer, index, 2),
+                        (ushort)(BabySources + BabyRowBytes * (2 * frame + index)));
                 }
                 WingRegion region = WingRegions[index];
                 int offset = 0;
                 for (int row = 0; row < index; row++) offset += 2 * WingRegions[row].Width;
                 if (pointer == CeresMode7TransferList.WingFrame1) offset += region.Width;
                 return new((ushort)(index * MapColumns + region.Column),
-                    new(pointer, index, region.Width));
+                    new(pointer, index, region.Width), (ushort)(WingSources + offset));
             }
         }
         /// <summary>Enumerates calculated descriptors in native transfer order without executing DMA or advancing animation.</summary>

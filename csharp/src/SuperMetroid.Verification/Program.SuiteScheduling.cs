@@ -19,10 +19,11 @@ using static SuiteTimingVerification;
 internal static class SuiteSchedulingVerification
 {
     /// <summary>
-    /// Previous run's elapsed time per suite, read to start the longest suites first. Ignored
-    /// <c>csharp/test-temp</c>, so a missing file only means registry order for that run.
+    /// Previous run's elapsed time per suite, read to start the longest suites first. Kept in the
+    /// ignored <see cref="RepositoryInstallation.CacheRoot"/>, so a missing file only means registry
+    /// order for that run.
     /// </summary>
-    private const string SuiteDurationsPath = "csharp/test-temp/verification-suite-durations.json";
+    private const string SuiteDurationsPath = RepositoryInstallation.CacheRoot + "/verification-suite-durations.json";
 
     /// <summary>One suite's result, sent by a worker to the coordinator as a single JSON line.</summary>
     internal sealed record SuiteReport(int Index, bool Passed, double Seconds, string Output, string Error, long PeakWorkingSetBytes);

@@ -1,5 +1,5 @@
 @echo off
-rem Builds the ending PPU probe into ignored csharp/test-temp with the Visual Studio C++ tools.
+rem Builds the ending PPU probe into the ignored csharp/.cache build cache with the Visual Studio C++ tools.
 rem cl is called directly so the repository's C# Directory.Build settings do not apply.
 setlocal
 set "vswhere=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
@@ -7,8 +7,8 @@ for /f "usebackq delims=" %%i in (`"%vswhere%" -latest -products * -requires Mic
 if not defined vs (echo Visual Studio C++ tools were not found.& exit /b 1)
 call "%vs%\VC\Auxiliary\Build\vcvars64.bat" >nul || exit /b 1
 pushd "%~dp0..\..\.."
-if not exist csharp\test-temp\ending-native-ppu mkdir csharp\test-temp\ending-native-ppu
-cl /nologo /O2 /D_CRT_SECURE_NO_WARNINGS csharp\test-fixtures\ending-native-ppu\probe.c upstream-sm\src\snes\ppu.c /Fe:csharp\test-temp\ending-native-ppu\probe.exe /Fo:csharp\test-temp\ending-native-ppu\
+if not exist csharp\.cache\ending-native-ppu mkdir csharp\.cache\ending-native-ppu
+cl /nologo /O2 /D_CRT_SECURE_NO_WARNINGS csharp\test-fixtures\ending-native-ppu\probe.c upstream-sm\src\snes\ppu.c /Fe:csharp\.cache\ending-native-ppu\probe.exe /Fo:csharp\.cache\ending-native-ppu\
 set "result=%ERRORLEVEL%"
 popd
 exit /b %result%

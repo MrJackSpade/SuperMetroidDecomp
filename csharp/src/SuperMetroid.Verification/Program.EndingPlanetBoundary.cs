@@ -47,12 +47,12 @@ internal static class EndingPlanetBoundaryVerification
     }
 
     /// <summary>
-    /// Builds the checked-in ending PPU probe once into ignored csharp/test-temp. This is a build cache of
-    /// one executable reused by every run, not a per-run artifact.
+    /// Builds the checked-in ending PPU probe once into the ignored <see cref="RepositoryInstallation.CacheRoot"/>.
+    /// This is a build cache of one executable reused by every run, not a per-run artifact.
     /// </summary>
     private static string EnsureEndingNativeProbe()
     {
-        string probe = Path.GetFullPath("csharp/test-temp/ending-native-ppu/probe.exe");
+        string probe = Path.GetFullPath(Path.Combine(RepositoryInstallation.CacheRoot, "ending-native-ppu", "probe.exe"));
         // build.cmd compiles with cl directly; the C# Directory.Build settings would otherwise apply.
         if (!File.Exists(probe))
             RunNativeTool(Path.Combine(Environment.SystemDirectory, "cmd.exe"),

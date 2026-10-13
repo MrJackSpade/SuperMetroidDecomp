@@ -8,15 +8,21 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 /// <summary>
-/// The repository ROM's extracted installation in ignored <c>csharp/test-temp</c>, shared by the
+/// The repository ROM's extracted installation in the ignored <see cref="CacheRoot"/>, shared by the
 /// verifier and the developer tools. Each process loads its catalogs once; every fixture built
 /// here keeps its own bus and mutable runtime state.
 /// </summary>
 internal static class RepositoryInstallation
 {
+    /// <summary>
+    /// Ignored, repository-relative home of persistent local caches that runs reuse: this extracted
+    /// installation, suite-duration hints and built diagnostic probes.
+    /// </summary>
+    internal const string CacheRoot = "csharp/.cache";
+
     private static readonly Lazy<GameInstallation> installation = new(() =>
     {
-        string root = Path.GetFullPath("csharp/test-temp/verification-installed-content");
+        string root = Path.GetFullPath(Path.Combine(CacheRoot, "verification-installed-content"));
         return GameAssetInstaller.EnsureInstalled(root) ??
             GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
     });

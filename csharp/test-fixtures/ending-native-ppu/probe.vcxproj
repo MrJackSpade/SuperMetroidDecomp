@@ -4,7 +4,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration"><ConfigurationType>Application</ConfigurationType><PlatformToolset>v145</PlatformToolset></PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <PropertyGroup><OutDir>$(ProjectDir)..\..\test-temp\ending-native-ppu\</OutDir><IntDir>$(OutDir)obj\</IntDir></PropertyGroup>
+  <PropertyGroup><OutDir>$(ProjectDir)..\..\.cache\ending-native-ppu\</OutDir><IntDir>$(OutDir)obj\</IntDir></PropertyGroup>
   <ItemDefinitionGroup><ClCompile><PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile></ItemDefinitionGroup>
   <ItemGroup><ClCompile Include="probe.c"/><ClCompile Include="..\..\..\upstream-sm\src\snes\ppu.c"/></ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

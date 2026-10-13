@@ -61,6 +61,9 @@ upstream-sm/
 upstream-disassembly/
 standalone-native/
 csharp/test-temp/
+# Persistent local caches reused across runs (extracted installation, suite-duration hints,
+# built diagnostic probes).
+/csharp/.cache/
 *.log
 # Executable-relative session diagnostics may contain private paths and error context.
 **/logs/

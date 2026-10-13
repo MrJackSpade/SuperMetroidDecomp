@@ -21,7 +21,7 @@ The following controlled experiment sets **non-retail** BG1/BG2 VOFS=-1 to
 compensate for the native renderer's physical scanline-one sampling:
 
 ```powershell
-& csharp/test-temp/ending-native-ppu/probe.exe csharp/test-temp/ending-506/later-0512-ZebesExplosionAnimation.smframe csharp/test-temp/ending-506/later-0512-ZebesExplosionAnimation.offset-check.bgra offset-check
+& csharp/.cache/ending-native-ppu/probe.exe csharp/test-temp/ending-506/later-0512-ZebesExplosionAnimation.smframe csharp/test-temp/ending-506/later-0512-ZebesExplosionAnimation.offset-check.bgra offset-check
 dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ending-native-offset-check
 ```
 
@@ -50,5 +50,6 @@ independent reconstruction of the upper VRAM DMA ranges, including the exact
 $1000 font upload at byte $A000: zero byte differences and zero changed pixels.
 This rules out the suspected font-overwrite explanation for these captured frames.
 
-Generated images, memory packets, raw BGRA outputs, and compiler artifacts remain
-in `csharp/test-temp`; only diagnostic source is committed.
+Generated images, memory packets and raw BGRA outputs remain in `csharp/test-temp`;
+the built probe and its compiler artifacts are a reusable build cache in ignored
+`csharp/.cache/ending-native-ppu`. Only diagnostic source is committed.

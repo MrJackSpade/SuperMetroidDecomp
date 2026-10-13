@@ -153,6 +153,7 @@ using static HardwareWindowsVerification;
 using static HealthWarningVerification;
 using static HeroShotRuntimeVerification;
 using static HeroShotsVerification;
+using static HostIndependentAudioAcknowledgementsVerification;
 using static ImplicitScrollResidueVerification;
 using static IniEditingVerification;
 using static IntroBabyActorDefinitionsVerification;
@@ -792,6 +793,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue()),
         new(nameof(VerifySuperMissileDeathAnimation), () => VerifySuperMissileDeathAnimation()),
         new(nameof(VerifyDoorSoundsDuringPowerBomb), () => VerifyDoorSoundsDuringPowerBomb()),
+        new(nameof(VerifyHostIndependentAudioAcknowledgements), () => VerifyHostIndependentAudioAcknowledgements()),
         new(nameof(VerifyKnockbackShinesparkLaunch), () => VerifyKnockbackShinesparkLaunch()),
         new(nameof(VerifyUnpauseElevatorFlags), () => VerifyUnpauseElevatorFlags()),
         new(nameof(VerifyRidleyShotHealthStage), () => VerifyRidleyShotHealthStage()),

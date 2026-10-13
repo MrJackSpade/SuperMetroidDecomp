@@ -41,13 +41,9 @@ public static class DebuggerSaveStateSmokeTest
             {
                 MapPresentation = maps,
             });
-            using var audio = DesktopAccess.CreateAudioEngine(installation.AudioDirectory);
+            game.BindAudio(installation.LoadAudio());
             for (int frame = 0; frame < 90; frame++)
-            {
-                FrontendFrame current = game.Step(0);
-                audio.RenderFrame(current.AudioCommands);
-                game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
-            }
+                game.Step(0);
             GameContentIdentity contentIdentity = GameContentIdentity.Create(
                 new string('A', 64),
                 new string('B', 64),
@@ -58,7 +54,7 @@ public static class DebuggerSaveStateSmokeTest
             bool emptySlotReported = !store.TryLoad(9, out _);
             if (!emptySlotReported)
                 throw new InvalidDataException("An empty debugger slot was reported as occupied.");
-            DebuggerSaveStateMetadata saved = store.Save(0, bus, game, audio.Player);
+            DebuggerSaveStateMetadata saved = store.Save(0, bus, game);
             if (store.Load(0).Warnings.Count != 0)
                 throw new InvalidDataException("Same-build debugger state emitted a build warning.");
             DebuggerSaveStateLoadResult installedLoad = DebuggerSaveStateStore.ForInstalledGame(
@@ -85,9 +81,9 @@ public static class DebuggerSaveStateSmokeTest
             for (int frame = 0; frame < continuationFrames; frame++)
             {
                 expected[frame] = game.Step(0).WithCopiedPixels();
-                expectedPcm[frame] = audio.RenderFrame(expected[frame].AudioCommands).ToArray();
-                expectedAcknowledgements[frame] = audio.ReadAcknowledgements();
-                game.SetAudioAcknowledgements(expectedAcknowledgements[frame]);
+                expectedPcm[frame] = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+                game.CopyAudioFrame(expectedPcm[frame]);
+                expectedAcknowledgements[frame] = game.AudioAcknowledgementsForVerification;
             }
 
             DebuggerSaveStateLoadResult loaded = store.Load(0);
@@ -114,9 +110,8 @@ public static class DebuggerSaveStateSmokeTest
                 throw new InvalidDataException(
                     "Selected-audio drift did not supplement the two assembly-build warnings.");
             }
-            using var restoredAudio = new SpcAudioEngine(
-                installation.LoadAudio(),
-                loaded.AudioPlayer ?? throw new InvalidDataException("Restored state omitted managed audio."));
+            // The player is restored inside the game graph; the host rebinds only the catalog.
+            loaded.Game.BindAudio(installation.LoadAudio());
             if (loaded.Game.FrameNumber != saved.FrameNumber)
             {
                 throw new InvalidDataException(
@@ -125,10 +120,10 @@ public static class DebuggerSaveStateSmokeTest
             for (int frame = 0; frame < continuationFrames; frame++)
             {
                 FrontendFrame actual = loaded.Game.Step(0);
-                short[] actualPcm = restoredAudio.RenderFrame(actual.AudioCommands).ToArray();
+                var actualPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+                loaded.Game.CopyAudioFrame(actualPcm);
                 CartridgeAudioAcknowledgements actualAcknowledgements =
-                    restoredAudio.ReadAcknowledgements();
-                loaded.Game.SetAudioAcknowledgements(actualAcknowledgements);
+                    loaded.Game.AudioAcknowledgementsForVerification;
                 FrontendFrame wanted = expected[frame];
                 if (actual.GameState != wanted.GameState ||
                     actual.FrameNumber != wanted.FrameNumber ||

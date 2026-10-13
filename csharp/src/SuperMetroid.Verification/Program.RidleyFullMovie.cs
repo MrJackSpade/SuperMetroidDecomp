@@ -894,7 +894,6 @@ internal static class RidleyFullMovieVerification
         var (bus, runtime, samus, game) = ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam);
         Array initialPlms = runtime.Plms.SlotTable._slots;
         var checkedProjectileCompositions = new HashSet<(ushort Operand, ushort Direct, ushort Native)>();
-        var audio = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
         ushort[]? pendingLoadedOwners = null;
         int loadingIntervals = 0;
         ushort[] CaptureLoadedOwners()
@@ -1590,9 +1589,7 @@ internal static class RidleyFullMovieVerification
                     "apu-upload-continuation" or "apu-upload-tail-continuation")
                     throw new InvalidDataException($"SMV source frame {updates[frame].GetProperty("sourceFrame").GetInt32()} is an APU upload continuation; hardware-wait input normalization is not implemented.");
                 previousBodyRecord = BodyRecord();
-                var output = game.Step((ushort)updates[frame].GetProperty("input").GetInt32());
-                audio.RenderFrame(output.AudioCommands);
-                game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+                game.Step((ushort)updates[frame].GetProperty("input").GetInt32());
             }
         }
         AssertTrue(pendingLoadedOwners is null, "no deferred loading comparison remains at movie end");

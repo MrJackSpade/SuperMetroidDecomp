@@ -55,14 +55,14 @@ internal static class FileSelectSoundVerification
             new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
         var game = CreateRetailGameFixture(bus);
         var assets = ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory);
-        var actual = new CartridgeAudioRenderer(assets);
+        game.BindAudio(assets);
+        var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         var withoutSwoosh = new CartridgeAudioRenderer(assets);
         int writes = 0, differentSamples = 0;
         int firstSoundTick = -1, firstDifferenceTick = -1;
         bool reachedSavedMap = false;
         for (int tick = 0; tick < 500; tick++)
         {
-            game.SetAudioAcknowledgements(actual.ReadAcknowledgements());
             SnesButton button = game.GameState == SuperMetroidGameState.FileSelectMenus ? accept : SnesButton.Start;
             var frame = game.StepCaptured(tick % 47 == 0 ? (ushort)button : (ushort)0, tick + 1, 1).Frame;
             reachedSavedMap |= frame.GameState == SuperMetroidGameState.FileSelectMap;
@@ -75,7 +75,7 @@ internal static class FileSelectSoundVerification
                 AssertEqual(SuperMetroidGameState.FileSelectMenus, frame.GameState, "swoosh is requested on the file screen, not after loading");
                 AssertEqual(nameof(FileSelectPhase.TurnSelectedHelmet), frame.Phase, "swoosh accompanies selected helmet turn");
             }
-            short[] pcm = actual.RenderFrame(frame.AudioCommands);
+            game.CopyAudioFrame(pcm);
             short[] control = withoutSwoosh.RenderFrame(frame.AudioCommands.Where(command => !IsSwoosh(command)).ToArray());
             for (int sample = 0; sample < pcm.Length; sample++)
                 if (pcm[sample] != control[sample])

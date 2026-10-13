@@ -43,12 +43,10 @@ internal static class AndroidBundleReplay
         try
         {
             SuperMetroidGame game;
-            CartridgeAudioRenderer audio;
             if (seed is null)
             {
                 SaveRamImage.Load(bus, recording.InitialSaveRam);
                 game = new SuperMetroidGame(bus, recording.GameOptions);
-                audio = new CartridgeAudioRenderer(assets);
             }
             else
             {
@@ -60,21 +58,20 @@ internal static class AndroidBundleReplay
                 var loaded = store.Load(0);
                 bus = loaded.AddressSpace;
                 game = loaded.Game;
-                audio = new CartridgeAudioRenderer(assets, loaded.AudioPlayer
-                    ?? throw new InvalidDataException("Android seed omitted its managed audio graph."));
                 if (!SaveRamImage.Capture(bus).AsSpan().SequenceEqual(recording.InitialSaveRam))
                     throw new InvalidDataException("Preserved seed SRAM differs from the journal reset header.");
             }
 
+            game.BindAudio(assets);
+            var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
             using var videoHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             using var audioHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             for (int tick = 0; tick < recording.ControllerInputs.Length; tick++)
             {
-                game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
                 var frame = game.StepCaptured(recording.ControllerInputs[tick], tick + 1, 1);
                 var pixels = frame.Snapshot is { } snapshot
                     ? SoftwareFrameSnapshotRenderer.Render(snapshot) : frame.Frame.Pixels;
-                short[] samples = audio.RenderFrame(frame.Frame.AudioCommands);
+                game.CopyAudioFrame(samples);
                 videoHash.AppendData(MemoryMarshal.AsBytes(pixels.AsSpan()));
                 audioHash.AppendData(MemoryMarshal.AsBytes(samples.AsSpan()));
             }

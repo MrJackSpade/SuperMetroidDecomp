@@ -85,6 +85,8 @@ internal sealed class AndroidGameSession
         {
             using var data = new AndroidSessionData(root);
             var rasterBuffer = new SuperMetroid.Core.Assets.Rgba32[FrontendFrame.Width * FrontendFrame.Height];
+            // Host-owned PCM storage; the session copies each update's samples into it.
+            var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
             RefreshEffectiveOptions(data);
             SuperMetroidGameOptions options = data.Options;
             long sequence = 0;
@@ -136,7 +138,6 @@ internal sealed class AndroidGameSession
                     output = new AndroidPcmOutput(resumeTrace);
                 }
                 double start = clock.Elapsed.TotalMilliseconds;
-                data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
                 ushort input = Input.Sample();
                 data.Record(input);
                 var previousGameState = data.Game.GameState;
@@ -148,12 +149,11 @@ internal sealed class AndroidGameSession
                 var pixels = frame.Snapshot is { } snapshot
                     ? SoftwareFrameSnapshotRenderer.Render(snapshot, rasterBuffer) : frame.Frame.Pixels;
                 double rendered = clock.Elapsed.TotalMilliseconds;
-                short[] samples = data.Audio.RenderFrame(frame.Frame.AudioCommands);
+                data.Game.CopyAudioFrame(samples);
                 if (options.MasterVolumePercent != 100)
                     for (int i = 0; i < samples.Length; i++) samples[i] = (short)(samples[i] * options.MasterVolumePercent / 100);
                 double mixed = clock.Elapsed.TotalMilliseconds;
                 output?.Submit(samples);
-                data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
                 data.SaveCompletedDoor(previousGameState);
                 double submitted = clock.Elapsed.TotalMilliseconds;
                 if (resumeTrace is { Full: false })

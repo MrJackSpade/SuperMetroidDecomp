@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>
 /// Supplies the sound-effect ports' SPC acknowledgements from the native capture.
@@ -9,9 +10,9 @@ using SuperMetroid.Core.Audio;
 /// CPU's port write falls against the SPC driver's service period, i.e. on the CPU's
 /// per-frame load, which the port removes. The capture shows whether each library left its
 /// waiting state during an update; the replay reproduces exactly that outcome. Music
-/// (port 0) and normal play keep the port's own SPC model.
+/// (port 0), updates without native evidence, and normal play keep the session's SPC model.
 /// </remarks>
-internal sealed class EvidencedSoundAcknowledgements
+internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementSource
 {
     /// <summary>$0649..$064B: APU_SoundStateLib1..3.</summary>
     private const int SoundStateLib1 = 0x0649;
@@ -32,8 +33,24 @@ internal sealed class EvidencedSoundAcknowledgements
 
     private readonly byte[] states = new byte[LibraryCount];
     private readonly byte[] currents = new byte[LibraryCount];
+    // False after an update without a native checkpoint, until the next capture.
+    private bool captured;
+    private NativeCheckpointMemory? expectedAfter;
 
     public EvidencedSoundAcknowledgements(NativeCheckpointMemory nativeMemory) => Capture(nativeMemory);
+
+    /// <summary>
+    /// Selects the native result of the next update, or <see langword="null"/> when that update
+    /// has no evidence of its own and reads the session's model.
+    /// </summary>
+    public void Expect(NativeCheckpointMemory? nativeAfter) => expectedAfter = nativeAfter;
+
+    /// <summary>Forgets the captured handler state after an update the capture does not cover.</summary>
+    public void Invalidate() => captured = false;
+
+    /// <inheritdoc/>
+    public CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled) =>
+        captured && expectedAfter is not null ? ForUpdate(modeled, expectedAfter) : modeled;
 
     /// <summary>
     /// Acknowledgements for the update whose native result is <paramref name="nativeAfter"/>.
@@ -68,5 +85,6 @@ internal sealed class EvidencedSoundAcknowledgements
             states[library] = nativeMemory[SoundStateLib1 + library];
             currents[library] = nativeMemory[CurrentSoundLib1 + library];
         }
+        captured = true;
     }
 }

@@ -120,7 +120,7 @@ public static class ManagedAudioRegressionSmokeTest
         int frameCount,
         AudioCorpusTally tally)
     {
-        using var engine = DesktopAccess.CreateAudioEngine();
+        var engine = DesktopAccess.CreateAudioRenderer();
         for (int frame = 0; frame < frameCount; frame++)
         {
             IReadOnlyList<CartridgeAudioCommand> commands = frame == 0
@@ -142,7 +142,7 @@ public static class ManagedAudioRegressionSmokeTest
         AudioCorpusTally tally,
         bool cancelHalfway = false)
     {
-        using var engine = DesktopAccess.CreateAudioEngine();
+        var engine = DesktopAccess.CreateAudioRenderer();
         for (int frame = 0; frame < ShortScenarioFrames; frame++)
         {
             List<CartridgeAudioCommand> commands = [];
@@ -171,7 +171,7 @@ public static class ManagedAudioRegressionSmokeTest
     {
         AudioUploadAssetDefinition first = AudioAssetCatalogData.Music[3];
         AudioUploadAssetDefinition second = AudioAssetCatalogData.Music[4];
-        using var engine = DesktopAccess.CreateAudioEngine();
+        var engine = DesktopAccess.CreateAudioRenderer();
         for (int frame = 0; frame < LifecycleScenarioFrames; frame++)
         {
             List<CartridgeAudioCommand> commands = [];
@@ -216,7 +216,7 @@ public static class ManagedAudioRegressionSmokeTest
 
     private static void HashFrame(
         string scenario,
-        SpcAudioEngine engine,
+        CartridgeAudioRenderer engine,
         IReadOnlyList<CartridgeAudioCommand> commands,
         AudioCorpusTally tally)
     {

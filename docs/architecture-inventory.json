@@ -14456,6 +14456,45 @@
       "disposition": "static-functions"
     },
     {
+      "type": "HostAudioAcknowledgementTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.DesktopVerification/HostAudioAcknowledgementTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "HostIndependentAudioAcknowledgementsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Program.HostIndependentAudioAcknowledgements.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "HostIndependentAudioAcknowledgementsVerification.RendererAcknowledgements",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Program.HostIndependentAudioAcknowledgements.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "HostToolbarControlsTest",
       "kind": "static class",
       "scope": "test",
@@ -25493,6 +25532,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "PortWriteEchoAcknowledgements",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/PortWriteEchoAcknowledgements.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "PoseCollisionDefinitionsVerification",
@@ -54172,6 +54224,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Audio.CartridgeAudioRendererTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Audio/CartridgeAudioRendererTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.CartridgeAudioSession",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/CartridgeAudioSession.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.CartridgeAudioState",
       "kind": "class",
       "scope": "product",
@@ -58190,6 +58268,19 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.ISoundAcknowledgementSource",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/SoundAcknowledgementSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.IntroBabyActorDefinition",
       "kind": "record struct",
       "scope": "product",
@@ -59440,6 +59531,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.ModeledSoundAcknowledgements",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/SoundAcknowledgementSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.PauseButtonLabel",
@@ -99315,19 +99419,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Desktop/SessionConsoleWriter.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Desktop.SpcAudioEngine",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Desktop"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Desktop/ManagedSpcAudioEngine.cs"
       ],
       "partial": "none",
       "disposition": "owner"

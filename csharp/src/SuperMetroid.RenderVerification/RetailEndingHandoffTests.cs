@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -16,20 +17,23 @@ internal static class RetailEndingHandoffTests
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
         var legacy = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
         var captured = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
-        using var leftAudio = DesktopAccess.CreateAudioEngine();
-        using var rightAudio = DesktopAccess.CreateAudioEngine();
+        var audioAssets = DesktopAccess.LoadAudioAssets();
+        legacy.BindAudio(audioAssets);
+        captured.BindAudio(audioAssets);
+        var leftAudio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var rightAudio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         long sequence = 0;
         void Step(ushort input, bool pixels)
         {
             var expected = legacy.Step(input);
             var actual = captured.StepCaptured(input, ++sequence, 1);
+            legacy.CopyAudioFrame(leftAudio);
+            captured.CopyAudioFrame(rightAudio);
             if (actual.UsedLegacyRaster || expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
                 !expected.AudioCommands.SequenceEqual(actual.Frame.AudioCommands) ||
-                !leftAudio.RenderFrame(expected.AudioCommands).SequenceEqual(rightAudio.RenderFrame(actual.Frame.AudioCommands)))
+                !leftAudio.AsSpan().SequenceEqual(rightAudio))
                 throw new InvalidOperationException("Ending handoff changed frontend cadence/audio.");
-            legacy.SetAudioAcknowledgements(leftAudio.ReadAcknowledgements());
-            captured.SetAudioAcknowledgements(rightAudio.ReadAcknowledgements());
             if (pixels) PixelComparison.Verify(actual.Snapshot!, expected.Pixels,
                 renderer.RenderForReadback(actual.Snapshot!), $"{device.Kind}: ending handoff {sequence}, {expected.Phase}");
         }

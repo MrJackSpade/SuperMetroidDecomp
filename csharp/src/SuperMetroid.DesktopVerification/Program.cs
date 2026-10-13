@@ -100,6 +100,7 @@ internal static class Program
                 await VerifyCloseDuringLoad(restart: true);
                 await VerifyRendererStartupFailure(RendererSelection.Auto);
                 await VerifyRendererStartupFailure(RendererSelection.Direct3D11);
+                await HostAudioAcknowledgementTests.Verify();
                 Console.WriteLine("Desktop capture: software/GPU stepping, resize, paused state restore, generation reset and asynchronous shutdown passed.");
             }
             catch (Exception error) { Console.Error.WriteLine(error); Environment.ExitCode = 1; }

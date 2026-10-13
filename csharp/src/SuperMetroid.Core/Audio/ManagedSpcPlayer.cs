@@ -1168,9 +1168,9 @@ public sealed class ManagedSpcPlayer
     [SpcMemoryAccess]
     internal readonly byte[] ram = new byte[SpcDriverData.ApuRamSize];
     // Input latches, sound-effect acknowledgement ports and the driver timer (#1304).
-    private readonly SpcCommandPorts commandPorts = new();
+    internal readonly SpcCommandPorts commandPorts = new();
     // Output port 0: the sequencer's echo of the playing track.
-    private byte musicPortToSnes;
+    internal byte musicPortToSnes;
     private readonly ManagedSpcMusicChannel[] channels = Enumerable
         .Range(0, SpcDriverData.ChannelCount)
         .Select(index => new ManagedSpcMusicChannel { Index = unchecked((byte)index) })
@@ -1348,11 +1348,6 @@ public sealed class ManagedSpcPlayer
 
     /// <summary>Writes one CPU-to-SPC communication port exactly as the cartridge does.</summary>
     public void WritePort(ApuPort port, byte value) => commandPorts.WritePort(port, value);
-
-    /// <summary>Reads one SPC-to-CPU acknowledgement port.</summary>
-    public byte ReadPort(ApuPort port) => port == ApuPort.Music
-        ? musicPortToSnes
-        : commandPorts.ReadSoundEffectPort(port);
 
     /// <summary>
     /// Applies a complete cartridge upload stream to APU RAM. Each record contains a little-

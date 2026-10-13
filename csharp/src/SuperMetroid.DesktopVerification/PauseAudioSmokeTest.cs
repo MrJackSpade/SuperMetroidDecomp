@@ -27,7 +27,8 @@ public static class PauseAudioSmokeTest
         var game = new SuperMetroidGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
-        using var audio = DesktopAccess.CreateAudioEngine();
+        game.BindAudio(DesktopAccess.LoadAudioAssets());
+        var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         FrontendFrame frame = default;
         int frames = 0;
         int pauseFrames = 0;
@@ -38,10 +39,9 @@ public static class PauseAudioSmokeTest
         FrontendFrame Step(ushort input)
         {
             FrontendFrame next = game.Step(input);
-            ReadOnlySpan<short> samples = audio.RenderFrame(next.AudioCommands);
+            game.CopyAudioFrame(samples);
             commandCount += next.AudioCommands.Count;
             continuity.Observe(samples);
-            game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
             frames++;
             if (next.GameState is >= SuperMetroidGameState.PausingDarkening and
                 <= SuperMetroidGameState.Unpausing)

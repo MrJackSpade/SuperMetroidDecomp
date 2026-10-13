@@ -30,10 +30,8 @@ internal static class ReportedEyeStateFixture
         data.Game.GameState = SuperMetroidGameState.MainGameplay;
         for (long frame = 1; frame <= 80; frame++)
         {
-            data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
             data.Record(0);
             var result = data.Game.StepCaptured(0, frame, data.Generation);
-            data.Audio.RenderFrame(result.Frame.AudioCommands);
         }
         if (runtime.Display.DisplayedMorphBallEyeBeam is not { Phase: MorphBallEyeBeamPhase.Full })
             throw new InvalidDataException("Reported room eye did not reach a fully published beam.");

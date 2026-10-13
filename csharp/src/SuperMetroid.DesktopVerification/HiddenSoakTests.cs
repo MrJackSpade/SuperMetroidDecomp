@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -22,15 +23,14 @@ internal static class HiddenSoakTests
         {
             var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
                 new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
-            using var audio = DesktopAccess.CreateAudioEngine();
+            game.BindAudio(DesktopAccess.LoadAudioAssets());
+            var audio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
             long sequence = 0;
             CapturedFrontendFrame Step(ushort input)
             {
                 var frame = game.StepCaptured(input, ++sequence, 1);
                 if (frame.Snapshot is null || frame.Frame.Pixels.Length != 0)
                     throw new InvalidOperationException("Soak entered a raster fallback.");
-                audio.RenderFrame(frame.Frame.AudioCommands);
-                game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
                 return frame;
             }
             for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
@@ -67,9 +67,8 @@ internal static class HiddenSoakTests
                     long began = Stopwatch.GetTimestamp();
                     var frame = game.StepCaptured(0, ++sequence, 1);
                     Check(frame.Snapshot is not null && frame.Frame.Pixels.Length == 0, "soak raster fallback");
-                    // The real producer order: capture, synthesize, queue PCM, acknowledge, publish.
-                    // Keep the span inside a synchronous helper so no PCM crosses an await.
-                    MixAndSubmit(audio, output, game, frame, ref nonzero, ref pcmSamples);
+                    // The real producer order: capture and synthesize inside Step, copy and queue PCM, publish.
+                    MixAndSubmit(audio, output, game, ref nonzero, ref pcmSamples);
                     worker.Publish(frame.Snapshot!);
                     producerMs[tick] = Stopwatch.GetElapsedTime(began).TotalMilliseconds;
                     allocation += GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
@@ -105,12 +104,11 @@ internal static class HiddenSoakTests
         }, new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
     }
 
-    private static void MixAndSubmit(SpcAudioEngine audio, WaveOutAudioDevice output, SuperMetroidGame game,
-        CapturedFrontendFrame frame, ref long nonzero, ref long count)
+    private static void MixAndSubmit(short[] samples, WaveOutAudioDevice output, SuperMetroidGame game,
+        ref long nonzero, ref long count)
     {
-        var samples = audio.RenderFrame(frame.Frame.AudioCommands);
+        game.CopyAudioFrame(samples);
         output.Submit(samples);
-        game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
         count += samples.Length;
         foreach (short sample in samples) if (sample != 0) nonzero++;
     }

@@ -1,9 +1,10 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// Platform-independent cartridge command/acknowledgement adapter. Hosts supply a PCM
-/// sink; the driver, sample selection, pitch, envelope and echo remain shared C# behavior.
-/// One owner must call this object in emulated-frame order, never from a paint callback.
+/// Platform-independent cartridge command-to-PCM synthesizer, owned by the game session's
+/// <see cref="CartridgeAudioSession"/>; the driver, sample selection, pitch, envelope and echo
+/// remain shared C# behavior. One owner must call this object in emulated-frame order, never
+/// from a paint callback. Gameplay never reads its ports back.
 /// </summary>
 public sealed class CartridgeAudioRenderer
 {
@@ -23,11 +24,11 @@ public sealed class CartridgeAudioRenderer
     public CartridgeAudioRenderer(ExtractedAudioAssetCatalog assets, ManagedSpcPlayer? player = null)
     {
         this.assets = Ensure.NotNull(assets);
-        Player = player ?? new ManagedSpcPlayer();
+        this.player = player ?? new ManagedSpcPlayer();
     }
 
-    /// <summary>The exact managed APU graph, included in debugger state captures.</summary>
-    public ManagedSpcPlayer Player { get; }
+    // The exact managed APU graph; its owner keeps it in debugger state captures.
+    internal readonly ManagedSpcPlayer player;
 
     /// <summary>Applies ordered cartridge uploads and CPU-to-APU port writes, then advances the player by one 60-Hz update and renders host PCM.</summary>
     /// <param name="commands">Non-null command sequence applied in its supplied order before synthesis; an empty sequence still advances audio.</param>
@@ -42,27 +43,21 @@ public sealed class CartridgeAudioRenderer
             switch (command.Kind)
             {
                 case CartridgeAudioCommandKind.Upload:
-                    Player.Upload(assets.GetUpload(command.UploadAddress).Span);
-                    Player.ApplyInstrumentDefinitions(
+                    player.Upload(assets.GetUpload(command.UploadAddress).Span);
+                    player.ApplyInstrumentDefinitions(
                         assets.GetInstrumentBank(command.UploadAddress));
-                    Player.ApplyMusicDefinitions(assets.GetMusicBank(command.UploadAddress));
-                    Player.ApplySoundEffectDefinitions(assets.SoundPrograms, assets.SoundLibraries);
-                    Player.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
+                    player.ApplyMusicDefinitions(assets.GetMusicBank(command.UploadAddress));
+                    player.ApplySoundEffectDefinitions(assets.SoundPrograms, assets.SoundLibraries);
+                    player.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
                     break;
                 case CartridgeAudioCommandKind.WritePort:
-                    Player.WritePort(command.InputPort, command.Value);
+                    player.WritePort(command.InputPort, command.Value);
                     break;
                 default:
                     throw new InvalidDataException($"Unknown cartridge audio command {command.Kind}.");
             }
         }
-        Player.GenerateFrame(samples);
+        player.GenerateFrame(samples);
         return samples;
     }
-
-    /// <summary>Snapshots the current SPC-to-CPU acknowledgement bytes corresponding to APU ports $2140-$2143, without advancing synthesis or consuming them.</summary>
-    /// <returns>Value-copied output-port bytes in port order 0 through 3, ready for the cartridge command/acknowledgement owner.</returns>
-    public CartridgeAudioAcknowledgements ReadAcknowledgements() => new(
-        Player.ReadPort(ApuPort.Music), Player.ReadPort(ApuPort.SoundLibrary1),
-        Player.ReadPort(ApuPort.SoundLibrary2), Player.ReadPort(ApuPort.SoundLibrary3));
 }

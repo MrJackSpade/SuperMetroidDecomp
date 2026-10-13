@@ -53,15 +53,12 @@ internal static class CrocomirePresentation1193Verification
             death.RumbleCooldown = 10;
             death.RumbleDelta = 1;
         }
-        var renderer = new CartridgeAudioRenderer(installation.LoadAudio());
         int[] sources = [0x879d84, 0x879e04, 0x879e84, 0x879e04, 0x879d84];
         int sourceIndex = 0;
         ushort previousScroll = 0;
         for (int frame = 0; frame < (spikes ? 34 : 6); frame++)
         {
             var result = game.Step(0);
-            renderer.RenderFrame(result.AudioCommands);
-            game.SetAudioAcknowledgements(renderer.ReadAcknowledgements());
             if (spikes)
             {
                 var uploads = runtime.VramWrites.Entries.Where(write => write.EncodedVramDestination == 0x3d60).ToArray();

@@ -383,8 +383,9 @@ separate performance task.
 Audio is a C# translation of Super Metroid's SPC sequencer and eight-voice S-DSP mixer. It
 implements pitch, pan/volume, ADSR and gain envelopes, Gaussian interpolation, noise, pitch
 modulation, voice borrowing, and the shared FIR echo buffer. C# also owns the retail bank-$80
-music ring, three bank-$82 SFX handshakes, and acknowledgement timing; Windows `waveOut` owns
-only buffered delivery of the resulting 48 kHz stereo PCM.
+music ring, three bank-$82 SFX handshakes, and acknowledgement timing. The game session advances
+the SPC port model every update whether or not audio is enabled or a device exists; Windows
+`waveOut` owns only buffered delivery of the resulting 48 kHz stereo PCM.
 
 Runtime upload commands resolve against the SHA-verified catalog in
 the installed `game/audio/` directory. Developer tools may still use

@@ -114,10 +114,10 @@ internal static class AudioInstrumentsVerification
                 int address = SpcDriverData.Ram.InstrumentTable +
                     index * SpcDriverData.Ram.InstrumentRecordSize;
                 AssertEqual(SnesLittleEndian.HighByte(installed[index].PitchBase),
-                    editedRenderer.Player.ReadApuByteForVerification(address + 4),
+                    editedRenderer.player.ReadApuByteForVerification(address + 4),
                     $"edited title instrument {index} pitch high");
                 AssertEqual(unchecked((byte)installed[index].PitchBase),
-                    editedRenderer.Player.ReadApuByteForVerification(address + 5),
+                    editedRenderer.player.ReadApuByteForVerification(address + 5),
                     $"edited title instrument {index} pitch low");
             }
 

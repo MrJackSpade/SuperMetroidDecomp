@@ -58,13 +58,13 @@ internal static class DoorMusicTimingVerification
         AssertEqual((byte)9, audio.MusicDataIndex, "source music data is active");
         AssertEqual((byte)5, audio.MusicTrackIndex, "source track is active");
         byte[] ports = new byte[4];
+        game.SoundAcknowledgements = new PortWriteEchoAcknowledgements(ports);
         int trackFrame = -1, musicWaitFrame = -1, uploadFrame = -1;
         for (int frame = 0; frame < 400; frame++)
         {
             var phase = game.DoorTransitionPhaseForVerification;
             if (phase == DoorTransitionPhase.WaitForMusicQueue && musicWaitFrame < 0)
                 musicWaitFrame = frame;
-            game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3]));
             var output = game.Step(0);
             foreach (var command in output.AudioCommands)
             {

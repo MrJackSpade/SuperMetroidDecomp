@@ -59,10 +59,13 @@ internal static class DesktopAccess
         }
     }
 
-    /// <summary>An audio engine over the extracted audio found from the working or executable directory.</summary>
-    internal static SpcAudioEngine CreateAudioEngine(string? audioDirectory = null) => new(
-        ExtractedAudioAssetCatalog.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory()),
-        new ManagedSpcPlayer());
+    /// <summary>The extracted audio found from the working or executable directory.</summary>
+    internal static ExtractedAudioAssetCatalog LoadAudioAssets(string? audioDirectory = null) =>
+        ExtractedAudioAssetCatalog.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
+
+    /// <summary>A standalone renderer over that audio, for fixtures that drive the cartridge audio types directly.</summary>
+    internal static CartridgeAudioRenderer CreateAudioRenderer(string? audioDirectory = null) =>
+        new(LoadAudioAssets(audioDirectory));
 
     /// <summary>
     /// A game control over the installation beside a ROM path, importing it on first use, or over

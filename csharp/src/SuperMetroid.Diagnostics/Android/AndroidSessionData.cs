@@ -59,7 +59,7 @@ internal sealed class AndroidSessionData : IDisposable
             $"projectiles={ContentIdentity.ProjectileContentSha256}.");
         foreach ((string domain, string digest) in ContentIdentity.AdditionalContentSha256.OrderBy(pair => pair.Key))
             Console.WriteLine($"Installed content component: {domain}={digest}.");
-        Audio = new CartridgeAudioRenderer(assets);
+        Game.BindAudio(assets);
         states = DebuggerSaveStateStore.ForInstalledGame(
             root,
             Options,
@@ -71,7 +71,6 @@ internal sealed class AndroidSessionData : IDisposable
     public SuperMetroidGameOptions Options { get; }
     public SuperMetroidAddressSpace Bus { get; private set; }
     public SuperMetroidGame Game { get; private set; }
-    public CartridgeAudioRenderer Audio { get; private set; }
     public SuperMetroid.AssetExtraction.GameContentIdentity ContentIdentity { get; }
     public long Generation { get; private set; } = 1;
 
@@ -86,13 +85,13 @@ internal sealed class AndroidSessionData : IDisposable
 
     public void SaveCompletedDoor(SuperMetroidGameState previousState) =>
         DoorTransitionAutosave.TrySave(Options.DoorTransitionAutosave, replay: false,
-            previousState, states, Bus, Game, Audio.Player);
+            previousState, states, Bus, Game);
 
     public string SaveSlot(int slot)
     {
         if (slot == DebuggerStateFormat.AutomaticSlot)
             return "The auto slot is written at completed door transitions. Select 0-9 for a manual save.";
-        DebuggerSaveStateMetadata metadata = states.Save(slot, Bus, Game, Audio.Player);
+        DebuggerSaveStateMetadata metadata = states.Save(slot, Bus, Game);
         FlushRecording();
         return $"Saved slot {slot}, frame {metadata.FrameNumber}, room {metadata.RoomPointer:X4}.";
     }
@@ -101,17 +100,15 @@ internal sealed class AndroidSessionData : IDisposable
     {
         if (!states.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
             return $"Slot {DebuggerSaveStateStore.SlotName(slot)} is empty. No state to load.";
-        if (loaded.AudioPlayer is null)
-            throw new InvalidDataException("This state has no managed audio graph; cannot resume its audio accurately.");
-
-        // All decoding/validation happens before replacing the live game. Retain the
+        // All decoding/validation happens before replacing the live game, including the
+        // audio binding, which rejects a state whose session never synthesized. Retain the
         // precise seed before future saves can overwrite this user-visible slot.
+        loaded.Game.BindAudio(assets);
         recorder.Dispose();
         Bus = loaded.AddressSpace;
         Game = loaded.Game;
         Game.BindArtwork(artwork);
         Game.SaveRamChanged += PersistSave;
-        Audio = new CartridgeAudioRenderer(assets, loaded.AudioPlayer);
         Generation++;
         recorder = StartRecorder();
         string seed = Path.ChangeExtension(recorder.Path, ".seed.smstate");

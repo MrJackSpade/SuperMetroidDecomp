@@ -97,7 +97,6 @@ internal static class FullMovieReplayVerification
             movie.InitialSaveRam.CopyTo(bus.SaveRam);
             game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         }
-        var audio = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
 
         Console.WriteLine($"Native first input boundary: source frame {updates[0].SourceFrame}, " +
             $"state {Word(memory, MovieDesyncMemory.GameState):X2}, RNG {Word(memory, MovieDesyncMemory.Random):X4}.");
@@ -107,8 +106,8 @@ internal static class FullMovieReplayVerification
         game.DoorMusicUploadNmis = uploadNmis;
         var loaderProgress = new EvidencedDoorLoaderProgress();
         game.DoorLoaderProgress = loaderProgress;
-        EvidencedSoundAcknowledgements? soundAcknowledgements = new(memory);
-        CartridgeAudioAcknowledgements spcAcknowledgements = audio.ReadAcknowledgements();
+        var soundAcknowledgements = new EvidencedSoundAcknowledgements(memory);
+        game.SoundAcknowledgements = soundAcknowledgements;
         int excludedBefore = 0, uncheckpointedUpdates = 0;
         for (int update = 1; update <= lastUpdate; update++)
         {
@@ -128,16 +127,13 @@ internal static class FullMovieReplayVerification
             NativeCheckpointMemory? nativeAfter = checkpoints.ReadAfter(update);
             // A dispatch that jumped into CommonBootSection has no checkpoint of its own, and
             // the clear erases the sound handler's waiting states before the next one. Both
-            // updates therefore read the port's SPC model, as a message box's frames do.
-            game.SetAudioAcknowledgements(nativeAfter is not null && soundAcknowledgements is not null
-                ? soundAcknowledgements.ForUpdate(spcAcknowledgements, nativeAfter) : spcAcknowledgements);
+            // updates therefore read the session's SPC model, as a message box's frames do.
+            soundAcknowledgements.Expect(nativeAfter);
             // A confirmation box can continue from the previous dispatch into this
             // NMI continuation; its MessageBox_Routine entry belongs to that dispatch.
             bool boxContinues = game.RuntimeForVerification?.MessageBox.IsActive == true;
-            var output = game.Step(step.Input);
+            game.Step(step.Input);
             uploadNmis.AssertSettled();
-            audio.RenderFrame(output.AudioCommands);
-            spcAcknowledgements = audio.ReadAcknowledgements();
             // Bank $85's message box runs inside this dispatch on lag frames, polling the
             // joypad registers rather than accepting NMIs, so the box spans this update's
             // remaining source frames. The port shows it one frame per step.
@@ -160,15 +156,10 @@ internal static class FullMovieReplayVerification
                 // the dispatch's hardware lag, not box frames, so the port steps none of them.
                 int boxFrameLimit = step.MessageBoxEndFrame is { } nativeBoxEnd ? nativeBoxEnd + 1 : endSourceFrame;
                 // The box's own HandleSounds calls span frames the capture does not split,
-                // so they read the port's SPC model frame by frame.
-                game.SetAudioAcknowledgements(spcAcknowledgements);
+                // so they read the session's SPC model frame by frame.
+                soundAcknowledgements.Expect(null);
                 for (; frame < boxFrameLimit && game.RuntimeForVerification!.MessageBox.IsActive; frame++)
-                {
-                    output = game.Step(frameInputs[frame]);
-                    audio.RenderFrame(output.AudioCommands);
-                    spcAcknowledgements = audio.ReadAcknowledgements();
-                    game.SetAudioAcknowledgements(spcAcknowledgements);
-                }
+                    game.Step(frameInputs[frame]);
                 if (step.MessageBoxEndFrame is { } nativeEnd)
                 {
                     if (game.RuntimeForVerification!.MessageBox.IsActive || frame != nativeEnd + 1)
@@ -199,12 +190,11 @@ internal static class FullMovieReplayVerification
             if (recentInputs.Count > 12) recentInputs.Dequeue();
             if (nativeAfter is null)
             {
-                soundAcknowledgements = null;
+                soundAcknowledgements.Invalidate();
                 uncheckpointedUpdates++;
                 continue;
             }
             memory = nativeAfter;
-            soundAcknowledgements ??= new EvidencedSoundAcknowledgements(memory);
             soundAcknowledgements.Capture(memory);
 
             if (update >= traceFromUpdate)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -40,7 +41,8 @@ internal static class SimulationProfile
     {
         var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
             new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
-        using var audio = DesktopAccess.CreateAudioEngine();
+        game.BindAudio(DesktopAccess.LoadAudioAssets());
+        var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         using var publicationProfile = new RenderPublicationProfile();
         long sequence = 0;
         long nonzeroPcmSamples = 0;
@@ -53,10 +55,7 @@ internal static class SimulationProfile
             long captured = Stopwatch.GetTimestamp();
             if (frame.Snapshot is null || frame.Frame.Pixels.Length != 0)
                 throw new InvalidOperationException("Profile unexpectedly entered a CPU raster path.");
-            var pcm = audio.RenderFrame(frame.Frame.AudioCommands);
-            if (pcm.Length != SpcAudioEngine.StereoFramesPerVideoFrame * SpcAudioEngine.ChannelCount)
-                throw new InvalidOperationException("Profile lost an audio frame.");
-            game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+            game.CopyAudioFrame(pcm);
             long end = Stopwatch.GetTimestamp();
             foreach (short value in pcm) if (value != 0) nonzeroPcmSamples++;
             return ((captured - start) * 1000.0 / Stopwatch.Frequency,
@@ -97,7 +96,7 @@ internal static class SimulationProfile
         Console.WriteLine($"Room $8F:{room:X4}, paused={paused}: simulation+audio p50/p95/p99 {combined.P50:F3}/{combined.P95:F3}/{combined.P99:F3}ms; allocation p50 {Distribution(allocated).P50:F0} bytes/frame.");
         return new { Room = $"8F:{room:X4}", Paused = paused, CaptureMs = Distribution(capture), AudioMs = Distribution(mixing),
             PublicationMs = Distribution(publication), PublicationAllocationBytes = Distribution(publicationAllocated),
-            TotalMs = combined, AllocationBytes = Distribution(allocated), PcmSamples = 600 * SpcAudioEngine.StereoFramesPerVideoFrame * SpcAudioEngine.ChannelCount,
+            TotalMs = combined, AllocationBytes = Distribution(allocated), PcmSamples = 600 * CartridgeAudioSession.PcmSamplesPerFrame,
             NonzeroPcmSamples = nonzeroPcmSamples };
     }
 

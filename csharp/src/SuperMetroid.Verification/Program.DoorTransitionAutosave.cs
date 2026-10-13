@@ -45,7 +45,7 @@ internal static class DoorTransitionAutosaveVerification
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             game.runtime = runtime;
             var assets = RepositoryInstallation.Installation.LoadAudio();
-            var audio = new CartridgeAudioRenderer(assets);
+            game.BindAudio(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
                 typeof(SuperMetroidGame).Module.ModuleVersionId);
             var store = DebuggerSaveStateStore.ForInstalledGame(directory, null, identity);
@@ -79,16 +79,19 @@ internal static class DoorTransitionAutosaveVerification
             AssertEqual(SuperMetroidGameState.MainGameplay, loaded.Game.GameState, "auto resumes after destination fade");
             AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "auto captures completed transition frame");
             InstalledFixtures.BindGame(loaded.Game);
-            var restoredAudio = new CartridgeAudioRenderer(assets, loaded.AudioPlayer);
+            // The player is restored inside the game graph; the host rebinds only the catalog.
+            loaded.Game.BindAudio(assets);
+            var expectedPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+            var actualPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
             for (int frame = 0; frame < 6; frame++)
             {
                 ushort input = frame < 3 ? (ushort)0x0200 : (ushort)0;
-                var expected = game.Step(input);
-                var expectedPcm = audio.RenderFrame(expected.AudioCommands);
-                game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
-                var actual = loaded.Game.Step(input);
-                var actualPcm = restoredAudio.RenderFrame(actual.AudioCommands);
-                loaded.Game.SetAudioAcknowledgements(restoredAudio.ReadAcknowledgements());
+                game.Step(input);
+                game.CopyAudioFrame(expectedPcm);
+                loaded.Game.Step(input);
+                loaded.Game.CopyAudioFrame(actualPcm);
+                AssertEqual(game.AudioAcknowledgementsForVerification, loaded.Game.AudioAcknowledgementsForVerification,
+                    "restored continuation acknowledgements");
                 AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "restored frame cadence");
                 AssertSameBytes(bus.WorkRam, loaded.AddressSpace.WorkRam, "restored continuation WRAM");
                 AssertSameBytes(bus.SaveRam, loaded.AddressSpace.SaveRam, "restored continuation SRAM");
@@ -96,11 +99,11 @@ internal static class DoorTransitionAutosaveVerification
                 AssertEqual(runtime.System.RandomNumber, loaded.Game.RuntimeForVerification!.System.RandomNumber, "restored RNG");
                 AssertTrue(expectedPcm.AsSpan().SequenceEqual(actualPcm), "restored continuation PCM");
                 AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.MainGameplay,
-                    store, bus, game, audio.Player) is null, "ordinary gameplay does not replace auto");
+                    store, bus, game) is null, "ordinary gameplay does not replace auto");
             }
             AssertTrue(first.AsSpan().SequenceEqual(File.ReadAllBytes(autoPath)), "advancing gameplay preserves transition snapshot");
             AssertTrue(DoorTransitionAutosave.TrySave(true, true, SuperMetroidGameState.LoadingNextRoomB,
-                store, bus, game, audio.Player) is null, "replay does not overwrite recovery");
+                store, bus, game) is null, "replay does not overwrite recovery");
             PrepareDoor(0x91f8, 0x92fd);
             AssertEqual(1, FinishDoor(enabled: true), "second transition writes one replacement");
             AssertEqual((ushort)0x92fd, store.Load(DebuggerStateFormat.AutomaticSlot).Metadata.RoomPointer!.Value,
@@ -113,7 +116,7 @@ internal static class DoorTransitionAutosaveVerification
             // Keep the destination open without delete sharing: replacement must fail
             // after a complete temporary write and retain the last valid snapshot.
             using (var locked = new FileStream(autoPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                AssertThrows<IOException>(() => store.Save(DebuggerStateFormat.AutomaticSlot, bus, game, audio.Player),
+                AssertThrows<IOException>(() => store.Save(DebuggerStateFormat.AutomaticSlot, bus, game),
                     "failed atomic replacement is reported");
             AssertTrue(second.AsSpan().SequenceEqual(File.ReadAllBytes(autoPath)), "failed replacement preserves last valid auto");
             AssertEqual(0, Directory.GetFiles(storeDirectory, "*.tmp").Length, "failed replacement cleans temporary file");
@@ -129,10 +132,8 @@ internal static class DoorTransitionAutosaveVerification
                 for (int frame = 0; frame < 500; frame++)
                 {
                     var before = game.GameState;
-                    var output = game.Step(0);
-                    audio.RenderFrame(output.AudioCommands);
-                    game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
-                    var saved = DoorTransitionAutosave.TrySave(enabled, false, before, store, bus, game, audio.Player);
+                    game.Step(0);
+                    var saved = DoorTransitionAutosave.TrySave(enabled, false, before, store, bus, game);
                     if (saved is not null)
                     {
                         count++;

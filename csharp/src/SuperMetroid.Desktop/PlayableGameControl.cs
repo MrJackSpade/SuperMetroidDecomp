@@ -42,7 +42,9 @@ public sealed class PlayableGameControl : UserControl
     private double pendingPlaybackFrames;
     internal SuperMetroidAddressSpace addressSpace = null!;
     internal SuperMetroidGame game = null!;
-    private SpcAudioEngine? audioEngine;
+    private ExtractedAudioAssetCatalog? audioAssets;
+    // Host-owned PCM storage; the device copies each frame on submit.
+    private readonly short[] audioFrame = new short[CartridgeAudioSession.PcmSamplesPerFrame];
     private readonly string? installedAudioDirectory;
     private readonly string playerDataDirectory;
     private GameContentIdentity? installedContentIdentity;
@@ -203,12 +205,9 @@ public sealed class PlayableGameControl : UserControl
     {
         keyboard.Clear();
         // waveOut may still own several queued buffers when Restart is clicked. Dispose the
-        // device before its pinned storage and dispose the SPC player before replacing the
-        // ROM whose upload addresses it consumes.
+        // device before its pinned storage.
         audioDevice?.Dispose();
         audioDevice = null;
-        audioEngine?.Dispose();
-        audioEngine = null;
         inputRecorder?.Dispose();
         inputRecorder = null;
         replayFrameIndex = 0;
@@ -219,22 +218,17 @@ public sealed class PlayableGameControl : UserControl
         addressSpace = installation.OpenRuntimeAddressSpace();
         mapPresentation = installation.LoadMaps();
         ExtractedAudioAssetCatalog selectedAudioAssets = LoadAudioAssets();
+        audioAssets = selectedAudioAssets;
         if (gameOptions.AudioEnabled)
-        {
-            audioEngine = new SpcAudioEngine(
-                selectedAudioAssets,
-                new ManagedSpcPlayer());
-            audioDevice = new RecoveringAudioOutput(() => new WaveOutAudioDevice(
-                SpcAudioEngine.SampleRate,
-                SpcAudioEngine.ChannelCount,
-                SpcAudioEngine.StereoFramesPerVideoFrame * SpcAudioEngine.ChannelCount,
-                gameOptions.MasterVolumePercent));
-        }
+            audioDevice = CreateAudioDevice();
         if (replay is null)
             LoadSaveRamFromDisk();
         else
             LoadReplaySaveRam();
         game = new SuperMetroidGame(addressSpace, gameOptions);
+        // The session synthesizes in every configuration so a debugger state always carries
+        // its player; whether samples reach a device is the host's choice alone.
+        game.BindAudio(selectedAudioAssets);
         projectilePresentation = installation.LoadProjectiles();
         artwork = installation.LoadGameArtwork(
             mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
@@ -279,7 +273,7 @@ public sealed class PlayableGameControl : UserControl
         if (replay is not null)
             throw new InvalidOperationException("Debugger states are disabled during an input replay.");
         DebuggerSaveStateMetadata metadata = stateStore.Save(
-            slot, addressSpace, game, audioEngine?.Player);
+            slot, addressSpace, game);
         statusLabel.Text =
             $"saved state {slot} | frame {metadata.FrameNumber} | " +
             FormatStateRoom(metadata.RoomPointer, metadata.RoomStatePointer);
@@ -320,8 +314,6 @@ public sealed class PlayableGameControl : UserControl
         inputRecorder = null;
         audioDevice?.Dispose();
         audioDevice = null;
-        audioEngine?.Dispose();
-        audioEngine = null;
 
         // Disable frame-affecting controls while the old presentation drains.
         // Await keeps the UI pump alive; restore only after old GPU work loses
@@ -334,25 +326,15 @@ public sealed class PlayableGameControl : UserControl
         game = loaded.Game;
         game.BindArtwork(artwork ?? throw new InvalidOperationException(
             "Restored desktop session has no installed artwork."));
+        game.BindAudio(audioAssets ?? throw new InvalidOperationException(
+            "Restored desktop session has no installed audio."));
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         game.SaveRamChanged += PersistSaveRamToDisk;
         displayedRoomPointer = null;
         pendingPlaybackFrames = 0;
 
         if (gameOptions.AudioEnabled)
-        {
-            ManagedSpcPlayer restoredAudio = loaded.AudioPlayer
-                ?? throw new InvalidDataException(
-                    "Audio-enabled debugger state does not contain managed SPC state.");
-            audioEngine = new SpcAudioEngine(
-                LoadAudioAssets(),
-                restoredAudio);
-            audioDevice = new RecoveringAudioOutput(() => new WaveOutAudioDevice(
-                SpcAudioEngine.SampleRate,
-                SpcAudioEngine.ChannelCount,
-                SpcAudioEngine.StereoFramesPerVideoFrame * SpcAudioEngine.ChannelCount,
-                gameOptions.MasterVolumePercent));
-        }
+            audioDevice = CreateAudioDevice();
 
         // Begin a new crash recorder at the restored boundary. The debugger state itself
         // is the deterministic seed for this continuation and is printed beside the new
@@ -458,7 +440,13 @@ public sealed class PlayableGameControl : UserControl
         GameSaveFileStore.WriteAtomic(addressSpace, saveFilePath,
             mapPresentation ?? throw new InvalidOperationException("Save persistence requires installed maps."));
 
-    private bool CanAdvanceAudioFrame() => audioEngine is null || audioDevice is null || audioDevice.CanAcceptFrame;
+    private RecoveringAudioOutput CreateAudioDevice() => new(() => new WaveOutAudioDevice(
+        CartridgeAudioRenderer.SampleRate,
+        CartridgeAudioRenderer.ChannelCount,
+        CartridgeAudioSession.PcmSamplesPerFrame,
+        gameOptions.MasterVolumePercent));
+
+    private bool CanAdvanceAudioFrame() => audioDevice is null || audioDevice.CanAcceptFrame;
 
     internal void StepFrame(ushort? forcedInput = null)
     {
@@ -498,20 +486,19 @@ public sealed class PlayableGameControl : UserControl
             pendingDisplay = captured.Snapshot;
             FrontendFrame frame = captured.Frame;
 
-            // Apply every bank upload/port write before generating this NMI's samples.
-            // Acknowledgements are fed back for bank $82's next-frame SFX handshake; they
-            // never influence controller recording or gameplay state.
-            if (audioEngine is not null && audioDevice is not null)
+            // The session already advanced its SPC model and synthesized this update's samples
+            // inside Step; the bank $82 handshake never depends on this host. Only submission
+            // is recoverable here: a device failure cannot change gameplay.
+            if (audioDevice is not null)
             {
                 audioFrameRecovery.Run(() =>
                 {
-                    ReadOnlySpan<short> samples = audioEngine.RenderFrame(frame.AudioCommands);
-                    game.SetAudioAcknowledgements(audioEngine.ReadAcknowledgements());
-                    audioDevice.Submit(samples);
+                    game.CopyAudioFrame(audioFrame);
+                    audioDevice.Submit(audioFrame);
                 }, exception =>
                 {
                     lastRecoverableError = errorReporter?.Report(exception, new GitHubErrorContext(
-                        Boundary: "audio rendering/submission after completed gameplay frame",
+                        Boundary: "audio submission after completed gameplay frame",
                         FrameNumber: game.FrameNumber,
                         GameState: $"${(ushort)game.GameState:X2} {game.GameState}",
                         Phase: game.CurrentFrame.Phase,
@@ -523,7 +510,7 @@ public sealed class PlayableGameControl : UserControl
                 });
             }
             DoorTransitionAutosave.TrySave(gameOptions.DoorTransitionAutosave, replay is not null,
-                previousGameState, stateStore, addressSpace, game, audioEngine?.Player);
+                previousGameState, stateStore, addressSpace, game);
             frameTimings.RecordEmulatedFrame(Stopwatch.GetTimestamp() - frameStarted);
             PublishGpuDisplay();
             return frame;
@@ -841,8 +828,6 @@ public sealed class PlayableGameControl : UserControl
             playbackClock.Stop();
             audioDevice?.Dispose();
             audioDevice = null;
-            audioEngine?.Dispose();
-            audioEngine = null;
             inputRecorder?.Dispose();
             inputRecorder = null;
         }

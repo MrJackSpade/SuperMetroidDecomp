@@ -20,10 +20,8 @@ internal static class CeresDescentStateFixture
         data.Game.GameState = SuperMetroidGameState.CeresGoesBoom;
         for (long frame = 1; frame <= 2500; frame++)
         {
-            data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
             data.Record(0);
             var result = data.Game.StepCaptured(0, frame, data.Generation);
-            data.Audio.RenderFrame(result.Frame.AudioCommands);
             if (data.Game.ceresDestruction?.Phase != CeresDestructionPhase.FlyingTowardZebesA) continue;
             Console.WriteLine(data.SaveSlot(9));
             Console.WriteLine($"Ceres descent seed: {root}");

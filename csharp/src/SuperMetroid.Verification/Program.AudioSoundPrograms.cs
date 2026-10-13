@@ -100,7 +100,7 @@ internal static class AudioSoundProgramsVerification
                 byte expected = SpcSoundEffectProgramCodec.Encode(editedProgram)[offset];
                 AssertEqual(
                     expected,
-                    editedRenderer.Player.ReadApuByteForVerification(editedProgram.Address + offset),
+                    editedRenderer.player.ReadApuByteForVerification(editedProgram.Address + offset),
                     $"edited SFX program live byte {offset}");
             }
 

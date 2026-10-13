@@ -77,8 +77,7 @@ internal sealed class DebuggerSaveStateStore
     public DebuggerSaveStateMetadata Save(
         int slot,
         SuperMetroidAddressSpace addressSpace,
-        SuperMetroidGame game,
-        ManagedSpcPlayer? audioPlayer)
+        SuperMetroidGame game)
     {
         ValidateSlot(slot);
         Ensure.NotNull(addressSpace);
@@ -122,7 +121,7 @@ internal sealed class DebuggerSaveStateStore
 
                 using (var compressed = new GZipStream(stream, CompressionLevel.SmallestSize, leaveOpen: true))
                     DebuggerObjectGraphSerializer.Serialize(
-                        compressed, new DebuggerSaveStateRoot(addressSpace, game, audioPlayer));
+                        compressed, new DebuggerSaveStateRoot(addressSpace, game));
                 stream.Flush(flushToDisk: true);
             }
             if (File.Exists(destination))
@@ -214,7 +213,6 @@ internal sealed class DebuggerSaveStateStore
         return new DebuggerSaveStateLoadResult(
             root.AddressSpace,
             root.Game,
-            root.AudioPlayer,
             new DebuggerSaveStateMetadata(savedUtc, frame, gameState, room, roomState, path), warnings.AsReadOnly());
     }
 
@@ -323,12 +321,10 @@ internal sealed class DebuggerSaveStateStore
 
     private sealed class DebuggerSaveStateRoot(
         SuperMetroidAddressSpace addressSpace,
-        SuperMetroidGame game,
-        ManagedSpcPlayer? audioPlayer)
+        SuperMetroidGame game)
     {
         public readonly SuperMetroidAddressSpace AddressSpace = addressSpace;
         public readonly SuperMetroidGame Game = game;
-        public readonly ManagedSpcPlayer? AudioPlayer = audioPlayer;
     }
 }
 
@@ -343,6 +339,5 @@ internal readonly record struct DebuggerSaveStateMetadata(
 internal readonly record struct DebuggerSaveStateLoadResult(
     SuperMetroidAddressSpace AddressSpace,
     SuperMetroidGame Game,
-    ManagedSpcPlayer? AudioPlayer,
     DebuggerSaveStateMetadata Metadata,
     IReadOnlyList<string> Warnings);

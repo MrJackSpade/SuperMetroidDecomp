@@ -40,12 +40,10 @@ internal static class TorizoLandingLifetimeVerification
         samus.Position = samus.Position.WithWhole(new(240, (ushort)(192-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
         runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 0));
         game.GameState = SuperMetroidGameState.MainGameplay;
-        var renderer=new CartridgeAudioRenderer(installation.LoadAudio());
         int shaken=0;
         for(int frame=0;frame<40;frame++)
         {
             var result=game.Step(0);
-            renderer.RenderFrame(result.AudioCommands);game.SetAudioAcknowledgements(renderer.ReadAcknowledgements());
             // Every rendered earthquake type displaces BG1 or BG2, so only an unapplied frame leaves the default delta.
             var shake=runtime.Enemies.Earthquake.LastRoomShake;bool shakeApplied=shake!=default;if(shakeApplied)shaken++;
             if(frame%8==0 || frame>=30)Console.WriteLine($"frame={frame} actor={body.Position.X.Whole},{body.Position.Y.Whole} hp={body.Health} pre={(int)state.PreInstruction:X4} timer={runtime.Enemies.Earthquake.EarthquakeTimer} shake={shake}");

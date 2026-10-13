@@ -124,14 +124,9 @@ internal static class DesktopTimerSoakTests
     {
         var bus = installation.OpenRuntimeAddressSpace();
         var game = InstalledFixtures.CreateGame(bus, options);
-        using var audio = DesktopAccess.CreateAudioEngine();
+        game.BindAudio(DesktopAccess.LoadAudioAssets());
         long sequence = 0;
-        void Step(ushort input)
-        {
-            var frame = game.StepCaptured(input, ++sequence, 1);
-            audio.RenderFrame(frame.Frame.AudioCommands);
-            game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
-        }
+        void Step(ushort input) => game.StepCaptured(input, ++sequence, 1);
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
         Check(game.GameState == SuperMetroidGameState.MainGameplay, "desktop soak seed startup failed");
@@ -142,6 +137,6 @@ internal static class DesktopTimerSoakTests
         for (int warmup = 0; warmup < 120; warmup++) Step(0);
         var identity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(installation.LoadAudio(),
             installation.LoadMaps(), installation.LoadProjectiles());
-        DebuggerSaveStateStore.ForInstalledGame(installation.Root, options, identity).Save(0, bus, game, audio.Player);
+        DebuggerSaveStateStore.ForInstalledGame(installation.Root, options, identity).Save(0, bus, game);
     }
 }

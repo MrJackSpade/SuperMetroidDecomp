@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -264,11 +265,15 @@ internal static partial class SwapchainTests
         var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
         var captured = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
         var headless = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
-        // Compile the real desktop audio adapter into this diagnostic executable;
+        // Each session synthesizes through its own Core audio session, as the desktop host does;
         // do not substitute a second hand-written queue-to-PCM implementation.
-        using var legacyAudio = DesktopAccess.CreateAudioEngine();
-        using var capturedAudio = DesktopAccess.CreateAudioEngine();
-        using var headlessAudio = DesktopAccess.CreateAudioEngine();
+        var audioAssets = DesktopAccess.LoadAudioAssets();
+        legacy.BindAudio(audioAssets);
+        captured.BindAudio(audioAssets);
+        headless.BindAudio(audioAssets);
+        var left = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var right = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var silentDisplay = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         long sequence = 0, pcmSamples = 0, nonzero = 0;
         CapturedFrontendFrame Step(ushort input)
         {
@@ -284,16 +289,13 @@ internal static partial class SwapchainTests
                 expected.FrameNumber != actual.Frame.FrameNumber ||
                 !expected.AudioCommands.SequenceEqual(actual.Frame.AudioCommands))
                 throw new InvalidOperationException($"Slow-consumer game/audio command divergence at {sequence}.");
-            var left = legacyAudio.RenderFrame(expected.AudioCommands);
-            var right = capturedAudio.RenderFrame(actual.Frame.AudioCommands);
-            var silentDisplay = headlessAudio.RenderFrame(undrawn.Frame.AudioCommands);
-            if (!right.SequenceEqual(silentDisplay)) throw new InvalidOperationException($"Headless PCM divergence at {sequence}.");
-            if (!left.SequenceEqual(right)) throw new InvalidOperationException($"PCM divergence at {sequence}.");
+            legacy.CopyAudioFrame(left);
+            captured.CopyAudioFrame(right);
+            headless.CopyAudioFrame(silentDisplay);
+            if (!right.AsSpan().SequenceEqual(silentDisplay)) throw new InvalidOperationException($"Headless PCM divergence at {sequence}.");
+            if (!left.AsSpan().SequenceEqual(right)) throw new InvalidOperationException($"PCM divergence at {sequence}.");
             pcmSamples += right.Length;
             foreach (short sample in right) if (sample != 0) nonzero++;
-            legacy.SetAudioAcknowledgements(legacyAudio.ReadAcknowledgements());
-            captured.SetAudioAcknowledgements(capturedAudio.ReadAcknowledgements());
-            headless.SetAudioAcknowledgements(headlessAudio.ReadAcknowledgements());
             if (legacy.GameplaySamusX != captured.GameplaySamusX || legacy.GameplaySamusY != captured.GameplaySamusY ||
                 legacy.GameplaySamusPose != captured.GameplaySamusPose ||
                 headless.GameplaySamusX != captured.GameplaySamusX || headless.GameplaySamusY != captured.GameplaySamusY ||

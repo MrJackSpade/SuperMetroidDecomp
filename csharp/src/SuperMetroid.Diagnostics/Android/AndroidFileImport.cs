@@ -46,7 +46,6 @@ internal static class AndroidFileImport
             var stagingStore = createStore(staging);
             File.Copy(source, stagingStore.GetSlotPath(slot));
             var decoded = stagingStore.Load(slot);
-            if (decoded.AudioPlayer is null) throw new InvalidDataException("State has no managed audio graph.");
             bool replacingSlot = File.Exists(destination);
             ReplaceWithBackup(root, stagingStore.GetSlotPath(slot), destination);
             return $"Imported state into slot {slot}. Use Load state to resume it." +

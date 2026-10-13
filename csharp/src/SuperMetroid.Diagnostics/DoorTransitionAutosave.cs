@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
@@ -9,13 +8,13 @@ internal static class DoorTransitionAutosave
 {
     internal static DebuggerSaveStateMetadata? TrySave(bool enabled, bool replay,
         SuperMetroidGameState previousState, DebuggerSaveStateStore store,
-        SuperMetroidAddressSpace bus, SuperMetroidGame game, ManagedSpcPlayer? audio)
+        SuperMetroidAddressSpace bus, SuperMetroidGame game)
     {
         if (!enabled || replay || previousState != SuperMetroidGameState.LoadingNextRoomB ||
             game.GameState != SuperMetroidGameState.MainGameplay) return null;
         try
         {
-            var saved = store.Save(DebuggerStateFormat.AutomaticSlot, bus, game, audio);
+            var saved = store.Save(DebuggerStateFormat.AutomaticSlot, bus, game);
             Console.WriteLine($"Door autosave: {saved.Path} | frame {saved.FrameNumber} | room {saved.RoomPointer:X4}");
             return saved;
         }

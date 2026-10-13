@@ -49,11 +49,11 @@ internal static class KiHunterSpitAudioVerification
         game.lastAudioRoomStatePointer = runtime.Room.ActiveRoom!.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
         byte[] ports = new byte[4];
+        game.SoundAcknowledgements = new PortWriteEchoAcknowledgements(ports);
         var spit = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4c);
         int requests = 0, writes = 0;
         void Step()
         {
-            game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3]));
             var frame = game.Step(0);
             requests += runtime.Enemies.Audio.SoundRequests.Count(request => request.SoundEffect == spit);
             foreach (var command in frame.AudioCommands)

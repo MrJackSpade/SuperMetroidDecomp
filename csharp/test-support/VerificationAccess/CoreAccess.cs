@@ -22,6 +22,8 @@ internal static class CoreAccess
         internal int AttractDemoHoldFramesRemaining => game.demoHoldFramesRemaining;
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
         internal CartridgeAudioState AudioForVerification => game.audio;
+        /// <summary>The acknowledgements the session's SPC port model published for the next update.</summary>
+        internal CartridgeAudioAcknowledgements AudioAcknowledgementsForVerification => game.audioSession.Acknowledgements;
         internal ushort MenuNmiFrameCounterForVerification => game.menuNmi.FrameCounter;
         internal CeresDestructionCinematicState? CeresDestructionForVerification =>
             game.ceresDestruction;

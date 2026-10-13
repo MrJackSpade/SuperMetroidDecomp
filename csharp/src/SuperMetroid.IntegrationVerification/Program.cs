@@ -1,4 +1,5 @@
 using SuperMetroid.Android;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 
@@ -114,7 +115,6 @@ internal static class Program
 
                 // A corrupt user-selected slot must fail before replacing any live state.
                 var originalGame = data.Game;
-                var originalAudio = data.Audio;
                 var originalBus = data.Bus;
                 long originalGeneration = data.Generation;
                 string slotPath = Directory.GetFiles(Path.Combine(root, "debug-states"), "*.smstate").Single();
@@ -123,7 +123,7 @@ internal static class Program
                 try { data.LoadSlot(0); }
                 catch (InvalidDataException) { rejected = true; }
                 if (!rejected || !ReferenceEquals(originalGame, data.Game) ||
-                    !ReferenceEquals(originalAudio, data.Audio) || !ReferenceEquals(originalBus, data.Bus) ||
+                    !ReferenceEquals(originalBus, data.Bus) ||
                     originalGeneration != data.Generation)
                     throw new InvalidDataException("Corrupt state load changed the live session or was accepted.");
                 foreach (string path in journals)
@@ -152,11 +152,11 @@ internal static class Program
 
     private static (uint Pixels, uint Pcm, ushort Frame) Advance(AndroidSessionData data, long sequence)
     {
-        data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
         data.Record(0);
         var frame = data.Game.StepCaptured(0, sequence, data.Generation);
         var pixels = frame.Snapshot is { } snapshot ? SoftwareFrameSnapshotRenderer.Render(snapshot) : frame.Frame.Pixels;
-        short[] samples = data.Audio.RenderFrame(frame.Frame.AudioCommands);
+        var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        data.Game.CopyAudioFrame(samples);
         uint pixelHash = 2166136261, pcmHash = 2166136261;
         foreach (var pixel in pixels)
         {

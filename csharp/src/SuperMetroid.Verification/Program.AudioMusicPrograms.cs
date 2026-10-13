@@ -141,7 +141,7 @@ internal static class AudioMusicProgramsVerification
             {
                 AssertEqual(
                     value,
-                    editedRenderer.Player.ReadApuByteForVerification(address),
+                    editedRenderer.player.ReadApuByteForVerification(address),
                     $"edited title music byte ${address:X4}");
             }
             bool stockAudible = false;

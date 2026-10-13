@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using SuperMetroid.Android;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -40,11 +41,11 @@ internal static class RoomPerformanceStateFixture
         runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(camera + (surface ? 128 : 64)), (ushort)(camera + 160)));
         data.Game.GameState = SuperMetroidGameState.MainGameplay;
         double stepMs = 0, renderMs = 0, audioMs = 0;
+        var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         Rgba32[]? pixels = null;
         RenderFrameSnapshot? lastSnapshot = null;
         for (long frame = 1; frame <= 720; frame++)
         {
-            data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
             data.Record(0);
             long start = Stopwatch.GetTimestamp();
             var result = data.Game.StepCaptured(0, frame, data.Generation);
@@ -52,7 +53,7 @@ internal static class RoomPerformanceStateFixture
             long stepped = Stopwatch.GetTimestamp();
             pixels = result.Snapshot is { } snapshot ? SoftwareFrameSnapshotRenderer.Render(snapshot) : result.Frame.Pixels;
             long rendered = Stopwatch.GetTimestamp();
-            data.Audio.RenderFrame(result.Frame.AudioCommands);
+            data.Game.CopyAudioFrame(pcm);
             long mixed = Stopwatch.GetTimestamp();
             // Exclude asset/driver/JIT warmup from the ten-second measured slice.
             if (frame <= 120) continue;
@@ -65,7 +66,7 @@ internal static class RoomPerformanceStateFixture
         PngWriterTooling.WriteRgba(Path.Combine(root, "room.png"), new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), pixels!);
         Console.WriteLine(data.SaveSlot(9));
         Console.WriteLine($"{scene}: room ${(byte?)data.Game.GameplayActiveAreaIndex:X2}/${data.Game.GameplayActiveRoomIndex:X2}; " +
-            $"600 measured Windows frames: step={stepMs / 600:F3}ms render={renderMs / 600:F3}ms audio={audioMs / 600:F3}ms.");
+            $"600 measured Windows frames: step (including audio synthesis)={stepMs / 600:F3}ms render={renderMs / 600:F3}ms audio copy={audioMs / 600:F3}ms.");
         if (lastSnapshot?.Layers is { } layers)
         {
             foreach (RenderLayer layer in layers.Layers)

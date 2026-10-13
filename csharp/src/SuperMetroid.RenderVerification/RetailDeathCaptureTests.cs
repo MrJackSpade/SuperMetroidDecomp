@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -21,8 +22,11 @@ internal static class RetailDeathCaptureTests
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
         var legacy = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
         var captured = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
-        using var legacyAudio = DesktopAccess.CreateAudioEngine();
-        using var capturedAudio = DesktopAccess.CreateAudioEngine();
+        var audioAssets = DesktopAccess.LoadAudioAssets();
+        legacy.BindAudio(audioAssets);
+        captured.BindAudio(audioAssets);
+        var legacyAudio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var capturedAudio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         long sequence = 0;
         void Step(ushort input, bool comparePixels)
         {
@@ -32,10 +36,10 @@ internal static class RetailDeathCaptureTests
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
                 !expected.AudioCommands.SequenceEqual(actual.Frame.AudioCommands))
                 throw new InvalidOperationException($"Death capture cadence/commands diverged at {sequence}.");
-            if (!legacyAudio.RenderFrame(expected.AudioCommands).SequenceEqual(capturedAudio.RenderFrame(actual.Frame.AudioCommands)))
+            legacy.CopyAudioFrame(legacyAudio);
+            captured.CopyAudioFrame(capturedAudio);
+            if (!legacyAudio.AsSpan().SequenceEqual(capturedAudio))
                 throw new InvalidOperationException($"Death PCM diverged at {sequence}.");
-            legacy.SetAudioAcknowledgements(legacyAudio.ReadAcknowledgements());
-            captured.SetAudioAcknowledgements(capturedAudio.ReadAcknowledgements());
             if (comparePixels) PixelComparison.Verify(actual.Snapshot!, expected.Pixels,
                 renderer.RenderForReadback(actual.Snapshot!), $"{device.Kind}: death frame {sequence}, {expected.GameState}");
         }

@@ -45,12 +45,10 @@ internal static class KraidSuperMissileDamageVerification
         runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 384));
         game.GameState = SuperMetroidGameState.MainGameplay;
         if (collisionReport) return VerifyKraidReportedCollisions(bus, game, runtime, body, state);
-        var renderer=new CartridgeAudioRenderer(installation.LoadAudio());
         ushort oldHealth=body.Health;
         for(int frame=0;frame<60;frame++)
         {
             var result=game.Step(frame is 0 or 24 ? (ushort)SnesButton.X : (ushort)0);
-            renderer.RenderFrame(result.AudioCommands);game.SetAudioAcknowledgements(renderer.ReadAcknowledgements());
             if(body.Health!=oldHealth || frame%8==0)
             {
                 Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} mouth={state.InvulnerableMouthHitbox:X4}");

@@ -284,6 +284,7 @@ public sealed class SuperMetroidGame
     /// <summary>Boot-time <c>NumberOfDemoSets</c> ($1F59); fixed for the session.</summary>
     private readonly int bootDemoSetCount;
     internal readonly CartridgeAudioState audio = new();
+    internal readonly CartridgeAudioSession audioSession = new();
     private TitleSequenceState? title;
     private FileSelectMenuState? fileSelect;
     private FileSelectMapMenuState? fileSelectMap;
@@ -313,7 +314,6 @@ public sealed class SuperMetroidGame
     private int endingFadeCounter;
     private IReadOnlyList<CartridgeAudioCommand> lastAudioCommands =
         Array.Empty<CartridgeAudioCommand>();
-    private CartridgeAudioAcknowledgements audioAcknowledgements;
     private ulong? lastAudioRuntimeGameplayPublication;
     internal ushort? lastAudioRoomStatePointer;
 
@@ -360,15 +360,25 @@ public sealed class SuperMetroidGame
     public event Action? SaveRamChanged;
 
     /// <summary>
-    /// Publishes the APU output-port bytes observed after the preceding audio frame.
+    /// Binds the extracted audio catalog at startup and after debugger-state restoration, so
+    /// every following update also synthesizes host PCM (<see cref="CopyAudioFrame"/>).
     /// </summary>
     /// <remarks>
-    /// Retail bank $82 waits for the SPC to echo each SFX request and its following zero
-    /// before reusing that library port. A headless host may leave these at zero; music is
-    /// independent, while SFX will safely remain in its acknowledgement state.
+    /// Binding affects presentation only. Each update advances the session's SPC port model and
+    /// its sound-effect acknowledgements whether or not audio is bound, so gameplay is identical
+    /// with audio enabled, disabled, or without an output device.
     /// </remarks>
-    public void SetAudioAcknowledgements(CartridgeAudioAcknowledgements acknowledgements) =>
-        audioAcknowledgements = acknowledgements;
+    /// <exception cref="ArgumentNullException"><paramref name="assets"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">The session already advanced without synthesis and has no player to continue.</exception>
+    public void BindAudio(ExtractedAudioAssetCatalog assets) => audioSession.BindSynthesis(assets);
+
+    /// <summary>Copies the last update's 1,600 interleaved 48-kHz stereo samples into host-owned storage.</summary>
+    /// <exception cref="InvalidOperationException">No audio catalog is bound.</exception>
+    /// <exception cref="ArgumentException"><paramref name="destination"/> holds fewer than 1,600 samples.</exception>
+    public void CopyAudioFrame(Span<short> destination) => audioSession.CopyFrame(destination);
+
+    /// <summary>The SPC acknowledgements each update's sound handlers read; see <see cref="ISoundAcknowledgementSource"/>.</summary>
+    public ISoundAcknowledgementSource SoundAcknowledgements { get; set; } = ModeledSoundAcknowledgements.Instance;
 
     /// <summary>Current value of the native game-state word at WRAM $0998.</summary>
     public SuperMetroidGameState GameState { get; internal set; } = SuperMetroidGameState.Reset;
@@ -1266,11 +1276,14 @@ public sealed class SuperMetroidGame
             soundHandlers = 0;
         }
         IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = audio.AdvanceFrame(
-            bus, audioAcknowledgements,
+            bus, SoundAcknowledgements.ForNextFrame(audioSession.Acknowledgements),
             advanceMusicQueue: musicHandler,
             soundEffectHandlerCalls: soundHandlers);
         lastAudioCommands = prologueMusicCommands.Count == 0 ? trailingAudioCommands
             : [.. prologueMusicCommands, .. trailingAudioCommands];
+        // The SPC acts on this update's port writes and uploads during the update's own DSP
+        // cycles; its echoes become visible to the next update's sound handlers.
+        audioSession.Advance(lastAudioCommands);
         // $82:8AB0 runs after the pause dispatcher returns, even though Samus's
         // draw-time epilogue did not run. Preserve its held-only publication;
         // updating the press edge or auto-jump timer here would invent gameplay.

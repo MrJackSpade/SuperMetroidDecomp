@@ -58,7 +58,7 @@ public static class AudioInputReplaySmokeTest
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
-        using var audio = DesktopAccess.CreateAudioEngine();
+        game.BindAudio(DesktopAccess.LoadAudioAssets());
 
         int framesExecuted = 0;
         bool projectileFired = false;
@@ -82,9 +82,7 @@ public static class AudioInputReplaySmokeTest
                 ? recording.ControllerInputs[frameIndex]
                 : (ushort)0;
             FrontendFrame frame = game.Step(input);
-            audio.RenderFrame(frame.AudioCommands);
-            CartridgeAudioAcknowledgements acknowledgements = audio.ReadAcknowledgements();
-            game.SetAudioAcknowledgements(acknowledgements);
+            CartridgeAudioAcknowledgements acknowledgements = game.AudioAcknowledgementsForVerification;
             framesExecuted++;
 
             ushort? activeRoom = game.GameplayActiveRoomPointer;
@@ -179,23 +177,21 @@ public static class AudioInputReplaySmokeTest
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
-        using var audio = DesktopAccess.CreateAudioEngine();
+        game.BindAudio(DesktopAccess.LoadAudioAssets());
         for (int frameIndex = 0; frameIndex < recording.ControllerInputs.Length; frameIndex++)
         {
-            FrontendFrame frame = game.Step(recording.ControllerInputs[frameIndex]);
             try
             {
-                audio.RenderFrame(frame.AudioCommands);
+                game.Step(recording.ControllerInputs[frameIndex]);
             }
             catch (Exception exception)
             {
                 throw new InvalidDataException(
-                    $"Managed audio replay failed on recorded call {frameIndex}, " +
+                    $"Replay with managed audio failed on recorded call {frameIndex}, " +
                     $"state=${(ushort)game.GameState:X2}, " +
                     $"room=$8F:{game.GameplayActiveRoomPointer.GetValueOrDefault():X4}.",
                     exception);
             }
-            game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
         }
         return recording.ControllerInputs.Length;
     }
@@ -223,7 +219,8 @@ public static class AudioInputReplaySmokeTest
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
-        using var audio = DesktopAccess.CreateAudioEngine();
+        game.BindAudio(DesktopAccess.LoadAudioAssets());
+        var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         var completed = new List<RecordedPauseAudioResult>();
         PauseAccumulator? active = null;
 
@@ -233,8 +230,7 @@ public static class AudioInputReplaySmokeTest
             FrontendFrame frame = game.Step(recording.ControllerInputs[frameIndex]);
             bool pauseOwned = frame.GameState is >= SuperMetroidGameState.PausingDarkening and
                 <= SuperMetroidGameState.Unpausing;
-            ReadOnlySpan<short> samples = audio.RenderFrame(frame.AudioCommands);
-            game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+            game.CopyAudioFrame(samples);
 
             if (pauseOwned && active is null)
             {

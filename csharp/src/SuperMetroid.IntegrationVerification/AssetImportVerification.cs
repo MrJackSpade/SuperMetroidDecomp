@@ -67,13 +67,7 @@ try
             Check(!MetadataShape.DeclaresProperty(romFreeSession.Bus.GetType(), "Rom"),
                 "installed Android host boots from extracted assets with no ROM copy");
             for (int frame = 0; frame < 90; frame++)
-            {
-                romFreeSession.Game.SetAudioAcknowledgements(
-                    romFreeSession.Audio.ReadAcknowledgements());
-                var captured = romFreeSession.Game.StepCaptured(0, frame + 1,
-                    romFreeSession.Generation);
-                romFreeSession.Audio.RenderFrame(captured.Frame.AudioCommands);
-            }
+                romFreeSession.Game.StepCaptured(0, frame + 1, romFreeSession.Generation);
             string saved = romFreeSession.SaveSlot(0);
             string loaded = romFreeSession.LoadSlot(0);
             Check(saved.Contains("slot 0", StringComparison.OrdinalIgnoreCase) &&
@@ -177,11 +171,7 @@ try
     using (var session = new SuperMetroid.Android.AndroidSessionData(root))
     {
         for (int frame = 0; frame < 90; frame++)
-        {
-            session.Game.SetAudioAcknowledgements(session.Audio.ReadAcknowledgements());
-            var captured = session.Game.StepCaptured(0, frame + 1, session.Generation);
-            session.Audio.RenderFrame(captured.Frame.AudioCommands);
-        }
+            session.Game.StepCaptured(0, frame + 1, session.Generation);
         Check(!MetadataShape.DeclaresProperty(session.Bus.GetType(), "Rom"),
             "Android session boots from extracted content without retaining cartridge bytes");
     }

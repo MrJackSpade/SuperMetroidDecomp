@@ -19,10 +19,8 @@ internal static class AutonomousPerformanceStateFixture
         var output = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
         for (int frame = 1; frame <= targetFrame; frame++)
         {
-            data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
             data.Record(0);
             var result = data.Game.StepCaptured(0, frame, data.Generation);
-            data.Audio.RenderFrame(result.Frame.AudioCommands);
             // Rendering observes immutable packets and is not needed to advance earlier frames.
             if (frame != targetFrame) continue;
             var packet = result.Snapshot ?? throw new InvalidDataException("Target has no render snapshot.");

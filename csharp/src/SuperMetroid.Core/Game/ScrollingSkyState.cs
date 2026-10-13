@@ -16,6 +16,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
     /// <summary>Only the sky FX/setup spawns the horizontal HDMA object; the room-main callback alone does not.</summary>
     public bool HorizontalHdmaConfigured { get; } = horizontalHdmaConfigured;
 
+    /// <summary>23 native 16.16 HDMA data slots; the last slot is stationary.</summary>
     private readonly uint[] _fixedHorizontalScrolls =
         new uint[RoomFxRomData.ScrollingSky.DataSlotCount];
     /// <summary>
@@ -95,6 +96,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         return result;
     }
 
+    /// <summary>Adds each strip's native 16.16 speed and resets the stationary bottom strip.</summary>
     private void AdvanceHorizontalScrolls()
     {
         for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
@@ -110,6 +112,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         _fixedHorizontalScrolls[RoomFxRomData.ScrollingSky.DataSlotCount - 1] = 0;
     }
 
+    /// <summary>Streams paired BG2 tilemap rows behind the HUD and below the screen using bank-$88 chunks.</summary>
     private static void QueueTilemapRows(ushort layer1YPosition, VramWriteQueue writes, ScrollingSkyChunkTable pointerTable)
     {
         // First pair: two rows immediately behind the HUD, beginning at cameraY-16 rounded
@@ -152,6 +155,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
             RoomFxVram.ScrollingSkyDma(lowerRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
     }
 
+    /// <summary>Finds the sky strip covering a world scanline, or the direct-page fallback below the sky.</summary>
     private static int FindSection(ushort worldY)
     {
         for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)

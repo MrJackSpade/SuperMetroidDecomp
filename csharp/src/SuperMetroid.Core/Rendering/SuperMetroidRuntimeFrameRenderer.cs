@@ -202,6 +202,7 @@ public static class SuperMetroidRuntimeFrameRenderer
         return frame;
     }
 
+    /// <summary>Adds a signed room-shake displacement to a latched PPU scroll word with native word wraparound.</summary>
     private static ushort AddShake(ushort scroll, short displacement) =>
         unchecked((ushort)(scroll + displacement));
 }

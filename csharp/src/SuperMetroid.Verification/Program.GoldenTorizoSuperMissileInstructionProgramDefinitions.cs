@@ -16,12 +16,15 @@ using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Golden Torizo's held, thrown, and impact Super Missile bytecode against native data and production execution.</summary>
 internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge oracle for Golden Torizo's Super Missile instruction check.</summary>
     internal static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions), () => VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Exercises both facing directions, flight loops, wall impact, visual selectors, and compiled mechanics ownership.</summary>
     internal static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -207,9 +210,11 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerif
         }
     }
 
+    /// <summary>Reads native bank-$86 instruction bytes only for the cartridge-side comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo super missile instruction program definitions")]
     private static byte GoldenTorizoSuperMissileInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Consumes warmed initial and impact mechanics words to check per-frame lookup allocation.</summary>
     private static int ProbeGoldenTorizoSuperMissileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -223,6 +228,7 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerif
         return checksum;
     }
 
+    /// <summary>Runs the Golden Torizo Super Missile instruction comparison against the local retail cartridge.</summary>
     [VerificationCommand("--golden-torizo-super-missile-instruction-mechanics")]
     internal static int GoldenTorizoSuperMissileInstructionMechanicsCommand()
     {

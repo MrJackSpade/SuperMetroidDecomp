@@ -11,8 +11,20 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class IntroNarrationPresentation
 {
-    private readonly NarrationPage page1, page2, page3, page4, page5, page6;
+    /// <summary>First opening text page in typewriter order.</summary>
+    private readonly NarrationPage page1;
+    /// <summary>Second opening text page in typewriter order.</summary>
+    private readonly NarrationPage page2;
+    /// <summary>Third opening text page in typewriter order.</summary>
+    private readonly NarrationPage page3;
+    /// <summary>Fourth opening text page in typewriter order.</summary>
+    private readonly NarrationPage page4;
+    /// <summary>Fifth opening text page in typewriter order.</summary>
+    private readonly NarrationPage page5;
+    /// <summary>Sixth opening text page in typewriter order.</summary>
+    private readonly NarrationPage page6;
 
+    /// <summary>Retains six validated pages and the hash of their original JSON bytes.</summary>
     private IntroNarrationPresentation(
         Dictionary<IntroNarrationPageId, NarrationPage> pages,
         string contentIdentity)
@@ -26,10 +38,10 @@ public sealed class IntroNarrationPresentation
         ContentIdentity = contentIdentity;
     }
 
-    /// <summary>Gets the SHA-256 identity of the validated source document.</summary>
+    /// <summary>SHA-256 identity of the validated source document, including its source encoding.</summary>
     public string ContentIdentity { get; }
 
-    /// <summary>Gets the ordered editable lines for one of the six narration pages.</summary>
+    /// <summary>Ordered editable lines for one of the six narration pages.</summary>
     public IReadOnlyList<IntroNarrationLine> GetLines(IntroNarrationPageId page) => page switch
     {
         IntroNarrationPageId.Page1 => page1,
@@ -132,9 +144,12 @@ public sealed class IntroNarrationPresentation
     /// <summary>Calculated word wrapping and two-row spacing. Stock story wording and its one deliberate hard break are reviewed narrative content; independent edits remain exact.</summary>
     private sealed class NarrationPage : IReadOnlyList<IntroNarrationLine>
     {
+        /// <summary>Joined narrative text used when word wrapping exactly reproduces the supplied rows.</summary>
         private readonly string? text;
+        /// <summary>Independent edited rows retained when calculated wrapping would change their placement.</summary>
         private readonly IntroNarrationLine[]? supplied;
 
+        /// <summary>Reconstructs paragraph breaks and shares calculated wrapping only when every row matches.</summary>
         internal NarrationPage(IntroNarrationLine[] lines)
         {
             var candidate = new StringBuilder();
@@ -153,7 +168,9 @@ public sealed class IntroNarrationPresentation
             else supplied = lines.ToArray();
         }
 
+        /// <summary>Number of independently supplied or calculated two-row-spaced lines.</summary>
         public int Count => supplied?.Length ?? CalculateLines(text!).Count();
+        /// <summary>Line at a page position, calculated on demand when native wrapping matches.</summary>
         public IntroNarrationLine this[int index]
         {
             get
@@ -166,6 +183,7 @@ public sealed class IntroNarrationPresentation
             }
         }
 
+        /// <summary>Places hard-break-separated paragraphs into the available columns with two tile rows between lines.</summary>
         private static IEnumerable<IntroNarrationLine> CalculateLines(string text)
         {
             int row = IntroNarrationDefinitions.FirstTextRow;
@@ -185,9 +203,11 @@ public sealed class IntroNarrationPresentation
             }
         }
 
+        /// <summary>Visits selected page lines in ascending tilemap-row order.</summary>
         public IEnumerator<IntroNarrationLine> GetEnumerator() => supplied is not null
             ? ((IEnumerable<IntroNarrationLine>)supplied).GetEnumerator()
             : CalculateLines(text!).GetEnumerator();
+        /// <summary>Exposes the same row order to non-generic enumeration.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -205,25 +225,25 @@ public sealed class IntroNarrationPresentation
 /// <summary>Defines all six editable opening-narration pages.</summary>
 public sealed record IntroNarrationDocument
 {
-    /// <summary>Gets the narration document schema revision.</summary>
+    /// <summary>Narration document schema revision checked before page compilation.</summary>
     public required int Version { get; init; }
-    /// <summary>Gets the pages keyed by <see cref="IntroNarrationPageId"/> name.</summary>
+    /// <summary>Six pages keyed by <see cref="IntroNarrationPageId"/> name.</summary>
     public required Dictionary<string, IntroNarrationPage> Pages { get; init; }
 }
 
 /// <summary>Defines the ordered lines displayed on one opening-narration page.</summary>
 public sealed record IntroNarrationPage
 {
-    /// <summary>Gets the nonempty lines in ascending tilemap-row order.</summary>
+    /// <summary>Nonempty lines in ascending tilemap-row order.</summary>
     public required IntroNarrationLine[] Lines { get; init; }
 }
 
 /// <summary>Defines one line of opening-narration text and its tilemap row.</summary>
 public sealed record IntroNarrationLine
 {
-    /// <summary>Gets the even tilemap row from the first through last supported text row.</summary>
+    /// <summary>Even tilemap row from the first through last supported text row.</summary>
     public required int Row { get; init; }
-    /// <summary>Gets the supported narration glyphs, bounded to the page's available columns.</summary>
+    /// <summary>Supported narration glyphs, bounded to the page's available columns.</summary>
     public required string Text { get; init; }
 }
 

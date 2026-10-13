@@ -17,13 +17,18 @@ public enum SamusHurtColorVariant
 /// <summary>Editable RGB5 artwork for the hurt flash and cinematic restoration.</summary>
 public sealed class SamusHurtColorCatalog
 {
-    // Only independent installed edits are stored; native shade samples all calculate.
+    /// <summary>Optional independent edit to the hurt palette's transparent-slot word.</summary>
     private readonly Bgr555? hurtZero;
+    /// <summary>Optional independent edit to the intro palette's transparent-slot word.</summary>
     private readonly Bgr555? introZero;
+    /// <summary>Intro shade levels that differ from the calculated native levels.</summary>
     private readonly Dictionary<int, byte> introLevels;
+    /// <summary>Intro colors whose full RGB5 words cannot be derived from their shade levels.</summary>
     private readonly Dictionary<int, Bgr555> introOverrides;
+    /// <summary>Hurt colors that differ from the corresponding intro-derived native flash shade.</summary>
     private readonly Dictionary<int, Bgr555> hurtOverrides;
 
+    /// <summary>Retains only independent palette edits and derives unchanged native shade relationships.</summary>
     private SamusHurtColorCatalog(Bgr555[] hurt, Bgr555[] intro)
     {
         hurtZero = hurt[0] == SamusHurtColorDefinitions.HurtTransparentWord ? null : hurt[0];
@@ -39,6 +44,7 @@ public sealed class SamusHurtColorCatalog
             .ToDictionary(index => index, index => hurt[index]);
     }
 
+    /// <summary>Strict camel-case JSON settings shared by hurt palette reading and writing.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -98,9 +104,12 @@ public sealed class SamusHurtColorCatalog
             ? value : SamusHurtColorDefinitions.HurtFromIntro(Intro(index));
     }
 
+    /// <summary>Gets an independently edited intro shade level or its native default.</summary>
     private byte IntroLevel(int index) => introLevels.TryGetValue(index, out byte level) ? level : SamusHurtColorDefinitions.DefaultIntroLevel(index);
+    /// <summary>Gets an edited intro color or derives it from the selected shade level.</summary>
     private Bgr555 Intro(int index) => index == 0 ? introZero ?? SamusHurtColorDefinitions.IntroTransparentWord : introOverrides.TryGetValue(index, out Bgr555 value)
         ? value : SamusHurtColorDefinitions.IntroFromLevel(IntroLevel(index));
+    /// <summary>Checks one complete sixteen-color RGB5 document array and converts it to packed colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusHurtColorFormat.ColorsPerPalette)
@@ -117,6 +126,7 @@ public sealed class SamusHurtColorCatalog
         return colors;
     }
 
+    /// <summary>Rejects duplicate palette properties before JSON deserialization can overwrite them.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus hurt color property {name}."));

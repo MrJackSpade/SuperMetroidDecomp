@@ -7,9 +7,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable damage-state colors for Mother Brain's final-phase body and rear legs.</summary>
 public sealed class MotherBrainHealthPalettePresentation
 {
+    /// <summary>Selected body and brain colors across four health bands.</summary>
     private readonly TintPalette body;
+    /// <summary>Rear-leg colors whose stock outline and gray basis depend on the selected body palette.</summary>
     private readonly TintPalette backLegs;
 
+    /// <summary>Compiles body and rear-leg tint rows, retaining independently supplied colors when they differ from native shading.</summary>
     private MotherBrainHealthPalettePresentation(Bgr555[][] body, Bgr555[][] backLegs)
     {
         this.body = new TintPalette(body, backLeg: false);
@@ -27,6 +30,7 @@ public sealed class MotherBrainHealthPalettePresentation
     internal static Bgr555 StockDeathStartColor(bool backLeg, int color) =>
         TintColor(StockBaseColor(backLeg, color), 3, backLeg);
 
+    /// <summary>Applies the native red tint in biased RGB8 space, with an extra rear-leg increment beyond state zero.</summary>
     private static Bgr555 TintColor(Bgr555 initial, int state, bool backLeg)
     {
         int amount = state * (state + 1) + (backLeg && state != 0 ? 2 : 0);
@@ -61,10 +65,14 @@ public sealed class MotherBrainHealthPalettePresentation
     /// </summary>
     private sealed class TintPalette
     {
+        /// <summary>State-zero colors used to derive the native damage tint curve.</summary>
         private readonly BasePalette basis;
+        /// <summary>Selects the extra rear-leg tint strength after the undamaged state.</summary>
         private readonly bool backLeg;
+        /// <summary>Complete edited rows retained if any sample differs from the basis-derived tint.</summary>
         private readonly Bgr555[][]? supplied;
 
+        /// <summary>Compares all four supplied rows with the calculated tint before deciding whether to retain them.</summary>
         public TintPalette(Bgr555[][] rows, bool backLeg, TintPalette? front = null)
         {
             this.backLeg = backLeg;
@@ -75,24 +83,36 @@ public sealed class MotherBrainHealthPalettePresentation
                     { supplied = rows; return; }
         }
 
+        /// <summary>Selects an edited sample or the native tint of its state-zero basis color.</summary>
         public Bgr555 Color(int state, int color) => supplied is null ? Calculate(state, color) : supplied[state][color];
 
+        /// <summary>Tints one selected basis ink for a health band.</summary>
         private Bgr555 Calculate(int state, int color) => TintColor(basis.Color(color), state, backLeg);
     }
     /// <summary>Independent paint colors plus calculated quarter/fifth shade ramps.</summary>
     private sealed class BasePalette
     {
+        /// <summary>Body cortex highlight used as the first stock basis color.</summary>
         private readonly Bgr555 highlight;
+        /// <summary>Body cortex midtone used as the second stock basis color.</summary>
         private readonly Bgr555 midtone;
+        /// <summary>Body cortex shadow used as the third stock basis color.</summary>
         private readonly Bgr555 shadow;
+        /// <summary>Body tissue endpoint from which the fifth-based shade ramp is calculated.</summary>
         private readonly Bgr555 brown;
+        /// <summary>Selects the rear-leg-specific relationship to the body outline and gray endpoint.</summary>
         private readonly bool backLeg;
+        /// <summary>Independent state-zero colors retained when an edited image breaks a calculated relationship.</summary>
         private readonly Bgr555[]? supplied;
+        /// <summary>Selected body basis from which stock rear-leg outline and gray are derived.</summary>
         private readonly BasePalette? front;
 
+        /// <summary>Native state-zero body basis from reviewed paint colors.</summary>
         internal static BasePalette StockBody { get; } = new(false);
+        /// <summary>Native rear-leg basis derived from the stock body basis.</summary>
         internal static BasePalette StockRear { get; } = new(true);
 
+        /// <summary>Initializes the reviewed stock body or rear-leg basis without storing a color row.</summary>
         private BasePalette(bool backLeg)
         {
             this.backLeg = backLeg;
@@ -106,6 +126,7 @@ public sealed class MotherBrainHealthPalettePresentation
             brown = MotherBrainHealthPaintDefinitions.TissueHighlight;
         }
 
+        /// <summary>Shares a stock basis only when every supplied color and its dependent front palette agree.</summary>
         internal static BasePalette Create(Bgr555[] colors, bool backLeg, BasePalette? front)
         {
             BasePalette stock = backLeg ? StockRear : StockBody;
@@ -115,6 +136,7 @@ public sealed class MotherBrainHealthPalettePresentation
             return matches ? stock : new BasePalette(colors, backLeg, front);
         }
 
+        /// <summary>Selects independent endpoint inks and retains the full row if native shade relationships do not reproduce it.</summary>
         public BasePalette(Bgr555[] colors, bool backLeg, BasePalette? front)
         {
             this.backLeg = backLeg;
@@ -130,8 +152,10 @@ public sealed class MotherBrainHealthPalettePresentation
                 { supplied = colors; return; }
         }
 
+        /// <summary>Selects one edited basis ink or its calculated stock shade.</summary>
         public Bgr555 Color(int color) => supplied is null ? Calculate(color) : supplied[color];
 
+        /// <summary>Builds cortex, outline, gray, and tissue inks using the native quarter and fifth shade ramps.</summary>
         private Bgr555 Calculate(int color) => color switch
         {
             0 => backLeg ? Bgr555.Black : highlight,
@@ -144,8 +168,7 @@ public sealed class MotherBrainHealthPalettePresentation
             _ => Bgr555.Black,
         };
 
-        // The rear outline keeps the front red/blue and adds one RGB5 green
-        // step. This names the chosen rear tint; it is not a universal lighting law.
+        /// <summary>Rear outline keeps the front red and blue with one more RGB5 green step, a chosen tint rather than a general lighting rule.</summary>
         private Bgr555 Outline
         {
             get
@@ -155,8 +178,7 @@ public sealed class MotherBrainHealthPalettePresentation
                 return lit.WithGreen(Math.Min(31, lit.Green + 1));
             }
         }
-        // Rear illumination halves the front gray endpoint, rounding R/G upward
-        // and B downward before generating its own four shade levels.
+        /// <summary>Rear gray halves the front endpoint, rounding red and green upward and blue downward before its shade ramp.</summary>
         private Bgr555 Gray
         {
             get
@@ -166,6 +188,7 @@ public sealed class MotherBrainHealthPalettePresentation
                 return new((lit.Red + 1) / 2, (lit.Green + 1) / 2, lit.Blue / 2);
             }
         }
+        /// <summary>Scales each RGB5 channel with nearest-integer rounding for a quarter or fifth ramp.</summary>
         private static Bgr555 Shade(Bgr555 source, int numerator, int denominator)
         {
             return source.Map((_, a) => ((a * numerator + denominator / 2) / denominator));

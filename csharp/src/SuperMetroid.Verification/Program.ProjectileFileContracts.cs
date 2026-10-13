@@ -17,6 +17,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using static RoomAssetJsonContractsVerification;
 
+/// <summary>Checks file selection, provenance, and rejection behavior for installed projectile resources.</summary>
 internal static class ProjectileFileContractsVerification
 {
     /// <summary>
@@ -201,6 +202,7 @@ internal static class ProjectileFileContractsVerification
         manifest[field] = hash;
     }
 
+    /// <summary>Runs the projectile resource contract check against the current installation.</summary>
     [VerificationCommand("--projectile-file-contracts")]
     internal static int ProjectileFileContractsCommand()
     {

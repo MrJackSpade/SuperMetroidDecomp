@@ -15,12 +15,15 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Bomb and Golden Torizo Chozo-orb loops, impacts, and shot-drop bytecode against the cartridge.</summary>
 internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge oracle for both Torizo orb projectile families.</summary>
     internal static void VerifyTorizoChozoOrbInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoChozoOrbInstructionProgramDefinitions), () => VerifyTorizoChozoOrbInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Exercises four producer loops, wall and floor impacts, and both shot drops with compiled mechanics reads forbidden.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo Chozo orb instruction program definitions")]
     internal static void VerifyTorizoChozoOrbInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -210,6 +213,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Consumes warmed moving and shot mechanics words for a lookup allocation check.</summary>
     private static int ProbeTorizoChozoOrbInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -223,12 +227,14 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids migrated orb mechanics bytes and records attempted visual operand reads.</summary>
     private static CartridgeReadGuard NewTorizoChozoOrbInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(TorizoChozoOrbInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Torizo Chozo-orb byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount, TorizoChozoOrbInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Torizo Chozo-orb instruction comparison against the local retail cartridge.</summary>
     [VerificationCommand("--torizo-chozo-orb-instruction-mechanics")]
     internal static int TorizoChozoOrbInstructionMechanicsCommand()
     {

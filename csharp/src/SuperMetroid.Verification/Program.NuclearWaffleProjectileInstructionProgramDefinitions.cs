@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Nuclear Waffle body-link projectile loops against retail program words.</summary>
 internal static class NuclearWaffleProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for body-link instruction and sprite comparison.</summary>
     internal static void VerifyNuclearWaffleProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNuclearWaffleProjectileInstructionProgramDefinitions), () => VerifyNuclearWaffleProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs four spawned links through their twelve-frame loops and shared deletion under a read guard.</summary>
     internal static void VerifyNuclearWaffleProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -133,6 +136,7 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitionsVerifi
         }
     }
 
+    /// <summary>Alternates two compiled instruction words to detect allocation on repeated mechanics reads.</summary>
     private static int ProbeNuclearWaffleProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -146,6 +150,7 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitionsVerifi
         return checksum;
     }
 
+    /// <summary>Blocks live reads of projectile and shared-delete mechanics while recording visual operand access.</summary>
     private static CartridgeReadGuard NewNuclearWaffleProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => NuclearWaffleProjectileInstructionProgramDefinitionsTooling
@@ -155,6 +160,7 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitionsVerifi
                 address => $"Production read compiled Nuclear Waffle projectile mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordCount, NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs Nuclear Waffle projectile instruction verification from the command dispatcher.</summary>
     [VerificationCommand("--nuclear-waffle-projectile-instruction-mechanics")]
     internal static int NuclearWaffleProjectileInstructionMechanicsCommand()
     {

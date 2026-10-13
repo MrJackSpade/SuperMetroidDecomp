@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Houses typed sparse-bus writers for native Samus pose, physics, palette, and projectile tables.</summary>
 internal static class SyntheticSamusCartridgeVerification
 {
 

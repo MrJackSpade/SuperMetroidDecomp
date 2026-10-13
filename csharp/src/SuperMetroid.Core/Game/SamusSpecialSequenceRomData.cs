@@ -54,6 +54,7 @@ public static class SamusSpecialSequenceRomData
             {
                 for (int index = 0; index < Count; index++) yield return this[index];
             }
+            /// <summary>Exposes the native queue-order death-artwork transfers to non-generic enumeration.</summary>
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
         }
         /// <summary>Allocation-free view of $9B:B420's initial death-animation index selected by the movement type in effect before fatal-damage pose setup.</summary>
@@ -96,6 +97,7 @@ public static class SamusSpecialSequenceRomData
             {
                 for (int index = 0; index < Count; index++) yield return this[index];
             }
+            /// <summary>Exposes movement-type death-frame selection to non-generic enumeration.</summary>
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
         }
         /// <summary>$9B:8000: first of five consecutive death-artwork pages, queued last by $9B:B7BF.</summary>

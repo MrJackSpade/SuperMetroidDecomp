@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Retail-word and guarded-execution checks for Stoke walking and attack programs.</summary>
 internal static class StokeInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail source for the Stoke instruction check.</summary>
     internal static void VerifyStokeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyStokeInstructionProgramDefinitions), () => VerifyStokeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs both walking loops and attacks, including projectile direction and frame selection, with migrated reads forbidden.</summary>
     internal static void VerifyStokeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -190,6 +193,7 @@ internal static class StokeInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Repeats a warmed walking-program control lookup for allocation accounting.</summary>
     private static int ProbeStokeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -201,6 +205,7 @@ internal static class StokeInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects compiled Stoke control and visual-selector reads during production execution.</summary>
     private static CartridgeReadGuard NewStokeInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(StokeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -208,6 +213,7 @@ internal static class StokeInstructionProgramDefinitionsVerification
             .ForbidWords(0xa20000, StokeInstructionProgramDefinitionsTooling.PresentationWordCount, StokeInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Stoke instruction byte ${address:X6}.");
 
+    /// <summary>Runs the retail-backed Stoke instruction migration command.</summary>
     [VerificationCommand("--stoke-instruction-mechanics")]
     internal static int StokeInstructionMechanicsCommand()
     {

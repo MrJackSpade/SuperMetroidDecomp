@@ -11,8 +11,10 @@ using static ExtendedBg2ReferenceVerification;
 using static FrontendRomFreeVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed Draygon BG2 frames and collision components against native streams and live drawing.</summary>
 internal static class EnemyTileArtworkDraygonBg2FramesVerification
 {
+    /// <summary>Compares 34 installed frames and 102 ordered tilemap writes with ROM, then checks guarded rendering and editable overrides.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon BG2 frames")]
     internal static void VerifyInstalledDraygonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
@@ -130,6 +132,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         Console.WriteLine("  Draygon BG2 frames: 34 selected frames and 102 native writes match installed VRAM; live edit, producer gate, ROM guard, reload, hash and strict validation pass.");
     }
 
+    /// <summary>Compares native frame roots and hitbox lists, then runs the production overlap walker with cartridge reads denied.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Draygon BG2 collision")]
     internal static void VerifyCompiledDraygonBg2Collision(
         SuperMetroidAddressSpace rom)
@@ -216,6 +219,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         Console.WriteLine("  Draygon BG2 collision: 34 native frame roots, three hitbox lists, and the guarded live callback walker match the cartridge.");
     }
 
+    /// <summary>Draws one selected Draygon frame through the enemy layer producer and captures its resulting VRAM bytes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static byte[] DrawDraygonBg2(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)

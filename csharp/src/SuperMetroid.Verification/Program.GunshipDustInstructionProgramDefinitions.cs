@@ -14,12 +14,15 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks six gunship liftoff dust programs and their compiled visual selectors against bank $86.</summary>
 internal static class GunshipDustInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the pinned cartridge and runs the gunship dust program comparison.</summary>
     internal static void VerifyGunshipDustInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGunshipDustInstructionProgramDefinitions), () => VerifyGunshipDustInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Checks native control words, live frame timing and deletion, and guarded selector access.</summary>
     internal static void VerifyGunshipDustInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -125,9 +128,11 @@ internal static class GunshipDustInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Reads a bank $86 byte for the independent native instruction comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship dust instruction program definitions")]
     private static byte GunshipDustInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Repeats warmed gunship dust lookups for the caller's allocation measurement.</summary>
     private static int ProbeGunshipDustInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -141,12 +146,14 @@ internal static class GunshipDustInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids compiled mechanics rereads and observes native spritemap operands.</summary>
     private static CartridgeReadGuard NewGunshipDustInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(GunshipDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled gunship dust mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, GunshipDustInstructionProgramDefinitions.PresentationWordCount, GunshipDustInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Dispatches the gunship liftoff dust instruction verification command.</summary>
     [VerificationCommand("--gunship-dust-instruction-mechanics")]
     internal static int GunshipDustInstructionMechanicsCommand()
     {

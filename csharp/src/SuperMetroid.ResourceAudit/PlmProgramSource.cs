@@ -13,13 +13,20 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal sealed class PlmProgramSource
 {
+    /// <summary>Audit findings receive unresolved source-contract changes.</summary>
     private readonly PlmProgramAuditReport report;
+    /// <summary>Unique core type names used to resolve referenced compiled providers.</summary>
     private readonly Dictionary<string, Type> types;
+    /// <summary>Production PLM methods parsed from the room and family owner types.</summary>
     private readonly MethodDeclarationSyntax[] methods;
+    /// <summary>Calculated draw providers discovered from the production draw dispatcher.</summary>
     private readonly List<MethodInfo> drawProviders = [];
+    /// <summary>Literal draw pointers tested directly by the production dispatcher.</summary>
     private readonly HashSet<ushort> directDraws = [];
+    /// <summary>Memoized ownership results for inspected draw pointers.</summary>
     private readonly Dictionary<ushort, bool> draws = [];
 
+    /// <summary>Parses production PLM methods and discovers their actual draw routes.</summary>
     internal PlmProgramSource(string root, PlmProgramAuditReport report)
     {
         this.report = report;
@@ -71,6 +78,7 @@ internal sealed class PlmProgramSource
             throw new InvalidDataException("The production PLM draw dispatcher could not be inventoried.");
     }
 
+    /// <summary>Enumerates compiled program words through each resolver provider referenced by production code.</summary>
     internal Dictionary<ushort, string> InventoryWords()
     {
         MethodDeclarationSyntax resolver = methods.Single(method => method.Identifier.Text == "TryReadWord");
@@ -90,6 +98,7 @@ internal sealed class PlmProgramSource
         return result;
     }
 
+    /// <summary>Finds constant instruction roots assigned by production PLM methods outside verification.</summary>
     internal IEnumerable<(ushort Address, string Owner)> AssignedConstantRoots()
     {
         foreach (MethodDeclarationSyntax method in methods)
@@ -118,6 +127,7 @@ internal sealed class PlmProgramSource
         }
     }
 
+    /// <summary>Follows conditional assignment values without mistaking comparison constants for roots.</summary>
     private static IEnumerable<ExpressionSyntax> RootExpressions(ExpressionSyntax expression)
     {
         // Conditions can compare a header ID; that is not an instruction root.
@@ -130,6 +140,7 @@ internal sealed class PlmProgramSource
         else yield return expression;
     }
 
+    /// <summary>Checks whether a pointer belongs to a direct draw or any discovered calculated draw provider.</summary>
     internal bool OwnsDraw(ushort pointer)
     {
         if (draws.TryGetValue(pointer, out bool owned)) return owned;
@@ -143,6 +154,7 @@ internal sealed class PlmProgramSource
         return owned;
     }
 
+    /// <summary>Reports added or removed interpreter routes relative to the guarded source contract.</summary>
     internal void VerifyInterpreter()
     {
         foreach (MethodDeclarationSyntax method in methods.Where(RequiresGuard))
@@ -158,6 +170,7 @@ internal sealed class PlmProgramSource
     }
 
 
+    /// <summary>Selects interpreter methods whose record or typed routes must stay in the source contract.</summary>
     private static bool RequiresGuard(MethodDeclarationSyntax method) =>
         method.Identifier.Text is "ExecuteInstructionStream" or "ReadProgramWord" or "ReadProgramByte" or
         "DrawPlmInstruction" or "TryIdentifyPermanentCollectible" or
@@ -168,6 +181,7 @@ internal sealed class PlmProgramSource
         method.DescendantNodes().OfType<InvocationExpressionSyntax>().Any(call =>
             call.Expression.ToString() is "ReadProgramWord" or "ReadProgramByte");
 
+    /// <summary>Finds a static word provider with one ushort input and one out parameter.</summary>
     private MethodInfo ResolveMethod(string type, string name) => types[type].GetMethods(
         BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
         .Single(method => method.Name == name && method.GetParameters() is

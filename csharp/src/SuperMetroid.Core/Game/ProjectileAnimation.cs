@@ -8,14 +8,18 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The bank-$93 projectile instruction interpreter and drawing: slot clearing, live projectile and charge-flare OAM, flare animation state and the suit palette the flare restores.</summary>
 internal sealed class ProjectileAnimation
 {
+    /// <summary>Owns charge-flare frame and countdown arrays advanced by the interpreter.</summary>
     private readonly BeamChargeState _charge;
+    /// <summary>Owns the active projectile count reduced when a delete instruction clears a slot.</summary>
     private readonly ProjectileSlotTable _slotTable;
 
+    /// <summary>Binds projectile instructions to live slot ownership and charge-flare state.</summary>
     internal ProjectileAnimation(BeamChargeState charge, ProjectileSlotTable slotTable)
     {
         _charge = charge;
         _slotTable = slotTable;
     }
+    /// <summary>Decodes timed bank-$93 frames, goto, and delete; publishes frame radius and animation metadata when the countdown expires.</summary>
     internal bool RunProjectileInstructionHandler(
         SamusProjectileSlot slot)
     {
@@ -66,6 +70,7 @@ internal sealed class ProjectileAnimation
         }
     }
 
+    /// <summary>Clears a projectile slot and decrements the shared active count without underflow.</summary>
     internal void ClearProjectile(SamusProjectileSlot slot)
     {
         slot.ClearFields();
@@ -74,6 +79,7 @@ internal sealed class ProjectileAnimation
             : unchecked((ushort)(_slotTable.ProjectileCounter - 1));
     }
 
+    /// <summary>Draws an installed projectile composition when its screen origin passes native horizontal and Y-byte clipping.</summary>
     internal static void DrawSlot(
         OamBuffer oam,
         SamusProjectileSlot slot,
@@ -94,6 +100,7 @@ internal sealed class ProjectileAnimation
             .Draw(slot.SpritemapPointer, oam, new(unchecked((ushort)screenX), screenY));
     }
 
+    /// <summary>Advances a flare component only after its countdown underflows, honoring restart and rewind delay commands.</summary>
     internal void AdvanceFlareComponent(int component)
     {
         // The assembly advances only when 16-bit DEC crosses zero into `$FFFF`. A timer
@@ -140,6 +147,7 @@ internal sealed class ProjectileAnimation
         _charge._flareTimers[component] = delay;
     }
 
+    /// <summary>Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component.</summary>
     internal void DrawFlareComponent(ISnesAddressSpace bus, OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork)
     {
         byte direction = samus.PoseMetadata.ReadShotDirection(bus);
@@ -149,6 +157,7 @@ internal sealed class ProjectileAnimation
         DrawFlareComponentWithMetadata(oam, samus, layer1, component, mode7Transform, artwork, new ChargeFlarePose { Direction = direction, Running = samus.PoseMetadata.ReadMovementKind(bus) == SamusMovementType.Running, PoseYOffset = unchecked((byte)samus.PoseMetadata.ReadGraphicsYOffset(bus)), FacingLeft = samus.PoseMetadata.IsFacingLeft(bus) });
     }
 
+    /// <summary>Applies pose muzzle offsets after optional Ceres Mode-7 center transform, then draws the installed component frame.</summary>
     private void DrawFlareComponentWithMetadata(OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
         var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
@@ -192,12 +201,14 @@ internal sealed class ProjectileAnimation
         catalog.Draw(tableIndex, oam, new(screenX, screenY));
     }
 
+    /// <summary>Clears all component frames and countdowns when charge-flare animation is retired.</summary>
     internal void ClearFlareAnimationState()
     {
         Array.Clear(_charge._flareFrames);
         Array.Clear(_charge._flareTimers);
     }
 
+    /// <summary>Restores sixteen suit colors from installed artwork and retains the native selection pointer for diagnostics.</summary>
     internal static ushort LoadNormalSuitPalette(
         SnesCgram cgram,
         SamusState samus)
@@ -207,6 +218,7 @@ internal sealed class ProjectileAnimation
         return SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.Presentation.SuitColors);
     }
 
+    /// <summary>Maps equipped suit bits to the native normal-suit palette table offset.</summary>
     internal static ushort GetSuitPaletteOffset(ushort equippedItems) =>
         equippedItems.GetSuitPaletteTableOffset();
 

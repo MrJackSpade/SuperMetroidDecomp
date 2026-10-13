@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Crocomire mouth, bridge, and spike-wall projectile bytecode and sprite operands.</summary>
 internal static class CrocomireProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge oracle for Crocomire projectile instruction verification.</summary>
     internal static void VerifyCrocomireProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCrocomireProjectileInstructionProgramDefinitions), () => VerifyCrocomireProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs real mouth, bridge, and spike producers through their lists while forbidding compiled mechanics reads.</summary>
     internal static void VerifyCrocomireProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -166,6 +169,7 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
         }
     }
 
+    /// <summary>Checks all 22 mechanics words and their exact bank-$86 byte-ownership domain.</summary>
     internal static void VerifyCrocomireProjectileMechanicsDispatch(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -199,6 +203,7 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
         AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitionsTooling.MechanicsWord(22), "Crocomire projectile mechanics index past end");
     }
 
+    /// <summary>Checks the thirteen native visual operand addresses and exclusion from mechanics dispatch.</summary>
     internal static void VerifyCrocomireProjectilePresentationPositions(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -217,6 +222,7 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
         AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(-1), "negative Crocomire projectile presentation index");
         AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(13), "Crocomire projectile presentation index past end");
     }
+    /// <summary>Consumes warmed mouth and shot mechanics words for a lookup allocation check.</summary>
     private static int ProbeCrocomireProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -230,6 +236,7 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
         return checksum;
     }
 
+    /// <summary>Forbids private and shared deletion mechanics reads while observing sprite operand reads.</summary>
     private static CartridgeReadGuard NewCrocomireProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => CrocomireProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -237,6 +244,7 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
                 address => $"Production read compiled Crocomire projectile mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount, CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Crocomire projectile instruction comparison against the local retail cartridge.</summary>
     [VerificationCommand("--crocomire-projectile-instruction-mechanics")]
     internal static int CrocomireProjectileInstructionMechanicsCommand()
     {

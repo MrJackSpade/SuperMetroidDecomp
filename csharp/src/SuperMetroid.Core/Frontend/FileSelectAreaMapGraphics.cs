@@ -12,12 +12,19 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 public sealed class FileSelectAreaMapGraphics
 {
+    /// <summary>Runtime address space retained for menu PPU setup.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Owns the map's VRAM, CGRAM, and installed tile and sprite resources.</summary>
     private readonly MenuPpuState ppu;
+    /// <summary>Installed area palette set, rebound when presentation content changes.</summary>
     [NonSerialized] private MapStaticPalettes? palettes;
+    /// <summary>Installed world-label positions used when building OAM.</summary>
     [NonSerialized] private WorldMapLabelLayout? labels;
+    /// <summary>Installed foreground and per-area background tilemaps.</summary>
     [NonSerialized] private MapScreenPresentation? screens;
+    /// <summary>Installed OBJ art for the title and area labels.</summary>
     [NonSerialized] private MapSpriteCatalog? sprites;
+    /// <summary>Replaces label positions without changing the selected area or PPU state.</summary>
     internal void BindLabels(WorldMapLabelLayout? content) => labels = content;
 
     /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
@@ -80,12 +87,14 @@ public sealed class FileSelectAreaMapGraphics
         SelectedArea = selectedArea;
     }
 
+    /// <summary>Copies the installed world foreground into menu BG1 tilemap VRAM.</summary>
     private void LoadForeground()
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
             .LoadTo(new MenuVram(Vram).Bg1Tilemap, MapScreenDefinitions.WorldForeground);
     }
 
+    /// <summary>Copies the selected area's installed background into menu BG3 tilemap VRAM.</summary>
     private void LoadBackground(AreaId selectedArea)
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
@@ -101,28 +110,31 @@ public sealed class FileSelectAreaMapGraphics
         LoadBackground((AreaId)SelectedArea);
     }
 
+    /// <summary>Replaces installed area palettes and refreshes CGRAM for the current selection.</summary>
     internal void BindPalettes(MapStaticPalettes? content)
     {
         palettes = content;
         if (content is not null) LoadInstalledPalette((AreaId)SelectedArea);
     }
+    /// <summary>Rebinds label OBJ art in both this owner and its menu PPU state.</summary>
     internal void BindSprites(MapSpriteCatalog? content) { sprites = content; ppu.BindMapSprites(content); }
 
+    /// <summary>Loads the selected area's installed world colors into menu CGRAM.</summary>
     private void LoadInstalledPalette(AreaId selectedArea)
     {
         var colors = palettes!.World(selectedArea);
         new CgramPalettes(Cgram).LoadImage(colors);
     }
 
-    /// <summary>
-    /// Steady state six leaves BG1 on main and BG3 on sub, with additive color math
-    /// enabled for BG1 and backdrop. Menu OBJ labels must be composed afterwards.
-    /// </summary>
     // Layer scratch reused across draws; never part of saved state (restores reallocate it).
+    /// <summary>Transient BG1 render plane reused across map draws and reallocated after restore.</summary>
     [NonSerialized] private Rgba32[]? foregroundScratch;
+    /// <summary>Transient BG3 addition plane reused across map draws.</summary>
     [NonSerialized] private Rgba32[]? subscreenScratch;
+    /// <summary>Transient OBJ label plane, composed after BG color math.</summary>
     [NonSerialized] private Rgba32[]? objScratch;
     // Owned frame: valid until this map renders again.
+    /// <summary>Owned composite frame, overwritten by the next map render.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
     /// <summary>Composes the unmasked 256-by-224 BG1 main scene plus additive BG3 subscreen, excluding OBJ labels and transition clipping; no menu state advances.</summary>
@@ -166,6 +178,7 @@ public sealed class FileSelectAreaMapGraphics
         return frame;
     }
 
+    /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>
     private OamBuffer PrepareLabels(ReadOnlySpan<ushort> usedStationMasks)
     {
         if (usedStationMasks.Length < FileSelectMapRomData.AreaCount)

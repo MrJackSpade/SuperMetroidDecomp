@@ -15,15 +15,19 @@ public sealed class BabyMetroidCutsceneColorCatalog
             fade.AppendIdentity(content);
         });
 
+    /// <summary>Compiled fifteen-color image shown before the death fade.</summary>
     private readonly BabyMetroidInitialPalette initial;
+    /// <summary>Six displayed fade rows, with native formula or supplied edited colors.</summary>
     private readonly ColorFade fade;
 
+    /// <summary>Copies compiled images into immutable catalog-owned palette views.</summary>
     private BabyMetroidCutsceneColorCatalog(Bgr555[] initial, Bgr555[][] fade)
     {
         this.initial = new(initial);
         this.fade = new(fade);
     }
 
+    /// <summary>Strict camel-case artwork schema that rejects unknown JSON members.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -54,8 +58,10 @@ public sealed class BabyMetroidCutsceneColorCatalog
     /// no latent RGB8 endpoint reconstruction or stored stock sample is needed.</summary>
     private sealed class ColorFade
     {
+        /// <summary>Stores edited rows only when they differ from the native final-health fade formula.</summary>
         private readonly Bgr555[][]? supplied;
 
+        /// <summary>Uses the native composition for stock rows and retains any independently authored edits.</summary>
         internal ColorFade(Bgr555[][] frames)
         {
             for (int frame = 0; frame < frames.Length; frame++)
@@ -67,10 +73,13 @@ public sealed class BabyMetroidCutsceneColorCatalog
                 }
         }
 
+        /// <summary>Retrieves one displayed color from edited rows or the native composition.</summary>
         internal Bgr555 Resolve(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
+        /// <summary>Looks up the matching final-health paint before applying fade intensity.</summary>
         private static Bgr555 Endpoint(int color) => BabyMetroidFinalHealthPaintDefinitions.Color(color);
 
+        /// <summary>Scales each RGB5 channel by the native remaining-sevenths intensity.</summary>
         private static Bgr555 Calculate(int frame, int color)
         {
             int remaining = BabyMetroidCutsceneColorRomData.FadeFrameCount - 1 - frame;
@@ -78,6 +87,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
             return Endpoint(color).Map((_, channel) => channel * remaining / intervals);
         }
 
+        /// <summary>Hashes the six resolved rows so native and equivalent supplied artwork share an identity.</summary>
         internal void AppendIdentity(SelectedPresentationHash content)
         {
             content.Append("fade", BabyMetroidCutsceneColorRomData.FadeFrameCount);
@@ -133,6 +143,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
         return bytes;
     }
 
+    /// <summary>Validates an RGB5 row's length and channels before copying it to packed colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name)
     {
         if (source is null || source.Length != required)
@@ -151,6 +162,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects ambiguous property names before deserializing the artwork document.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate cutscene Baby color property {name}."));

@@ -15,12 +15,15 @@ using SuperMetroid.Core.Rooms;
 using static EnemyProjectileProgramOracleVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Bomb Torizo's sixteen statue fragments through their staggered waits, fall handoffs, and deletion.</summary>
 internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge oracle for statue fragment program verification.</summary>
     internal static void VerifyBombTorizoStatueInstructionProgramDefinitions() =>
         Suite(nameof(VerifyBombTorizoStatueInstructionProgramDefinitions), () => VerifyBombTorizoStatueInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Compares 96 mechanics words and executes every real fragment producer with migrated source reads forbidden.</summary>
     internal static void VerifyBombTorizoStatueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -126,6 +129,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
             "and deletions pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Checks 32 native statue spritemap operands and rejects control, audio, and gap addresses.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for statue fragment visual mapping")]
     private static void VerifyStatueFragmentVisualMapping(SuperMetroidAddressSpace rom)
     {
@@ -156,6 +160,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(address), "statue distant invalid visual operand");
     }
+    /// <summary>Checks each fragment's six control-word positions and exact bank-$86 mechanics-byte ownership.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for statue program control layout")]
     private static void VerifyStatueProgramControlLayout(SuperMetroidAddressSpace rom)
     {
@@ -192,6 +197,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(address), "statue distant invalid control");
     }
+    /// <summary>Checks the published order and full-domain membership of both visual operands in each fragment program.</summary>
     private static void VerifyStatueProgramPresentationLayout()
     {
         ushort[] expected = [0xa4c5,0xa4d0,0xa4d6,0xa4e1,0xa4e7,0xa4f2,0xa4f8,0xa503,
@@ -207,6 +213,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
         foreach (int index in new[] {int.MinValue,-1,32,int.MaxValue})
             AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress(index), "statue visual ordinal bounds");
     }
+    /// <summary>Compares sixteen staggered initial durations and their program-start indexes with native words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo statue initial durations")]
     private static void VerifyBombTorizoStatueInitialDurations(SuperMetroidAddressSpace rom)
     {
@@ -228,6 +235,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
         foreach (int index in new[] {int.MinValue,-1,96,int.MaxValue})
             AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueInstructionProgramDefinitionsTooling.MechanicsWord(index), "statue initial duration enumeration domain");
     }
+    /// <summary>Consumes warmed delay words across all sixteen programs for a lookup allocation check.</summary>
     private static int ProbeBombTorizoStatueInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -239,6 +247,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Forbids compiled fragment mechanics bytes while observing live visual operand reads.</summary>
     private static CartridgeReadGuard NewBombTorizoStatueInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(BombTorizoStatueInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -247,6 +256,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
                 BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount,
                 BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the statue fragment instruction comparison against the local retail cartridge.</summary>
     [VerificationCommand("--bomb-torizo-statue-instruction-mechanics")]
     internal static int BombTorizoStatueInstructionMechanicsCommand()
     {

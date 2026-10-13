@@ -27,10 +27,14 @@ public enum EndingPaletteId
 /// <summary>One exact BGR555 color image, independently editable as RGB5 JSON.</summary>
 public sealed class EndingPalette
 {
+    /// <summary>Exact selected BGR555 bytes for a static palette or independently edited logo fade.</summary>
     private readonly byte[]? nativeBytes;
+    /// <summary>Endpoint-backed logo fade used only when it reproduces every supplied crossfade color.</summary>
     private readonly EndingLogoPaletteFade? logoFade;
 
+    /// <summary>Retains a validated native color image without recalculating its supplied inks.</summary>
     private EndingPalette(byte[] nativeBytes) => this.nativeBytes = nativeBytes;
+    /// <summary>Retains the verified logo interpolation instead of a duplicate 512-color table.</summary>
     private EndingPalette(EndingLogoPaletteFade logoFade) => this.logoFade = logoFade;
 
     /// <summary>Transfer/export view. A computed fade is materialized only for this
@@ -85,6 +89,7 @@ public sealed class EndingPalette
         }
     }
 
+    /// <summary>Materializes a requested contiguous color range as little-endian BGR555 words.</summary>
     private void WriteColors(Span<byte> bytes, int sourceColor, int count)
     {
         for (int i = 0; i < count; i++)
@@ -151,7 +156,20 @@ public sealed record EndingPaletteDocument
 /// <summary>Independent static and animated color resources used by the ending.</summary>
 public sealed class EndingPaletteCatalog
 {
-    private readonly EndingPalette escape, postCredits, credits, explosion, finalGunship, logoInitial, logoCrossfade;
+    /// <summary>Escape and cloud-scene color image.</summary>
+    private readonly EndingPalette escape;
+    /// <summary>Post-credits reward-scene color image.</summary>
+    private readonly EndingPalette postCredits;
+    /// <summary>Credits text and background color image.</summary>
+    private readonly EndingPalette credits;
+    /// <summary>Explosion and flyaway color image with separate BG and OBJ transfers.</summary>
+    private readonly EndingPalette explosion;
+    /// <summary>Final gunship BG palette restored before the operation text.</summary>
+    private readonly EndingPalette finalGunship;
+    /// <summary>Initial assembling-logo OBJ palette.</summary>
+    private readonly EndingPalette logoInitial;
+    /// <summary>Sixteen ordered BG and OBJ palette pairs for the final logo transition.</summary>
+    private readonly EndingPalette logoCrossfade;
 
     /// <summary>Groups seven independently selected immutable palette resources without copying them or validating their sizes.</summary>
     /// <param name="escape">Full palette for escape and cloud imagery.</param>

@@ -12,8 +12,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
+/// <summary>Runtime checks for Crocomire's spike tile cadence and hidden-wall camera rumble.</summary>
 internal static class CrocomirePresentation1193Verification
 {
+    /// <summary>Runs the retail Crocomire room and checks either NMI spike uploads or displayed BG1 rumble ordering.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static int VerifyCrocomirePresentation(bool spikes)
     {
@@ -157,6 +159,7 @@ internal static class CrocomirePresentation1193Verification
         }
     }
 
+    /// <summary>Checks legacy PNG inheritance and debugger graph restoration for the room's animated spike tiles.</summary>
     private static void VerifyCrocomireSpikeCompatibility(SuperMetroidRuntime runtime,
         ISnesAddressSpace bus, RoomFxAnimatedTileAtlas stock)
     {
@@ -198,12 +201,14 @@ internal static class CrocomirePresentation1193Verification
             "Absent legacy spike state restarts the current room's selected object");
     }
 
+    /// <summary>Runs the spike animation and NMI artwork verification mode.</summary>
     [VerificationCommand("--crocomire-spike-animation")]
     internal static int CrocomireSpikeAnimationCommand()
     {
         return VerifyCrocomirePresentation(true);
     }
 
+    /// <summary>Runs the hidden-wall rumble and foreground scroll verification mode.</summary>
     [VerificationCommand("--crocomire-comeback-rumble")]
     internal static int CrocomireComebackRumbleCommand()
     {

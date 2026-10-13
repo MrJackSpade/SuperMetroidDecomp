@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using static AnimatedTileInstructionCodesVerification;
 using static DoorDefinitionsVerification;
 
+/// <summary>Compares the two Wrecked Ship treadmill instruction programs with bank $87 mechanics.</summary>
 internal static class LookupTreadmillMechanicsVerification
 {
+    /// <summary>Walks each native header, wait, four timed frames, and terminating goto address.</summary>
     internal static IEnumerable<(ushort Header, ushort Wait, ushort[] Frames, ushort End)> OriginalTreadmillPrograms(ISnesAddressSpace rom)
     {
         foreach (ushort header in new ushort[] { 0x8275, 0x827b })
@@ -23,18 +25,21 @@ internal static class LookupTreadmillMechanicsVerification
         }
     }
 
+    /// <summary>Resolves a native treadmill object header to its compiled direction definition.</summary>
     internal static WreckedShipTreadmillObjectDefinition TreadmillDefinition(ushort header)
     {
         AssertTrue(WreckedShipTreadmillMechanicsDefinitions.TryResolve((AnimatedTileObject)header, out var definition), "Native treadmill resolves");
         return definition;
     }
 
+    /// <summary>Checks that a compiled mechanics word is owned and equals the cartridge word.</summary>
     private static void AssertTreadmillNativeWord(ISnesAddressSpace rom, WreckedShipTreadmillObjectDefinition definition, ushort pointer)
     {
         AssertTrue(definition.TryReadMechanicsWord(pointer, out ushort actual), "Native treadmill mechanics word is owned");
         AssertEqual(ReadVerificationWord(rom, 0x870000 | pointer), actual, "Native treadmill field value");
     }
 
+    /// <summary>Checks both header identities, direction mapping, and rejection of unsupported inputs.</summary>
     internal static void VerifyTreadmillHeaderSelection()
     {
         var all = WreckedShipTreadmillMechanicsDefinitions.All.ToArray();
@@ -65,6 +70,7 @@ internal static class LookupTreadmillMechanicsVerification
                 (WreckedShipTreadmillDirection)value), "Unknown direction rejects");
     }
 
+    /// <summary>Checks the wait instruction address selected by each native object header.</summary>
     internal static void VerifyTreadmillWaitPointers(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
@@ -75,6 +81,7 @@ internal static class LookupTreadmillMechanicsVerification
         }
     }
 
+    /// <summary>Checks the four frame cursors, loop and goto addresses, and frame-index bounds.</summary>
     internal static void VerifyTreadmillFramePointers(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
@@ -91,12 +98,14 @@ internal static class LookupTreadmillMechanicsVerification
         }
     }
 
+    /// <summary>Checks each timed frame duration against its original program word.</summary>
     internal static void VerifyTreadmillDurations(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
             foreach (ushort frame in p.Frames) AssertTreadmillNativeWord(rom, TreadmillDefinition(p.Header), frame);
     }
 
+    /// <summary>Checks the native wait and goto opcodes for both treadmill programs.</summary>
     internal static void VerifyTreadmillControlOpcodes(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
@@ -106,6 +115,7 @@ internal static class LookupTreadmillMechanicsVerification
         }
     }
 
+    /// <summary>Checks that each goto operand returns to its timed-frame loop.</summary>
     internal static void VerifyTreadmillLoopTargets(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
@@ -116,18 +126,21 @@ internal static class LookupTreadmillMechanicsVerification
         }
     }
 
+    /// <summary>Checks the transfer-size word embedded in each treadmill header.</summary>
     internal static void VerifyTreadmillTransferSizes(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
             AssertTreadmillNativeWord(rom, TreadmillDefinition(p.Header), (ushort)(p.Header + 2));
     }
 
+    /// <summary>Checks the VRAM destination word embedded in each treadmill header.</summary>
     internal static void VerifyTreadmillVramDestinations(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
             AssertTreadmillNativeWord(rom, TreadmillDefinition(p.Header), (ushort)(p.Header + 4));
     }
 
+    /// <summary>Checks exact ownership of the ten mechanics words in each 16-bit pointer domain.</summary>
     internal static void VerifyTreadmillMechanicsDomain(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))

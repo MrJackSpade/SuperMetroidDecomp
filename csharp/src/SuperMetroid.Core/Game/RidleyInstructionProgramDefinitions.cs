@@ -49,6 +49,7 @@ internal abstract class RidleyInstructionProgramDefinitions
     /// <summary>Native program bank $A6.</summary>
     internal const byte Bank = 0xa6;
 
+    /// <summary>Shared Ceres and Lower Norfair control-byte layout, retaining native entry points and interleaved presentation positions.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe538),
         Entry(Initial),

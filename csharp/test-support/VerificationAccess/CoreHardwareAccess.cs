@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Verification access to <see cref="NativeWordCounter"/> members production does not use.</summary>
 internal static class NativeWordCounterAccess
 {
+    /// <summary>Supplies a saturating timer decrement for native counter assertions.</summary>
     extension(NativeWordCounter)
     {
         /// <summary>
@@ -19,6 +20,7 @@ internal static class NativeWordCounterAccess
 /// <summary>Verification access to <see cref="NativeWordCounterStep"/> members production does not use.</summary>
 internal static class NativeWordCounterStepAccess
 {
+    /// <summary>Exposes the wrap result of a single native word counter step.</summary>
     extension(NativeWordCounterStep self)
     {
         /// <summary>Whether decrementing zero wrapped through <c>$FFFF</c>.</summary>
@@ -29,6 +31,7 @@ internal static class NativeWordCounterStepAccess
 /// <summary>Verification access to <see cref="SnesAddress"/> members production does not use.</summary>
 internal static class SnesAddressAccess
 {
+    /// <summary>Validates upper LoROM cartridge addresses in verification fixtures.</summary>
     extension(SnesAddress)
     {
         /// <summary>
@@ -52,6 +55,7 @@ internal static class SnesAddressAccess
 /// <summary>Verification access to <see cref="SnesAngle"/> members production does not use.</summary>
 internal static class SnesAngleAccess
 {
+    /// <summary>Exposes table offsets and signed angular deltas matching native byte arithmetic.</summary>
     extension(SnesAngle self)
     {
         /// <summary>The byte offset for a table containing one 16-bit sample per angle.</summary>
@@ -76,6 +80,7 @@ internal static class SnesAngleAccess
 /// <summary>Verification access to <see cref="SnesBgTilemapWord"/> members production does not use.</summary>
 internal static class SnesBgTilemapWordAccess
 {
+    /// <summary>Changes BG tile priority while retaining every other tilemap bit.</summary>
     extension(SnesBgTilemapWord self)
     {
         /// <summary>Replaces only the priority bit.</summary>
@@ -87,6 +92,7 @@ internal static class SnesBgTilemapWordAccess
 /// <summary>Verification access to <see cref="SnesCgram"/> members production does not use.</summary>
 internal static class SnesCgramAccess
 {
+    /// <summary>Provides a fixture reset for all entries in CGRAM.</summary>
     extension(SnesCgram self)
     {
         /// <summary>Clears all 256 colors to black.</summary>
@@ -97,6 +103,7 @@ internal static class SnesCgramAccess
 /// <summary>Verification access to <see cref="SnesSignedEightEight"/> members production does not use.</summary>
 internal static class SnesSignedEightEightAccess
 {
+    /// <summary>Constructs checked whole-pixel values in the signed 8.8 format.</summary>
     extension(SnesSignedEightEight)
     {
         /// <summary>Creates an exact whole-pixel velocity and rejects values outside 8.8 range.</summary>
@@ -104,6 +111,7 @@ internal static class SnesSignedEightEightAccess
             new(unchecked((ushort)SnesEightEight.FromWhole(checked((sbyte)pixels))));
     }
 
+    /// <summary>Inspects or advances a signed 8.8 value with native wrap semantics.</summary>
     extension(SnesSignedEightEight self)
     {
         /// <summary>Signed whole-pixel byte.</summary>
@@ -121,6 +129,7 @@ internal static class SnesSignedEightEightAccess
 /// <summary>Verification access to <see cref="SnesSignedSixteenSixteen"/> members production does not use.</summary>
 internal static class SnesSignedSixteenSixteenAccess
 {
+    /// <summary>Constructs checked whole-pixel values in the signed 16.16 format.</summary>
     extension(SnesSignedSixteenSixteen)
     {
         /// <summary>Creates an exact whole-pixel delta with checked signed-word conversion.</summary>
@@ -132,6 +141,7 @@ internal static class SnesSignedSixteenSixteenAccess
 /// <summary>Verification access to <see cref="SnesVram"/> members production does not use.</summary>
 internal static class SnesVramAccess
 {
+    /// <summary>Runs literal WRAM or SRAM DMA into VRAM for hardware boundary checks.</summary>
     extension(SnesVram self)
     {
         /// <summary>

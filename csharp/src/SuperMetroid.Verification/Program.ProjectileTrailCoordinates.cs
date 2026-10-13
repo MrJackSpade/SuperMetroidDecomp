@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled projectile-trail coordinates and CPU operand routing against native data and live-memory aliases.</summary>
 internal static class ProjectileTrailCoordinatesVerification
 {
+    /// <summary>Compares the bounded bank-$9B coordinate catalog and every indexed operand with the native CPU read behavior.</summary>
     internal static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
     {
         var guard = NewTrailCoordinateGuard(bus);
@@ -73,6 +75,7 @@ internal static class ProjectileTrailCoordinatesVerification
         Console.WriteLine("Trail coordinates: 174 pointer words, 870 signed records, 29 bounded observations and 196608 CPU operands preserve compiled/live-memory behavior while rejecting unrelated upper ROM.");
     }
 
+    /// <summary>Checks actual trail spawn positions for beam, missile, and reflected list-start cases at coordinate wraps.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for trail family, direction and reflected list-start pointer tables")]
     private static void VerifyCoordinateSpawn(ISnesAddressSpace bus)
     {
@@ -166,14 +169,17 @@ internal static class ProjectileTrailCoordinatesVerification
         yield return (0x0200, 0x9383f1, 2);
     }
 
+    /// <summary>Reads a native trail pointer or coordinate word for the cartridge-side oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled trail pointer and coordinate words")]
     private static ushort ReadRetailTrailWord(ISnesAddressSpace bus, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
+    /// <summary>Reads a cartridge byte for a native bank-$9B trail operand.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for a $9B trail operand byte the native CPU reads from the cartridge")]
     private static byte ReadRetailTrailOperandByte(ISnesAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeByte(address);
 
+    /// <summary>Reads a modeled peripheral response or rejects an unmodeled hardware operand.</summary>
     [CpuBusBoundary("exact bus test: device-response oracle for a $9B trail operand outside memory and the cartridge")]
     private static byte ReadNativeTrailOperandDeviceByte(ISnesAddressSpace bus, int address) =>
         bus is ISnesCpuPeripheralSource peripheral
@@ -204,9 +210,7 @@ internal static class ProjectileTrailCoordinatesVerification
         }
     }
 
-    // Import-only reference for the actual $9B absolute-indexed operand. The
-    // production CPU reader intentionally rejects ROM, so native expectations
-    // must resolve cartridge bytes through the asset-import boundary instead.
+    /// <summary>Resolves the native $9B absolute-indexed word through ROM, WRAM, SRAM, open bus, or devices in CPU read order.</summary>
     [CpuBusBoundary("exact bus test: reference CPU read of the $9B absolute-indexed trail operand across ROM, WRAM, SRAM, open bus and devices")]
     private static ushort ReadNativeTrailOperandWord(
         ISnesAddressSpace bus, ushort operand, ushort index)
@@ -239,6 +243,7 @@ internal static class ProjectileTrailCoordinatesVerification
         return (ushort)(SnesLittleEndian.Word(low, high));
     }
 
+    /// <summary>Forbids runtime reads of the migrated bank-$9B trail coordinate region.</summary>
     private static MutableCartridgeReadGuard NewTrailCoordinateGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -247,6 +252,7 @@ internal static class ProjectileTrailCoordinatesVerification
         return guard;
     }
 
+    /// <summary>Runs the trail-coordinate CPU operand comparison against the local retail cartridge.</summary>
     [VerificationCommand("--projectile-trail-coordinates")]
     internal static int ProjectileTrailCoordinatesCommand()
     {

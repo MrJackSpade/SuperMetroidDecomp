@@ -49,15 +49,24 @@ public readonly record struct PlatformMovementFunctions(
 /// </remarks>
 public sealed class PlatformEnemyState
 {
+    /// <summary>Enemy slot whose variable words carry target height and velocity data.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Shared per-slot horizontal and rider-selected vertical dispatcher indexes.</summary>
     private readonly PlatformMovementFunctions[] _movementFunctions;
+    /// <summary>Shared word reused for pre-move X and then pre-move Y within an update.</summary>
     private readonly ushort[] _previousPositions;
+    /// <summary>Per-slot flags that suppress reinstalling moving artwork.</summary>
     private readonly ushort[] _verticallyMovingFlags;
+    /// <summary>Per-slot flags that suppress reinstalling stationary artwork.</summary>
     private readonly ushort[] _verticallyStillFlags;
+    /// <summary>Per-slot upper limits for quadratic vertical acceleration.</summary>
     private readonly ushort[] _maximumYSpeedTableIndexes;
+    /// <summary>Previous rider-selected phase, used when vertical motion changes.</summary>
     private readonly ushort[] _previousYMovementFunctions;
+    /// <summary>Native all-ones Kamer marker or zero for Tripper.</summary>
     private readonly ushort[] _suspensorPlatformFlags;
 
+    /// <summary>Binds one actor to its entries in the shared platform WRAM-style arrays.</summary>
     internal PlatformEnemyState(RoomEnemySlot slot, PlatformSharedTables tables)
     {
         _slot = slot;

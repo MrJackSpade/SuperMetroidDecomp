@@ -6,18 +6,25 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Multiviola species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MultiviolaBehavior : IEnemySpecies
 {
+    /// <summary>Room collision mover used after each attempted Multiviola velocity component.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Binds Multiviola movement to the active enemy terrain service.</summary>
     internal MultiviolaBehavior(EnemyTerrain terrain)
     {
         _terrain = terrain;
     }
 
+    /// <summary>Quarter-turn sine-table offset used for the horizontal cosine magnitude.</summary>
     private const ushort MultiviolaCosineOffset = 0x0040;
+    /// <summary>Half-turn sine-table offset used for the vertical magnitude.</summary>
     private const ushort MultiviolaSineOffset = 0x0080;
+    /// <summary>Angle bits toggled after collision with a vertical surface.</summary>
     private const ushort MultiviolaHorizontalReflection = 0x0040;
+    /// <summary>Angle bits toggled after collision with a horizontal surface.</summary>
     private const ushort MultiviolaVerticalReflection = 0x00c0;
 
+    /// <summary>Per-slot velocity state created during Multiviola initialization.</summary>
     internal readonly MultiviolaEnemyState?[] _multiviolaStates =
         new MultiviolaEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -117,14 +124,17 @@ internal sealed class MultiviolaBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithY(NativeMultiviolaNegate(state.Velocity.Y));
     }
 
+    /// <summary>Applies the native separate-word complement and fractional increment, including its missing carry.</summary>
     private static SnesSignedSixteenSixteen NativeMultiviolaNegate(SnesSignedSixteenSixteen axis) =>
         SnesSignedSixteenSixteen.FromParts(
             unchecked((short)~axis.WholeWord), unchecked((ushort)(~axis.Fraction + 1)));
 
+    /// <summary>Gets the initialized state for an enemy slot or reports a missing room-load setup.</summary>
     private MultiviolaEnemyState RequireMultiviolaState(RoomEnemySlot slot) =>
         _multiviolaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Multiviola state.");
 
+    /// <summary>Registers bank $A2 initialization only for the Multiviola enemy definition.</summary>
     internal void RegisterMultiviolaInitializationAi(EnemyAiTable table)
     {
 
@@ -134,6 +144,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers bank $A2 movement dispatch for active Multiviola slots.</summary>
     internal void RegisterMultiviolaMainAi(EnemyAiTable table)
     {
 

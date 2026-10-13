@@ -69,7 +69,22 @@ internal static class RoomPlmStationDrawDefinitions
         StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended,
     ];
 
-    internal enum LayoutKind { Map, Energy, Missile, Save, MapAccess, ResourceAccess }
+    /// <summary>Station families with distinct native run geometry and collision words.</summary>
+    internal enum LayoutKind
+    {
+        /// <summary>Two horizontal display cells, with tile identity advancing by 32 per frame.</summary>
+        Map,
+        /// <summary>Vertical refill display whose upper cell is a slope.</summary>
+        Energy,
+        /// <summary>Vertical ammunition display whose upper cell is a slope.</summary>
+        Missile,
+        /// <summary>Six two-cell rows from the save-pod floor through its cap.</summary>
+        Save,
+        /// <summary>Side-selectable map access cells with retracted and extended poses.</summary>
+        MapAccess,
+        /// <summary>Side-selectable resource access cell whose extension changes collision.</summary>
+        ResourceAccess,
+    }
 
     /// <summary>
     /// Native station runs are horizontal. Map displays write origin then left;
@@ -85,6 +100,7 @@ internal static class RoomPlmStationDrawDefinitions
     /// </summary>
     internal readonly record struct Draw(StationDraw Pointer, LayoutKind Kind, int Frame, bool Left = false, bool Extended = false)
     {
+        /// <summary>Number of origin-relative draw runs for this station layout and extension state.</summary>
         internal int RunCount => Kind switch
         {
             LayoutKind.Save => 6,
@@ -93,11 +109,14 @@ internal static class RoomPlmStationDrawDefinitions
             LayoutKind.Map or LayoutKind.Energy or LayoutKind.Missile => 2,
             _ => throw new InvalidOperationException($"Undefined LayoutKind {Kind}."),
         };
+        /// <summary>Rejects a run outside this layout's native command count.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
+        /// <summary>Save rows write two adjacent cells; other station runs write one.</summary>
         internal int WordCount(int run) { CheckRun(run); return Kind == LayoutKind.Save ? 2 : 1; }
+        /// <summary>Horizontal origin-relative offset for the next run, including map leftward and access-side spacing.</summary>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
@@ -105,12 +124,14 @@ internal static class RoomPlmStationDrawDefinitions
             return Kind == LayoutKind.Map ? (sbyte)-1 : Kind == LayoutKind.MapAccess && !Extended
                 ? Left ? (sbyte)3 : (sbyte)-3 : (sbyte)0;
         }
+        /// <summary>Vertical origin-relative offset for save rows and resource upper cells.</summary>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
             return Kind == LayoutKind.Save ? run < 5 ? (sbyte)(-run - 1) : (sbyte)0
                 : Kind is LayoutKind.Energy or LayoutKind.Missile && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
+        /// <summary>Builds one native level word from the station's frame, tile, flip, and collision rules.</summary>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -177,6 +198,7 @@ internal static class RoomPlmStationDrawDefinitions
         };
         return true;
     }
+    /// <summary>Calculates the twenty complete native station lists in published enumeration order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -188,7 +210,7 @@ internal static class RoomPlmStationDrawDefinitions
             }
         }
     }
-    // Temporary artwork DTOs; runtime draws calculate cells directly.
+    /// <summary>Constructs a temporary artwork draw-list DTO for a station pointer; runtime drawing calculates cells directly.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -235,6 +257,7 @@ internal static class RoomPlmStationDrawDefinitions
             _ => throw new InvalidOperationException($"Undefined station draw list ${pointer:X4}."),
         };
 
+    /// <summary>Finds a station draw list by its stable artwork identity rather than native pointer.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

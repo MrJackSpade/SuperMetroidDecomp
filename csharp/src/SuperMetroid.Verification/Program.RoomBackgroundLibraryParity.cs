@@ -8,13 +8,9 @@ using static LibraryBackgroundProgramsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Retail and synthetic checks for installed library-background command execution.</summary>
 internal static class RoomBackgroundLibraryParityVerification
 {
-    /// <summary>
-    /// Exercise every cartridge-authored background list, including each door-gated
-    /// transfer. Matching one representative list does not prove that an installed
-    /// sky page or tilemap is selected by all the other native command paths.
-    /// </summary>
     /// <summary>
     /// Compares the <paramref name="length"/> bank-$7E bytes a decompress-to-WRAM command wrote at its
     /// cartridge-authored <paramref name="destination"/> after native and installed execution.
@@ -30,6 +26,7 @@ internal static class RoomBackgroundLibraryParityVerification
                 $"library background $8F:{listPointer:X4} WRAM byte {offset}");
     }
 
+    /// <summary>Runs every authored background list and door-gated transfer, comparing installed VRAM and WRAM against native execution.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLibraryBackgroundInstalledParity(
         string sourceRom, GameInstallation installed)
@@ -186,10 +183,12 @@ internal static class RoomBackgroundLibraryParityVerification
             "installed-art binding retains WRAM background transfer high byte");
     }
 
+    /// <summary>Rejects any attempt to interpret an uncompiled high bank-$8F command list.</summary>
     private static CartridgeReadGuard NewLibraryBackgroundUnknownListReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x8ff000 and <= 0x8fffff,
             address => $"Installed background interpreted unknown list at ${address:X6}.");
 
+    /// <summary>Rejects compiled command-list and visual-source reads during installed background execution.</summary>
     private static MutableCartridgeReadGuard NewLibraryBackgroundVisualReadGuard(
         ISnesAddressSpace source, IReadOnlyList<LibraryBackgroundSource> entries)
     {

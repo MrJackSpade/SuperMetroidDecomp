@@ -16,8 +16,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks extracted staff-credit rows, playback cadence, and installed text overrides.</summary>
 internal static class CreditsPresentationVerification
 {
+    /// <summary>Compares every native credit row and exercises runtime scrolling and strict JSON validation.</summary>
     internal static void VerifyCreditsPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -94,6 +96,7 @@ internal static class CreditsPresentationVerification
             "runtime cadence, overrides and strict validation pass.");
     }
 
+    /// <summary>Mutates a valid credit document and checks that loading rejects the specified invalid case.</summary>
     private static void VerifyBadCreditDocument(byte[] extracted,
         Action<JsonObject> mutate, string identity)
     {
@@ -105,6 +108,7 @@ internal static class CreditsPresentationVerification
             new MemoryStream(bytes, writable: false)), identity);
     }
 
+    /// <summary>Checks override selection, content identity, stock restoration, and corrupt override rejection.</summary>
     internal static void VerifyStaffCreditsAssets(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original)
     {
@@ -143,6 +147,7 @@ internal static class CreditsPresentationVerification
             "corrupt staff-credit override fails without stock fallback");
     }
 
+    /// <summary>Dispatches the cartridge-backed credits presentation verification command.</summary>
     [VerificationCommand("--credits-presentation")]
     internal static int CreditsPresentationCommand()
     {

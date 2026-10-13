@@ -16,12 +16,15 @@ using static DoorDefinitionsVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Noob Tube crack, shard, and released-air-bubble programs through their complete projectile lifetimes.</summary>
 internal static class NoobTubeProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge oracle for Noob Tube projectile instruction verification.</summary>
     internal static void VerifyNoobTubeProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyNoobTubeProjectileInstructionProgramDefinitions), () => VerifyNoobTubeProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Compares 207 mechanics words and 90 visual operands, then exercises all burst parameters with runtime cartridge reads guarded.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Noob Tube projectile instruction program definitions")]
     internal static void VerifyNoobTubeProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -203,6 +206,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
         }
     }
 
+    /// <summary>Consumes warmed crack and bubble mechanics words for a lookup allocation check.</summary>
     private static int ProbeNoobTubeProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -216,6 +220,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
         return checksum;
     }
 
+    /// <summary>Forbids private and shared projectile mechanics reads while observing visual operand reads.</summary>
     private static CartridgeReadGuard NewNoobTubeProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => NoobTubeProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -223,6 +228,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
                 address => $"Production read compiled n00b-tube mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, NoobTubeProjectileInstructionProgramDefinitions.PresentationWordCount, NoobTubeProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Noob Tube projectile instruction check against the local retail cartridge.</summary>
     [VerificationCommand("--noob-tube-projectile-instruction-mechanics")]
     internal static int NoobTubeProjectileInstructionMechanicsCommand()
     {

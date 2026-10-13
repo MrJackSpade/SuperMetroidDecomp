@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Work Robot laser animation for all five projectile directions.</summary>
 internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for laser mechanics comparison.</summary>
     internal static void VerifyWorkRobotLaserInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWorkRobotLaserInstructionProgramDefinitions), () => VerifyWorkRobotLaserInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs real laser spawns through their prefix, loop, and shared deletion while guarding mechanics reads.</summary>
     internal static void VerifyWorkRobotLaserInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -150,6 +153,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates prefix and loop instruction words to detect allocation in warmed lookups.</summary>
     private static int ProbeWorkRobotLaserInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -163,6 +167,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects runtime mechanics reads and records any cartridge presentation operand accesses.</summary>
     private static CartridgeReadGuard NewWorkRobotLaserInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => WorkRobotLaserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -170,6 +175,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
                 address => $"Production read compiled Work Robot laser mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount, WorkRobotLaserInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Work Robot laser instruction check from the command dispatcher.</summary>
     [VerificationCommand("--work-robot-laser-instruction-mechanics")]
     internal static int WorkRobotLaserInstructionMechanicsCommand()
     {

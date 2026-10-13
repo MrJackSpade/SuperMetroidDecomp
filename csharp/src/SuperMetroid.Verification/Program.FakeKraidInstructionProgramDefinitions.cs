@@ -17,14 +17,17 @@ using static FakeKraidProgramMappingsVerification;
 using static KraidVisualSelectorsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Mini Kraid's six live bank-$A6 programs and calculated action and visual selectors.</summary>
 internal static class FakeKraidInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge oracle for Fake Kraid instruction verification.</summary>
     internal static void VerifyFakeKraidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFakeKraidInstructionProgramDefinitions), () => VerifyFakeKraidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Exercises both initial facings, four walk lists, and two spit lists with compiled mechanics and visual reads denied.</summary>
     internal static void VerifyFakeKraidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -205,9 +208,11 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Reads native bank-$A6 bytes only for the independent instruction comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid instruction program definitions")]
     private static byte FakeKraidInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Consumes warmed walking mechanics words to check per-frame lookup allocation.</summary>
     private static int ProbeFakeKraidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -219,12 +224,14 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads a native Fake Kraid instruction word for cartridge-side mapping checks.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid instruction words")]
     internal static ushort ReadFakeKraidInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>Recognizes both bytes of each installed bank-$A6 Fake Kraid spritemap selector.</summary>
     private static bool IsFakeKraidSelectorByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa60000)
@@ -239,6 +246,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         return false;
     }
 
+    /// <summary>Runs the Fake Kraid instruction check against the local retail cartridge.</summary>
     [VerificationCommand("--fake-kraid-instruction-mechanics")]
     internal static int FakeKraidInstructionMechanicsCommand()
     {

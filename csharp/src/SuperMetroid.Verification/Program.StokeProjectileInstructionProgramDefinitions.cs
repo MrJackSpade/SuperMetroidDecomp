@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks both Stoke projectile directions against compiled animation and deletion instructions.</summary>
 internal static class StokeProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Loads the retail cartridge for Stoke projectile instruction comparison.</summary>
     internal static void VerifyStokeProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyStokeProjectileInstructionProgramDefinitions), () => VerifyStokeProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Runs real spawns through their two-frame loop and shared shot deletion under a mechanics read guard.</summary>
     internal static void VerifyStokeProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -136,6 +139,7 @@ internal static class StokeProjectileInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Alternates the compiled start and loop words to detect allocation during repeated lookups.</summary>
     private static int ProbeStokeProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -149,6 +153,7 @@ internal static class StokeProjectileInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Rejects live Stoke and shared-delete mechanics reads while observing sprite operands.</summary>
     private static CartridgeReadGuard NewStokeProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => StokeProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -156,6 +161,7 @@ internal static class StokeProjectileInstructionProgramDefinitionsVerification
                 address => $"Production read compiled Stoke-projectile mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, StokeProjectileInstructionProgramDefinitions.PresentationWordCount, StokeProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Runs the Stoke projectile program check from the command dispatcher.</summary>
     [VerificationCommand("--stoke-projectile-instruction-mechanics")]
     internal static int StokeProjectileInstructionMechanicsCommand()
     {

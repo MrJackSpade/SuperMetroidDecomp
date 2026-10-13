@@ -9,8 +9,10 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>Checks cartridge-encoding diagnostics and baseline ratchets against small C# source fixtures.</summary>
 internal static class CartridgeEncodingAnalyzerTests
 {
+    /// <summary>Stable temporary root used to give fixture sources repository-relative paths.</summary>
     private static readonly string EncodingRoot = Path.Combine(Path.GetTempPath(), "cartridge-encoding-case");
 
     /// <summary>#641 cartridge-encoding ratchet: positive and negative cases for each diagnostic.</summary>
@@ -137,10 +139,13 @@ internal static class CartridgeEncodingAnalyzerTests
         }
     }
 
+    /// <summary>Supplies an in-memory encoding baseline to a Roslyn analyzer fixture.</summary>
     internal sealed class MemoryAdditionalText(string path, string content) : AdditionalText
     {
+        /// <summary>Gets the synthetic additional-file path used for baseline discovery.</summary>
         public override string Path { get; } = path;
 
+        /// <summary>Returns the fixture baseline content without filesystem access.</summary>
         public override SourceText GetText(CancellationToken cancellationToken = default) => SourceText.From(content);
     }
 }

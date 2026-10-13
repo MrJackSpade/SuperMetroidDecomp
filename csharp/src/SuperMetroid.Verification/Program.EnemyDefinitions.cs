@@ -15,8 +15,10 @@ using static AssertionsVerification;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled enemy headers and auxiliary Mother Brain tube placements against retail records.</summary>
 internal static class EnemyDefinitionsVerification
 {
+    /// <summary>Walks room populations and graphics sets to establish exact coverage of all referenced enemy headers.</summary>
     internal static void VerifyCompiledEnemyDefinitions()
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -93,6 +95,7 @@ internal static class EnemyDefinitionsVerification
             "cartridge parsing is isolated in the importer.");
     }
 
+    /// <summary>Compares five tube population records and checks production spawns plus an authored fixture override.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain falling tube population definitions")]
     internal static void VerifyMotherBrainFallingTubePopulationDefinitions(
         ISnesAddressSpace rom)
@@ -154,6 +157,7 @@ internal static class EnemyDefinitionsVerification
             "spawns and one independent constructed placement pass.");
     }
 
+    /// <summary>Decodes all 33 native enemy header fields directly from bank $A0 for comparison with compiled catalogs.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for native enemy definition records")]
     internal static RoomEnemyDefinition ReadNativeEnemyDefinition(
         ISnesAddressSpace bus, EnemyDefinitionId pointer)
@@ -164,6 +168,7 @@ internal static class EnemyDefinitionsVerification
         return new RoomEnemyDefinition(Word(0), Word(2), Word(4), Word(6), new(Word(8), Word(10)), Byte(12), Byte(13), Word(14), Word(16), Word(18), Word(20), Word(22), Word(24), ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32), Word(34), Word(36), Word(38), Word(40), Word(42), Word(44), Word(46), Word(48), Word(50), Word(52), Word(54) | Byte(56) << 16, Byte(57), Word(58), Word(60), Word(62));
     }
 
+    /// <summary>Runs enemy header coverage and tube placement checks from the command dispatcher.</summary>
     [VerificationCommand("--enemy-definitions")]
     internal static int EnemyDefinitionsCommand()
     {

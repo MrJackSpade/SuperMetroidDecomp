@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static MapSpritesVerification;
 
+/// <summary>Checks ending reward actor bytecode and calculated Samus sprite compositions against cartridge data.</summary>
 internal static class EndingRewardInstructionsVerification
 {
+    /// <summary>Compares each bank-$8B instruction word and all 37 artwork identities, then steps native and compiled actors through their lists.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward instructions")]
     internal static void VerifyEndingRewardInstructions(ISnesAddressSpace bus)
     {
@@ -100,6 +102,7 @@ internal static class EndingRewardInstructionsVerification
         }
     }
 
+    /// <summary>Checks a reward frame's calculated layout against its extracted composition, including independent edits and OAM clipping.</summary>
     private static void VerifyEndingRewardCalculatedParts(ISnesAddressSpace bus, EndingRewardSpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,

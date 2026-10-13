@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One debugger-readable ordinary slot corresponding to a native even byte index.</summary>
 public sealed class SamusProjectileSlot
 {
+    /// <summary>Associates a host slot with the native parallel-array byte index twice its ordinal.</summary>
     internal SamusProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
     /// <summary>Host slot 0..4; native byte index is this value times two.</summary>
@@ -52,7 +53,7 @@ public sealed class SamusProjectileSlot
     public ushort Variable { get; internal set; }
     /// <summary>WRAM $0CA4: phase word used by Spazer special-attack particles.</summary>
     public SpazerComboPhase AuxiliaryPhase { get; internal set; }
-    /// <summary>Gets the semantic identity of the slot's bank-$90 pre-instruction.</summary>
+    /// <summary>Semantic identity of the slot's bank-$90 pre-instruction.</summary>
     public SamusProjectilePreInstruction PreInstruction { get; internal set; }
 
     /// <summary>Bank-$93 considers a nonzero instruction pointer allocated and drawable.</summary>
@@ -158,6 +159,7 @@ public enum SamusProjectilePreInstruction : byte
 /// </summary>
 public sealed class SamusProjectileTrailSlot
 {
+    /// <summary>Creates independent left and right trail streams for one native allocation slot.</summary>
     internal SamusProjectileTrailSlot(int slotIndex)
     {
         SlotIndex = slotIndex;
@@ -165,13 +167,14 @@ public sealed class SamusProjectileTrailSlot
         Right = new SamusProjectileTrailSide();
     }
 
-    /// <summary>Gets the zero-based host trail-slot index.</summary>
+    /// <summary>Zero-based host trail-slot index.</summary>
     public int SlotIndex { get; }
-    /// <summary>Gets the left-side trail animation state and free-slot timer.</summary>
+    /// <summary>Left-side trail animation state and free-slot timer.</summary>
     public SamusProjectileTrailSide Left { get; }
-    /// <summary>Gets the right-side trail animation state.</summary>
+    /// <summary>Right-side trail animation state.</summary>
     public SamusProjectileTrailSide Right { get; }
 
+    /// <summary>Clears both independent trail streams when the allocation slot is reset.</summary>
     internal void ClearFields()
     {
         Left.ClearFields();
@@ -191,6 +194,7 @@ public sealed class SamusProjectileTrailSide
     /// <summary>Packed tile number and OBJ attributes drawn for this trail side.</summary>
     public ushort TileNumberAttributes { get; internal set; }
 
+    /// <summary>Resets the sprite position, timer, instruction pointer, and OBJ attributes for one trail side.</summary>
     internal void ClearFields()
     {
         Position = Position16<RoomPixels>.Zero;

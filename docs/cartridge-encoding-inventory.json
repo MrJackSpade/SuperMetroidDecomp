@@ -23,21 +23,21 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 31463,
+    "RawHexLiteral": 31457,
     "PointerDispatch": 1143,
-    "OpaqueWordArray": 1126,
-    "CatalogHexLiteral": 99797,
+    "OpaqueWordArray": 1125,
+    "CatalogHexLiteral": 99806,
     "JustifiedHexLiteral": 76,
     "OwnedWidthOperation": 123,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 1,
     "CountdownSelfDecrement": 53,
-    "class:NumericQuantity": 55557,
+    "class:NumericQuantity": 55566,
     "class:DomainIdentity": 6776,
     "class:ComposableBits": 1679,
-    "class:StructuredInstruction": 44212,
+    "class:StructuredInstruction": 44207,
     "class:CartridgeAddress": 24598,
-    "class:Unknown": 963,
+    "class:Unknown": 961,
     "storageWidthMembers": 1760
   },
   "subsystems": [
@@ -3078,16 +3078,16 @@
     {
       "name": "Boss: Phantoon",
       "totals": {
-        "RawHexLiteral": 100,
+        "RawHexLiteral": 98,
         "PointerDispatch": 27,
-        "CatalogHexLiteral": 69,
+        "CatalogHexLiteral": 71,
         "OwnedWidthOperation": 1,
         "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 96,
+        "class:NumericQuantity": 98,
         "class:DomainIdentity": 3,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 76,
-        "class:Unknown": 7,
+        "class:Unknown": 5,
         "storageWidthMembers": 8
       },
       "addressInterpretingTypes": [
@@ -3108,13 +3108,13 @@
           "path": "csharp/src/SuperMetroid.Core/Game/PhantoonBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 68,
+            "RawHexLiteral": 66,
             "CountdownSelfDecrement": 6,
             "class:NumericQuantity": 43,
             "class:DomainIdentity": 3,
             "class:ComposableBits": 20,
             "class:CartridgeAddress": 1,
-            "class:Unknown": 7
+            "class:Unknown": 5
           }
         },
         {
@@ -3214,8 +3214,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/PhantoonSoundDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 3
+            "CatalogHexLiteral": 5,
+            "class:NumericQuantity": 5
           }
         },
         {
@@ -9092,15 +9092,15 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27349,
+        "RawHexLiteral": 27345,
         "PointerDispatch": 378,
-        "OpaqueWordArray": 990,
-        "CatalogHexLiteral": 5563,
+        "OpaqueWordArray": 989,
+        "CatalogHexLiteral": 5570,
         "OwnedWidthOperation": 60,
-        "class:NumericQuantity": 10599,
+        "class:NumericQuantity": 10606,
         "class:DomainIdentity": 635,
         "class:ComposableBits": 564,
-        "class:StructuredInstruction": 14035,
+        "class:StructuredInstruction": 14030,
         "class:CartridgeAddress": 7990,
         "class:Unknown": 517,
         "storageWidthMembers": 303
@@ -11166,8 +11166,8 @@
           "path": "csharp/src/SuperMetroid.Verification/KraidNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 28,
-            "class:NumericQuantity": 28
+            "CatalogHexLiteral": 35,
+            "class:NumericQuantity": 35
           }
         },
         {
@@ -16137,11 +16137,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.KraidSinkSchedule.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 13,
-            "OpaqueWordArray": 1,
+            "RawHexLiteral": 9,
             "class:DomainIdentity": 2,
             "class:ComposableBits": 1,
-            "class:StructuredInstruction": 5,
             "class:CartridgeAddress": 6
           }
         },

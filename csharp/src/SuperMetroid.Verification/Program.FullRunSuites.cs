@@ -220,6 +220,7 @@ using static OceanSkyVerification;
 using static OldTourianEscapeShaftWallVerification;
 using static OperationContractsVerification;
 using static NullContractsVerification;
+using static SpanQueriesVerification;
 using static PaletteFxInstructionCodesVerification;
 using static PauseMapAreaLabelsVerification;
 using static PauseMapArrowsVerification;
@@ -434,6 +435,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyRoomEnemyLoadContracts), () => VerifyRoomEnemyLoadContracts()),
         new(nameof(VerifyOperationContracts), () => VerifyOperationContracts()),
         new(nameof(VerifyNullContracts), () => VerifyNullContracts()),
+        new(nameof(VerifySpanQueries), () => VerifySpanQueries()),
         new(nameof(VerifyAndroidHostPolicies), () => VerifyAndroidHostPolicies()),
         new(nameof(VerifyBoostFloorScroll), () => VerifyBoostFloorScroll()),
         new(nameof(VerifyXrayControls), () => VerifyXrayControls()),

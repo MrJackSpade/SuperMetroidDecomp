@@ -232,7 +232,7 @@ internal static class FileSelectRoomMapVerification
         var system = new Bank80SystemState();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
-        landmarks[(MapLandmarkDefinitions.Bosses(AreaId.Brinstar).First(id => id is not null) ?? throw new InvalidOperationException("Verification requires MapLandmarkDefinitions.Bosses(AreaId.Brinstar).ToArray().First(id => id is not null)."))] = new(32, 40);
+        landmarks[(MapLandmarkDefinitions.Bosses(AreaId.Brinstar).First(id => id is not null) ?? throw new InvalidOperationException("Verification requires a Brinstar boss landmark."))] = new(32, 40);
         var destination = MapLandmarkDefinitions.Elevators(AreaId.Brinstar).First(label =>
             label.Destination == AreaId.Crateria);
         landmarks[destination.Id] = new(96, 112);

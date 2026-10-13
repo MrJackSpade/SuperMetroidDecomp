@@ -62,3 +62,17 @@ Express the contract instead: a non-null type, a checked accessor for lifecycle 
 real behavior (`[NotNullWhen]`, `[MemberNotNull]`, `[NotNull]` on a throwing validator), or an
 integration wrapper that fails with context: `RequiredJson`, `RequiredJsonNodes` and
 `RequiredReflection` in `SuperMetroid.Tooling`.
+
+## Conversion adapters
+
+The build analyzer reports conversions whose only purpose is to reach another operation:
+
+- **SME6390**: a parameterless `ToArray()` that only feeds a LINQ operator. On a sequence, call the operator on the
+  source; on a span or memory, use the `ReadOnlySpanQueries` query that reads it in place (`Any`, `All`, `Count`,
+  `First`, `Single`, `Sum`, and the owned-result `SelectToArray`, `WhereToArray`, `ConcatToArray`, `ToDictionary`).
+- **SME6391**: a parameterless `AsSpan()` before an array's `SequenceEqual`; C# 14 binds the array to the span
+  comparison directly.
+
+A `ToArray()` that is stored, passed, compared through another overload, or that snapshots a reused buffer keeps an
+ownership purpose and is not reported. The code fix removes the adapter where that is unambiguous. Domain transforms
+belong to their owner type, such as `LayeredRenderSnapshot.Without<TLayer>()` and `LayersOf<TLayer>()`.

@@ -10,6 +10,7 @@ using static SuperMetroid.EnsureVerification.PaletteFxContractTests;
 using static SuperMetroid.EnsureVerification.ParameterContractsTests;
 using static SuperMetroid.EnsureVerification.ParameterListAnalyzerTests;
 using static SuperMetroid.EnsureVerification.NullForgivingAnalyzerTests;
+using static SuperMetroid.EnsureVerification.AdapterChainAnalyzerTests;
 using static SuperMetroid.EnsureVerification.PartialTypeAnalyzerTests;
 using static SuperMetroid.EnsureVerification.WordReadAnalyzerTests;
 
@@ -50,6 +51,7 @@ internal static class Program
             VerifyParameterListAnalyzer();
             VerifyPartialTypeAnalyzer();
             VerifyNullForgivingAnalyzer();
+            VerifyAdapterChainAnalyzer();
             VerifyOwnedReflectionAnalyzer();
             VerifyParameterContracts();
             VerifyCartridgeEncodingAnalyzer();

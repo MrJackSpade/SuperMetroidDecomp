@@ -141,6 +141,7 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
 /// <summary>Verification access to the services of a <see cref="RoomEnemySystem"/> (#633).</summary>
 internal static class RoomEnemyServicesAccess
 {
+    /// <summary>Installs a verification service layer around the room's current enemy services while preserving the existing delegate.</summary>
     extension(RoomEnemySystem self)
     {
         /// <summary>The case's own services, installed over whatever <c>Load</c> installed on first use.</summary>

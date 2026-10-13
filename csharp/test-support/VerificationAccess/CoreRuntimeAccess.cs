@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Verification access to <see cref="SuperMetroidRuntime"/> members production does not use.</summary>
 internal static class SuperMetroidRuntimeAccess
 {
+    /// <summary>Provides debugger-only Samus placement, palette setup, and escape-timer tile upload through an initialized runtime.</summary>
     extension(SuperMetroidRuntime self)
     {
 

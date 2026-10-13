@@ -9,8 +9,8 @@ namespace SuperMetroid.EnsureVerification;
 internal static class MemberDocumentationAnalyzerTests
 {
     /// <summary>
-    /// Confirms private static and instance members, fields, and enum values are reported
-    /// when undocumented, while genuine XML comments satisfy the same rule.
+    /// Confirms private static and instance members, fields, enum values, and extension
+    /// blocks are reported when undocumented, while genuine XML comments satisfy the rule.
     /// </summary>
     internal static void VerifyMemberDocumentationAnalyzer()
     {
@@ -34,6 +34,17 @@ internal static class MemberDocumentationAnalyzerTests
                 Documented,
                 Undocumented
             }
+
+            /// <summary>Fixture extensions.</summary>
+            internal static class FixtureExtensions
+            {
+                // A plain comment does not document an extension block.
+                extension(Fixture self)
+                {
+                    /// <summary>Reads a fixture value through an extension.</summary>
+                    internal int DocumentedExtension() => 1;
+                }
+            }
             """;
         var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview));
         var compilation = CSharpCompilation.Create("MemberDocumentationCase", [tree], AnalyzerTests.References,
@@ -49,6 +60,7 @@ internal static class MemberDocumentationAnalyzerTests
         string[] expected = new[]
         {
             "FieldDeclaration needs an XML documentation comment",
+            "ExtensionBlockDeclaration needs an XML documentation comment",
             "Undocumented needs an XML documentation comment",
             "UndocumentedInstance needs an XML documentation comment",
             "UndocumentedStatic needs an XML documentation comment",

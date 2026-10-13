@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Verification access to <see cref="BotwoonWallPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class BotwoonWallPlmProgramDefinitionsAccess
 {
+    /// <summary>Enumerates native Botwoon wall program words for exact ROM ownership checks.</summary>
     extension(BotwoonWallPlmProgramDefinitions)
     {
         /// <summary>Visits crumble timing, draw, and terminal words, then the already-cleared wall list.</summary>
@@ -36,6 +37,7 @@ internal static class BotwoonWallPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="ChozoStatuePlmDefinitions"/> members production does not use.</summary>
 internal static class ChozoStatuePlmDefinitionsAccess
 {
+    /// <summary>Lists the authored Chozo statue PLM definitions used by room population.</summary>
     extension(ChozoStatuePlmDefinitions)
     {
         /// <summary>Enumerate the five semantic spawn cases in the original published order.</summary>
@@ -56,6 +58,7 @@ internal static class ChozoStatuePlmDefinitionsAccess
 /// <summary>Verification access to <see cref="CrocomireArenaPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class CrocomireArenaPlmProgramDefinitionsAccess
 {
+    /// <summary>Enumerates Crocomire arena PLM instruction addresses for retail word comparison.</summary>
     extension(CrocomireArenaPlmProgramDefinitions)
     {
         /// <summary>Visits consecutive compiled words from bridge clearing through the arena program end.</summary>
@@ -70,6 +73,7 @@ internal static class CrocomireArenaPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="DoorClosingPlmRomData"/> members production does not use.</summary>
 internal static class DoorClosingPlmRomDataAccess
 {
+    /// <summary>Resolves a native door-closing header from its encoded orientation.</summary>
     extension(DoorClosingPlmRomData)
     {
         /// <summary>Returns the bank-$84 header selected by a raw orientation byte, or the table's zero word.</summary>
@@ -81,6 +85,7 @@ internal static class DoorClosingPlmRomDataAccess
 /// <summary>Verification access to <see cref="DoorScrollPrograms"/> members production does not use.</summary>
 internal static class DoorScrollProgramsAccess
 {
+    /// <summary>Enumerates the door setup codes that own scroll-change programs.</summary>
     extension(DoorScrollPrograms)
     {
         /// <summary>Original callback catalog order, generated without a stored registration table.</summary>
@@ -173,6 +178,7 @@ internal static class DownwardGatePlmProgramDefinitionsAccess
     /// <summary>$84:BC61: adjacent upward-gate program, outside the downward-gate decoder.</summary>
     private const ushort ResidentEnd = 0xbc61;
 
+    /// <summary>Enumerates downward-gate instruction words and packed sound bytes at their native addresses.</summary>
     extension(DownwardGatePlmProgramDefinitions)
     {
         /// <summary>Visits downward-gate opening and trigger words while excluding adjacent upward-gate code.</summary>
@@ -202,6 +208,7 @@ internal static class DownwardGatePlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="KraidRoomPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class KraidRoomPlmProgramDefinitionsAccess
 {
+    /// <summary>Enumerates Kraid room PLM words for bounded cartridge comparison.</summary>
     extension(KraidRoomPlmProgramDefinitions)
     {
         /// <summary>Visits decoded Kraid ceiling-crumble words across the room PLM interval.</summary>
@@ -217,6 +224,7 @@ internal static class KraidRoomPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="LandingSiteEntryState"/> members production does not use.</summary>
 internal static class LandingSiteEntryStateAccess
 {
+    /// <summary>Loads landing-site entry fixtures from their door pointer and native actor state.</summary>
     extension(LandingSiteEntryState)
     {
         /// <summary>Selects the intro landing-cutscene door and its compiled command-E record.</summary>
@@ -270,6 +278,7 @@ internal static class LandingSiteEntryStateAccess
 /// <summary>Verification access to <see cref="LibraryBackgroundProgramDefinitions"/> members production does not use.</summary>
 internal static class LibraryBackgroundProgramDefinitionsAccess
 {
+    /// <summary>Reads a library-background door transfer from its compiled instruction list.</summary>
     extension(LibraryBackgroundProgramDefinitions)
     {
         /// <summary>Finds a command-E transfer for one door in a compiled program.</summary>
@@ -292,6 +301,7 @@ internal static class LibraryBackgroundProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="MotherBrainFakeDeathPlmDrawDefinitions"/> members production does not use.</summary>
 internal static class MotherBrainFakeDeathPlmDrawDefinitionsAccess
 {
+    /// <summary>Resolves a Mother Brain fake-death draw list by native pointer.</summary>
     extension(MotherBrainFakeDeathPlmDrawDefinitions)
     {
         /// <summary>Searches background, regular, then boundary draw families for one native pointer.</summary>
@@ -316,6 +326,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitionsAccess
 /// <summary>Verification access to <see cref="MotherBrainFakeDeathPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class MotherBrainFakeDeathPlmProgramDefinitionsAccess
 {
+    /// <summary>Counts fake-death PLM programs and enumerates their native word addresses.</summary>
     extension(MotherBrainFakeDeathPlmProgramDefinitions)
     {
         /// <summary>Counts fixed-size fake-death PLM programs in the compiled address interval.</summary>
@@ -331,6 +342,7 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="NoobTubePlmProgramDefinitions"/> members production does not use.</summary>
 internal static class NoobTubePlmProgramDefinitionsAccess
 {
+    /// <summary>Enumerates Noob Tube program words and byte operands for cartridge comparison.</summary>
     extension(NoobTubePlmProgramDefinitions)
     {
         /// <summary>Visits main, post-sound, and already-broken Noob Tube control words.</summary>
@@ -355,6 +367,7 @@ internal static class NoobTubePlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="ResidentDoorClosingDefinitions"/> members production does not use.</summary>
 internal static class ResidentDoorClosingDefinitionsAccess
 {
+    /// <summary>Lists resident door-closing records across their orientation variants.</summary>
     extension(ResidentDoorClosingDefinitions)
     {
         /// <summary>Enumerates the twenty supported identities in original header order without cached records.</summary>
@@ -390,6 +403,7 @@ internal static class ResidentDoorClosingDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomCallbackDefinitions"/> members production does not use.</summary>
 internal static class RoomCallbackDefinitionsAccess
 {
+    /// <summary>Converts typed room main and setup callbacks to their native dispatcher pointers.</summary>
     extension(RoomCallbackDefinitions)
     {
         /// <summary>Returns a defined room-main callback's native pointer.</summary>
@@ -407,6 +421,7 @@ internal static class RoomCallbackDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomCollisionBlock"/> members production does not use.</summary>
 internal static class RoomCollisionBlockAccess
 {
+    /// <summary>Extracts the visual tile index from a collision block's packed room word.</summary>
     extension(RoomCollisionBlock self)
     {
         /// <summary>Low ten bits selecting the visual 16×16 block definition.</summary>
@@ -417,6 +432,7 @@ internal static class RoomCollisionBlockAccess
 /// <summary>Verification access to <see cref="RoomLevelData"/> members production does not use.</summary>
 internal static class RoomLevelDataAccess
 {
+    /// <summary>Restores mutable room level entries and behavior data from a fixture snapshot.</summary>
     extension(RoomLevelData self)
     {
         /// <summary>
@@ -460,6 +476,7 @@ internal static class RoomLevelStreamDefinitionsAccess
     private static object InstalledStreams =>
         PrivateState.Property<object>(PrivateState.StaticField<object>(typeof(RoomLevelStreamDefinitions), "Installed"), "Value");
 
+    /// <summary>Inspects installed room-level stream count and source digest.</summary>
     extension(RoomLevelStreamDefinitions)
     {
         /// <summary>Every distinct level-data source referenced by the compiled retail room states.</summary>
@@ -487,6 +504,7 @@ internal static class RoomLevelStreamDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomLevelWord"/> members production does not use.</summary>
 internal static class RoomLevelWordAccess
 {
+    /// <summary>Changes a level word's visual flip bits while preserving its other packed fields.</summary>
     extension(RoomLevelWord self)
     {
         /// <summary>Replaces only the parent-block visual transforms.</summary>
@@ -502,6 +520,7 @@ internal static class RoomLevelWordAccess
 /// <summary>Verification access to <see cref="RoomPlmBlueDoorVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmBlueDoorVisualCatalogAccess
 {
+    /// <summary>Constructs a blue-door visual catalog fixture without requiring installed art.</summary>
     extension(RoomPlmBlueDoorVisualCatalog)
     {
         /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
@@ -512,6 +531,7 @@ internal static class RoomPlmBlueDoorVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmBombBlockProgramDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmBombBlockProgramDefinitionsAccess
 {
+    /// <summary>Enumerates respawning bomb-block instruction words and packed operands.</summary>
     extension(RoomPlmBombBlockProgramDefinitions)
     {
         /// <summary>Visits collision, reaction, frame, terminal, and optional respawn words for each bomb block.</summary>
@@ -549,6 +569,7 @@ internal static class RoomPlmBombBlockProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmBombBlockRestoreDrawDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmBombBlockRestoreDrawDefinitionsAccess
 {
+    /// <summary>Resolves bomb-block restore draw lists by their compiled pointer.</summary>
     extension(RoomPlmBombBlockRestoreDrawDefinitions)
     {
         /// <summary>Converts a recognized bomb-block restore drawing into the shared verifier draw-list form.</summary>
@@ -568,6 +589,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmBombTorizoHandVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmBombTorizoHandVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized Bomb Torizo hand-art fixture for PLM binding checks.</summary>
     extension(RoomPlmBombTorizoHandVisualCatalog)
     {
         /// <summary>Calculate original appearances directly; store only customized frames.</summary>
@@ -578,6 +600,7 @@ internal static class RoomPlmBombTorizoHandVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmBotwoonWallVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmBotwoonWallVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized Botwoon wall-art fixture for PLM binding checks.</summary>
     extension(RoomPlmBotwoonWallVisualCatalog)
     {
         /// <summary>The native stock appearance is the visual part of the calculated
@@ -589,6 +612,7 @@ internal static class RoomPlmBotwoonWallVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmChozoStatueVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmChozoStatueVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized Chozo statue-art fixture for PLM binding checks.</summary>
     extension(RoomPlmChozoStatueVisualCatalog)
     {
         /// <summary>Calculate original appearances directly; store only customized frames.</summary>
@@ -599,6 +623,7 @@ internal static class RoomPlmChozoStatueVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmCollectibleVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmCollectibleVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized collectible-art fixture for PLM binding checks.</summary>
     extension(RoomPlmCollectibleVisualCatalog)
     {
         /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
@@ -609,6 +634,7 @@ internal static class RoomPlmCollectibleVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmColoredDoorVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmColoredDoorVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized colored-door art fixture for PLM binding checks.</summary>
     extension(RoomPlmColoredDoorVisualCatalog)
     {
         /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
@@ -619,6 +645,7 @@ internal static class RoomPlmColoredDoorVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmContactCrumbleProgramDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmContactCrumbleProgramDefinitionsAccess
 {
+    /// <summary>Enumerates contact-crumble mechanics words and packed byte operands.</summary>
     extension(RoomPlmContactCrumbleProgramDefinitions)
     {
         /// <summary>Visits setup, frame, terminal, and optional respawn words for each contact-crumble list.</summary>
@@ -649,6 +676,7 @@ internal static class RoomPlmContactCrumbleProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmContactCrumbleRestoreDrawDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmContactCrumbleRestoreDrawDefinitionsAccess
 {
+    /// <summary>Resolves contact-crumble restoration draw lists by native pointer.</summary>
     extension(RoomPlmContactCrumbleRestoreDrawDefinitions)
     {
         /// <summary>Converts a recognized contact-crumble restore drawing to a verifier draw list.</summary>
@@ -668,6 +696,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmCrocomireVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmCrocomireVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized Crocomire arena-art fixture for PLM binding checks.</summary>
     extension(RoomPlmCrocomireVisualCatalog)
     {
         /// <summary>Calculate stock appearances from the draw geometry; retain only customized frames.</summary>
@@ -678,6 +707,7 @@ internal static class RoomPlmCrocomireVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmDownwardGateVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmDownwardGateVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized downward-gate art fixture for PLM binding checks.</summary>
     extension(RoomPlmDownwardGateVisualCatalog)
     {
         /// <summary>Calculate stock appearances from physical draws; store only customized frames.</summary>
@@ -688,6 +718,7 @@ internal static class RoomPlmDownwardGateVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmDraygonCannonVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmDraygonCannonVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized Draygon cannon-art fixture for PLM binding checks.</summary>
     extension(RoomPlmDraygonCannonVisualCatalog)
     {
         /// <summary>Calculate original appearances directly; store only customized frames.</summary>
@@ -698,6 +729,7 @@ internal static class RoomPlmDraygonCannonVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmDynamicCollectibleArtCatalog"/> members production does not use.</summary>
 internal static class RoomPlmDynamicCollectibleArtCatalogAccess
 {
+    /// <summary>Creates an uninitialized dynamic collectible-art fixture for PLM binding checks.</summary>
     extension(RoomPlmDynamicCollectibleArtCatalog)
     {
         /// <summary>Resolve stock directly; retain only customized item artwork.</summary>
@@ -708,6 +740,7 @@ internal static class RoomPlmDynamicCollectibleArtCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmElevatorPlatformVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmElevatorPlatformVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized elevator-platform art fixture for PLM binding checks.</summary>
     extension(RoomPlmElevatorPlatformVisualCatalog)
     {
         /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
@@ -718,6 +751,7 @@ internal static class RoomPlmElevatorPlatformVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmEscapeGateVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmEscapeGateVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized escape-gate art fixture for PLM binding checks.</summary>
     extension(RoomPlmEscapeGateVisualCatalog)
     {
         /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
@@ -728,6 +762,7 @@ internal static class RoomPlmEscapeGateVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmEyeDoorVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmEyeDoorVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized eye-door art fixture for PLM binding checks.</summary>
     extension(RoomPlmEyeDoorVisualCatalog)
     {
         /// <summary>Calculate stock visuals directly; retain only customized frames.</summary>
@@ -738,6 +773,7 @@ internal static class RoomPlmEyeDoorVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmGrappleBlockProgramDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmGrappleBlockProgramDefinitionsAccess
 {
+    /// <summary>Enumerates grapple-block program words and packed operands at retail addresses.</summary>
     extension(RoomPlmGrappleBlockProgramDefinitions)
     {
         /// <summary>Visits setup, frame, terminal, and optional respawn words for grapple blocks.</summary>
@@ -771,6 +807,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmGrappleBlockVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmGrappleBlockVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized grapple-block art fixture for PLM binding checks.</summary>
     extension(RoomPlmGrappleBlockVisualCatalog)
     {
         /// <summary>Stock visuals use the calculated draw word without storing derived entries.</summary>
@@ -781,6 +818,7 @@ internal static class RoomPlmGrappleBlockVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmGreyDoorVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmGreyDoorVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized grey-door art fixture for PLM binding checks.</summary>
     extension(RoomPlmGreyDoorVisualCatalog)
     {
         /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
@@ -791,6 +829,7 @@ internal static class RoomPlmGreyDoorVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmKraidVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmKraidVisualCatalogAccess
 {
+    /// <summary>Builds the Kraid room-art fixture from its explicit compiled visual parts.</summary>
     extension(RoomPlmKraidVisualCatalog)
     {
         /// <summary>Builds stock Kraid PLM art from the visual bits of its physical draw words.</summary>
@@ -807,6 +846,7 @@ internal static class RoomPlmKraidVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmLinkedRestoreVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmLinkedRestoreVisualCatalogAccess
 {
+    /// <summary>Creates an uninitialized linked-block restoration art fixture for PLM binding checks.</summary>
     extension(RoomPlmLinkedRestoreVisualCatalog)
     {
         /// <summary>Stock words are calculated from the physical draw's visual portion.</summary>
@@ -817,6 +857,7 @@ internal static class RoomPlmLinkedRestoreVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmMaridiaElevatubeVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmMaridiaElevatubeVisualCatalogAccess
 {
+    /// <summary>Builds the elevatube's stock visual from its single physical level word.</summary>
     extension(RoomPlmMaridiaElevatubeVisualCatalog)
     {
         /// <summary>Builds the stock elevatube appearance from its single physical level word.</summary>
@@ -830,6 +871,7 @@ internal static class RoomPlmMaridiaElevatubeVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmMotherBrainFakeDeathVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmMotherBrainFakeDeathVisualCatalogAccess
 {
+    /// <summary>Uses physical fake-death cells as stock art without a second stored draw cache.</summary>
     extension(RoomPlmMotherBrainFakeDeathVisualCatalog)
     {
         /// <summary>Project stock appearance from physical cells without a duplicate stock cache.</summary>
@@ -840,6 +882,7 @@ internal static class RoomPlmMotherBrainFakeDeathVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmMotherBrainGlassVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmMotherBrainGlassVisualCatalogAccess
 {
+    /// <summary>Leaves Mother Brain glass stock cells calculated while allowing custom frame bindings.</summary>
     extension(RoomPlmMotherBrainGlassVisualCatalog)
     {
         /// <summary>Calculate original appearances directly; store only customized frames.</summary>
@@ -850,6 +893,7 @@ internal static class RoomPlmMotherBrainGlassVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmNoobTubeVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmNoobTubeVisualCatalogAccess
 {
+    /// <summary>Leaves Noob Tube stock cells calculated while allowing custom breakage frames.</summary>
     extension(RoomPlmNoobTubeVisualCatalog)
     {
         /// <summary>Calculate original appearances directly; store only customized frames.</summary>
@@ -860,6 +904,7 @@ internal static class RoomPlmNoobTubeVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmPopulationDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmPopulationDefinitionsAccess
 {
+    /// <summary>Scans bank-$84 header pointers accepted by the room PLM population loader.</summary>
     extension(RoomPlmPopulationDefinitions)
     {
         /// <summary>Scans bank-offset values for PLM headers accepted by the room population loader.</summary>
@@ -878,6 +923,7 @@ internal static class RoomPlmPopulationDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmSamusEaterVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmSamusEaterVisualCatalogAccess
 {
+    /// <summary>Derives Samus Eater stock appearance from physical draw words without caching art.</summary>
     extension(RoomPlmSamusEaterVisualCatalog)
     {
         /// <summary>Stock appearance is calculated from the physical draw's visual bits without a cache.</summary>
@@ -888,6 +934,7 @@ internal static class RoomPlmSamusEaterVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmScrollProgramDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmScrollProgramDefinitionsAccess
 {
+    /// <summary>Finds authored scroll programs and projects their direct writes into legacy byte format.</summary>
     extension(RoomPlmScrollProgramDefinitions)
     {
         /// <summary>Scans bank-offset values for decoded scroll-state PLM programs.</summary>
@@ -914,6 +961,7 @@ internal static class RoomPlmScrollProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmShotBlockProgramDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmShotBlockProgramDefinitionsAccess
 {
+    /// <summary>Enumerates shot-block setup, frame, and terminal mechanics addresses separately from draw operands.</summary>
     extension(RoomPlmShotBlockProgramDefinitions)
     {
         /// <summary>All authored control-word addresses, excluding draw-list operands.</summary>
@@ -942,6 +990,7 @@ internal static class RoomPlmShotBlockProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmShotBlockVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmShotBlockVisualCatalogAccess
 {
+    /// <summary>Uses native shot-block draws as the stock visual selection without an installed override.</summary>
     extension(RoomPlmShotBlockVisualCatalog)
     {
         /// <summary>Native visual selections, useful when no installed override is present.</summary>
@@ -952,6 +1001,7 @@ internal static class RoomPlmShotBlockVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmSpeedBoosterVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmSpeedBoosterVisualCatalogAccess
 {
+    /// <summary>Builds bomb-reveal speed-block art from the first physical draw word's visual bits.</summary>
     extension(RoomPlmSpeedBoosterVisualCatalog)
     {
         /// <summary>Builds the bomb-reveal visual from the first physical speed-block draw word.</summary>
@@ -966,6 +1016,7 @@ internal static class RoomPlmSpeedBoosterVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmSporeSpawnCeilingVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmSporeSpawnCeilingVisualCatalogAccess
 {
+    /// <summary>Calculates stock ceiling-crumble squares from their physical draw words.</summary>
     extension(RoomPlmSporeSpawnCeilingVisualCatalog)
     {
         /// <summary>Calculate each stock square from its physical draw word; retain only custom artwork.</summary>
@@ -976,6 +1027,7 @@ internal static class RoomPlmSporeSpawnCeilingVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmStationVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmStationVisualCatalogAccess
 {
+    /// <summary>Calculates station stock appearances while retaining only customized frames.</summary>
     extension(RoomPlmStationVisualCatalog)
     {
         /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
@@ -986,6 +1038,7 @@ internal static class RoomPlmStationVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmSystem"/> members production does not use.</summary>
 internal static class RoomPlmSystemAccess
 {
+    /// <summary>Identifies PLM headers supported by the room population loader and colored-door dispatcher.</summary>
     extension(RoomPlmSystem)
     {
         /// <summary>
@@ -1030,6 +1083,7 @@ internal static class RoomPlmSystemAccess
             PlmHeaderId.RedDoorFacingUp or PlmHeaderId.RedDoorFacingDown;
     }
 
+    /// <summary>Inspects live door, collectible, and glass PLMs and drives scoped PLM verification operations.</summary>
     extension(RoomPlmSystem self)
     {
         /// <summary>Every resident colored-door actor in the shared native PLM pool.</summary>
@@ -1549,6 +1603,7 @@ internal static class RoomPlmSystemAccess
 /// <summary>Verification access to <see cref="RoomPlmTourianAccessVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmTourianAccessVisualCatalogAccess
 {
+    /// <summary>Derives Tourian access-row art from physical draw words, retaining only edited frames.</summary>
     extension(RoomPlmTourianAccessVisualCatalog)
     {
         /// <summary>Calculate stock row appearance from physical draw words; retain only custom artwork.</summary>
@@ -1559,6 +1614,7 @@ internal static class RoomPlmTourianAccessVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomVisualLayoutCatalog"/> members production does not use.</summary>
 internal static class RoomVisualLayoutCatalogAccess
 {
+    /// <summary>Constructs partial room-geometry layouts for focused visual fixtures.</summary>
     extension(RoomVisualLayoutCatalog)
     {
         /// <summary>Explicitly partial geometry fixtures; never an installed production catalog.</summary>
@@ -1571,6 +1627,7 @@ internal static class RoomVisualLayoutCatalogAccess
 /// <summary>Verification access to <see cref="SpeedBoosterBlockPlmDrawDefinitions"/> members production does not use.</summary>
 internal static class SpeedBoosterBlockPlmDrawDefinitionsAccess
 {
+    /// <summary>Resolves the speed-block bomb-reveal draw from its native pointer.</summary>
     extension(SpeedBoosterBlockPlmDrawDefinitions)
     {
         /// <summary>Recognizes the speed-block bomb-reveal draw pointer.</summary>
@@ -1591,6 +1648,7 @@ internal static class SpeedBoosterBlockPlmDrawDefinitionsAccess
 /// <summary>Verification access to <see cref="SpeedBoosterBlockPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class SpeedBoosterBlockPlmProgramDefinitionsAccess
 {
+    /// <summary>Enumerates speed-block reveal, timed frames, terminal commands, and packed setup bytes.</summary>
     extension(SpeedBoosterBlockPlmProgramDefinitions)
     {
         /// <summary>Visits bomb reveal, timed frame, terminal, and optional respawn words.</summary>
@@ -1626,6 +1684,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="SporeSpawnCeilingPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class SporeSpawnCeilingPlmProgramDefinitionsAccess
 {
+    /// <summary>Enumerates ceiling-crumble frame words and its final clear-state list.</summary>
     extension(SporeSpawnCeilingPlmProgramDefinitions)
     {
         /// <summary>Visits ceiling-crumble frame words followed by the clear-state list.</summary>
@@ -1647,6 +1706,7 @@ internal static class SporeSpawnCeilingPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="StationAccessPlmDefinitions"/> members production does not use.</summary>
 internal static class StationAccessPlmDefinitionsAccess
 {
+    /// <summary>Lists map, energy, and missile station access cases in native side/BTS order.</summary>
     extension(StationAccessPlmDefinitions)
     {
         /// <summary>Enumerate the six named station/side cases in their native BTS order.</summary>
@@ -1668,6 +1728,7 @@ internal static class StationAccessPlmDefinitionsAccess
 /// <summary>Verification access to <see cref="StationAnimationProgramDefinitions"/> members production does not use.</summary>
 internal static class StationAnimationProgramDefinitionsAccess
 {
+    /// <summary>Pairs station animation list identities with every frame's native duration and draw word.</summary>
     extension(StationAnimationProgramDefinitions)
     {
         /// <summary>Enumerates the station animation list identities for the native-word audit.</summary>
@@ -1690,6 +1751,7 @@ internal static class StationAnimationProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="TourianAccessPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class TourianAccessPlmProgramDefinitionsAccess
 {
+    /// <summary>Enumerates Tourian access crumble frames and terminal clear commands.</summary>
     extension(TourianAccessPlmProgramDefinitions)
     {
         /// <summary>Visits the Tourian access crumble frames and terminal clear commands.</summary>
@@ -1715,6 +1777,7 @@ internal static class TourianAccessPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="XrayOverlayVisualCatalog"/> members production does not use.</summary>
 internal static class XrayOverlayVisualCatalogAccess
 {
+    /// <summary>Constructs partial X-Ray room overlay catalogs for focused rendering fixtures.</summary>
     extension(XrayOverlayVisualCatalog)
     {
         /// <summary>Explicitly partial room overlays for focused fixtures; never an installed catalog.</summary>
@@ -1727,6 +1790,7 @@ internal static class XrayOverlayVisualCatalogAccess
 /// <summary>Verification access to the cartridge encoding of <see cref="CartridgeDoorOrientation"/>.</summary>
 internal static class CartridgeDoorOrientationAccess
 {
+    /// <summary>Encodes a typed door direction and closing flag into the cartridge's orientation byte.</summary>
     extension(CartridgeDoorOrientation orientation)
     {
         /// <summary>The cartridge byte, as <c>$82:DE2C</c> stores it in <c>DoorDirection</c>.</summary>

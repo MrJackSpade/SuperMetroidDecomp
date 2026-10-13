@@ -38,6 +38,7 @@ public sealed class MemberDocumentationAnalyzer : DiagnosticAnalyzer
             SyntaxKind.InterfaceDeclaration,
             SyntaxKind.RecordDeclaration,
             SyntaxKind.RecordStructDeclaration,
+            SyntaxKind.ExtensionBlockDeclaration,
             SyntaxKind.EnumDeclaration,
             SyntaxKind.DelegateDeclaration,
             SyntaxKind.EnumMemberDeclaration,
@@ -64,6 +65,7 @@ public sealed class MemberDocumentationAnalyzer : DiagnosticAnalyzer
 
         string name = declaration switch
         {
+            ExtensionBlockDeclarationSyntax => "ExtensionBlockDeclaration",
             BaseTypeDeclarationSyntax type => type.Identifier.ValueText,
             DelegateDeclarationSyntax member => member.Identifier.ValueText,
             EnumMemberDeclarationSyntax member => member.Identifier.ValueText,

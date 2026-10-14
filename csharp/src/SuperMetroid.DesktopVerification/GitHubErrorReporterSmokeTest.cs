@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.DesktopVerification;
 

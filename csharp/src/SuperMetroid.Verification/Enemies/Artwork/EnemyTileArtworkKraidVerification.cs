@@ -19,6 +19,8 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

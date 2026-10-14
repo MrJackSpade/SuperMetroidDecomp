@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
@@ -99,7 +98,7 @@ public sealed class PauseEquipmentBasePresentation
     public static PauseEquipmentBasePresentation Load(Stream json)
     {
         PauseEquipmentBaseDocument document;
-        try { document = JsonAssetDocument.Read<PauseEquipmentBaseDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseEquipmentBaseDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Pause equipment base document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause equipment base JSON.", error); }
         if (document.Version != PauseEquipmentBaseDefinitions.Version || document.Cells is null ||
@@ -113,7 +112,7 @@ public sealed class PauseEquipmentBasePresentation
     /// <param name="document">The complete 32-by-32 tile-reference document to serialize.</param>
     public static void Write(Stream output, PauseEquipmentBaseDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
     }
 }

@@ -27,7 +27,7 @@ public static class MenuVramLayout
 
     /// <summary>VMADD $3000-$3FFF: the shared map characters file select and the room map draw with.</summary>
     public static readonly PpuLayoutCell MapCharacters = new(nameof(MapCharacters), PpuLayoutRegion.Vram,
-        FileSelectMapRomData.RoomCharacters, SuperMetroid.Core.Frontend.Map.Artwork.MapTileAtlasFormat.ByteCount / sizeof(ushort), "4-bpp BG characters (map atlas)",
+        FileSelectMapRomData.RoomCharacters, SuperMetroid.Core.Map.Artwork.MapTileAtlasFormat.ByteCount / sizeof(ushort), "4-bpp BG characters (map atlas)",
         PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $5C00-$5FFF (menu BG3SC=$5C): the world map's area-background tilemap.</summary>

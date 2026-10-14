@@ -5,6 +5,7 @@ using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.ResourceAudit.VramDma;
 

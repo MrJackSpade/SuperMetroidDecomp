@@ -1,6 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
@@ -34,7 +34,7 @@ public sealed class TitleGradientPresentation
         {
             document = JsonAssetDocument.Read<TitleGradientDocument>(
                 json,
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
                 ?? throw new InvalidDataException("Title gradient presentation is null.");
         }
         catch (JsonException error)
@@ -90,7 +90,7 @@ public sealed class TitleGradientPresentation
     /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or scanline-value validation.</exception>
     public static void Write(Stream json, TitleGradientDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

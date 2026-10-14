@@ -1,9 +1,8 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend.Menus;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 

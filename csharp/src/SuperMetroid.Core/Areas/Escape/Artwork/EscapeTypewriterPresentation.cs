@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Areas.Escape.Artwork;
 
@@ -56,7 +55,7 @@ public sealed class EscapeTypewriterPresentation
         try
         {
             document = JsonAssetDocument.Read<EscapeTypewriterDocument>(
-                source, MapPresentationFormat.JsonOptions)
+                source, ArtworkJson.Options)
                 ?? throw new InvalidDataException("Escape typewriter document is null.");
         }
         catch (JsonException error)
@@ -132,7 +131,7 @@ public sealed class EscapeTypewriterPresentation
     /// <exception cref="InvalidDataException">The document is null or fails warning-program validation.</exception>
     public static void Write(Stream output, EscapeTypewriterDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

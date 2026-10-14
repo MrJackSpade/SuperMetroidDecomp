@@ -1,5 +1,5 @@
 using System.Text;
-using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Saves;
 
@@ -20,7 +20,7 @@ public static class GameSaveFileStore
     public static GameSaveLoadResult LoadOrMigrate(
         SuperMetroidAddressSpace addressSpace,
         string jsonPath,
-        string legacySramPath, AreaMapPresentationCatalog maps)
+        string legacySramPath, IAreaMapSource maps)
     {
         Ensure.NotNull(addressSpace);
         ArgumentException.ThrowIfNullOrWhiteSpace(jsonPath);
@@ -55,7 +55,7 @@ public static class GameSaveFileStore
     /// <param name="jsonPath">Destination path whose parent directories are created; an existing destination is replaced with its previous contents saved at the same path plus .bak.</param>
     /// <param name="maps">Installed map definitions used to decode SRAM exploration data for JSON.</param>
     /// <remarks>Writes BOM-free UTF-8 to a unique adjacent .tmp file, flushes it to disk, then replaces or moves it into place. Remaining temporary files are deleted in a finally block; filesystem errors propagate.</remarks>
-    public static void WriteAtomic(SuperMetroidAddressSpace addressSpace, string jsonPath, AreaMapPresentationCatalog maps)
+    public static void WriteAtomic(SuperMetroidAddressSpace addressSpace, string jsonPath, IAreaMapSource maps)
     {
         Ensure.NotNull(addressSpace);
         ArgumentException.ThrowIfNullOrWhiteSpace(jsonPath);

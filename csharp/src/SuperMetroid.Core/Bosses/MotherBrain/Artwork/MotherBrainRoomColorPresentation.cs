@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -150,7 +149,7 @@ public sealed class MotherBrainRoomColorPresentation
         MotherBrainRoomColorPresentation? currentStock = null)
     {
         MotherBrainRoomColorDocument document = JsonAssetDocument.Read<MotherBrainRoomColorDocument>(
-            json, MapPresentationFormat.JsonOptions, "Mother Brain room colors");
+            json, ArtworkJson.Options, "Mother Brain room colors");
         if (!Enum.IsDefined((MotherBrainRoomColorRevision)document.Version))
             throw new InvalidDataException("Mother Brain room colors require the supported version and fourteen flash rows.");
         var revision = (MotherBrainRoomColorRevision)document.Version;
@@ -505,7 +504,7 @@ public sealed class MotherBrainRoomColorPresentation
     /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s current-version schema or color validation.</exception>
     public static void Write(Stream json, MotherBrainRoomColorDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

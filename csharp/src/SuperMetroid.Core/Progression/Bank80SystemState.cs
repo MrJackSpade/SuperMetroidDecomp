@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Progression;
 

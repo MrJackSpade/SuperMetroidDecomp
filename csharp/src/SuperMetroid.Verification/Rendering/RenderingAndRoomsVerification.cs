@@ -1,14 +1,12 @@
 using static SuperMetroid.Verification.Rooms.Backgrounds.RoomSkyTilemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -24,6 +22,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RoomHeaderImport;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
 
@@ -72,8 +71,8 @@ internal static void VerifyObjRendering()
     oam.FinalizeFrame();
 
     var pixels = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0);
-    AssertEqual(new SuperMetroid.Core.Assets.Rgba32(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
-    AssertEqual(new SuperMetroid.Core.Assets.Rgba32(0, 0, 0, 0), pixels[20 * 256 + 11], "OBJ color zero transparency");
+    AssertEqual(new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
+    AssertEqual(new SuperMetroid.Core.Hardware.Rgba32(0, 0, 0, 0), pixels[20 * 256 + 11], "OBJ color zero transparency");
 
     // OBJ priority controls only the winning sprite pixel's position relative to BGs.
     // It does not override OAM order when two sprites overlap. Model the Ceres failure
@@ -90,15 +89,15 @@ internal static void VerifyObjRendering()
     Rgba32[] obj3Plane = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0, priority: 3);
     ResolvedObjFrame resolvedObjects = SnesObjRenderer.RenderResolved(oam, vram, cgram, obsel: 0);
     AssertEqual(
-        new SuperMetroid.Core.Assets.Rgba32(255, 0, 0),
+        new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0),
         obj2Plane[20 * 256 + 10],
         "lower-OAM OBJ2 wins cross-priority overlap");
     AssertEqual(
-        new SuperMetroid.Core.Assets.Rgba32(0, 0, 0, 0),
+        new SuperMetroid.Core.Hardware.Rgba32(0, 0, 0, 0),
         obj3Plane[20 * 256 + 10],
         "higher-OAM OBJ3 excluded by cross-priority overlap");
     AssertEqual(
-        new SuperMetroid.Core.Assets.Rgba32(255, 0, 0),
+        new SuperMetroid.Core.Hardware.Rgba32(255, 0, 0),
         resolvedObjects.Pixels[20 * 256 + 10],
         "single-pass resolved OBJ color");
     AssertEqual((byte)2, resolvedObjects.Priorities[20 * 256 + 10], "single-pass resolved OBJ priority");
@@ -287,7 +286,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     var cgram = new SnesCgram();
     cgram.SetColor(5, Bgr555.FromWord(0x03e0));
     var pixels = SnesBgTilemapRenderer.Render2Bpp(vram, cgram, tilemapBaseWord: 0x0100, characterBaseWord: 0, rowCount: 1);
-    AssertEqual(new SuperMetroid.Core.Assets.Rgba32(0, 255, 0), pixels[0], "BG3 tile/palette pixel");
+    AssertEqual(new SuperMetroid.Core.Hardware.Rgba32(0, 255, 0), pixels[0], "BG3 tile/palette pixel");
 
     Console.WriteLine("  HUD: inventory, live minimap coordinates/blink, WRAM upload, and BG3 pixels agree.");
 }

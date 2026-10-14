@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Hud;
 

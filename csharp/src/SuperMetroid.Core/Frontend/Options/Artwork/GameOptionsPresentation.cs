@@ -3,8 +3,8 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Menus;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
 
@@ -198,7 +198,7 @@ public sealed class GameOptionsPresentation
         try
         {
             document = JsonAssetDocument.Read<GameOptionsPresentationDocument>(
-                bytes, MapPresentationFormat.JsonOptions) ??
+                bytes, ArtworkJson.Options) ??
                 throw new InvalidDataException("Options presentation document is null.");
         }
         catch (JsonException error)
@@ -307,7 +307,7 @@ public sealed class GameOptionsPresentation
     /// <exception cref="InvalidDataException">The serialized document fails options-menu presentation validation.</exception>
     public static void Write(Stream output, GameOptionsPresentationDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

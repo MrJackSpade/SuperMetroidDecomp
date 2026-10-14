@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 

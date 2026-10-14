@@ -1,4 +1,4 @@
-using static SuperMetroid.Verification.Input.ControllerInputRecordingVerification;
+using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
 using static SuperMetroid.Verification.Hardware.DmaSourceRoutingVerification;
 using static SuperMetroid.Verification.Areas.Escape.EscapeTimerFloorVerification;
 using static SuperMetroid.Verification.Hardware.QueuedVramAssetsVerification;
@@ -20,6 +20,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 

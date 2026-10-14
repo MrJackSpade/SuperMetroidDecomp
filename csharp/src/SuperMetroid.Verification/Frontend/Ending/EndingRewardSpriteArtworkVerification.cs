@@ -6,10 +6,10 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -57,7 +57,7 @@ internal static class EndingRewardSpriteArtworkVerification
         Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
         EndingRewardSpriteDocument document =
             JsonSerializer.Deserialize<EndingRewardSpriteDocument>(
-                File.ReadAllBytes(stockPath), MapPresentationFormat.JsonOptions) ??
+                File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending reward sprite JSON is empty.");
         string[] editedNames =
             ["suitless-idle-upper", "suitless-hair-1", "suitless-jumping"];

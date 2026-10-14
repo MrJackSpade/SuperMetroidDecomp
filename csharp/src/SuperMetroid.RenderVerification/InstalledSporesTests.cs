@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.RenderVerification;
 using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.FrameCapture;

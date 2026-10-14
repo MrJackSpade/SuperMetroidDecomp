@@ -83,7 +83,7 @@ public sealed class MapPaletteCycle
     public static MapPaletteCycle Load(Stream json)
     {
         MapPaletteCycleDocument document = JsonAssetDocument.Read<MapPaletteCycleDocument>(
-            json, MapPresentationFormat.JsonOptions, "map highlight cycle");
+            json, ArtworkJson.Options, "map highlight cycle");
         if (document.Version != MapPaletteCycleFormat.Version || document.Frames is null ||
             document.Frames.Length is < 1 or > MapPaletteCycleFormat.MaximumFrames)
             throw new InvalidDataException("Map highlight cycle requires version 1 and 1-255 frames.");
@@ -114,7 +114,7 @@ public sealed class MapPaletteCycle
     /// <exception cref="InvalidDataException">The document is null or fails highlight-cycle validation.</exception>
     public static void Write(Stream json, MapPaletteCycleDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Title;
@@ -128,7 +127,7 @@ internal static class TitleGradientVerification
             throw new InvalidDataException("Production title reread compressed graphics or native spritemaps.");
 
         TitleMode7MapDocument spriteDocument = JsonSerializer.Deserialize<TitleMode7MapDocument>(
-            files[TitleGraphicsFormat.Mode7MapFile], MapPresentationFormat.JsonOptions)
+            files[TitleGraphicsFormat.Mode7MapFile], ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted title map document is null.");
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, spriteDocument.Sprites.Length,
             "title extraction covers all cartridge-selected OBJ frames");
@@ -155,7 +154,7 @@ internal static class TitleGradientVerification
         TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Pointer == yearPointer);
         SpriteVisualPart originalPart = year.Parts[0];
         year.Parts[0] = originalPart with { OffsetX = originalPart.OffsetX + 8 };
-        byte[] editedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, MapPresentationFormat.JsonOptions);
+        byte[] editedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
         TitleGraphicsPresentation editedPresentation = TitleGraphicsPresentation.Load(
             new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
             new MemoryStream(editedMap),
@@ -195,7 +194,7 @@ internal static class TitleGradientVerification
         if (!beforeRebind.SequenceEqual(reboundTitle.CaptureRenderSnapshot().Memory.Oam))
             throw new InvalidDataException("Rebinding stock title composition failed to restore the frame.");
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
-        byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, MapPresentationFormat.JsonOptions);
+        byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
         AssertThrows<InvalidDataException>(() => TitleGraphicsPresentation.Load(
             new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
             new MemoryStream(malformedMap),
@@ -346,9 +345,9 @@ internal static class TitleGradientVerification
     {
         TitlePaletteDocument document = JsonSerializer.Deserialize<TitlePaletteDocument>(
             extracted,
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted title palette document is null.");
-        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         void Reject(string description) => AssertThrows<InvalidDataException>(
             () => TitlePalettePresentation.Load(new MemoryStream(Json(), writable: false)),
             description);
@@ -449,9 +448,9 @@ internal static class TitleGradientVerification
     {
         TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(
             extracted,
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted title gradient document is null.");
-        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         void Reject(string description) => AssertThrows<InvalidDataException>(
             () => TitleGradientPresentation.Load(new MemoryStream(Json(), writable: false)),
             description);

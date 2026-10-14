@@ -1,8 +1,10 @@
-using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 
@@ -31,15 +33,41 @@ internal static class InterfacePresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroRinkaSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroScientistSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroScientistSpriteDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresFlightSpritePresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDestructionSpritePresentation.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresFlightSpritePresentation.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresDestructionSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingCloudSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingCompletionTextSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingExplosionSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingLogoSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroCinematicSpriteCompiler.cs")]),
-    ];
+        // Gameplay reads the frontend's atomic map and presentation install through these narrow interfaces; the
+        // catalog is their only implementation, so its map-atomic proof carries over.
+        new("SuperMetroid.Core.Gameplay.IGameplayPresentationContent", "gameplay-content-single-catalog", ["Get", "Resolve"],
+            [new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
+             new("csharp/src/SuperMetroid.Core/Map/IAreaMapSource.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentationCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/AreaId.cs"),
+             new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapPresentationAsset.cs"),
+             new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapStockRules.cs"),
+             new("csharp/src/SuperMetroid.Core/Hud/Artwork/HudTileAtlas.cs"),
+             new("csharp/src/SuperMetroid.Core/Map/Artwork/MapTileAtlas.cs"),
+             new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTimerTileAtlas.cs"),
+             new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTimerGlyphDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBackgroundRomData.cs"),
+             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs")]),        new("SuperMetroid.Core.Map.IAreaMapSource", "area-map-source-single-catalog", ["Get"],
+            [new("csharp/src/SuperMetroid.Core/Map/IAreaMapSource.cs"),
+             new("csharp/src/SuperMetroid.Core/Gameplay/IGameplayPresentationContent.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentationCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/AreaId.cs"),
+             new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapPresentationAsset.cs"),
+             new("csharp/src/SuperMetroid.Core/Map/Artwork/AreaMapStockRules.cs"),
+             new("csharp/src/SuperMetroid.Core/Hud/Artwork/HudTileAtlas.cs"),
+             new("csharp/src/SuperMetroid.Core/Map/Artwork/MapTileAtlas.cs"),
+             new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTimerTileAtlas.cs"),
+             new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTimerGlyphDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBackgroundRomData.cs"),
+             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs")]),    ];
 
     /// <summary>Locates a reviewed production asset source file by its catalog type name.</summary>
 
@@ -54,6 +82,9 @@ internal static class InterfacePresentationContractDefinitions
              (typeof(CeresSceneSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(CeresSceneSpritePresentation).FullName.")), (typeof(EndingCloudSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingCloudSpritePresentation).FullName.")),
              (typeof(EndingCompletionTextSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingCompletionTextSpritePresentation).FullName.")), (typeof(EndingExplosionSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingExplosionSpritePresentation).FullName.")),
              (typeof(EndingLogoSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingLogoSpritePresentation).FullName.")), (typeof(EndingRewardSpritePresentation).FullName ?? throw new InvalidOperationException("Verification requires typeof(EndingRewardSpritePresentation).FullName."))],
+        "SuperMetroid.Core.Gameplay.IGameplayPresentationContent" => [(typeof(AreaMapPresentationCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(AreaMapPresentationCatalog).FullName."))],
+        "SuperMetroid.Core.Map.IAreaMapSource" => [(typeof(AreaMapPresentationCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(AreaMapPresentationCatalog).FullName.")),
+            (typeof(IGameplayPresentationContent).FullName ?? throw new InvalidOperationException("Verification requires typeof(IGameplayPresentationContent).FullName."))],
         _ => null,
     };
 }

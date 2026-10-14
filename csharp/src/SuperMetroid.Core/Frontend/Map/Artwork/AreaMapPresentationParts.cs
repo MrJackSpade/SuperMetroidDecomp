@@ -11,6 +11,8 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 

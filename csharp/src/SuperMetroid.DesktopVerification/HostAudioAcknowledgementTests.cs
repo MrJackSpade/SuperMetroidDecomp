@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.DesktopVerification;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

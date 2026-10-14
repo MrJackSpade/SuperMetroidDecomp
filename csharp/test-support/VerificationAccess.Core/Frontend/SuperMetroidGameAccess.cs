@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Frontend;
 

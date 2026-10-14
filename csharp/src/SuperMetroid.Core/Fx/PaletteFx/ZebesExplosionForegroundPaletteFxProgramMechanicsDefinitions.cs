@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Frontend.Ending;
-
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Immutable mechanics for the wide foreground part of the Zebes explosion.</summary>
@@ -42,8 +40,8 @@ public static class ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = (ColorsPerFrame + 2) * sizeof(ushort);
 
-    /// <summary>The complete one-shot foreground explosion lasts 144 frames.</summary>
-    public const int CycleFrames = EndingExplosionInstructionDefinitions.RightStarInitialHoldTicks;
+    /// <summary>The complete one-shot foreground explosion lasts 144 frames, the ending's $8B:EB71 right-star exposure.</summary>
+    public const int CycleFrames = 144;
 
     /// <summary>$8D:CB40-CBA5: three initial prefix-reveal records; authored reveal-to-hold boundary.</summary>
     private const int InitialRevealRecords = 3;

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Audio;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Frontend;
@@ -10,6 +9,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using System.Diagnostics;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.RenderVerification;
 using SuperMetroid.Core;
 using SuperMetroid.Diagnostics;

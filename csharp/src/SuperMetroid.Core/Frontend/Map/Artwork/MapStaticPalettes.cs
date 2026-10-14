@@ -35,7 +35,7 @@ public sealed class MapStaticPalettes
     public static MapStaticPalettes Load(Stream json)
     {
         MapStaticPalettesDocument document = JsonAssetDocument.Read<MapStaticPalettesDocument>(
-            json, MapPresentationFormat.JsonOptions, "map palettes");
+            json, ArtworkJson.Options, "map palettes");
         if (document.Version != MapStaticPalettesFormat.Version || document.World is null || document.World.Count != AreaIds.RetailCount - 1)
             throw new InvalidDataException("Map palettes require version 1 and the six Zebes world-map selections.");
         var world = new Dictionary<AreaId, Bgr555[]>();
@@ -70,7 +70,7 @@ public sealed class MapStaticPalettes
     /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream json, MapStaticPalettesDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

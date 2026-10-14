@@ -5,6 +5,8 @@ using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.GameOver.Artwork;
 
@@ -79,7 +81,7 @@ internal static class GameOverPresentationVerification
             "game-over parity covers animation, music wait, input and fade");
 
         var document = RequiredJson.Deserialize<GameOverPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions);
+            extracted, ArtworkJson.Options);
         document = document with
         {
             BabyAnchor = new(checked((ushort)(document.BabyAnchor.X + 8)), document.BabyAnchor.Y),
@@ -145,12 +147,12 @@ internal static class GameOverPresentationVerification
             document with { Tilemap = document.Tilemap[..^1] }),
             "game-over rejects incomplete tilemap");
         var missingSprite = RequiredJson.Deserialize<GameOverPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions);
+            extracted, ArtworkJson.Options);
         missingSprite.Sprites.Remove(GameOverPresentationDefinitions.EggFrame);
         AssertThrows<InvalidDataException>(() => GameOverPresentation.Write(Stream.Null, missingSprite),
             "game-over rejects missing named sprite");
         var shortPalette = RequiredJson.Deserialize<GameOverPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions);
+            extracted, ArtworkJson.Options);
         shortPalette.BabyPalettes[GameOverPresentationDefinitions.BabyPaletteName(
             GameOverBabyPalette.OpenCry)] = [0];
         AssertThrows<InvalidDataException>(() => GameOverPresentation.Write(Stream.Null, shortPalette),

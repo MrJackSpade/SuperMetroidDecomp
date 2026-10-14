@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.RenderVerification;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;

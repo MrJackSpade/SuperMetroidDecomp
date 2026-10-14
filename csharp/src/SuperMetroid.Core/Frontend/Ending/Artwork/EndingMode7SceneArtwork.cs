@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -56,7 +55,7 @@ public sealed class EndingMode7SceneArtwork
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         _ = ReadMap(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
@@ -68,7 +67,7 @@ public sealed class EndingMode7SceneArtwork
         try
         {
             document = JsonSerializer.Deserialize<EndingMode7MapDocument>(json,
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
                 ?? throw new InvalidDataException("Ending Mode-7 map JSON is null.");
         }
         catch (JsonException error)

@@ -3,9 +3,9 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -52,7 +52,7 @@ internal static class EndingLogoSpriteArtworkVerification
         string overridePath = Path.Combine(installation.EndingObjectOverrideDirectory, name);
         Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
         EndingLogoSpriteDocument document = JsonSerializer.Deserialize<EndingLogoSpriteDocument>(
-            File.ReadAllBytes(stockPath), MapPresentationFormat.JsonOptions) ??
+            File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending logo sprite JSON is empty.");
         document.Frames["circle-right-3"] = document.Frames["circle-right-3"]
             .Select(part => part with { OffsetX = part.OffsetX + 8 }).ToArray();

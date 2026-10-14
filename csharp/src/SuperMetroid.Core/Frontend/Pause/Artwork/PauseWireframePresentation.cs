@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
@@ -34,7 +33,7 @@ public sealed class PauseWireframePresentation
     public static PauseWireframePresentation Load(Stream json)
     {
         PauseWireframeDocument document;
-        try { document = JsonAssetDocument.Read<PauseWireframeDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseWireframeDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Pause wireframe document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause wireframe JSON.", error); }
         if (document.Version != PauseWireframeDefinitions.Version || document.Frames is null || document.Frames.Count != PauseWireframeDefinitions.Count)
@@ -77,7 +76,7 @@ public sealed class PauseWireframePresentation
     /// <param name="document">Document containing all four complete wireframe variants.</param>
     public static void Write(Stream output, PauseWireframeDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

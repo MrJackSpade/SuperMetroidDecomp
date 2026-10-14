@@ -95,10 +95,13 @@ internal static class ConsumerAudit
         // Draw(), Segment(), Fragment(), LoadTo() and Color() also consume resources.
         // Core also consumes internal draw contracts. Accessibility is not a
         // coverage boundary; inventory instance operations, not just public Get().
-        if (method.IsStatic || !IsResourceType(method.ContainingType)) return;
+        if (method.IsStatic) return;
+        // A reviewed closed contract classifies the call first: it may be reached through a narrow interface that
+        // lives outside the artwork layer (gameplay reads the frontend's map install through IGameplayPresentationContent).
+        if (closedProviders?.TryInspect(call, semantic, method, exports, report, source) == true) return;
+        if (!IsResourceType(method.ContainingType)) return;
         string owner = method.ContainingType.Name + "." + method.Name;
         string arguments = string.Join(", ", call.ArgumentList.Arguments.Select(arg => arg.Expression.ToString()));
-        if (closedProviders?.TryInspect(call, semantic, method, exports, report, source) == true) return;
         string? domain = Domain(method.ContainingType.Name, method.Name);
         string? key = domain is null ? null : ConstantKey(domain, call, semantic);
         if (domain is null || key is null)

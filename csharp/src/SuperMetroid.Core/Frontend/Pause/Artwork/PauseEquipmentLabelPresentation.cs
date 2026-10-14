@@ -2,7 +2,6 @@ using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
@@ -117,7 +116,7 @@ public sealed class PauseEquipmentLabelPresentation
         PauseEquipmentLabelDocument document;
         try
         {
-            document = JsonAssetDocument.Read<PauseEquipmentLabelDocument>(source, MapPresentationFormat.JsonOptions)
+            document = JsonAssetDocument.Read<PauseEquipmentLabelDocument>(source, ArtworkJson.Options)
                 ?? throw new InvalidDataException("Pause equipment label document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause equipment label JSON.", error); }
@@ -183,7 +182,7 @@ public sealed class PauseEquipmentLabelPresentation
     /// <exception cref="InvalidDataException">The serialized document fails the loader's schema, cell, or placement validation.</exception>
     public static void Write(Stream output, PauseEquipmentLabelDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

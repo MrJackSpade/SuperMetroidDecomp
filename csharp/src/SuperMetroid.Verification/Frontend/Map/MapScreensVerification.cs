@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 

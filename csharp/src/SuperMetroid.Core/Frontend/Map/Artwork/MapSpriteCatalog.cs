@@ -107,7 +107,7 @@ public sealed class MapSpriteCatalog
     public static MapSpriteCatalog Load(Stream json, Stream png)
     {
         MapSpriteDocument document;
-        try { document = JsonAssetDocument.Read<MapSpriteDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<MapSpriteDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Map sprite document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map sprite JSON.", error); }
         if (document.Version != MapSpriteFormat.Version || document.Frames is null || document.Frames.Count != MapSpriteDefinitions.Count)

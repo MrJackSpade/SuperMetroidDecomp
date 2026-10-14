@@ -1,7 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Menus;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
@@ -57,7 +56,7 @@ public sealed class PauseSelectorPresentation
     public static PauseSelectorPresentation Load(Stream json)
     {
         PauseSelectorDocument document;
-        try { document = JsonAssetDocument.Read<PauseSelectorDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseSelectorDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Pause selector document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause selector JSON.", error); }
         if (document.Version != PauseSelectorDefinitions.Version || document.InitialDurationTicks is < 1 or > PauseSelectorDefinitions.MaximumDuration ||
@@ -125,7 +124,7 @@ public sealed class PauseSelectorPresentation
     /// <summary>Validates and writes a pause-selector document as JSON.</summary>
     public static void Write(Stream output, PauseSelectorDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
     }
 

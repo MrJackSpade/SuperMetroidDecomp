@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundProgramsVerification;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -15,6 +14,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 using SuperMetroid.Verification.Harness;
 

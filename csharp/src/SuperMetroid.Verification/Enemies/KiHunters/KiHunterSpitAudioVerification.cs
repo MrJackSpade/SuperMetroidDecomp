@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Enemies.KiHunters;
 using SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;

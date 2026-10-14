@@ -3,9 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -67,7 +64,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         RoomPaletteFxPresentation? previousVersionFallback = null)
     {
         RoomPaletteFxPresentationDocument document = JsonAssetDocument.Read<RoomPaletteFxPresentationDocument>(
-            json, MapPresentationFormat.JsonOptions, "room palette-FX presentation");
+            json, ArtworkJson.Options, "room palette-FX presentation");
 
         bool supported = Enum.IsDefined((RoomPaletteFxPresentationRevision)document.Version);
         bool inheritsHeatRows = supported && InheritsHeatRows((RoomPaletteFxPresentationRevision)document.Version);
@@ -599,7 +596,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
             document,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

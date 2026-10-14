@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Verification.Fx;
 

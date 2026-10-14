@@ -1,8 +1,9 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Frontend.Attract;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Runtime.Attract;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
@@ -15,7 +16,7 @@ internal static class AttractDemoSceneImporter
     {
         Ensure.NotNull(bus);
         Ensure.AtLeastZero(scene);
-        if ((uint)set >= AttractDemoRomData.SetCount)
+        if ((uint)set >= DemoSetUnlockRomData.SetCount)
             throw new ArgumentOutOfRangeException(nameof(set));
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         int roomList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoRomData.RoomSetPointers + set * 2);

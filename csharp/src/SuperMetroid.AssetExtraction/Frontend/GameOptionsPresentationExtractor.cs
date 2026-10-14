@@ -5,9 +5,9 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Options;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 

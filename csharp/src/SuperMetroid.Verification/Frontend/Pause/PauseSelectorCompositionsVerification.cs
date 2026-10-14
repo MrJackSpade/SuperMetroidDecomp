@@ -5,7 +5,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -21,7 +20,7 @@ internal static class PauseSelectorCompositionsVerification
     internal static void VerifyPauseSelectorCompositions(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(rom, stock, group);
         AssertEqual(0, stock.StoredCompositionOverrideCount, "stock selector has no phase composition table");
@@ -41,7 +40,7 @@ internal static class PauseSelectorCompositionsVerification
                     var parts = (SpriteVisualPart[])original.Clone(); parts[index] = change;
                     var frames = new Dictionary<string, SpriteVisualPart[]>(document.Frames); frames[name] = parts;
                     var edited = PauseSelectorPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
-                        document with { Frames = frames }, MapPresentationFormat.JsonOptions)));
+                        document with { Frames = frames }, ArtworkJson.Options)));
                     AssertTrue(edited.StoresCompositionParts, "independent selector part edit retained");
                     var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
                     var anchor = edited.Anchor(category, 0);

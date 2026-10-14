@@ -3,9 +3,9 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -41,7 +41,7 @@ internal static class PauseSelectorAnchorsVerification
         Suite(nameof(VerifyPauseLabelIdentityAdmission), () => VerifyPauseLabelIdentityAdmission(rom, expectedNames.Where(entry => entry.category != PauseEquipmentCategory.Reserves).Select(entry => entry.name)
             .Append("Beam.Hyper").ToArray()));
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
         AssertEqual(0, stock.StoredAnchorComponentCount, "stock selector stores no coordinate table");
         Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: true));
@@ -60,7 +60,7 @@ internal static class PauseSelectorAnchorsVerification
     private static void VerifyPauseLabelIdentityAdmission(ISnesAddressSpace rom, string[] names)
     {
         byte[] source = PauseEquipmentLabelExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(source, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(source, ArtworkJson.Options);
         AssertTrue(document.Labels.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(names), "native extractor supplies exact label identities");
         _ = PauseEquipmentLabelPresentation.Load(new MemoryStream(source));
         foreach (string name in names)

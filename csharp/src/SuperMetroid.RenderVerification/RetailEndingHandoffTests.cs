@@ -7,6 +7,7 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.RenderVerification;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;

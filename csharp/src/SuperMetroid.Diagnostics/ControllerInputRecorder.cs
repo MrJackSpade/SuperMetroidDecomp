@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Frontend.Recording;
 
 namespace SuperMetroid.Diagnostics;
 

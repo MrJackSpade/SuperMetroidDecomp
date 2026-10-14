@@ -1,4 +1,4 @@
-using static SuperMetroid.Verification.Frontend.Attract.AttractCaptureTestsVerification;
+using static SuperMetroid.Verification.Runtime.Attract.AttractCaptureTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRenderCaptureTestsVerification;
 using static SuperMetroid.Verification.Runtime.GameplayCaptureIntegrationTestsVerification;
 using SuperMetroid.Core.Hardware;

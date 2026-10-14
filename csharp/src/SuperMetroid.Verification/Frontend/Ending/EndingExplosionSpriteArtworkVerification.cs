@@ -9,7 +9,6 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -253,7 +252,7 @@ internal static class EndingExplosionSpriteArtworkVerification
         Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
         EndingExplosionSpriteDocument document =
             JsonSerializer.Deserialize<EndingExplosionSpriteDocument>(
-                File.ReadAllBytes(stockPath), MapPresentationFormat.JsonOptions) ??
+                File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending explosion sprite JSON is empty.");
         // The starfield remains visible through the explosion, giving the edit a
         // reliable live-frame assertion instead of merely checking an isolated OAM map.

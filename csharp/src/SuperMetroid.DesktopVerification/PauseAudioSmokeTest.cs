@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.SaveMapFixtures;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.DesktopVerification;
 

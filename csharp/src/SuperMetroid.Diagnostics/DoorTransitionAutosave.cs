@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Diagnostics;
 

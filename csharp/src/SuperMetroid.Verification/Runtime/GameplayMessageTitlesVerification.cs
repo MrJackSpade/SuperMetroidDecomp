@@ -4,12 +4,12 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks extracted message-title text against native tilemaps and live presentation rebinding.</summary>
 internal static class GameplayMessageTitlesVerification
@@ -46,7 +46,7 @@ internal static class GameplayMessageTitlesVerification
         JsonObject energy = document.Required("titles").Required(GameplayMessageId.EnergyTank.ToString()).AsObject();
         energy["text"] = "ENERGY TEST";
         byte[] editedBytes = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            MapPresentationFormat.JsonOptions));
+            ArtworkJson.Options));
         GameplayMessageTitlePresentation edited = GameplayMessageTitlePresentation.Load(
             new MemoryStream(editedBytes, writable: false));
 
@@ -70,7 +70,7 @@ internal static class GameplayMessageTitlesVerification
             "restoring stock UTF-8 title restores exact live tilemap");
 
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            MapPresentationFormat.JsonOptions).Replace("ENERGY TEST", "energy test"));
+            ArtworkJson.Options).Replace("ENERGY TEST", "energy test"));
         AssertThrows<InvalidDataException>(() => GameplayMessageTitlePresentation.Load(
             new MemoryStream(malformed, writable: false)),
             "gameplay-message title rejects glyphs absent from its documented font mapping");

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -16,7 +17,7 @@ internal static class PauseSelectorDurationsVerification
     internal static void VerifyPauseSelectorDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(rom, stock));
         AssertEqual(0, stock.StoredDurationCount, "selector stock timing stores no phase values");

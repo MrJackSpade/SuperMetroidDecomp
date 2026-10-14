@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Rendering.Direct3D11;
 

@@ -2,8 +2,8 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
-using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Frontend.Recording;
 namespace SuperMetroid.DesktopVerification;
 using SuperMetroid.Core;
 

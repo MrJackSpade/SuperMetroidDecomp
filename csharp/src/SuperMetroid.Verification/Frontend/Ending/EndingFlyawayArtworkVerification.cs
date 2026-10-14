@@ -3,9 +3,9 @@ using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -63,7 +63,7 @@ internal static class EndingFlyawayArtworkVerification
         using (var input = File.OpenRead(Path.Combine(installation.IntroCinematicDirectory,
                    CeresFlightArtworkFormat.MapFileName)))
             edited = JsonSerializer.Deserialize<CeresFlightMapDocument>(input,
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
                 ?? throw new InvalidDataException("Stock Ceres flight map is empty.");
         edited.FrontTiles[0] = unchecked((byte)(edited.FrontTiles[0] + 1));
         using (var output = File.Create(overridePath))

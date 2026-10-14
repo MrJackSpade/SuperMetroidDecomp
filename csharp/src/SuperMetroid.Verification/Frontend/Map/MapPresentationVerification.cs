@@ -83,6 +83,9 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 
@@ -394,7 +397,7 @@ internal static class MapPresentationVerification
         string source = Path.Combine(stock, MotherBrainRainbowPaletteFormat.FileName);
         MotherBrainRainbowPaletteDocument document =
             JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(
-                File.ReadAllBytes(source), MapPresentationFormat.JsonOptions)
+                File.ReadAllBytes(source), ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted Mother Brain rainbow palette is null.");
         Suite(nameof(VerifyMotherBrainFakeDeathPalette), () => VerifyMotherBrainFakeDeathPalette(bus, original.MotherBrainRainbowPalette));
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.RainbowFrameCount; frame++)
@@ -623,35 +626,35 @@ internal static class MapPresentationVerification
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Rainbow = document.Rainbow.Take(9).ToArray(),
-            }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain rainbow loop");
+            }, ArtworkJson.Options))), "reject truncated Mother Brain rainbow loop");
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 ToGrey = document.ToGrey.Select((item, index) => index == 0 ?
                     item with { TrailingColor = null } : item).ToArray(),
-            }, MapPresentationFormat.JsonOptions))), "reject missing Mother Brain grey trailing color");
+            }, ArtworkJson.Options))), "reject missing Mother Brain grey trailing color");
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Normal = document.Normal with { Body = document.Normal.Body.Take(14).ToArray() },
-            }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain normal palette");
+            }, ArtworkJson.Options))), "reject truncated Mother Brain normal palette");
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 BeamCycle = document.BeamCycle.Take(37).ToArray(),
-            }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain beam color cycle");
+            }, ArtworkJson.Options))), "reject truncated Mother Brain beam color cycle");
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPalettePresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 FakeDeathToGrey = document.FakeDeathToGrey.Take(7).ToArray(),
-            }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain fake-death grey fade");
+            }, ArtworkJson.Options))), "reject truncated Mother Brain fake-death grey fade");
         // Older override documents remain loadable after stock regeneration, with only
         // the newly introduced fake-death colors supplied by the current stock file.
         byte[] legacy = JsonSerializer.SerializeToUtf8Bytes(document with
         {
             Version = (int)MotherBrainRainbowPaletteVersion.PreFakeDeath,
             FakeDeathToGrey = null,
-        }, MapPresentationFormat.JsonOptions);
+        }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, legacy);
         AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(migrated.MotherBrainRainbowPalette.BeamInitialColor !=
@@ -679,7 +682,7 @@ internal static class MapPresentationVerification
         string source = Path.Combine(stock, MotherBrainHealthPaletteFormat.FileName);
         MotherBrainHealthPaletteDocument document =
             JsonSerializer.Deserialize<MotherBrainHealthPaletteDocument>(
-                File.ReadAllBytes(source), MapPresentationFormat.JsonOptions)
+                File.ReadAllBytes(source), ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted Mother Brain health palette is null.");
         MotherBrainHealthPalettePresentation extracted =
             MotherBrainHealthPalettePresentation.Load(new MemoryStream(
@@ -740,18 +743,18 @@ internal static class MapPresentationVerification
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Version = MotherBrainHealthPaletteFormat.Version + 1,
-            }, MapPresentationFormat.JsonOptions))), "reject unsupported Mother Brain palette version");
+            }, ArtworkJson.Options))), "reject unsupported Mother Brain palette version");
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPalettePresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Body = document.Body.Take(3).ToArray(),
-            }, MapPresentationFormat.JsonOptions))), "reject incomplete Mother Brain damage states");
+            }, ArtworkJson.Options))), "reject incomplete Mother Brain damage states");
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPalettePresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 BackLegs = document.BackLegs.Select((colors, index) => index == 0 ?
                     colors.Take(14).ToArray() : colors).ToArray(),
-            }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain rear-leg palette");
+            }, ArtworkJson.Options))), "reject truncated Mother Brain rear-leg palette");
 
         File.Delete(replacement);
         AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stock, overrides);
@@ -773,7 +776,7 @@ internal static class MapPresentationVerification
         RoomPaletteFxPresentationDocument document =
             JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
                 File.ReadAllBytes(source),
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted room palette-FX document is null.");
         PaletteRgb5 color = document.NorfairForegroundAndHeatPhase[0][0];
         document.NorfairForegroundAndHeatPhase[0][0] = color with
@@ -1158,7 +1161,7 @@ internal static class MapPresentationVerification
         string source = Path.Combine(stock, TitleGradientFormat.FileName);
         TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(
             File.ReadAllBytes(source),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted title gradient document is null.");
         foreach (TitleGradientVariant variant in document.Variants)
         {
@@ -1196,7 +1199,7 @@ internal static class MapPresentationVerification
         string source = Path.Combine(stock, TitlePaletteFormat.FileName);
         TitlePaletteDocument document = JsonSerializer.Deserialize<TitlePaletteDocument>(
             File.ReadAllBytes(source),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted title palette document is null.");
         for (int index = 0; index < document.Colors.Length; index++)
         {
@@ -1340,7 +1343,7 @@ internal static class MapPresentationVerification
     {
         string name = TitleGraphicsFormat.Mode7MapFile;
         TitleMode7MapDocument document = JsonSerializer.Deserialize<TitleMode7MapDocument>(
-            File.ReadAllBytes(Path.Combine(stock, name)), MapPresentationFormat.JsonOptions)
+            File.ReadAllBytes(Path.Combine(stock, name)), ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted title layout is null.");
         ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             TitleSequenceRomData.TextSequences.Year.InstructionAddress + 6);

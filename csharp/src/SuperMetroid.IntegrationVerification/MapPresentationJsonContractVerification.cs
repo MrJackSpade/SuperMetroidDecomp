@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.IntegrationVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

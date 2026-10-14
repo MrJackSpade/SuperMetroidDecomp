@@ -5,6 +5,8 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.Diagnostics.Android;
 

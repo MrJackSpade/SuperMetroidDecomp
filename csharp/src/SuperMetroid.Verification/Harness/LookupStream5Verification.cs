@@ -32,7 +32,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -44,6 +43,9 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -1315,7 +1317,7 @@ internal static class LookupStream5Verification
 
         static MapPaletteCycle Check(MapPaletteCycleDocument document)
         {
-            byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+            byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
             var cycle = MapPaletteCycle.Load(new MemoryStream(json, writable: false));
             AssertEqual(document.Frames.Length, cycle.FrameCount, "Custom highlight frame count");
             var cgram = new SnesCgram();
@@ -1939,7 +1941,7 @@ internal static class LookupStream5Verification
         CeresFlightPalette Check()
         {
             var document = new CeresFlightPaletteDocument { Version = 1, Colors = colors };
-            using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
+            using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
             CeresFlightPalette actual = CeresFlightPalette.Load(json);
             var cgram = new SnesCgram(); actual.LoadTo(cgram);
             Span<byte> bytes = stackalloc byte[CgramPalettes.ByteCount]; actual.CopyTransferTo(bytes);

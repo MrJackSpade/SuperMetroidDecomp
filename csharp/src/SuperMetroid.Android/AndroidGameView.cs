@@ -1,11 +1,11 @@
 using Android.Content;
 using Android.Graphics;
 using Android.Views;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using System.Diagnostics;
 using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Android;
 

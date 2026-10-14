@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
@@ -178,7 +177,7 @@ public sealed class PauseReserveUiPresentation
     public static PauseReserveUiPresentation Load(Stream json)
     {
         PauseReserveUiDocument document;
-        try { document = JsonAssetDocument.Read<PauseReserveUiDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseReserveUiDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Pause reserve UI document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause reserve UI JSON.", error); }
         if (document.Version != PauseReserveUiDefinitions.Version || document.Labels is null || document.Labels.Count != 4 ||
@@ -251,7 +250,7 @@ public sealed class PauseReserveUiPresentation
     /// <exception cref="InvalidDataException">The document is null or fails presentation validation.</exception>
     public static void Write(Stream output, PauseReserveUiDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
     }
 

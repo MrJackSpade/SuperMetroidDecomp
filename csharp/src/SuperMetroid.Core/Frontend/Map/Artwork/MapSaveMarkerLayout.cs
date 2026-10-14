@@ -41,7 +41,7 @@ public sealed class MapSaveMarkerLayout
     public static MapSaveMarkerLayout Load(Stream json)
     {
         MapSaveMarkerDocument document;
-        try { document = JsonAssetDocument.Read<MapSaveMarkerDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<MapSaveMarkerDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Save marker layout is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid save marker layout JSON.", error); }
         if (document.Version != MapSaveMarkerFormat.Version || document.Markers is null ||
@@ -66,7 +66,7 @@ public sealed class MapSaveMarkerLayout
     /// <param name="document">Complete editable marker layout to validate and serialize.</param>
     public static void Write(Stream json, MapSaveMarkerDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

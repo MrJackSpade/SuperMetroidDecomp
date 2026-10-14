@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -202,7 +201,7 @@ public sealed class MotherBrainHealthPalettePresentation
     public static MotherBrainHealthPalettePresentation Load(Stream json)
     {
         MotherBrainHealthPaletteDocument document = JsonAssetDocument.Read<MotherBrainHealthPaletteDocument>(
-            json, MapPresentationFormat.JsonOptions, "Mother Brain health palette");
+            json, ArtworkJson.Options, "Mother Brain health palette");
         if (document.Version != MotherBrainHealthPaletteFormat.Version)
             throw new InvalidDataException("Unsupported Mother Brain health palette version.");
         return new(Convert(document.Body, nameof(document.Body)),
@@ -237,7 +236,7 @@ public sealed class MotherBrainHealthPalettePresentation
     /// <exception cref="InvalidDataException">The serialized document is null or fails schema, palette dimensions, or RGB5 channel validation.</exception>
     public static void Write(Stream json, MotherBrainHealthPaletteDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

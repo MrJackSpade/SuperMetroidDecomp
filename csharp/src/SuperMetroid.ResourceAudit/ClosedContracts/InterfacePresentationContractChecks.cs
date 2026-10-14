@@ -6,7 +6,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -21,7 +20,7 @@ internal static class InterfacePresentationContractChecks
         var document = new IntroDiscoveryActorSpriteDocument {
             Version = IntroDiscoveryActorSpriteFormat.Version,
             Frames = IntroDiscoveryActorSpriteDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()) };
-        Stream Json() => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
+        Stream Json() => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
         IntroDiscoveryActorSpritePresentation actor = IntroDiscoveryActorSpritePresentation.Load(Json());
         ((IIntroCinematicSpritePresentation)actor).Draw(IntroDiscoveryActorSpriteDefinitions.Frames[0].Pointer, new OamBuffer(), new(0, 0), 0, true);
         document.Frames.Remove(IntroDiscoveryActorSpriteDefinitions.Frames[0].Name);
@@ -73,7 +72,7 @@ internal static class InterfacePresentationContractChecks
             Require(revoked.Classifications.Count == 1 && revoked.UnresolvedCount == 2 && revoked.Consumers.Count == 3,
                 "a new implementation revokes only its interface proof");
         }
-        const string router = "csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDestructionSpritePresentation.cs";
+        const string router = "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresDestructionSpritePresentation.cs";
         var stale = trees.Select(tree => tree.FilePath == router ? CSharpSyntaxTree.ParseText(tree.GetText().ToString()
             .Replace("? destruction : flight", "? flight : destruction", StringComparison.Ordinal), path: tree.FilePath) : tree);
         Require(Inspect(Compile(stale), true).Classifications.Count == 1, "changed combined-scene routing revokes cinematic closure");

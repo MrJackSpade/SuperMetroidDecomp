@@ -3,7 +3,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -30,6 +29,8 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

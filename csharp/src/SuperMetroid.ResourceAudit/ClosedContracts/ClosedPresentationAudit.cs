@@ -165,13 +165,17 @@ internal sealed class ClosedPresentationAudit
     internal bool TryInspect(InvocationExpressionSyntax call, SemanticModel semantic, IMethodSymbol method,
         ResourceIndex exports, AuditReport report, string location)
     {
-        if (!contracts.TryGetValue((method.ContainingType.ToDisplayString(), method.Name), out var reviewed)) return false;
+        // A call through a reviewed narrow interface (for example IGameplayPresentationContent) is classified by
+        // that receiver's contract, even when the invoked member is inherited from a broader base interface.
+        INamedTypeSymbol provider = Receiver(call, semantic) is { } receiver &&
+            contracts.ContainsKey((receiver.ToDisplayString(), method.Name)) ? receiver : method.ContainingType;
+        if (!contracts.TryGetValue((provider.ToDisplayString(), method.Name), out var reviewed)) return false;
         ClosedPresentationContract contract = reviewed.Contract;
-        string owner = method.ContainingType.Name + "." + method.Name;
+        string owner = provider.Name + "." + method.Name;
         // Record why a recognized provider call cannot be classified under its closed contract.
         void Gap(string reason)
         {
-            report.Gap(method.ContainingType.Name, owner, location, reason);
+            report.Gap(provider.Name, owner, location, reason);
             report.Consumers.Add(new(owner, location, "unresolved"));
         }
         if (!reviewed.Valid)
@@ -184,7 +188,7 @@ internal sealed class ClosedPresentationAudit
             Gap("Closed-provider operation could not be bound.");
             return true;
         }
-        string? invalid = InvalidConstantIndex(operation) ?? PlmVisualDomainAudit.InvalidConstants(operation)
+        string? invalid = InvalidConstantIndex(operation, provider.Name) ?? PlmVisualDomainAudit.InvalidConstants(operation)
             ?? SpecializedColorDomainAudit.InvalidConstants(operation) ?? PausePresentationDomainAudit.InvalidConstants(operation)
             ?? EnemyArtworkDomainAudit.InvalidConstants(operation)
             ?? EnemyDisplayArtworkDomainAudit.InvalidConstants(operation)
@@ -215,11 +219,11 @@ internal sealed class ClosedPresentationAudit
     }
 
     /// <summary>Rejects literal arguments outside the reviewed finite identities or numeric index ranges.</summary>
-    private static string? InvalidConstantIndex(IInvocationOperation operation)
+    private static string? InvalidConstantIndex(IInvocationOperation operation, string provider)
     {
         foreach (IArgumentOperation argument in operation.Arguments)
         {
-            var owner = (Type: operation.TargetMethod.ContainingType.Name,
+            var owner = (Type: provider,
                 Method: operation.TargetMethod.Name, Parameter: (argument.Parameter ?? throw new InvalidOperationException("Verification requires argument.Parameter.")).Name);
             if (argument.Value.ConstantValue is not { HasValue: true, Value: not null } value) continue;
             int[]? identities = ClosedPresentationIdentityDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
@@ -244,6 +248,18 @@ internal sealed class ClosedPresentationAudit
                 return $"Constant {owner.Parameter}={number} is outside the reviewed valid domain {range.Value.Description}.";
         }
         return null;
+    }
+
+    /// <summary>The static type of an invoked member's receiver, including a null-conditional receiver.</summary>
+    private static INamedTypeSymbol? Receiver(InvocationExpressionSyntax call, SemanticModel semantic)
+    {
+        ExpressionSyntax? receiver = call.Expression switch
+        {
+            MemberAccessExpressionSyntax access => access.Expression,
+            MemberBindingExpressionSyntax => call.FirstAncestorOrSelf<ConditionalAccessExpressionSyntax>()?.Expression,
+            _ => null,
+        };
+        return receiver is null ? null : semantic.GetTypeInfo(receiver).Type as INamedTypeSymbol;
     }
 
     /// <summary>Publishes the number of classified consumer calls against registered closed-provider exports.</summary>

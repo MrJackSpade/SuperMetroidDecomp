@@ -1,7 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
@@ -60,7 +59,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     public static TitlePalettePresentation Load(Stream json)
     {
         TitlePaletteDocument document = JsonAssetDocument.Read<TitlePaletteDocument>(
-            json, MapPresentationFormat.JsonOptions, "title palette presentation");
+            json, ArtworkJson.Options, "title palette presentation");
 
         if (document.Version != TitlePaletteFormat.Version ||
             document.Colors is null ||
@@ -162,7 +161,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema, frame-size or RGB5 validation.</exception>
     public static void Write(Stream json, TitlePaletteDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

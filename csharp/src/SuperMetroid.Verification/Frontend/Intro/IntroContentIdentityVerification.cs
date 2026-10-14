@@ -2,12 +2,12 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 

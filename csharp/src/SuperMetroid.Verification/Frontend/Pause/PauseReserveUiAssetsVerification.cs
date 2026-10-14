@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -24,7 +25,7 @@ internal static class PauseReserveUiAssetsVerification
         string stockPath = Path.Combine(stock, PauseReserveUiDefinitions.FileName);
         string path = Path.Combine(overrides, PauseReserveUiDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        var document = RequiredJson.Deserialize<PauseReserveUiDocument>(stockBytes, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseReserveUiDocument>(stockBytes, ArtworkJson.Options);
         var guard = NewPauseReserveUiReadGuard(bus);
 
         var nativeSamus = Samus(); var installedSamus = Samus();

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Areas.Escape.Artwork;
 
@@ -77,7 +76,7 @@ public sealed class EscapeTimerPresentation
         try
         {
             document = JsonAssetDocument.Read<EscapeTimerPresentationDocument>(json,
-                MapPresentationFormat.JsonOptions) ??
+                ArtworkJson.Options) ??
                 throw new InvalidDataException("Escape timer presentation document is null.");
         }
         catch (JsonException error)
@@ -142,7 +141,7 @@ public sealed class EscapeTimerPresentation
     /// <exception cref="InvalidDataException">The serialized document fails the same schema, composition and anchor checks as <see cref="Load"/>.</exception>
     public static void Write(Stream output, EscapeTimerPresentationDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

@@ -1,21 +1,21 @@
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendCompletionVerification;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Areas.Ceres.CeresExplosionVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Areas.Escape.ZebesDescentVerification;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 

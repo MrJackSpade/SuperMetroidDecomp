@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Frontend;
 

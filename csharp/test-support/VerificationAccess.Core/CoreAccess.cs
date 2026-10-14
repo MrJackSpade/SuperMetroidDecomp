@@ -13,7 +13,6 @@ using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -26,6 +25,9 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core;
 

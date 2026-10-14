@@ -10,9 +10,6 @@ using static SuperMetroid.Verification.Frontend.Title.TitleGradientVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
@@ -231,7 +228,7 @@ internal static class RoomPaletteFxPresentationVerification
         AssertEqual(256, identities.Length, "gunship auditor identities include calculated colors");
         AssertEqual(256, identities.Distinct().Count(), "gunship auditor identities are unique");
         var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(
-            SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions);
+            SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus), ArtworkJson.Options);
         // White, both dim boundaries, the special boundary color, each interpolation
         // stage and the bright base all remain independently editable.
         foreach (var edit in new[] { (0, 1), (7, 2), (7, 15), (8, 3), (3, 4), (11, 5), (15, 6) })
@@ -251,7 +248,7 @@ internal static class RoomPaletteFxPresentationVerification
         }
         document.ZebesExplosionGunship[15][9] = document.ZebesExplosionGunship[15][9] with { Green = 0 };
         document.ZebesExplosionGunship[15][13] = document.ZebesExplosionGunship[15][13] with { Blue = 0 };
-        using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
+        using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
         RoomPaletteFxPresentation edited = RoomPaletteFxPresentation.Load(json);
         for (int frame = 0; frame < 16; frame++)
         for (int color = 0; color < 16; color++)
@@ -300,7 +297,7 @@ internal static class RoomPaletteFxPresentationVerification
         AssertEqual(224, identities.Length, "glare computed and supplied identities remain enumerable");
         AssertEqual(224, identities.Distinct().Count(), "glare identities have no duplicates");
         var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(
-            SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions);
+            SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus), ArtworkJson.Options);
         // An intermediate, its return-side counterpart, white peak and base can be
         // edited independently. Unchanged rows must not inherit a changed base value.
         foreach (var edit in new[] { (0, 1), (12, 2), (6, 0), (13, 3) })
@@ -308,7 +305,7 @@ internal static class RoomPaletteFxPresentationVerification
             PaletteRgb5 current = document.PostCreditsIconGlare[edit.Item1][edit.Item2];
             document.PostCreditsIconGlare[edit.Item1][edit.Item2] = current with { Red = (current.Red + 11) & 31 };
         }
-        using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
+        using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
         RoomPaletteFxPresentation edited = RoomPaletteFxPresentation.Load(json);
         for (int frame = 0; frame < 14; frame++)
         for (int color = 0; color < 16; color++)
@@ -884,11 +881,11 @@ internal static class RoomPaletteFxPresentationVerification
         RoomPaletteFxPresentationDocument document =
             JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
                 extracted,
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted room palette-FX document is null.");
         byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(
             document,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         void Reject(string description) => AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(new MemoryStream(Json(), writable: false)),
             description);
@@ -931,7 +928,7 @@ internal static class RoomPaletteFxPresentationVerification
             SamusHeatGravitySuit = null,
         };
         byte[] legacyBytes = JsonSerializer.SerializeToUtf8Bytes(
-            legacyDocument, MapPresentationFormat.JsonOptions);
+            legacyDocument, ArtworkJson.Options);
         AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentation.Load(
                 new MemoryStream(legacyBytes, writable: false)),

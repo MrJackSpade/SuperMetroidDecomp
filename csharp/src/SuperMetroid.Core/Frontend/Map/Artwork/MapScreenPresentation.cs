@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
@@ -17,7 +18,7 @@ public sealed class MapScreenPresentation
     public static MapScreenPresentation Load(Stream json)
     {
         MapScreenDocument document;
-        try { document = JsonAssetDocument.Read<MapScreenDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<MapScreenDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Map-screen document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map-screen JSON.", error); }
         if (document.Version != MapScreenDefinitions.Version || document.Pages is null || document.Pages.Count != MapScreenDefinitions.PageCount)
@@ -48,7 +49,7 @@ public sealed class MapScreenPresentation
     /// <summary>Validates and writes a map-screen document as camel-case JSON.</summary>
     public static void Write(Stream output, MapScreenDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

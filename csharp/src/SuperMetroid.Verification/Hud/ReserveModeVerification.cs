@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -7,6 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Hud;
 using SuperMetroid.Verification.Harness;
 

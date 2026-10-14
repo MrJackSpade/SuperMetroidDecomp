@@ -2,13 +2,14 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Audio.AudioOverridesVerification;
-using static SuperMetroid.Verification.Input.ControllerInputRecordingVerification;
+using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 

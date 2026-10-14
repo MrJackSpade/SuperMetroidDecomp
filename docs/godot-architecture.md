@@ -380,7 +380,7 @@ updates input history, and drawing also participates in palette and other state
 progression. That work must run under its original eligibility rules even when
 the host does not display a picture. See
 [`SamusInputSnapshot`](../csharp/src/SuperMetroid.Core/Samus/SamusInputSnapshot.cs)
-and [`GameplayActorDrawing`](../csharp/src/SuperMetroid.Core/Runtime/GameplayActorDrawing.cs).
+and [`GameplayActorDrawing`](../csharp/src/SuperMetroid.Core/Gameplay/GameplayActorDrawing.cs).
 
 When display state is latched before subsequent gameplay changes, publish the
 latched state. `RunNmi` copies finalized OAM and display registers and drains

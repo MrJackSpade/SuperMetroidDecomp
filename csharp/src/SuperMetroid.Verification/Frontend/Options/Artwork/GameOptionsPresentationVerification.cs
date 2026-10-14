@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Options.Artwork;
 
@@ -69,7 +70,7 @@ internal static class GameOptionsPresentationVerification
             "installed options path retains special toggles");
 
         var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions);
+            extracted, ArtworkJson.Options);
         document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu] =
             document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu] with
             { X = (ushort)(document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu].X + 8) };
@@ -138,12 +139,12 @@ internal static class GameOptionsPresentationVerification
                 ControllerLabelAnchors = document.ControllerLabelAnchors[..^1],
             }), "options reject incomplete controller-label anchors");
         var missingPage = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions);
+            extracted, ArtworkJson.Options);
         missingPage.Pages.Remove(GameOptionsPresentationDefinitions.SpecialJapanesePage);
         AssertThrows<InvalidDataException>(() => GameOptionsPresentation.Write(Stream.Null, missingPage),
             "options reject a missing named page");
         var overlappingToggle = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions);
+            extracted, ArtworkJson.Options);
         GameOptionsToggleVisualDocument toggle = overlappingToggle.SpecialToggles[
             GameOptionsPresentationDefinitions.IconCancelToggle];
         overlappingToggle.SpecialToggles[GameOptionsPresentationDefinitions.IconCancelToggle] =

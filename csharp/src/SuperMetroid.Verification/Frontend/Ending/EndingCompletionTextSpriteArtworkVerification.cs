@@ -6,9 +6,9 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -57,7 +57,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
         Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
         EndingCompletionTextSpriteDocument document =
             JsonSerializer.Deserialize<EndingCompletionTextSpriteDocument>(
-                File.ReadAllBytes(stockPath), MapPresentationFormat.JsonOptions) ??
+                File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending completion text sprite JSON is empty.");
         document.Frames["operation-14"] = document.Frames["operation-14"]
             .Select(part => part with { OffsetX = part.OffsetX + 8 }).ToArray();

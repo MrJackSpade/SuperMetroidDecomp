@@ -1,7 +1,6 @@
 using System.Text.Json;
 using RedOriginLayout = SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPaletteFormat.RedOriginLayout;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -228,7 +227,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         MotherBrainRainbowPalettePresentation? currentStock = null)
     {
         MotherBrainRainbowPaletteDocument document = JsonAssetDocument.Read<MotherBrainRainbowPaletteDocument>(
-            json, MapPresentationFormat.JsonOptions, "Mother Brain rainbow palette");
+            json, ArtworkJson.Options, "Mother Brain rainbow palette");
         var version = (MotherBrainRainbowPaletteVersion)document.Version;
         if (version != MotherBrainRainbowPaletteVersion.Current &&
             !(version == MotherBrainRainbowPaletteVersion.PreFakeDeath && currentStock is not null))
@@ -310,7 +309,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// <param name="document">Bounded RGB5 palette and beam-color sequences to serialize.</param>
     public static void Write(Stream json, MotherBrainRainbowPaletteDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

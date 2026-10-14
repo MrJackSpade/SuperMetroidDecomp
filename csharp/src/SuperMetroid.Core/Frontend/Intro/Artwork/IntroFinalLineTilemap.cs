@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -54,7 +53,7 @@ public sealed class IntroFinalLineTilemap
     {
         Ensure.NotNull(json);
         IntroFinalLineTilemapDocument document = JsonAssetDocument.Read<IntroFinalLineTilemapDocument>(
-            json, MapPresentationFormat.JsonOptions, "opening divider tilemap");
+            json, ArtworkJson.Options, "opening divider tilemap");
         if (document.Version != IntroFinalLineTilemapFormat.Version ||
             document.Cells is not { Length: IntroFinalLineTilemapFormat.CellCount })
             throw new InvalidDataException("Opening divider tilemap requires 128 ordered cells.");
@@ -85,7 +84,7 @@ public sealed class IntroFinalLineTilemap
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

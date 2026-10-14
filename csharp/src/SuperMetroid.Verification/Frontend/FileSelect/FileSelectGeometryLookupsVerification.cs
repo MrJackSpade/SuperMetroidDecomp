@@ -1,15 +1,14 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks file-select cursor rows and helmet anchors against native geometry and extracted presentation.</summary>
 internal static class FileSelectGeometryLookupsVerification
@@ -24,7 +23,7 @@ internal static class FileSelectGeometryLookupsVerification
         byte[] bytes = FileSelectPresentationExtractor.Extract(rom);
         FileSelectPresentation presentation = FileSelectPresentation.Load(new MemoryStream(bytes));
         FileSelectPresentationDocument document = RequiredJson.Deserialize<FileSelectPresentationDocument>(
-            bytes, MapPresentationFormat.JsonOptions);
+            bytes, ArtworkJson.Options);
         Suite(nameof(VerifyFileSelectMainCursorY), () => VerifyFileSelectMainCursorY(rom, presentation));
         Suite(nameof(VerifyFileSelectDataCursorY), () => VerifyFileSelectDataCursorY(rom, presentation));
         Suite(nameof(VerifyFileSelectHelmetY), () => VerifyFileSelectHelmetY(rom, document));

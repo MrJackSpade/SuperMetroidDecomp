@@ -10,7 +10,6 @@ using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -19,12 +18,13 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Rooms;
 

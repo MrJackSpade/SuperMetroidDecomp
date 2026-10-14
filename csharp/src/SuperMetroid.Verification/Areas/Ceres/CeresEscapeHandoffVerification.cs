@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Areas.Ceres.CeresShaftRotationVerification;
 using static SuperMetroid.Verification.Samus.Artwork.SamusRenderingVerification;
@@ -11,6 +10,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 

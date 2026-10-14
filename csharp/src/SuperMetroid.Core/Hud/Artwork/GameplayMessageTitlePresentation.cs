@@ -2,7 +2,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
@@ -84,7 +83,7 @@ public sealed class GameplayMessageTitlePresentation
         try
         {
             document = JsonAssetDocument.Read<GameplayMessageTitleDocument>(
-                source, MapPresentationFormat.JsonOptions)
+                source, ArtworkJson.Options)
                 ?? throw new InvalidDataException("Gameplay-message title document is null.");
         }
         catch (JsonException error)
@@ -136,7 +135,7 @@ public sealed class GameplayMessageTitlePresentation
     /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or title validation.</exception>
     public static void Write(Stream output, GameplayMessageTitleDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

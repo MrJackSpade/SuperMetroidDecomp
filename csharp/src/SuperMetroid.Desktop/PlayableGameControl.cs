@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using System.Collections.Frozen;
 using System.Diagnostics;
@@ -17,6 +16,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Diagnostics;
+using SuperMetroid.Core.Frontend.Recording;
 
 namespace SuperMetroid.Desktop;
 

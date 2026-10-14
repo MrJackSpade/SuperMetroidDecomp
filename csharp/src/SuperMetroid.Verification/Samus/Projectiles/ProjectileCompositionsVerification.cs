@@ -174,7 +174,7 @@ internal static class ProjectileCompositionsVerification
         ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
     {
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes) { Artwork = { MapPresentation = maps } };
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes) { Artwork = { MapPresentation = maps } };
         roomAssets.Bind(runtime);
         runtime.Artwork.ProjectileCompositions = stock;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

@@ -87,7 +87,7 @@ public sealed class SamusBombProjectileSystem
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput,
-        ushort gameState = (ushort)Frontend.SuperMetroidGameState.MainGameplay)
+        ushort gameState = (ushort)SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(samus);
@@ -321,7 +321,7 @@ public sealed class SamusBombProjectileSystem
         SamusState samus,
         ushort gameState)
     {
-        if (gameState != (ushort)Frontend.SuperMetroidGameState.MainGameplay)
+        if (gameState != (ushort)SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
             return;
         if (samus.PoseMetadata.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {

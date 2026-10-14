@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -87,7 +86,7 @@ public sealed class EndingPalette
     public static EndingPalette Load(Stream json, EndingPaletteId id)
     {
         EndingPaletteDocument document = JsonAssetDocument.Read<EndingPaletteDocument>(
-            json, MapPresentationFormat.JsonOptions, $"ending {id} palette");
+            json, ArtworkJson.Options, $"ending {id} palette");
         int count = EndingPaletteDefinitions.ColorCount(id);
         if (document.Version != EndingPaletteDefinitions.Version ||
             document.Colors is null || document.Colors.Length != count)
@@ -119,7 +118,7 @@ public sealed class EndingPalette
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false), id);
         json.Write(bytes);
     }

@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -69,7 +68,7 @@ public sealed class CreditsPresentation
         try
         {
             document = JsonAssetDocument.Read<CreditsPresentationDocument>(
-                source, MapPresentationFormat.JsonOptions)
+                source, ArtworkJson.Options)
                 ?? throw new InvalidDataException("Credits document is null.");
         }
         catch (JsonException error)
@@ -128,7 +127,7 @@ public sealed class CreditsPresentation
     {
         Ensure.NotNull(output);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document, MapPresentationFormat.JsonOptions);
+            document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

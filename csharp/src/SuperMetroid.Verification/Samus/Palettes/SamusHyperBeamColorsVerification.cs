@@ -248,7 +248,7 @@ internal static class SamusHyperBeamColorsVerification
         for (int channel = 0; channel < 3; channel++)
         for (int intensity = 0; intensity < 32; intensity++)
         {
-            var document = RequiredJson.Deserialize<SamusHyperBeamColorDocument>(originalJson, MapPresentationFormat.JsonOptions);
+            var document = RequiredJson.Deserialize<SamusHyperBeamColorDocument>(originalJson, ArtworkJson.Options);
             ushort shadowPointer = ReadVerificationWord(rom, 0x91d99e + 2 * shadowFrame);
             ushort original = ReadVerificationWord(rom, 0x9b0000 | (shadowPointer + 2 * ink));
             ushort changed = (ushort)((original & ~(31 << (channel * 5))) | intensity << (channel * 5));
@@ -264,7 +264,7 @@ internal static class SamusHyperBeamColorsVerification
         }
         foreach (string scope in new[] { "all", "aliases", "shades" })
         {
-            var document = RequiredJson.Deserialize<SamusHyperBeamColorDocument>(originalJson, MapPresentationFormat.JsonOptions);
+            var document = RequiredJson.Deserialize<SamusHyperBeamColorDocument>(originalJson, ArtworkJson.Options);
             for (int frame = 0; frame < 10; frame++)
             for (int color = 0; color < 16; color++)
             {
@@ -289,7 +289,7 @@ internal static class SamusHyperBeamColorsVerification
 
         foreach (int sourceFrame in new[] { 1, 3, 5, 7, 9 })
         {
-        var greenEdit = RequiredJson.Deserialize<SamusHyperBeamColorDocument>(originalJson, MapPresentationFormat.JsonOptions);
+        var greenEdit = RequiredJson.Deserialize<SamusHyperBeamColorDocument>(originalJson, ArtworkJson.Options);
         for (int color = 0; color < 16; color++) greenEdit.Frames[sourceFrame][color] = new PaletteRgb5 { Red = color, Green = 31 - color, Blue = color + 1 };
         var greenEdited = SamusHyperBeamColorCatalog.Load(new MemoryStream(SamusHyperBeamColorCatalog.Write(greenEdit)));
         for (int frame = 0; frame < 10; frame++)
@@ -329,7 +329,7 @@ internal static class SamusHyperBeamColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyper(0, invalid), "Hyper-shot color bounds");
         foreach (bool sourcesOnly in new[] { false, true })
         {
-            var document = RequiredJson.Deserialize<SamusChargeColorDocument>(chargeJson, MapPresentationFormat.JsonOptions);
+            var document = RequiredJson.Deserialize<SamusChargeColorDocument>(chargeJson, ArtworkJson.Options);
             for (int frame = 0; frame < 10; frame++)
             for (int color = 0; color < 16; color++)
             {
@@ -404,7 +404,7 @@ internal static class SamusHyperBeamColorsVerification
         string path = Path.Combine(overrides, SamusHyperBeamColorFormat.FileName);
         SamusHyperBeamColorDocument document = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(
             File.ReadAllBytes(Path.Combine(stock, SamusHyperBeamColorFormat.FileName)),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Hyper Beam color document is null.");
         PaletteRgb5 original = document.Frames[4][7];
         document.Frames[4][7] = original with { Red = (original.Red + 1) % 32 };
@@ -413,7 +413,7 @@ internal static class SamusHyperBeamColorsVerification
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Hyper Beam color override changes installed content identity");
 
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
         {
             Artwork = { MapPresentation = edited },
         };

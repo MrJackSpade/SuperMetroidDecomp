@@ -8,8 +8,8 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Areas.Ceres.CeresDestructionArtworkVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresFlightArtworkVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionArtworkVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingFlyawayArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingMode7ArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingObjectArtworkVerification;
@@ -33,7 +33,6 @@ using static SuperMetroid.Verification.Samus.Artwork.SamusBodyArtworkVerificatio
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
@@ -41,6 +40,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 

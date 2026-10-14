@@ -2,8 +2,8 @@ using System.Diagnostics;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
-using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Frontend.Recording;
 
 /// <summary>Verification views of private desktop audio and error-reporting state.</summary>
 internal static class DesktopAccess

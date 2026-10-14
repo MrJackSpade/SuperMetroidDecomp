@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Checks narrow gameplay operation interfaces, the grapple frame's

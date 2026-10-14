@@ -1,13 +1,10 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.Frontend.Attract;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
@@ -24,6 +21,10 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Runtime.Attract;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -2444,7 +2445,7 @@ public sealed class SuperMetroidGame
     public void ApplyHostOptions(SuperMetroidGameOptions hostOptions)
     {
         Ensure.NotNull(hostOptions);
-        runtime?.ApplyHostOptions(hostOptions);
+        runtime?.ApplyHostOptions(hostOptions.RuntimeOverrides(forAttractDemo: false));
         ConfiguredOptions = hostOptions;
     }
 

@@ -47,7 +47,7 @@ internal static class CrystalFlashColorsVerification
 
         CrystalFlashColorDocument document = JsonSerializer.Deserialize<CrystalFlashColorDocument>(
             File.ReadAllBytes(Path.Combine(stockDirectory, CrystalFlashColorFormat.FileName)),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Crystal Flash color JSON is null.");
         Paint(document.Body[0]);
         Paint(document.Bubble[0]);
@@ -109,7 +109,7 @@ internal static class CrystalFlashColorsVerification
         document.Body[0][1] = previous with { Red = 32 };
         AssertThrows<InvalidDataException>(() => CrystalFlashColorCatalog.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
-                document, MapPresentationFormat.JsonOptions), writable: false)),
+                document, ArtworkJson.Options), writable: false)),
             "Crystal Flash colors reject out-of-range RGB5 channels");
 
         string replacementStock = Path.Combine(

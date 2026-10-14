@@ -11,7 +11,7 @@ public static class PauseVramLayout
 {
     /// <summary>VMADD $0000-$0FFF: the shared map characters.</summary>
     public static readonly PpuLayoutCell MapCharacters = new(nameof(MapCharacters), PpuLayoutRegion.Vram,
-        0x0000, SuperMetroid.Core.Frontend.Map.Artwork.MapTileAtlasFormat.ByteCount / sizeof(ushort), "4-bpp BG characters (map atlas)", PpuMemoryLayout.Vram);
+        0x0000, SuperMetroid.Core.Map.Artwork.MapTileAtlasFormat.ByteCount / sizeof(ushort), "4-bpp BG characters (map atlas)", PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $1000-$1FFF: the pause interface characters uploaded from the pause UI atlas.</summary>
     public static readonly PpuLayoutCell InterfaceCharacters = new(nameof(InterfaceCharacters), PpuLayoutRegion.Vram,

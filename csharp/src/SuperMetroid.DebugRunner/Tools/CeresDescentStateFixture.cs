@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.Diagnostics.Android;
 

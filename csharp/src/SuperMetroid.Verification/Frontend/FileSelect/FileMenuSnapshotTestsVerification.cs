@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Frontend.FileSelect.FileMapSnapshotTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendCompletionVerification;
 using static SuperMetroid.Verification.Hud.MessageSnapshotTestsVerification;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -10,6 +9,7 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 

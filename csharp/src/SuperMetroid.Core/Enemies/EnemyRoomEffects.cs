@@ -8,8 +8,8 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Enemies;
 

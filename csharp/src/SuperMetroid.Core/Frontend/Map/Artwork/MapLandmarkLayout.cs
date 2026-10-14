@@ -24,7 +24,7 @@ public sealed class MapLandmarkLayout
     public static MapLandmarkLayout Load(Stream json)
     {
         MapLandmarkDocument document;
-        try { document = JsonAssetDocument.Read<MapLandmarkDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<MapLandmarkDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Map landmark layout is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map landmark layout JSON.", error); }
         var ids = MapLandmarkDefinitions.AllIds().ToArray();
@@ -40,7 +40,7 @@ public sealed class MapLandmarkLayout
     /// <param name="document">Landmark layout to validate and serialize.</param>
     public static void Write(Stream json, MapLandmarkDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

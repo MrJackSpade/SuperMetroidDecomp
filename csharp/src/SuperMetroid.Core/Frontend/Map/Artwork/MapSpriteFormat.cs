@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Map.Artwork;
+
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Defines the map sprite document, atlas geometry, and native transfer sizes.</summary>

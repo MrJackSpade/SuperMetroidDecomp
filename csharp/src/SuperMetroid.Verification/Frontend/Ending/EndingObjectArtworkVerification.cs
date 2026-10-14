@@ -16,7 +16,6 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -272,7 +271,7 @@ internal static class EndingObjectArtworkVerification
             installation.EndingObjectOverrideDirectory, cloudSpriteName);
         EndingCloudSpriteDocument cloudDocument =
             JsonSerializer.Deserialize<EndingCloudSpriteDocument>(
-                File.ReadAllBytes(cloudSpritePath), MapPresentationFormat.JsonOptions) ??
+                File.ReadAllBytes(cloudSpritePath), ArtworkJson.Options) ??
             throw new InvalidDataException("Stock ending cloud sprite JSON is empty.");
         cloudDocument.Frames["scene-a-right"] = cloudDocument.Frames["scene-a-right"]
             .Select(part => part with { OffsetX = part.OffsetX + 8 }).ToArray();

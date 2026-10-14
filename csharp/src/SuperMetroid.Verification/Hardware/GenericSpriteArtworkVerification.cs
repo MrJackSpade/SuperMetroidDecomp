@@ -17,6 +17,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Compares installed title and intro sprite compositions and OAM wrapping with retail spritemaps.</summary>
 internal static class GenericSpriteArtworkVerification
@@ -43,7 +44,7 @@ internal static class GenericSpriteArtworkVerification
             titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics);
         var document = RequiredJson.Deserialize<TitleMode7MapDocument>(File.ReadAllBytes(
             Path.Combine(installation.MapDirectory, TitleGraphicsFormat.Mode7MapFile)),
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         var expected = new OamBuffer();
         int titleCases = 0;
         foreach (TitleSpriteFrame frame in document.Sprites)

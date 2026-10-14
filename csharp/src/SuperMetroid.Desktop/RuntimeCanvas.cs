@@ -63,7 +63,7 @@ public sealed class RuntimeCanvas : Control
     /// </summary>
     public void ReplaceFrame(
         Extent16<ScreenPixels> size,
-        ReadOnlySpan<SuperMetroid.Core.Assets.Rgba32> pixels)
+        ReadOnlySpan<SuperMetroid.Core.Hardware.Rgba32> pixels)
     {
         if (frame is null || frame.Width != size.X || frame.Height != size.Y)
         {

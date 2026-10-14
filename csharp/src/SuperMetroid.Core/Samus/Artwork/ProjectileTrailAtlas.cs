@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -28,9 +29,9 @@ public sealed class ProjectileTrailAtlas : IVramAssetProvider
     public void QueueTo(VramWriteQueue queue)
     {
         queue.EnqueueAsset(VramAssetId.ProjectileIceWaveTrailTiles, checked((ushort)IceAndWave.Length),
-            AssetVram.ProjectileIceWaveTrailDma);
+            ProjectileTrailVram.IceWaveTrailDma);
         queue.EnqueueAsset(VramAssetId.ProjectileMissileTrailTiles, checked((ushort)Missile.Length),
-            AssetVram.ProjectileMissileTrailDma);
+            ProjectileTrailVram.MissileTrailDma);
     }
     /// <summary>Loads the 96-by-8 indexed PNG as twelve left-to-right 8-pixel tiles and encodes their palette indices into four-bit SNES planar character bytes.</summary>
     /// <param name="png">Caller-owned image stream; indices 0..15 are pens rather than final CGRAM colors.</param>
@@ -44,7 +45,7 @@ public sealed class ProjectileTrailAtlas : IVramAssetProvider
     /// <param name="vram">Destination VRAM; this changes character pixels only, not sprite attributes, palettes, or trail lifetimes.</param>
     public void LoadTo(SnesVram vram)
     {
-        new AssetVram(vram).ProjectileIceWaveTrail.Load(IceAndWave.Span);
-        new AssetVram(vram).ProjectileMissileTrail.Load(Missile.Span);
+        new ProjectileTrailVram(vram).IceWaveTrail.Load(IceAndWave.Span);
+        new ProjectileTrailVram(vram).MissileTrail.Load(Missile.Span);
     }
 }

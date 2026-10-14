@@ -44,8 +44,8 @@ internal static class FrontendRomFreeDirectRoomVerification
         native.InitializeDirectRoomVerification();
         installed.InitializeDirectRoomVerification();
         var options = new SuperMetroidGameOptions { Invincibility = true };
-        native.GameplayRuntimeForVerification.ApplyHostOptions(options);
-        installed.GameplayRuntimeForVerification.ApplyHostOptions(options);
+        native.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
+        installed.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
         VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = roomPointer, RoomName = $"direct retail room $8F:{roomPointer:X4}, input ${heldInput:X4}" }, frameCount, heldInput: heldInput);
     }
 

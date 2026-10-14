@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
@@ -118,7 +117,7 @@ internal static class EndingMode7ArtworkVerification
             EndingMode7MapDocument map;
             using (var input = File.OpenRead(Path.Combine(installation.EndingMode7Directory, mapName)))
                 map = JsonSerializer.Deserialize<EndingMode7MapDocument>(input,
-                    MapPresentationFormat.JsonOptions)
+                    ArtworkJson.Options)
                     ?? throw new InvalidDataException($"Ending {id} map JSON is empty.");
             Array.Fill(map.Tiles, 0);
             using (var output = File.Create(mapOverride))
@@ -205,7 +204,7 @@ internal static class EndingMode7ArtworkVerification
         using (var input = File.OpenRead(Path.Combine(installation.EndingMode7Directory,
                    EndingMode7ArtworkFormat.MapFileName(EndingMode7SceneId.EscapeA))))
             persistentMap = JsonSerializer.Deserialize<EndingMode7MapDocument>(input,
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
                 ?? throw new InvalidDataException("Stock ending map is empty.");
         persistentMap.Tiles[0] = unchecked((byte)(persistentMap.Tiles[0] + 1));
         using (var output = File.Create(invalidMapPath))

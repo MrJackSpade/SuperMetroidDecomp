@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -25,7 +26,7 @@ internal static class PauseEquipmentLabelsVerification
         string stockPath = Path.Combine(stock, PauseEquipmentLabelDefinitions.FileName);
         string overridePath = Path.Combine(overrides, PauseEquipmentLabelDefinitions.FileName);
         var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(
-            File.ReadAllBytes(stockPath), MapPresentationFormat.JsonOptions);
+            File.ReadAllBytes(stockPath), ArtworkJson.Options);
         var guard = NewPauseEquipmentLabelReadGuard(bus);
 
         SamusState[] inventories =

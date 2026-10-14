@@ -2,7 +2,6 @@ using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
@@ -59,7 +58,7 @@ public sealed class PauseBackdropPresentation
     public static PauseBackdropPresentation Load(Stream json)
     {
         PauseBackdropDocument document;
-        try { document = JsonAssetDocument.Read<PauseBackdropDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseBackdropDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Pause backdrop document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause backdrop JSON.", error); }
         if (document.Version != PauseBackdropDefinitions.Version || document.Areas is null || document.Areas.Count != AreaIds.RetailCount)
@@ -105,7 +104,7 @@ public sealed class PauseBackdropPresentation
     /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or artwork-reference validation.</exception>
     public static void Write(Stream output, PauseBackdropDocument document)
     {
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(json, writable: false));
         output.Write(json);
     }

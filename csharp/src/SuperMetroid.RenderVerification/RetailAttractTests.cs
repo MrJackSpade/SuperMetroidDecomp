@@ -1,9 +1,9 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Frontend.Attract;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Runtime.Attract;
 namespace SuperMetroid.RenderVerification;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;

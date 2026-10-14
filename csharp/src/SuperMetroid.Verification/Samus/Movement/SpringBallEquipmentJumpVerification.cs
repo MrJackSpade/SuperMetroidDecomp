@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Verification.Harness;
 

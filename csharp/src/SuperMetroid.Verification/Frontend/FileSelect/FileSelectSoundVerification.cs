@@ -1,11 +1,11 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Map.Artwork;
+
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Layout-only content: tile-sheet coordinates, palette selectors, priority and flips.</summary>

@@ -1,15 +1,14 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 

@@ -29,6 +29,7 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Enemies;
 

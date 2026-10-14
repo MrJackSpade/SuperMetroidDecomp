@@ -10,7 +10,6 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerific
 using static SuperMetroid.Verification.Frontend.Pause.PauseMenuFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -19,6 +18,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 

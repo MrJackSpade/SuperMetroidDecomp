@@ -26,6 +26,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
@@ -309,8 +310,8 @@ internal static class FrontendRomFreeVerification
                         // comparison without letting damage switch the frontend
                         // into a death screen before the next room is loaded.
                         var options = new SuperMetroidGameOptions { Invincibility = true };
-                        nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options);
-                        installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options);
+                        nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
+                        installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
                     });
                 // Cross the wake/combat handoff into the first linked walking
                 // lists. The older 700-frame low-health check reached Game Over
@@ -326,8 +327,8 @@ internal static class FrontendRomFreeVerification
                         nativeRoom.GameplayRuntimeForVerification.System.SetRandomNumber(0x23fc);
                         installedRoom.GameplayRuntimeForVerification.System.SetRandomNumber(0x23fc);
                         var options = new SuperMetroidGameOptions { Invincibility = false };
-                        nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options);
-                        installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options);
+                        nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
+                        installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
                     });
                 VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo left-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
                     {

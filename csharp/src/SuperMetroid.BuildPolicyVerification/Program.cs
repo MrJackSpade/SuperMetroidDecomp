@@ -7,7 +7,8 @@ namespace SuperMetroid.BuildPolicyVerification;
 /// <summary>
 /// Confirms the #142 quality gates fail the ordinary build: a fixture violating each gated
 /// diagnostic must fail <c>dotnet build</c> with that diagnostic as an error, a compliant
-/// fixture of the same shapes must build, and nothing in maintained source may lower them.
+/// fixture of the same shapes must build, and nothing in maintained source may lower them. It also holds every
+/// project and source root to the #626 module map.
 /// </summary>
 internal static class Program
 {
@@ -26,6 +27,7 @@ internal static class Program
             };
             VerifyPolicyConfiguration(root);
             VerifyNoLocalOverrides(root);
+            ModuleMapPolicy.Verify(root);
             VerifyViolationsFail(root);
             VerifyCompliantBuilds(root);
             Console.WriteLine(

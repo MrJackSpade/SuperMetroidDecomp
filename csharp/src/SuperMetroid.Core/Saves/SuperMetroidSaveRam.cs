@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Frontend.Attract;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Saves;
 
@@ -28,7 +26,7 @@ public sealed class SuperMetroidSaveRam
     public const int SelectedSlotOffset = SaveRamLayout.SelectedSlotOffset;
 
     /// <summary>Stock area-map rules bound to this codec for packed explored-map translation.</summary>
-    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    [NonSerialized] private IAreaMapSource? mapPresentation;
     /// <summary>Mutable address space containing the three cartridge-format SRAM slots.</summary>
     private readonly ISnesMemoryBus bus;
 
@@ -37,7 +35,7 @@ public sealed class SuperMetroidSaveRam
     /// <param name="mapPresentation">Optional area-map metadata used to translate explored-map bits.</param>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="bus"/> does not expose mutable memory.</exception>
-    public SuperMetroidSaveRam(ISnesAddressSpace bus, AreaMapPresentationCatalog? mapPresentation)
+    public SuperMetroidSaveRam(ISnesAddressSpace bus, IAreaMapSource? mapPresentation)
     {
         this.mapPresentation = mapPresentation;
         Ensure.NotNull(bus);
@@ -49,7 +47,7 @@ public sealed class SuperMetroidSaveRam
     private SramBytes Image => new(bus, SaveRamLayout.Image);
 
     /// <summary>Installs map metadata after restoring a codec that did not serialize its catalog.</summary>
-    internal void BindMapPresentation(AreaMapPresentationCatalog? maps) => mapPresentation = maps;
+    internal void BindMapPresentation(IAreaMapSource? maps) => mapPresentation = maps;
 
     /// <summary>
     /// <c>LoadFromSRAM</c>'s corruption test: either redundant checksum pair matches the
@@ -297,9 +295,9 @@ public sealed class SuperMetroidSaveRam
             ReadOnlySpan<byte> corrupt = SaveRamLayout.CorruptSramMarker;
             for (int index = 0; index < corrupt.Length; index++)
                 WriteSramByte(SaveRamLayout.CompletionMarkerOffset + index, corrupt[index]);
-            return AttractDemoRomData.DefaultSetCount;
+            return DemoSetUnlockRomData.DefaultSetCount;
         }
-        return HasCompletedGame ? AttractDemoRomData.SetCount : AttractDemoRomData.DefaultSetCount;
+        return HasCompletedGame ? DemoSetUnlockRomData.SetCount : DemoSetUnlockRomData.DefaultSetCount;
     }
 
     /// <summary>True for the native completed-game signature, independent of slot checksums.</summary>

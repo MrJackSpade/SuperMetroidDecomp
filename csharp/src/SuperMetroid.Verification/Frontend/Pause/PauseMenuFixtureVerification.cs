@@ -10,6 +10,7 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -28,9 +29,9 @@ internal static class PauseMenuFixtureVerification
             CartridgeImportSource.Require(bus), address, count);
         T Document<T>(string name) => JsonSerializer.Deserialize<T>(
             File.ReadAllBytes(Path.Combine(installation.MapDirectory, name)),
-            MapPresentationFormat.JsonOptions) ?? throw new InvalidDataException(name);
+            ArtworkJson.Options) ?? throw new InvalidDataException(name);
         MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(
-            document, MapPresentationFormat.JsonOptions));
+            document, ArtworkJson.Options));
 
         var pauseColors = new Bgr555[SnesCgram.ColorCount];
         byte[] paletteBytes = Read(0xb6f000, CgramPalettes.ByteCount);

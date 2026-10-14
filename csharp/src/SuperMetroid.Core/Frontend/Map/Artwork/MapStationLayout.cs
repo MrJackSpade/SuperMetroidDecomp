@@ -25,7 +25,7 @@ public sealed class MapStationLayout
     public static MapStationLayout Load(Stream json)
     {
         MapStationLayoutDocument document;
-        try { document = JsonAssetDocument.Read<MapStationLayoutDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<MapStationLayoutDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Map station layout is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map station layout JSON.", error); }
         var rules = MapStationDiscoveryRules.All.ToArray();
@@ -42,7 +42,7 @@ public sealed class MapStationLayout
     /// <param name="document">The station-marker layout to validate and serialize.</param>
     public static void Write(Stream json, MapStationLayoutDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Frontend.Pause;
 

@@ -4,8 +4,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 

@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -118,7 +117,7 @@ public sealed class EndingTextPresentation
         try
         {
             document = JsonAssetDocument.Read<EndingTextDocument>(source,
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
                 ?? throw new InvalidDataException("Ending-text document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid ending-text JSON.", error); }
@@ -163,7 +162,7 @@ public sealed class EndingTextPresentation
     /// <param name="document">Versioned tilemap templates and bounded labels to serialize.</param>
     public static void Write(Stream output, EndingTextDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

@@ -25,7 +25,7 @@ internal static class MapSpriteCasesVerification
     {
         var files = MapSpriteExtractor.Extract(rom);
         byte[] png = files[MapSpriteFormat.PngFile];
-        var document = RequiredJson.Deserialize<MapSpriteDocument>(files[MapSpriteFormat.JsonFile], MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<MapSpriteDocument>(files[MapSpriteFormat.JsonFile], ArtworkJson.Options);
         var stock = MapSpriteCatalog.Load(new MemoryStream(files[MapSpriteFormat.JsonFile]), new MemoryStream(png));
         Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(rom, stock));
         foreach (var role in MapSpriteRoleOracle())
@@ -85,7 +85,7 @@ internal static class MapSpriteCasesVerification
         AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)0, new OamBuffer(), new(0, 0), 0xffff), "undefined identity precedes invalid palette");
         MapSpriteCatalog Load(Dictionary<string, SpriteVisualPart[]> frames)
         {
-            byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, MapPresentationFormat.JsonOptions);
+            byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, ArtworkJson.Options);
             return MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(png));
         }
     }

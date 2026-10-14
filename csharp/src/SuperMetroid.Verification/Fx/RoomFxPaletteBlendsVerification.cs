@@ -87,7 +87,7 @@ internal static class RoomFxPaletteBlendsVerification
     private static void VerifyCeresHazeTintOverride(ISnesAddressSpace rom)
     {
         RoomFxPaletteBlendDocument stock = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
-            RoomFxPaletteBlendExtractor.Extract(rom), MapPresentationFormat.JsonOptions)
+            RoomFxPaletteBlendExtractor.Extract(rom), ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock room-FX color document is null.");
         AssertEqual(RoomFxPaletteBlendDefinitions.StockCeresHazeBlue, stock.CeresHazeBlue,
             "extractor names the stock Ceres blue tint");
@@ -154,7 +154,7 @@ internal static class RoomFxPaletteBlendsVerification
         string path = Path.Combine(overrides, RoomFxPaletteBlendDefinitions.FileName);
         RoomFxPaletteBlendDocument document = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
             File.ReadAllBytes(Path.Combine(stock, RoomFxPaletteBlendDefinitions.FileName)),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock room-FX blend document is null.");
         string key = RoomFxPaletteBlendDefinitions.Key(RoomFxPaletteBlend.Lava);
         PaletteRgb5 original = document.Blends[key][0];

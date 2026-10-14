@@ -1,15 +1,15 @@
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks file-select slot field destinations and label sources against bank $81 instructions.</summary>
 internal static class FileSelectSlotDestinationsVerification
@@ -24,7 +24,7 @@ internal static class FileSelectSlotDestinationsVerification
         byte[] json = FileSelectPresentationExtractor.Extract(rom);
         _ = FileSelectPresentation.Load(new MemoryStream(json));
         FileSelectPresentationDocument document = RequiredJson.Deserialize<FileSelectPresentationDocument>(
-            json, MapPresentationFormat.JsonOptions);
+            json, ArtworkJson.Options);
         // Each independently indexed field uses its own original LDX operands.
         Suite(nameof(VerifyField), () => VerifyField(false, FileSelectSlotField.Label, [0x819f16, 0x819f49, 0x819f7f]));
         Suite(nameof(VerifyField), () => VerifyField(false, FileSelectSlotField.Energy, [0x819f25, 0x819f5b, 0x819f91]));

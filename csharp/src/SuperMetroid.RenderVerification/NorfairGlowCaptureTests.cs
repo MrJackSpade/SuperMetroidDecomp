@@ -20,7 +20,7 @@ internal static class NorfairGlowCaptureTests
         runtime.LoadCartridgeRoomForDebug(NorfairGlowFixture.Cathedral, new Position16<RoomPixels>(0, 0));
         runtime.Player.IntroducedSamus.InputLocked = true;
         LayeredRenderSnapshot? original = null;
-        SuperMetroid.Core.Assets.Rgba32[]? initialPixels = null;
+        SuperMetroid.Core.Hardware.Rgba32[]? initialPixels = null;
         int maximumChanged = 0;
         for (int tick = 0; tick < 232; tick++)
         {

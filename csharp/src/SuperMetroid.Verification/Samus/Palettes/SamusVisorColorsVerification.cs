@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -18,6 +17,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 
@@ -175,7 +175,7 @@ internal static class SamusVisorColorsVerification
         string path = Path.Combine(overrides, SamusVisorColorFormat.FileName);
         SamusVisorColorDocument document = JsonSerializer.Deserialize<SamusVisorColorDocument>(
             File.ReadAllBytes(Path.Combine(stock, SamusVisorColorFormat.FileName)),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Samus visor color document is null.");
         PaletteRgb5 original = document.Colors[3];
         PaletteRgb5 originalXray = document.Colors[0];
@@ -185,7 +185,7 @@ internal static class SamusVisorColorsVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
         {
             Artwork = { MapPresentation = edited },
         };

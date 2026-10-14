@@ -20,6 +20,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 /// <summary>Runtime checks for Crocomire's spike tile cadence and hidden-wall camera rumble.</summary>

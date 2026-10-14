@@ -1,5 +1,5 @@
-﻿using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Spatial;
+﻿using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.ReferenceRendering;
 

@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Movement.AbsoluteTangentDefinitionsVerification;
@@ -300,13 +299,13 @@ using static SuperMetroid.Verification.Enemies.Crawlers.ZeroInstructionProgramDe
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaSpeedDefinitionsVerification;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 

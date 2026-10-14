@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core;
 using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Frontend.Recording;
 
 namespace SuperMetroid.DesktopVerification;
 

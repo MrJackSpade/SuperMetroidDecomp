@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Runs complete converted controller timelines against native checkpoints without importing later gameplay state.</summary>

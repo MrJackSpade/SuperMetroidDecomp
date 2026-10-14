@@ -13,6 +13,7 @@ using SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 using SuperMetroid.ResourceAudit.ClosedContracts.Rooms;
 using SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 using SuperMetroid.ResourceAudit.Reports;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.ResourceAudit.Resources;
 
@@ -206,13 +207,13 @@ internal static class AuditContractChecks
         Require(changed.MissingCount == 1, "a changed/unaligned color identity must remain a concrete omission");
 
         var document = RequiredJson.Deserialize<SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorDocument>(
-            MotherBrainRoomFlashAudit.ExtractDeclarationDocument(), SuperMetroid.Core.Frontend.Map.Artwork.MapPresentationFormat.JsonOptions);
+            MotherBrainRoomFlashAudit.ExtractDeclarationDocument(), ArtworkJson.Options);
         bool rejected = false;
         try
         {
             _ = SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.Load(new MemoryStream(
                 JsonSerializer.SerializeToUtf8Bytes(document with { Flash = document.Flash[..^1] },
-                    SuperMetroid.Core.Frontend.Map.Artwork.MapPresentationFormat.JsonOptions)));
+                    ArtworkJson.Options)));
         }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "a missing installed flash row must fail at the production load boundary");

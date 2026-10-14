@@ -79,7 +79,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Escape.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -1775,7 +1775,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 }
 
     /// <summary>Binds every enemy-owned color, HUD and escape asset from one host map catalog.</summary>
-    public void BindMapPresentation(AreaMapPresentationCatalog? maps)
+    public void BindMapPresentation(IGameplayPresentationContent? maps)
     {
         Presentation.MotherBrainHealthColors = maps?.MotherBrainHealthPalette;
         Presentation.MotherBrainRainbowColors = maps?.MotherBrainRainbowPalette;

@@ -4,10 +4,10 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Pause;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -18,7 +18,7 @@ internal static class PauseReserveAnchorsVerification
     internal static void VerifyPauseReserveAnchors(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
         var stock = PauseReserveTankPresentation.Load(new MemoryStream(bytes));
         AssertEqual(0, stock.StoredAnchorComponentCount, "stock reserve coordinates are calculated");
         Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, true));

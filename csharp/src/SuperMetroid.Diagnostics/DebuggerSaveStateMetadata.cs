@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Diagnostics;
 

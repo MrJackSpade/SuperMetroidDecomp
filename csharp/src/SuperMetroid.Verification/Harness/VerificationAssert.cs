@@ -1,5 +1,4 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Samus.Movement.AbsoluteTangentDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.AnimatedTileInstructionCodesVerification;
@@ -28,29 +27,29 @@ using static SuperMetroid.Verification.Enemies.Boyon.BoyonInstructionProgramDefi
 using static SuperMetroid.Verification.Enemies.PipeBugs.BrinstarPipeBugInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Bull.BullInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Cacatac.CacatacInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresBackdropProgramsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresBlastPlacementVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresDestructionFrameCatalogVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresBackdropProgramsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresBlastPlacementVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionFrameCatalogVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeVramTransferDefinitionsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresExplosionDefinitionsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresExplosionProgramsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresFlightActorMetadataVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresFlightFrameCatalogVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresFlightProgramsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionDefinitionsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionProgramsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightActorMetadataVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightFrameCatalogVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightProgramsVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresHazeVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresInitialActorMetadataVerification;
-using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresLargeAsteroidPartsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresLargeBlastPartsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresPlacementSelectorsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresReflectedStarPartsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresInitialActorMetadataVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresLargeAsteroidPartsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresLargeBlastPartsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresPlacementSelectorsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresReflectedStarPartsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyGetawayDefinitionsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresSmallAsteroidPartsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresSpawnerScheduleVerification;
-using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresStarPointPartsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresStationBlastPartsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresStationPartsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresVortexPartsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresZebesActorMetadataVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresSmallAsteroidPartsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresSpawnerScheduleVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresStarPointPartsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresStationBlastPartsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresStationPartsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresVortexPartsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresZebesActorMetadataVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatuePlmDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.ColoredDoorPlmDrawDefinitionsVerification;
@@ -292,7 +291,7 @@ using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolSegmentDefinitio
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.ShotBlockPlmProgramsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.SlopeSpeedDefinitionsVerification;
-using static SuperMetroid.Verification.Areas.Ceres.SpaceColonyCaptionVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.SpaceColonyCaptionVerification;
 using static SuperMetroid.Verification.Audio.SpcDspPublicationVerification;
 using static SuperMetroid.Verification.Audio.SpcNotePercentageAlgorithmsVerification;
 using static SuperMetroid.Verification.Audio.SpcPanSamplesVerification;
@@ -312,7 +311,7 @@ using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotInitialSelect
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotPaletteTimingDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardDirectionDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardTurnDefinitionsVerification;
-using static SuperMetroid.Verification.Areas.Escape.Artwork.ZebesPlanetBandPartsVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.ZebesPlanetBandPartsVerification;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaSpeedDefinitionsVerification;
@@ -321,7 +320,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
@@ -2884,14 +2882,14 @@ internal static class VerificationAssert
         Suite(nameof(VerifyExtractedSamusLoadingPaletteFxPresentation), () => VerifyExtractedSamusLoadingPaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json))));
         foreach (int editMode in new[] { 0, 1, 2 })
         {
-            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, MapPresentationFormat.JsonOptions);
+            var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json, ArtworkJson.Options);
             int ordinal = 1000;
             foreach (var frames in new[] { document.SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
             for (int frame = 0; frame < 9; frame++)
             for (int color = 0; color < 16; color++, ordinal++)
                 if (editMode == 0 || (editMode == 1 && frame is 0 or 1) || (editMode == 2 && frame == 7))
                     frames[frame][color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
-            var edited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            var edited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             ordinal = 1000;
             foreach (var program in SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
             for (int frame = 0; frame < 9; frame++)
@@ -2918,14 +2916,14 @@ internal static class VerificationAssert
         var presentation = RoomPaletteFxPresentation.Load(new MemoryStream(json));
         Suite(nameof(VerifyExtractedSamusHeatPaletteFxPresentation), () => VerifyExtractedSamusHeatPaletteFxPresentation(rom, presentation));
         var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(json,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         int ordinal = 1000;
         foreach (var frames in new[] { document.SamusHeatPowerSuit, document.SamusHeatVariaSuit, document.SamusHeatGravitySuit })
         foreach (var row in (frames ?? throw new InvalidOperationException("Verification requires frames.")))
         for (int color = 0; color < row.Length; color++, ordinal++)
             row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
         var edited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
-            MapPresentationFormat.JsonOptions)));
+            ArtworkJson.Options)));
         ordinal = 1000;
         foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
         for (int phase = 0; phase < 16; phase++)
@@ -2935,12 +2933,12 @@ internal static class VerificationAssert
             AssertEqual((ushort)ordinal, actual, "Every separately edited heat color survives alias compilation");
         }
         document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         foreach (var frames in new[] { (document ?? throw new InvalidOperationException("Verification requires document.")).SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
         for (int color = 0; color < 16; color++)
             frames[0][color] = new PaletteRgb5 { Red = 1, Green = 2, Blue = 3 };
         var loadingEdited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
-            MapPresentationFormat.JsonOptions)));
+            ArtworkJson.Options)));
         foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
         for (int phase = 0; phase < 16; phase++)
         for (int color = 0; color < 15; color++)

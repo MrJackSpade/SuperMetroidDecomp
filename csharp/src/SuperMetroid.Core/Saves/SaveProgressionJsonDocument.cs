@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Saves;
 

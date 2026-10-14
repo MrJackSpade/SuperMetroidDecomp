@@ -45,7 +45,6 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
@@ -105,7 +104,7 @@ internal static class LookupStream2Verification
             }).ToArray();
         }
         EnemySpritemapCatalog Load() => EnemySpritemapCatalog.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         void Check(EnemySpritemapCatalog catalog)
         {
             foreach (var frame in selected)
@@ -529,7 +528,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseBackdropExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<PauseBackdropDocument>(json, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseBackdropDocument>(json, ArtworkJson.Options);
         var stock = PauseBackdropPresentation.Load(new MemoryStream(json));
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
         var areaResiduals = stock.areas;
@@ -604,7 +603,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2EquipmentBaseGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentBaseExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<PauseEquipmentBaseDocument>(json, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseEquipmentBaseDocument>(json, ArtworkJson.Options);
         var stock = PauseEquipmentBasePresentation.Load(new MemoryStream(json));
         byte[] native = new byte[2048];
         for (int cell = 0; cell < 1024; cell++)
@@ -680,7 +679,7 @@ internal static class LookupStream2Verification
     {
         byte[] json = PauseWireframeExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseWireframeDocument>(json,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         var stock = PauseWireframePresentation.Load(new MemoryStream(json));
         int pieceCells = 0, stockOverrides = 0;
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
@@ -746,7 +745,7 @@ internal static class LookupStream2Verification
     {
         byte[] json = PauseReserveUiExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(json,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         int words = 0;
         foreach ((string name, PauseReserveLabelVisual label) in document.Labels)
         {
@@ -807,7 +806,7 @@ internal static class LookupStream2Verification
     {
         byte[] json = PauseEquipmentLabelExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(json,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         var stock = PauseEquipmentLabelPresentation.Load(new MemoryStream(json));
         int words = 0;
         foreach ((string key, PauseEquipmentLabel label) in document.Labels)
@@ -910,7 +909,7 @@ internal static class LookupStream2Verification
     {
         byte[] nativeJson = PauseEquipmentLabelExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseEquipmentLabelDocument>(
-            nativeJson, MapPresentationFormat.JsonOptions);
+            nativeJson, ArtworkJson.Options);
         for (int cell = 0; cell < PauseEquipmentLabelDefinitions.EquipmentWords; cell++)
         {
             int address = 0x820000 | (PauseEquipmentLabelDefinitions.BlankSource + cell * 2);
@@ -1473,7 +1472,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2TrailAppearance(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileTrailExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<ProjectileTrailDocument>(json, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<ProjectileTrailDocument>(json, ArtworkJson.Options);
         var stock = ProjectileTrailCatalog.Load(new MemoryStream(json));
         var edits = stock.suppliedAttributes;
         AssertEqual(0, edits.Count, "Stock trail appearance stores no repeated frame attributes");
@@ -1805,7 +1804,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, ArtworkJson.Options);
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
         var edits = stock.arrowColorEdits;
         AssertEqual(0, edits.Count, "Native channel choices plus calculated ramps need no unexplained color overrides");
@@ -1869,7 +1868,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2ReserveGeometry(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, ArtworkJson.Options);
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertTrue(stock.digits is null, "Stock digits discard stored lookup");
@@ -2077,7 +2076,7 @@ internal static class LookupStream2Verification
     {
         byte[] source = CrystalFlashColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<CrystalFlashColorDocument>(
-            source, MapPresentationFormat.JsonOptions);
+            source, ArtworkJson.Options);
         var stock = CrystalFlashColorCatalog.Load(new MemoryStream(source));
         AssertTrue(stock.body is null, "Original Crystal Flash body selects calculation without stored rows");
         var cgram = new SnesCgram();
@@ -2380,7 +2379,7 @@ internal static class LookupStream2Verification
         }
         AssertEqual(220, nativeBodyParts, "Golden Torizo ten native body-composition extents");
         EnemyExtendedFrameCatalog Load() => EnemyExtendedFrameCatalog.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         void Check(EnemyExtendedFrameCatalog catalog)
         {
             foreach (var frame in selected)

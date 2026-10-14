@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Rendering;
 

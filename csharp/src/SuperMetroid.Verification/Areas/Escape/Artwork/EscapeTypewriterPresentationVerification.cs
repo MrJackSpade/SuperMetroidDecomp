@@ -9,6 +9,7 @@ using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks editable Ceres and Zebes escape typewriter text through installed VRAM writes and state rebinding.</summary>
 internal static class EscapeTypewriterPresentationVerification
@@ -45,7 +46,7 @@ internal static class EscapeTypewriterPresentationVerification
         JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
         JsonObject zebes = editedDocument.Required("programs").Required(EscapeTypewriterProgramId.Zebes.ToString()).AsObject();
         zebes.Required("lines").Required(0)["text"] = "TEST!";
-        byte[] editedBytes = Encoding.UTF8.GetBytes(editedDocument.ToJsonString(MapPresentationFormat.JsonOptions));
+        byte[] editedBytes = Encoding.UTF8.GetBytes(editedDocument.ToJsonString(ArtworkJson.Options));
         EscapeTypewriterPresentation edited = EscapeTypewriterPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
         var editedState = new EscapeTypewriterState(
@@ -85,7 +86,7 @@ internal static class EscapeTypewriterPresentationVerification
             savedVram.ReadWord(0x4906), "restored escape text resumes at its saved character");
 
         byte[] malformed = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(MapPresentationFormat.JsonOptions).Replace("TEST!", "test!"));
+            editedDocument.ToJsonString(ArtworkJson.Options).Replace("TEST!", "test!"));
         AssertThrows<InvalidDataException>(() => EscapeTypewriterPresentation.Load(
             new MemoryStream(malformed, writable: false)),
             "escape typewriter rejects glyphs absent from the documented font mapping");
@@ -112,7 +113,7 @@ internal static class EscapeTypewriterPresentationVerification
         document.Required("programs").Required(EscapeTypewriterProgramId.Zebes.ToString()).Required("lines").Required(0)["text"] =
             "TEST!";
         string replacement = Path.Combine(overrideDirectory, EscapeTypewriterDefinitions.FileName);
-        File.WriteAllText(replacement, document.ToJsonString(MapPresentationFormat.JsonOptions));
+        File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         var state = new EscapeTypewriterState(
             edited.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes),

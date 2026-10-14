@@ -15,6 +15,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks installed pause backdrops, labels, and button tiles through live page transitions.</summary>
@@ -29,7 +30,7 @@ internal static class PauseBackdropsVerification
         string stockPath = Path.Combine(stock, PauseBackdropDefinitions.FileName);
         string path = Path.Combine(overrides, PauseBackdropDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        var document = RequiredJson.Deserialize<PauseBackdropDocument>(stockBytes, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseBackdropDocument>(stockBytes, ArtworkJson.Options);
         var guard = NewPauseBackdropReadGuard(bus);
         var editedAreas = document.Areas.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
         foreach (var cells in editedAreas.Values)

@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 

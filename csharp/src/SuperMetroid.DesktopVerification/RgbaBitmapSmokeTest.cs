@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.DesktopVerification;
 

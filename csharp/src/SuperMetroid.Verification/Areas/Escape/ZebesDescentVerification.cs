@@ -4,7 +4,7 @@ using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Verification.Harness;
 

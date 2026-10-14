@@ -53,6 +53,7 @@ internal static class Program
             VerifyNullForgivingAnalyzer();
             VerifyAdapterChainAnalyzer();
             VerifyOneTypePerFileAnalyzer();
+            ModuleMapAnalyzerTests.VerifyModuleMapAnalyzers();
             VerifyOwnedReflectionAnalyzer();
             VerifyParameterContracts();
             VerifyCartridgeEncodingAnalyzer();

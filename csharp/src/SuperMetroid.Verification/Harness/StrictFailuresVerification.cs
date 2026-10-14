@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Harness;
 

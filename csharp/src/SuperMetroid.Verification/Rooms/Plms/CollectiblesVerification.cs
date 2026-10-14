@@ -573,11 +573,11 @@ internal static class CollectiblesVerification
         vram.LoadBytes((0x4000 + 8) * 2, character);
         var cgram = new SnesCgram();
         cgram.SetColor(25, Bgr555.FromWord(0x7fff));
-        var frame = new SuperMetroid.Core.Assets.Rgba32[256 * 224];
+        var frame = new SuperMetroid.Core.Hardware.Rgba32[256 * 224];
         message.Step(0); // radius 0
         message.Step(0); // radius 2: visible scanlines 122-125
         GameplayMessageBoxRenderer.Composite(frame, message, vram, cgram);
-        AssertEqual(default(SuperMetroid.Core.Assets.Rgba32), frame[121 * 256],
+        AssertEqual(default(SuperMetroid.Core.Hardware.Rgba32), frame[121 * 256],
             "message HDMA clip leaves scanline above radius untouched");
         AssertEqual(
             Bgr555.FromWord(0x0bb1).ToRgba32(),
@@ -699,9 +699,9 @@ internal static class CollectiblesVerification
         // scanlines at each edge with the one-pixel `$7878` beam.
         MotherBrainBeamWindowVerification.AssertOwnsNoScanlineTable(typeof(SamusSuitPickupState));
         AssertEqual(SamusSuitPickupBeam.None, pickup.Beam, "suit setup publishes an empty beam");
-        var pixels = new SuperMetroid.Core.Assets.Rgba32[256 * 224];
+        var pixels = new SuperMetroid.Core.Hardware.Rgba32[256 * 224];
         SamusSuitPickupRenderer.Composite(pixels, pickup.Flash);
-        AssertEqual(default(SuperMetroid.Core.Assets.Rgba32), pixels[0],
+        AssertEqual(default(SuperMetroid.Core.Hardware.Rgba32), pixels[0],
             "initial inverted suit window applies no fixed color");
         // The HDMA instruction list spends two handler calls before installing the
         // stage pre-instruction ($91:D5A2): neither changes the window table.
@@ -726,7 +726,7 @@ internal static class CollectiblesVerification
         SamusSuitPickupRenderer.Composite(pixels, pickup.Flash);
         AssertTrue(pixels[120].R != 0 && pixels[120].G != 0,
             "stage-zero one-pixel beam receives fixed color");
-        AssertEqual(default(SuperMetroid.Core.Assets.Rgba32), pixels[119],
+        AssertEqual(default(SuperMetroid.Core.Hardware.Rgba32), pixels[119],
             "pixel beside stage-zero beam remains outside color window");
 
         int transformationFrames = 1;

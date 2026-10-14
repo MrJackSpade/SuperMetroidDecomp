@@ -79,14 +79,14 @@ public sealed class WorldMapArtwork
         var front = new byte[WorldMapArtworkFormat.Width * WorldMapArtworkFormat.ForegroundHeight];
         for (int index = 0; index < front.Length; index++)
             front[index] = ForegroundPixel(index);
-        new AssetVram(vram).WorldMapForeground.Load(
+        new WorldMapVram(vram).Foreground.Load(
             SnesPlanarTileEncoder.Encode(front, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.ForegroundHeight), 4));
         var pixels = new byte[WorldMapArtworkFormat.Width * WorldMapArtworkFormat.BackgroundHeight];
         for (int index = 0; index < pixels.Length; index++)
             pixels[index] = background.TryGetValue(index, out byte value) ? value
                 : TryBackgroundDefault(index, out byte calculated) ? calculated
                 : throw new InvalidDataException("World background source pixel is unavailable.");
-        new AssetVram(vram).WorldMapBackground.Load(
+        new WorldMapVram(vram).Background.Load(
             SnesPlanarTileEncoder.Encode(pixels, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight), 2));
     }
 

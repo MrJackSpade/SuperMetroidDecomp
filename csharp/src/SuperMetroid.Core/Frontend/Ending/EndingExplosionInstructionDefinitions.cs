@@ -1,6 +1,7 @@
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingExplosionSpriteDefinitions.Pose;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -22,7 +23,7 @@ internal static class EndingExplosionInstructionDefinitions
     /// <summary>$8B:EB71, right stars and scene handoff.</summary>
     private const ushort RightStars = 0xeb71;
     /// <summary>$8B:EB71: right-star exposure before ExplosionFinale; the selected actor timing remains separately required.</summary>
-    internal const ushort RightStarInitialHoldTicks = 144;
+    internal const ushort RightStarInitialHoldTicks = ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.CycleFrames;
     /// <summary>$8B:EB81, left stars loop; also the right program's fallthrough.</summary>
     private const ushort LeftStars = 0xeb81;
     /// <summary>$8B:EB89, afterglow loop.</summary>

@@ -24,7 +24,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleTileAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleBeamTilePatterns.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/SnesPlanarTileEncoder.cs"),
-        new("csharp/src/SuperMetroid.Core/Runtime/RuntimeArtwork.cs"),
+        new("csharp/src/SuperMetroid.Core/Gameplay/RuntimeArtwork.cs"),
         new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleTileDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Samus/Artwork/ProjectileTrailAtlas.cs"),
         new("csharp/src/SuperMetroid.Core/Samus/Artwork/ProjectileTrailAtlasDefinitions.cs"),

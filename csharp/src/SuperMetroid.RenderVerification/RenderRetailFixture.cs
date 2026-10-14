@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.RenderVerification;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -7,6 +6,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.RenderVerification;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

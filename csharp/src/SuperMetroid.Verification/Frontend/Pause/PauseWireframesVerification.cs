@@ -13,6 +13,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks imported pause equipment wireframes and isolated artwork replacement across menu states.</summary>
@@ -25,7 +26,7 @@ internal static class PauseWireframesVerification
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseWireframeDefinitions.FileName), path = Path.Combine(overrides, PauseWireframeDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        var document = RequiredJson.Deserialize<PauseWireframeDocument>(stockBytes, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseWireframeDocument>(stockBytes, ArtworkJson.Options);
         var guard = NewPauseWireframeReadGuard(bus);
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {

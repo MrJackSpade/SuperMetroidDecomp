@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using SuperMetroid.EnsureAnalyzer;
 using SuperMetroid.EnsureAnalyzer.CodeFixes;
+using SuperMetroid.EnsureAnalyzer.Modules;
 
 namespace SuperMetroid.EnsureVerification;
 
@@ -92,6 +93,9 @@ internal static class OneTypePerFileAnalyzerTests
     private static void VerifyAnalyzerProjectsDeclareOneTypePerFile()
     {
         string source = NullForgivingAnalyzerTests.SourceDirectory();
+        string csharp = Path.GetDirectoryName(source) ?? throw new DirectoryNotFoundException(source);
+        ModuleMap map = ModuleMap.Parse(File.ReadAllText(Path.Combine(csharp, ModuleMap.FileName)),
+            Path.GetDirectoryName(csharp) ?? throw new DirectoryNotFoundException(csharp));
         foreach (string project in new[] { "SuperMetroid.EnsureAnalyzer", "SuperMetroid.EnsureAnalyzer.CodeFixes", "SuperMetroid.EnsureVerification" })
         {
             foreach (string file in Directory.EnumerateFiles(Path.Combine(source, project), "*.cs", SearchOption.AllDirectories))
@@ -108,6 +112,17 @@ internal static class OneTypePerFileAnalyzerTests
                 }
                 if (types.Length == 1 && !TypeFileNameAnalyzer.NamesType(Path.GetFileNameWithoutExtension(file), types[0]))
                     throw new InvalidOperationException($"{file}: declares {OneTypePerFileAnalyzer.NameOf(types[0])}; name the file after it (SME6401).");
+                if (types.Length == 1 && map.Relative(file) is { } relative && map.ModuleOf(relative) is { } module)
+                {
+                    string declared = root.DescendantNodes().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString() ?? "";
+                    string expected = ModuleMap.ExpectedNamespace(module, relative);
+                    if (declared != expected)
+                        throw new InvalidOperationException($"{file}: declares namespace '{declared}'; its module path implies '{expected}' (SME6402).");
+                }
+                else if (types.Length == 1)
+                {
+                    throw new InvalidOperationException($"{file}: is not inside a module registered in csharp/module-map.json (SME6403).");
+                }
             }
         }
     }

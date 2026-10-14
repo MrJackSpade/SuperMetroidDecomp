@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -61,7 +60,7 @@ public sealed class PauseReserveTankPresentation
     public static PauseReserveTankPresentation Load(Stream json)
     {
         PauseReserveTankDocument document;
-        try { document = JsonAssetDocument.Read<PauseReserveTankDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<PauseReserveTankDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Reserve tank document is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid reserve tank JSON.", error); }
         if (document.Version != PauseReserveTankDefinitions.Version || (uint)document.Palette > 7 ||
@@ -99,7 +98,7 @@ public sealed class PauseReserveTankPresentation
     /// <param name="document">The presentation document to validate and serialize.</param>
     public static void Write(Stream output, PauseReserveTankDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
     }
 }

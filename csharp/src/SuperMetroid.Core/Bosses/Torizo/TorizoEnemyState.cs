@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 

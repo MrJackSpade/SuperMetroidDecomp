@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks cartridge-extracted message text in the installed box renderer and editable presentation catalog.</summary>
 internal static class GameplayMessageNoticesVerification
@@ -45,7 +46,7 @@ internal static class GameplayMessageNoticesVerification
         JsonObject mapNotice = document.Required("notices").Required(            GameplayMessageId.MapDataAccessCompleted.ToString()).AsObject();
         mapNotice.Required("text").Required(0)["text"] = "MAP TEST";
         byte[] editedBytes = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            MapPresentationFormat.JsonOptions));
+            ArtworkJson.Options));
         GameplayMessageNoticePresentation edited = GameplayMessageNoticePresentation.Load(
             new MemoryStream(editedBytes, writable: false));
 
@@ -69,7 +70,7 @@ internal static class GameplayMessageNoticesVerification
             "restoring stock notice restores exact live tilemap");
 
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            MapPresentationFormat.JsonOptions).Replace("MAP TEST", "map test"));
+            ArtworkJson.Options).Replace("MAP TEST", "map test"));
         AssertThrows<InvalidDataException>(() => GameplayMessageNoticePresentation.Load(
             new MemoryStream(malformed, writable: false)),
             "gameplay-message notice rejects glyphs absent from its documented font mapping");
@@ -97,7 +98,7 @@ internal static class GameplayMessageNoticesVerification
         string replacement = Path.Combine(
             overrideDirectory, GameplayMessageNoticeDefinitions.FileName);
         File.WriteAllText(replacement,
-            document.ToJsonString(MapPresentationFormat.JsonOptions));
+            document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
         var state = new GameplayMessageBoxState();

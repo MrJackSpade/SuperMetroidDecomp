@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -68,7 +67,7 @@ public sealed class IntroEyeTilemapPresentation
     {
         Ensure.NotNull(json);
         IntroEyeTilemapDocument document = JsonAssetDocument.Read<IntroEyeTilemapDocument>(
-            json, MapPresentationFormat.JsonOptions, "opening eye tilemap");
+            json, ArtworkJson.Options, "opening eye tilemap");
         if (document.Version != IntroEyeTilemapFormat.Version ||
             document.Frames is not { Length: IntroEyeTilemapFormat.FrameCount })
             throw new InvalidDataException("Opening eye tilemap requires four ordered frames.");
@@ -106,7 +105,7 @@ public sealed class IntroEyeTilemapPresentation
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.DebugRunner.Assets;
 using SuperMetroid.AssetExtraction.Compression;
 using SuperMetroid.AssetExtraction.ReferenceRendering;

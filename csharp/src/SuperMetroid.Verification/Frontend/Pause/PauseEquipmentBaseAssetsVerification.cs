@@ -12,6 +12,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks installed pause equipment base tiles through page transitions and debugger rebinding.</summary>
@@ -26,7 +27,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         string stockPath = Path.Combine(stock, PauseEquipmentBaseDefinitions.FileName);
         string path = Path.Combine(overrides, PauseEquipmentBaseDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
-        var document = RequiredJson.Deserialize<PauseEquipmentBaseDocument>(stockBytes, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseEquipmentBaseDocument>(stockBytes, ArtworkJson.Options);
         byte[] nativeBase = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseEquipmentBaseDefinitions.Source,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
         AssertTrue(nativeBase.SequenceEqual(original.PauseEquipmentBase.CreateTilemap()),

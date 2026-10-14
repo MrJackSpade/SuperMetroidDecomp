@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
@@ -230,7 +229,7 @@ public sealed class GameplayHudPresentation
         try
         {
             document = JsonAssetDocument.Read<GameplayHudPresentationDocument>(source,
-                MapPresentationFormat.JsonOptions) ??
+                ArtworkJson.Options) ??
                 throw new InvalidDataException("Gameplay HUD presentation document is null.");
         }
         catch (JsonException error)
@@ -249,7 +248,7 @@ public sealed class GameplayHudPresentation
     /// <param name="document">The editable presentation document to serialize.</param>
     public static void Write(Stream output, GameplayHudPresentationDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

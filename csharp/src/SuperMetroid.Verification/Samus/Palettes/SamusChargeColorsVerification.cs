@@ -51,7 +51,7 @@ internal static class SamusChargeColorsVerification
 
         SamusChargeColorDocument document = JsonSerializer.Deserialize<SamusChargeColorDocument>(
             File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName)),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock charge colors are null.");
         Paint(document.ChargedBeam[0][0]);
         Paint(document.PseudoScrew[0][0]);
@@ -517,7 +517,7 @@ internal static class SamusChargeColorsVerification
         // Distinct edits, source-only edits and repeated-phase-only edits must remain independent.
         for (int editScope = 0; editScope < 5; editScope++)
         {
-            var document = RequiredJson.Deserialize<SamusChargeColorDocument>(extracted, MapPresentationFormat.JsonOptions);
+            var document = RequiredJson.Deserialize<SamusChargeColorDocument>(extracted, ArtworkJson.Options);
             for (int family = 0; family < 2; family++)
             for (int suit = 0; suit < 3; suit++)
             for (int phase = 0; phase < 6; phase++)

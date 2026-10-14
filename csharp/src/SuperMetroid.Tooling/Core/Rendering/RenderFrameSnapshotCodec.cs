@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rendering;
@@ -42,10 +41,10 @@ public static class RenderFrameSnapshotCodec
                     Mode7RenderRegisters? bg = ReadBoolean(reader)
                         ? ReadMode7Registers(reader, version)
                         : null;
-                    var gradient = Array.Empty<SuperMetroid.Core.Frontend.Title.TitleGradientLine>();
+                    var gradient = Array.Empty<SuperMetroid.Core.Rendering.TitleGradientLine>();
                     if (version >= RenderPacketFormat.TitleGradientVersion && ReadBoolean(reader))
                     {
-                        gradient = new SuperMetroid.Core.Frontend.Title.TitleGradientLine[SnesPpuLayout.ScreenHeightPixels];
+                        gradient = new SuperMetroid.Core.Rendering.TitleGradientLine[SnesPpuLayout.ScreenHeightPixels];
                         for (int i = 0; i < gradient.Length; i++)
                             gradient[i] = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
                     }

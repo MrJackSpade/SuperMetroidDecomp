@@ -38,7 +38,7 @@ internal static class RenderPresentationGateTestsVerification
             AssertTrue(!reset.IsCompleted, "reset cannot finish while presentation owns boundary");
             // Mailbox operations deliberately use a different lock and remain available.
             var mailbox = new LatestRenderFrameMailbox(2);
-            mailbox.Publish(new(current, default(SuperMetroid.Core.Assets.Rgba32)));
+            mailbox.Publish(new(current, default(SuperMetroid.Core.Hardware.Rgba32)));
             AssertTrue(mailbox.TakeLatest() is not null, "publication independent of presentation gate");
         }
         finally

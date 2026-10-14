@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -8,6 +7,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 

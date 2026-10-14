@@ -109,7 +109,7 @@ internal static class SamusHurtColorsVerification
         string path = Path.Combine(overrides, SamusHurtColorFormat.FileName);
         SamusHurtColorDocument document = JsonSerializer.Deserialize<SamusHurtColorDocument>(
             File.ReadAllBytes(Path.Combine(stock, SamusHurtColorFormat.FileName)),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Samus hurt color document is null.");
         PaletteRgb5 hurtOriginal = document.Hurt[5];
         PaletteRgb5 introOriginal = document.Intro[5];

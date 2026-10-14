@@ -57,6 +57,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -233,10 +234,10 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        GameOptionsPresentationDocument Read() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
+        GameOptionsPresentationDocument Read() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(imported, ArtworkJson.Options);
         Dictionary<string, SpriteComposition> Load(GameOptionsPresentationDocument document)
         {
-            var value = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            var value = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             return value.sprites;
         }
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
@@ -257,7 +258,7 @@ internal static class LookupStream3Verification
                 "native heading stores only semantic title identity instead of supplied bounds/order/style");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
-            var presentation = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, MapPresentationFormat.JsonOptions)));
+            var presentation = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
             string page = original.HeadingAnchors.Keys.Single(key => GameOptionsPresentationDefinitions.HeadingFrameName(key) == name);
             var actualOam = new OamBuffer();
             var expectedOam = new OamBuffer();
@@ -304,10 +305,10 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
+        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
         Dictionary<string, SpriteComposition> Load(FileSelectPresentationDocument document)
         {
-            var value = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            var value = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             return value.sprites;
         }
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
@@ -328,7 +329,7 @@ internal static class LookupStream3Verification
                 "native file border uses semantic title and calculated perimeter");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
-            var presentation = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, MapPresentationFormat.JsonOptions)));
+            var presentation = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
             string page = original.BorderAnchors.Keys.Single(key => FileSelectPresentationDefinitions.BorderFrameName(key) == name);
             var actualOam = new OamBuffer();
             var expectedOam = new OamBuffer();
@@ -450,7 +451,7 @@ internal static class LookupStream3Verification
             AssertThrows<IndexOutOfRangeException>(() => _ = stock.GetLines(source.Id)[stock.GetLines(source.Id).Count], "narration line upper bound");
         }
         AssertEqual(770, nativeCharacters, "six native narration pages contain770 characters");
-        var document = RequiredJson.Deserialize<IntroNarrationDocument>(json, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<IntroNarrationDocument>(json, ArtworkJson.Options);
         void ConfirmEdit()
         {
             using var stream = new MemoryStream();
@@ -527,9 +528,9 @@ internal static class LookupStream3Verification
             composition.parts is not CompiledSpritePart[];
 
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
-        GameOverPresentationDocument Read() => RequiredJson.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
+        GameOverPresentationDocument Read() => RequiredJson.Deserialize<GameOverPresentationDocument>(imported, ArtworkJson.Options);
         GameOverPresentation Load(GameOverPresentationDocument document) => GameOverPresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var original = Read();
         var stock = Sprites(Load(original));
         var presentation = Load(original);
@@ -602,11 +603,11 @@ internal static class LookupStream3Verification
             {
                 string name = GameOverPresentationDefinitions.CursorFrameName(frame);
                 var node = RequiredJson.Parse(json);
-                var parts = RequiredJson.Deserialize<SpriteVisualPart[]>(node.Required("sprites").Required(name).ToJsonString(), MapPresentationFormat.JsonOptions);
+                var parts = RequiredJson.Deserialize<SpriteVisualPart[]>(node.Required("sprites").Required(name).ToJsonString(), ArtworkJson.Options);
                 AssertTrue(Calculated(presentation[name]), "shared menu cursor caller uses calculated geometry");
                 Confirm(presentation[name], parts);
                 parts[0] = parts[0] with { OffsetX = parts[0].OffsetX + 1, TileColumn = parts[0].TileColumn ^ 1 };
-                node.Required("sprites")[name] = System.Text.Json.JsonSerializer.SerializeToNode(parts, MapPresentationFormat.JsonOptions);
+                node.Required("sprites")[name] = System.Text.Json.JsonSerializer.SerializeToNode(parts, ArtworkJson.Options);
                 var edited = load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
                 Confirm(edited[name], parts);
             }
@@ -673,9 +674,9 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
+        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
         FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         foreach ((string name, Func<FileSelectPresentation, FileSelectCompiledPatch> Compiled, int address, int count) in
             new (string, Func<FileSelectPresentation, FileSelectCompiledPatch>, int, int)[]
         {
@@ -746,9 +747,9 @@ internal static class LookupStream3Verification
     private static void VerifyStream3GameOverText(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<GameOverPresentationDocument>(imported, ArtworkJson.Options);
         GameOverPresentation Load() => GameOverPresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = Load();
         AssertTrue(stock.tilemap is null, "game-over stock text retains no tilemap row");
         Confirm(stock);
@@ -783,9 +784,9 @@ internal static class LookupStream3Verification
     {
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom);
         GameOptionsPresentationDocument ReadDocument() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(
-            imported, MapPresentationFormat.JsonOptions);
+            imported, ArtworkJson.Options);
         GameOptionsPresentation Load(GameOptionsPresentationDocument document) => GameOptionsPresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = ReadDocument();
         var loaded = Load(stock);
         foreach (var (field, geometry) in new (string, object?)[]
@@ -1698,7 +1699,7 @@ internal static class LookupStream3Verification
         };
         MotherBrainRainbowPalettePresentation Load(MotherBrainRainbowPaletteDocument value,
             MotherBrainRainbowPalettePresentation? stock = null) => MotherBrainRainbowPalettePresentation.Load(
-                new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, MapPresentationFormat.JsonOptions)), stock);
+                new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, ArtworkJson.Options)), stock);
         void Check(MotherBrainRainbowPalettePresentation palette)
         {
             var cgram = new SnesCgram();
@@ -2915,7 +2916,7 @@ internal static class LookupStream3Verification
             }).ToArray();
         }
         EnemySpritemapCatalog Load() => EnemySpritemapCatalog.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         void Check(EnemySpritemapCatalog catalog)
         {
             foreach (var frame in selected)
@@ -3057,9 +3058,9 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<MotherBrainRoomColorDocument>(imported, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<MotherBrainRoomColorDocument>(imported, ArtworkJson.Options);
         MotherBrainRoomColorPresentation Load() => MotherBrainRoomColorPresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = Load();
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var finalRoom = stock.finalRoom;
@@ -3125,10 +3126,10 @@ internal static class LookupStream3Verification
     {
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         MotherBrainRoomColorDocument Read() => RequiredJson.Deserialize<MotherBrainRoomColorDocument>(
-            imported, MapPresentationFormat.JsonOptions);
+            imported, ArtworkJson.Options);
         MotherBrainRoomColorPresentation Load(MotherBrainRoomColorDocument document, MotherBrainRoomColorPresentation? current = null) =>
             MotherBrainRoomColorPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-                document, MapPresentationFormat.JsonOptions)), current);
+                document, ArtworkJson.Options)), current);
         var document = Read();
         var stock = Load(document);
         for (int color = 0; color < MotherBrainRoomColorRomData.InitialColors; color++)
@@ -3349,9 +3350,9 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         Suite(nameof(VerifyStream3FileSelectBorders), () => VerifyStream3FileSelectBorders(rom, imported));
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
+        FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
         FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         SpriteComposition Composition(FileSelectPresentation owner, string name) =>
             (owner.sprites)[name];
         var original = Read();

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks editable gameplay message panels and live title/diagram binding.</summary>
 internal static class GameplayMessagePanelsVerification
@@ -39,7 +40,7 @@ internal static class GameplayMessagePanelsVerification
         JsonObject missile = document.Required("panels").Required(GameplayMessageId.MissileTank.ToString()).AsObject();
         missile["title"] = "MISSILE TEST";
         byte[] editedBytes = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            MapPresentationFormat.JsonOptions));
+            ArtworkJson.Options));
         GameplayMessagePanelPresentation edited = GameplayMessagePanelPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
 
@@ -64,7 +65,7 @@ internal static class GameplayMessagePanelsVerification
             "restoring stock panel restores exact live tilemap and configured button");
 
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
-            MapPresentationFormat.JsonOptions).Replace("MISSILE TEST", "missile test"));
+            ArtworkJson.Options).Replace("MISSILE TEST", "missile test"));
         AssertThrows<InvalidDataException>(() => GameplayMessagePanelPresentation.Load(
             new MemoryStream(malformed, writable: false)),
             "gameplay-message panel rejects glyphs absent from its documented font mapping");
@@ -92,7 +93,7 @@ internal static class GameplayMessagePanelsVerification
         string replacement = Path.Combine(
             overrideDirectory, GameplayMessagePanelDefinitions.FileName);
         File.WriteAllText(replacement,
-            document.ToJsonString(MapPresentationFormat.JsonOptions));
+            document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
         var state = new GameplayMessageBoxState();

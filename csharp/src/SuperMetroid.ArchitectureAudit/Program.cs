@@ -8,7 +8,8 @@ namespace SuperMetroid.ArchitectureAudit;
 /// <summary>
 /// #621 architecture audit. Inventories every source type with a disposition and checks it against the
 /// checked-in <c>docs/architecture-inventory.json</c>; every structural flag must be accepted by a reviewed
-/// entry in <c>docs/architecture-reviews.json</c>, and no review may outlive its finding.
+/// entry in <c>docs/architecture-reviews.json</c>, and no review may outlive its finding. It also writes and checks the
+/// #626 per-file module inventory, <c>docs/module-inventory.json</c>.
 /// </summary>
 internal static class Program
 {
@@ -48,14 +49,19 @@ internal static class Program
                 regenerate = "dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write",
                 types = entries.Select(entry => Reviewed(entry, reviews.Reviews)).ToList(),
             }, Json).ReplaceLineEndings("\n") + "\n";
-            if (write)
+            string modulePath = Path.Combine(solution.RepositoryRoot, "docs", "module-inventory.json");
+            string modules = JsonSerializer.Serialize(ModuleInventory.Collect(solution, problems), Json).ReplaceLineEndings("\n") + "\n";
+            foreach ((string path, string content) in new[] { (inventoryPath, document), (modulePath, modules) })
             {
-                File.WriteAllText(inventoryPath, document);
-                Console.WriteLine($"Wrote {inventoryPath}: {entries.Count} types.");
-            }
-            else if (!File.Exists(inventoryPath) || File.ReadAllText(inventoryPath).ReplaceLineEndings("\n") != document)
-            {
-                problems.Add($"{inventoryPath} is stale; regenerate it with --write and review the difference.");
+                if (write)
+                {
+                    File.WriteAllText(path, content);
+                    Console.WriteLine($"Wrote {path}.");
+                }
+                else if (!File.Exists(path) || File.ReadAllText(path).ReplaceLineEndings("\n") != content)
+                {
+                    problems.Add($"{path} is stale; regenerate it with --write and review the difference.");
+                }
             }
             foreach (string problem in problems)
                 Console.Error.WriteLine(problem);

@@ -1,8 +1,8 @@
 using SuperMetroid.Core;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Desktop;
 

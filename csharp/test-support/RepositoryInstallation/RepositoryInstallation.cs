@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation;
 

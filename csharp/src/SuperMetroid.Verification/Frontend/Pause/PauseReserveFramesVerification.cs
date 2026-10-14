@@ -26,7 +26,7 @@ internal static class PauseReserveFramesVerification
     internal static void VerifyPauseReserveFrameCases(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
-        var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
         var stock = PauseReserveTankPresentation.Load(new MemoryStream(bytes));
         Suite(nameof(VerifyPauseReserveNativeFrames), () => VerifyPauseReserveNativeFrames(rom, stock));
         Suite(nameof(VerifyPauseReserveStockParts), () => VerifyPauseReserveStockParts(rom, document));

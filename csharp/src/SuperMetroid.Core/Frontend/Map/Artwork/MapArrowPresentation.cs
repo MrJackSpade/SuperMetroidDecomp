@@ -25,7 +25,7 @@ public sealed class MapArrowPresentation
     public static MapArrowPresentation Load(Stream json)
     {
         MapArrowDocument document;
-        try { document = JsonAssetDocument.Read<MapArrowDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<MapArrowDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("Map arrow presentation is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map arrow JSON.", error); }
         if (document.Version != MapArrowFormat.Version || document.Arrows is null || document.Arrows.Count != MapArrowDefinitions.Count)
@@ -43,7 +43,7 @@ public sealed class MapArrowPresentation
     /// <summary>Validates and writes a map-arrow presentation document as JSON.</summary>
     public static void Write(Stream json, MapArrowDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

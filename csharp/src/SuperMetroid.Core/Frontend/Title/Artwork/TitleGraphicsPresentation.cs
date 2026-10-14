@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
@@ -76,7 +75,7 @@ public sealed class TitleGraphicsPresentation
         {
             map = JsonAssetDocument.Read<TitleMode7MapDocument>(
                 mode7MapJson,
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
                 ?? throw new InvalidDataException("Title Mode 7 map is null.");
         }
         catch (JsonException error)
@@ -110,11 +109,11 @@ public sealed class TitleGraphicsPresentation
     /// <param name="document">The map and sprite-composition document to serialize.</param>
     public static void WriteMap(Stream json, TitleMode7MapDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         TitleMode7MapDocument restored;
         try
         {
-            restored = JsonAssetDocument.Read<TitleMode7MapDocument>(bytes, MapPresentationFormat.JsonOptions)
+            restored = JsonAssetDocument.Read<TitleMode7MapDocument>(bytes, ArtworkJson.Options)
                 ?? throw new InvalidDataException("Title Mode 7 map is null.");
         }
         catch (JsonException error)

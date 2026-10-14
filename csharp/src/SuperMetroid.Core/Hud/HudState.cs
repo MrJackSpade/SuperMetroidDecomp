@@ -1,9 +1,9 @@
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Hud;
 

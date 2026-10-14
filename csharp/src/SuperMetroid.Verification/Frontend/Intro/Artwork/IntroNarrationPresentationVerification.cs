@@ -71,7 +71,7 @@ internal static class IntroNarrationPresentationVerification
         editedDocument.Required("pages").Required(IntroNarrationPageId.Page6.ToString()).Required("lines").Required(0)["text"] =
             "TEST";
         byte[] editedBytes = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(MapPresentationFormat.JsonOptions));
+            editedDocument.ToJsonString(ArtworkJson.Options));
         IntroNarrationPresentation edited = IntroNarrationPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
         ushort[] editedTilemap = CreateBlankIntroTilemap();
@@ -117,7 +117,7 @@ internal static class IntroNarrationPresentationVerification
         editedDocument.Required("pages").Required(IntroNarrationPageId.Page6.ToString()).Required("lines").Required(0)["text"] =
             "lowercase";
         byte[] malformed = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(MapPresentationFormat.JsonOptions));
+            editedDocument.ToJsonString(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => IntroNarrationPresentation.Load(
             new MemoryStream(malformed, writable: false)),
             "opening narration rejects glyphs absent from the documented font mapping");
@@ -199,7 +199,7 @@ internal static class IntroNarrationPresentationVerification
         string replacement = Path.Combine(
             overrideDirectory, IntroNarrationDefinitions.FileName);
         File.WriteAllText(replacement,
-            document.ToJsonString(MapPresentationFormat.JsonOptions));
+            document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
         AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),

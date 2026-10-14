@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -145,7 +144,7 @@ public sealed class IntroCinematicPalette
     public static IntroCinematicPalette Load(Stream json)
     {
         IntroCinematicPaletteDocument document = JsonAssetDocument.Read<IntroCinematicPaletteDocument>(
-            json, MapPresentationFormat.JsonOptions, "opening palette");
+            json, ArtworkJson.Options, "opening palette");
         if (document.Version != IntroCinematicPaletteFormat.Version ||
             document.Colors is not { Length: CgramPalettes.ColorCount })
             throw new InvalidDataException("Opening palette requires 256 RGB5 colors.");
@@ -171,7 +170,7 @@ public sealed class IntroCinematicPalette
     {
         Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

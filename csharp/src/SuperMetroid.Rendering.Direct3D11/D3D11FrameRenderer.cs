@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using Vortice.Direct3D11;
@@ -451,7 +450,7 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>Rejects unsupported layers, uploads PPU memory once, then dispatches passes in scene order.</summary>
     private unsafe void DrawLayers(RenderFrameSnapshot packet, LayeredRenderSnapshot scene,
-        ReadOnlySpan<SuperMetroid.Core.Frontend.Title.TitleGradientLine> gradient = default)
+        ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default)
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (RenderLayer layer in scene.Layers)
@@ -572,7 +571,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>Applies authored RGB/control values across title scanlines after tile composition.</summary>
-    private unsafe void DispatchTitleGradient(ReadOnlySpan<SuperMetroid.Core.Frontend.Title.TitleGradientLine> lines, int objects, byte selection)
+    private unsafe void DispatchTitleGradient(ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> lines, int objects, byte selection)
     {
         var data = ClearUploadConstants();
         data[13] = (uint)objects; data[14] = selection; data[26] = 224;

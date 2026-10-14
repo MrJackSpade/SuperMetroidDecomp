@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -8,6 +7,8 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Verification.Frontend;
 

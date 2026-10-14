@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
@@ -201,7 +200,7 @@ internal static class HyperBeamFxColorArtworkVerification
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Apply(new SnesCgram(), invalidFrame, 225), "FX frame bounds");
         foreach (string editScope in new[] { "all", "even", "green", "red", "white", "shade-sources" })
         {
-            var document = RequiredJson.Deserialize<HyperBeamFxColorDocument>(json, MapPresentationFormat.JsonOptions);
+            var document = RequiredJson.Deserialize<HyperBeamFxColorDocument>(json, ArtworkJson.Options);
             for (int frame = 0; frame < 10; frame++)
             for (int color = 0; color < 8; color++)
             {

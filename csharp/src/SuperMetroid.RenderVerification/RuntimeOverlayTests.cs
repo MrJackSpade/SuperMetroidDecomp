@@ -1,9 +1,9 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.RenderVerification;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

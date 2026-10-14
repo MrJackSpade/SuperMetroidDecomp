@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Areas.Ceres.CeresExplosionVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -111,7 +111,7 @@ internal static class PowerBombFixedColorsVerification
         string path = Path.Combine(overrides, PowerBombFixedColorFormat.FileName);
         PowerBombFixedColorDocument document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(
             File.ReadAllBytes(Path.Combine(stock, PowerBombFixedColorFormat.FileName)),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Power Bomb color document is null.");
         PaletteRgb5 original = document.PreExplosion[0];
         document.PreExplosion[0] = original with { Red = (original.Red + 1) % 32 };

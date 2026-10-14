@@ -2,8 +2,8 @@ using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
@@ -143,7 +143,7 @@ public sealed class GameOverPresentation
         try
         {
             document = JsonAssetDocument.Read<GameOverPresentationDocument>(
-                bytes, MapPresentationFormat.JsonOptions) ??
+                bytes, ArtworkJson.Options) ??
                 throw new InvalidDataException("Game-over presentation document is null.");
         }
         catch (JsonException error)
@@ -223,7 +223,7 @@ public sealed class GameOverPresentation
     /// <exception cref="InvalidDataException">The serialized document fails game-over presentation validation.</exception>
     public static void Write(Stream output, GameOverPresentationDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

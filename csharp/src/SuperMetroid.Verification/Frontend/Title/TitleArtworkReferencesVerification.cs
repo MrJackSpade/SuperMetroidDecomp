@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
@@ -78,7 +77,7 @@ internal static class TitleArtworkReferencesVerification
         {
             using var mode7Stream = new MemoryStream(mode7, writable: false);
             using var mapStream = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value,
-                MapPresentationFormat.JsonOptions), writable: false);
+                ArtworkJson.Options), writable: false);
             using var objectStream = new MemoryStream(objects, writable: false);
             using var babyStream = new MemoryStream(baby, writable: false);
             return TitleGraphicsPresentation.Load(mode7Stream, mapStream, objectStream, babyStream);

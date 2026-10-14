@@ -114,7 +114,7 @@ public sealed class CeresDoorVisualCatalog
 
     /// <summary>Loads $0400 selected 4bpp bytes, or 32 characters, at VRAM byte $E000, replacing variant two's native $B0:C400 DMA source.</summary>
     public void LoadTiles(SnesVram vram) =>
-        tiles.LoadTo(new AssetVram(vram).CeresDoorTiles);
+        tiles.LoadTo(new CeresDoorVram(vram).Tiles);
 
     /// <summary>Installs fifteen normal nontransparent inks corresponding to $A6:F4EE in current CGRAM, exposing the native completed setup-fade target directly.</summary>
     /// <param name="cgram">Current palette receiving the setup image.</param>

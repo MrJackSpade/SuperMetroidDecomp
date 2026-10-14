@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Verification.Audio;
 
 /// <summary>Checks same-frame gameplay sound publication, ordering, and Power Bomb echo suppression.</summary>

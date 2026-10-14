@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Frontend.Recording;
 namespace SuperMetroid.IntegrationVerification;
 using SuperMetroid.Diagnostics.Android;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Fx;
 

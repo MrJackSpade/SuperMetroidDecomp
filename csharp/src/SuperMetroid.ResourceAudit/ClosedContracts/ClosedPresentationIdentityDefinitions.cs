@@ -69,7 +69,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("RoomCharacterAtlasCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.CharacterAddress),
         ("RoomMetatileCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.BlockDefinitionsAddress),
         ("RoomStaticPaletteCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.PaletteAddress),
-        ("AreaMapPresentationCatalog", "Resolve", "asset") =>
+        ("AreaMapPresentationCatalog" or "IGameplayPresentationContent", "Resolve", "asset") =>
             [(int)VramAssetId.StandardHudTiles, (int)VramAssetId.KraidBg3RestoreQuarter0,
              (int)VramAssetId.KraidBg3RestoreQuarter1, (int)VramAssetId.KraidBg3RestoreQuarter2,
              (int)VramAssetId.KraidBg3RestoreQuarter3, (int)VramAssetId.EscapeTimerFirstTiles,

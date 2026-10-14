@@ -32,7 +32,7 @@ internal static class PauseSelectorsVerification
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseSelectorDefinitions.FileName), path = Path.Combine(overrides, PauseSelectorDefinitions.FileName);
         byte[] bytes = File.ReadAllBytes(stockPath);
-        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         var guard = NewPauseSelectorReadGuard(bus);
         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b9c9), PauseMenuLayout.MapMarkerPaletteBits, "compiled map caller palette matches native word");
         Suite(nameof(VerifyPauseSelectorAnchors), () => VerifyPauseSelectorAnchors(bus));

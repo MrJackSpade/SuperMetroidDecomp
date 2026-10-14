@@ -85,7 +85,7 @@ internal static class EscapeTimerPresentationVerification
             EscapeTimerTileAtlasFormat.SecondDestinationWord * 2, nativeSecondTiles.Length)),
             "Mother Brain synchronous second timer transfer uses installed artwork");
 
-        var restoredQueueRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        var restoredQueueRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,
             EscapeTimerTileRomData.FirstSourceAddress, VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.FirstDestinationWord));
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.SecondByteCount,
@@ -114,7 +114,7 @@ internal static class EscapeTimerPresentationVerification
             "installed timer label/digits exactly match native high OAM");
 
         var document = RequiredJson.Deserialize<EscapeTimerPresentationDocument>(extracted,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         document.Anchors["Minutes"] = document.Anchors["Minutes"] with
         {
             X = (short)(document.Anchors["Minutes"].X + 1),

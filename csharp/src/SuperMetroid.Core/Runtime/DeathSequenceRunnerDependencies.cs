@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Runtime;
 

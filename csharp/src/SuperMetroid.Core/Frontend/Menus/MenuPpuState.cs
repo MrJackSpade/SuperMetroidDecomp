@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Menus;
 

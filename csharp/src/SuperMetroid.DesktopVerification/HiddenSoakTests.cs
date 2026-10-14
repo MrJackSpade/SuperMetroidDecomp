@@ -9,6 +9,7 @@ using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 
 using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.DesktopVerification;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

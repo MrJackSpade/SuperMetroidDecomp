@@ -69,7 +69,7 @@ internal static class EndingPaletteArtworkVerification
         EndingPalette Load(PaletteRgb5[] supplied)
         {
             using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
-                new EndingPaletteDocument { Version = 1, Colors = supplied }, MapPresentationFormat.JsonOptions));
+                new EndingPaletteDocument { Version = 1, Colors = supplied }, ArtworkJson.Options));
             return EndingPalette.Load(json, EndingPaletteId.LogoCrossfade);
         }
         EndingPalette loaded = Load(colors);
@@ -192,7 +192,7 @@ internal static class EndingPaletteArtworkVerification
             {
                 Version = 1,
                 Colors = Enumerable.Range(0, 256).Select(_ => new PaletteRgb5 { Red = i, Green = 0, Blue = 0 }).ToArray(),
-            }, MapPresentationFormat.JsonOptions));
+            }, ArtworkJson.Options));
             supplied[i] = EndingPalette.Load(json, EndingPaletteId.Escape);
         }
         var catalog = new EndingPaletteCatalog(supplied[0], supplied[1], supplied[2], supplied[3], supplied[4], supplied[5], supplied[6]);
@@ -302,7 +302,7 @@ internal static class EndingPaletteArtworkVerification
             string stockPath = Path.Combine(installation.EndingPaletteDirectory, name);
             string overridePath = Path.Combine(installation.EndingPaletteOverrideDirectory, name);
             EndingPaletteDocument document = JsonSerializer.Deserialize<EndingPaletteDocument>(
-                File.ReadAllBytes(stockPath), MapPresentationFormat.JsonOptions)
+                File.ReadAllBytes(stockPath), ArtworkJson.Options)
                 ?? throw new InvalidDataException($"Ending {id} palette JSON is empty.");
             int changedColor = id switch
             {
@@ -382,7 +382,7 @@ internal static class EndingPaletteArtworkVerification
         EndingPaletteDocument persistent = JsonSerializer.Deserialize<EndingPaletteDocument>(
             File.ReadAllBytes(Path.Combine(installation.EndingPaletteDirectory,
                 EndingPaletteDefinitions.FileName(EndingPaletteId.Escape))),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock ending escape palette is empty.");
         persistent.Colors[0] = persistent.Colors[0] with
         {
@@ -417,13 +417,13 @@ internal static class EndingPaletteArtworkVerification
             RoomPaletteFxPresentationFormat.FileName));
         RoomPaletteFxPresentationDocument document =
             JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(stockFile,
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock ending palette-FX document is empty.");
         foreach (PaletteRgb5[] frame in document.ZebesExplosionLava)
             for (int color = 0; color < frame.Length; color++)
                 frame[color] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
         byte[] editedFile = JsonSerializer.SerializeToUtf8Bytes(document,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         RoomPaletteFxPresentation editedColors = RoomPaletteFxPresentation.Load(
             new MemoryStream(editedFile, writable: false));
 
@@ -521,7 +521,7 @@ internal static class EndingPaletteArtworkVerification
         string overridePath = Path.Combine(installation.EndingPaletteOverrideDirectory, name);
         EndingPaletteDocument document = JsonSerializer.Deserialize<EndingPaletteDocument>(
             File.ReadAllBytes(Path.Combine(installation.EndingPaletteDirectory, name)),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock ending credits palette is empty.");
         for (int index = 0; index < document.Colors.Length; index++)
             document.Colors[index] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };
@@ -572,7 +572,7 @@ internal static class EndingPaletteArtworkVerification
         string overridePath = Path.Combine(installation.EndingPaletteOverrideDirectory, name);
         EndingPaletteDocument document = JsonSerializer.Deserialize<EndingPaletteDocument>(
             File.ReadAllBytes(Path.Combine(installation.EndingPaletteDirectory, name)),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock ending logo fade palette is empty.");
         for (int index = 0; index < document.Colors.Length; index++)
             document.Colors[index] = new PaletteRgb5 { Red = 31, Green = 0, Blue = 0 };

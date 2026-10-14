@@ -53,7 +53,7 @@ public sealed class WorldMapLabelLayout
     public static WorldMapLabelLayout Load(Stream json)
     {
         WorldMapLabelDocument document;
-        try { document = JsonAssetDocument.Read<WorldMapLabelDocument>(json, MapPresentationFormat.JsonOptions)
+        try { document = JsonAssetDocument.Read<WorldMapLabelDocument>(json, ArtworkJson.Options)
             ?? throw new InvalidDataException("World-map label layout is null."); }
         catch (JsonException error) { throw new InvalidDataException("Invalid world-map label layout JSON.", error); }
         if (document.Version != WorldMapLabelFormat.Version || document.Areas is null || document.Areas.Count != 6)
@@ -75,7 +75,7 @@ public sealed class WorldMapLabelLayout
     /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream json, WorldMapLabelDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }

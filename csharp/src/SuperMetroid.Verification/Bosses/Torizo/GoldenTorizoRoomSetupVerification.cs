@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 

@@ -1,7 +1,7 @@
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresDestructionArtworkVerification;
-using static SuperMetroid.Verification.Areas.Ceres.CeresFlightArtworkVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionArtworkVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingFlyawayArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingMode7ArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingObjectArtworkVerification;

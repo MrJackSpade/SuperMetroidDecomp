@@ -1,15 +1,14 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Options;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 namespace SuperMetroid.Verification.Frontend.Options;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks the three game-options heading sprites and placement anchors against cartridge instructions.</summary>
 internal static class GameOptionsHeadingsVerification
@@ -22,7 +21,7 @@ internal static class GameOptionsHeadingsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Options headings oracle revision");
         byte[] json = GameOptionsPresentationExtractor.Extract(rom);
         _ = GameOptionsPresentation.Load(new MemoryStream(json));
-        var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(json, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(json, ArtworkJson.Options);
         Suite(nameof(VerifyGameOptionsHeadingIds), () => VerifyGameOptionsHeadingIds(rom, document));
         Suite(nameof(VerifyGameOptionsHeadingAnchors), () => VerifyGameOptionsHeadingAnchors(rom, document));
     }

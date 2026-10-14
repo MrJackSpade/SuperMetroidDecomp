@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -12,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>Checks installed gameplay HUD art, live tile updates, and editable layout overrides.</summary>
@@ -40,7 +40,7 @@ internal static class GameplayHudPresentationVerification
                 InHudRange(address, GameplayHudDefinitions.AmmoDigitsAddress, 20) ||
                 InHudRange(address, GameplayHudDefinitions.AutoReserveTableAddress, 24),
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
-        var topRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
+        var topRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
             { Artwork = { MapPresentation = original } };
         topRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, VramDmaDestination.FromNative(0x5800));
@@ -97,7 +97,7 @@ internal static class GameplayHudPresentationVerification
             "installed minimap anchor matches native and needs no HUD visual ROM data");
 
         var document = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         document = document with
         {
             Digits = document.Digits with { HealthAnchor = new(4, 2) },
@@ -113,7 +113,7 @@ internal static class GameplayHudPresentationVerification
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "gameplay HUD override changes selected catalog identity");
-        var editedTopRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
+        var editedTopRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
             { Artwork = { MapPresentation = edited } };
         editedTopRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, VramDmaDestination.FromNative(0x5800));
@@ -166,12 +166,12 @@ internal static class GameplayHudPresentationVerification
         AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null,
             document with { TopRow = document.TopRow[..^1] }), "HUD rejects incomplete immutable row");
         var overlap = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         overlap = overlap with { Digits = overlap.Digits with { HealthAnchor = new(8, 0) } };
         AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null, overlap),
             "HUD rejects overlapping visual owners");
         var missingIcon = RequiredJson.Deserialize<GameplayHudPresentationDocument>(extracted,
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         missingIcon.Icons.Remove("XRay");
         AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(Stream.Null, missingIcon),
             "HUD rejects missing named icons");

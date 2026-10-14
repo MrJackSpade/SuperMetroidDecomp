@@ -47,8 +47,8 @@ internal static class FrontendRomFreeGoldenTorizoVerification
                     // screen, obscuring later enemy-list boundaries. Both
                     // references use the same player-facing host option.
                     var options = new SuperMetroidGameOptions { Invincibility = true };
-                    nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options);
-                    installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options);
+                    nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
+                    installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
                     ForceGoldenTorizoLeftTurn(nativeRoom, installedRoom,
                         GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge);
                 }, golden: new GoldenTorizoForcing { ForcedGoldenLeftTurnStart = GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge }, heldInput: heldInput);

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using static SuperMetroid.Verification.Areas.Ceres.CeresDestructionVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionVerification;
 using static SuperMetroid.Verification.Frontend.FrontendVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;

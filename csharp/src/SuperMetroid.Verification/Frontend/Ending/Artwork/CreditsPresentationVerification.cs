@@ -9,6 +9,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks extracted staff-credit rows, playback cadence, and installed text overrides.</summary>
 internal static class CreditsPresentationVerification
@@ -60,7 +61,7 @@ internal static class CreditsPresentationVerification
         editedLine["column"] = 3;
         editedLine["palette"] = 6;
         byte[] editedBytes = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(MapPresentationFormat.JsonOptions));
+            editedDocument.ToJsonString(ArtworkJson.Options));
         CreditsPresentation edited = CreditsPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
         int firstTextRow = CreditsPresentationDefinitions.InitialBlankRows;
@@ -97,7 +98,7 @@ internal static class CreditsPresentationVerification
         JsonObject document = RequiredJson.Parse(extracted).AsObject();
         mutate(document);
         byte[] bytes = Encoding.UTF8.GetBytes(
-            document.ToJsonString(MapPresentationFormat.JsonOptions));
+            document.ToJsonString(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => CreditsPresentation.Load(
             new MemoryStream(bytes, writable: false)), identity);
     }
@@ -117,7 +118,7 @@ internal static class CreditsPresentationVerification
         string overridePath = Path.Combine(
             overrideDirectory, CreditsPresentationDefinitions.FileName);
         File.WriteAllText(overridePath,
-            document.ToJsonString(MapPresentationFormat.JsonOptions));
+            document.ToJsonString(ArtworkJson.Options));
 
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);

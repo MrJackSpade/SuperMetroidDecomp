@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 

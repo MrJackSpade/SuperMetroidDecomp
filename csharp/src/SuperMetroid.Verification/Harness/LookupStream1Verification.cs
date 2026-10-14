@@ -1815,7 +1815,7 @@ internal static class LookupStream1Verification
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1TimerLayoutRomByte(rom, address), LookupStream1TimerLayoutRomByte(rom, address + 1)));
         byte[] json = EscapeTimerPresentationExtractor.Extract(rom);
         var stock = EscapeTimerPresentation.Load(new MemoryStream(json));
-        var document = RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, ArtworkJson.Options);
         AssertEqual(0, stock.frames.Count, "Timer stock stores no calculated frame fallbacks");
         AssertEqual(0, stock.anchors.Count, "Timer stock stores no calculated anchor fallbacks");
         int parts = 0;
@@ -1876,7 +1876,7 @@ internal static class LookupStream1Verification
         }
         Console.WriteLine("Escape timer layout:25 native parts,4 native anchors, zero stock dictionaries,10 decimal OAM fixtures and independent frame/anchor/spacing/palette edits pass.");
 
-        EscapeTimerPresentationDocument Read() => RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions);
+        EscapeTimerPresentationDocument Read() => RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, ArtworkJson.Options);
         static EscapeTimerPresentation Load(EscapeTimerPresentationDocument value)
         {
             using var stream = new MemoryStream(); EscapeTimerPresentation.Write(stream, value); stream.Position = 0;

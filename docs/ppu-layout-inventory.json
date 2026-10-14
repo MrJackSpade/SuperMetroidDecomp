@@ -1,101 +1,15 @@
 {
   "cells": [
     {
-      "owner": "SuperMetroid.Core.Areas.Ceres.CeresVramLayout",
-      "name": "ObjectCharacters",
-      "region": "Vram",
-      "offset": "$6000",
-      "count": 8192,
-      "encoding": "4-bpp OBJ characters",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresVram.cs",
-        "csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresDestructionVerification.cs",
-        "csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresFlightArtworkVerification.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Areas.Ceres.CeresVramLayout",
-      "name": "SpaceColonyTilemap",
-      "region": "Vram",
-      "offset": "$5C00",
-      "count": 1024,
-      "encoding": "BG tilemap words (32x32)",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Areas.Ceres.CeresVramLayout",
-      "name": "ZebesTilemap",
-      "region": "Vram",
-      "offset": "$5C00",
-      "count": 1024,
-      "encoding": "BG tilemap words (32x32)",
-      "aliasOf": "CeresVramLayout.SpaceColonyTilemap",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Assets.AssetVramLayout",
-      "name": "CeresDoorTiles",
+      "owner": "SuperMetroid.Core.Areas.Ceres.CeresDoorVramLayout",
+      "name": "Tiles",
       "region": "Vram",
       "offset": "$7000",
       "count": 512,
       "encoding": "4-bpp OBJ characters",
       "aliasOf": "GameplayVramLayout.ObjectCharacters",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Assets/AssetVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Assets.AssetVramLayout",
-      "name": "ProjectileIceWaveTrail",
-      "region": "Vram",
-      "offset": "$6380",
-      "count": 128,
-      "encoding": "4-bpp OBJ characters",
-      "aliasOf": "GameplayVramLayout.ObjectCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Assets/AssetVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Assets.AssetVramLayout",
-      "name": "ProjectileMissileTrail",
-      "region": "Vram",
-      "offset": "$6480",
-      "count": 64,
-      "encoding": "4-bpp OBJ characters",
-      "aliasOf": "GameplayVramLayout.ObjectCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Assets/AssetVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Assets.AssetVramLayout",
-      "name": "WorldMapBackground",
-      "region": "Vram",
-      "offset": "$4000",
-      "count": 768,
-      "encoding": "2-bpp BG characters",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Assets/AssetVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Assets.AssetVramLayout",
-      "name": "WorldMapForeground",
-      "region": "Vram",
-      "offset": "$0000",
-      "count": 11008,
-      "encoding": "4-bpp BG characters",
-      "aliasOf": "PpuMemoryLayout.Vram",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Assets/AssetVram.cs"
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresDoorVram.cs"
       ]
     },
     {
@@ -1094,6 +1008,44 @@
       ]
     },
     {
+      "owner": "SuperMetroid.Core.Frontend.CeresCinematics.CeresVramLayout",
+      "name": "ObjectCharacters",
+      "region": "Vram",
+      "offset": "$6000",
+      "count": 8192,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresVram.cs",
+        "csharp/src/SuperMetroid.Verification/Frontend/CeresCinematics/CeresDestructionVerification.cs",
+        "csharp/src/SuperMetroid.Verification/Frontend/CeresCinematics/CeresFlightArtworkVerification.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.CeresCinematics.CeresVramLayout",
+      "name": "SpaceColonyTilemap",
+      "region": "Vram",
+      "offset": "$5C00",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresVram.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.CeresCinematics.CeresVramLayout",
+      "name": "ZebesTilemap",
+      "region": "Vram",
+      "offset": "$5C00",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "CeresVramLayout.SpaceColonyTilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresVram.cs"
+      ]
+    },
+    {
       "owner": "SuperMetroid.Core.Frontend.Ending.EndingVramLayout",
       "name": "CreditsFont",
       "region": "Vram",
@@ -1554,6 +1506,30 @@
       ]
     },
     {
+      "owner": "SuperMetroid.Core.Frontend.Map.WorldMapVramLayout",
+      "name": "Background",
+      "region": "Vram",
+      "offset": "$4000",
+      "count": 768,
+      "encoding": "2-bpp BG characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/Map/WorldMapVram.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.Map.WorldMapVramLayout",
+      "name": "Foreground",
+      "region": "Vram",
+      "offset": "$0000",
+      "count": 11008,
+      "encoding": "4-bpp BG characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/Map/WorldMapVram.cs"
+      ]
+    },
+    {
       "owner": "SuperMetroid.Core.Frontend.Menus.MenuVramLayout",
       "name": "AreaBackgroundTilemap",
       "region": "Vram",
@@ -1831,6 +1807,18 @@
       ]
     },
     {
+      "owner": "SuperMetroid.Core.Gameplay.NewGamePaletteLayout",
+      "name": "CeresElevatorConcealer",
+      "region": "Cgram",
+      "offset": "$00DF",
+      "count": 1,
+      "encoding": "Bgr555 colour",
+      "aliasOf": "PpuMemoryLayout.ObjPalette5",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Gameplay/NewGamePalettes.cs"
+      ]
+    },
+    {
       "owner": "SuperMetroid.Core.Hardware.GameplayVramLayout",
       "name": "BackgroundCharacters",
       "region": "Vram",
@@ -1880,7 +1868,6 @@
       "encoding": "2-bpp BG3 characters then zeroed BG2 tilemap words",
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Assets/AssetVram.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs"
       ]
     },
@@ -1921,10 +1908,11 @@
       "encoding": "4-bpp OBJ characters (16 words each)",
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Assets/AssetVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresDoorVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVramLayout.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileTrailVramLayout.cs"
       ]
     },
     {
@@ -2357,11 +2345,11 @@
       "encoding": "VRAM words (u16 little-endian)",
       "aliasOf": null,
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresVramLayout.cs",
-        "csharp/src/SuperMetroid.Core/Assets/AssetVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Frontend/Map/WorldMapVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Frontend/Menus/MenuVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Frontend/Title/TitleVramLayout.cs",
@@ -2420,18 +2408,6 @@
       "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Runtime.NewGamePaletteLayout",
-      "name": "CeresElevatorConcealer",
-      "region": "Cgram",
-      "offset": "$00DF",
-      "count": 1,
-      "encoding": "Bgr555 colour",
-      "aliasOf": "PpuMemoryLayout.ObjPalette5",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Runtime/NewGamePalettes.cs"
       ]
     },
     {
@@ -2638,6 +2614,30 @@
       "consumers": [
         "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorTransitionPalettes.cs",
         "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Samus.Projectiles.ProjectileTrailVramLayout",
+      "name": "IceWaveTrail",
+      "region": "Vram",
+      "offset": "$6380",
+      "count": 128,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileTrailVram.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Samus.Projectiles.ProjectileTrailVramLayout",
+      "name": "MissileTrail",
+      "region": "Vram",
+      "offset": "$6480",
+      "count": 64,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileTrailVram.cs"
       ]
     }
   ]

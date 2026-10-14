@@ -3,12 +3,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Input;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Saves;
 
@@ -26,7 +25,7 @@ public static class GameSaveJsonCodec
         Enum.GetValues<BossBits>().Aggregate((left, right) => left | right);
 
     /// <summary>Captures all meaningful persistent state without a duplicate native-memory image.</summary>
-    public static GameSaveJsonDocument Capture(SuperMetroidAddressSpace addressSpace, AreaMapPresentationCatalog maps)
+    public static GameSaveJsonDocument Capture(SuperMetroidAddressSpace addressSpace, IAreaMapSource maps)
     {
         Ensure.NotNull(addressSpace);
         var saveRam = new SuperMetroidSaveRam(addressSpace, maps);
@@ -88,7 +87,7 @@ public static class GameSaveJsonCodec
     /// </summary>
     public static void Apply(
         GameSaveJsonDocument document,
-        SuperMetroidAddressSpace addressSpace, AreaMapPresentationCatalog maps)
+        SuperMetroidAddressSpace addressSpace, IAreaMapSource maps)
     {
         Ensure.NotNull(addressSpace);
         Validate(document);

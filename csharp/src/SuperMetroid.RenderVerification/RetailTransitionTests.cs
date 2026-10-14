@@ -1,11 +1,11 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.RenderVerification;
 using SuperMetroid.TestSupport.FrameCapture;
 

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using static SuperMetroid.Verification.Areas.Ceres.CeresDestructionVerification;
+using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;

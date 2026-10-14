@@ -27,7 +27,7 @@ internal static class PauseReserveTankAssetsVerification
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseReserveTankDefinitions.FileName), path = Path.Combine(overrides, PauseReserveTankDefinitions.FileName);
         byte[] bytes = File.ReadAllBytes(stockPath);
-        var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<PauseReserveTankDocument>(bytes, ArtworkJson.Options);
         var guard = NewReserveTankAssetReadGuard(bus);
         Suite(nameof(VerifyPauseReserveAnchors), () => VerifyPauseReserveAnchors(bus));
         int comparisons = 0;

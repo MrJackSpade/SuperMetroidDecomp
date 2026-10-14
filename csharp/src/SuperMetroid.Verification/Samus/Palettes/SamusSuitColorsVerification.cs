@@ -16,6 +16,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 
@@ -51,7 +52,7 @@ internal static class SamusSuitColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve(offset, invalid), "Normal color index bounds");
         foreach (bool powerOnly in new[] { false, true })
         {
-            var document = RequiredJson.Deserialize<SamusSuitColorDocument>(extracted, MapPresentationFormat.JsonOptions);
+            var document = RequiredJson.Deserialize<SamusSuitColorDocument>(extracted, ArtworkJson.Options);
             int ordinal = 1000;
             foreach (var palette in new[] { document.Power, document.Varia, document.Gravity })
             for (int color = 0; color < 16; color++, ordinal++)
@@ -137,7 +138,7 @@ internal static class SamusSuitColorsVerification
 
         SamusSuitColorDocument document = JsonSerializer.Deserialize<SamusSuitColorDocument>(
             File.ReadAllBytes(Path.Combine(stockDirectory, SamusSuitColorFormat.FileName)),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Samus suit palette JSON is null.");
         Paint(document.Power, 1);
         Paint(document.Varia, 2);
@@ -210,7 +211,7 @@ internal static class SamusSuitColorsVerification
 
         PaletteRgb5 originalColor = document.Varia[1];
         document.Varia[1] = originalColor with { Red = 32 };
-        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
         AssertThrows<InvalidDataException>(() => SamusSuitColorCatalog.Load(
             new MemoryStream(malformed, writable: false)),
             "Samus suit colors reject out-of-range RGB5 channels");

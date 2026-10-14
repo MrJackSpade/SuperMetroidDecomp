@@ -1,5 +1,5 @@
 using System.Buffers.Binary;
-using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
@@ -9,7 +9,7 @@ internal static class PauseTileGrid
     /// <summary>Decodes a packed pause tile into its selected map or interface atlas cell and display attributes.</summary>
     public static PauseBackdropCell FromWord(ushort raw, string name)
     {
-        var word = new SuperMetroid.Core.Frontend.Map.MapTileWord(raw);
+        var word = new SuperMetroid.Core.Map.MapTileWord(raw);
         int character = word.CharacterIndex;
         if (character >= PauseBackdropDefinitions.AtlasTileCount * 2)
             throw new InvalidDataException($"Pause artwork {name} references unloaded character {character}.");

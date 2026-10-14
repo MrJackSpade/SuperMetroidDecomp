@@ -3,7 +3,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -43,7 +42,7 @@ internal static class EndingContentIdentityVerification
         }
         static MemoryStream Map(int height, int seed) => new(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
             new EndingMode7MapDocument { Version = 1, Width = 128, Height = height,
-                Tiles = Enumerable.Repeat(seed, 128 * height).ToArray() }, MapPresentationFormat.JsonOptions));
+                Tiles = Enumerable.Repeat(seed, 128 * height).ToArray() }, ArtworkJson.Options));
         static MemoryStream Png(int seed)
         {
             var png = new MemoryStream();

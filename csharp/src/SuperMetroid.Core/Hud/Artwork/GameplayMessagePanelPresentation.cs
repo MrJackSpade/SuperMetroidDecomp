@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Hud.Artwork;
 
@@ -80,7 +79,7 @@ public sealed class GameplayMessagePanelPresentation
         try
         {
             document = JsonAssetDocument.Read<GameplayMessagePanelDocument>(
-                source, MapPresentationFormat.JsonOptions)
+                source, ArtworkJson.Options)
                 ?? throw new InvalidDataException("Gameplay-message panel document is null.");
         }
         catch (JsonException error)
@@ -154,7 +153,7 @@ public sealed class GameplayMessagePanelPresentation
     public static void Write(Stream output, GameplayMessagePanelDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document, MapPresentationFormat.JsonOptions);
+            document, ArtworkJson.Options);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }

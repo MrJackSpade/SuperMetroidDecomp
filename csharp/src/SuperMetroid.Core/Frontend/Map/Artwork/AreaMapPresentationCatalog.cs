@@ -17,11 +17,14 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Immutable map content snapshot. Overrides never alter stock provenance or exploration rules.</summary>
-public sealed class AreaMapPresentationCatalog : IVramAssetProvider
+public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPresentationContent
 {
     /// <summary>One validated map view per retail area in area-ID order.</summary>
     private readonly IAreaMapView[] areas;
@@ -424,7 +427,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
             try
             {
                 manifest = JsonAssetDocument.Read<AreaMapCatalogManifest>(
-                    File.ReadAllBytes(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile)), MapPresentationFormat.JsonOptions)
+                    File.ReadAllBytes(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile)), ArtworkJson.Options)
                     ?? throw new InvalidDataException("Map catalog manifest is null.");
             }
             catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {directory}.", error); }
@@ -465,7 +468,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
             Dictionary<string, int[]> masks;
             try
             {
-                masks = JsonAssetDocument.Read<Dictionary<string, int[]>>(ReadOnlyStream(Read(AreaMapCatalogFormat.StationRevealFile)), MapPresentationFormat.JsonOptions)
+                masks = JsonAssetDocument.Read<Dictionary<string, int[]>>(ReadOnlyStream(Read(AreaMapCatalogFormat.StationRevealFile)), ArtworkJson.Options)
                     ?? throw new InvalidDataException("Station reveal content is null.");
             }
             catch (JsonException error) { throw new InvalidDataException("Invalid station reveal content.", error); }

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Verification.Harness;
 

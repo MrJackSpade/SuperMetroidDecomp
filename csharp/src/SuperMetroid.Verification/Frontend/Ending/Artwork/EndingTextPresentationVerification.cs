@@ -71,7 +71,7 @@ internal static class EndingTextPresentationVerification
         editedDocument["finalMessage"] = "TEST";
         editedDocument.Required("resultPanel")["text"] = "TEST";
         byte[] editedBytes = Encoding.UTF8.GetBytes(
-            editedDocument.ToJsonString(MapPresentationFormat.JsonOptions));
+            editedDocument.ToJsonString(ArtworkJson.Options));
         EndingTextPresentation edited = EndingTextPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
         AssertEqual(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.ResultSmall),
@@ -100,7 +100,7 @@ internal static class EndingTextPresentationVerification
         editedDocument["finalMessage"] = "lowercase";
         AssertThrows<InvalidDataException>(() => EndingTextPresentation.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(
-                editedDocument.ToJsonString(MapPresentationFormat.JsonOptions)), writable: false)),
+                editedDocument.ToJsonString(ArtworkJson.Options)), writable: false)),
             "ending text rejects glyphs absent from its documented font mapping");
         IndexedPngImage editableFont = IndexedPng.Read(
             new MemoryStream(fontPng, writable: false),
@@ -143,7 +143,7 @@ internal static class EndingTextPresentationVerification
         JsonObject document = RequiredJson.Parse(deterministic).AsObject();
         document["finalMessage"] = "TEST";
         string replacement = Path.Combine(overrideDirectory, EndingTextDefinitions.FileName);
-        File.WriteAllText(replacement, document.ToJsonString(MapPresentationFormat.JsonOptions));
+        File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
         AssertEqual(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.FinalLarge),

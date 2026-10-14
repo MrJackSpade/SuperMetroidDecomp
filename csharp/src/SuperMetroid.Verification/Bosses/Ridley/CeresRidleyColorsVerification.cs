@@ -12,6 +12,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
 /// <summary>Checks Ceres and Norfair Ridley palette installation against native CGRAM rows.</summary>
@@ -62,7 +63,7 @@ internal static class CeresRidleyColorsVerification
 
         CeresRidleyColorDocument document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(
             File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyColorFormat.FileName)),
-            MapPresentationFormat.JsonOptions)
+            ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Ceres Ridley colors are null.");
         Paint(document.Start);
         Paint(document.EyeFade[15]);
@@ -179,7 +180,7 @@ internal static class CeresRidleyColorsVerification
         byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
             document with { Version = (int)CeresRidleyColorVersion.PreBaby,
                 Baby = null, Alarm = null },
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         File.WriteAllBytes(replacement, legacyJson);
         AreaMapPresentationCatalog migrated =
             AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
@@ -194,7 +195,7 @@ internal static class CeresRidleyColorsVerification
             "version-one Ceres Ridley override inherits stock alarm colors");
         byte[] preAlarmJson = JsonSerializer.SerializeToUtf8Bytes(
             document with { Version = (int)CeresRidleyColorVersion.PreAlarm, Alarm = null },
-            MapPresentationFormat.JsonOptions);
+            ArtworkJson.Options);
         File.WriteAllBytes(replacement, preAlarmJson);
         AreaMapPresentationCatalog preAlarm =
             AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);

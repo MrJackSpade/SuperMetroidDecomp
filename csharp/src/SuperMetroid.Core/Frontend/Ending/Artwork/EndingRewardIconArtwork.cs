@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -31,7 +30,7 @@ public sealed class EndingRewardIconArtwork
         try
         {
             map = JsonSerializer.Deserialize<EndingMode7MapDocument>(mapJson,
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
                 ?? throw new InvalidDataException("Reward icon map JSON is null.");
         }
         catch (JsonException error)
@@ -63,7 +62,7 @@ public sealed class EndingRewardIconArtwork
     {
         Ensure.NotNull(json);
         ValidateMap(map);
-        JsonSerializer.Serialize(json, map, MapPresentationFormat.JsonOptions);
+        JsonSerializer.Serialize(json, map, ArtworkJson.Options);
     }
 
     /// <summary>Requires a full 128-by-128 reward map of byte-valued tile indices.</summary>

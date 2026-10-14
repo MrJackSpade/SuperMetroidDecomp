@@ -9,6 +9,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Map.Artwork;
 
 namespace SuperMetroid.Verification.Frontend.FileSelect.Artwork;
 
@@ -78,7 +79,7 @@ internal static class FileSelectPresentationVerification
             "installed file-select helmet animation retains native frame");
 
         var document = RequiredJson.Deserialize<FileSelectPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions);
+            extracted, ArtworkJson.Options);
         document.MainCursorAnchors[0] = document.MainCursorAnchors[0] with
             { X = (ushort)(document.MainCursorAnchors[0].X + 8) };
         document.HelmetAnchors[0] = document.HelmetAnchors[0] with
@@ -131,12 +132,12 @@ internal static class FileSelectPresentationVerification
             document with { ObjectPalette = 8 }),
             "file-select rejects invalid object palette");
         var missingPage = RequiredJson.Deserialize<FileSelectPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions);
+            extracted, ArtworkJson.Options);
         missingPage.Pages.Remove(FileSelectPresentationDefinitions.CopyCompletedPage);
         AssertThrows<InvalidDataException>(() => FileSelectPresentation.Write(Stream.Null, missingPage),
             "file-select rejects a missing named page");
         var duplicatePatch = RequiredJson.Deserialize<FileSelectPresentationDocument>(
-            extracted, MapPresentationFormat.JsonOptions);
+            extracted, ArtworkJson.Options);
         FileSelectPatchCellDocument duplicate = duplicatePatch.Patches[
             FileSelectPresentationDefinitions.NoDataPatch].Cells[0];
         duplicatePatch.Patches[FileSelectPresentationDefinitions.NoDataPatch] = new()

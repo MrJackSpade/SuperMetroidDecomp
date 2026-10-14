@@ -80,7 +80,7 @@ internal static class MotherBrainRoomColorsVerification
         MotherBrainRoomColorDocument document =
             JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(
                 File.ReadAllBytes(Path.Combine(stock, MotherBrainRoomColorFormat.FileName)),
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
             ?? throw new InvalidDataException("Extracted Mother Brain room colors are null.");
         document.Flash[0][0] = Change(document.Flash[0][0]);
         document.FinalRoom[MotherBrainRoomColorRomData.SliceColors] =
@@ -97,7 +97,7 @@ internal static class MotherBrainRoomColorsVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain room-color override changes selected-content identity");
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
         {
             Artwork = { MapPresentation = edited },
         };
@@ -117,27 +117,27 @@ internal static class MotherBrainRoomColorsVerification
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Flash = document.Flash.Take(13).ToArray(),
-            }, MapPresentationFormat.JsonOptions))), "reject truncated Mother Brain room-flash list");
+            }, ArtworkJson.Options))), "reject truncated Mother Brain room-flash list");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorPresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 PhaseTwoAttack = document.PhaseTwoAttack.Take(14).ToArray(),
-            }, MapPresentationFormat.JsonOptions))), "reject truncated phase-two attack colors");
+            }, ArtworkJson.Options))), "reject truncated phase-two attack colors");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorPresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 InitialGlassShard = document.InitialGlassShard.Take(14).ToArray(),
-            }, MapPresentationFormat.JsonOptions))), "reject truncated room-entry glass colors");
+            }, ArtworkJson.Options))), "reject truncated room-entry glass colors");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorPresentation.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 RecoveryLights = document.RecoveryLights.Take(6).ToArray(),
-            }, MapPresentationFormat.JsonOptions))), "reject truncated room-light recovery sequence");
+            }, ArtworkJson.Options))), "reject truncated room-light recovery sequence");
         byte[] previousVersion = JsonSerializer.SerializeToUtf8Bytes(document with
         {
             Version = MotherBrainRoomColorFormat.PreRecoveryLightsVersion,
             RecoveryLights = null,
-        }, MapPresentationFormat.JsonOptions);
+        }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, previousVersion);
         AreaMapPresentationCatalog migratedV2 = AreaMapPresentationCatalog.Load(stock, overrides);
         var migratedRecovery = new SnesCgram();
@@ -158,7 +158,7 @@ internal static class MotherBrainRoomColorsVerification
             InitialGlassShard = null,
             InitialTubeProjectile = null,
             RecoveryLights = null,
-        }, MapPresentationFormat.JsonOptions);
+        }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, legacy);
         AreaMapPresentationCatalog migrated = AreaMapPresentationCatalog.Load(stock, overrides);
         var migratedFlash = new SnesCgram();

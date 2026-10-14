@@ -10,6 +10,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -47,7 +48,7 @@ internal static class CeresRidleyMode7ColorsVerification
         CeresRidleyMode7ColorDocument document =
             JsonSerializer.Deserialize<CeresRidleyMode7ColorDocument>(
                 File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyMode7ColorFormat.FileName)),
-                MapPresentationFormat.JsonOptions)
+                ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Ceres Mode-7 colors are null.");
         for (int row = 0; row < document.ZoomRows.Length; row++)
         {

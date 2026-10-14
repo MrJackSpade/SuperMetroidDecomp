@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
 

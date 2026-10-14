@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 

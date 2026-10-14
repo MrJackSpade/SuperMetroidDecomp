@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Map;
 namespace SuperMetroid.TestSupport.RenderFixtures;
 using SuperMetroid.Core;
 

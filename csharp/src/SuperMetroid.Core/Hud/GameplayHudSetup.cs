@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Hud;
 
@@ -66,9 +66,9 @@ internal sealed class GameplayHudSetup
         // $1000 bytes; the following $1000-byte clear table intentionally fills the rest of
         // VRAM $4000-$4FFF with zeroes.
         if (_artwork.MapPresentation is null)
-            _vramWrites.Enqueue(HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.SourceAddress, Assets.AssetVram.HudCharacterUploadDma);
+            _vramWrites.Enqueue(HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.SourceAddress, GameplayVram.HudCharacterUploadDma);
         else
-            _vramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, Assets.AssetVram.HudCharacterUploadDma);
+            _vramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, GameplayVram.HudCharacterUploadDma);
 
         // $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at
         // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;

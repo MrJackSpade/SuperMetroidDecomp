@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
-using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Frontend.Recording;
 
 namespace SuperMetroid.Game;
 

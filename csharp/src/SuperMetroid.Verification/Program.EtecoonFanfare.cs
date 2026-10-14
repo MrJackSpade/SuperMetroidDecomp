@@ -59,7 +59,7 @@ internal static class EtecoonFanfareVerification
         var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
         var queue = new CartridgeAudioState();
         renderer.RenderFrame(queue.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
-        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
+        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
         queue.QueueSound(request.SoundEffect, request.MaximumQueued);
         AssertTrue(queue.HasQueuedSounds, "post-fade fanfare reaches CPU queue");
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });

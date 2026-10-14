@@ -28,15 +28,15 @@ internal static class AudioMusicProgramsVerification
         int instructionCount = 0;
         foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogData.All)
         {
-            AudioBankMetadata bank = stock.GetMusicBank(definition.SnesAddress);
+            AudioBankMetadata bank = stock.GetMusicBank(definition.Bank);
             trackCount += bank.MusicTracks.Count;
             phraseCount += bank.MusicPhrases.Count;
             programCount += bank.MusicPrograms.Count;
             instructionCount += bank.MusicPrograms.Sum(program => program.Instructions.Count);
             var raw = new ManagedSpcPlayer();
-            raw.Upload(stock.GetUpload(AudioUploadAddresses.SpcEngine).Span);
-            if (definition.SnesAddress != AudioUploadAddresses.SpcEngine)
-                raw.Upload(stock.GetUpload(definition.SnesAddress).Span);
+            raw.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
+            if (definition.Bank != AudioBank.SpcEngine)
+                raw.Upload(stock.GetUpload(definition.Bank).Span);
             foreach ((int address, byte value) in SpcMusicDefinitionCodec.CompileBank(bank))
             {
                 AssertEqual(
@@ -127,8 +127,8 @@ internal static class AudioMusicProgramsVerification
             ExtractedAudioAssetCatalog edited = ExtractedAudioAssetCatalog.Load(editedDirectory);
             var stockRenderer = new CartridgeAudioRenderer(stock);
             var editedRenderer = new CartridgeAudioRenderer(edited);
-            CartridgeAudioCommand common = CartridgeAudioCommand.Upload(AudioUploadAddresses.SpcEngine);
-            CartridgeAudioCommand titleUpload = CartridgeAudioCommand.Upload(AudioUploadAddresses.TitleSequence);
+            CartridgeAudioCommand common = CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
+            CartridgeAudioCommand titleUpload = CartridgeAudioCommand.Upload(AudioBank.TitleSequence);
             CartridgeAudioCommand titleCommand = CartridgeAudioCommand.WritePort(
                 ApuPort.Music,
                 unchecked((byte)titleTrackIndex));

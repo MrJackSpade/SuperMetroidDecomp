@@ -4,23 +4,23 @@ using System.Security.Cryptography;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// Immutable address-keyed collection of extracted SPC upload streams. Runtime audio uses
-/// the original cartridge address as its lookup key, preserving the 65816 queue protocol
-/// without reading music or sample bytes from the ROM after startup.
+/// Immutable collection of extracted SPC upload streams keyed by <see cref="AudioBank"/>.
+/// The on-disk manifest still names each upload by its cartridge address; loading maps it to
+/// the bank identity once, so runtime audio reads no music or sample bytes from the ROM.
 /// </summary>
 public sealed class ExtractedAudioAssetCatalog
 {
     /// <summary>JSON manifest filename beneath the selected audio root, identifying upload streams, canonical WAV samples, and authored bank/SFX definitions.</summary>
     public const string ManifestFileName = "audio-manifest.json";
     /// <summary>Opaque SPC upload bytes indexed by their original cartridge command address.</summary>
-    private readonly IReadOnlyDictionary<int, byte[]> streams;
+    private readonly IReadOnlyDictionary<AudioBank, byte[]> streams;
     /// <summary>Canonical replaceable PCM samples associated with each upload address.</summary>
-    internal readonly IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks;
+    internal readonly IReadOnlyDictionary<AudioBank, ManagedPcmSampleBank> sampleBanks;
     /// <summary>Validated six-byte instrument definitions selected by each music upload.</summary>
-    private readonly IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>>
+    private readonly IReadOnlyDictionary<AudioBank, IReadOnlyList<AudioInstrumentMetadata>>
         instrumentBanks;
     /// <summary>Compiled track, phrase, and channel definitions for each music upload.</summary>
-    private readonly IReadOnlyDictionary<int, AudioBankMetadata> musicBanks;
+    private readonly IReadOnlyDictionary<AudioBank, AudioBankMetadata> musicBanks;
     /// <summary>Number of distinct PCM assets after equivalent sample sources are aliased.</summary>
     internal readonly int canonicalSampleCount;
 
@@ -68,7 +68,7 @@ public sealed class ExtractedAudioAssetCatalog
                 $"Audio manifest '{manifestPath}' uses format {manifest.FormatVersion}; expected {AudioAssetManifest.CurrentFormatVersion}.");
         }
 
-        Dictionary<int, byte[]> loaded = [];
+        Dictionary<AudioBank, byte[]> loaded = [];
         foreach (AudioUploadManifestEntry entry in manifest.Uploads)
         {
             string path = ResolveContainedPath(root, entry.StreamFile);
@@ -79,13 +79,14 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException(
                     $"Extracted audio stream '{path}' has SHA-256 {actualHash}, expected {entry.Sha256}.");
             }
-            if (!loaded.TryAdd(entry.SnesAddress, bytes))
+            AudioBank uploadBank = AudioAssetCatalogData.ResolveSnesAddress(entry.SnesAddress).Bank;
+            if (!loaded.TryAdd(uploadBank, bytes))
                 throw new InvalidDataException($"Audio manifest repeats SNES upload address ${entry.SnesAddress:X6}.");
         }
 
         int[] missing = AudioAssetCatalogData.All
+            .Where(definition => !loaded.ContainsKey(definition.Bank))
             .Select(definition => definition.SnesAddress)
-            .Where(address => !loaded.ContainsKey(address))
             .ToArray();
         if (missing.Length != 0)
         {
@@ -94,9 +95,9 @@ public sealed class ExtractedAudioAssetCatalog
         }
         Dictionary<string, ManagedPcmSample> canonicalSamples =
             LoadCanonicalSamples(root, manifest.CanonicalSamples);
-        Dictionary<int, ManagedPcmSampleBank> banks = [];
-        Dictionary<int, IReadOnlyList<AudioInstrumentMetadata>> instruments = [];
-        Dictionary<int, AudioBankMetadata> musicBanks = [];
+        Dictionary<AudioBank, ManagedPcmSampleBank> banks = [];
+        Dictionary<AudioBank, IReadOnlyList<AudioInstrumentMetadata>> instruments = [];
+        Dictionary<AudioBank, AudioBankMetadata> musicBanks = [];
         foreach (AudioBankMetadata bank in manifest.Banks)
         {
             AudioUploadAssetDefinition definition = AudioAssetCatalogData.All.SingleOrDefault(
@@ -136,17 +137,17 @@ public sealed class ExtractedAudioAssetCatalog
                     throw new InvalidDataException($"PCM bank '{bank.Name}' has ambiguous loop entry ${mapping.LoopAddress:X4}.");
                 loopEntries.Add(mapping.Source, targets[0].Source);
             }
-            if (!banks.TryAdd(bank.SnesAddress, new ManagedPcmSampleBank(bank.Name, bank.SnesAddress, sources, loopEntries)))
+            if (!banks.TryAdd(definition.Bank, new ManagedPcmSampleBank(bank.Name, definition.Bank, sources, loopEntries)))
                 throw new InvalidDataException($"Audio manifest repeats sample bank address ${bank.SnesAddress:X6}.");
-            if (!instruments.TryAdd(bank.SnesAddress, ValidateInstruments(bank)))
+            if (!instruments.TryAdd(definition.Bank, ValidateInstruments(bank)))
                 throw new InvalidDataException($"Audio manifest repeats instrument bank address ${bank.SnesAddress:X6}.");
             ValidateMusicBank(bank);
-            if (!musicBanks.TryAdd(bank.SnesAddress, bank))
+            if (!musicBanks.TryAdd(definition.Bank, bank))
                 throw new InvalidDataException($"Audio manifest repeats music bank address ${bank.SnesAddress:X6}.");
         }
         int[] missingBanks = AudioAssetCatalogData.All
+            .Where(definition => !banks.ContainsKey(definition.Bank))
             .Select(definition => definition.SnesAddress)
-            .Where(address => !banks.ContainsKey(address))
             .ToArray();
         if (missingBanks.Length != 0)
         {
@@ -233,36 +234,36 @@ public sealed class ExtractedAudioAssetCatalog
         return Load(overrideRoot);
     }
 
-    /// <summary>Returns the exact terminated upload stream for a cartridge command.</summary>
-    public ReadOnlyMemory<byte> GetUpload(int snesAddress) =>
-        streams.TryGetValue(snesAddress, out byte[]? bytes)
+    /// <summary>Returns the exact terminated upload stream of one bank.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="bank"/> is not a loaded bank.</exception>
+    public ReadOnlyMemory<byte> GetUpload(AudioBank bank) =>
+        streams.TryGetValue(bank, out byte[]? bytes)
             ? bytes
-            : throw new InvalidDataException(
-                $"Audio command references unmapped extracted upload address ${snesAddress:X6}.");
+            : throw new InvalidDataException($"Audio references unmapped extracted upload {bank}.");
 
     /// <summary>Returns the replaceable PCM source map installed by the same upload.</summary>
-    public ManagedPcmSampleBank GetSampleBank(int snesAddress) =>
-        sampleBanks.TryGetValue(snesAddress, out ManagedPcmSampleBank? bank)
-            ? bank
-            : throw new InvalidDataException(
-                $"Audio command references unmapped PCM bank address ${snesAddress:X6}.");
+    /// <exception cref="InvalidDataException"><paramref name="bank"/> is not a loaded bank.</exception>
+    public ManagedPcmSampleBank GetSampleBank(AudioBank bank) =>
+        sampleBanks.TryGetValue(bank, out ManagedPcmSampleBank? samples)
+            ? samples
+            : throw new InvalidDataException($"Audio references unmapped PCM bank {bank}.");
 
     /// <summary>
     /// Returns the editable instrument table installed after the corresponding opaque
     /// upload. The ordered records retain the SPC driver's native six-byte identities.
     /// </summary>
-    public IReadOnlyList<AudioInstrumentMetadata> GetInstrumentBank(int snesAddress) =>
-        instrumentBanks.TryGetValue(snesAddress, out IReadOnlyList<AudioInstrumentMetadata>? bank)
-            ? bank
-            : throw new InvalidDataException(
-                $"Audio command references unmapped instrument bank address ${snesAddress:X6}.");
+    /// <exception cref="InvalidDataException"><paramref name="bank"/> is not a loaded bank.</exception>
+    public IReadOnlyList<AudioInstrumentMetadata> GetInstrumentBank(AudioBank bank) =>
+        instrumentBanks.TryGetValue(bank, out IReadOnlyList<AudioInstrumentMetadata>? instruments)
+            ? instruments
+            : throw new InvalidDataException($"Audio references unmapped instrument bank {bank}.");
 
     /// <summary>Returns the decoded authored music definitions installed by one upload.</summary>
-    public AudioBankMetadata GetMusicBank(int snesAddress) =>
-        musicBanks.TryGetValue(snesAddress, out AudioBankMetadata? bank)
-            ? bank
-            : throw new InvalidDataException(
-                $"Audio command references unmapped music bank address ${snesAddress:X6}.");
+    /// <exception cref="InvalidDataException"><paramref name="bank"/> is not a loaded bank.</exception>
+    public AudioBankMetadata GetMusicBank(AudioBank bank) =>
+        musicBanks.TryGetValue(bank, out AudioBankMetadata? music)
+            ? music
+            : throw new InvalidDataException($"Audio references unmapped music bank {bank}.");
 
     /// <summary>Decoded, address-stable authored SFX channel programs.</summary>
     public IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms { get; }

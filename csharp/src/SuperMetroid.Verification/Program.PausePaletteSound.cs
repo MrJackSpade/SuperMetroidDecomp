@@ -19,8 +19,8 @@ internal static class PausePaletteSoundVerification
         var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
         var assets = ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory);
         var player = new ManagedSpcPlayer();
-        player.Upload(assets.GetUpload(AudioUploadAddresses.SpcEngine).Span);
-        player.SetSampleBank(assets.GetSampleBank(AudioUploadAddresses.SpcEngine));
+        player.Upload(assets.GetUpload(AudioBank.SpcEngine).Span);
+        player.SetSampleBank(assets.GetSampleBank(AudioBank.SpcEngine));
         short[] pcm = new short[1600];
         int requests = 0;
         int nonzeroSamples = 0;
@@ -42,8 +42,8 @@ internal static class PausePaletteSoundVerification
                 if (command.Kind == CartridgeAudioCommandKind.Upload)
                 {
                     AssertEqual(0, frame, "only initial audio reset may upload during this pause probe");
-                    player.Upload(assets.GetUpload(command.UploadAddress).Span);
-                    player.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
+                    player.Upload(assets.GetUpload(command.Bank).Span);
+                    player.SetSampleBank(assets.GetSampleBank(command.Bank));
                     continue;
                 }
                 player.WritePort(command.InputPort, command.Value);

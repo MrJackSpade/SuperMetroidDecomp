@@ -53564,6 +53564,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Audio.AudioBank",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/AudioBank.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.AudioBankMetadata",
       "kind": "record",
       "scope": "product",

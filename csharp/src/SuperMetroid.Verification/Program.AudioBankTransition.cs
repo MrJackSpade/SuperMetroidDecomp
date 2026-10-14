@@ -62,11 +62,11 @@ internal static class AudioBankTransitionVerification
         foreach (var bank in AudioAssetCatalogData.Music)
         {
             var renderer = new CartridgeAudioRenderer(assets);
-            renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.SpcEngine)]);
-            renderer.RenderFrame([CartridgeAudioCommand.Upload(bank.SnesAddress)]);
+            renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.SpcEngine)]);
+            renderer.RenderFrame([CartridgeAudioCommand.Upload(bank.Bank)]);
             renderer.RenderFrame([CartridgeAudioCommand.WritePort(ApuPort.Music, 5)]);
             for (int frame = 0; frame < 600; frame++) renderer.RenderFrame([]);
-            renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.LastMetroidInCaptivity)]);
+            renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.LastMetroidInCaptivity)]);
             renderer.RenderFrame([CartridgeAudioCommand.WritePort(ApuPort.Music, 5)]);
             bool audible = false;
             for (int frame = 0; frame < 600; frame++)

@@ -109,7 +109,7 @@ internal static class AudioVerification
         IReadOnlyList<CartridgeAudioCommand> upload = audio.AdvanceFrame(bus, default);
         AssertEqual(4, upload.Count, "music upload plus SFX-downtime command count");
         AssertEqual(
-            CartridgeAudioCommand.Upload(AudioUploadAddresses.TitleSequence),
+            CartridgeAudioCommand.Upload(AudioBank.TitleSequence),
             upload[0],
             "compiled music data routing ignores absent ROM pointer bytes");
 

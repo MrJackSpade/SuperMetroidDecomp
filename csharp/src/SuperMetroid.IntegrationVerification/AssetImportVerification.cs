@@ -107,8 +107,8 @@ try
     for (int frame = 0; frame < 120; frame++)
     {
         CartridgeAudioCommand[] commands = frame == 0
-            ? [CartridgeAudioCommand.Upload(AudioAssetCatalogData.Common.SnesAddress),
-               CartridgeAudioCommand.Upload(AudioAssetCatalogData.Music[0].SnesAddress),
+            ? [CartridgeAudioCommand.Upload(AudioAssetCatalogData.Common.Bank),
+               CartridgeAudioCommand.Upload(AudioAssetCatalogData.Music[0].Bank),
                CartridgeAudioCommand.WritePort(ApuPort.Music, AudioRomDataMusicTracks.Title)] : [];
         foreach (short sample in renderer.RenderFrame(commands)) if (sample != 0) audible++;
     }

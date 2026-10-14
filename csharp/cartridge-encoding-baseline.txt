@@ -919,9 +919,9 @@ csharp/src/SuperMetroid.Verification/Program.AttractDemoScene.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Program.Audio.cs	SME6340	39
 csharp/src/SuperMetroid.Verification/Program.Audio.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.AudioInstruments.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Program.AudioInstruments.cs	SME6341	2
+csharp/src/SuperMetroid.Verification/Program.AudioInstruments.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Program.AudioMusicPrograms.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Program.AudioMusicPrograms.cs	SME6341	2
+csharp/src/SuperMetroid.Verification/Program.AudioMusicPrograms.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Program.AudioOverrides.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Program.AudioOverrides.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Program.AudioSoundPrograms.cs	SME6340	3
@@ -1573,7 +1573,7 @@ csharp/src/SuperMetroid.Verification/Program.MagdolliteApexThreshold.cs	SME6340	
 csharp/src/SuperMetroid.Verification/Program.MainGameLoopCarry.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Program.MakeSamusFaceForward.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Program.MamaTurtleShellContour.cs	SME6340	4
-csharp/src/SuperMetroid.Verification/Program.ManagedAudio.cs	SME6340	53
+csharp/src/SuperMetroid.Verification/Program.ManagedAudio.cs	SME6340	50
 csharp/src/SuperMetroid.Verification/Program.ManagedAudio.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Program.MapArrowCases.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Program.MapArrowDurations.cs	SME6340	5

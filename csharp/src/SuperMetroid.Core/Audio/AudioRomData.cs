@@ -6,8 +6,8 @@ public static class AudioRomData
     /// <summary>Initial SPC driver upload identity, separate from the subsequently selected music-data banks.</summary>
     public static class Assets
     {
-        /// <summary><c>SPC_Engine</c> at <c>$CF:8000</c>; the boot-time upload stream containing the SPC engine and its shared audio data.</summary>
-        public const int InitialAudioBank = 0xcf8000;
+        /// <summary><c>SPC_Engine</c>: the boot-time upload containing the SPC engine and its shared audio data.</summary>
+        public const AudioBank InitialAudioBank = AudioBank.SpcEngine;
     }
 
     /// <summary>Ring-buffer sizes and update-counted scheduling values used by the bank-$80 music and sound handlers.</summary>

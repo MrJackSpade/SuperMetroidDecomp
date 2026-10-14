@@ -35,7 +35,7 @@ internal static class PhantoonReport1196Verification
         var audio = new CartridgeAudioState();
         var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
-        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
+        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
         foreach (var request in enemies.Audio.SoundRequests)
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         var writes = new List<CartridgeAudioCommand>();

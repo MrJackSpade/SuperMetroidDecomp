@@ -76,7 +76,7 @@ internal static class BabyMetroidDeathCryVerification
         var audio = new CartridgeAudioState();
         var renderer = new CartridgeAudioRenderer(installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
-        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.MotherBrain)]);
+        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.MotherBrain)]);
         audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         var writes = new List<CartridgeAudioCommand>();
         for (int frame = 0; frame < 8; frame++)

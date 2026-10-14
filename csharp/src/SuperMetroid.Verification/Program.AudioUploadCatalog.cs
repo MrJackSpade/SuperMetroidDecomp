@@ -26,10 +26,15 @@ internal static class AudioUploadCatalogVerification
             AssertEqual(pointer, actual.SnesAddress, "original upload pointer");
             AssertEqual((byte)index, actual.DataIndex, "native byte offset identity");
             AssertEqual(names[index / 3], actual.Name, "published asset name");
+            AssertEqual((AudioBank)(index / 3), actual.Bank, "stable bank identity in pointer-table order");
+            AssertEqual(actual, AudioAssetCatalogData.Get(actual.Bank), "bank identity lookup");
+            AssertEqual(actual, AudioAssetCatalogData.ResolveSnesAddress(pointer), "manifest address lookup");
             AssertEqual(actual, all[index / 3], "ordered enumeration");
             if (index != 0) AssertEqual(actual, AudioAssetCatalogData.Music[index / 3 - 1], "music index view");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 24, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => { _ = AudioAssetCatalogData.Music[invalid]; }, "music view bounds");
+        AssertThrows<ArgumentOutOfRangeException>(() => AudioAssetCatalogData.Get((AudioBank)25), "undefined bank");
+        AssertThrows<InvalidDataException>(() => AudioAssetCatalogData.ResolveSnesAddress(AudioAssetCatalogData.Common.SnesAddress + 1), "non-upload address");
     }
 }

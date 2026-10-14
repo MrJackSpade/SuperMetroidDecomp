@@ -291,7 +291,7 @@ public static class AudioInputReplaySmokeTest
         {
             string formatted = string.Join(',', commands.Select(command => command.Kind switch
             {
-                CartridgeAudioCommandKind.Upload => $"upload:${command.UploadAddress:X6}",
+                CartridgeAudioCommandKind.Upload => $"upload:{command.Bank}",
                 CartridgeAudioCommandKind.WritePort => $"port{(int)command.InputPort}:${command.Value:X2}",
                 _ => throw new InvalidDataException($"Unknown audio command {command.Kind}."),
             }));

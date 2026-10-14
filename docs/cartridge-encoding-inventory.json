@@ -23,10 +23,10 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 29896,
-    "PointerDispatch": 1143,
+    "RawHexLiteral": 29893,
+    "PointerDispatch": 1141,
     "OpaqueWordArray": 1125,
-    "CatalogHexLiteral": 101360,
+    "CatalogHexLiteral": 101359,
     "JustifiedHexLiteral": 83,
     "OwnedWidthOperation": 118,
     "JustifiedWidthOperation": 3,
@@ -36,7 +36,7 @@
     "class:DomainIdentity": 6776,
     "class:ComposableBits": 1674,
     "class:StructuredInstruction": 44207,
-    "class:CartridgeAddress": 24598,
+    "class:CartridgeAddress": 24592,
     "class:Unknown": 961,
     "storageWidthMembers": 1561
   },
@@ -1620,7 +1620,7 @@
       "name": "Audio",
       "totals": {
         "RawHexLiteral": 136,
-        "CatalogHexLiteral": 820,
+        "CatalogHexLiteral": 819,
         "JustifiedHexLiteral": 65,
         "OwnedWidthOperation": 1,
         "CountdownSignTest": 1,
@@ -1628,7 +1628,7 @@
         "class:NumericQuantity": 419,
         "class:DomainIdentity": 571,
         "class:ComposableBits": 24,
-        "class:CartridgeAddress": 29,
+        "class:CartridgeAddress": 28,
         "class:Unknown": 2,
         "storageWidthMembers": 163
       },
@@ -1647,9 +1647,9 @@
           "path": "csharp/src/SuperMetroid.Core/Audio/AudioRomData.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 16,
+            "CatalogHexLiteral": 15,
             "class:NumericQuantity": 12,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
@@ -10537,8 +10537,8 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 26933,
-        "PointerDispatch": 378,
+        "RawHexLiteral": 26930,
+        "PointerDispatch": 376,
         "OpaqueWordArray": 989,
         "CatalogHexLiteral": 5982,
         "OwnedWidthOperation": 57,
@@ -10546,7 +10546,7 @@
         "class:DomainIdentity": 635,
         "class:ComposableBits": 561,
         "class:StructuredInstruction": 14030,
-        "class:CartridgeAddress": 7990,
+        "class:CartridgeAddress": 7985,
         "class:Unknown": 517,
         "storageWidthMembers": 83
       },
@@ -12937,9 +12937,9 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 1,
-            "PointerDispatch": 2,
+            "PointerDispatch": 1,
             "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -12947,9 +12947,9 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 2,
-            "PointerDispatch": 2,
+            "PointerDispatch": 1,
             "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -18933,11 +18933,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.ManagedAudio.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 53,
+            "RawHexLiteral": 50,
             "OpaqueWordArray": 2,
             "class:NumericQuantity": 33,
             "class:StructuredInstruction": 13,
-            "class:CartridgeAddress": 3,
             "class:Unknown": 6
           }
         },

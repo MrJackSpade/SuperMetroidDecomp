@@ -238,7 +238,7 @@ internal static class ManagedAudioVerification
             .ToArray();
         dsp.SetSampleBank(new ManagedPcmSampleBank(
             "constructed",
-            0xC00000,
+            AudioBank.SpcEngine,
             new Dictionary<byte, ManagedPcmSample>
             {
                 [0] = new ManagedPcmSample("constructed-loop", 32_000, waveform, 0),
@@ -300,7 +300,7 @@ internal static class ManagedAudioVerification
             .ToArray();
         dsp.SetSampleBank(new ManagedPcmSampleBank(
             "hd-replacement",
-            0xC00003,
+            AudioBank.TitleSequence,
             new Dictionary<byte, ManagedPcmSample>
             {
                 [0] = new ManagedPcmSample("sample-00-00", 48_000, waveform, 24),
@@ -424,7 +424,7 @@ internal static class ManagedAudioVerification
             "managed DSP rejects an empty host frame");
         dsp.SetSampleBank(new ManagedPcmSampleBank(
             "missing-source",
-            0xC00000,
+            AudioBank.SpcEngine,
             new Dictionary<byte, ManagedPcmSample>()));
         AssertThrows<InvalidDataException>(
             () => dsp.WriteRegister(0x4c, 1),

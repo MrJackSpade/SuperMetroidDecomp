@@ -45,12 +45,12 @@ public sealed class CartridgeAudioRenderer
             switch (command.Kind)
             {
                 case CartridgeAudioCommandKind.Upload:
-                    player.Upload(assets.GetUpload(command.UploadAddress).Span);
+                    player.Upload(assets.GetUpload(command.Bank).Span);
                     player.ApplyInstrumentDefinitions(
-                        assets.GetInstrumentBank(command.UploadAddress));
-                    player.ApplyMusicDefinitions(assets.GetMusicBank(command.UploadAddress));
+                        assets.GetInstrumentBank(command.Bank));
+                    player.ApplyMusicDefinitions(assets.GetMusicBank(command.Bank));
                     player.ApplySoundEffectDefinitions(assets.SoundPrograms, assets.SoundLibraries);
-                    player.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
+                    player.SetSampleBank(assets.GetSampleBank(command.Bank));
                     break;
                 case CartridgeAudioCommandKind.WritePort:
                     player.WritePort(command.InputPort, command.Value);

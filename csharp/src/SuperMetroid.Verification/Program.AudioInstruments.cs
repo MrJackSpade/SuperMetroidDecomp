@@ -29,12 +29,12 @@ internal static class AudioInstrumentsVerification
         foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogData.All)
         {
             var rawPlayer = new ManagedSpcPlayer();
-            rawPlayer.Upload(stock.GetUpload(AudioUploadAddresses.SpcEngine).Span);
-            if (bank.SnesAddress != AudioUploadAddresses.SpcEngine)
-                rawPlayer.Upload(stock.GetUpload(bank.SnesAddress).Span);
+            rawPlayer.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
+            if (bank.Bank != AudioBank.SpcEngine)
+                rawPlayer.Upload(stock.GetUpload(bank.Bank).Span);
 
             IReadOnlyList<AudioInstrumentMetadata> definitions =
-                stock.GetInstrumentBank(bank.SnesAddress);
+                stock.GetInstrumentBank(bank.Bank);
             AssertEqual(
                 SpcDriverData.Ram.InstrumentCount,
                 definitions.Count,
@@ -96,9 +96,9 @@ internal static class AudioInstrumentsVerification
             var stockRenderer = new CartridgeAudioRenderer(stock);
             var editedRenderer = new CartridgeAudioRenderer(edited);
             CartridgeAudioCommand common =
-                CartridgeAudioCommand.Upload(AudioUploadAddresses.SpcEngine);
+                CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
             CartridgeAudioCommand titleUpload =
-                CartridgeAudioCommand.Upload(AudioUploadAddresses.TitleSequence);
+                CartridgeAudioCommand.Upload(AudioBank.TitleSequence);
             CartridgeAudioCommand titleTrack = CartridgeAudioCommand.WritePort(
                 ApuPort.Music, AudioRomDataMusicTracks.Title);
             stockRenderer.RenderFrame([common]);
@@ -109,7 +109,7 @@ internal static class AudioInstrumentsVerification
             editedRenderer.RenderFrame([titleTrack]);
 
             IReadOnlyList<AudioInstrumentMetadata> installed =
-                edited.GetInstrumentBank(AudioUploadAddresses.TitleSequence);
+                edited.GetInstrumentBank(AudioBank.TitleSequence);
             for (int index = 0; index < installed.Count; index++)
             {
                 int address = SpcDriverData.Ram.InstrumentTable +

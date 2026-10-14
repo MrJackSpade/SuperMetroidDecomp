@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Atlas tile identities used to calculate the Ceres vortex core and edge.</summary>
-internal static class CeresVortexAtlas
+internal static class CeresVortexCellDefinitions
 {
     /// <summary>Tile1C0, first large vortex tile; eleven large pieces are packed
     /// eight per two-row atlas strip and rendered as a three-column grid.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -23,37 +24,37 @@ internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
             int tile, x, y;
             if (index == 0)
             {
-                tile = EndingRewardJumpAtlas.UpperBodyCenter; x = -4; y = -53;
+                tile = EndingRewardJumpCellDefinitions.UpperBodyCenter; x = -4; y = -53;
             }
             else if (index < 3)
             {
                 int row = 2 - index;
-                tile = 0x0e + row * 32; x = 19; y = -61 + row * 16;
+                tile = SnesCharacterGrid.Cell(0, 14) + row * 32; x = 19; y = -61 + row * 16;
             }
             else if (index == 3)
             {
-                tile = EndingRewardJumpAtlas.LeftLimbCap; x = -27; y = -62;
+                tile = EndingRewardJumpCellDefinitions.LeftLimbCap; x = -27; y = -62;
             }
             else if (index < 6)
             {
                 int row = 5 - index;
-                tile = 0x17 + row * 16; x = -36; y = -52 + row * 8;
+                tile = SnesCharacterGrid.Cell(1, 7) + row * 16; x = -36; y = -52 + row * 8;
             }
             else if (index < 11)
             {
                 // Lower upper-body row right-to-left, then the two upper corners.
-                tile = index < 9 ? 0x3d - 2 * (index - 6) : 0x1d - 4 * (index - 9);
+                tile = index < 9 ? SnesCharacterGrid.Cell(3, 13) - 2 * (index - 6) : SnesCharacterGrid.Cell(1, 13) - 4 * (index - 9);
                 x = -20 + 8 * ((tile & 15) - 9);
                 y = -53 + 8 * (tile / 16 - 1);
             }
             else
             {
-                if (index < 13) tile = 0x5c - 2 * (index - 11); // waist pair
-                else if (index < 16) tile = 0xec - 32 * (index - 13); // lower leg, bottom to top
+                if (index < 13) tile = SnesCharacterGrid.Cell(5, 12) - 2 * (index - 11); // waist pair
+                else if (index < 16) tile = SnesCharacterGrid.Cell(14, 12) - 32 * (index - 13); // lower leg, bottom to top
                 else
                 {
                     int cell = index - 16;
-                    tile = 0x8c - 32 * (cell / 2) - 2 * (cell % 2); // paired upper-leg rows
+                    tile = SnesCharacterGrid.Cell(8, 12) - 32 * (cell / 2) - 2 * (cell % 2); // paired upper-leg rows
                 }
                 x = -16 + 8 * ((tile & 15) - 10);
                 y = -13 + 8 * (tile / 16 - 6);

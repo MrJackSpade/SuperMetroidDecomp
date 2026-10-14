@@ -85,11 +85,11 @@ public sealed class CinematicPaletteFader
         (int firstColor, int exclusiveEnd) = ValidateRange(paletteByteOffset, colorCount);
         for (int color = firstColor; color < exclusiveEnd; color++)
         {
-            // The $1FFF mask is not a generic clamp. It is present in each of the three
-            // retail ADC paths and must occur after every addition.
-            currentRed[color] = (ushort)((currentRed[color] + redStep[color]) & 0x1fff);
-            currentGreen[color] = (ushort)((currentGreen[color] + greenStep[color]) & 0x1fff);
-            currentBlue[color] = (ushort)((currentBlue[color] + blueStep[color]) & 0x1fff);
+            // The wrap to thirteen bits (the $1FFF mask) is not a generic clamp. It is present
+            // in each of the three retail ADC paths and must occur after every addition.
+            currentRed[color] = (ushort)((currentRed[color] + redStep[color]) % 8192);
+            currentGreen[color] = (ushort)((currentGreen[color] + greenStep[color]) % 8192);
+            currentBlue[color] = (ushort)((currentBlue[color] + blueStep[color]) % 8192);
         }
     }
 

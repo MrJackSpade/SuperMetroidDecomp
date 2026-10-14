@@ -52,19 +52,19 @@ internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadO
             if (group is 0 or 1 or 4)
             {
                 y = 8 * (1 - piece) * (flip ? -1 : 1);
-                tile = CeresSmallAsteroidAtlas.Vertical + 16 * (1 - piece);
+                tile = CeresSmallAsteroidCellDefinitions.Vertical + 16 * (1 - piece);
             }
             else if (group is 2 or 5)
             {
                 x = 8 * (1 - piece); y = 0;
-                tile = CeresSmallAsteroidAtlas.Horizontal + 1 - piece;
+                tile = CeresSmallAsteroidCellDefinitions.Horizontal + 1 - piece;
             }
             else
             {
                 large = piece != 0;
                 x = piece == 1 ? 8 : 0;
                 y = piece == 2 ? 8 : 0;
-                tile = CeresSmallAsteroidAtlas.Corner + x / 8 + 16 * (y / 8);
+                tile = CeresSmallAsteroidCellDefinitions.Corner + x / 8 + 16 * (y / 8);
                 // Reflection is relative to the small anchor cell, so large parts
                 // need an additional eight-pixel displacement.
                 if (flip) y = -y - (large ? 8 : 0);

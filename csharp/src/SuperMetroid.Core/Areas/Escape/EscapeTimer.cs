@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Areas.Escape;
 
 /// <summary>
@@ -23,16 +24,16 @@ public sealed class EscapeTimer
     public EscapeTimerState State => (EscapeTimerState)(byte)RawStatus;
 
     /// <summary>Whether the conventional active flag in status bit 15 is set.</summary>
-    public bool IsActive => (RawStatus & 0x8000) != 0;
+    public bool IsActive => (RawStatus & EscapeTimerStatusDefinitions.ActiveFlag) != 0;
 
     /// <summary>Packed-BCD centiseconds at WRAM <c>$0945</c>.</summary>
-    public byte CentisecondsBcd { get; private set; }
+    public PackedBcd Centiseconds { get; private set; }
 
     /// <summary>Packed-BCD seconds at WRAM <c>$0946</c>.</summary>
-    public byte SecondsBcd { get; private set; }
+    public PackedBcd Seconds { get; private set; }
 
     /// <summary>Packed-BCD minutes at WRAM <c>$0947</c>.</summary>
-    public byte MinutesBcd { get; private set; }
+    public PackedBcd Minutes { get; private set; }
 
     /// <summary>
     /// Raw unsigned 8.8 on-screen position words at WRAM <c>$0948</c> (X) and <c>$094A</c> (Y).
@@ -80,8 +81,8 @@ public sealed class EscapeTimer
         bool expired = State switch
         {
             EscapeTimerState.Inactive => false,
-            EscapeTimerState.CeresStart => Start(minutesBcd: 0x01),
-            EscapeTimerState.MotherBrainStart => Start(minutesBcd: 0x03),
+            EscapeTimerState.CeresStart => Start(PackedBcd.FromDecimal(1)),
+            EscapeTimerState.MotherBrainStart => Start(PackedBcd.FromDecimal(3)),
             EscapeTimerState.InitialDelay => ProcessInitialDelay(),
             EscapeTimerState.RunningMovementDelayed => ProcessMovementDelay(nmiFrameCounter),
             EscapeTimerState.RunningMovingIntoPlace => ProcessMovement(nmiFrameCounter),
@@ -91,10 +92,9 @@ public sealed class EscapeTimer
 
         // Apply the testing floor before publishing expiration to the gameplay dispatcher.
         // Startup delays and timer movement still run; inactive timers remain cleared.
-        // Packed BCD compares naturally here because the threshold is one whole second.
-        if (preventEscapeTimeout && IsActive && MinutesBcd == 0 && SecondsBcd == 0)
+        if (preventEscapeTimeout && IsActive && Minutes == PackedBcd.Zero && Seconds == PackedBcd.Zero)
         {
-            SetTime(0, 1, 0);
+            SetTime(PackedBcd.Zero, PackedBcd.FromDecimal(1), PackedBcd.Zero);
             return false;
         }
         CountdownExpired |= expired;
@@ -109,19 +109,17 @@ public sealed class EscapeTimer
     /// The ROM's <c>$80:9E8C</c> entry point only sets whole minutes, but explicit fields
     /// make boundary cases inspectable without advancing thousands of frames.
     /// </summary>
-    public void SetTime(byte minutesBcd, byte secondsBcd, byte centisecondsBcd)
+    public void SetTime(PackedBcd minutes, PackedBcd seconds, PackedBcd centiseconds)
     {
-        ValidateBcd(minutesBcd, nameof(minutesBcd));
-        ValidateBcd(secondsBcd, nameof(secondsBcd));
-        ValidateBcd(centisecondsBcd, nameof(centisecondsBcd));
-        if (secondsBcd > 0x59)
-            throw new ArgumentOutOfRangeException(nameof(secondsBcd), "Seconds must be packed BCD in the range 00-59.");
-        if (centisecondsBcd > 0x99)
-            throw new ArgumentOutOfRangeException(nameof(centisecondsBcd));
+        ValidateBcd(minutes, nameof(minutes));
+        ValidateBcd(seconds, nameof(seconds));
+        ValidateBcd(centiseconds, nameof(centiseconds));
+        if (seconds.Value > 59)
+            throw new ArgumentOutOfRangeException(nameof(seconds), "Seconds must be packed BCD in the range 00-59.");
 
-        MinutesBcd = minutesBcd;
-        SecondsBcd = secondsBcd;
-        CentisecondsBcd = centisecondsBcd;
+        Minutes = minutes;
+        Seconds = seconds;
+        Centiseconds = centiseconds;
     }
 
     /// <summary>
@@ -129,50 +127,24 @@ public sealed class EscapeTimer
     /// </summary>
     public void Clear()
     {
-        // $8000 corresponds to pixel coordinate $80 with zero subpixel fraction. During
-        // startup that low fraction byte is immediately repurposed as a delay counter.
-        Position = new(0x8000, 0x8000);
-        CentisecondsBcd = 0;
-        SecondsBcd = 0;
-        MinutesBcd = 0;
+        // Pixel $80 with zero subpixel fraction. During startup that low fraction byte is
+        // immediately repurposed as a delay counter.
+        Position = new(EscapeTimerStatusDefinitions.ClearedOrigin, EscapeTimerStatusDefinitions.ClearedOrigin);
+        Centiseconds = PackedBcd.Zero;
+        Seconds = PackedBcd.Zero;
+        Minutes = PackedBcd.Zero;
         RawStatus = 0;
         CountdownExpired = false;
     }
 
-    /// <summary>
-    /// Performs an 8-bit decimal-mode SBC and reports whether it borrowed. This helper is
-    /// public so the processor-specific behavior can be verified independently.
-    /// </summary>
-    public static byte SubtractPackedBcd(byte number, byte value, out bool borrowed)
-    {
-        // This mirrors the native decomp's DecrementDecimal helper. Compute the low nibble
-        // with the implicit input carry set, then apply the 65C816's decimal correction.
-        int result = (number & 0x0f) + (~value & 0x0f) + 1;
-        if (result < 0x10)
-        {
-            int correctedLow = result - 0x06;
-            result = correctedLow & (correctedLow < 0 ? 0x0f : 0x1f);
-        }
-
-        // Add the high digits and correct a decimal borrow by subtracting six from the
-        // upper nibble. Values may become negative here; the final byte cast intentionally
-        // retains the processor's low eight result bits.
-        result = (number & 0xf0) + (~value & 0xf0) + result;
-        if (result < 0x100)
-            result -= 0x60;
-
-        borrowed = result < 0x100;
-        return unchecked((byte)result);
-    }
-
     /// <summary>Clears timer RAM, installs the selected whole-minute duration, and enters the initial delay.</summary>
-    private bool Start(byte minutesBcd)
+    private bool Start(PackedBcd minutes)
     {
         // Both start functions clear all timer RAM, set a whole-minute value through the
-        // seconds/minutes adjacent word, then select state $8003.
+        // seconds/minutes adjacent word, then select the active initial delay ($8003).
         Clear();
-        SetTime(minutesBcd, secondsBcd: 0, centisecondsBcd: 0);
-        RawStatus = 0x8003;
+        SetTime(minutes, PackedBcd.Zero, PackedBcd.Zero);
+        RawStatus = EscapeTimerStatusDefinitions.ActiveFlag | (ushort)EscapeTimerState.InitialDelay;
         return false;
     }
 
@@ -180,7 +152,7 @@ public sealed class EscapeTimer
     private bool ProcessInitialDelay()
     {
         IncrementXLowByte();
-        if ((byte)Position.X >= 0x10)
+        if ((byte)Position.X >= 16)
             IncrementStatusLowByte();
 
         // State 3 never decrements time, even on the update that advances to state 4.
@@ -191,7 +163,7 @@ public sealed class EscapeTimer
     private bool ProcessMovementDelay(ushort nmiFrameCounter)
     {
         IncrementXLowByte();
-        if ((byte)Position.X >= 0x60)
+        if ((byte)Position.X >= 96)
         {
             // STZ TimerXPosition-1 clears only the aliased counter/subpixel byte. The
             // visible high-byte X coordinate remains $80 until movement begins.
@@ -207,22 +179,24 @@ public sealed class EscapeTimer
     {
         int axesInPosition = 0;
 
-        // X advances by $00E0 (0.875 pixels) and clamps at $DC00 (pixel 220).
-        ushort nextX = unchecked((ushort)(Position.X + 0x00e0));
-        if (nextX >= 0xdc00)
+        // X advances by 224/256 (0.875) pixel and clamps at pixel 220.
+        ushort settledX = (ushort)SnesEightEight.FromWhole(220);
+        ushort nextX = unchecked((ushort)(Position.X + 224));
+        if (nextX >= settledX)
         {
             axesInPosition++;
-            nextX = 0xdc00;
+            nextX = settledX;
         }
         Position = Position.WithX(nextX);
 
-        // Y moves upward by $00C1 (193/256 pixel) and clamps at $3000 (pixel 48).
-        // The unsigned comparison reproduces CMP/BCS after 16-bit wrapped subtraction.
-        ushort nextY = unchecked((ushort)(Position.Y - 0x00c1));
-        if (nextY < 0x3000)
+        // Y moves upward by 193/256 pixel and clamps at pixel 48. The unsigned comparison
+        // reproduces CMP/BCS after 16-bit wrapped subtraction.
+        ushort settledY = (ushort)SnesEightEight.FromWhole(48);
+        ushort nextY = unchecked((ushort)(Position.Y - 193));
+        if (nextY < settledY)
         {
             axesInPosition++;
-            nextY = 0x3000;
+            nextY = settledY;
         }
         Position = Position.WithY(nextY);
 
@@ -239,35 +213,36 @@ public sealed class EscapeTimer
     /// <summary>Subtracts this NMI's BCD correction and reports expiration at exactly zero.</summary>
     private bool Decrement(ushort nmiFrameCounter)
     {
-        byte correction = EscapeTimerCadenceDefinitions.Centiseconds(nmiFrameCounter);
-        CentisecondsBcd = SubtractPackedBcd(CentisecondsBcd, correction, out bool borrowedCentiseconds);
+        PackedBcd correction = PackedBcd.FromDecimal(EscapeTimerCadenceDefinitions.Centiseconds(nmiFrameCounter));
+        PackedBcd one = PackedBcd.FromDecimal(1);
+        Centiseconds = Centiseconds.Subtract(correction, out bool borrowedCentiseconds);
 
         if (borrowedCentiseconds)
         {
-            SecondsBcd = SubtractPackedBcd(SecondsBcd, 1, out bool borrowedSeconds);
+            Seconds = Seconds.Subtract(one, out bool borrowedSeconds);
             if (borrowedSeconds)
             {
-                MinutesBcd = SubtractPackedBcd(MinutesBcd, 1, out bool borrowedMinutes);
+                Minutes = Minutes.Subtract(one, out bool borrowedMinutes);
                 if (borrowedMinutes)
                 {
                     // Underflow below 00:00.00 saturates at zero rather than wrapping to
                     // 99:99.99. This is the .clearTimer branch at $80:9ED7.
-                    CentisecondsBcd = 0;
-                    SecondsBcd = 0;
-                    MinutesBcd = 0;
+                    Centiseconds = PackedBcd.Zero;
+                    Seconds = PackedBcd.Zero;
+                    Minutes = PackedBcd.Zero;
                 }
                 else
                 {
                     // A successful minute decrement wraps seconds to 59. Centiseconds
                     // already wrapped to 98 or 99 according to this frame's correction.
-                    SecondsBcd = 0x59;
+                    Seconds = PackedBcd.FromDecimal(59);
                 }
             }
         }
 
         // The assembly ORs centiseconds with the adjacent seconds/minutes word and returns
         // carry set only when all three are zero.
-        return (CentisecondsBcd | SecondsBcd | MinutesBcd) == 0;
+        return Centiseconds == PackedBcd.Zero && Seconds == PackedBcd.Zero && Minutes == PackedBcd.Zero;
     }
 
     /// <summary>Increments the X fraction used as a startup counter while preserving visible X.</summary>
@@ -285,9 +260,9 @@ public sealed class EscapeTimer
     }
 
     /// <summary>Rejects a timer byte whose high or low nibble is not a decimal digit.</summary>
-    private static void ValidateBcd(byte value, string parameterName)
+    private static void ValidateBcd(PackedBcd value, string parameterName)
     {
-        if ((value & 0x0f) > 9 || ((value >> 4) & 0x0f) > 9)
-            throw new ArgumentOutOfRangeException(parameterName, value, "Value must contain two valid packed-BCD digits.");
+        if (!value.IsValid)
+            throw new ArgumentOutOfRangeException(parameterName, value.Raw, "Value must contain two valid packed-BCD digits.");
     }
 }

@@ -170,8 +170,8 @@ public sealed class CeresElevatorArrivalState
             return;
 
         Position16<ScreenPixels> screen = projectile.Position.ToScreen(camera);
-        if (((screen.X + 128) & 0xfe00) != 0 ||
-            ((screen.Y + 128) & 0xfe00) != 0)
+        // Only origins within 128 pixels of the screen on each axis draw: X + 128 and Y + 128 below 512.
+        if (screen.X + 128 >= 512 || screen.Y + 128 >= 512)
         {
             return;
         }

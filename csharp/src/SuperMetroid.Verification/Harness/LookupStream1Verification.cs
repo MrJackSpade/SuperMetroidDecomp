@@ -403,13 +403,13 @@ internal static class LookupStream1Verification
         {
             var timer = new EscapeTimer();
             timer.RawStatus = (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace);
-            timer.SetTime(0, 1, 0x50);
+            timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(50));
             byte correction = LookupStream1TimerCadenceRomByte(rom, 0x809eec + frame);
             byte expected = correction == 2 ? (byte)0x48 : (byte)0x49;
             bool expired = timer.Process(frame);
-            if (timer.CentisecondsBcd != expected)
-                failures.Add("NMI " + frame + ": native decrement" + correction + " expects$" + expected.ToString("X2") + ", actual$" + timer.CentisecondsBcd.ToString("X2"));
-            AssertTrue(!expired && timer.SecondsBcd == 1 && timer.MinutesBcd == 0, "Exact cadence fixture preserves non-expiring whole time");
+            if (timer.Centiseconds.Raw != expected)
+                failures.Add("NMI " + frame + ": native decrement" + correction + " expects$" + expected.ToString("X2") + ", actual$" + timer.Centiseconds.Raw.ToString("X2"));
+            AssertTrue(!expired && timer.Seconds.Raw == 1 && timer.Minutes.Raw == 0, "Exact cadence fixture preserves non-expiring whole time");
         }
         AssertTrue(failures.Count == 0, string.Join("; ", failures));
         int total = 0;
@@ -422,19 +422,19 @@ internal static class LookupStream1Verification
             AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 0xff80)), "Native ignores high NMI bits");
             var timer = new EscapeTimer();
             timer.RawStatus = (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace);
-            timer.SetTime(0, 1, 0x50);
+            timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(50));
             AssertTrue(!timer.Process((ushort)index), "Calculated cadence stays non-expiring");
-            AssertEqual(expected == 2 ? (byte)0x48 : (byte)0x49, timer.CentisecondsBcd, "Actual Process consumes each native correction");
+            AssertEqual(expected == 2 ? (byte)0x48 : (byte)0x49, timer.Centiseconds.Raw, "Actual Process consumes each native correction");
         }
         AssertEqual(213, total, "Native full-period centisecond budget");
         foreach (ushort frame in new ushort[] { 124, 125 })
         {
             var timer = new EscapeTimer();
             timer.RawStatus = (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace);
-            timer.SetTime(0, 0, 2);
+            timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(2));
             bool expired = timer.Process(frame);
             AssertEqual(frame == 124, expired, "Corrected native expiration phase");
-            AssertEqual(frame == 124 ? (byte)0 : (byte)1, timer.CentisecondsBcd, "Exact corrected expiration centisecond");
+            AssertEqual(frame == 124 ? (byte)0 : (byte)1, timer.Centiseconds.Raw, "Exact corrected expiration centisecond");
         }
         Console.WriteLine("Timer cadence:128 native corrections,384 phase observations,128 actual countdown updates and exact124/125 expiration pass.");
     }
@@ -1808,7 +1808,7 @@ internal static class LookupStream1Verification
         var timer = new EscapeTimer(); timer.Clear();
         for (int digit = 0; digit < 10; digit++)
         {
-            timer.SetTime((byte)(digit * 17), 0, (byte)(digit * 17));
+            timer.SetTime(PackedBcd.FromDecimal(digit * 11), PackedBcd.Zero, PackedBcd.FromDecimal(digit * 11));
             var native = new OamBuffer(); var actual = new OamBuffer();
             DrawImportedEscapeTimer(rom, timer, native);
             stock.Draw(timer, actual);
@@ -1824,7 +1824,7 @@ internal static class LookupStream1Verification
             AssertEqual(1, compiled.frames.Count, "One timer frame edit stores exactly one independent frame");
             AssertEqual(0, compiled.anchors.Count, "Frame edits do not store unchanged timer anchors");
             int digit = name == "Label" ? 0 : int.Parse(name.AsSpan(6));
-            timer.SetTime((byte)(digit * 17), 0, (byte)(digit * 17));
+            timer.SetTime(PackedBcd.FromDecimal(digit * 11), PackedBcd.Zero, PackedBcd.FromDecimal(digit * 11));
             var actual = new OamBuffer(); compiled.Draw(timer, actual);
             EqualOam(DrawDocument(edited), actual, "Edited timer geometry, size, tile, priority, palette and flips remain exact");
         }
@@ -1835,7 +1835,7 @@ internal static class LookupStream1Verification
             var compiled = Load(edited);
             AssertEqual(1, compiled.anchors.Count, "One timer anchor edit stores exactly one independent anchor");
             AssertEqual(0, compiled.frames.Count, "Anchor, spacing and palette edits do not store native frames");
-            timer.SetTime(0x12, 0x34, 0x56);
+            timer.SetTime(PackedBcd.FromDecimal(12), PackedBcd.FromDecimal(34), PackedBcd.FromDecimal(56));
             var actual = new OamBuffer(); compiled.Draw(timer, actual);
             EqualOam(DrawDocument(edited), actual, "Independent anchor, digit spacing and palette edits preserve selected document");
         }
@@ -1856,7 +1856,7 @@ internal static class LookupStream1Verification
         {
             var result = new OamBuffer();
             Draw("Label", selected.Anchors["Label"]);
-            Pair(timer.MinutesBcd, "Minutes"); Pair(timer.SecondsBcd, "Seconds"); Pair(timer.CentisecondsBcd, "Centiseconds");
+            Pair(timer.Minutes.Raw, "Minutes"); Pair(timer.Seconds.Raw, "Seconds"); Pair(timer.Centiseconds.Raw, "Centiseconds");
             return result;
             void Pair(byte bcd, string anchor)
             {

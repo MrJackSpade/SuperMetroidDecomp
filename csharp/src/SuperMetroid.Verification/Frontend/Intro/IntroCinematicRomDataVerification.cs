@@ -84,6 +84,7 @@ internal static class IntroCinematicRomDataVerification
                 typeof(CinematicSpriteInstruction), typeof(CinematicBackgroundInstruction),
                 typeof(IntroRinkaPreInstruction), typeof(ConfusedBabyPreInstruction),
                 typeof(CinematicSpritePreInstruction), typeof(TitleSequenceInstruction),
+                typeof(CinematicIndirectInstructionFunction),
             }.SelectMany(domain => Enum.GetValues(domain).Cast<object>().Select(Convert.ToUInt16)))
             // The owner instructions the typed cinematic sprite programs (#641) turn into cues.
             .Concat(CinematicSpriteNativeListAddresses.OwnerInstructions.Keys)

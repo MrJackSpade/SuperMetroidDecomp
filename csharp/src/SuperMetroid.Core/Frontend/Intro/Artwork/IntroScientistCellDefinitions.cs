@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Character origins for the packed subtitle-arrow, baby, and caret drawings.</summary>
-internal static class IntroScientistAtlas
+internal static class IntroScientistCellDefinitions
 {
     /// <summary>Tile$1A8, first subtitle-arrow half in8C:8CCF.</summary>
     internal const int InitialArrow = 0x1a8;

@@ -56,14 +56,14 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
             {
                 large = false;
                 offset = new(checked((short)(32 + 8 * (1 - (index - tip)))), 48);
-                tile = CeresVortexAtlas.LowerEdge;
+                tile = CeresVortexCellDefinitions.LowerEdge;
             }
             else if (index >= core && index < core + 11)
             {
                 large = true;
                 int cell = 10 - (index - core);
                 offset = new(checked((short)(16 * (cell % 3))), checked((short)(16 * (cell / 3))));
-                tile = CeresVortexAtlas.Core + 32 * (cell / 8) + 2 * (cell % 8);
+                tile = CeresVortexCellDefinitions.Core + 32 * (cell / 8) + 2 * (cell % 8);
             }
             else return stars[index - (index >= tip + 2 ? 2 : 0) - (index >= core + 11 ? 11 : 0)];
             Offset16<OamPixels> position = anchor + offset;

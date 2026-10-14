@@ -60,10 +60,10 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
                 IntroEggCell.BottomLeft or IntroEggCell.BottomMiddle or IntroEggCell.BottomRight => false,
                 _ => throw new InvalidOperationException($"Undefined egg cell {cell}."),
             };
-            int tile = cracked ? IntroEggCrackingAtlas.Patch + 16 * row + column
-                : row == 0 ? IntroEggRockingAtlas.TopStrip + column
-                : column == 2 ? IntroEggRockingAtlas.RightColumn + row - 1
-                : IntroEggRockingAtlas.LowerLeft + 16 * (row - 1) + column;
+            int tile = cracked ? IntroEggCrackingCellDefinitions.Patch + 16 * row + column
+                : row == 0 ? IntroEggRockingCellDefinitions.TopStrip + column
+                : column == 2 ? IntroEggRockingCellDefinitions.RightColumn + row - 1
+                : IntroEggRockingCellDefinitions.LowerLeft + 16 * (row - 1) + column;
             return new(SnesSpritemapXWord.Create(-12 + 8 * column, false),
                 unchecked((byte)(-12 + 8 * row)), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }

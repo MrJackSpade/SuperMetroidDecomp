@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -10,7 +11,7 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
 {
     /// <summary>Right-hand tile and top Y of the four streaked rows, top to bottom in draw
     /// order: body, inner rays, middle rays, outer rays.</summary>
-    private static readonly (int RightTile, int Top)[] Rows = [(0xbe, 0), (0xe6, -16), (0xd6, -24), (0xb6, -40)];
+    private static readonly (int RightTile, int Top)[] Rows = [(SnesCharacterGrid.Cell(11, 14), 0), (SnesCharacterGrid.Cell(14, 6), -16), (SnesCharacterGrid.Cell(13, 6), -24), (SnesCharacterGrid.Cell(11, 6), -40)];
 
     /// <summary>Uses the calculated silhouette only when the selected pose and all supplied OAM parts match it exactly.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
@@ -27,9 +28,9 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int x, y, tile;
             bool large = true;
-            if (index < 2) { x = index * 16; y = 8; tile = 0xcc + index * 2; }
-            else if (index == 2) { x = 0; y = 24; tile = 0xec; large = false; }
-            else if (index == 3) { x = -32; y = 16; tile = 0xd8; }
+            if (index < 2) { x = index * 16; y = 8; tile = SnesCharacterGrid.Cell(12, 12) + index * 2; }
+            else if (index == 2) { x = 0; y = 24; tile = SnesCharacterGrid.Cell(14, 12); large = false; }
+            else if (index == 3) { x = -32; y = 16; tile = SnesCharacterGrid.Cell(13, 8); }
             else
             {
                 int column = (index - 4) % 4;

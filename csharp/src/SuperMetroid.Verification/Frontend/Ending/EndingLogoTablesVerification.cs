@@ -17,7 +17,7 @@ internal static class EndingLogoTablesVerification
         {
             int address = 0x8be5e7 + step * 4 + palette * 2;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                EndingLogoPalettePointerDefinitions.Source(step, palette), "original ending palette source");
+                EndingLogoPalettePointerDefinitions.Source(step, palette).Offset, "original ending palette source");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoPalettePointerDefinitions.Source(invalid, 0), "palette step bounds");

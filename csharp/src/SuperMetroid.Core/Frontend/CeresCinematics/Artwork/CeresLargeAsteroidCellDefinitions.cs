@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Atlas patches shared by the two large-asteroid compositions.</summary>
-internal static class CeresLargeAsteroidAtlas
+internal static class CeresLargeAsteroidCellDefinitions
 {
     /// <summary>Tile$160,upper-left of the left asteroid atlas patch.</summary>
     internal const int Left = 0x160;

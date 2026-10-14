@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Individual edge pieces outside the standing-body row traversals.</summary>
-internal static class EndingRewardStandingAtlas
+internal static class EndingRewardStandingCellDefinitions
 {
     /// <summary>Tile$D4, large right foot drawn between its small edge and shoulder strip.</summary>
     internal const int RightFoot = 0xd4;

@@ -28,9 +28,9 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
             SnesTileFlipFlags flips = 0;
             if (Count == 1)
             {
-                tile = big ? IntroMotherBrainExplosionAtlas.BigFlash
-                    : frame == 0 ? IntroMotherBrainExplosionAtlas.SmallFlash
-                    : IntroMotherBrainExplosionAtlas.SmallExpandedFlash;
+                tile = big ? IntroMotherBrainExplosionCellDefinitions.BigFlash
+                    : frame == 0 ? IntroMotherBrainExplosionCellDefinitions.SmallFlash
+                    : IntroMotherBrainExplosionCellDefinitions.SmallExpandedFlash;
                 x = y = -4;
             }
             else
@@ -43,9 +43,9 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
                 flips = (column == 0 ? SnesTileFlipFlags.Horizontal : 0)
                     | (row == 0 ? SnesTileFlipFlags.Vertical : 0);
                 tile = big
-                    ? frame == 1 ? IntroMotherBrainExplosionAtlas.BigInitialQuadrant
-                        : IntroMotherBrainExplosionAtlas.BigQuadrantStart + 2 * (frame - 2)
-                    : IntroMotherBrainExplosionAtlas.SmallQuadrantStart + frame - 2;
+                    ? frame == 1 ? IntroMotherBrainExplosionCellDefinitions.BigInitialQuadrant
+                        : IntroMotherBrainExplosionCellDefinitions.BigQuadrantStart + 2 * (frame - 2)
+                    : IntroMotherBrainExplosionCellDefinitions.SmallQuadrantStart + frame - 2;
             }
             return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);

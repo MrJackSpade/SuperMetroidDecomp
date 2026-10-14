@@ -30,13 +30,13 @@ internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledS
             {
                 row = 2 - index / 3;
                 column = 2 - index % 3;
-                tile = IntroMotherBrainAtlas.FirstPatch + 32 * row + 2 * column;
+                tile = IntroMotherBrainCellDefinitions.FirstPatch + 32 * row + 2 * column;
             }
             else if (index >= 5)
             {
                 row = index == 8 ? 1 : 2;
                 column = index == 8 ? 1 : 7 - index;
-                tile = IntroMotherBrainAtlas.FirstPatch + 32 * row + 2 * column;
+                tile = IntroMotherBrainCellDefinitions.FirstPatch + 32 * row + 2 * column;
             }
             else if (frame == 2 && index == 0)
             {
@@ -44,7 +44,7 @@ internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledS
                 column = 2;
                 // The last patch crosses the atlas row boundary. Its top-right drawing
                 // occupies the middle-center hole in the preceding animated patch.
-                tile = IntroMotherBrainAtlas.FirstPatch + 6 + 32 + 2;
+                tile = IntroMotherBrainCellDefinitions.FirstPatch + 6 + 32 + 2;
             }
             else
             {
@@ -54,7 +54,7 @@ internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledS
                 column = middleSide ? 2 - 2 * sideIndex : 4 - index;
                 // Only two tile columns remain in the last patch; its middle sides pack adjacently.
                 int atlasColumn = frame == 2 && middleSide ? column / 2 : column;
-                tile = IntroMotherBrainAtlas.FirstPatch + 6 * frame + 32 * row + 2 * atlasColumn;
+                tile = IntroMotherBrainCellDefinitions.FirstPatch + 6 * frame + 32 * row + 2 * atlasColumn;
             }
             return new(SnesSpritemapXWord.Create(-24 + 16 * column, true),
                 unchecked((byte)(-24 + 16 * row)), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);

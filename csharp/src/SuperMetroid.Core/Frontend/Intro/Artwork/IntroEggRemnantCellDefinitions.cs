@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Atlas origins used by early and late intro egg shell-remnant poses.</summary>
-internal static class IntroEggRemnantAtlas
+internal static class IntroEggRemnantCellDefinitions
 {
     /// <summary>Tile$107, first early top-right remnant drawing;left pieces occupy the next atlas row.
     /// The second pose reuses the first pose lower-right tile$108.</summary>

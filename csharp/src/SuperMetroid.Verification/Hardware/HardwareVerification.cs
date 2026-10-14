@@ -294,7 +294,7 @@ internal static void VerifyEscapeTimerBcd()
         byte packed = PackBcd(decimalValue);
         for (byte decrement = 1; decrement <= 2; decrement++)
         {
-            byte actual = EscapeTimer.SubtractPackedBcd(packed, decrement, out bool actualBorrow);
+            byte actual = new PackedBcd(packed).Subtract(new PackedBcd(decrement), out bool actualBorrow).Raw;
             int decimalResult = decimalValue - decrement;
             bool expectedBorrow = decimalResult < 0;
             if (expectedBorrow)
@@ -318,7 +318,7 @@ internal static void VerifyEscapeTimerStateMachine()
     timer.RequestCeresStart();
     AssertTrue(!timer.Process(0), "Ceres initialization does not report expiration");
     AssertEqual(EscapeTimerState.InitialDelay, timer.State, "Ceres enters initial delay");
-    AssertEqual(0x01, timer.MinutesBcd, "Ceres starts at one minute");
+    AssertEqual(0x01, timer.Minutes.Raw, "Ceres starts at one minute");
     AssertEqual(0x8000, timer.Position.X, "timer starts at X $80.00");
     AssertEqual(0x8000, timer.Position.Y, "timer starts at Y $80.00");
 
@@ -327,7 +327,7 @@ internal static void VerifyEscapeTimerStateMachine()
         AssertTrue(!timer.Process(frame), $"initial-delay frame {frame}");
     AssertEqual(EscapeTimerState.RunningMovementDelayed, timer.State, "initial delay advances at counter $10");
     AssertEqual(0x8010, timer.Position.X, "X subpixel byte contains delay counter $10");
-    AssertEqual(0x00, timer.SecondsBcd, "initial delay did not decrement seconds");
+    AssertEqual(0x00, timer.Seconds.Raw, "initial delay did not decrement seconds");
 
     // State 4 continues the same aliased counter to $60, then zeroes only its low byte.
     for (ushort frame = 17; frame <= 96; frame++)
@@ -344,29 +344,29 @@ internal static void VerifyEscapeTimerStateMachine()
 
     var borrowSecond = CreateRunningTimer(0x00, 0x01, 0x00);
     AssertTrue(!borrowSecond.Process(1), "00:01.00 remains nonzero after decrement");
-    AssertEqual(0x00, borrowSecond.SecondsBcd, "centisecond borrow decrements seconds");
-    AssertEqual(0x98, borrowSecond.CentisecondsBcd, "table value two wraps centiseconds to 98");
+    AssertEqual(0x00, borrowSecond.Seconds.Raw, "centisecond borrow decrements seconds");
+    AssertEqual(0x98, borrowSecond.Centiseconds.Raw, "table value two wraps centiseconds to 98");
 
     var borrowMinute = CreateRunningTimer(0x01, 0x00, 0x00);
     AssertTrue(!borrowMinute.Process(0), "01:00.00 remains nonzero after decrement");
-    AssertEqual(0x00, borrowMinute.MinutesBcd, "second borrow decrements minutes");
-    AssertEqual(0x59, borrowMinute.SecondsBcd, "minute borrow reloads seconds to 59");
-    AssertEqual(0x99, borrowMinute.CentisecondsBcd, "table value one wraps centiseconds to 99");
+    AssertEqual(0x00, borrowMinute.Minutes.Raw, "second borrow decrements minutes");
+    AssertEqual(0x59, borrowMinute.Seconds.Raw, "minute borrow reloads seconds to 59");
+    AssertEqual(0x99, borrowMinute.Centiseconds.Raw, "table value one wraps centiseconds to 99");
 
     var expiration = CreateRunningTimer(0x00, 0x00, 0x01);
     AssertTrue(expiration.Process(0), "00:00.01 expires on a decrement of one");
-    AssertEqual(0, expiration.CentisecondsBcd, "expiration saturates centiseconds");
+    AssertEqual(0, expiration.Centiseconds.Raw, "expiration saturates centiseconds");
 
     var underflow = CreateRunningTimer(0x00, 0x00, 0x00);
     AssertTrue(underflow.Process(1), "zero timer remains expired after attempted decrement");
-    AssertEqual(0, underflow.MinutesBcd, "underflow saturates minutes");
-    AssertEqual(0, underflow.SecondsBcd, "underflow saturates seconds");
-    AssertEqual(0, underflow.CentisecondsBcd, "underflow saturates centiseconds");
+    AssertEqual(0, underflow.Minutes.Raw, "underflow saturates minutes");
+    AssertEqual(0, underflow.Seconds.Raw, "underflow saturates seconds");
+    AssertEqual(0, underflow.Centiseconds.Raw, "underflow saturates centiseconds");
 
     var motherBrain = new EscapeTimer();
     motherBrain.RequestMotherBrainStart();
     motherBrain.Process(0);
-    AssertEqual(0x03, motherBrain.MinutesBcd, "Mother Brain starts at three minutes");
+    AssertEqual(0x03, motherBrain.Minutes.Raw, "Mother Brain starts at three minutes");
     AssertEqual(0x8003, motherBrain.RawStatus, "active timer retains status high flag");
 
     Console.WriteLine("  Timer: initialization, animation, BCD borrow, and expiration agree.");
@@ -382,7 +382,7 @@ static EscapeTimer CreateRunningTimer(byte minutes, byte seconds, byte centiseco
     timer.Process(0);
     for (ushort frame = 1; timer.State != EscapeTimerState.RunningInPlace; frame++)
         timer.Process(frame);
-    timer.SetTime(minutes, seconds, centiseconds);
+    timer.SetTime(new PackedBcd(minutes), new PackedBcd(seconds), new PackedBcd(centiseconds));
     return timer;
 }
 

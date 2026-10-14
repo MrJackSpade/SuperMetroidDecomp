@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.Core.Areas.Escape.Artwork;
 
 /// <summary>Indexed-PNG and native OBJ transfer geometry for editable escape-timer characters.</summary>
@@ -17,14 +18,14 @@ public static class EscapeTimerTileAtlasFormat
     public const int Height = 8;
 
     /// <summary>First native upload size, $0200 bytes, containing characters 0..15 from source $B0:C000.</summary>
-    public const ushort FirstByteCount = 0x0200;
+    public const ushort FirstByteCount = 16 * 32;
     /// <summary>First upload's VRAM word destination $7E00, equivalent to byte $FC00 and native timer OBJ character $1E0.</summary>
-    public const ushort FirstDestinationWord = 0x7e00;
+    public const ushort FirstDestinationWord = MotherBrainEscapeTextArtworkDefinitions.TimerFirstDestinationWord;
 
     /// <summary>Second native upload size, $0120 bytes, containing the remaining characters 16..24 from source $B0:C200.</summary>
-    public const ushort SecondByteCount = 0x0120;
+    public const ushort SecondByteCount = 9 * 32;
     /// <summary>Second upload's VRAM word destination $7F00, equivalent to byte $FE00 and native timer OBJ character $1F0.</summary>
-    public const ushort SecondDestinationWord = 0x7f00;
+    public const ushort SecondDestinationWord = FirstDestinationWord + FirstByteCount / 2;
 
     /// <summary>Complete planar strip size, $0320 bytes, preserving the native sixteen-character and nine-character transfer boundary.</summary>
     public const int TotalByteCount = FirstByteCount + SecondByteCount;

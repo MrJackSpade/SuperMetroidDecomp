@@ -76,7 +76,7 @@ internal sealed class IntroMotherBrainSpriteState
         ApplyScreenShake(cinematicFrameCounter);
 
         explodingTimer++;
-        if (explodingTimer >= 0x0080)
+        if (explodingTimer >= 128)
         {
             // $B80F starts the page-two program. The generic handler below runs its page request and
             // pre-instruction install during this same cinematic-object call.

@@ -89,7 +89,7 @@ public sealed class EscapeTypewriterPresentation
                     ?? throw new InvalidDataException($"Escape typewriter program {id} line {index} is null.");
                 if (string.IsNullOrEmpty(line.Text) || line.Text.Length > EscapeTypewriterDefinitions.MaximumLineLength ||
                     line.Text.Any(static character => character is not (' ' or '!' or >= 'A' and <= 'Z')) ||
-                    line.Destination < 0 || line.Destination + line.Text.Length > 0x8000)
+                    !EscapeTypewriterState.LineFitsInVram(line.Destination, line.Text.Length))
                 {
                     throw new InvalidDataException(
                         $"Escape typewriter program {id} line {index} has invalid text or VRAM placement.");

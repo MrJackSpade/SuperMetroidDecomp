@@ -25,8 +25,10 @@ internal sealed class IntroScientistCutsceneState
             definition.PaletteBits,
             definition.Program);
         baby.PreInstructionPointerForDiscovery(definition.PreInstruction);
-        TilemapBaseWord = delivery ? (ushort)0x5800 : (ushort)0x5c00;
-        Background = delivery ? new(0x0020, 0x0008) : new(0, 0xffe8);
+        TilemapBaseWord = delivery
+            ? IntroCinematicRomData.Layers.ScientistTilemapWord
+            : IntroCinematicRomData.Layers.ScientistExaminationTilemapWord;
+        Background = delivery ? new(32, 8) : new(0, unchecked((ushort)-24));
     }
 
     /// <summary>The laboratory page's BG1 scroll.</summary>
@@ -72,7 +74,7 @@ internal sealed class IntroScientistCutsceneState
                 baby.WholePosition += new Offset16<ScreenPixels>(1, 0);
             }
             else if (kind == ScientistSceneKind.Examination &&
-                unchecked((short)(Background.Y - 0x0008)) < 0)
+                unchecked((short)(Background.Y - 8)) < 0)
             {
                 // ADA6 moves the second laboratory page down from -24 to +8 while the
                 // examined baby rises by the same 32 pixels.

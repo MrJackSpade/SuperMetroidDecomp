@@ -18,17 +18,17 @@ public static class IntroCinematicArtworkFormat
     /// <summary>Four ordered BG tilemap pages in the opening illustrated-page transfer.</summary>
     public const int BackgroundPageCount = 4;
     /// <summary>$0800 transfer bytes per 32x32 BG page: 1024 little-endian, two-byte tile-reference words.</summary>
-    public const int BackgroundPageByteCount = 0x0800;
+    public const int BackgroundPageByteCount = 1024 * sizeof(ushort);
     /// <summary>Formats the installed JSON resource name for one ordered background page without validating its index.</summary>
     /// <param name="index">Zero-based page index, normally 0 through 3.</param>
     /// <returns>The resource name <c>intro-background-page-{index}.json</c>.</returns>
     public static string BackgroundPageFileName(int index) => $"intro-background-page-{index}.json";
     /// <summary>$8000 bytes of 4-bpp BG data: 1024 eight-by-eight characters uploaded at VRAM byte $0000.</summary>
-    public const int BackgroundByteCount = 0x8000;
+    public const int BackgroundByteCount = 1024 * 32;
     /// <summary>$2000 bytes of fixed-bank 4-bpp intro OBJ data: 256 characters uploaded at VRAM byte $C000.</summary>
-    public const int IntroObjectByteCount = 0x2000;
+    public const int IntroObjectByteCount = 256 * 32;
     /// <summary>$2400 bytes of 4-bpp cinematic OBJ data: 288 characters uploaded at VRAM byte $DC00.</summary>
-    public const int CinematicObjectByteCount = 0x2400;
+    public const int CinematicObjectByteCount = 288 * 32;
     /// <summary>Thirty-two eight-pixel character cells per PNG-sheet row; also the tile-column stride of a 32x32 BG page.</summary>
     public const int TileColumns = 32;
 }

@@ -55,7 +55,7 @@ internal sealed class CeresLargeAsteroidParts(
                 anchor = left;
                 column = index < 2 ? 3 : 2 - 2 * ((index - 2) % 2);
                 row = index < 2 ? 2 - 2 * index : 2 - 2 * ((index - 2) / 2);
-                tile = CeresLargeAsteroidAtlas.Left;
+                tile = CeresLargeAsteroidCellDefinitions.Left;
             }
             else if (index < 13)
             {
@@ -65,7 +65,7 @@ internal sealed class CeresLargeAsteroidParts(
                 else if (piece == 1) { column = 1; row = 3; }
                 else if (piece == 2) { column = 3; row = 0; }
                 else { column = 2 - 2 * ((piece - 3) % 2); row = 2 - 2 * ((piece - 3) / 2); }
-                tile = CeresLargeAsteroidAtlas.Right;
+                tile = CeresLargeAsteroidCellDefinitions.Right;
             }
             else
             {
@@ -73,7 +73,7 @@ internal sealed class CeresLargeAsteroidParts(
                 int piece = index - 13;
                 column = 2 - 2 * (piece % 2);
                 row = 4 - 2 * (piece / 2);
-                tile = CeresLargeAsteroidAtlas.Lower;
+                tile = CeresLargeAsteroidCellDefinitions.Lower;
             }
             return new(SnesSpritemapXWord.Create(anchor.X + 8 * column, large),
                 unchecked((byte)(anchor.Y + 8 * row)),

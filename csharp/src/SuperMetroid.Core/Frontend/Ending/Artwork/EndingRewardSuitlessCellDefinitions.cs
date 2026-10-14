@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Individually ordered edges outside the suitless body strip traversals.</summary>
-internal static class EndingRewardSuitlessAtlas
+internal static class EndingRewardSuitlessCellDefinitions
 {
     /// <summary>Tile$53, small inner hip edge in the lower-body composition.</summary>
     internal const int InnerHipEdge = 0x53;

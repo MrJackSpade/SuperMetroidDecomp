@@ -41,7 +41,7 @@ internal static class GunshipEscapeTimerVerification
         samus.Presentation.InitializeAnimation(bus);
         samus.Presentation.PrimeGraphics(bus);
         runtime.EscapeTimer.RawStatus = (ushort)0x8006;
-        runtime.EscapeTimer.SetTime(2, 0x59, 0x50);
+        runtime.EscapeTimer.SetTime(PackedBcd.FromDecimal(2), PackedBcd.FromDecimal(59), PackedBcd.FromDecimal(50));
         runtime.QueueEscapeTimerSpriteTiles();
         runtime.StepFrame(0);
         var timerTilesBefore = runtime.Vram.Bytes.Slice(0xfc00, 0x400).ToArray();
@@ -76,7 +76,7 @@ internal static class GunshipEscapeTimerVerification
         Console.WriteLine("Gunship escape timer: normal timer OAM, same-frame boarding suppression, preserved active status and no timer sprites through liftoff dust upload passed.");
         return 0;
 
-        (byte, byte, byte) Time() => (runtime.EscapeTimer.MinutesBcd, runtime.EscapeTimer.SecondsBcd, runtime.EscapeTimer.CentisecondsBcd);
+        (byte, byte, byte) Time() => (runtime.EscapeTimer.Minutes.Raw, runtime.EscapeTimer.Seconds.Raw, runtime.EscapeTimer.Centiseconds.Raw);
         bool TimerSpritesPresent()
         {
             var expected = new OamBuffer();

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 
@@ -38,18 +39,16 @@ public sealed class EscapeTimerPresentation
         Ensure.NotNull(oam);
 
         DrawFrame(EscapeTimerPresentationDefinitions.LabelFrame, Anchor("Label"));
-        DrawPair(timer.MinutesBcd, Anchor("Minutes"));
-        DrawPair(timer.SecondsBcd, Anchor("Seconds"));
-        DrawPair(timer.CentisecondsBcd, Anchor("Centiseconds"));
+        DrawPair(timer.Minutes, Anchor("Minutes"));
+        DrawPair(timer.Seconds, Anchor("Seconds"));
+        DrawPair(timer.Centiseconds, Anchor("Centiseconds"));
 
-        void DrawPair(byte packedBcd, Offset16<OamPixels> anchor)
+        void DrawPair(PackedBcd pair, Offset16<OamPixels> anchor)
         {
-            int tens = packedBcd >> 4;
-            int ones = packedBcd & 0x0f;
-            if (tens > 9 || ones > 9)
-                throw new InvalidOperationException($"Cannot draw invalid packed-BCD timer byte ${packedBcd:X2}.");
-            DrawFrame(EscapeTimerPresentationDefinitions.DigitFrame(tens), anchor);
-            DrawFrame(EscapeTimerPresentationDefinitions.DigitFrame(ones),
+            if (!pair.IsValid)
+                throw new InvalidOperationException($"Cannot draw invalid packed-BCD timer byte ${pair.Raw:X2}.");
+            DrawFrame(EscapeTimerPresentationDefinitions.DigitFrame(pair.Tens), anchor);
+            DrawFrame(EscapeTimerPresentationDefinitions.DigitFrame(pair.Ones),
                 anchor + new Offset16<OamPixels>(checked((short)DigitSpacing), 0));
         }
 

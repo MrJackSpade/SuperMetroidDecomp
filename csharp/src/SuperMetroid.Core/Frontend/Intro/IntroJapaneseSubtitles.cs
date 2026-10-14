@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroJapaneseSubtitles
 {
     /// <summary>$8B:B5B1 and its siblings: frames the second subtitle holds a page's input wait.</summary>
-    public const ushort SecondSubtitleHoldFrames = 0x3c;
+    public const ushort SecondSubtitleHoldFrames = 60;
 
     /// <summary>Three native mode 7 object slots, searched from highest index downward.</summary>
     private const int SlotCount = 3;

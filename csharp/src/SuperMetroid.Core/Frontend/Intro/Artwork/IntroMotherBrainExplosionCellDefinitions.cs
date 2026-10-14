@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Authored tile identities for the intro Mother Brain flash and mirrored explosion quadrants.</summary>
-internal static class IntroMotherBrainExplosionAtlas
+internal static class IntroMotherBrainExplosionCellDefinitions
 {
     /// <summary>Tile$53, initial centered small explosion flash in8C:97F7.</summary>
     internal const int SmallFlash = 0x53;

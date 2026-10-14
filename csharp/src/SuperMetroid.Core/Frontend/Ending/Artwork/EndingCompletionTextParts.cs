@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -34,10 +35,10 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                 if (frame == 55)
                 {
                     // Native $B66F uses the same colon dot tile for both halves.
-                    tile = 0x15a;
+                    tile = SnesCharacterGrid.Cell(21, 10);
                     if (bottom) flips = SnesTileFlipFlags.Vertical;
                 }
-                else tile = 0x100 + EndingTextDefinitions.CompileGlyph((char)('0' + frame - 45), EndingTextStyle.CopyrightLarge, bottom);
+                else tile = SnesCharacterGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph((char)('0' + frame - 45), EndingTextStyle.CopyrightLarge, bottom);
             }
             else
             {
@@ -54,7 +55,7 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                     if (letter-- == 0) break;
                 }
                 x = start + column * 8;
-                tile = 0x100 + EndingTextDefinitions.CompileGlyph(text[column], EndingTextStyle.CopyrightLarge, bottom);
+                tile = SnesCharacterGrid.Cell(16, 0) + EndingTextDefinitions.CompileGlyph(text[column], EndingTextStyle.CopyrightLarge, bottom);
             }
             return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)(bottom ? bottomY : bottomY - 8)),
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);

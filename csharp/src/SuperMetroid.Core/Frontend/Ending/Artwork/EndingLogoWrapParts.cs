@@ -18,60 +18,32 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         selection = stock ? null : supplied;
     }
 
-    /// <summary>Native ordering of the seven half-turned closing-arc pieces.</summary>
-    private enum ClosingPiece
-    {
-        /// <summary>Inner tip on the right of the closing arc.</summary>
-        InnerRightTip,
-        /// <summary>Outer tip on the left of the closing arc.</summary>
-        OuterLeftTip,
-        /// <summary>Right section between the closing tips.</summary>
-        RightSpan,
-        /// <summary>Left section between the closing tips.</summary>
-        LeftSpan,
-        /// <summary>Center section of the closing arc.</summary>
-        MiddleSpan,
-        /// <summary>Inner tip on the left of the closing arc.</summary>
-        InnerLeftTip,
-        /// <summary>Corner at the right end of the closing arc.</summary>
-        RightCorner,
-    }
+    /// <summary>The stock wrap's 25 pieces in native OAM order: the half-turned closing arc (tips before spans), the caps
+    /// right to left with the cropped left cap, the upper span, the left corner, the inner edge right to left, the patch
+    /// bottom-right to top-left, the side junctions and endpoints, and the inner side bottom to top.</summary>
+    private static readonly (int Tile, bool Cropped)[] Stock =
+    [
+        (Tile(EndingLogoWrapTile.ClosingInnerRightTip), false), (Tile(EndingLogoWrapTile.ClosingOuterLeftTip), false),
+        (Tile(EndingLogoWrapTile.ClosingRightSpan), false), (Tile(EndingLogoWrapTile.ClosingLeftSpan), false),
+        (Tile(EndingLogoWrapTile.ClosingMiddleSpan), false), (Tile(EndingLogoWrapTile.ClosingInnerLeftTip), false),
+        (Tile(EndingLogoWrapTile.ClosingRightCorner), false),
+        (Tile(EndingLogoWrapTile.RightCap), false), (Tile(EndingLogoWrapTile.LeftCap), false), (Tile(EndingLogoWrapTile.LeftCap), true),
+        (Tile(EndingLogoWrapTile.UpperSpanLeft), false), (Tile(EndingLogoWrapTile.UpperSpanRight), false),
+        ((int)EndingLogoWrapCorner.LeftCorner, false),
+        (Tile(EndingLogoWrapTile.InnerEdgeRight), false), (Tile(EndingLogoWrapTile.InnerEdgeLeft), false),
+        (Tile(EndingLogoWrapTile.PatchBottomRight), false), (Tile(EndingLogoWrapTile.PatchBottomLeft), false),
+        (Tile(EndingLogoWrapTile.PatchTopRight), false), (Tile(EndingLogoWrapTile.PatchTopLeft), false),
+        ((int)EndingLogoWrapCorner.LowerSideEndpoint, false), ((int)EndingLogoWrapCorner.InnerSideJunction, false),
+        (Tile(EndingLogoWrapTile.InnerSideBottom), false), (Tile(EndingLogoWrapTile.InnerSideTop), false),
+        ((int)EndingLogoWrapCorner.OuterSideJunction, false), ((int)EndingLogoWrapCorner.UpperSideEndpoint, false),
+    ];
+
+    /// <summary>The atlas tile number of <paramref name="tile"/>.</summary>
+    private static int Tile(EndingLogoWrapTile tile) => (int)tile;
 
     /// <summary>Selects a native tile and crop flag in the wrap's 25-part OAM order.</summary>
-    internal static (int Tile, bool Cropped) StockSelection(int index)
-    {
-        if ((uint)index >= 25) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index < 7)
-        {
-            // Closing arc is rotated. Its native order puts tips before spans.
-            int tile = (ClosingPiece)index switch
-            {
-                ClosingPiece.InnerRightTip => 0x2c,
-                ClosingPiece.OuterLeftTip => 0x0f,
-                ClosingPiece.RightSpan => 0x09,
-                ClosingPiece.LeftSpan => 0x0d,
-                ClosingPiece.MiddleSpan => 0x0b,
-                ClosingPiece.InnerLeftTip => 0x2b,
-                ClosingPiece.RightCorner => 0x29,
-                _ => throw new ArgumentOutOfRangeException(nameof(index)),
-            };
-            return (tile, false);
-        }
-        if (index < 9) return (0x49 - (index - 7), false); // caps, right to left
-        if (index == 9) return (0x48, true); // cropped left cap
-        if (index < 12) return (0x4c + 2 * (index - 10), false); // upper span, left to right
-        if (index == 12) return ((int)EndingLogoWrapCorner.LeftCorner, false);
-        if (index < 15) return (0x6b - (index - 13), false); // inner edge, right to left
-        if (index < 19)
-        {
-            int cell = index - 15;
-            return (0x79 - cell / 2 * 16 - cell % 2, false); // patch, bottom-right to top-left
-        }
-        if (index == 19) return ((int)EndingLogoWrapCorner.LowerSideEndpoint, false);
-        if (index == 20) return ((int)EndingLogoWrapCorner.InnerSideJunction, false);
-        if (index < 23) return (0x10 - (index - 21) * 16, false); // inner side, bottom to top
-        return (index == 23 ? (int)EndingLogoWrapCorner.OuterSideJunction : (int)EndingLogoWrapCorner.UpperSideEndpoint, false);
-    }
+    internal static (int Tile, bool Cropped) StockSelection(int index) =>
+        (uint)index < Stock.Length ? Stock[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>Calculates stock placement only when every supplied tile can be placed by the wrap geometry.</summary>
     internal static SpriteComposition CalculateIfMatching(SpriteComposition supplied)
@@ -81,8 +53,9 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         {
             CompiledSpritePart part = supplied.Part(index);
             int tile = part.Attributes.TileNumber;
-            if (!TryPlace(tile, tile == 0x48 && !part.X.IsLarge, out _)) return supplied;
-            selection[index] = (tile, tile == 0x48 && !part.X.IsLarge);
+            bool cropped = tile == Tile(EndingLogoWrapTile.LeftCap) && !part.X.IsLarge;
+            if (!TryPlace(tile, cropped, out _)) return supplied;
+            selection[index] = (tile, cropped);
         }
         return supplied.CalculateIfMatching(new EndingLogoWrapParts(selection));
     }
@@ -92,38 +65,43 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
     {
         int x, y;
         bool large = false, rotate = false;
-        if (tile is 0x09 or 0x0b or 0x0d or 0x0f or 0x29 or 0x2b or 0x2c)
+        int column = tile % 16, row = tile / 16;
+        if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.ClosingRightSpan or EndingLogoWrapTile.ClosingMiddleSpan or
+            EndingLogoWrapTile.ClosingLeftSpan or EndingLogoWrapTile.ClosingOuterLeftTip or EndingLogoWrapTile.ClosingRightCorner or
+            EndingLogoWrapTile.ClosingInnerLeftTip or EndingLogoWrapTile.ClosingInnerRightTip)
         {
             // Closing arc: a packed two-row region, half-turned into the lower edge.
-            x = 8 * ((tile & 15) - 9) - 39;
-            y = 8 * (tile / 16) - 57;
-            large = tile is 0x09 or 0x0b or 0x0d or 0x29;
+            x = 8 * (column - 9) - 39;
+            y = 8 * row - 57;
+            large = (EndingLogoWrapTile)tile is EndingLogoWrapTile.ClosingRightSpan or EndingLogoWrapTile.ClosingMiddleSpan or
+                EndingLogoWrapTile.ClosingLeftSpan or EndingLogoWrapTile.ClosingRightCorner;
             rotate = true;
         }
-        else if (tile is 0x48 or 0x49)
+        else if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.LeftCap or EndingLogoWrapTile.RightCap)
         {
             // Overlapping top caps and an eight-pixel crop of the left cap.
-            x = cropped ? 8 : 16 + 8 * (tile - 0x48);
+            x = cropped ? 8 : 16 + 8 * (tile - Tile(EndingLogoWrapTile.LeftCap));
             y = cropped ? -24 : -32;
             large = !cropped;
         }
-        else if (tile is 0x4c or 0x4e)
+        else if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.UpperSpanLeft or EndingLogoWrapTile.UpperSpanRight)
         {
-            x = 8 * (tile - 0x4c); y = -16; large = true;
+            x = 8 * (tile - Tile(EndingLogoWrapTile.UpperSpanLeft)); y = -16; large = true;
         }
-        else if (tile is 0x68 or 0x69 or 0x78 or 0x79)
+        else if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.PatchTopLeft or EndingLogoWrapTile.PatchTopRight or
+            EndingLogoWrapTile.PatchBottomLeft or EndingLogoWrapTile.PatchBottomRight)
         {
             // Upper-right patch is a two-by-two small-tile rectangle.
-            x = 32 + 8 * ((tile & 15) - 8);
-            y = -16 + 8 * (tile / 16 - 6);
+            x = 32 + 8 * (column - 8);
+            y = -16 + 8 * (row - 6);
         }
-        else if (tile is 0x6a or 0x6b)
+        else if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.InnerEdgeLeft or EndingLogoWrapTile.InnerEdgeRight)
         {
-            x = -8 + 8 * (tile - 0x6a); y = 0;
+            x = -8 + 8 * (tile - Tile(EndingLogoWrapTile.InnerEdgeLeft)); y = 0;
         }
-        else if (tile is 0x00 or 0x10)
+        else if ((EndingLogoWrapTile)tile is EndingLogoWrapTile.InnerSideTop or EndingLogoWrapTile.InnerSideBottom)
         {
-            x = 24; y = -8 + 8 * (tile / 16);
+            x = 24; y = -8 + 8 * row;
         }
         else
         {

@@ -14,7 +14,7 @@ internal sealed class EndingShootingStars
             Reset(ref stars[index], (ushort)index);
             ushort delay = EndingShootingStarDefinitions.Records[index].Delay;
             if (delay == 0) continue;
-            stars[index].IndexAndFrame |= 0x8000;
+            stars[index].IndexAndFrame |= EndingShootingStarDefinitions.Delayed;
             stars[index].Timer = NativeCountdown.FromRaw(delay);
         }
     }
@@ -65,7 +65,7 @@ internal sealed class EndingShootingStars
             if ((short)star.IndexAndFrame < 0 || (SnesLittleEndian.HighByteInPlace(star.IndexAndFrame)) == 0) continue;
             int frame = star.IndexAndFrame >> 9;
             Position16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
-            oam.AddRawSmallSprite(origin.ToOam(), EndingShootingStarDefinitions.Attributes[frame]);
+            oam.AddRawSmallSprite(origin.ToOam(), EndingShootingStarDefinitions.Attribute(frame));
         }
     }
 

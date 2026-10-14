@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Native OBJ tile anchors shared by the ending reward arm poses.</summary>
-internal static class EndingRewardArmAtlas
+internal static class EndingRewardArmCellDefinitions
 {
     /// <summary>Tile$EE, initial pose's lower large arm piece.</summary>
     internal const int InitialLower = 0xee;

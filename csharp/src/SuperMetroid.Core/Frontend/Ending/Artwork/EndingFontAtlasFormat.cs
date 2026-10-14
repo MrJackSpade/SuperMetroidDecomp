@@ -114,17 +114,24 @@ public static class EndingFontAtlasFormat
         if (!TryLargeGlyphOrigin(pixel, out int origin)) return false;
         int tile = origin / Width / TileSize * TilesPerRow + origin % Width / TileSize;
         int x = (pixel - origin) % Width, y = (pixel - origin) / Width;
-        return (tile, x, y) is
-            (0x21, 5, 2) or (0x21, 6, 3) or (0x21, 7, 4) or (0x21, 7, 7)
-            or (0x21, 7, 8) or (0x21, 7, 13) or (0x21, 6, 14)
-            or (0x23, 6, 3) or (0x23, 7, 5) or (0x23, 7, 11) or (0x23, 6, 13) or (0x23, 5, 14)
-            or (0x26, 4, 6) or (0x26, 4, 10)
-            or (0x29, 0, 13) or (0x29, 7, 13) or (0x29, 1, 14) or (0x29, 6, 14)
-            or (0x2A, 5, 2) or (0x2A, 4, 3) or (0x2A, 5, 8) or (0x2A, 6, 9) or (0x2A, 7, 10)
-            or (0x40, 7, 3) or (0x41, 7, 10) or (0x41, 7, 11)
-            or (0x42, 7, 13) or (0x42, 1, 14) or (0x42, 6, 14)
-            or (0x45, 6, 11) or (0x45, 2, 14);
+        return (LargeLetter(tile), x, y) is
+            ('B', 5, 2) or ('B', 6, 3) or ('B', 7, 4) or ('B', 7, 7)
+            or ('B', 7, 8) or ('B', 7, 13) or ('B', 6, 14)
+            or ('D', 6, 3) or ('D', 7, 5) or ('D', 7, 11) or ('D', 6, 13) or ('D', 5, 14)
+            or ('G', 4, 6) or ('G', 4, 10)
+            or ('J', 0, 13) or ('J', 7, 13) or ('J', 1, 14) or ('J', 6, 14)
+            or ('K', 5, 2) or ('K', 4, 3) or ('K', 5, 8) or ('K', 6, 9) or ('K', 7, 10)
+            or ('Q', 7, 3) or ('R', 7, 10) or ('R', 7, 11)
+            or ('S', 7, 13) or ('S', 1, 14) or ('S', 6, 14)
+            or ('V', 6, 11) or ('V', 2, 14);
     }
+    /// <summary>The large letter whose glyph's top cell is <paramref name="topTile"/>, or none for a copyright digit.</summary>
+    private static char LargeLetter(int topTile) =>
+        topTile >= EndingTextDefinitions.CopyrightDigitTopBase ? ' '
+        : topTile >= EndingTextDefinitions.LargeSecondGroupTopBase
+            ? (char)('A' + EndingTextDefinitions.LargeSecondGroupFirstLetter + topTile - EndingTextDefinitions.LargeSecondGroupTopBase)
+            : (char)('A' + topTile - EndingTextDefinitions.LargeFirstGroupTopBase);
+
     /// <summary>Calculates transparent, fill, or adjacent outline ink only for the proven glyph domain.</summary>
     internal static bool TryCalculatedPixel(int pixel, IReadOnlySet<int> requiredFootprint, out byte ink)
     {

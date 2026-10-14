@@ -28,13 +28,13 @@ internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSp
             {
                 row = 0;
                 column = 2 - index;
-                tile = IntroEggRockingAtlas.TopStrip + column;
+                tile = IntroEggRockingCellDefinitions.TopStrip + column;
             }
             else if (large)
             {
                 row = 1;
                 column = 0;
-                tile = IntroEggRockingAtlas.LowerLeft;
+                tile = IntroEggRockingCellDefinitions.LowerLeft;
             }
             else
             {
@@ -43,14 +43,14 @@ internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSp
                 {
                     row = 2 - piece;
                     column = 2;
-                    tile = IntroEggRockingAtlas.RightColumn + row - 1;
+                    tile = IntroEggRockingCellDefinitions.RightColumn + row - 1;
                 }
                 else
                 {
                     int grid = piece - 2;
                     row = 2 - grid / 2;
                     column = 1 - grid % 2;
-                    tile = IntroEggRockingAtlas.LowerLeft + 16 * (row - 1) + column;
+                    tile = IntroEggRockingCellDefinitions.LowerLeft + 16 * (row - 1) + column;
                 }
             }
             int shear = frame == 0 ? 0 : (frame == 1 ? -1 : 1) * (3 - row);

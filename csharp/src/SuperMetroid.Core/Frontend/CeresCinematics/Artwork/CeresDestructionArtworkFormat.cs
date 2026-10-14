@@ -22,7 +22,7 @@ public static class CeresDestructionArtworkFormat
     /// <summary>$0900 compiled map-lane bytes for all three slices, appended after the shared $0600-byte Ceres-flight maps.</summary>
     public const int MapByteCount = ViewCount * CellsPerView;
     /// <summary>$0800 bytes for one ordinary BG tilemap page, transferred from native ZebesTilemap to VRAM word $5C00 by $8B:C6F1–$C70E.</summary>
-    public const int ZebesMapByteCount = 0x0800;
+    public const int ZebesMapByteCount = 1024 * sizeof(ushort);
     /// <summary>$4000 bytes of 4bpp Zebes characters, matching the native ZebesTiles transfer to VRAM word $6000 at $8B:C70C–$C72E.</summary>
-    public const int ZebesCharacterByteCount = 0x4000;
+    public const int ZebesCharacterByteCount = 512 * 32;
 }

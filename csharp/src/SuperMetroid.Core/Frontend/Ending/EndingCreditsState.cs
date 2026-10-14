@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx;
@@ -1444,7 +1445,7 @@ internal sealed class EndingCreditsState
                 {
                     sprite.PreInstructionPointerForDiscovery((ushort)EndingSpritePreInstruction.MoveFlyawayStars);
                     // The Y subposition word doubles as the low velocity word.
-                    sprite.Position = sprite.Position.WithY(sprite.Position.Y.WithFraction(0x4000));
+                    sprite.Position = sprite.Position.WithY(sprite.Position.Y.WithFraction((ushort)(SnesSixteenSixteen.FromWhole(1) / 4)));
                     sprite.GeneralTimer = 0;
                 }
                 break;

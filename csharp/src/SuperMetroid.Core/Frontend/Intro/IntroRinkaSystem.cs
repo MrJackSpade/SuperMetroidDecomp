@@ -179,8 +179,8 @@ internal sealed class IntroRinkaSystem
                     return;
                 }
 
-                samus.InvincibilityTimer = NativeCountdown.Start(0x000b);
-                samus.KnockbackTimer = NativeCountdown.Start(0x000b);
+                samus.InvincibilityTimer = NativeCountdown.Start(11);
+                samus.KnockbackTimer = NativeCountdown.Start(11);
                 samus.KnockbackXDirection = 1;
                 rinka.Delete();
                 return;
@@ -190,7 +190,7 @@ internal sealed class IntroRinkaSystem
                     IntroRinkaDefinitions.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
                 short y = unchecked((short)rinka.WholePosition.Y);
-                if (y < 0x0010 || y >= 0x00d0 || motherBrainExploding)
+                if (y < 16 || y >= 208 || motherBrainExploding)
                     rinka.Delete();
                 return;
 

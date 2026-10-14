@@ -46,7 +46,7 @@ internal sealed class IntroBabyDiscoveryState
         // diagnostics may start with a fresh owner, but the full intro carries it forward.
         Samus = existingSamus ?? new SamusState();
         Samus.Pose = SamusPoseId.FacingLeftNormalPose;
-        Samus.Position = Samus.Position.WithWhole(new(0x0178, 0x0093));
+        Samus.Position = Samus.Position.WithWhole(new(376, 147));
         Samus.SelectedHudItem = 0;
         Samus.PoseMetadata.RefreshCollisionRadii(bus);
         // $8B:AF95-$AF99: the flashback leaves Samus in pose two already, so her animation
@@ -124,7 +124,7 @@ internal sealed class IntroBabyDiscoveryState
         // The egg's $A8E8 pre-instruction tests Samus's post-movement X during the later
         // cinematic-sprite pass. It permanently redirects the list once X is below $A9.
         if (egg.PreInstructionPointer == IntroBabyActorDefinitions.Egg.PreInstruction &&
-            unchecked((short)(Samus.Position.X.Whole - 0x00a9)) < 0)
+            unchecked((short)(Samus.Position.X.Whole - 169)) < 0)
         {
             egg.Start(CinematicSpriteProgram.MetroidEggHatching);
             egg.PreInstructionPointerForDiscovery(
@@ -179,7 +179,7 @@ internal sealed class IntroBabyDiscoveryState
         switch (preInstruction)
         {
             case IntroBabyDiscoveryPreInstruction.RunningLeft:
-                if (Samus.Position.X.Whole < 0x00b2)
+                if (Samus.Position.X.Whole < 178)
                     demo.Redirect(
                         (ushort)IntroBabyDiscoveryPreInstruction.StopAndLook,
                         IntroBabyDiscoveryRomData.StopAndLookInputList);
@@ -299,7 +299,7 @@ internal sealed class IntroBabyDiscoveryState
     {
         // Equality is intentional: $BA76 uses BNE, and the actor's subpixel integration
         // reaches this scanline once. Four init parameters select four distinct arcs.
-        if (confusedBaby.WholePosition.Y == 0x0091 && slimeDrops.Count == 0)
+        if (confusedBaby.WholePosition.Y == 145 && slimeDrops.Count == 0)
         {
             for (byte index = 0; index < IntroEggEffectDefinitions.SlimeDropCount; index++)
             {
@@ -313,20 +313,20 @@ internal sealed class IntroBabyDiscoveryState
         }
 
         // $BA73 accelerates toward 32 pixels above Samus, clamping to +/-$220 in 8.8.
-        ushort targetY = unchecked((ushort)(Samus.Position.Y.Whole - 0x0020));
+        ushort targetY = unchecked((ushort)(Samus.Position.Y.Whole - 32));
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
             confusedBaby.WholePosition.Y,
             targetY,
             BabyVelocity.Y,
-            positiveLimit: 0x0220,
-            negativeLimit: unchecked((short)0xfde0)));
+            positiveLimit: 544,
+            negativeLimit: -544));
         AddEightEightVelocity(confusedBaby, horizontal: false, BabyVelocity.Y);
 
         // The first non-negative velocity marks the top of the initial arc. Native code
         // then holds for $80 frames before enabling the two-axis dance around Samus.
         if (unchecked((short)BabyVelocity.Y.RawValue) >= 0)
         {
-            BabyIdleTimer = NativeCountdown.Start(0x0080);
+            BabyIdleTimer = NativeCountdown.Start(128);
             confusedBaby.PreInstructionPointerForDiscovery(
                 (ushort)ConfusedBabyPreInstruction.Idling);
         }
@@ -343,11 +343,11 @@ internal sealed class IntroBabyDiscoveryState
             return;
         }
 
-        if (confusedBaby.GeneralTimer < 0x0080)
+        if (confusedBaby.GeneralTimer < 128)
         {
             confusedBaby.GeneralTimer++;
             // `$8B:BB24` cries when the post-increment timer reaches $40 and $80.
-            if ((confusedBaby.GeneralTimer & 0x003f) == 0)
+            if (confusedBaby.GeneralTimer % 64 == 0)
                 audio?.QueueSound(
                     IntroCinematicRomData.Objects.BabyCry1,
                     maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
@@ -357,21 +357,21 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.WholePosition.X,
             Samus.Position.X.Whole,
             BabyVelocity.X,
-            positiveLimit: 0x0280,
-            negativeLimit: unchecked((short)0xfd80)));
+            positiveLimit: 640,
+            negativeLimit: -640));
         // $8B:BB79-$BB9E: a baby moving left draws over Samus; otherwise Samus draws first.
         SamusDisplay = unchecked((sbyte)(SnesEightEight.WholeOf(BabyVelocity.X.RawValue))) < 0
             ? IntroSamusDisplay.ObjectsFirst
             : IntroSamusDisplay.SamusFirst;
         AddEightEightVelocity(confusedBaby, horizontal: true, BabyVelocity.X);
 
-        ushort targetY = unchecked((ushort)(Samus.Position.Y.Whole - 0x0008));
+        ushort targetY = unchecked((ushort)(Samus.Position.Y.Whole - 8));
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
             confusedBaby.WholePosition.Y,
             targetY,
             BabyVelocity.Y,
-            positiveLimit: 0x0220,
-            negativeLimit: unchecked((short)0xfde0)));
+            positiveLimit: 544,
+            negativeLimit: -544));
         AddEightEightVelocity(confusedBaby, horizontal: false, BabyVelocity.Y);
     }
 
@@ -385,9 +385,9 @@ internal sealed class IntroBabyDiscoveryState
     {
         int velocity = unchecked((short)current.RawValue);
         if (unchecked((short)(target - position)) >= 0)
-            velocity = Math.Min(positiveLimit, velocity + 0x20);
+            velocity = Math.Min(positiveLimit, velocity + 32);
         else
-            velocity = Math.Max(negativeLimit, velocity - 0x20);
+            velocity = Math.Max(negativeLimit, velocity - 32);
         return new(unchecked((ushort)velocity));
     }
 

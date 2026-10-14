@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Native tile anchors for the station's strips and irregular edge patches.</summary>
-internal static class CeresStationAtlas
+internal static class CeresStationCellDefinitions
 {
     /// <summary>TileE6, top strip at Y=-48 in8C:9150.</summary>
     internal const int Top = 0xe6;

@@ -31,8 +31,8 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
                 int column = frame == 1 ? index / 2 : index % 2;
                 int row = frame == 1 ? index % 2 : index / 2;
                 x = -size * column; y = -size * row;
-                tile = frame == 0 ? IntroMotherBrainExplosionAtlas.BigInitialQuadrant
-                    : IntroMotherBrainExplosionAtlas.BigQuadrantStart + 2 * (frame - 1);
+                tile = frame == 0 ? IntroMotherBrainExplosionCellDefinitions.BigInitialQuadrant
+                    : IntroMotherBrainExplosionCellDefinitions.BigQuadrantStart + 2 * (frame - 1);
             }
             else if (frame == 3)
             {
@@ -43,14 +43,14 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
                     bool verticalPair = (side & 1) == 0;
                     x = verticalPair ? (side == 0 ? 16 : -24) : -8 * half;
                     y = verticalPair ? -8 * half : (side == 1 ? 16 : -24);
-                    tile = CeresStationBlastAtlas.ExpandedTips + (verticalPair ? 16 : 0);
+                    tile = CeresStationBlastCellDefinitions.ExpandedTips + (verticalPair ? 16 : 0);
                 }
                 else
                 {
                     size = 16;
                     int quadrant = index - 8;
                     x = -16 * (quadrant / 2); y = -16 * (quadrant % 2);
-                    tile = CeresStationBlastAtlas.ExpandedCore;
+                    tile = CeresStationBlastCellDefinitions.ExpandedCore;
                 }
             }
             else if (frame == 4)
@@ -61,7 +61,7 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
                 x = lobe == 0 ? 8 : 0; y = lobe == 0 ? 0 : 8;
                 if (column != 0) x = -size - x;
                 if (row != 0) y = -size - y;
-                tile = CeresStationBlastAtlas.SplitLobes + 2 * (1 - lobe);
+                tile = CeresStationBlastCellDefinitions.SplitLobes + 2 * (1 - lobe);
             }
             else
             {
@@ -72,7 +72,7 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
                     int piece = index % 4;
                     int near = -8 * (piece % 2), far = piece < 2 ? 16 : -24;
                     x = horizontalPair ? near : far; y = horizontalPair ? far : near;
-                    tile = horizontalPair ? CeresStationBlastAtlas.DetachedVerticalTips : CeresStationBlastAtlas.DetachedHorizontalTips;
+                    tile = horizontalPair ? CeresStationBlastCellDefinitions.DetachedVerticalTips : CeresStationBlastCellDefinitions.DetachedHorizontalTips;
                 }
                 else
                 {
@@ -80,7 +80,7 @@ internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<Compiled
                     int quadrant = index - 8;
                     x = quadrant % 2 == 0 ? 8 : -24;
                     y = quadrant / 2 == 0 ? 8 : -24;
-                    tile = CeresStationBlastAtlas.DetachedCore;
+                    tile = CeresStationBlastCellDefinitions.DetachedCore;
                 }
             }
             var flips = (x >= 0 ? SnesTileFlipFlags.Horizontal : 0)

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Character indices for the three atlas regions assembled into the intact and rocking egg poses.</summary>
-internal static class IntroEggRockingAtlas
+internal static class IntroEggRockingCellDefinitions
 {
     /// <summary>Tile$122,start of the intact egg three-tile top strip.</summary>
     internal const int TopStrip = 0x122;

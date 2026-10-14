@@ -25,13 +25,13 @@ internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSp
             int tile;
             if (frame < 3)
             {
-                int topRight = IntroEggRemnantAtlas.EarlyStrip + 2 * frame;
+                int topRight = IntroEggRemnantCellDefinitions.EarlyStrip + 2 * frame;
                 tile = index == 2 ? topRight + 16 : index == 1 ? topRight
-                    : frame == 1 ? IntroEggRemnantAtlas.EarlyStrip + 1 : topRight + 1;
+                    : frame == 1 ? IntroEggRemnantCellDefinitions.EarlyStrip + 1 : topRight + 1;
             }
             else
             {
-                int patch = IntroEggRemnantAtlas.LatePatches + 3 * (frame - 3);
+                int patch = IntroEggRemnantCellDefinitions.LatePatches + 3 * (frame - 3);
                 tile = patch + (index == 2 ? 0 : index == 1 ? 2 : 18);
             }
             return new(SnesSpritemapXWord.Create(index == 2 ? -12 : 4, index == 2),

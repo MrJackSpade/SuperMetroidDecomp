@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -17,10 +19,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 public sealed class CeresElevatorShaftRoomMainState
 {
     /// <summary>Initial value written to RoomMainASMVar1 by door ASM <c>$8F:E4E0</c>.</summary>
-    public const ushort InitialRotationIndex = 0x0022;
+    public const ushort InitialRotationIndex = 34;
 
     /// <summary>Initial value written to RoomMainASMVar2 by door ASM <c>$8F:E4E0</c>.</summary>
-    public const ushort InitialRotationTimer = 0x003c;
+    public const ushort InitialRotationTimer = 60;
 
     /// <summary>Native state-$20 hold written by <c>SamusCode_02_ReachCeresElevator</c>.</summary>
     public const ushort DepartureHoldFrames = 60;
@@ -79,10 +81,10 @@ public sealed class CeresElevatorShaftRoomMainState
         Ensure.NotNull(scratch);
         DepartureRequestedThisFrame = false;
 
-        // The room code is entirely dormant before Ridley's self-destruct sequence sets
-        // bit 15. In particular, the initial elevator descent retains door ASM's identity
+        // The room code is entirely dormant until the Ceres door's destruction publishes
+        // its escape status. In particular, the initial elevator descent retains door ASM's identity
         // matrix instead of prematurely consuming the rotation table.
-        if (!IsActive || (ceresStatus & 0x8000) == 0)
+        if (!IsActive || (ceresStatus & CeresStatusDefinitions.DoorEscaped) == 0)
             return Snapshot(matrixChanged: false);
 
         if (allowDeparture &&
@@ -127,19 +129,19 @@ public sealed class CeresElevatorShaftRoomMainState
             MatrixC: unchecked((ushort)-sine),
             Center: CeresShaftMode7Center);
 
-        // Values 0..67 sweep forward. The comparison occurs after INC, so 67 becomes
-        // encoded negative phase $8044. Negative phases decrement until $8001 maps to
-        // zero, restarting the forward sweep without ever exposing $8000.
+        // Values 0..67 sweep forward. The comparison occurs after INC, so 67 becomes the
+        // reversing phase 68. Reversing phases decrement until reversing phase 1 maps to
+        // zero, restarting the forward sweep without ever exposing the bare reversing flag.
         if (unchecked((short)rotationIndex) < 0)
         {
-            scratch.Var1 = rotationIndex == 0x8001
+            scratch.Var1 = rotationIndex == (CeresShaftRotationPhaseFlags.Reversing | 1)
                 ? (ushort)0
                 : unchecked((ushort)(rotationIndex - 1));
         }
         else
         {
             scratch.Var1 = rotationIndex == 67
-                ? (ushort)0x8044
+                ? (ushort)(CeresShaftRotationPhaseFlags.Reversing | 68)
                 : unchecked((ushort)(rotationIndex + 1));
         }
 
@@ -166,11 +168,11 @@ public sealed class CeresElevatorShaftRoomMainState
 
     /// <summary>Starts the shaft at the door ASM's identity matrix and fixed rotation center.</summary>
     private static SamusMode7Transform CreateInitialTransform() => new(
-        MatrixA: 0x0100,
+        MatrixA: (ushort)SnesEightEight.FromWhole(1),
         MatrixB: 0,
         MatrixC: 0,
         Center: CeresShaftMode7Center);
 
     /// <summary>The shaft's fixed M7X/M7Y rotation centre, written by both <c>$8F:E4E0</c> and room main.</summary>
-    internal static readonly Position16<RoomPixels> CeresShaftMode7Center = new(0x0080, 0x03f0);
+    internal static readonly Position16<RoomPixels> CeresShaftMode7Center = new(128, 1008);
 }

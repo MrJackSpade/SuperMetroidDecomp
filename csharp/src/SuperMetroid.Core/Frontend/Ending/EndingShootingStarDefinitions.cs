@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Native post-credits star motion and animation data.</summary>
@@ -5,6 +6,8 @@ internal static class EndingShootingStarDefinitions
 {
     /// <summary>$8B:E80B / Initialize_ShootingStars creates forty sixteen-byte records.</summary>
     internal const int Count = 40;
+    /// <summary>$8000 in a star's index-and-frame word, set by $8B:E80B while the star waits out its start delay.</summary>
+    internal const ushort Delayed = 0x8000;
     /// <summary>$8B:E7F2 and $E983 initialize/reset both coordinates to the screen center.</summary>
     internal const ushort Origin = 0x80;
     /// <summary>$8B:E7EB and $E97D initialize/reset the invisible animation lead-in.</summary>
@@ -32,10 +35,17 @@ internal static class EndingShootingStarDefinitions
     ];
     /// <summary>Exposes the forty native $8B:E9CF star records in order for initialization and motion updates.</summary>
     internal static ReadOnlySpan<EndingShootingStarDefinition> Records => records;
-    /// <summary>$8B:E9A7 / Handle_ShootingStars.tilemapValues: small OBJ tile/attribute words.</summary>
-    internal static ReadOnlySpan<ushort> Attributes => [
-        0, 0x09f0, 0x09f1, 0x09f2, 0x09f3, 0x09f3, 0x09f3, 0x09f3,
-        0x09f3, 0x09f3, 0x09f3, 0x09f3, 0x09f3, 0x09f3, 0x09f3, 0x09f3,
-        0x09f3, 0x09f3, 0x09f3, 0x09f3
-    ];
+    /// <summary>The animation frames $8B:E9A7 (Handle_ShootingStars.tilemapValues) gives attributes for.</summary>
+    internal const int FrameCount = 20;
+
+    /// <summary>
+    /// $8B:E9A7 / Handle_ShootingStars.tilemapValues: frame 0 is the blank word, frames 1 to 3 grow through characters
+    /// $1F0 to $1F2, and every later frame holds the full star at $1F3, all in sprite palette 4.
+    /// </summary>
+    internal static SnesObjAttributeWord Attribute(int frame) => frame switch
+    {
+        0 => default,
+        > 0 and < FrameCount => SnesObjAttributeWord.Create(SnesCharacterGrid.Cell(31, Math.Min(frame - 1, 3)), 4, 0),
+        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
+    };
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Collections;
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteFrame;
 using SuperMetroid.Core.Assets;
@@ -38,20 +39,20 @@ internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IRe
                 {
                     bool right = index < 5;
                     int row = index - (right ? 1 : 21);
-                    tile = (right ? 0x1b5 : 0x1b4) - 16 * row;
+                    tile = (right ? SnesCharacterGrid.Cell(27, 5) : SnesCharacterGrid.Cell(27, 4)) - 16 * row;
                     x = right ? 8 : -13; y = 24 - 8 * row; large = false;
                 }
                 else
                 {
-                    if (index == 0) tile = EndingRewardSuitlessStandingAtlas.HeadRightCap;
+                    if (index == 0) tile = EndingRewardSuitlessStandingCellDefinitions.HeadRightCap;
                     else if (index < 21)
                     {
                         // Left edge, right edge, then center of the head's middle row.
                         int column = index == 18 ? 0 : index == 19 ? 3 : 1;
-                        tile = 0x1a0 + column;
+                        tile = SnesCharacterGrid.Cell(26, 0) + column;
                     }
-                    else if (index < 27) tile = 0x1b2 - 2 * (index - 25);
-                    else tile = EndingRewardSuitlessStandingAtlas.HeadTop;
+                    else if (index < 27) tile = SnesCharacterGrid.Cell(27, 2) - 2 * (index - 25);
+                    else tile = EndingRewardSuitlessStandingCellDefinitions.HeadTop;
                     x = -15 + 8 * (tile & 15); y = -40 + 8 * (tile / 16 - 24);
                     large = index is 20 or >= 25;
                 }
@@ -60,32 +61,32 @@ internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IRe
             {
                 if (index == 5)
                 {
-                    tile = EndingRewardSuitlessStandingAtlas.RightArm; x = 8; y = 0; large = true;
+                    tile = EndingRewardSuitlessStandingCellDefinitions.RightArm; x = 8; y = 0; large = true;
                 }
                 else if (index is >= 6 and < 10)
                 {
-                    tile = 0x15d - 16 * (index - 6); x = -16; y = 24 - 8 * (index - 6); large = false;
+                    tile = SnesCharacterGrid.Cell(21, 13) - 16 * (index - 6); x = -16; y = 24 - 8 * (index - 6); large = false;
                 }
                 else
                 {
                     if (index < 3) tile = index switch
                     {
-                        0 => EndingRewardSuitlessStandingAtlas.RightKneeEdge,
-                        1 => EndingRewardSuitlessStandingAtlas.LeftUpperEdge,
-                        _ => EndingRewardSuitlessStandingAtlas.LeftFootTip,
+                        0 => EndingRewardSuitlessStandingCellDefinitions.RightKneeEdge,
+                        1 => EndingRewardSuitlessStandingCellDefinitions.LeftUpperEdge,
+                        _ => EndingRewardSuitlessStandingCellDefinitions.LeftFootTip,
                     };
-                    else if (index < 5) tile = 0x03 + 16 * (index - 3);
+                    else if (index < 5) tile = SnesCharacterGrid.Cell(0, 3) + 16 * (index - 3);
                     else if (index < 14) tile = index switch
                     {
-                        10 => EndingRewardSuitlessStandingAtlas.RightUpperBody,
-                        11 => EndingRewardSuitlessStandingAtlas.RightShinEdge,
-                        12 => EndingRewardSuitlessStandingAtlas.RightFootTip,
-                        _ => EndingRewardSuitlessStandingAtlas.RightFoot,
+                        10 => EndingRewardSuitlessStandingCellDefinitions.RightUpperBody,
+                        11 => EndingRewardSuitlessStandingCellDefinitions.RightShinEdge,
+                        12 => EndingRewardSuitlessStandingCellDefinitions.RightFootTip,
+                        _ => EndingRewardSuitlessStandingCellDefinitions.RightFoot,
                     };
-                    else if (index < 17) tile = 0xa2 - 32 * (index - 14);
-                    else if (index < 20) tile = 0x40 - 16 * (index - 17);
-                    else if (index == 20) tile = EndingRewardSuitlessStandingAtlas.RightShoulder;
-                    else tile = 0xc1 - 32 * (index - 21);
+                    else if (index < 17) tile = SnesCharacterGrid.Cell(10, 2) - 32 * (index - 14);
+                    else if (index < 20) tile = SnesCharacterGrid.Cell(4, 0) - 16 * (index - 17);
+                    else if (index == 20) tile = EndingRewardSuitlessStandingCellDefinitions.RightShoulder;
+                    else tile = SnesCharacterGrid.Cell(12, 1) - 32 * (index - 21);
                     x = -16 + 8 * (tile & 15); y = -40 + 8 * (tile / 16);
                     large = index is 10 or >= 13 and < 17 or >= 20;
                 }

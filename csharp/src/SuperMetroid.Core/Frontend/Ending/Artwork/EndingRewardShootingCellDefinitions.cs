@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Individually ordered boundary pieces of the small reward figures.</summary>
-internal static class EndingRewardShootingAtlas
+internal static class EndingRewardShootingCellDefinitions
 {
     /// <summary>Tile$78, small left leg edge while landing.</summary>
     internal const int LandingLeftLegEdge = 0x78;

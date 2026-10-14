@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Collections;
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteFrame;
 using SuperMetroid.Core.Assets;
@@ -35,55 +36,55 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
             switch (pose)
             {
                 case Pose.SamusFalling:
-                    if (index < 3) tile = 0x54 - 16 * index; // right edge
-                    else if (index < 6) tile = 0x83 - 16 * (index - 3); // leg edge
+                    if (index < 3) tile = SnesCharacterGrid.Cell(5, 4) - 16 * index; // right edge
+                    else if (index < 6) tile = SnesCharacterGrid.Cell(8, 3) - 16 * (index - 3); // leg edge
                     else if (index < 10)
                     {
                         int cell = index - 6;
-                        tile = 0x21 + 4 * (cell / 2) - cell % 2; // left/right cap pairs
+                        tile = SnesCharacterGrid.Cell(2, 1) + 4 * (cell / 2) - cell % 2; // left/right cap pairs
                     }
                     else if (index < 12) tile = 4 * (index - 10); // outer upper pieces
-                    else tile = 0x42 - 32 * (index - 12); // central column
+                    else tile = SnesCharacterGrid.Cell(4, 2) - 32 * (index - 12); // central column
                     large = index >= 10; originX = -24; originY = -32;
                     break;
                 case Pose.SamusLanding:
-                    if (index == 0) tile = EndingRewardShootingAtlas.LandingLeftLegEdge;
-                    else if (index < 3) tile = 0x8a - (index - 1); // lower edge
-                    else if (index < 5) tile = 0x69 - 32 * (index - 3); // right body
-                    else if (index < 7) tile = 0x3b - (index - 5); // right cap
-                    else if (index == 7) tile = EndingRewardShootingAtlas.LandingLeftOuter;
-                    else if (index == 8) tile = EndingRewardShootingAtlas.LandingLeftCap;
-                    else if (index == 9) tile = EndingRewardShootingAtlas.LandingRightUpper;
-                    else tile = 0x58 - 32 * (index - 10); // central column
+                    if (index == 0) tile = EndingRewardShootingCellDefinitions.LandingLeftLegEdge;
+                    else if (index < 3) tile = SnesCharacterGrid.Cell(8, 10) - (index - 1); // lower edge
+                    else if (index < 5) tile = SnesCharacterGrid.Cell(6, 9) - 32 * (index - 3); // right body
+                    else if (index < 7) tile = SnesCharacterGrid.Cell(3, 11) - (index - 5); // right cap
+                    else if (index == 7) tile = EndingRewardShootingCellDefinitions.LandingLeftOuter;
+                    else if (index == 8) tile = EndingRewardShootingCellDefinitions.LandingLeftCap;
+                    else if (index == 9) tile = EndingRewardShootingCellDefinitions.LandingRightUpper;
+                    else tile = SnesCharacterGrid.Cell(5, 8) - 32 * (index - 10); // central column
                     large = index is 3 or 4 or 7 or >= 9; originX = -72; originY = -33;
                     break;
                 case Pose.SamusLanded:
-                    if (index < 2) tile = 0xb0 - 16 * index; // left cap
-                    else if (index == 2) tile = EndingRewardShootingAtlas.LandedRightCap;
-                    else if (index == 3) tile = EndingRewardShootingAtlas.LandedRightUpper;
-                    else if (index < 6) tile = 0x122 - (index - 4); // left foot edge
-                    else if (index < 9) tile = 0x125 - (index - 6); // right foot edge
-                    else if (index < 11) tile = 0x103 - 2 * (index - 9); // feet
-                    else if (index < 15) tile = 0xf4 - (index - 11); // waist edge
+                    if (index < 2) tile = SnesCharacterGrid.Cell(11, 0) - 16 * index; // left cap
+                    else if (index == 2) tile = EndingRewardShootingCellDefinitions.LandedRightCap;
+                    else if (index == 3) tile = EndingRewardShootingCellDefinitions.LandedRightUpper;
+                    else if (index < 6) tile = SnesCharacterGrid.Cell(18, 2) - (index - 4); // left foot edge
+                    else if (index < 9) tile = SnesCharacterGrid.Cell(18, 5) - (index - 6); // right foot edge
+                    else if (index < 11) tile = SnesCharacterGrid.Cell(16, 3) - 2 * (index - 9); // feet
+                    else if (index < 15) tile = SnesCharacterGrid.Cell(15, 4) - (index - 11); // waist edge
                     else
                     {
                         int cell = index - 15;
-                        tile = 0xd3 - 32 * (cell / 2) - 2 * (cell % 2); // paired body rows
+                        tile = SnesCharacterGrid.Cell(13, 3) - 32 * (cell / 2) - 2 * (cell % 2); // paired body rows
                     }
                     large = index is 3 or 9 or 10 or >= 15; originX = -24; originY = -112;
                     break;
                 case Pose.SamusShooting:
-                    if (index == 0) tile = EndingRewardShootingAtlas.ShootingRightFootTip;
-                    else if (index < 4) tile = 0x11a - 2 * (index - 1); // lower row
-                    else if (index == 4) tile = EndingRewardShootingAtlas.ShootingLeftHipEdge;
-                    else if (index < 7) tile = 0x10a - 3 * (index - 5); // outer leg pair
-                    else if (index < 9) tile = 0xea - 2 * (index - 7); // waist pair
-                    else if (index == 9) tile = EndingRewardShootingAtlas.ShootingRightUpper;
-                    else if (index == 10) tile = EndingRewardShootingAtlas.ShootingRightEdge;
+                    if (index == 0) tile = EndingRewardShootingCellDefinitions.ShootingRightFootTip;
+                    else if (index < 4) tile = SnesCharacterGrid.Cell(17, 10) - 2 * (index - 1); // lower row
+                    else if (index == 4) tile = EndingRewardShootingCellDefinitions.ShootingLeftHipEdge;
+                    else if (index < 7) tile = SnesCharacterGrid.Cell(16, 10) - 3 * (index - 5); // outer leg pair
+                    else if (index < 9) tile = SnesCharacterGrid.Cell(14, 10) - 2 * (index - 7); // waist pair
+                    else if (index == 9) tile = EndingRewardShootingCellDefinitions.ShootingRightUpper;
+                    else if (index == 10) tile = EndingRewardShootingCellDefinitions.ShootingRightEdge;
                     else
                     {
                         int cell = index - 11;
-                        tile = 0xc9 - 32 * (cell / 2) - 2 * (cell % 2); // upper-body pairs
+                        tile = SnesCharacterGrid.Cell(12, 9) - 32 * (cell / 2) - 2 * (cell % 2); // upper-body pairs
                     }
                     large = index is not (0 or 2 or 4 or 10); originX = -76; originY = -112;
                     break;

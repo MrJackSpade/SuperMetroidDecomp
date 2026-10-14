@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Individually ordered pieces outside the hair-pose atlas traversals.</summary>
-internal static class EndingRewardHairAtlas
+internal static class EndingRewardHairCellDefinitions
 {
     /// <summary>Tile$191, initial pose's large head center.</summary>
     internal const int InitialHeadCenter = 0x191;

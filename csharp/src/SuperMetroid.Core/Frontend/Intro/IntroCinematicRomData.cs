@@ -65,8 +65,10 @@ public static class IntroCinematicRomData
         public const ushort SceneBg1TilemapWord = 0x5000;
         /// <summary>BG2 screen-base word used by cinematic scenes.</summary>
         public const ushort SceneBg2TilemapWord = 0x5400;
-        /// <summary>BG screen-base word used by the scientist scene.</summary>
+        /// <summary>BG screen-base word used by the scientist scene's delivery page.</summary>
         public const ushort ScientistTilemapWord = 0x5800;
+        /// <summary>BG screen-base word used by the scientist scene's examination page.</summary>
+        public const ushort ScientistExaminationTilemapWord = 0x5c00;
         /// <summary>BG character-base word used by the cinematic font.</summary>
         public const ushort FontCharacterBaseWord = 0x4000;
         /// <summary>Number of narration rows populated by the intro.</summary>

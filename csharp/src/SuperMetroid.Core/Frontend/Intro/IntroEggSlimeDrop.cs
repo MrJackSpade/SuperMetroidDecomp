@@ -50,7 +50,7 @@ internal sealed class IntroEggSlimeDrop
             AddVelocity(horizontal: false, IntroEggMotionDefinitions.SlimeY(
                 SnesLittleEndian.HighByte(sprite.GeneralTimer), odd: (sprite.GeneralTimer & 1) != 0));
 
-            if (unchecked((short)(sprite.WholePosition.Y - 0x00a8)) >= 0)
+            if (unchecked((short)(sprite.WholePosition.Y - 168)) >= 0)
             {
                 // $AAB3 changes both list and pre-instruction, freezing the impact point
                 // while CD71 plays four ten-frame puddle frames and deletes the actor.
@@ -61,7 +61,7 @@ internal sealed class IntroEggSlimeDrop
             }
             else
             {
-                sprite.GeneralTimer = unchecked((ushort)(sprite.GeneralTimer + 0x0100));
+                sprite.GeneralTimer = unchecked((ushort)(sprite.GeneralTimer + 256));
             }
         }
 

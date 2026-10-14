@@ -30,8 +30,8 @@ internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpr
                 x = -1 - 7 * index;
                 y = 0;
                 flips = index == 0 ? SnesTileFlipFlags.Horizontal : 0;
-                tile = frame == 0 ? IntroScientistAtlas.InitialArrow
-                    : IntroScientistAtlas.ArrowColumn + 16 * (frame - 1);
+                tile = frame == 0 ? IntroScientistCellDefinitions.InitialArrow
+                    : IntroScientistCellDefinitions.ArrowColumn + 16 * (frame - 1);
             }
             else if (frame < 6)
             {
@@ -40,7 +40,7 @@ internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpr
                 {
                     x = 4 - 8 * index;
                     y = -12;
-                    tile = IntroScientistAtlas.DeliveredTop + 3 * (pose % 2) + 16 * (pose / 2) + 2 - index;
+                    tile = IntroScientistCellDefinitions.DeliveredTop + 3 * (pose % 2) + 16 * (pose / 2) + 2 - index;
                 }
                 else
                 {
@@ -51,20 +51,20 @@ internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpr
                     x = large ? -12 + (leftColumn ? 8 : 0) : leftColumn ? -12 : 4;
                     y = index == 3 ? 4 : -4;
                     int column = large ? (leftColumn ? 1 : 0) : leftColumn ? 0 : 2;
-                    tile = IntroScientistAtlas.DeliveredLower + 3 * pose + column + (index == 3 ? 16 : 0);
+                    tile = IntroScientistCellDefinitions.DeliveredLower + 3 * pose + column + (index == 3 ? 16 : 0);
                 }
             }
             else if (frame < 9)
             {
                 x = y = -8;
                 large = true;
-                tile = IntroScientistAtlas.ExaminedStart + 2 * (frame - 6);
+                tile = IntroScientistCellDefinitions.ExaminedStart + 2 * (frame - 6);
             }
             else
             {
                 x = 0;
                 y = -1;
-                tile = IntroScientistAtlas.Caret;
+                tile = IntroScientistCellDefinitions.Caret;
             }
             return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);

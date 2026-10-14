@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Collections;
 using Role = SuperMetroid.Core.Frontend.Ending.Artwork.EndingCloudSpriteDefinitions.Role;
 using SuperMetroid.Core.Assets;
@@ -38,11 +39,11 @@ internal sealed class EndingCloudGridParts : IReadOnlyList<CompiledSpritePart>
             bool flipX = upper || role == Role.Left;
             if (flipX) x = -x - 32;
             if (upper) y = -y - 32;
-            int firstTile = Side ? 0x100 : role is Role.UpperPattern or Role.LowerPattern ? 0x80 : 0;
+            int firstTile = Side ? SnesCharacterGrid.Cell(16, 0) : role is Role.UpperPattern or Role.LowerPattern ? SnesCharacterGrid.Cell(8, 0) : 0;
             SnesTileFlipFlags flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) |
                 (upper ? SnesTileFlipFlags.Vertical : 0);
             return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
-                SnesObjAttributeWord.Create(firstTile + row * 0x40 + column * 4, 0, 3, flips), true);
+                SnesObjAttributeWord.Create(firstTile + row * 4 * SnesCharacterGrid.CharactersPerRow + column * 4, 0, 3, flips), true);
         }
     }
     /// <summary>Yields cloud tiles in the native row and copy order.</summary>

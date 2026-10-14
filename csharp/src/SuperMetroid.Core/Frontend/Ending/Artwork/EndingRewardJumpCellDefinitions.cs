@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Individually ordered pieces of the suited jumping pose.</summary>
-internal static class EndingRewardJumpAtlas
+internal static class EndingRewardJumpCellDefinitions
 {
     /// <summary>Tile$1B, upper-body center drawn ahead of the limbs and remaining body rows.</summary>
     internal const int UpperBodyCenter = 0x1b;

@@ -4923,6 +4923,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresShaftRotationPhaseFlags",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresShaftRotationPhaseFlags.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamAnimations",
       "kind": "static class",
       "scope": "product",
@@ -5595,6 +5608,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Escape.EscapeTimerStatusDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Escape/EscapeTimerStatusDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Areas.Escape.EscapeTypewriterRomData",
@@ -22550,6 +22576,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Animals.EscapeAnimalDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeAnimalDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Animals.EscapeAnimalDraw",
       "kind": "enum",
       "scope": "product",
@@ -37970,14 +38009,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresLargeAsteroidAtlas",
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresLargeAsteroidCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresLargeAsteroidAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresLargeAsteroidCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -38100,14 +38139,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresSmallAsteroidAtlas",
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresSmallAsteroidCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresSmallAsteroidAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresSmallAsteroidCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -38139,27 +38178,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresStationAtlas",
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresStationBlastCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresStationAtlas.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresStationBlastAtlas",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresStationBlastAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresStationBlastCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -38178,6 +38204,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresStationCellDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresStationCellDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresStationParts",
       "kind": "class",
       "scope": "product",
@@ -38191,14 +38230,14 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresVortexAtlas",
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresVortexCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresVortexAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresVortexCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -39624,14 +39663,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingLogoWrapParts.ClosingPiece",
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingLogoWrapTile",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingLogoWrapParts.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingLogoWrapTile.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -39849,14 +39888,14 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardArmAtlas",
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardArmCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardArmAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardArmCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -39875,14 +39914,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardHairAtlas",
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardHairCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardHairAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardHairCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -39940,14 +39979,14 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardJumpAtlas",
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardJumpCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardJumpAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardJumpCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -39966,14 +40005,14 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardPrepareJumpAtlas",
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardPrepareJumpCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardPrepareJumpAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardPrepareJumpCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -39992,14 +40031,14 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardShootingAtlas",
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardShootingCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardShootingAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardShootingCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -40135,14 +40174,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardStandingAtlas",
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardStandingCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardStandingAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardStandingCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -40161,14 +40200,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSuitlessAtlas",
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSuitlessCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardSuitlessAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardSuitlessCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -40187,14 +40226,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSuitlessStandingAtlas",
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSuitlessStandingCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardSuitlessStandingAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardSuitlessStandingCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -41267,7 +41306,7 @@
         "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingShootingStarDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingShootingStars",
@@ -42899,14 +42938,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroConfusedBabyAtlas",
+      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroConfusedBabyCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroConfusedBabyAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroConfusedBabyCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43048,14 +43087,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggCrackingAtlas",
+      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggCrackingCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEggCrackingAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEggCrackingCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43074,14 +43113,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggEffectAtlas",
+      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggEffectCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEggEffectAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEggEffectCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43210,14 +43249,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggRemnantAtlas",
+      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggRemnantCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEggRemnantAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEggRemnantCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43236,14 +43275,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggRockingAtlas",
+      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggRockingCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEggRockingAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEggRockingCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43418,27 +43457,27 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainAtlas",
+      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroMotherBrainAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroMotherBrainCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainExplosionAtlas",
+      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainExplosionCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroMotherBrainExplosionAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroMotherBrainExplosionCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43846,14 +43885,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroRinkaAtlas",
+      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroRinkaCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroRinkaAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroRinkaCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -43982,14 +44021,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroScientistAtlas",
+      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroScientistCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroScientistAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroScientistCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -44141,7 +44180,7 @@
         "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicCodePointers.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.CinematicCodePointers.BackgroundLists",
@@ -44203,6 +44242,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.CinematicIndirectInstructionFunction",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicIndirectInstructionFunction.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.CinematicInstructionWords",
@@ -55507,6 +55559,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Hardware.PackedBcd",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Hardware/PackedBcd.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Hardware.PpuFixedColorMirrors",
       "kind": "static class",
       "scope": "product",
@@ -55828,6 +55893,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Hardware.SnesCharacterGrid",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Hardware/SnesCharacterGrid.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Hardware.SnesColorMathControl",

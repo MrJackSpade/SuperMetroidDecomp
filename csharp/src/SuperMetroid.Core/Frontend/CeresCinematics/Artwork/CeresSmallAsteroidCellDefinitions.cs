@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Atlas tile identities for the three reusable Ceres asteroid shapes.</summary>
-internal static class CeresSmallAsteroidAtlas
+internal static class CeresSmallAsteroidCellDefinitions
 {
     /// <summary>Tile16E, top of the overlapping vertical asteroid pair in8C:90FE.</summary>
     internal const int Vertical = 0x16e;

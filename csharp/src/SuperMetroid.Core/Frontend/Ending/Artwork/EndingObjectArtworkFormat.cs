@@ -28,23 +28,23 @@ public static class EndingObjectArtworkFormat
     /// <summary>JSON filename for the final-logo tilemap imported from <c>$99:ECC4</c>.</summary>
     public const string PostShotLogoMapFileName = "post-credits-logo-map.json";
     /// <summary>Exact compiled cloud-sheet length, $4000 bytes or 512 4-bpp 8-by-8 characters.</summary>
-    public const int CloudByteCount = 0x4000;
+    public const int CloudByteCount = 512 * 32;
     /// <summary>Exact compiled explosion-sheet length, $6000 bytes or 768 4-bpp 8-by-8 characters.</summary>
-    public const int ExplosionByteCount = 0x6000;
+    public const int ExplosionByteCount = 768 * 32;
     /// <summary>Exact compiled length of each waiting, shooting, or suitless sheet, $4000 bytes or 512 4-bpp characters.</summary>
-    public const int RewardByteCount = 0x4000;
+    public const int RewardByteCount = 512 * 32;
     /// <summary>Exact waiting-map length, $0800 bytes containing 1024 sixteen-bit cells in one ordered 32-by-32 page.</summary>
-    public const int WaitingTilemapByteCount = 0x0800;
+    public const int WaitingTilemapByteCount = 1024 * sizeof(ushort);
     /// <summary>Exact BG3 transformation-character transfer length, $0100 bytes, retained without format conversion at upload.</summary>
-    public const int PostCreditsFragmentAByteCount = 0x0100;
+    public const int PostCreditsFragmentAByteCount = 256;
     /// <summary>Exact BG3 transformation tilemap transfer length, $0800 bytes containing 1024 native tilemap words.</summary>
-    public const int PostCreditsFragmentBByteCount = 0x0800;
+    public const int PostCreditsFragmentBByteCount = 1024 * sizeof(ushort);
     /// <summary>Exact final-logo character length, $2000 bytes or 256 4-bpp characters, divided among four $0800-byte uploads.</summary>
-    public const int PostShotLogoTileByteCount = 0x2000;
+    public const int PostShotLogoTileByteCount = 256 * 32;
     /// <summary>Exact final-logo map length, $0800 bytes containing one 32-by-32 page of sixteen-bit tilemap cells.</summary>
-    public const int PostShotLogoMapByteCount = 0x0800;
+    public const int PostShotLogoMapByteCount = 1024 * sizeof(ushort);
     /// <summary>Exact raw explosion-fragment length, $0800 bytes containing 1024 tilemap words; atlas transport preserves those bytes.</summary>
-    public const int FragmentByteCount = 0x0800;
+    public const int FragmentByteCount = 1024 * sizeof(ushort);
     /// <summary>Exact native byte length of <paramref name="transfer"/>.</summary>
     /// <param name="transfer">Transfer whose length is required.</param>
     /// <returns>The byte count the cartridge uploads for that transfer.</returns>
@@ -71,6 +71,6 @@ public static class EndingObjectArtworkFormat
     public static string FragmentFileName(int index)
     {
         if ((uint)index >= FragmentCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return "ending-explosion-fragment-" + (0x70 + 4 * index).ToString("x2", System.Globalization.CultureInfo.InvariantCulture) + ".png";
+        return "ending-explosion-fragment-" + (112 + 4 * index).ToString("x2", System.Globalization.CultureInfo.InvariantCulture) + ".png";
     }
 }

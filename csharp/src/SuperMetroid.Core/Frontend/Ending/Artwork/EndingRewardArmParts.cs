@@ -68,12 +68,12 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         if ((uint)stage >= 8) throw new ArgumentOutOfRangeException(nameof(pose));
         if ((uint)index >= (stage == 1 ? 3 : 2)) throw new ArgumentOutOfRangeException(nameof(index));
         if (stage == 0)
-            return index == 0 ? EndingRewardArmAtlas.InitialLower : EndingRewardArmAtlas.InitialUpper;
+            return index == 0 ? EndingRewardArmCellDefinitions.InitialLower : EndingRewardArmCellDefinitions.InitialUpper;
         if (stage == 1)
-            return index == 2 ? EndingRewardArmAtlas.SplitLarge : EndingRewardArmAtlas.SplitSmallTop + 16 * (1 - index);
+            return index == 2 ? EndingRewardArmCellDefinitions.SplitLarge : EndingRewardArmCellDefinitions.SplitSmallTop + 16 * (1 - index);
         // Two adjacent two-column variants; each is used by three consecutive poses.
         int variant = (stage - 2) / 3;
-        return EndingRewardArmAtlas.PairedUpper + 2 * variant + (index == 0 ? 32 : 0);
+        return EndingRewardArmCellDefinitions.PairedUpper + 2 * variant + (index == 0 ? 32 : 0);
     }
     /// <summary>Uses calculated arm and shoulder parts when a supplied reward frame matches their native form.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
@@ -114,7 +114,7 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
                 int piece = index - ArmCount;
                 large = piece == 0;
                 int column = piece == 1 ? 1 : 0;
-                tile = EndingRewardArmAtlas.ShoulderCap + (large ? 16 : column);
+                tile = EndingRewardArmCellDefinitions.ShoulderCap + (large ? 16 : column);
                 position = shoulder + new Offset16<OamPixels>(checked((short)(8 * column)), checked((short)(large ? 0 : -8)));
             }
             return new(SnesSpritemapXWord.Create(position.X, large), unchecked((byte)position.Y),

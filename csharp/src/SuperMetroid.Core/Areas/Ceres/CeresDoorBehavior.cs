@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.Ridley;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -260,8 +261,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
     /// <summary>Ports the 49-call destruction state at $A6:F7DC exactly.</summary>
     internal void RunCeresDoorRumbleAndExplosions(RoomEnemySlot slot)
     {
-        slot.VariableD = unchecked((ushort)(slot.VariableD - 1));
-        if ((short)slot.VariableD < 0)
+        NativeWordCounterStep rumble = NativeWordCounter.Decrement(slot.VariableD);
+        slot.VariableD = rumble.Value;
+        if (rumble.IsNegative)
         {
             // The 49th call underflows $0000 to $FFFF. Native code hides the door, returns
             // it to the perpetual elevator-animation function, and publishes $8000 so the
@@ -273,14 +275,14 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
             return;
         }
 
-        slot.VariableE = unchecked((ushort)(slot.VariableE - 1));
-        if ((short)slot.VariableE >= 0)
+        NativeWordCounterStep interval = NativeWordCounter.Decrement(slot.VariableE);
+        slot.VariableE = interval.Value;
+        if (!interval.IsNegative)
             return;
 
         slot.VariableE = CeresDoorRumbleInterval;
-        slot.VariableF = unchecked((ushort)(slot.VariableF - 1));
-        if ((short)slot.VariableF < 0)
-            slot.VariableF = unchecked((ushort)(CeresDoorRumbleGeometryDefinitions.Count - 1));
+        NativeWordCounterStep burst = NativeWordCounter.Decrement(slot.VariableF);
+        slot.VariableF = burst.IsNegative ? unchecked((ushort)(CeresDoorRumbleGeometryDefinitions.Count - 1)) : burst.Value;
 
         (short xOffset, short yOffset) = CeresDoorRumbleGeometryDefinitions.Offset(slot.VariableF);
         ushort explosionX = unchecked((ushort)(slot.Position.X.Whole + xOffset));

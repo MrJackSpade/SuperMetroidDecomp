@@ -205,7 +205,7 @@ public static class IntroCinematicArtworkFiles
                     frame * IntroEyeAnimationDefinitions.FrameStride);
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer);
                 ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
-                if (!CinematicCodePointers.IsDrawToPortraitTilemap(function) ||
+                if ((CinematicIndirectInstructionFunction)function != CinematicIndirectInstructionFunction.DrawToPortraitTilemap ||
                     bus.ReadCartridgeByte(source + 2) != IntroEyeTilemapFormat.Columns ||
                     bus.ReadCartridgeByte(source + 3) != IntroEyeTilemapFormat.Rows)
                     throw new InvalidDataException($"Opening eye frame {frame} changed its native draw shape.");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -32,20 +33,20 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
     {
         if ((uint)index >= StockPartCount) throw new ArgumentOutOfRangeException(nameof(index));
         // Lower cap begins at its left end, then consumes the remaining columns backwards.
-        if (index < 4) return Atlas(0x18, index == 0 ? 12 : 16 - index);
+        if (index < 4) return Atlas(24, index == 0 ? 12 : 16 - index);
         if (index < 7)
-            return Atlas(0x1e, LowerWingColumns[index - 4]);
-        if (index < 9) return Atlas(0x1d, 8 - 2 * (index - 7)); // Lower body pair.
-        if (index < 13) return Atlas(0x18, 3 - (index - 9)); // Upper cap.
-        if (index < 15) return Atlas(0x1b, index == 13 ? 14 : 0); // Right/left outer wings.
+            return Atlas(30, LowerWingColumns[index - 4]);
+        if (index < 9) return Atlas(29, 8 - 2 * (index - 7)); // Lower body pair.
+        if (index < 13) return Atlas(24, 3 - (index - 9)); // Upper cap.
+        if (index < 15) return Atlas(27, index == 13 ? 14 : 0); // Right/left outer wings.
         if (index < 19)
         {
             int wingPart = index - 15;
-            return Atlas(0x19, (wingPart < 2 ? 3 : 13) - wingPart % 2);
+            return Atlas(25, (wingPart < 2 ? 3 : 13) - wingPart % 2);
         }
-        if (index < 23) return Atlas(0x18, 10 - 2 * (index - 19)); // Upper body.
-        if (index < 29) return Atlas(0x1c, 12 - 2 * (index - 23)); // Lower belt.
-        return Atlas(0x1a, 14 - 2 * (index - 29)); // Full equatorial belt.
+        if (index < 23) return Atlas(24, 10 - 2 * (index - 19)); // Upper body.
+        if (index < 29) return Atlas(28, 12 - 2 * (index - 23)); // Lower belt.
+        return Atlas(26, 14 - 2 * (index - 29)); // Full equatorial belt.
     }
 
     /// <summary>Converts a row and column in the sixteen-column OBJ atlas to a character index.</summary>
@@ -59,7 +60,7 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         for (int index = 0; index < tiles.Length; index++)
         {
             int tile = supplied.Part(index).Attributes.TileNumber;
-            if (tile is < 0x180 or > 0x1ef) return supplied;
+            if (tile < SnesCharacterGrid.Cell(24, 0) || tile > SnesCharacterGrid.Cell(30, 15)) return supplied;
             tiles[index] = tile;
         }
         return supplied.CalculateIfMatching(new EndingExplosionAfterglowParts(tiles));
@@ -75,9 +76,9 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int tile = tiles is null ? StockTile(index) : tiles[index];
             int row = tile / 16, column = tile % 16;
-            int x = (column - 8) * 8, y = (row - 0x1b) * 8;
-            bool large = row is >= 0x1a and <= 0x1d;
-            if (row == 0x18)
+            int x = (column - 8) * 8, y = (row - 27) * 8;
+            bool large = row is >= 26 and <= 29;
+            if (row == 24)
             {
                 if (column < 4) { x = (column - 2) * 8; y = -32; }
                 else if (column >= 12) { x = (column - 14) * 8; y = 32; }

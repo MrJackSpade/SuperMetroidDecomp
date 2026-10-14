@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>English caption in native8C:D629..D66A: emit the non-space characters
@@ -25,12 +26,19 @@ internal static class SpaceColonyCaptionDefinitions
     /// </summary>
     internal const int JapaneseColumn = 0x0c, JapaneseRow = 0x1a, JapaneseWidth = 8;
 
-    /// <summary>$8C:D7FB: the Japanese caption's two rows of tilemap words.</summary>
-    internal static ReadOnlySpan<ushort> JapaneseTiles =>
+    /// <summary>$8C:D7FB: the Japanese caption's two rows of tilemap words, each a high-priority palette-0 character.</summary>
+    internal static ReadOnlySpan<ushort> JapaneseTiles => japaneseTiles;
+
+    /// <summary>The tilemap words behind <see cref="JapaneseTiles"/>.</summary>
+    private static readonly ushort[] japaneseTiles =
     [
-        0x21ba, 0x21bb, 0x21b3, 0x21ba, 0x21bc, 0x20e0, 0x20e1, 0x21b3,
-        0x20e2, 0x20e3, 0x21b4, 0x20e2, 0x20e4, 0x21a3, 0x21a4, 0x21b4,
+        Caption(27, 10), Caption(27, 11), Caption(27, 3), Caption(27, 10), Caption(27, 12), Caption(14, 0), Caption(14, 1), Caption(27, 3),
+        Caption(14, 2), Caption(14, 3), Caption(27, 4), Caption(14, 2), Caption(14, 4), Caption(26, 3), Caption(26, 4), Caption(27, 4),
     ];
+
+    /// <summary>The high-priority palette-0 tilemap word of the caption character at <paramref name="row"/> and <paramref name="column"/>.</summary>
+    private static ushort Caption(int row, int column) =>
+        SnesBgTilemapWord.Create(SnesCharacterGrid.Cell(row, column), 0, priority: true).Raw;
 
     /// <summary>Native SPACE COLONY glyph identities, including high-priority bit2000.
     /// Repeated C and O characters select the same drawing operation.</summary>

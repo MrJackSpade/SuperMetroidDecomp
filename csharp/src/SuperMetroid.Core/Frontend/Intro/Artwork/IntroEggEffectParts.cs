@@ -25,11 +25,11 @@ internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpr
         {
             ArgumentOutOfRangeException.ThrowIfNotEqual(index, 0);
             int tile;
-            if (frame < 6) tile = IntroEggEffectAtlas.FragmentStart + 16 * (frame / 2) + frame % 2;
+            if (frame < 6) tile = IntroEggEffectCellDefinitions.FragmentStart + 16 * (frame / 2) + frame % 2;
             else
             {
                 int slime = frame - 6;
-                tile = IntroEggEffectAtlas.SlimeStart + (slime < 3 ? slime : 16 * (slime - 2));
+                tile = IntroEggEffectCellDefinitions.SlimeStart + (slime < 3 ? slime : 16 * (slime - 2));
             }
             return new(SnesSpritemapXWord.Create(-4, false), unchecked((byte)-4),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);

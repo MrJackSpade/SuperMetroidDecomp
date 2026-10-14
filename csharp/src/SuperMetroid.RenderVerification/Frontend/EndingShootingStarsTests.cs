@@ -28,8 +28,8 @@ internal static class EndingShootingStarsTests
             Require(definition.Period == Word(0x8be9d3 + index * 8), "Native animation period");
             Require(definition.Delay == Word(0x8be9d5 + index * 8), "Native start delay");
         }
-        for (int frame = 0; frame < 20; frame++)
-            Require(EndingShootingStarDefinitions.Attributes[frame] == Word(0x8be9a7 + frame * 2), "Native OBJ attributes");
+        for (int frame = 0; frame < EndingShootingStarDefinitions.FrameCount; frame++)
+            Require(EndingShootingStarDefinitions.Attribute(frame).Raw == Word(0x8be9a7 + frame * 2), "Native OBJ attributes");
         var stars = new EndingShootingStars();
         for (int frame = 1; frame <= 68; frame++)
         {

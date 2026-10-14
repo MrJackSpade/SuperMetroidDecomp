@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Individually ordered boundary pieces in the suitless standing atlas.</summary>
-internal static class EndingRewardSuitlessStandingAtlas
+internal static class EndingRewardSuitlessStandingCellDefinitions
 {
     /// <summary>Tile$193, small right cap of the arms-straight head.</summary>
     internal const int HeadRightCap = 0x193;

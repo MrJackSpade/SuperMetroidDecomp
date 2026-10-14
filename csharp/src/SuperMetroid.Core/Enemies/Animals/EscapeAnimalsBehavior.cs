@@ -21,17 +21,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         _terrain = terrain;
     }
 
-    /// <summary>Bank-$B3 blank frame selected when an escaped animal deletes its visible actor.</summary>
-    private const ushort EmptyBankB3Spritemap = 0x804d;
-
     /// <summary>Whole-pixel horizontal step used by each Dachora movement-list callback.</summary>
     private const ushort EscapeDachoraPixelsPerCallback = 6;
     /// <summary>Lava Y threshold tested by both families' acid-height branch instructions.</summary>
-    private const ushort EscapeAnimalLavaBranchY = 0x00ce;
+    private const ushort EscapeAnimalLavaBranchY = 206;
     /// <summary>One unit of 16.16 downward acceleration applied during Etecoon's exit.</summary>
     private const int EscapeEtecoonGravity = 1 << 16;
-    /// <summary>Signed 16.16 horizontal speed used when Etecoon exits without a wall collision.</summary>
-    private const int EscapeEtecoonUncollidedExitSpeed = 0x00038000;
+    /// <summary>Signed 16.16 horizontal speed, 3.5 pixels, used when Etecoon exits without a wall collision.</summary>
+    private const int EscapeEtecoonUncollidedExitSpeed = (7 << 16) / 2;
 
     /// <summary>Typed Etecoon dispatch state indexed by stable enemy slot, cleared on room load.</summary>
     internal readonly EscapeEtecoonEnemyState?[] _escapeEtecoonStates =
@@ -95,7 +92,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         // Expressing the idempotent write documents the executable routine and keeps a
         // synthetic/debug population faithful to retail initialization.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = EmptyBankB3Spritemap;
+        slot.SpritemapPointer = EscapeAnimalDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         RequireEscapeDachoraState(slot).Program = AnimationProgramCursor<EscapeDachoraProgram>.Start(EscapeDachoraProgram.RunningAroundLowTide);

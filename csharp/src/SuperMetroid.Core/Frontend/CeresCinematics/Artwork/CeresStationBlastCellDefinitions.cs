@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Tile anchors for the expanded core, lobes, and detached blast tips.</summary>
-internal static class CeresStationBlastAtlas
+internal static class CeresStationBlastCellDefinitions
 {
     /// <summary>Tile B0, large core quadrant of native frame 8C:9930.</summary>
     internal const int ExpandedCore = 0xb0;

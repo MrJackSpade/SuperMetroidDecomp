@@ -56,15 +56,21 @@ public sealed class CeresFlightPalette
     }
 
     /// <summary>$8C:E6AB-E6BA and E7AB-E7BA: eight colors interpolate RGB5 endpoints with nearest-integer rounding.</summary>
-    private static bool IsRampInterior(int index) => index is > 0x61 and < 0x68; // magic-number-audit: allow(SramOffset) - CGRAM interpolation slots, not SRAM offsets.
+    private static bool IsRampInterior(int index) => index is > RampStart and < RampEnd;
+
+    /// <summary>The CGRAM slot of the ramp's first endpoint, palette 6 color 1.</summary>
+    private const int RampStart = 6 * 16 + 1;
+
+    /// <summary>The CGRAM slot of the ramp's last endpoint, palette 6 color 8.</summary>
+    private const int RampEnd = 6 * 16 + 8;
 
     /// <summary>Calculates repeated palette slots or interpolated ramp colors from independent inputs.</summary>
     private Bgr555 Calculate(int index)
     {
         int source = SharedIndex(index);
         if (!IsRampInterior(source)) return colors[source];
-        int step = source - 0x61;
-        Bgr555 first = colors[0x61], last = colors[0x68];
+        int step = source - RampStart;
+        Bgr555 first = colors[RampStart], last = colors[RampEnd];
         return first.Zip(last, (_, start, end) => (start * (7 - step) + end * step + 3) / 7);
     }
 

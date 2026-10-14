@@ -12,7 +12,7 @@ public static class EndingMode7ArtworkFormat
     /// <summary>Indexed character-atlas height in pixels, containing sixteen rows of 8-pixel-high tiles.</summary>
     public const int CharacterHeight = 128;
     /// <summary>$4000 high-lane character bytes: 256 tiles of 64 chunky eight-bit pixels each.</summary>
-    public const int CharacterByteCount = 0x4000;
+    public const int CharacterByteCount = 256 * 64;
     /// <summary>Width of one native ending backdrop half-map in tile indices.</summary>
     public const int MapWidth = 128;
     /// <summary>Height of the editable backdrop half-map, whose 64 rows are repeated to fill the native 128-row map.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend.Menus;
@@ -29,27 +30,26 @@ internal sealed class IntroCeresFlightState
     /// <summary>Optional edited rear-view actor positions.</summary>
     [NonSerialized] private CeresFlightActorLayout? actorLayout;
     /// <summary>Mode 1 caption tiles progressively written during the SPACE COLONY title.</summary>
-    private readonly ushort[] spaceColonyTilemap = new ushort[0x400];
+    private readonly ushort[] spaceColonyTilemap = new ushort[32 * 32];
     /// <summary>Front-view star actor whose timer also drives the diagonal background rush.</summary>
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
 
     /// <summary>Mode 7 scroll position advanced with the star actor or rear-view drift.</summary>
-    private FixedPosition<Mode7Pixels> background = new(new(0xffb8, 0), new(0xff98, 0));
+    private FixedPosition<Mode7Pixels> background = new(new(unchecked((ushort)-72), 0), new(unchecked((ushort)-104), 0));
     /// <summary>Mode 7 scale shrunk for the front approach, then grown for the rear view.</summary>
-    private ushort zoom = 0x0200;
+    private ushort zoom = 512;
     /// <summary>Mode 7 rotation index used to derive the four matrix entries.</summary>
-    private SnesAngle angle = SnesAngle.FromTableIndex(0xe0);
+    private SnesAngle angle = SnesAngle.FromTableIndex(224);
     /// <summary>INIDISP level held at zero until music is ready and lowered in the final fade.</summary>
     private byte brightness;
     /// <summary>Five station and asteroid sprites created when the camera switches to rear view.</summary>
     internal IntroDiscoverySprite[] rearViewActors = [];
-    /// <summary>SNES fixed-color red selector and component during the rear-view flash.</summary>
-    private byte fixedColorRed = 0x20;
-    /// <summary>SNES fixed-color green selector and component during the rear-view flash.</summary>
-    private byte fixedColorGreen = 0x40;
-    /// <summary>SNES fixed-color blue selector and component during the rear-view flash.</summary>
-    private byte fixedColorBlue = 0x80;
+    /// <summary>
+    /// The five-bit intensity of the rear-view flash's fixed color. The native COLDATA writes select red, green and blue
+    /// separately but always give them this same intensity.
+    /// </summary>
+    private byte flashIntensity;
     /// <summary>Next caption glyph to add to the title tilemap.</summary>
     private int spaceColonyLetterIndex;
     /// <summary>Sixteen-frame glyph cadence and final $80-frame caption hold.</summary>
@@ -154,9 +154,9 @@ internal sealed class IntroCeresFlightState
                 break;
 
             case IntroCeresFlightPhase.FlyingIntoCamera:
-                if (zoom >= 0x0020)
+                if (zoom >= 32)
                 {
-                    zoom = unchecked((ushort)(zoom - 0x0010));
+                    zoom = unchecked((ushort)(zoom - 16));
                 }
                 else
                 {
@@ -270,8 +270,7 @@ internal sealed class IntroCeresFlightState
         layers.Add(new ObjPriorityRenderLayer(2));
         layers.Add(new ObjPriorityRenderLayer(3));
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
-            layers.Add(new FixedColorAddRenderLayer((byte)(fixedColorRed & 31),
-                (byte)(fixedColorGreen & 31), (byte)(fixedColorBlue & 31)));
+            layers.Add(new FixedColorAddRenderLayer(flashIntensity, flashIntensity, flashIntensity));
         return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers.ToArray(),
             MenuRenderDefinitions.ObjectSelection, brightness);
     }
@@ -297,8 +296,8 @@ internal sealed class IntroCeresFlightState
         // the surrounding tile-$8C star field remain resident.
         new Mode7Vram(vram).LoadMap(tilemap.AsSpan(CeresFlightRomData.Vram.Mode7MapSliceByteCount,
             CeresFlightRomData.Vram.Mode7MapSliceByteCount));
-        background = new(new(0xffe0, 0), new(0xff80, 0));
-        angle = SnesAngle.FromTableIndex(0x20);
+        background = new(new(unchecked((ushort)-32), 0), new(unchecked((ushort)-128), 0));
+        angle = SnesAngle.FromTableIndex(32);
 
         // These five slots are the exact $BE3B-$BE5C spawn order. Their visual lists
         // remain cartridge streams; the compiled definitions supply callback identity,
@@ -319,9 +318,7 @@ internal sealed class IntroCeresFlightState
 
         // CGADSUB=$31 adds the fixed colour to BG1, OBJ, and backdrop. $BE09 begins at
         // white and $BFDA removes one five-bit component step per frame until black.
-        fixedColorRed = 0x3f;
-        fixedColorGreen = 0x5f;
-        fixedColorBlue = 0x9f;
+        flashIntensity = 31;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
     }
 
@@ -342,19 +339,17 @@ internal sealed class IntroCeresFlightState
     /// <summary>Fades fixed color and enlarges the rear-view Mode 7 image until the title begins.</summary>
     private void StepFlyingTowardCeres()
     {
-        // The fixed-colour flash fades by one SNES component step per frame, clamped at
-        // the selector-only register values $20/$40/$80 (component zero).
-        fixedColorRed = (byte)Math.Max(0x20, fixedColorRed - 1);
-        fixedColorGreen = (byte)Math.Max(0x40, fixedColorGreen - 1);
-        fixedColorBlue = (byte)Math.Max(0x80, fixedColorBlue - 1);
+        // The fixed-colour flash fades by one SNES component step per frame, clamped at zero
+        // (the selector-only register values $20/$40/$80).
+        flashIntensity = (byte)Math.Max(0, flashIntensity - 1);
 
-        // $BFDA drifts BG1 left by 0.2000 and grows the rear-of-gunship Mode 7 image in
-        // two native bands: +$10 until $0C00, then +$20 until $2000.
-        background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, unchecked((int)0xffff_e000)));
-        if (zoom < 0x0c00)
-            zoom = unchecked((ushort)(zoom + 0x0010));
-        else if (zoom < 0x2000)
-            zoom = unchecked((ushort)(zoom + 0x0020));
+        // $BFDA drifts BG1 left by an eighth of a pixel and grows the rear-of-gunship Mode 7
+        // image in two native bands: +16 until 3072, then +32 until 8192.
+        background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, -SnesSixteenSixteen.FromWhole(1) / 8));
+        if (zoom < 3072)
+            zoom = unchecked((ushort)(zoom + 16));
+        else if (zoom < 8192)
+            zoom = unchecked((ushort)(zoom + 32));
         else
             SetupSpaceColonyTitle();
     }
@@ -370,7 +365,7 @@ internal sealed class IntroCeresFlightState
         spaceColonyHoldStarted = false;
         spaceColonyJapaneseCaptionDrawn = false;
         WriteNextSpaceColonyLetter();
-        spaceColonyTimer = 0x10;
+        spaceColonyTimer = 16;
         Phase = IntroCeresFlightPhase.SpaceColonyTitle;
     }
 
@@ -383,7 +378,7 @@ internal sealed class IntroCeresFlightState
         if (spaceColonyLetterIndex < SpaceColonyCaptionDefinitions.LetterCount)
         {
             WriteNextSpaceColonyLetter();
-            spaceColonyTimer = 0x10;
+            spaceColonyTimer = 16;
             return;
         }
 
@@ -402,7 +397,7 @@ internal sealed class IntroCeresFlightState
         if (!spaceColonyHoldStarted)
         {
             spaceColonyHoldStarted = true;
-            spaceColonyTimer = 0x80;
+            spaceColonyTimer = 128;
             return;
         }
 
@@ -414,7 +409,7 @@ internal sealed class IntroCeresFlightState
     private void WriteNextSpaceColonyLetter()
     {
         (int column, ushort tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
-        const int CaptionRow = 0x18;
+        const int CaptionRow = 24;
         spaceColonyTilemap[CaptionRow * 32 + column] = tile;
         new CeresVram(vram).SpaceColonyTilemap.Write(spaceColonyTilemap);
     }
@@ -488,7 +483,7 @@ internal sealed class IntroCeresFlightState
     private static void AddWrappedX(IntroDiscoverySprite actor, ushort fractionalDelta)
     {
         SnesFixedPosition x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
-        actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole & 0x01ff)));
+        actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole % 512)));
     }
 
     /// <summary>Applies signed 16.16 horizontal motion without the front-star wrap.</summary>
@@ -500,9 +495,9 @@ internal sealed class IntroCeresFlightState
     /// <summary>Adds and clamps the rear-view flash's five-bit fixed color to each output pixel.</summary>
     private void ApplyRearViewFixedColorMath(Span<Rgba32> pixels)
     {
-        int addRed = fixedColorRed & 0x1f;
-        int addGreen = fixedColorGreen & 0x1f;
-        int addBlue = fixedColorBlue & 0x1f;
+        int addRed = flashIntensity;
+        int addGreen = flashIntensity;
+        int addBlue = flashIntensity;
         for (int index = 0; index < pixels.Length; index++)
         {
             Rgba32 color = pixels[index];

@@ -99,7 +99,7 @@ internal static class EscapeTimerPresentationVerification
         var presentation = EscapeTimerPresentation.Load(new MemoryStream(extracted));
         var timer = new EscapeTimer();
         timer.Clear();
-        timer.SetTime(0x01, 0x23, 0x45);
+        timer.SetTime(PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(23), PackedBcd.FromDecimal(45));
         var native = new OamBuffer();
         var installed = new OamBuffer();
         native.BeginFrame();
@@ -216,7 +216,7 @@ internal static class EscapeTimerPresentationVerification
 
         var timer = new EscapeTimer();
         timer.Clear();
-        timer.SetTime(0x01, 0x23, 0x45);
+        timer.SetTime(PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(23), PackedBcd.FromDecimal(45));
         var native = new OamBuffer();
         var guarded = new OamBuffer();
         native.BeginFrame();
@@ -237,9 +237,9 @@ internal static class EscapeTimerPresentationVerification
     {
         ushort palette = EnemyPaletteBits.Palette5;
         Draw(0, EscapeTimerPresentationDefinitions.LabelSpritemap);
-        Digits(timer.MinutesBcd, unchecked((short)0xffe4));
-        Digits(timer.SecondsBcd, unchecked((short)0xfffc));
-        Digits(timer.CentisecondsBcd, 0x0014);
+        Digits(timer.Minutes.Raw, unchecked((short)0xffe4));
+        Digits(timer.Seconds.Raw, unchecked((short)0xfffc));
+        Digits(timer.Centiseconds.Raw, 0x0014);
 
         void Digits(byte bcd, short offset)
         {

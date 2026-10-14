@@ -45,7 +45,7 @@ internal sealed class IntroEggParticle
 
         int yIndex = SnesLittleEndian.HighByte(sprite.GeneralTimer);
         AddSixteenSixteenVelocity(sprite, horizontal: false, IntroEggMotionDefinitions.FragmentY(yIndex));
-        if (unchecked((short)(sprite.WholePosition.Y - 0x00a8)) >= 0)
+        if (unchecked((short)(sprite.WholePosition.Y - 168)) >= 0)
         {
             // Native code primes the shared one-word delete list, which the generic handler
             // consumes later in this same object call.
@@ -53,7 +53,7 @@ internal sealed class IntroEggParticle
         }
         else
         {
-            sprite.GeneralTimer = unchecked((ushort)(sprite.GeneralTimer + 0x0100));
+            sprite.GeneralTimer = unchecked((ushort)(sprite.GeneralTimer + 256));
         }
 
         sprite.Step();

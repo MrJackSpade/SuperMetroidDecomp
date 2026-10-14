@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Individually ordered boundary pieces of the suited crouching pose.</summary>
-internal static class EndingRewardPrepareJumpAtlas
+internal static class EndingRewardPrepareJumpCellDefinitions
 {
     /// <summary>Tile$122, small left edge preceding the interior rows.</summary>
     internal const int LeftSideEdge = 0x122;

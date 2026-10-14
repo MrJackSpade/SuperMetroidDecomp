@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Collections;
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteFrame;
 using SuperMetroid.Core.Assets;
@@ -42,27 +43,27 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
             if (pose is >= Pose.SamusHeadFromEndingFrame1 and <= Pose.SamusHeadFromEndingFrame4)
             {
                 x = -8; y = index == 0 ? -8 : -16; large = true;
-                tile = index == 0 ? 0x188 + 2 * (pose - Pose.SamusHeadFromEndingFrame1) : 0x178; // magic-number-audit: allow(PoseOrMovement) - tile atlas indices and strides for cinematic sprite composition.
+                tile = index == 0 ? SnesCharacterGrid.Cell(24, 8) + 2 * (pose - Pose.SamusHeadFromEndingFrame1) : SnesCharacterGrid.Cell(23, 8); // magic-number-audit: allow(PoseOrMovement) - tile atlas indices and strides for cinematic sprite composition.
             }
             else if (pose == Pose.SamusHeadWithHelmetFromEnding)
             {
                 int column = 1 - index % 2, row = index / 2;
                 x = -12 + 8 * column; y = 4 - 16 * row; large = row == 1;
-                tile = 0x1c8 + column - 32 * row;
+                tile = SnesCharacterGrid.Cell(28, 8) + column - 32 * row;
             }
             else if (pose == Pose.JumpingSamusHeadFromEnding)
             {
                 large = index == 2;
                 int column = large ? 0 : 1 - index;
                 x = -8 + 8 * column; y = large ? -6 : -14;
-                tile = (large ? 0x157 : 0x147) + column;
+                tile = (large ? SnesCharacterGrid.Cell(21, 7) : SnesCharacterGrid.Cell(20, 7)) + column;
             }
             else if (pose == Pose.LargeSamusHelmetFromEndingFrame1)
             {
                 large = index >= 3;
                 int column = large ? index - 3 : 2 - index;
                 x = -12 + 8 * column; y = large ? -13 : 3;
-                tile = (large ? 0x76 : 0x96) + column;
+                tile = (large ? SnesCharacterGrid.Cell(7, 6) : SnesCharacterGrid.Cell(9, 6)) + column;
             }
             else
             {
@@ -70,7 +71,7 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
                 large = index is 0 or 4;
                 int column = large ? (index == 0 ? 1 : 0) : 3 - index;
                 x = -12 + 8 * column; y = large ? -6 : -14;
-                tile = (large ? 0x56 : 0x46) + column;
+                tile = (large ? SnesCharacterGrid.Cell(5, 6) : SnesCharacterGrid.Cell(4, 6)) + column;
             }
             return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);

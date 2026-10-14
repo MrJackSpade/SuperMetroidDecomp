@@ -111,6 +111,11 @@ public sealed class EscapeTypewriterState
         return Completed = true;
     }
 
+    /// <summary>Whether a line of <paramref name="length"/> glyphs written from <paramref name="destination"/> stays inside VRAM.</summary>
+    [PpuLayoutBoundary("codec: escape typewriter programs' native VRAM destinations")]
+    internal static bool LineFitsInVram(int destination, int length) =>
+        destination >= 0 && destination + length <= SnesVram.WordCount;
+
     /// <summary>Writes a non-space glyph, requests a click every second glyph, and advances the tilemap destination.</summary>
     [PpuLayoutBoundary("codec: escape typewriter programs' native VRAM destinations")]
     private void WriteCharacter(byte character, SnesVram vram)

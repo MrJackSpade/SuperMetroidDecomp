@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.Skree;
@@ -30,7 +31,6 @@ using static SuperMetroid.Verification.Enemies.Rios.LowerNorfairRioInstructionPr
 using static SuperMetroid.Verification.Enemies.Metroids.MochtroidVisualsVerification;
 using static SuperMetroid.Verification.Enemies.NativeEnemyVisualSelectorsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.NorfairRioInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Puyo.PuyoInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleySupplementalArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Rios.RioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.SharedCrawlerArtworkVerification;
@@ -171,51 +171,11 @@ internal static class EnemySpritemapArtworkVerification
             "installed Bull immune-shot loop exhausts its native repeat timer");
     }
 
-    /// <summary>Checks Puyo frame selectors and grounded and airborne programs without native presentation reads.</summary>
+    /// <summary>Runs Puyo's grounded and airborne programs with the installed stock artwork.</summary>
     private static void VerifyInstalledPuyoInstructionFrames(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
-    {
-        for (int index = 0;
-             index < PuyoInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Puyo, operand, out ushort frame),
-                $"Puyo visual operand $A2:{operand:X4} is compiled");
-            AssertEqual(ReadPuyoInstructionWord(rom, operand), frame,
-                $"Puyo frame selector $A2:{operand:X4} matches the pinned cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.PuyoFrameAt(
-                PuyoInstructionProgramDefinitions.FirstAdjacentDefinition),
-            "Puyo rejects adjacent hop definitions as presentation operands");
-
-        var guard = NewPuyoInstructionReadGuard(rom, forbidPresentation: true);
-        var enemies = new RoomEnemySystem { TileArtwork = stock };
-        enemies.BindFixtureBus(guard);
-        RoomEnemySlot puyo = enemies.SlotTable.Slots[0];
-        puyo.EnemyDefinitionPointer = EnemyDefinitionId.Puyo;
-        puyo.Definition = default(RoomEnemyDefinition) with
-            { Bank = EnemySpritemapDefinitions.PuyoBank };
-        new Action<RoomEnemySlot>(enemies.PuyoBehavior.InitializePuyo)(puyo);
-        object?[] arguments =
-            [puyo, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        foreach (ushort program in PuyoGroundedInstructionPrograms)
-        {
-            puyo.CurrentInstruction = program;
-            ExecutePuyoInstructionCalls(enemies, arguments, puyo, 5);
-        }
-        foreach (ushort program in PuyoAirborneInstructionPrograms)
-        {
-            puyo.CurrentInstruction = program;
-            ExecutePuyoInstructionCalls(enemies, arguments, puyo, 2);
-        }
-        AssertEqual(0, guard.ObservedWords.Count,
-            "installed Puyo programs read no cartridge visual selectors");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "installed Puyo programs retain compiled timing and control words");
-    }
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock) =>
+        Suite(nameof(PuyoInstructionProgramDefinitionsVerification.VerifyPuyoInstructionProgramDefinitions),
+            () => PuyoInstructionProgramDefinitionsVerification.VerifyPuyoInstructionProgramDefinitions(rom, stock));
 
     /// <summary>
     /// The stock catalog from <paramref name="stockDirectory"/> with its compositions replaced, as the installation
@@ -756,26 +716,8 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(RinkaVisualDefinitions.FrameCount, rinkaFrames.Count,
             "both Rinka loops select five distinct OAM frames");
-        var selectedRinkaFrames = new HashSet<ushort>();
-        for (int index = 0; index < RinkaInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = RinkaInstructionProgramDefinitions.PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa2, operand);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Rinka, operand, out ushort selected),
-                $"Rinka visual selector $A2:{operand:X4} is installed");
-            AssertEqual(native, selected,
-                $"Rinka visual selector $A2:{operand:X4} matches the cartridge");
-            AssertTrue(rinkaFrames.Contains(selected),
-                $"Rinka visual target $A2:{selected:X4} has installed art");
-            selectedRinkaFrames.Add(selected);
-        }
-        AssertTrue(selectedRinkaFrames.SetEquals(rinkaFrames),
-            "every installed Rinka composition is selected by a native loop");
-        AssertThrows<InvalidDataException>(
-            () => RinkaVisualDefinitions.FrameAt(RinkaInstructionProgramDefinitions.OrdinaryInitial),
-            "Rinka visual selector rejects neighboring mechanics data");
+        AssertTrue(RinkaAnimations.Spritemaps(Enum.GetValues<RinkaProgram>()).ToHashSet().SetEquals(rinkaFrames),
+            "every installed Rinka composition is shown by a Rinka program");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
             AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGet(frame.Bank, frame.Pointer, out var parts),
@@ -1619,12 +1561,10 @@ internal static class EnemySpritemapArtworkVerification
             editedViola.LowTable[0],
             "Viola authored body offset changes installed room OAM");
         OamBuffer stockRinka = DrawEnemy(stock, NewFrameReadGuard(rom),
-            RinkaVisualDefinitions.FrameAt(
-                RinkaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RinkaAnimations.Spritemaps(RinkaProgram.Ordinary).First(),
             EnemyDefinitionId.Rinka);
         OamBuffer editedRinka = DrawEnemy(edited, NewFrameReadGuard(rom),
-            RinkaVisualDefinitions.FrameAt(
-                RinkaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            RinkaAnimations.Spritemaps(RinkaProgram.Ordinary).First(),
             EnemyDefinitionId.Rinka);
         AssertEqual(unchecked((byte)(stockRinka.LowTable[0] + 1)),
             editedRinka.LowTable[0],
@@ -2028,8 +1968,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Norfair Rio Y offset changes installed room OAM");
         AssertEqual(stockNorfairRio.LowTable[0], editedNorfairRio.LowTable[0],
             "Norfair Rio visual edit leaves physical X unchanged");
-        ushort puyoPointer = EnemySpritemapDefinitions.PuyoFrameAt(
-            PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
+        ushort puyoPointer = PuyoAnimations.Spritemaps(PuyoProgram.GroundedFast).First();
         OamBuffer stockPuyo = DrawEnemy(stock, NewFrameReadGuard(rom),
             puyoPointer, EnemyDefinitionId.Puyo);
         OamBuffer editedPuyo = DrawEnemy(edited, NewFrameReadGuard(rom),

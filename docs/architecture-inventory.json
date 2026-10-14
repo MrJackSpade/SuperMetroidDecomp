@@ -14623,6 +14623,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RinkaFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/RinkaFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RinkaVisualDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -17401,6 +17414,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaBehavior",
       "kind": "class",
       "scope": "product",
@@ -17416,6 +17442,32 @@
         "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
       ],
       "review": "reviewed"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaEnemyFunction",
@@ -17444,43 +17496,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaInstruction",
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaProgram",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaInstruction.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaProgram.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaSpawnResource",
@@ -33739,6 +33778,19 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Puyo.Artwork.PuyoFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Puyo/Artwork/PuyoFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Puyo.PuyoAirborneFunction",
       "kind": "enum",
       "scope": "product",
@@ -33750,6 +33802,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Puyo.PuyoAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Puyo.PuyoBehavior",
@@ -33804,6 +33869,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Puyo.PuyoFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Puyo.PuyoHopDefinition",
       "kind": "record struct",
       "scope": "product",
@@ -33843,75 +33921,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Puyo.PuyoInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Puyo.PuyoInstructionProgramDefinitions.GroundedLoop",
+      "type": "SuperMetroid.Core.Enemies.Puyo.PuyoProgram",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoProgram.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Puyo.PuyoInstructionProgramDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Puyo/PuyoInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Puyo.PuyoInstructionProgramDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Puyo.PuyoInstructionProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Puyo/PuyoInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Puyo.PuyoInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Puyo/PuyoInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Rios.LowerNorfairRioBehavior",
@@ -90562,6 +90582,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.MotherBrain.RinkaAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/RinkaAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.MotherBrain.RinkaInstructionProgramDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -90573,6 +90606,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.MotherBrain.RinkaNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/RinkaNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Bosses.MotherBrain.ShitroidGradualAccelerationVerification",
@@ -95489,6 +95535,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Puyo.PuyoAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Puyo/PuyoAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Puyo.PuyoHopDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -95513,6 +95572,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Puyo.PuyoNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Puyo/PuyoNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.RespawnedEnemyContactVerification",

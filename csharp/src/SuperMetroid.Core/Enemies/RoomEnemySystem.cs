@@ -1428,7 +1428,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         DeadSidehopperBehavior.RegisterDeadSidehopperTypedAnimations(table);
         ShitroidBehavior.RegisterShitroidTypedAnimations(table);
         SporeSpawnBehavior.RegisterSporeSpawnTypedAnimations(table);
-        RinkaBehavior.RegisterRinkaOwnedInstructions(table);
+        RinkaBehavior.RegisterRinkaTypedAnimations(table);
         RioBehavior.RegisterRioOwnedInstructions(table);
         NorfairLavaJumpingEnemyBehavior.RegisterNorfairLavaJumpingEnemyTypedAnimations(table);
         NorfairRioBehavior.RegisterNorfairRioOwnedInstructions(table);
@@ -1439,6 +1439,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        RinkaBehavior.RegisterRinkaTypedAnimations(table);
+        PuyoBehavior.RegisterPuyoTypedAnimations(table);
         MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailTypedAnimations(table);
         MetroidBehavior.RegisterMetroidTypedAnimations(table);
         SparkBehavior.RegisterSparkTypedAnimations(table);

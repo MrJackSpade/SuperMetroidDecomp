@@ -1762,8 +1762,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Chozo =>
                 ChozoStatueVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Viola => 0,
-            EnemyDefinitionId.Rinka =>
-                RinkaVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Rinka => 0,
             EnemyDefinitionId.CorpseTorizo => 0,
             EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree => 0,
             EnemyDefinitionId.CorpseSidehopper => 0,
@@ -1780,7 +1779,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Holtz =>
                 LowerNorfairRioFrameAt(operandAddress),
             EnemyDefinitionId.Geruta => NorfairRioFrameAt(operandAddress),
-            EnemyDefinitionId.Puyo => PuyoFrameAt(operandAddress),
+            EnemyDefinitionId.Puyo => 0,
             EnemyDefinitionId.Bull => 0,
             EnemyDefinitionId.Alcoon => AlcoonFrameAt(operandAddress),
             EnemyDefinitionId.Beetom => BeetomFrameAt(operandAddress),
@@ -1860,7 +1859,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Shaktool or
             EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or
             EnemyDefinitionId.Chozo or
-            EnemyDefinitionId.Rinka or
             EnemyDefinitionId.Evir or
             EnemyDefinitionId.EvirProjectile or
             EnemyDefinitionId.Robot or
@@ -1870,7 +1868,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Rio or
             EnemyDefinitionId.Holtz or
             EnemyDefinitionId.Geruta or
-            EnemyDefinitionId.Puyo or
             EnemyDefinitionId.Alcoon or
             EnemyDefinitionId.Beetom or
             EnemyDefinitionId.Fune or
@@ -1948,20 +1945,6 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Norfair Rio visual operand $A2:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
-    /// Puyo's seventeen presentation operands at $A2:99AF..9A03 select eight
-    /// editable OAM compositions; hop timing and movement remain compiled.
-    /// </summary>
-    internal static ushort PuyoFrameAt(ushort operandAddress)
-    {
-        if (PuyoInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(PuyoBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Puyo visual operand $A2:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>

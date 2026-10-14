@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
@@ -32,23 +33,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        for (int index = 0;
-             index < RinkaInstructionProgramDefinitionsTooling.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                RinkaInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | definition.Address),
-                $"Rinka mechanics word $A2:{definition.Address:X4}");
-        }
-
-        var guarded = NewRinkaInstructionReadGuard(rom);
-        (RoomEnemySystem ordinarySystem, RoomEnemySlot ordinary) = RunRinkaProgram(
-            guarded,
-            RinkaInstructionProgramDefinitions.OrdinaryInitial,
-            special: false);
+        (RoomEnemySystem ordinarySystem, RoomEnemySlot ordinary) = RunRinkaProgram(rom, RinkaProgram.Ordinary, special: false);
         AssertEqual(RinkaEnemyFunction.AimDelay, (ordinarySystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires ordinarySystem.RinkaStates[0].")).Function,
             "ordinary Rinka fire callback selects aim-delay AI");
         AssertTrue(!ordinary.Properties.HasAny(EnemyProperties.Invisible),
@@ -56,10 +41,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         AssertTrue(!ordinary.Properties.HasAny(EnemyProperties.ProcessOffScreen),
             "ordinary Rinka program does not enable off-screen processing");
 
-        (RoomEnemySystem specialSystem, RoomEnemySlot special) = RunRinkaProgram(
-            guarded,
-            RinkaInstructionProgramDefinitions.SpecialInitial,
-            special: true);
+        (RoomEnemySystem specialSystem, RoomEnemySlot special) = RunRinkaProgram(rom, RinkaProgram.Special, special: true);
         AssertEqual(RinkaEnemyFunction.AimDelay, (specialSystem.RinkaStates[0] ?? throw new InvalidOperationException("Verification requires specialSystem.RinkaStates[0].")).Function,
             "special Rinka fire callback selects aim-delay AI");
         AssertTrue(!special.Properties.HasAny(EnemyProperties.Invisible),
@@ -67,57 +49,14 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         AssertTrue(special.Properties.HasAny(EnemyProperties.ProcessOffScreen),
             "special Rinka setup retains off-screen processing after firing");
 
-        AssertEqual(0, guarded.ObservedWords.Count,
-            "Rinka execution uses compiled spritemap selectors");
-        for (int index = 0;
-             index < RinkaInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                RinkaInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionId.Rinka,
-                0xa2, address, $"Rinka $A2:{address:X4}");
-        }
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "production execution avoids every compiled Rinka mechanics byte");
-
-        AssertThrows<InvalidDataException>(
-            () => RinkaInstructionProgramDefinitions.ReadMechanicsWord(0xb9e4),
-            "interleaved Rinka spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => RinkaInstructionProgramDefinitions.ReadMechanicsWord(
-                (ushort)RinkaInstruction.UNUSED_Instruction_Rinka_GotoYIfCounterGreaterThan2_A2B9A2),
-            "unused Rinka conditional callback cannot acquire an invented operand");
-        AssertThrows<InvalidDataException>(
-            () => RinkaInstructionProgramDefinitions.ReadMechanicsWord(0xffff),
-            "restored pointer outside the translated Rinka programs fails loudly");
-
-        _ = RinkaInstructionProgramDefinitions.ReadMechanicsWord(
-            RinkaInstructionProgramDefinitions.OrdinaryInitial);
-        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += RinkaInstructionProgramDefinitions.ReadMechanicsWord(
-                RinkaInstructionProgramDefinitions.OrdinaryInitial);
-        }
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
-        AssertTrue(checksum != 0, "Rinka allocation probe consumes live data");
-        AssertEqual(0L, allocated,
-            "warmed Rinka mechanics lookups allocate no per-frame storage");
-
-        Console.WriteLine(
-            $"  Rinka instruction mechanics: " +
-            $"{RinkaInstructionProgramDefinitionsTooling.MechanicsWordCount} words, " +
-            $"{RinkaInstructionProgramDefinitions.PresentationWordCount} live " +
-            "spritemap words, and both production programs pass with mechanics reads " +
-            "forbidden.");
+        Suite(nameof(RinkaAnimationsVerification.VerifyRinkaAnimations), () => RinkaAnimationsVerification.VerifyRinkaAnimations(rom));
+        Console.WriteLine("Rinka: both programs' hide, off-screen and fire cues and the program oracle pass.");
     }
 
     /// <summary>Runs one native-length Rinka loop and observes visibility, off-screen behavior, and aim-delay selection.</summary>
     private static (RoomEnemySystem System, RoomEnemySlot Rinka) RunRinkaProgram(
-        CartridgeReadGuard bus,
-        ushort initialPointer,
+        SuperMetroidAddressSpace bus,
+        RinkaProgram program,
         bool special)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -126,12 +65,12 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         rinka.EnemyDefinitionPointer = EnemyDefinitionId.Rinka;
         rinka.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         rinka.Parameter1 = special ? (ushort)1 : (ushort)0;
-        rinka.CurrentInstruction = initialPointer;
         rinka.InstructionTimer = NativeCountdown.Start(1);
 
         var state = new RinkaEnemyState(rinka)
         {
             Function = RinkaEnemyFunction.WatchForLeavingViewport,
+            Program = AnimationProgramCursor<RinkaProgram>.Start(program),
         };
         var states = (RinkaEnemyState?[])enemies.RinkaBehavior._rinkaStates;
         states[0] = state;
@@ -146,14 +85,6 @@ internal static class RinkaInstructionProgramDefinitionsVerification
 
         return (enemies, rinka);
     }
-
-    /// <summary>Blocks compiled mechanics and records any visual operand reads during production execution.</summary>
-    private static CartridgeReadGuard NewRinkaInstructionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(RinkaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled Rinka mechanics byte ${address:X6}.")
-            .ObserveWords(0xa20000, RinkaInstructionProgramDefinitions.PresentationWordCount,
-                RinkaInstructionProgramDefinitions.PresentationWordAddress);
 
     /// <summary>Runs the focused Rinka instruction check against the retail ROM when available.</summary>
     [VerificationCommand("--rinka-instruction-mechanics")]

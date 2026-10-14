@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Enemies.MaridiaSnails;
 using SuperMetroid.Verification.Enemies.Sparks;
 using SuperMetroid.Verification.Enemies.Powamp;
@@ -410,6 +411,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations), () => WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations(LoadRepositoryRom())),
         new(nameof(WreckedShipGhostBehaviorVerification.VerifyWreckedShipGhostBehavior), () => WreckedShipGhostBehaviorVerification.VerifyWreckedShipGhostBehavior(LoadRepositoryRom())),
         new(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(PuyoAnimationsVerification.VerifyPuyoAnimations), () => PuyoAnimationsVerification.VerifyPuyoAnimations(LoadRepositoryRom())),
         new(nameof(DeadTorizoAnimationsVerification.VerifyDeadTorizoAnimations), () => DeadTorizoAnimationsVerification.VerifyDeadTorizoAnimations(LoadRepositoryRom())),
         new(nameof(DeadTorizoBehaviorVerification.VerifyDeadTorizoBehavior), () => DeadTorizoBehaviorVerification.VerifyDeadTorizoBehavior(LoadRepositoryRom())),
         new(nameof(DeadTourianAnimationsVerification.VerifyDeadTourianAnimations), () => DeadTourianAnimationsVerification.VerifyDeadTourianAnimations(LoadRepositoryRom())),

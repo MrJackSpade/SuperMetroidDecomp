@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -179,11 +181,11 @@ internal sealed class RinkaBehavior : IEnemySpecies
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 return;
             }
-            slot.CurrentInstruction = RinkaInstructionProgramDefinitions.SpecialInitial;
+            state.Program = AnimationProgramCursor<RinkaProgram>.Start(RinkaProgram.Special);
         }
         else
         {
-            slot.CurrentInstruction = RinkaInstructionProgramDefinitions.OrdinaryInitial;
+            state.Program = AnimationProgramCursor<RinkaProgram>.Start(RinkaProgram.Ordinary);
         }
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -324,51 +326,27 @@ internal sealed class RinkaBehavior : IEnemySpecies
         return true;
     }
 
-    /// <summary>Ports private animation instructions $B9A2/$B9B3/$B9BD/$B9C7.</summary>
-    private bool TryProcessRinkaInstruction(
-        RoomEnemySlot slot,
-        ushort opcode,
-        ref ushort cursor)
+    /// <summary>Carries out one cue of the Rinkas' animations: hiding, hiding with off-screen processing, and firing.</summary>
+    private RinkaProgram? ApplyRinkaCue(RoomEnemySlot slot, RinkaEnemyState state, RinkaCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Rinka)
-            return false;
-
-        if (!Enum.IsDefined((RinkaInstruction)opcode))
-            return false;
-        switch ((RinkaInstruction)opcode)
+        switch (cue.Kind)
         {
-            case RinkaInstruction.UNUSED_Instruction_Rinka_GotoYIfCounterGreaterThan2_A2B9A2:
-                // No retail Rinka list in the pinned revision invokes this routine, so there
-                // is no authored operand to compile. Treating the following native code bytes
-                // as one would let a corrupt/restored cursor escape the bounded program.
-                throw new InvalidDataException(
-                    "Unused Rinka conditional instruction $A2:B9A2 has no retail program operand.");
-
-            case RinkaInstruction.Instruction_Rinka_SetAsIntangibleAndInvisible:
+            case RinkaCueKind.Hide:
+                slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+                break;
+            case RinkaCueKind.HideAndProcessOffScreen:
                 slot.Properties = slot.Properties.With(
-                    EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case RinkaInstruction.Instruction_Rinka_SetAsIntangibleInvisibleAndActiveOffScreen:
-                slot.Properties = slot.Properties.With(
-                    EnemyProperties.ProcessOffScreen |
-                    EnemyProperties.IgnoreSamusCollision |
-                    EnemyProperties.Invisible);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case RinkaInstruction.Instruction_Rinka_FireRinka:
-                slot.Properties = slot.Properties.Without(
-                    EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
-                RequireRinkaState(slot).Function = RinkaEnemyFunction.AimDelay;
+                    EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+                break;
+            case RinkaCueKind.Fire:
+                slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+                state.Function = RinkaEnemyFunction.AimDelay;
                 _rinkaActiveCount = unchecked((ushort)(_rinkaActiveCount + 1));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-
+                break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(RinkaInstruction)} {opcode:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(RinkaCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Releases a special spawn resource and restarts its life unless the room has terminated it.</summary>
@@ -554,15 +532,19 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims private animation words that hide, activate, or fire a Rinka.</summary>
-    internal void RegisterRinkaOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Rinkas' animations as typed programs (#641).</summary>
+    internal void RegisterRinkaTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessRinkaInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireRinkaState(slot);
+            AnimationProgramCursor<RinkaProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, RinkaAnimations.Programs, ref cursor, RinkaFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyRinkaCue(slot, state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Skips invisible actors and applies the private death lifecycle after power-bomb damage.</summary>
     internal void RegisterRinkaPowerBombReactions(EnemyAiTable table)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -14,6 +15,9 @@ public sealed class RinkaEnemyState
 
     /// <summary>Projects the bank-$A2 Rinka variables over its live native enemy slot.</summary>
     internal RinkaEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<RinkaProgram> Program { get; set; }
 
     /// <summary>Common variable A ($7E:0FA8 plus slot offset): same-bank $A2 routine word dispatched by main AI, changed by initialization, the fire instruction, aim completion, or the special death tail.</summary>
     public RinkaEnemyFunction Function

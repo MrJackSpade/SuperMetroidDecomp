@@ -144,7 +144,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
-      "files": 718,
+      "files": 722,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -165,7 +165,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
-      "files": 919,
+      "files": 922,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -690,7 +690,7 @@
     {
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
-      "files": 143,
+      "files": 141,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -715,7 +715,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 1456,
+      "files": 1460,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -890,7 +890,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 502,
+      "files": 501,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -10498,6 +10498,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/RinkaFrameDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.MotherBrain.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/RinkaVisualDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -12435,6 +12445,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaAnimations.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.MotherBrain",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaBehavior.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
@@ -12446,9 +12469,30 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaCue.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.MotherBrain",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaCueKind.cs",
+      "module": "csharp/src/SuperMetroid.Core/Bosses",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Bosses.MotherBrain",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -12472,12 +12516,13 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaInstruction.cs",
+      "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaFrame.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
       "namespace": "SuperMetroid.Core.Bosses.MotherBrain",
@@ -12487,16 +12532,13 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaProgram.cs",
       "module": "csharp/src/SuperMetroid.Core/Bosses",
       "role": "production",
       "namespace": "SuperMetroid.Core.Bosses.MotherBrain",
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -23684,6 +23726,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Puyo/Artwork/PuyoFrameDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Puyo.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoAirborneFunction.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -23691,6 +23743,20 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoAnimations.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Puyo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Programs"
       ]
     },
     {
@@ -23703,6 +23769,7 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Samus",
@@ -23739,7 +23806,18 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoFrame.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.Puyo",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -23773,7 +23851,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoInstructionProgramDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoProgram.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Puyo",
@@ -56740,21 +56818,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitionsTooling.cs",
-      "module": "csharp/src/SuperMetroid.Tooling",
-      "role": "tooling",
-      "namespace": "SuperMetroid.Core.Bosses.MotherBrain",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Bosses",
-        "csharp/src/SuperMetroid.Core/Hardware",
-        "csharp/src/SuperMetroid.Core/Programs"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Tooling/Core/Bosses/Torizo/BombTorizoHandPlmProgramDefinitionsTooling.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
@@ -57246,21 +57309,6 @@
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Enemies.Projectiles",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Hardware",
-        "csharp/src/SuperMetroid.Core/Programs"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Puyo/PuyoInstructionProgramDefinitionsTooling.cs",
-      "module": "csharp/src/SuperMetroid.Tooling",
-      "role": "tooling",
-      "namespace": "SuperMetroid.Core.Enemies.Puyo",
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Tooling"
@@ -62965,7 +63013,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/RinkaInstructionProgramDefinitionsVerification.cs",
+      "path": "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/RinkaAnimationsVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
       "namespace": "SuperMetroid.Verification.Bosses.MotherBrain",
@@ -62975,13 +63023,37 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/RinkaInstructionProgramDefinitionsVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Bosses.MotherBrain",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
-        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Tooling",
-        "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/RinkaNativeListAddresses.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Bosses.MotherBrain",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Bosses"
       ]
     },
     {
@@ -69095,6 +69167,20 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Verification/Enemies/Puyo/PuyoAnimationsVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Enemies.Puyo",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Verification/Enemies/Puyo/PuyoHopDefinitionsVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -69117,14 +69203,23 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
-        "csharp/src/SuperMetroid.Core/Programs",
-        "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Tooling",
-        "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Enemies/Puyo/PuyoNativeListAddresses.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Enemies.Puyo",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -86499,22 +86594,6 @@
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Enemies.Projectiles",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Enemies/Puyo/PuyoInstructionProgramDefinitionsConstants.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Enemies.Puyo",
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.DesktopVerification",

@@ -2479,38 +2479,6 @@ internal static class LookupStream1Verification
             AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.Plms.MetroidsClearedPlmRomData.ResolvePreInstruction(invalid), "quota pointer argument domain");
             AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.Plms.MetroidsClearedPlmRomData.ResolveEvent(invalid), "quota event argument domain");
         }
-        var controls = new HashSet<int>();
-        var visuals = new HashSet<int>();
-        for (int loop = 0; loop < 3; loop++)
-        {
-            foreach (int offset in new[] { 0, 4, 8, 12, 16, 18 }) controls.Add(0x99ad + loop * 20 + offset);
-            foreach (int offset in new[] { 2, 6, 10, 14 }) visuals.Add(0x99ad + loop * 20 + offset);
-        }
-        for (int frame = 0; frame < 5; frame++)
-        {
-            controls.Add(0x99e9 + frame * 6);
-            controls.Add(0x99ed + frame * 6);
-            visuals.Add(0x99eb + frame * 6);
-        }
-        int controlIndex = 0, visualIndex = 0;
-        for (int pointer = 0x99ac; pointer <= 0x9a08; pointer++)
-        {
-            AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
-                PuyoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | pointer), "Puyo exact byte guard domain");
-            AssertEqual(visuals.Contains(pointer), PuyoInstructionProgramDefinitions.IsPresentationWord((ushort)pointer), "Puyo exact visual domain");
-            if (controls.Contains(pointer))
-            {
-                var actual = PuyoInstructionProgramDefinitionsTooling.MechanicsWord(controlIndex++);
-                AssertEqual((ushort)pointer, actual.Address, "Puyo native control order");
-                AssertEqual(Word(0xa20000 | pointer), actual.Value, "Puyo native control value");
-            }
-            else AssertThrows<InvalidDataException>(() => PuyoInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Puyo noncontrol rejection");
-            if (visuals.Contains(pointer)) AssertEqual((ushort)pointer, PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(visualIndex++), "Puyo native visual order");
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Puyo control bounds");
-        foreach (int invalid in new[] { int.MinValue, -1, 17, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Puyo visual bounds");
     }
 
     /// <summary>Reads Puyo instruction and projectile quota source words.</summary>

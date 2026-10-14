@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Enemies.Puyo.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Puyo;
@@ -34,7 +36,6 @@ internal sealed class PuyoBehavior : IEnemySpecies
         // installing the fast grounded list. Enemy.var0 is not one of the six exposed
         // per-family variable words; no later Puyo routine reads it.
         slot.SpritemapPointer = 0x804d;
-        SetPuyoInstructionList(slot, PuyoInstructionProgramDefinitions.GroundedFast);
 
         var state = new PuyoEnemyState(slot)
         {
@@ -56,6 +57,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
             InitialYSpeedTableIndexHalf = 0,
         };
         _puyoStates[slot.SlotIndex] = state;
+        SetPuyoProgram(slot, state, PuyoProgram.GroundedFast);
     }
 
     /// <summary>Ports <c>MainAI_Puyo</c> and its indirect top-level dispatch.</summary>
@@ -191,21 +193,21 @@ internal sealed class PuyoBehavior : IEnemySpecies
                     slot,
                     state,
                     level,
-                    PuyoInstructionProgramDefinitions.GroundedSlow);
+                    PuyoProgram.GroundedSlow);
                 return;
             case PuyoAirborneFunction.NormalBigHop:
                 RunNormalPuyoHop(
                     slot,
                     state,
                     level,
-                    PuyoInstructionProgramDefinitions.GroundedMedium);
+                    PuyoProgram.GroundedMedium);
                 return;
             case PuyoAirborneFunction.NormalLongHop:
                 RunNormalPuyoHop(
                     slot,
                     state,
                     level,
-                    PuyoInstructionProgramDefinitions.GroundedFast);
+                    PuyoProgram.GroundedFast);
                 return;
             case PuyoAirborneFunction.GiantHop:
                 RunGiantPuyoHop(slot, state, level);
@@ -228,14 +230,14 @@ internal sealed class PuyoBehavior : IEnemySpecies
         RoomEnemySlot slot,
         PuyoEnemyState state,
         RoomLevelData level,
-        ushort landingInstructionList)
+        PuyoProgram landingProgram)
     {
         MovePuyo(slot, state, level);
         if (!state.InvertDirection && state.HoppingAnimationActive)
             return;
 
         state.HoppingAnimationActive = false;
-        SetPuyoInstructionList(slot, landingInstructionList);
+        SetPuyoProgram(slot, state, landingProgram);
     }
 
     /// <summary>Ports <c>Function_Puyo_Airborne_GiantHop</c> at $A2:9D6B.</summary>
@@ -254,7 +256,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
         }
 
         state.HoppingAnimationActive = false;
-        SetPuyoInstructionList(slot, PuyoInstructionProgramDefinitions.GroundedSlow);
+        SetPuyoProgram(slot, state, PuyoProgram.GroundedSlow);
     }
 
     /// <summary>Ports the constant-speed collision fall at $A2:9D98.</summary>
@@ -288,7 +290,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
 
         state.HopType = PuyoHopType.Giant;
         state.Function = PuyoEnemyFunction.Grounded;
-        SetPuyoInstructionList(slot, PuyoInstructionProgramDefinitions.GroundedSlow);
+        SetPuyoProgram(slot, state, PuyoProgram.GroundedSlow);
     }
 
     /// <summary>Ports <c>PuyoMovement</c> at $A2:9B88.</summary>
@@ -327,7 +329,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
 
         // Pose selection happens before the index changes, matching the five discrete
         // squash/stretch thresholds in the ROM rather than interpolating sprite frames.
-        SetPuyoAirborneInstructionList(slot, state);
+        SetPuyoAirborneProgram(slot, state);
 
         ushort delta = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).YIndexDelta;
         state.YSpeedTableIndex = state.Falling
@@ -363,49 +365,49 @@ internal sealed class PuyoBehavior : IEnemySpecies
         state.AirborneFunction = PuyoAirborneFunction.Dropping;
     }
 
-    /// <summary>Selects the rising/falling one-frame sleep list for the current curve index.</summary>
-    private static void SetPuyoAirborneInstructionList(RoomEnemySlot slot, PuyoEnemyState state)
+    /// <summary>Selects the rising/falling one-frame pose for the current curve index.</summary>
+    private static void SetPuyoAirborneProgram(RoomEnemySlot slot, PuyoEnemyState state)
     {
-        ushort instructionList;
+        PuyoProgram program;
         if (!state.Falling)
         {
             if (state.Direction == PuyoDirection.Right)
             {
-                instructionList = state.YSpeedTableIndex >=
+                program = state.YSpeedTableIndex >=
                         state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoInstructionProgramDefinitions.RightFrame0LeftFrame4
+                    ? PuyoProgram.RightFrame0LeftFrame4
                     : state.YSpeedTableIndex >= state.InitialYSpeedTableIndexHalf
-                        ? PuyoInstructionProgramDefinitions.RightFrame1LeftFrame3
-                        : PuyoInstructionProgramDefinitions.Frame2;
+                        ? PuyoProgram.RightFrame1LeftFrame3
+                        : PuyoProgram.Frame2;
             }
             else
             {
-                instructionList = state.YSpeedTableIndex >=
+                program = state.YSpeedTableIndex >=
                         state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoInstructionProgramDefinitions.RightFrame4LeftFrame0
+                    ? PuyoProgram.RightFrame4LeftFrame0
                     : state.YSpeedTableIndex >= state.InitialYSpeedTableIndexHalf
-                        ? PuyoInstructionProgramDefinitions.RightFrame3LeftFrame1
-                        : PuyoInstructionProgramDefinitions.Frame2;
+                        ? PuyoProgram.RightFrame3LeftFrame1
+                        : PuyoProgram.Frame2;
             }
         }
         else if (state.Direction == PuyoDirection.Right)
         {
-            instructionList = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
-                ? PuyoInstructionProgramDefinitions.Frame2
+            program = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
+                ? PuyoProgram.Frame2
                 : state.YSpeedTableIndex < state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoInstructionProgramDefinitions.RightFrame3LeftFrame1
-                    : PuyoInstructionProgramDefinitions.RightFrame4LeftFrame0;
+                    ? PuyoProgram.RightFrame3LeftFrame1
+                    : PuyoProgram.RightFrame4LeftFrame0;
         }
         else
         {
-            instructionList = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
-                ? PuyoInstructionProgramDefinitions.Frame2
+            program = state.YSpeedTableIndex < state.InitialYSpeedTableIndexHalf
+                ? PuyoProgram.Frame2
                 : state.YSpeedTableIndex < state.InitialYSpeedTableIndexThreeQuarters
-                    ? PuyoInstructionProgramDefinitions.RightFrame1LeftFrame3
-                    : PuyoInstructionProgramDefinitions.RightFrame0LeftFrame4;
+                    ? PuyoProgram.RightFrame1LeftFrame3
+                    : PuyoProgram.RightFrame0LeftFrame4;
         }
 
-        SetPuyoInstructionList(slot, instructionList);
+        SetPuyoProgram(slot, state, program);
     }
 
     /// <summary>Flips the two-entry native direction domain after a terrain impact.</summary>
@@ -417,10 +419,10 @@ internal sealed class PuyoBehavior : IEnemySpecies
             $"Puyo direction {(ushort)direction} is outside the two-entry ROM domain."),
     };
 
-    /// <summary>Starts a selected pose or hop list with a one-tick instruction countdown.</summary>
-    private static void SetPuyoInstructionList(RoomEnemySlot slot, ushort instructionList)
+    /// <summary>Starts a selected pose or hop animation with a one-tick instruction countdown.</summary>
+    private static void SetPuyoProgram(RoomEnemySlot slot, PuyoEnemyState state, PuyoProgram program)
     {
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<PuyoProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -429,6 +431,19 @@ internal sealed class PuyoBehavior : IEnemySpecies
     private PuyoEnemyState RequirePuyoState(RoomEnemySlot slot) =>
         _puyoStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Puyo state.");
+
+    /// <summary>Runs Puyo's grounded loops and airborne poses as typed programs (#641).</summary>
+    internal void RegisterPuyoTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Puyo, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequirePuyoState(slot);
+            AnimationProgramCursor<PuyoProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, PuyoAnimations.Programs, ref cursor, PuyoFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
+
 
     /// <summary>Routes bank-$A2 Puyo initialization to matching enemy definitions.</summary>
     internal void RegisterPuyoInitializationAi(EnemyAiTable table)

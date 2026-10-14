@@ -1,175 +1,73 @@
-using System.Reflection;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Puyo;
-using SuperMetroid.Core.Programs;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Puyo;
+using SuperMetroid.Core.Enemies.Puyo.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks Puyo grounded and airborne instruction timing and selected frames against bank $A2.</summary>
+/// <summary>Checks Puyo's initial animation, its grounded loops and its one-pose airborne programs.</summary>
 internal static class PuyoInstructionProgramDefinitionsVerification
 {
-    /// <summary>Grounded animation loops whose goto instructions must remain executable from compiled data.</summary>
-    internal static readonly ushort[] PuyoGroundedInstructionPrograms =
-    [
-        PuyoInstructionProgramDefinitions.GroundedFast,
-        PuyoInstructionProgramDefinitions.GroundedMedium,
-        PuyoInstructionProgramDefinitions.GroundedSlow,
-    ];
-
-    /// <summary>Airborne poses whose final instruction sleeps after selecting a compiled frame.</summary>
-    internal static readonly ushort[] PuyoAirborneInstructionPrograms =
-    [
-        PuyoInstructionProgramDefinitions.RightFrame0LeftFrame4,
-        PuyoInstructionProgramDefinitions.RightFrame1LeftFrame3,
-        PuyoInstructionProgramDefinitions.Frame2,
-        PuyoInstructionProgramDefinitions.RightFrame3LeftFrame1,
-        PuyoInstructionProgramDefinitions.RightFrame4LeftFrame0,
-    ];
-
-    /// <summary>Loads the retail cartridge as the oracle for Puyo instruction mechanics.</summary>
-    internal static void VerifyPuyoInstructionProgramDefinitions()
+    /// <summary>
+    /// The real initializer starts the fast grounded loop; each grounded loop runs on time and each airborne program
+    /// shows its pose once and holds. With installed artwork supplied, every pose has an installed composition.
+    /// </summary>
+    internal static void VerifyPuyoInstructionProgramDefinitions(SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
-        Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        (RoomEnemySystem enemies, RoomEnemySlot slot, PuyoEnemyState state) = Create(rom, artwork);
+        AssertEqual(AnimationProgramCursor<PuyoProgram>.Start(PuyoProgram.GroundedFast), state.Program, "Puyo starts on its fast grounded loop");
+        foreach (PuyoProgram loop in new[] { PuyoProgram.GroundedFast, PuyoProgram.GroundedMedium, PuyoProgram.GroundedSlow })
+        {
+            Start(slot, state, loop);
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(PuyoAnimations.Programs, loop, PuyoFrameDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Programs, loop)), $"Puyo {loop} loop");
+        }
+        foreach (PuyoProgram pose in new[] { PuyoProgram.RightFrame0LeftFrame4, PuyoProgram.RightFrame1LeftFrame3, PuyoProgram.Frame2,
+                     PuyoProgram.RightFrame3LeftFrame1, PuyoProgram.RightFrame4LeftFrame0 })
+        {
+            Start(slot, state, pose);
+            ushort frame = PuyoAnimations.Spritemaps(pose).Single();
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]), EnemyInstructionRunner.ShownFrames(enemies, slot, 3), $"Puyo {pose} pose");
+        }
+        if (artwork is not null)
+            foreach (ushort pose in PuyoAnimations.Spritemaps(Enum.GetValues<PuyoProgram>()).Distinct())
+                AssertTrue((artwork.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(PuyoFrameDefinitions.Bank, pose, out _),
+                    $"Puyo pose ${pose:X4} has installed artwork");
+        Console.WriteLine("  Puyo: the fast-loop start, three grounded loops and five airborne poses pass.");
     }
 
-    /// <summary>Checks the compiled words, grounded loops, airborne poses, and absence of runtime cartridge reads.</summary>
-    internal static void VerifyPuyoInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+    /// <summary>A Puyo after its real initializer.</summary>
+    private static (RoomEnemySystem, RoomEnemySlot, PuyoEnemyState) Create(SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork)
     {
-        for (int index = 0;
-             index < PuyoInstructionProgramDefinitionsTooling.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                PuyoInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadPuyoInstructionWord(rom, definition.Address),
-                $"Puyo mechanics word $A2:{definition.Address:X4}");
-        }
-
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = NewPuyoInstructionReadGuard(rom, forbidPresentation: true);
-        var enemies = new RoomEnemySystem();
-        Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureBus(guard);
-        var initialize = new Action<RoomEnemySlot>(enemies.PuyoBehavior.InitializePuyo);
-
-        RoomEnemySlot puyo = enemies.SlotTable.Slots[0];
-        puyo.EnemyDefinitionPointer = EnemyDefinitionId.Puyo;
-        puyo.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
-        initialize(puyo);
-        AssertEqual(PuyoInstructionProgramDefinitions.GroundedFast,
-            puyo.CurrentInstruction,
-            "real Puyo initializer installs compiled fast grounded program");
-
-        object?[] processArguments =
-            [puyo, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        foreach (ushort program in PuyoGroundedInstructionPrograms)
-        {
-            puyo.CurrentInstruction = program;
-            ExecutePuyoInstructionCalls(enemies, processArguments, puyo, 5);
-            AssertEqual(unchecked((ushort)(program + 4)),
-                puyo.CurrentInstruction,
-                $"Puyo grounded program $A2:{program:X4} completes goto and repeats");
-        }
-
-        foreach (ushort program in PuyoAirborneInstructionPrograms)
-        {
-            puyo.CurrentInstruction = program;
-            ExecutePuyoInstructionCalls(enemies, processArguments, puyo, 2);
-            AssertEqual(unchecked((ushort)(program + 4)),
-                puyo.CurrentInstruction,
-                $"Puyo airborne pose $A2:{program:X4} reaches terminal sleep");
-        }
-
-        AssertEqual(0, guard.ObservedWords.Count,
-            "all Puyo spritemap operands select compiled presentation frames");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Puyo mechanics byte");
-        AssertThrows<InvalidDataException>(
-            () => PuyoInstructionProgramDefinitions.ReadMechanicsWord(
-                PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
-            "Puyo spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => PuyoInstructionProgramDefinitions.ReadMechanicsWord(
-                PuyoInstructionProgramDefinitions.FirstAdjacentDefinition),
-            "adjacent Puyo hop definitions are rejected as instruction mechanics");
-
-        _ = ProbePuyoInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbePuyoInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "Puyo allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed Puyo mechanics lookups allocate no per-frame storage");
-
-        Console.WriteLine(
-            "Puyo instruction mechanics: 28 compiled words, all three grounded loops, " +
-            "all five airborne poses, and 17 compiled visual selectors pass with mechanics " +
-            "bytes forbidden.");
+        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        enemies.BindFixtureBus(rom);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Puyo;
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = PuyoFrameDefinitions.Bank };
+        enemies.PuyoBehavior.InitializePuyo(slot);
+        return (enemies, slot, enemies.PuyoStates[0] ?? throw new InvalidOperationException("Puyo has no state."));
     }
 
-    /// <summary>Advances a Puyo instruction program by expiring its instruction timer before each runner call.</summary>
-    internal static void ExecutePuyoInstructionCalls(
-        RoomEnemySystem enemies,
-        object?[] arguments,
-        RoomEnemySlot slot,
-        int calls)
+    /// <summary>Starts <paramref name="program"/> with its first step due on the next update.</summary>
+    private static void Start(RoomEnemySlot slot, PuyoEnemyState state, PuyoProgram program)
     {
-        for (int call = 0; call < calls; call++)
-        {
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, arguments);
-        }
+        state.Program = AnimationProgramCursor<PuyoProgram>.Start(program);
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Alternates two compiled mechanics words repeatedly to expose allocation in the lookup path.</summary>
-    private static int ProbePuyoInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += PuyoInstructionProgramDefinitions.ReadMechanicsWord(
-                (index & 1) == 0
-                    ? PuyoInstructionProgramDefinitions.GroundedFast
-                    : PuyoInstructionProgramDefinitions.LastSleepOpcode);
-        }
-        return checksum;
-    }
-
-    /// <summary>Reads a Puyo instruction word from bank A2 of the cartridge oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Puyo instruction words")]
-    internal static ushort ReadPuyoInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa20000 | address);
-
-    /// <summary>Rejects reads of compiled Puyo mechanics and optionally rejects visual selector reads as well.</summary>
-    internal static CartridgeReadGuard NewPuyoInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false)
-    {
-        static ushort SelectorWord(int address) => Enumerable.Range(0, PuyoInstructionProgramDefinitionsTooling.PresentationWordCount)
-            .Select(PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress)
-            .First(word => unchecked((ushort)address) == word || unchecked((ushort)address) == unchecked((ushort)(word + 1)));
-        CartridgeReadGuard guard = new CartridgeReadGuard(source)
-            .Forbid(PuyoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled Puyo mechanics byte ${address:X6}.");
-        return forbidPresentation
-            ? guard.ForbidWords(0xa20000, PuyoInstructionProgramDefinitionsTooling.PresentationWordCount, PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress,
-                address => $"Installed Puyo read cartridge visual selector $A2:{SelectorWord(address):X4}.")
-            : guard.ObserveWords(0xa20000, PuyoInstructionProgramDefinitionsTooling.PresentationWordCount, PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress);
-    }
-
-    /// <summary>Runs the Puyo instruction mechanics verification from the command dispatcher.</summary>
+    /// <summary>Runs the Puyo checks and its program oracle against the local retail cartridge.</summary>
     [VerificationCommand("--puyo-instruction-mechanics")]
     internal static int PuyoInstructionMechanicsCommand()
     {
-        Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions());
+        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions(rom));
+        Suite(nameof(PuyoAnimationsVerification.VerifyPuyoAnimations), () => PuyoAnimationsVerification.VerifyPuyoAnimations(rom));
         return 0;
     }
 }

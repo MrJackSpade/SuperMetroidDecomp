@@ -1568,7 +1568,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(rom));
         Suite(nameof(OwtchBehaviorVerification.VerifyOwtchBehavior), () => OwtchBehaviorVerification.VerifyOwtchBehavior(rom));
         Suite(nameof(StokeBehaviorVerification.VerifyStokeBehavior), () => StokeBehaviorVerification.VerifyStokeBehavior(rom));
-        Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions());
+        Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions(rom));
         Suite(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(rom));
         Suite(nameof(VerifyMetroidsClearedStatePlm), () => VerifyMetroidsClearedStatePlm(new TestAddressSpace()));
         Suite(nameof(MetroidBehaviorVerification.VerifyMetroidBehavior), () => MetroidBehaviorVerification.VerifyMetroidBehavior(rom));

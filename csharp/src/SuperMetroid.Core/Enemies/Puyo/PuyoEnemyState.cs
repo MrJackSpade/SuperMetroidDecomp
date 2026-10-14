@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class PuyoEnemyState
 
     /// <summary>Exposes an enemy slot's native Puyo variables through named state properties.</summary>
     internal PuyoEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<PuyoProgram> Program { get; set; }
 
     /// <summary>
     /// Unsigned 8.8 index accumulator used to choose a row of the shared quadratic speed

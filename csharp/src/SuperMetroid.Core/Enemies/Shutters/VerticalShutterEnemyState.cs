@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class VerticalShutterEnemyState
 
     /// <summary>Creates the typed view over a room-owned vertical shutter slot.</summary>
     internal VerticalShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer, shared by shootable/destroyable shutters and the Kamer vertical platform.</summary>
     public VerticalShutterFunction Function

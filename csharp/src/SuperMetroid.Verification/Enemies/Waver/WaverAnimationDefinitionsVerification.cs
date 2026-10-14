@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Waver;
@@ -17,7 +18,7 @@ internal static class WaverAnimationDefinitionsVerification
         {
             var selector = (WaverAnimationSelector)index;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa386db + index * 2)),
-                WaverAnimationDefinitions.InstructionList(selector),
+                NativeEnemyProgramOracle.EntryOf(WaverNativeListAddresses.Entries, WaverAnimationDefinitions.Program(selector)),
                 $"Waver animation selector {selector}");
         }
 
@@ -37,12 +38,12 @@ internal static class WaverAnimationDefinitionsVerification
                     : WaverAnimationSelector.None,
                 RequestedInstructionListIndex = selector,
             };
-            WaverBehavior.SetWaverInstructionList(slot, state);
+            WaverBehavior.SetWaverProgram(slot, state);
             AssertEqual(selector, state.CurrentInstructionListIndex,
                 $"production Waver current selector {selector}");
-            AssertEqual(WaverAnimationDefinitions.InstructionList(selector),
-                slot.CurrentInstruction,
-                $"production Waver instruction {selector}");
+            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(WaverAnimationDefinitions.Program(selector)),
+                state.Program,
+                $"production Waver animation {selector}");
             AssertEqual(1, slot.InstructionTimer.RawValue,
                 $"production Waver instruction timer {selector}");
             AssertEqual(0, slot.Timer.RawValue,
@@ -62,12 +63,13 @@ internal static class WaverAnimationDefinitionsVerification
                 $"production Waver initial requested selector {parameter}");
             AssertEqual(expected, (enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].")).CurrentInstructionListIndex,
                 $"production Waver initial current selector {parameter}");
-            AssertEqual(WaverAnimationDefinitions.InstructionList(expected), slot.CurrentInstruction,
-                $"production Waver initial instruction {parameter}");
+            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(WaverAnimationDefinitions.Program(expected)),
+                (enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].")).Program,
+                $"production Waver initial animation {parameter}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => WaverAnimationDefinitions.InstructionList((WaverAnimationSelector)4),
+            () => WaverAnimationDefinitions.Program((WaverAnimationSelector)4),
             "Waver animation selector past table");
         Console.WriteLine(
             "Waver animation definitions: four native selectors, all four real handoffs, and both production initial facing paths pass with the pointer table forbidden.");

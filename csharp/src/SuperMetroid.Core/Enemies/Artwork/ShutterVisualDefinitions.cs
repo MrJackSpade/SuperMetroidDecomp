@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Shutters;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -35,43 +34,4 @@ internal static class ShutterVisualDefinitions
     /// </summary>
     private static ushort GrowingFrame(int stage) => (ushort)(0xed44 + 19 * stage + 5 * stage * (stage - 1));
 
-    /// <summary>
-    /// Recognizes operands in the growing and horizontal shutter instruction lists
-    /// that select a rendered spritemap.
-    /// </summary>
-    internal static bool IsPresentationWord(ushort address) =>
-        GrowingShutterInstructionProgramDefinitions.IsPresentationWord(address) ||
-        HorizontalShutterInstructionProgramDefinitions.IsPresentationWord(address);
-
-    /// <summary>
-    /// Resolves a growing-shutter or horizontal-shutter presentation operand to its
-    /// bank-$A2 spritemap pointer; rejects other operands instead of treating them as art.
-    /// </summary>
-    internal static ushort PointerAt(ushort operandAddress)
-    {
-        if (GrowingShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-            return GrowingFrame(GrowingShutterInstructionProgramDefinitions.OperandFrame(operandAddress));
-        if (HorizontalShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-            return HorizontalFrame;
-        throw new InvalidDataException($"Shutter visual operand $A2:{operandAddress:X4} is not compiled.");
-    }
-    /// <summary>Accepts only a native visual operand for the specified shutter family.</summary>
-    internal static ushort FrameAt(EnemyDefinitionId enemyDefinition, ushort operandAddress)
-    {
-        bool isPresentation = enemyDefinition switch
-        {
-            EnemyDefinitionId.ShutterGrowing =>
-                GrowingShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress),
-            EnemyDefinitionId.ShutterShootable or
-                EnemyDefinitionId.ShutterDestroyable =>
-                VerticalShutterInstructionProgramDefinitions.IsPlainShutterPresentationWord(
-                    operandAddress),
-            EnemyDefinitionId.ShutterHorizShootable =>
-                HorizontalShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress),
-            _ => throw new ArgumentOutOfRangeException(nameof(enemyDefinition), enemyDefinition, "Not a shutter family."),
-        };
-        if (isPresentation) return PointerAt(operandAddress);
-        throw new InvalidDataException(
-            $"Shutter ${(int)enemyDefinition:X4} visual operand $A2:{operandAddress:X4} is not compiled.");
-    }
 }

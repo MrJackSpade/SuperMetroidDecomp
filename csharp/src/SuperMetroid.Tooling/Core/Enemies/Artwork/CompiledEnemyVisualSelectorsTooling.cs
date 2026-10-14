@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class CompiledEnemyVisualSelectorsTooling
 {
     /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
-    internal static int CalculatedCount => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount + BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount + GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount + HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount + (VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
+    internal static int CalculatedCount => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount + BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
         FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
         FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
@@ -68,28 +68,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
             return new(0xa20000 | operand, EnemySpritemapDefinitions.BoyonFrameAt(operand));
         }
         index -= BoyonInstructionProgramDefinitionsTooling.PresentationWordCount;
-        int growingCount = GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount;
-        if (index < growingCount + HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount)
-        {
-            ushort operand = index < growingCount
-                ? GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index)
-                : HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index - growingCount);
-            return new(0xa20000 | operand, ShutterVisualDefinitions.PointerAt(operand));
-        }
-        index -= growingCount + HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount;
-        int kamerCount = VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount - 1;
-        if (index < kamerCount)
-        {
-            ushort operand = VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index + 1);
-            return new(0xa20000 | operand, EnemySpritemapDefinitions.KamerPlatformFrameAt(operand));
-        }
-        index -= kamerCount;
-        if (index < ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount)
-        {
-            ushort operand = ElevatorInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa30000 | operand, EnemySpritemapDefinitions.ElevatorFrameAt(operand));
-        }
-        index -= ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount;
         if (index < PlatformInstructionProgramDefinitionsTooling.PresentationWordCount)
         {
             ushort operand = PlatformInstructionProgramDefinitionsTooling.PresentationWordAddress(index);

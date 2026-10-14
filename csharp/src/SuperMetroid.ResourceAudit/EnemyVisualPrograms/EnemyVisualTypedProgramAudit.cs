@@ -1,3 +1,9 @@
+using SuperMetroid.Core.Enemies.Waver.Artwork;
+using SuperMetroid.Core.Enemies.Waver;
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.Shutters.Artwork;
+using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.Choot.Artwork;
 using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Boulder.Artwork;
@@ -141,6 +147,12 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(BoulderAnimations), "csharp/src/SuperMetroid.Core/Enemies/Boulder/BoulderAnimations.cs");
         RequireTypedFrames(ChootAnimations.Programs, ChootFrameDefinitions.Spritemap, ChootFrameDefinitions.Bank,
             nameof(ChootAnimations), "csharp/src/SuperMetroid.Core/Enemies/Choot/ChootAnimations.cs");
+        RequireTypedFrames(ShutterAnimations.Programs, ShutterFrameDefinitions.Spritemap, ShutterFrameDefinitions.Bank,
+            nameof(ShutterAnimations), "csharp/src/SuperMetroid.Core/Enemies/Shutters/ShutterAnimations.cs");
+        RequireTypedFrames(ElevatorAnimations.Programs, ElevatorFrameDefinitions.Spritemap, ElevatorFrameDefinitions.Bank,
+            nameof(ElevatorAnimations), "csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorAnimations.cs");
+        RequireTypedFrames(WaverAnimations.Programs, WaverFrameDefinitions.Spritemap, WaverFrameDefinitions.Bank,
+            nameof(WaverAnimations), "csharp/src/SuperMetroid.Core/Enemies/Waver/WaverAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

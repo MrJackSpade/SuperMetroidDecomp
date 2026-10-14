@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class ElevatorEnemyState
 
     /// <summary>Projects the elevator actor's private variables from its occupied slot.</summary>
     internal ElevatorEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<ElevatorProgram> Program { get; set; }
 
     /// <summary>Enemy variable A, captured before an arriving actor is moved to parameter 2.</summary>
     public ushort RestingYPosition

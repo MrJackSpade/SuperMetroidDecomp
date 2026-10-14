@@ -93,16 +93,14 @@ internal static class DefinitionAudit
     {
         bool calculated = CompiledEnemyVisualSelectors.IsCalculatedSelector(address);
         bool kraidFamily = calculated && bank is 0xa6 or 0xa7;
-        bool shutter = calculated && bank == 0xa2 && ShutterVisualDefinitions.IsPresentationWord((ushort)address);
         bool faceBlock = calculated && bank == 0xa8 && BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address);
         bool platform = calculated && bank == 0xa3 && PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address);
-        string calculatedMethod = faceBlock ? "FrameAt" : platform ? "FrameAt" : shutter ? "PointerAt" : bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
-            : bank == 0xa2 ? VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address) ? "KamerPlatformFrameAt" : "BoyonFrameAt"
-            : bank == 0xa3 ? "ElevatorFrameAt"
+        string calculatedMethod = faceBlock ? "FrameAt" : platform ? "FrameAt" : bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
+            : bank == 0xa2 ? "BoyonFrameAt"
             : FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "FuneNamiheFrameAt"
             : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : "BeetomFrameAt";
         string relative = calculated
-            ? faceBlock ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/BlueBrinstarFaceBlockVisualDefinitions.cs" : platform ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/TripperKamerVisualDefinitions.cs" : shutter ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/ShutterVisualDefinitions.cs" : bank == 0x86 ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapDefinitions.cs" : kraidFamily ? "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidVisualDefinitions.cs"
+            ? faceBlock ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/BlueBrinstarFaceBlockVisualDefinitions.cs" : platform ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/TripperKamerVisualDefinitions.cs" : bank == 0x86 ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapDefinitions.cs" : kraidFamily ? "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidVisualDefinitions.cs"
                 : "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapDefinitions.cs"
             : $"csharp/src/SuperMetroid.Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.Generated.cs";
         int line = 0;

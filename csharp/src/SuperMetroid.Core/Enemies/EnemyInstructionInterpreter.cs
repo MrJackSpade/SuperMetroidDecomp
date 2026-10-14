@@ -401,9 +401,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Skultera)
             return SkulteraInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Waver)
-            return WaverInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Metaree)
             return SkreeMetareeInstructionProgramDefinitions.ReadMetareeMechanicsWord(address);
 
@@ -473,9 +470,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon)
             return EtecoonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator)
-            return ElevatorInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid)
             return MochtroidInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -523,17 +517,6 @@ internal sealed class EnemyInstructionInterpreter
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz)
             return LowerNorfairRioInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterGrowing)
-            return GrowingShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (ShuttersBehavior.IsVerticalShutterDefinition(slot.EnemyDefinitionPointer))
-            return VerticalShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable)
-        {
-            return HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
 
 
         throw new InvalidDataException(

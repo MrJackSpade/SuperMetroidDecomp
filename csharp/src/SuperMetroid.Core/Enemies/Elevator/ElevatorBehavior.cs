@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -164,7 +166,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         slot.SpritemapPointer = ElevatorNothingSpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = ElevatorInstructionProgramDefinitions.Loop;
+        state.Program = AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop);
         slot.Parameter1 = unchecked((ushort)(slot.Parameter1 * 2));
         state.RestingYPosition = slot.Position.Y.Whole;
 
@@ -333,6 +335,18 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
     }
+
+    /// <summary>Runs the elevator's two-frame loop as a typed program (#641).</summary>
+    internal void RegisterElevatorTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireElevatorState(slot);
+            AnimationProgramCursor<ElevatorProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, ElevatorAnimations.Programs, ref cursor, ElevatorFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Connects the elevator definition to its native room-load initializer.</summary>
     internal void RegisterElevatorInitializationAi(EnemyAiTable table)

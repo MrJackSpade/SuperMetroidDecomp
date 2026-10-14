@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies.Elevator;
+using SuperMetroid.Verification.Enemies.Shutters;
 using SuperMetroid.Verification.Enemies.Boulder;
 using SuperMetroid.Verification.Enemies.Bull;
 using SuperMetroid.Tooling;
@@ -68,7 +70,6 @@ using static SuperMetroid.Verification.Bosses.Draygon.DraygonHealthPaletteDefini
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonIntroDanceDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Elevator.ElevatorInputDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Elevator.ElevatorInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Elevator.ElevatorPlatformVisualsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingCompletionTextInstructionsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingExplosionSpriteArtworkVerification;
@@ -113,11 +114,9 @@ using static SuperMetroid.Verification.Samus.Grapple.GrappleBlockProgramsVerific
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFiringDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.GreyDoorPlmDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.GrowingShutterDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Shutters.GrowingShutterInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipMotionDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.HalfWaveAlgorithmsVerification;
 using static SuperMetroid.Verification.Hardware.HighlightTilePixelsVerification;
-using static SuperMetroid.Verification.Enemies.Shutters.HorizontalShutterInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.HyperBeamFxColorArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroBabyDiscoveryInputVerification;
 using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroConfusedBabyPartsVerification;
@@ -295,7 +294,6 @@ using static SuperMetroid.Verification.Enemies.Chozo.StatueWalkDefinitionsVerifi
 using static SuperMetroid.Verification.Enemies.Stoke.StokeInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SuitPickupBeamCurveDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Shutters.VerticalShutterInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Waver.WaverAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotInitialSelectionVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotPaletteTimingDefinitionsVerification;
@@ -3586,7 +3584,8 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Elevator NTSC J/U v1.0 oracle");
         Suite(nameof(VerifyElevatorInputDefinitions), () => VerifyElevatorInputDefinitions(oracle));
-        Suite(nameof(VerifyElevatorInstructionProgramDefinitions), () => VerifyElevatorInstructionProgramDefinitions(oracle));
+        Suite(nameof(ElevatorBehaviorVerification.VerifyElevatorBehavior), () => ElevatorBehaviorVerification.VerifyElevatorBehavior(oracle));
+        Suite(nameof(ElevatorAnimationsVerification.VerifyElevatorAnimations), () => ElevatorAnimationsVerification.VerifyElevatorAnimations(oracle));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
         return 0;
     }
@@ -3609,10 +3608,9 @@ internal static class VerificationAssert
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Shutter NTSC J/U v1.0 oracle");
-        Suite(nameof(VerifyShutterVisualPointerMapping), () => VerifyShutterVisualPointerMapping(oracle));
-        Suite(nameof(VerifyGrowingShutterInstructionProgramDefinitions), () => VerifyGrowingShutterInstructionProgramDefinitions(oracle));
-        Suite(nameof(VerifyHorizontalShutterInstructionProgramDefinitions), () => VerifyHorizontalShutterInstructionProgramDefinitions(oracle));
-        Suite(nameof(VerifyVerticalShutterInstructionProgramDefinitions), () => VerifyVerticalShutterInstructionProgramDefinitions(oracle));
+        Suite(nameof(ShutterBehaviorVerification.VerifyShutterExportFrames), () => ShutterBehaviorVerification.VerifyShutterExportFrames(oracle));
+        Suite(nameof(ShutterBehaviorVerification.VerifyShutterBehavior), () => ShutterBehaviorVerification.VerifyShutterBehavior(oracle));
+        Suite(nameof(ShutterAnimationsVerification.VerifyShutterAnimations), () => ShutterAnimationsVerification.VerifyShutterAnimations(oracle));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
         return 0;
     }
@@ -3624,8 +3622,8 @@ internal static class VerificationAssert
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Shutter NTSC J/U v1.0 oracle");
-        Suite(nameof(VerifyGrowingShutterInstructionProgramDefinitions), () => VerifyGrowingShutterInstructionProgramDefinitions(oracle));
-        Suite(nameof(VerifyHorizontalShutterInstructionProgramDefinitions), () => VerifyHorizontalShutterInstructionProgramDefinitions(oracle));
+        Suite(nameof(ShutterBehaviorVerification.VerifyShutterBehavior), () => ShutterBehaviorVerification.VerifyShutterBehavior(oracle));
+        Suite(nameof(ShutterAnimationsVerification.VerifyShutterAnimations), () => ShutterAnimationsVerification.VerifyShutterAnimations(oracle));
         return 0;
     }
 
@@ -3636,8 +3634,8 @@ internal static class VerificationAssert
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Shutter NTSC J/U v1.0 oracle");
-        Suite(nameof(VerifyVerticalShutterInitialFunctionSelection), () => VerifyVerticalShutterInitialFunctionSelection(oracle));
-        Suite(nameof(VerifyHorizontalShutterInitialFunctionSelection), () => VerifyHorizontalShutterInitialFunctionSelection(oracle));
+        Suite(nameof(ShutterBehaviorVerification.VerifyVerticalShutterInitialFunctionSelection), () => ShutterBehaviorVerification.VerifyVerticalShutterInitialFunctionSelection(oracle));
+        Suite(nameof(ShutterBehaviorVerification.VerifyHorizontalShutterInitialFunctionSelection), () => ShutterBehaviorVerification.VerifyHorizontalShutterInitialFunctionSelection(oracle));
         Console.WriteLine("Shutter initial function selection: both native five-entry mappings, state semantics and invalid offsets pass.");
         return 0;
     }
@@ -3649,7 +3647,8 @@ internal static class VerificationAssert
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Vertical shutter NTSC J/U v1.0 oracle");
-        Suite(nameof(VerifyVerticalShutterInstructionProgramDefinitions), () => VerifyVerticalShutterInstructionProgramDefinitions(oracle));
+        Suite(nameof(ShutterBehaviorVerification.VerifyShutterBehavior), () => ShutterBehaviorVerification.VerifyShutterBehavior(oracle));
+        Suite(nameof(ShutterAnimationsVerification.VerifyShutterAnimations), () => ShutterAnimationsVerification.VerifyShutterAnimations(oracle));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
         return 0;
     }

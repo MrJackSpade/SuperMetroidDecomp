@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class WaverEnemyState
 
     /// <summary>Projects Waver's seven private words from its occupied enemy slot.</summary>
     internal WaverEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<WaverProgram> Program { get; set; }
 
     /// <summary>Low 16 bits of the signed horizontal 16.16 displacement.</summary>
     public ushort XSubvelocity

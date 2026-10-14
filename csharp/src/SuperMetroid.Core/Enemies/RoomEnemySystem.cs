@@ -1412,7 +1412,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         MetroidBehavior.RegisterMetroidOwnedInstructions(table);
         CrawlersBehavior.RegisterCrawlersOwnedInstructions(table);
         SkreeBehavior.RegisterSkreeOwnedInstructions(table);
-        WaverBehavior.RegisterWaverOwnedInstructions(table);
+        WaverBehavior.RegisterWaverTypedAnimations(table);
         MetareeBehavior.RegisterMetareeOwnedInstructions(table);
         SkulteraBehavior.RegisterSkulteraOwnedInstructions(table);
         PlatformsBehavior.RegisterPlatformsOwnedInstructions(table);
@@ -1439,6 +1439,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        ElevatorBehavior.RegisterElevatorTypedAnimations(table);
+        ShuttersBehavior.RegisterShuttersTypedAnimations(table);
         ChootBehavior.RegisterChootTypedAnimations(table);
         BoulderBehavior.RegisterBoulderTypedAnimations(table);
         BullBehavior.RegisterBullTypedAnimations(table);

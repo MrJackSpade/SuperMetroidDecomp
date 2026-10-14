@@ -72,7 +72,6 @@ csharp/src/SuperMetroid.Core/Enemies/Crawlers/ViolaInstructionProgramDefinitions
 csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonBehavior.cs	SME6340	10
 csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonFireballInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorBehavior.cs	SME6340	7
-csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Enemies/EnemyCollision.cs	SME6340	27
 csharp/src/SuperMetroid.Core/Enemies/EnemyDeathInstructionProgramDefinitions.cs	SME6341	29
 csharp/src/SuperMetroid.Core/Enemies/EnemyDeathsAndDrops.cs	SME6340	15
@@ -171,11 +170,8 @@ csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolBehavior.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolInstructionDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolInstructionProgramDefinitions.cs	SME6341	22
 csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolProjectileInstructionProgramDefinitions.cs	SME6341	7
-csharp/src/SuperMetroid.Core/Enemies/Shutters/GrowingShutterInstructionProgramDefinitions.cs	SME6341	3
-csharp/src/SuperMetroid.Core/Enemies/Shutters/HorizontalShutterInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Enemies/Shutters/ShuttersBehavior.cs	SME6340	7
 csharp/src/SuperMetroid.Core/Enemies/Shutters/ShuttersBehavior.cs	SME6349	1
-csharp/src/SuperMetroid.Core/Enemies/Shutters/VerticalShutterInstructionProgramDefinitions.cs	SME6341	6
 csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeBehavior.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeMetareeParticleInstructionProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateBehavior.cs	SME6340	10
@@ -187,7 +183,6 @@ csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeBehavior.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeInstructionProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeProjectileInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/Waver/WaverBehavior.cs	SME6340	4
-csharp/src/SuperMetroid.Core/Enemies/Waver/WaverInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotBehavior.cs	SME6340	12
 csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitions.cs	SME6341	8
 csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotLaserInstructionProgramDefinitions.cs	SME6341	4
@@ -460,7 +455,7 @@ csharp/src/SuperMetroid.ResourceAudit/PlmPrograms/PlmAuditFixtureIds.cs	SME6340	
 csharp/src/SuperMetroid.ResourceAudit/PlmPrograms/PlmProgramAudit.cs	SME6341	1
 csharp/src/SuperMetroid.ResourceAudit/PlmPrograms/PlmProgramContractChecks.cs	SME6340	4
 csharp/src/SuperMetroid.ResourceAudit/Resources/AuditContractChecks.cs	SME6340	8
-csharp/src/SuperMetroid.ResourceAudit/Resources/DefinitionAudit.cs	SME6340	9
+csharp/src/SuperMetroid.ResourceAudit/Resources/DefinitionAudit.cs	SME6340	7
 csharp/src/SuperMetroid.ResourceAudit/Resources/ProgramOperandAudit.cs	SME6340	2
 csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaContractChecks.cs	SME6340	2
 csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaDomainGeometry.cs	SME6340	4
@@ -480,7 +475,7 @@ csharp/src/SuperMetroid.Tooling/Core/Bosses/Torizo/BombTorizoHandPlmProgramDefin
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/AlcoonFireballInstructionProgramDefinitionsTooling.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/AlcoonInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/AlcoonInstructionProgramDefinitionsTooling.cs	SME6341	4
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectorsTooling.cs	SME6340	12
+csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectorsTooling.cs	SME6340	9
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Beetom/BeetomInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Beetom/BeetomInstructionProgramDefinitionsTooling.cs	SME6341	7
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Boyon/BoyonInstructionProgramDefinitionsTooling.cs	SME6340	1
@@ -506,8 +501,6 @@ csharp/src/SuperMetroid.Tooling/Core/Enemies/Crawlers/ZeroInstructionProgramDefi
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Dragon/DragonFireballInstructionProgramDefinitionsTooling.cs	SME6341	2
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Dragon/DragonInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Drawing/CommonEnemyEmptyExtendedFrameDefinitionsTooling.cs	SME6340	5
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Elevator/ElevatorInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Elevator/ElevatorInstructionProgramDefinitionsTooling.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Enemies/EnemyDeathInstructionProgramDefinitionsTooling.cs	SME6341	7
 csharp/src/SuperMetroid.Tooling/Core/Enemies/EnemyPickupInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Evir/EvirInstructionProgramDefinitionsTooling.cs	SME6340	1
@@ -554,12 +547,6 @@ csharp/src/SuperMetroid.Tooling/Core/Enemies/Shaktool/ShaktoolInstructionProgram
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Shaktool/ShaktoolInstructionProgramDefinitionsTooling.cs	SME6341	4
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Shaktool/ShaktoolProjectileInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Shaktool/ShaktoolProjectileInstructionProgramDefinitionsTooling.cs	SME6341	4
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Shutters/GrowingShutterInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Shutters/GrowingShutterInstructionProgramDefinitionsTooling.cs	SME6341	3
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Shutters/HorizontalShutterInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Shutters/HorizontalShutterInstructionProgramDefinitionsTooling.cs	SME6341	2
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Shutters/VerticalShutterInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Shutters/VerticalShutterInstructionProgramDefinitionsTooling.cs	SME6341	5
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Skree/SkreeMetareeInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Skree/SkreeMetareeParticleInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Skultera/SkulteraInstructionProgramDefinitionsTooling.cs	SME6340	1
@@ -569,8 +556,6 @@ csharp/src/SuperMetroid.Tooling/Core/Enemies/SpacePirates/WalkingSpacePirateInst
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Sparks/SparkInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Stoke/StokeInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Stoke/StokeProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Waver/WaverInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Waver/WaverInstructionProgramDefinitionsTooling.cs	SME6341	2
 csharp/src/SuperMetroid.Tooling/Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitionsTooling.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Enemies/WorkRobots/WorkRobotLaserInstructionProgramDefinitionsTooling.cs	SME6341	3
@@ -946,7 +931,7 @@ csharp/src/SuperMetroid.Verification/Enemies/Artwork/EmptyExtendedFrameShotsVeri
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkCommonEmptyVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification.cs	SME6340	22
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkVerification.cs	SME6340	337
-csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6340	216
+csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6340	210
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkBabyMetroidCutsceneColorsVerification.cs	SME6340	2
@@ -1036,8 +1021,6 @@ csharp/src/SuperMetroid.Verification/Enemies/Dragon/DragonFireballInstructionPro
 csharp/src/SuperMetroid.Verification/Enemies/Dragon/DragonInstructionProgramDefinitionsVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Enemies/Elevator/ElevatorInputDefinitionsVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Enemies/Elevator/ElevatorInputDefinitionsVerification.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Enemies/Elevator/ElevatorInstructionProgramDefinitionsVerification.cs	SME6340	29
-csharp/src/SuperMetroid.Verification/Enemies/Elevator/ElevatorInstructionProgramDefinitionsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Enemies/Elevator/ElevatorPlatformVisualsVerification.cs	SME6340	19
 csharp/src/SuperMetroid.Verification/Enemies/Elevator/ElevatorStandUpContactVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Enemies/Elevator/LookupElevatorPlatformLayoutsVerification.cs	SME6340	11
@@ -1176,12 +1159,7 @@ csharp/src/SuperMetroid.Verification/Enemies/ShotCallbackDefinitionsVerification
 csharp/src/SuperMetroid.Verification/Enemies/ShotCallbackDefinitionsVerification.cs	SME6345	3
 csharp/src/SuperMetroid.Verification/Enemies/Shutters/GrowingShutterDefinitionsVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Enemies/Shutters/GrowingShutterDefinitionsVerification.cs	SME6345	3
-csharp/src/SuperMetroid.Verification/Enemies/Shutters/GrowingShutterInstructionProgramDefinitionsVerification.cs	SME6340	27
-csharp/src/SuperMetroid.Verification/Enemies/Shutters/GrowingShutterInstructionProgramDefinitionsVerification.cs	SME6342	3
-csharp/src/SuperMetroid.Verification/Enemies/Shutters/HorizontalShutterInstructionProgramDefinitionsVerification.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Enemies/Shutters/ShutterRidingVerification.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Enemies/Shutters/VerticalShutterInstructionProgramDefinitionsVerification.cs	SME6340	74
-csharp/src/SuperMetroid.Verification/Enemies/Shutters/VerticalShutterInstructionProgramDefinitionsVerification.cs	SME6342	7
 csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeAnimationDefinitionsVerification.cs	SME6340	15
 csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeInstructionProgramDefinitionsVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeParticleInstructionProgramDefinitionsVerification.cs	SME6340	4
@@ -1205,7 +1183,6 @@ csharp/src/SuperMetroid.Verification/Enemies/Stoke/StokeProjectileInstructionPro
 csharp/src/SuperMetroid.Verification/Enemies/Stoke/StokeProjectileInstructionProgramDefinitionsVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Enemies/VerticalOffScreenDeletionVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Enemies/Waver/WaverAnimationDefinitionsVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Enemies/Waver/WaverInstructionProgramDefinitionsVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitionsVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotLaserInstructionProgramDefinitionsVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotLaserInstructionProgramDefinitionsVerification.cs	SME6341	1
@@ -1983,7 +1960,6 @@ csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersTorizo.
 csharp/test-support/VerificationAccess.Core/Enemies/Magdollite/MagdollitePhaseDefinitionsAccess.cs	SME6340	1
 csharp/test-support/VerificationAccess.Core/Enemies/MamaTurtles/MamaTurtleEnemyDefinitionCatalogAccess.cs	SME6340	64
 csharp/test-support/VerificationAccess.Core/Enemies/Projectiles/EnemyProjectileInstructionMechanicsDefinitionsAccess.cs	SME6341	3
-csharp/test-support/VerificationAccess.Core/Enemies/Shutters/GrowingShutterInstructionProgramDefinitionsAccess.cs	SME6341	1
 csharp/test-support/VerificationAccess.Core/Enemies/Skree/SkreeMetareeInstructionProgramDefinitionsAccess.cs	SME6340	1
 csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresExplosionDefinitionsAccess.cs	SME6340	1
 csharp/test-support/VerificationAccess.Core/Frontend/Intro/CinematicCodePointersIndirectData.cs	SME6340	7

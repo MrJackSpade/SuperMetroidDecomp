@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
@@ -11,6 +12,9 @@ public sealed class GrowingShutterEnemyState
 
     /// <summary>Creates the typed view over a room-owned shutter slot.</summary>
     internal GrowingShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer; initialization selects a wait function and activation replaces it with a growth function.</summary>
     public GrowingShutterFunction Function

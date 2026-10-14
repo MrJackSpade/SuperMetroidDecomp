@@ -1788,11 +1788,7 @@ internal static class EnemySpritemapDefinitions
                 WorkRobotVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Yard =>
                 YardVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.ShutterGrowing or
-                EnemyDefinitionId.ShutterShootable or
-                EnemyDefinitionId.ShutterDestroyable or
-                EnemyDefinitionId.ShutterHorizShootable =>
-                ShutterVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
+            EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable or EnemyDefinitionId.ShutterHorizShootable => 0,
             EnemyDefinitionId.Rio => RioFrameAt(operandAddress),
             EnemyDefinitionId.Holtz =>
                 LowerNorfairRioFrameAt(operandAddress),
@@ -1812,9 +1808,8 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Fune or
                 EnemyDefinitionId.Namihe =>
                 FuneNamiheFrameAt(operandAddress),
-            EnemyDefinitionId.Kamer =>
-                KamerPlatformFrameAt(operandAddress),
-            EnemyDefinitionId.Elevator => ElevatorFrameAt(operandAddress),
+            EnemyDefinitionId.Kamer => 0,
+            EnemyDefinitionId.Elevator => 0,
             EnemyDefinitionId.YappingMaw =>
                 YappingMawVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.KihunterGreen or
@@ -1835,7 +1830,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Boulder => 0,
             EnemyDefinitionId.Atomic => 0,
             EnemyDefinitionId.Skultera => SkulteraFrameAt(operandAddress),
-            EnemyDefinitionId.Waver => WaverFrameAt(operandAddress),
+            EnemyDefinitionId.Waver => 0,
             EnemyDefinitionId.Zoa => 0,
             EnemyDefinitionId.Metaree => SkreeMetareeFrameAt(true, operandAddress),
             EnemyDefinitionId.Skree => SkreeMetareeFrameAt(false, operandAddress),
@@ -1914,10 +1909,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.RobotNoPower or
             EnemyDefinitionId.Yard or
             EnemyDefinitionId.Botwoon or
-            EnemyDefinitionId.ShutterGrowing or
-            EnemyDefinitionId.ShutterShootable or
-            EnemyDefinitionId.ShutterDestroyable or
-            EnemyDefinitionId.ShutterHorizShootable or
             EnemyDefinitionId.Rio or
             EnemyDefinitionId.Holtz or
             EnemyDefinitionId.Geruta or
@@ -1932,8 +1923,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.HZoomer or
             EnemyDefinitionId.Fune or
             EnemyDefinitionId.Namihe or
-            EnemyDefinitionId.Kamer or
-            EnemyDefinitionId.Elevator or
             EnemyDefinitionId.YappingMaw or
             EnemyDefinitionId.KihunterGreen or
             EnemyDefinitionId.KihunterGreenWings or
@@ -1947,7 +1936,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.MZoomer or
             EnemyDefinitionId.Cacatac or
             EnemyDefinitionId.Magdollite or EnemyDefinitionId.Skultera or
-            EnemyDefinitionId.Waver or
             EnemyDefinitionId.Metaree or EnemyDefinitionId.Skree or
             EnemyDefinitionId.Zeb or
             EnemyDefinitionId.Zebbo or
@@ -1958,7 +1946,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.KraidNailBad or
             EnemyDefinitionId.Owtch or EnemyDefinitionId.Stoke;
     }
-
     /// <summary>Selects opening/recovery poses in the two directional sprite strips.
     /// Every native map has eight five-byte OAM entries and a two-byte count.</summary>
     internal static ushort FuneNamiheFrameAt(ushort operandAddress)
@@ -1976,26 +1963,6 @@ internal static class EnemySpritemapDefinitions
         int pose = local == 2 ? 0 : local < recovery ? (local - 8) / 4
             : peak - (local - recovery) / 4;
         return (ushort)((namihe ? 0x97b4 : 0x93f9) + 42 * ((peak + 1) * (offset / stride) + pose));
-    }
-    /// <summary>Four consecutive Kamer maps, each holding two five-byte OAM
-    /// records after its two-byte count, selected in forward animation order.</summary>
-    internal static ushort KamerPlatformFrameAt(ushort operandAddress)
-    {
-        if (!VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord(operandAddress))
-            throw new InvalidDataException(
-                $"Kamer platform visual operand $A2:{operandAddress:X4} is not compiled.");
-        int frame = VerticalShutterInstructionProgramDefinitions.KamerOperandFrame(operandAddress);
-        return (ushort)(0xf468 + 12 * frame);
-    }
-    /// <summary>Two elevator maps in forward animation order. Each native map
-    /// contains four five-byte OAM entries after its two-byte count.</summary>
-    internal static ushort ElevatorFrameAt(ushort operandAddress)
-    {
-        if (!ElevatorInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-            throw new InvalidDataException(
-                $"Elevator visual operand $A3:{operandAddress:X4} is not compiled.");
-        int frame = ElevatorInstructionProgramDefinitions.OperandFrame(operandAddress);
-        return (ushort)(0x962f + 22 * frame);
     }
     /// <summary>
     /// Rio's twenty-four fixed presentation operands at $A2:BB4D..BBB5 select
@@ -2192,25 +2159,6 @@ internal static class EnemySpritemapDefinitions
                 $"Skree visual operand $A3:{operandAddress:X4} is not compiled."),
         });
 
-    /// <summary>
-    /// Waver's two steady and eight spinning frames from the interleaved visual
-    /// operands at $A3:86A9-$86D5. Spin completion and delays remain mechanics.
-    /// </summary>
-    internal static ushort WaverFrameAt(ushort operandAddress) => operandAddress switch
-    {
-        0x86a9 => 0x884a,
-        0x86af => 0x88b3,
-        0x86b5 => 0x885b,
-        0x86b9 => 0x8871,
-        0x86bd => 0x881e,
-        0x86c1 => 0x8834,
-        0x86c9 => 0x88c4,
-        0x86cd => 0x88da,
-        0x86d1 => 0x8887,
-        0x86d5 => 0x889d,
-        _ => throw new InvalidDataException(
-            $"Waver visual operand $A3:{operandAddress:X4} is not compiled."),
-    };
 
     /// <summary>
     /// The twenty-two Skultera frame operands are fixed visual identities; control

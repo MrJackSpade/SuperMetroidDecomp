@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>Typed state for the cartridge's complete, though retail-unused, horizontal shutter.</summary>
@@ -8,6 +9,9 @@ public sealed class HorizontalShutterEnemyState
 
     /// <summary>Creates the typed view over a room-owned horizontal shutter slot.</summary>
     internal HorizontalShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer for the retail-unused horizontal shutter, retained across wait, movement, and endpoint-rest updates.</summary>
     public HorizontalShutterFunction Function

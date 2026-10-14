@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Waver.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Enemies.Waver;
 
@@ -14,24 +16,18 @@ internal sealed class WaverBehavior : IEnemySpecies
         _terrain = terrain;
     }
 
-    /// <summary>Executes Waver's private animation instruction.</summary>
-    private bool TryProcessWaverInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out Waver's one animation cue.</summary>
+    private static WaverProgram? ApplyWaverCue(WaverEnemyState state, WaverCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Waver ||
-            !Enum.IsDefined((WaverInstruction)word))
-            return false;
-
-        switch ((WaverInstruction)word)
+        switch (cue.Kind)
         {
-            case WaverInstruction.SetSpinFinishedFlag:
-                // The four-frame spin list hands its completion back to main AI rather
-                // than branching directly to steady art.
-                RequireWaverState(slot).SpinFinished = true;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+            case WaverCueKind.FinishSpin:
+                // The four-frame spin hands its completion back to main AI rather than
+                // going on to the steady animation itself.
+                state.SpinFinished = true;
+                return null;
             default:
-                throw new InvalidOperationException(
-                    $"Waver does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(WaverCueKind)} {cue.Kind}.");
         }
     }
 
@@ -63,11 +59,11 @@ internal sealed class WaverBehavior : IEnemySpecies
         };
         _waverStates[slot.SlotIndex] = state;
 
-        // The native initializer first installs the left steady list and then invokes the
+        // The native initializer first installs the left steady animation and then invokes the
         // change detector. Parameter bit zero therefore changes only right-facing spawns;
-        // left-facing spawns intentionally observe current==requested and keep this list.
-        slot.CurrentInstruction = OrdinaryEnemyInstructionLists.WaverInitial;
-        SetWaverInstructionList(slot, state);
+        // left-facing spawns intentionally observe current==requested and keep this one.
+        state.Program = AnimationProgramCursor<WaverProgram>.Start(WaverProgram.SteadyFacingLeft);
+        SetWaverProgram(slot, state);
     }
 
     /// <summary>Ports <c>MainAI_Waver</c> at <c>$A3:874C</c>.</summary>
@@ -95,7 +91,7 @@ internal sealed class WaverBehavior : IEnemySpecies
             state.RequestedInstructionListIndex =
                 (state.RequestedInstructionListIndex ^ WaverAnimationSelector.FacingRight) &
                 WaverAnimationSelector.FacingRight;
-            SetWaverInstructionList(slot, state);
+            SetWaverProgram(slot, state);
         }
         else
         {
@@ -119,7 +115,7 @@ internal sealed class WaverBehavior : IEnemySpecies
         if ((state.Angle & 0x7f) == 0x38)
         {
             state.RequestedInstructionListIndex |= WaverAnimationSelector.Spinning;
-            SetWaverInstructionList(slot, state);
+            SetWaverProgram(slot, state);
         }
 
         // The list's $86:E3 command sets this flag after 32 animation frames. Main AI owns
@@ -128,19 +124,19 @@ internal sealed class WaverBehavior : IEnemySpecies
         {
             state.SpinFinished = false;
             state.RequestedInstructionListIndex &= WaverAnimationSelector.FacingRight;
-            SetWaverInstructionList(slot, state);
+            SetWaverProgram(slot, state);
         }
     }
 
-    /// <summary>Installs a changed facing or spin list and restarts its instruction and loop timers.</summary>
-    internal static void SetWaverInstructionList(RoomEnemySlot slot, WaverEnemyState state)
+    /// <summary>Starts a changed facing or spin animation and restarts its instruction and loop timers.</summary>
+    internal static void SetWaverProgram(RoomEnemySlot slot, WaverEnemyState state)
     {
         WaverAnimationSelector requested = state.RequestedInstructionListIndex;
         if (requested == state.CurrentInstructionListIndex)
             return;
 
         state.CurrentInstructionListIndex = requested;
-        slot.CurrentInstruction = WaverAnimationDefinitions.InstructionList(requested);
+        state.Program = AnimationProgramCursor<WaverProgram>.Start(WaverAnimationDefinitions.Program(requested));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -170,15 +166,18 @@ internal sealed class WaverBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers the private spin-completion opcode used to hand animation control back to main AI.</summary>
-    internal void RegisterWaverOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Waver's animations as typed programs (#641); the spin's completion cue goes back to main AI.</summary>
+    internal void RegisterWaverTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Waver, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessWaverInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireWaverState(slot);
+            AnimationProgramCursor<WaverProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, WaverAnimations.Programs, ref cursor, WaverFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyWaverCue(state, cue));
+            state.Program = cursor;
         });
-    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

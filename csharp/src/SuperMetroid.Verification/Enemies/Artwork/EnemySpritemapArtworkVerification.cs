@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Verification.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Atomic;
@@ -15,11 +16,9 @@ using static SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockI
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Corpses.DeadTorizoArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Evir.EvirVisualsVerification;
-using static SuperMetroid.Verification.Enemies.Shutters.GrowingShutterInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.HZoomerArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.HZoomerInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Shutters.HorizontalShutterInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.LowerNorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidInstructionProgramDefinitionsVerification;
@@ -34,7 +33,6 @@ using static SuperMetroid.Verification.Enemies.Crawlers.SciserInstructionProgram
 using static SuperMetroid.Verification.Enemies.Crawlers.SharedCrawlerArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.SharedCrawlerInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Enemies.Shutters.VerticalShutterInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardVisualsVerification;
 using SuperMetroid.Core.Areas.Ceres;
@@ -512,38 +510,6 @@ internal static class EnemySpritemapArtworkVerification
                 RoomSpriteObjectDefinitions.InstructionPointer(
                     RoomSpriteObjectKind.DraygonIntroEvir)),
             "room sprite-object mechanics are not presentation selectors");
-        for (int index = 0; index < ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = ElevatorInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa3, operand);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Elevator, operand, out ushort selected),
-                $"elevator visual selector $A3:{operand:X4} is installed");
-            AssertEqual(native, selected,
-                $"elevator visual selector $A3:{operand:X4} matches cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.ElevatorFrameAt(
-                ElevatorInstructionProgramDefinitions.Loop),
-            "elevator rejects adjacent instruction mechanics as presentation");
-        for (int index = 0; index < 4; index++)
-        {
-            ushort operand = VerticalShutterInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index + 1);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa2, operand);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Kamer,
-                    operand, out ushort selected),
-                $"Kamer visual selector $A2:{operand:X4} is installed");
-            AssertEqual(native, selected,
-                $"Kamer visual selector $A2:{operand:X4} matches cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.KamerPlatformFrameAt(
-                VerticalShutterInstructionProgramDefinitions.KamerPlatform),
-            "Kamer rejects adjacent instruction mechanics as presentation");
         for (int index = 0;
              index < FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
@@ -737,46 +703,6 @@ internal static class EnemySpritemapArtworkVerification
             () => MorphBallEyeVisualDefinitions.FrameAt(
                 MorphBallEyeInstructionProgramDefinitions.AdjacentProximityDefinitions),
             "eye visual selector rejects adjacent proximity definitions");
-        for (int index = 0;
-             index < GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = GrowingShutterInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.ShutterGrowing, operand,
-                    out ushort selected),
-                $"growing-shutter visual operand $A2:{operand:X4} is compiled");
-            AssertEqual(ReadGrowingShutterInstructionWord(rom, 0xa20000 | operand),
-                selected, $"growing-shutter selector $A2:{operand:X4} matches the cartridge");
-        }
-        ushort verticalOperand =
-            VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(0);
-        foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
-                 { EnemyDefinitionId.ShutterShootable,
-                   EnemyDefinitionId.ShutterDestroyable })
-        {
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(definition,
-                    verticalOperand, out ushort selected),
-                $"vertical shutter ${(int)definition:X4} selector is compiled");
-            AssertEqual(ReadVerticalShutterInstructionWord(rom,
-                    0xa20000 | verticalOperand), selected,
-                $"vertical shutter ${(int)definition:X4} selector matches the cartridge");
-        }
-        ushort horizontalOperand =
-            HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(0);
-        AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                EnemyDefinitionId.ShutterHorizShootable,
-                horizontalOperand, out ushort horizontalSelected),
-            "horizontal-shutter visual selector is compiled");
-        AssertEqual(ReadHorizontalShutterInstructionWord(rom,
-                0xa20000 | horizontalOperand), horizontalSelected,
-            "horizontal-shutter selector matches the cartridge");
-        AssertThrows<InvalidDataException>(
-            () => ShutterVisualDefinitions.FrameAt(
-                EnemyDefinitionId.ShutterGrowing,
-                GrowingShutterInstructionProgramDefinitions.ProgramEntryPoint(0)),
-            "shutter visual selector rejects adjacent frame timing");
         for (int index = 0;
              index < MetroidInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
@@ -1927,9 +1853,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(unchecked((byte)(stockMorphEye.LowTable[0] + 1)),
             editedMorphEye.LowTable[0],
             "Morph Ball eye mount art edit changes installed presentation");
-        ushort shutterPointer = ShutterVisualDefinitions.FrameAt(
-            EnemyDefinitionId.ShutterGrowing,
-            GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(3));
+        ushort shutterPointer = ShutterAnimations.Spritemaps(ShutterProgram.FortyPixels).First();
         foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
                  { EnemyDefinitionId.ShutterGrowing,
                    EnemyDefinitionId.ShutterShootable,
@@ -2120,7 +2044,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Skultera Y offset changes live room OAM");
         AssertEqual(stockSkultera.LowTable[0], editedSkultera.LowTable[0],
             "Skultera visual override leaves X unchanged");
-        ushort waverPointer = EnemySpritemapDefinitions.WaverFrameAt(0x86a9);
+        ushort waverPointer = WaverAnimations.Spritemaps(WaverProgram.SteadyFacingLeft).First();
         var stockWaver = DrawEnemy(stock, NewFrameReadGuard(rom),
             waverPointer, EnemyDefinitionId.Waver);
         var editedWaver = DrawEnemy(edited, NewFrameReadGuard(rom),

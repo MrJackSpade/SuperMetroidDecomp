@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Input;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Shutters.Artwork;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -35,9 +37,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         (state.GrowthVelocity, state.GrowthSubvelocity) = GrowingShutterDefinitions.Speed(slot.Parameter2);
 
         slot.ExtraProperties = 0;
-        InstallGrowingShutterInstruction(
+        InstallGrowingShutterProgram(
             slot,
-            GrowingShutterInstructionProgramDefinitions.TenPixels,
+            state,
+            ShutterProgram.GrowingTenPixels,
             yRadius: 8);
     }
 
@@ -193,25 +196,26 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         if (finalSection)
             return;
 
-        ushort instruction = state.GrowthLevel switch
+        ShutterProgram program = state.GrowthLevel switch
         {
-            1 => GrowingShutterInstructionProgramDefinitions.TwentyPixels,
-            2 => GrowingShutterInstructionProgramDefinitions.ThirtyPixels,
-            3 => GrowingShutterInstructionProgramDefinitions.FortyPixels,
+            1 => ShutterProgram.GrowingTwentyPixels,
+            2 => ShutterProgram.GrowingThirtyPixels,
+            3 => ShutterProgram.FortyPixels,
             _ => throw new InvalidDataException(
                 $"Growing shutter advanced to invalid level {state.GrowthLevel}."),
         };
         ushort radius = unchecked((ushort)(8 + state.GrowthLevel * 8));
-        InstallGrowingShutterInstruction(slot, instruction, radius);
+        InstallGrowingShutterProgram(slot, state, program, radius);
     }
 
-    /// <summary>Restarts the next growth art list and updates the shutter's vertical collision radius.</summary>
-    private static void InstallGrowingShutterInstruction(
+    /// <summary>Restarts the next growth pose and updates the shutter's vertical collision radius.</summary>
+    private static void InstallGrowingShutterProgram(
         RoomEnemySlot slot,
-        ushort instruction,
+        GrowingShutterEnemyState state,
+        ShutterProgram program,
         ushort yRadius)
     {
-        slot.CurrentInstruction = instruction;
+        state.Program = AnimationProgramCursor<ShutterProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.Radius = slot.Radius.WithY(yRadius);
@@ -266,7 +270,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         state.PreviousSamusXPosition = samus?.Position.X.Whole ?? 0;
         state.PreviousSamusXSubposition = samus?.Kinematics.Position.X.Fraction ?? 0;
         slot.ExtraProperties = 0;
-        InstallHorizontalShutterInstruction(slot);
+        InstallHorizontalShutterProgram(slot, state);
     }
 
     /// <summary>Ports <c>HorizontalShutter_Main</c> at $A2:F1DE.</summary>
@@ -516,10 +520,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             : HorizontalShutterFunction.MovingRight;
     }
 
-    /// <summary>Restarts the stationary shutter art list after movement or reaction.</summary>
-    private static void InstallHorizontalShutterInstruction(RoomEnemySlot slot)
+    /// <summary>Restarts the stationary shutter pose after movement or reaction.</summary>
+    private static void InstallHorizontalShutterProgram(RoomEnemySlot slot, HorizontalShutterEnemyState state)
     {
-        slot.CurrentInstruction = HorizontalShutterInstructionProgramDefinitions.Stationary;
+        state.Program = AnimationProgramCursor<ShutterProgram>.Start(ShutterProgram.Horizontal);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -534,7 +538,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
     /// <summary>Per-slot movement state for shootable, destroyable, and Kamer vertical shutters.</summary>
     internal readonly VerticalShutterEnemyState?[] _verticalShutterStates = new VerticalShutterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Per-slot movement state for horizontal shootable shutters.</summary>
-    private readonly HorizontalShutterEnemyState?[] _horizontalShutterStates = new HorizontalShutterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    internal readonly HorizontalShutterEnemyState?[] _horizontalShutterStates = new HorizontalShutterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Frame camera used to admit activation sound only for on-screen shutters.</summary>
     private Position16<RoomPixels> _shutterCamera;
 
@@ -654,6 +658,38 @@ internal sealed class ShuttersBehavior : IEnemySpecies
                                                        c.SelectedShotAi == EnemyInteractionCallback.DestroyableVerticalShutterShot)
         {
             AfterCommon = c => ReactVerticalShutter(c.Enemy, _shutterCamera),
+        });
+    }
+
+    /// <summary>Runs every shutter's pose and Kamer's platform loop as typed programs (#641).</summary>
+    internal void RegisterShuttersTypedAnimations(EnemyAiTable table)
+    {
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterGrowing, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            GrowingShutterEnemyState state = RequireGrowingShutterState(slot);
+            AnimationProgramCursor<ShutterProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
+        table.AddTypedAnimation(slot => IsVerticalShutterDefinition(slot.EnemyDefinitionPointer), (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            VerticalShutterEnemyState state = RequireVerticalShutterState(slot);
+            AnimationProgramCursor<ShutterProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            HorizontalShutterEnemyState state = RequireHorizontalShutterState(slot);
+            AnimationProgramCursor<ShutterProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
+            state.Program = cursor;
         });
     }
 
@@ -834,11 +870,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         state.MovingSamus = false;
         state.ShotActivated = false;
         slot.ExtraProperties = 0;
-        InstallVerticalShutterInstruction(
+        InstallVerticalShutterProgram(
             slot,
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer
-                ? VerticalShutterInstructionProgramDefinitions.KamerPlatform
-                : VerticalShutterInstructionProgramDefinitions.Plain);
+            state,
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer ? ShutterProgram.KamerPlatform : ShutterProgram.FortyPixels);
     }
 
     /// <summary>Ports <c>VerticalShutter_Main</c> at $A2:EED1.</summary>
@@ -1084,10 +1119,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
-    /// <summary>Restarts a vertical shutter's selected native animation instruction.</summary>
-    private static void InstallVerticalShutterInstruction(RoomEnemySlot slot, ushort instruction)
+    /// <summary>Restarts a vertical shutter's selected animation.</summary>
+    private static void InstallVerticalShutterProgram(RoomEnemySlot slot, VerticalShutterEnemyState state, ShutterProgram program)
     {
-        slot.CurrentInstruction = instruction;
+        state.Program = AnimationProgramCursor<ShutterProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }

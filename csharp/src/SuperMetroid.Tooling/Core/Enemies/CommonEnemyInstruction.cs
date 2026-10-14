@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The common enemy instructions every enemy bank carries at the same bank-local offsets (the
-/// bank-$A0 command set). The generic enemy interpreter executes these for every owner before
-/// handing any other negative word to the owner's private instruction handler.
+/// bank-$A0 command set). The port runs typed programs, so only the ROM oracles and audits that
+/// walk native lists read these words; development tooling, never linked by player hosts.
 /// </summary>
 internal enum CommonEnemyInstruction : ushort
 {

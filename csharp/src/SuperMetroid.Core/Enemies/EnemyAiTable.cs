@@ -10,23 +10,14 @@ internal sealed class EnemyAiTable
     private readonly Dictionary<EnemyAiRoutine, List<(Func<RoomEnemySlot, bool>? Applies, EnemyInitializationAiHandler Handler)>> _initialization = [];
     /// <summary>Main AI handlers grouped by native routine in registration order.</summary>
     private readonly Dictionary<EnemyAiRoutine, List<(Func<RoomEnemySlot, bool>? Applies, EnemyMainAiHandler Handler)>> _main = [];
-    /// <summary>Owners consulted in order for private enemy instruction opcodes.</summary>
-    private readonly List<EnemyOwnedInstructionHandler> _ownedInstructions = [];
-
-    /// <summary>Owner instruction handlers in registration order.</summary>
-    internal IReadOnlyList<EnemyOwnedInstructionHandler> OwnedInstructions => _ownedInstructions;
-
-    /// <summary>Adds an owner's private instruction handler after those already registered.</summary>
-    internal void AddOwnedInstructions(EnemyOwnedInstructionHandler handler) => _ownedInstructions.Add(Ensure.NotNull(handler));
-
-    /// <summary>Owners whose enemies run typed animations in place of the native instruction interpreter (#641).</summary>
+    /// <summary>Owners whose enemies run typed animations (#641).</summary>
     private readonly List<(Func<RoomEnemySlot, bool> Matches, Action<RoomEnemySlot, EnemyInstructionContext> Advance)> _typedAnimations = [];
 
-    /// <summary>Registers a typed animation that advances matching enemies where the interpreter would run their lists.</summary>
+    /// <summary>Registers a typed animation that advances matching enemies.</summary>
     internal void AddTypedAnimation(Func<RoomEnemySlot, bool> matches, Action<RoomEnemySlot, EnemyInstructionContext> advance) =>
         _typedAnimations.Add((Ensure.NotNull(matches), Ensure.NotNull(advance)));
 
-    /// <summary>Whether <paramref name="slot"/>'s owner runs a typed animation, so the interpreter does not run its list.</summary>
+    /// <summary>Whether <paramref name="slot"/>'s owner runs a typed animation.</summary>
     internal bool HasTypedAnimation(RoomEnemySlot slot) => FindTypedAnimation(slot) is not null;
 
     /// <summary>Advances <paramref name="slot"/>'s typed animation, which its owner must have.</summary>

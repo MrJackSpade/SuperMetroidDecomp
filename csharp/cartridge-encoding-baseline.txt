@@ -66,7 +66,6 @@ csharp/src/SuperMetroid.Core/Enemies/EnemyDeathsAndDrops.cs	SME6340	15
 csharp/src/SuperMetroid.Core/Enemies/EnemyDeathsAndDrops.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Enemies/EnemyDrawList.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Enemies/EnemyExtraPropertyRawBits.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Enemies/EnemyInstructionInterpreter.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Enemies/EnemyInteractionCallbacks.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Enemies/EnemyMath.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Enemies/EnemyOverreadWorkRam.cs	SME6340	2
@@ -930,7 +929,7 @@ csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerif
 csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerification.cs	SME6345	2
 csharp/src/SuperMetroid.Verification/Enemies/EnemyGameplayAcceptanceVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionOwnerCoverageVerification.cs	SME6340	4
+csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionOwnerCoverageVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Enemies/EnemyLinearSpeedsVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Enemies/EnemyMathReferenceData.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Enemies/EnemyPickupDefinitionsVerification.cs	SME6340	6

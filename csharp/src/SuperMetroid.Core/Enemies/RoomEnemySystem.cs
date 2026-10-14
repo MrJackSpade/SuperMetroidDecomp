@@ -1168,7 +1168,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         var table = new EnemyAiTable();
         RegisterInitializationAi(table);
         RegisterMainAi(table);
-        RegisterOwnedInstructions(table);
+        RegisterTypedAnimations(table);
         RegisterTouchHandlers(table);
         RegisterShotReactions(table);
         RegisterBombReactions(table);
@@ -1381,9 +1381,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         TourianEntranceStatueBehavior.RegisterTourianStatueMainAi(table);
     }
 
-    // Owners accept disjoint words; the order mirrors the original single-switch interpreter.
-    /// <summary>Installs species instruction callbacks before shared interpreter callbacks.</summary>
-    private void RegisterOwnedInstructions(EnemyAiTable table)
+    // Owners match disjoint enemies; the first registration that matches an enemy runs its animation.
+    /// <summary>Registers every owner's typed animations.</summary>
+    private void RegisterTypedAnimations(EnemyAiTable table)
     {
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneTypedAnimations(table);
         BoyonBehavior.RegisterBoyonTypedAnimations(table);

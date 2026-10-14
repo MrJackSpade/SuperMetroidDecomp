@@ -103,29 +103,20 @@ internal static class EnemyInstructionOwnerCoverageVerification
                     continue;
 
                 definitionTranslated = true;
+                // A record still marked deleted after initialization (the n00b tube crack's palette-only record) is
+                // removed by the scheduler before any AI or instruction frame.
                 bool processesInstructions =
-                    (slot.Properties & (ushort)EnemyProperties.ProcessInstructions) != 0;
-                // A typed owner (#641) animates its enemies itself; the interpreter never reads their lists.
-                if (processesInstructions && enemies.Ai.HasTypedAnimation(slot))
-                {
-                    definitionNeedsOwner = definitionHasOwner = true;
-                    continue;
-                }
-                if (!processesInstructions || slot.CurrentInstruction == 0)
+                    (slot.Properties & (ushort)EnemyProperties.ProcessInstructions) != 0 &&
+                    (slot.Properties & (ushort)EnemyProperties.Deleted) == 0;
+                if (!processesInstructions)
                     continue;
 
+                // Every instruction-processing enemy runs a typed program (#641); none reads cartridge lists.
                 definitionNeedsOwner = true;
-                if (HasCompiledEnemyInstructionOwner(
-                    enemies, rom, slot, slot.CurrentInstruction))
-                {
+                if (enemies.Ai.HasTypedAnimation(slot))
                     definitionHasOwner = true;
-                }
                 else
-                {
-                    unresolved.Add(
-                        $"${(int)definitionPointer:X4} -> ${definition.Bank:X2}:" +
-                        $"{slot.CurrentInstruction:X4}");
-                }
+                    unresolved.Add($"${(int)definitionPointer:X4} has no typed animation");
             }
 
             if (definitionTranslated)
@@ -147,58 +138,26 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 CultureInfo.InvariantCulture))
             .ToHashSet();
         AssertEqual(0, unresolvedDefinitions.Count,
-            "every translated ordinary-enemy instruction owner is compiled; actual=" +
+            "every translated instruction-processing enemy runs a typed animation; actual=" +
             string.Join(", ", unresolved.Distinct()));
 
-        var unknown = new RoomEnemySlot(0)
-        {
-            EnemyDefinitionPointer = (EnemyDefinitionId)0x9000,
-            Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 },
-            CurrentInstruction = 0x9000,
-        };
+        var unknownEnemies = new RoomEnemySystem();
+        unknownEnemies.BindFixtureBus(rom);
+        RoomEnemySlot unknown = unknownEnemies.SlotTable.Slots[0];
+        unknown.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
+        unknown.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         InvalidDataException unknownException = AssertThrows<InvalidDataException>(
-            () => EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(unknown, unknown.CurrentInstruction),
-            "unknown ordinary-enemy definition fails instead of reading cartridge mechanics");
+            () => EnemyInstructionRunner.Process(unknownEnemies, [unknown, null, null, Position16<RoomPixels>.Zero, (ushort)0]),
+            "an instruction-processing enemy without a typed animation fails instead of reading cartridge lists");
         AssertTrue(
-            unknownException.Message.Contains("has no compiled owner", StringComparison.Ordinal),
-            "unknown ordinary-enemy failure identifies the missing compiled owner");
+            unknownException.Message.Contains("has no typed animation", StringComparison.Ordinal),
+            "the failure identifies the missing typed animation");
 
         Console.WriteLine(
             $"  Ordinary-enemy mechanics owners: {definitions.Length} named definitions, " +
             $"{translated.Count} translated initializers, {owned.Count} compiled " +
             $"instruction-processing owners, and {unresolvedDefinitions.Count} " +
             "explicitly inventoried pending families.");
-    }
-
-    /// <summary>Distinguishes a compiled family dispatch from the terminal cartridge fallback read.</summary>
-    private static bool HasCompiledEnemyInstructionOwner(
-        RoomEnemySystem enemies,
-        ISnesAddressSpace source,
-        RoomEnemySlot slot,
-        ushort address)
-    {
-        var probe = NewEnemyInstructionOwnerReadProbe(source);
-        enemies.BindFixtureBus(probe);
-        try
-        {
-            _ = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, address);
-            return true;
-        }
-        catch (EnemyInstructionOwnerFallbackReadException)
-        {
-            return false;
-        }
-        catch (Exception)
-        {
-            // A family owner can reject an address that is presentation-only or lies
-            // outside its authored program. The important boundary is that dispatch
-            // reached that owner rather than the terminal unowned-definition branch.
-            return true;
-        }
-        finally
-        {
-            enemies.BindFixtureBus(source);
-        }
     }
 
     /// <summary>Recognizes the dispatcher's specific failure for a definition without translated initialization AI.</summary>
@@ -267,15 +226,6 @@ internal static class EnemyInstructionOwnerCoverageVerification
 
         return records;
     }
-
-    /// <summary>Turns any cartridge mechanics read into a recognizable unowned-definition failure.</summary>
-    private static CartridgeReadGuard NewEnemyInstructionOwnerReadProbe(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(_ => true,
-            address => new EnemyInstructionOwnerFallbackReadException(address));
-
-    /// <summary>Signals that an ordinary enemy's instruction dispatch reached the ROM fallback.</summary>
-    internal sealed class EnemyInstructionOwnerFallbackReadException(int address) :
-        Exception($"Ordinary-enemy mechanics fell back to ROM at ${address:X6}.");
 
     /// <summary>Runs the retail-wide audit of translated enemy instruction ownership.</summary>
     [VerificationCommand("--enemy-instruction-owner-coverage")]

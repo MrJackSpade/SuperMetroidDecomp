@@ -96,87 +96,6 @@ internal sealed class EnemyInstructionInterpreter
         _dispatch = dispatch;
     }
     /// <summary>
-    /// Executes one common enemy instruction. <paramref name="yieldInterpreter"/> reports that
-    /// the instruction ended this frame's interpretation (delete, sleep, or wait).
-    /// </summary>
-    private void ProcessCommonEnemyInstruction(
-        RoomEnemySlot slot,
-        CommonEnemyInstruction instruction,
-        ref ushort cursor,
-        out bool yieldInterpreter)
-    {
-        yieldInterpreter = false;
-        switch (instruction)
-        {
-            case CommonEnemyInstruction.StopScript:
-                slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
-                yieldInterpreter = true;
-                return;
-            case CommonEnemyInstruction.Goto:
-                cursor = ReadEnemyInstructionMechanicsWord(
-                    slot,
-                    unchecked((ushort)(cursor + 2)));
-                return;
-            case CommonEnemyInstruction.Sleep:
-                slot.CurrentInstruction = cursor;
-                yieldInterpreter = true;
-                return;
-            case CommonEnemyInstruction.EnableOffScreenProcessing:
-                slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
-                cursor = unchecked((ushort)(cursor + 2));
-                return;
-            case CommonEnemyInstruction.DisableOffScreenProcessing:
-                slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
-                cursor = unchecked((ushort)(cursor + 2));
-                return;
-            case CommonEnemyInstruction.DecrementTimerAndGoto:
-            case CommonEnemyInstruction.DecrementTimerAndGotoDuplicate:
-                slot.Timer = slot.Timer.Decrement().Remaining;
-                cursor = !slot.Timer.IsZero
-                    ? ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2)))
-                    : unchecked((ushort)(cursor + 4));
-                return;
-            case CommonEnemyInstruction.SetTimer:
-                slot.Timer = NativeCountdown.FromRaw(ReadEnemyInstructionMechanicsWord(
-                    slot,
-                    unchecked((ushort)(cursor + 2))));
-                cursor = unchecked((ushort)(cursor + 4));
-                return;
-            case CommonEnemyInstruction.WaitFrames:
-                slot.InstructionTimer = NativeCountdown.FromRaw(ReadEnemyInstructionMechanicsWord(
-                    slot,
-                    unchecked((ushort)(cursor + 2))));
-                slot.CurrentInstruction = unchecked((ushort)(cursor + 4));
-                yieldInterpreter = true;
-                return;
-            case CommonEnemyInstruction.CopyToVram:
-                // Only Torizo's lists copy tiles, and its typed programs carry the transfers (#641).
-                throw new InvalidDataException(
-                    $"Enemy tile transfer ${slot.Definition.Bank:X2}:${cursor:X4} has no translated owner.");
-            default:
-                throw new InvalidOperationException(
-                    $"Undefined {nameof(CommonEnemyInstruction)} {(int)instruction:X4}.");
-        }
-    }
-
-    /// <summary>
-    /// Offers a non-common instruction word to the owner handlers. The owner predicates are
-    /// disjoint, so at most one handler can accept the word; the order mirrors the original
-    /// single-switch interpreter. Returns false when no owner translates the word.
-    /// </summary>
-    private bool TryProcessOwnedEnemyInstruction(RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter)
-    {
-        foreach (EnemyOwnedInstructionHandler handler in _dispatch.Ai.OwnedInstructions)
-        {
-            if (handler(slot, context, word, ref cursor, out yieldInterpreter))
-                return true;
-        }
-        yieldInterpreter = false;
-        return false;
-    }
-    /// <summary>
     /// Draws the BG2 half of the already resolved visual frame. The common writer
     /// emits its OAM half, which may legitimately be empty for BG2-only poses.
     /// Native new-frame gating and physical collision selectors remain compiled.
@@ -245,18 +164,10 @@ internal sealed class EnemyInstructionInterpreter
         new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words, destinationWord);
     }
 
-    /// <summary>Resolves a frame operand through the compiled visual selector catalog of its enemy's bank.</summary>
-    internal static ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
-    {
-        if (CompiledEnemyVisualSelectors.TryGet(slot.Definition.Bank,
-                operandAddress, out ushort selected))
-            return selected;
-        throw new InvalidDataException(
-            $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} has no compiled visual selector " +
-            $"${slot.Definition.Bank:X2}:${operandAddress:X4}.");
-    }
-
-    /// <summary>Advances one enemy animation timer and interprets commands until a frame or yielding opcode.</summary>
+    /// <summary>
+    /// Advances one enemy's typed animation (#641). Every enemy that processes instructions runs a typed program; one
+    /// without is a missing conversion and fails here rather than reading cartridge instruction lists.
+    /// </summary>
     internal void ProcessInstructions(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -264,73 +175,12 @@ internal sealed class EnemyInstructionInterpreter
         Position16<RoomPixels> camera,
         ushort controllerInput)
     {
-        // Migrated owners run typed animations in place of their native instruction lists (#641).
-        if (_dispatch.Ai.HasTypedAnimation(slot))
+        if (!_dispatch.Ai.HasTypedAnimation(slot))
         {
-            _dispatch.Ai.AdvanceTypedAnimation(slot, new EnemyInstructionContext
-                { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput });
-            return;
+            throw new InvalidDataException(
+                $"Enemy {slot.EnemyDefinitionPointer} processes instructions but has no typed animation.");
         }
-
-        ushort oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
-        if (oldTimer != 1)
-        {
-            slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
-            return;
-        }
-
-        ushort cursor = slot.CurrentInstruction;
-        for (int commandCount = 0; commandCount < 64; commandCount++)
-        {
-            ushort word = ReadEnemyInstructionMechanicsWord(slot, cursor);
-            if ((word & 0x8000) == 0)
-            {
-                slot.InstructionTimer = NativeCountdown.FromRaw(word);
-                slot.SpritemapPointer = ReadEnemyVisualSelector(slot,
-                    unchecked((ushort)(cursor + 2)));
-                slot.CurrentInstruction = unchecked((ushort)(cursor + 4));
-                slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
-                return;
-            }
-
-            // Common bank-$A0 commands behave identically for every owner and no owner's
-            // private opcode shares their offsets, so they are decoded first.
-            if (Enum.IsDefined((CommonEnemyInstruction)word))
-            {
-                ProcessCommonEnemyInstruction(
-                    slot,
-                    (CommonEnemyInstruction)word,
-                    ref cursor,
-                    out bool yieldAfterCommon);
-                if (yieldAfterCommon)
-                    return;
-                continue;
-            }
-
-            if (!TryProcessOwnedEnemyInstruction(slot, new EnemyInstructionContext { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput }, word, ref cursor, out bool yieldAfterOwned))
-            {
-                throw new InvalidDataException(
-                    $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} instruction " +
-                    $"${slot.Definition.Bank:X2}:{cursor:X4} opcode ${word:X4} is not translated.");
-            }
-            if (yieldAfterOwned)
-                return;
-        }
-
-        throw new InvalidDataException(
-            $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} instruction list exceeded 64 commands without a frame.");
-    }
-
-    /// <summary>
-    /// Resolves simulation-owned enemy instruction words from compiled definitions.
-    /// Presentation selectors resolve separately to installed artwork identities.
-    /// </summary>
-    internal static ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
-    {
-
-        throw new InvalidDataException(
-            $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} instruction mechanics pointer " +
-            $"${slot.Definition.Bank:X2}:{address:X4} has no compiled owner.");
+        _dispatch.Ai.AdvanceTypedAnimation(slot, new EnemyInstructionContext
+            { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput });
     }
 }

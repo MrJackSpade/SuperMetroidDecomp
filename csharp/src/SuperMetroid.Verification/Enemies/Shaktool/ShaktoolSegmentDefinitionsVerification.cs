@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -56,7 +57,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production angular velocity {index}");
             AssertEqual(definition.InitialOrbitAngle, state.OrbitAngle,
                 $"Shaktool production orbit angle {index}");
-            AssertEqual(definition.InitialInstruction, slot.CurrentInstruction,
+            AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(definition.InitialProgram), state.Program,
                 $"Shaktool production initial list {index}");
             AssertEqual(definition.Layer, slot.Layer,
                 $"Shaktool production layer {index}");
@@ -66,12 +67,10 @@ internal static class ShaktoolSegmentDefinitionsVerification
 
         foreach (ShaktoolSegmentState? state in enemies.ShaktoolSegments.Take(7))
             (state ?? throw new InvalidOperationException("Verification requires state.")).PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
-        ushort resetCursor = 0x1234;
-        AssertTrue(enemies.ShaktoolBehavior.TryProcessShaktoolInstruction(
-                enemies.SlotTable.Slots[0], (ushort)ShaktoolInstruction.Instruction_Shaktool_ResetShaktoolFunctions, ref resetCursor),
-            "Shaktool production reset callback handled");
-        AssertEqual((ushort)0x1236, resetCursor,
-            "Shaktool production reset cursor");
+        AssertEqual((ShaktoolProgram?)null, enemies.ShaktoolBehavior.ApplyShaktoolCue(
+                enemies.SlotTable.Slots[0], enemies.ShaktoolSegments[0] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[0]."),
+                new ShaktoolCue(ShaktoolCueKind.ResetFunctions)),
+            "Shaktool production reset cue runs on");
         for (int index = 0; index < definitions.Length; index++)
         {
             AssertEqual(definitions[index].PreInstruction,
@@ -107,7 +106,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Checks the first animation instruction list selected for each segment.</summary>
     private static void VerifyShaktoolInitialInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInstructionAddress,
-            definition => definition.InitialInstruction, "initial instruction selection"));
+            definition => NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, definition.InitialProgram), "initial instruction selection"));
 
     /// <summary>Checks the rendering layer assigned to each segment at initialization.</summary>
     private static void VerifyShaktoolLayerSelection(SuperMetroidAddressSpace rom) =>

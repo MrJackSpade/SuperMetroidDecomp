@@ -5,7 +5,7 @@ internal readonly record struct ShaktoolSegmentDefinition(
     ushort PropertyMask,
     ushort OwnerNativeOffset,
     ushort InitialOrbitAngle,
-    ushort InitialInstruction,
+    ShaktoolProgram InitialProgram,
     ushort Layer,
     ShaktoolPreInstruction PreInstruction,
     ushort AngularVelocity);

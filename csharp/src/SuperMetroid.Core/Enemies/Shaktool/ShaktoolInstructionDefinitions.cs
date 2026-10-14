@@ -1,13 +1,26 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
-/// <summary>Compiled fixed instruction selectors used by Shaktool's mechanics state machine.</summary>
+/// <summary>The fixed animation selections Shaktool's mechanics state machine makes.</summary>
 internal static class ShaktoolInstructionDefinitions
 {
+    /// <summary>The eight head animations in their native storage order, starting aimed left and turning clockwise.</summary>
+    private static readonly ShaktoolProgram[] HeadAims =
+    [
+        ShaktoolProgram.HeadAimingLeft,
+        ShaktoolProgram.HeadAimingUpLeft,
+        ShaktoolProgram.HeadAimingUp,
+        ShaktoolProgram.HeadAimingUpRight,
+        ShaktoolProgram.HeadAimingRight,
+        ShaktoolProgram.HeadAimingDownRight,
+        ShaktoolProgram.HeadAimingDown,
+        ShaktoolProgram.HeadAimingDownLeft,
+    ];
+
     /// <summary>
-    /// Calculates $AA:DD15-$DD24 from the eight-byte head programs at $AA:DAA4.
+    /// Calculates $AA:DD15-$DD24 from the eight head animations stored from $AA:DAA4.
     /// The direction bucket starts at up; program storage starts two eighth-turns earlier at left.
     /// </summary>
-    internal static ushort ForOrientationBucket(ushort directionBucket)
+    internal static ShaktoolProgram ForOrientationBucket(ushort directionBucket)
     {
         if ((directionBucket & 0x001f) != 0 || directionBucket > 0x00e0)
         {
@@ -16,12 +29,12 @@ internal static class ShaktoolInstructionDefinitions
         }
 
         int program = ((directionBucket >> 5) + 2) & 7;
-        return (ushort)(ShaktoolInstructionProgramDefinitions.HeadAimingLeft + 8 * program);
+        return HeadAims[program];
     }
 
-    /// <summary>Returns the collision-recovery list for one physical segment.</summary>
-    internal static ushort CollisionForSegment(int segmentIndex) =>
-        ForSegment(segmentIndex).CollisionInstruction;
+    /// <summary>Returns the collision-recovery animation for one physical segment.</summary>
+    internal static ShaktoolProgram CollisionForSegment(int segmentIndex) =>
+        ForSegment(segmentIndex).CollisionProgram;
 
     /// <summary>
     /// $AA:DF13 and $AA:DF21 select collision and dormant-attack behavior by body part:
@@ -37,11 +50,11 @@ internal static class ShaktoolInstructionDefinitions
 
         return segmentIndex switch
         {
-            0 => new(ShaktoolInstructionProgramDefinitions.SawHandHeadBobPrimaryPiece),
-            1 or 5 => new(ShaktoolInstructionProgramDefinitions.ArmPieceHeadBobBack),
-            2 or 4 => new(ShaktoolInstructionProgramDefinitions.ArmPieceHeadBobFront),
-            3 => new(ShaktoolInstructionProgramDefinitions.HeadHeadBob),
-            _ => new(ShaktoolInstructionProgramDefinitions.SawHandHeadBobFinalPiece),
+            0 => new(ShaktoolProgram.SawHandHeadBobPrimaryPiece),
+            1 or 5 => new(ShaktoolProgram.ArmPieceHeadBobBack),
+            2 or 4 => new(ShaktoolProgram.ArmPieceHeadBobFront),
+            3 => new(ShaktoolProgram.HeadHeadBob),
+            _ => new(ShaktoolProgram.SawHandHeadBobFinalPiece),
         };
     }
 }

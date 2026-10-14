@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class ShaktoolSegmentState
 
     /// <summary>Creates a typed view over an existing Shaktool enemy record without copying its variables.</summary>
     internal ShaktoolSegmentState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<ShaktoolProgram> Program { get; set; }
     /// <summary>Native <c>facingAngle</c> at <c>$0FA8 + enemy index</c>, stored in variable A: the chain's target heading, also advanced during straightening and used by attack movement instructions; one wrapped 16-bit turn is <c>$10000</c>.</summary>
     public ushort TargetAngle
     {

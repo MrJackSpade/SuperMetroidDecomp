@@ -331,17 +331,11 @@ internal sealed class EnemyInstructionInterpreter
     /// </summary>
     internal static ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool)
-            return ShaktoolInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo)
             return ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid)
             return FakeKraidInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard)
-            return YardInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (WalkingSpacePirateBehavior.IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer))
         {

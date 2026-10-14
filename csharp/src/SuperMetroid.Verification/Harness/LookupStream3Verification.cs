@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Enemies.Sparks;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Tooling;
@@ -1145,7 +1146,7 @@ internal static class LookupStream3Verification
             {
                 int address = 0xaadd15 + 2 * (bucket >> 5);
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                AssertEqual(expected, ShaktoolInstructionDefinitions.ForOrientationBucket(direction),
+                AssertEqual(expected, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolInstructionDefinitions.ForOrientationBucket(direction)),
                     "stream 3 native Shaktool orientation");
             }
         }
@@ -1153,7 +1154,7 @@ internal static class LookupStream3Verification
         {
             int offset = segment * 2;
             ushort collision = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaadf13 + offset);
-            AssertEqual(collision, ShaktoolInstructionDefinitions.CollisionForSegment(segment),
+            AssertEqual(collision, NativeEnemyProgramOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolInstructionDefinitions.CollisionForSegment(segment)),
                 "stream 3 native Shaktool collision program");
         }
         foreach (int invalid in new[] { -1, 7, int.MinValue, int.MaxValue })

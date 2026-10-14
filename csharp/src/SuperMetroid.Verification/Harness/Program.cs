@@ -33,7 +33,7 @@ catch (Exception exception)
 }
 }
 
-/// <summary>Dispatches one verification command or the full suite and prints elapsed time and peak memory.</summary>
+/// <summary>Dispatches one verification command, several argument-free commands, or the full suite, and prints elapsed time and peak memory.</summary>
 private static int RunFlags(string[] args)
 {
 var flagWatch = System.Diagnostics.Stopwatch.StartNew();
@@ -43,6 +43,18 @@ if (args.Length == 0)
     return RunFullSuite();
 if (VerificationCommands.TryDispatch(args, out int exitCode))
     return exitCode;
+// Several argument-free commands run in one process, so focused checks share one startup.
+if (args.Length > 1 && args.All(argument => argument.StartsWith("--", StringComparison.Ordinal)))
+{
+    int combined = 0;
+    foreach (string flag in args)
+    {
+        if (!VerificationCommands.TryDispatch([flag], out int flagExit))
+            throw new ArgumentException(VerificationCommands.UsageFor([flag]), nameof(args));
+        combined = Math.Max(combined, flagExit);
+    }
+    return combined;
+}
 throw new ArgumentException(VerificationCommands.UsageFor(args), nameof(args));
 }
 catch (Exception exception)

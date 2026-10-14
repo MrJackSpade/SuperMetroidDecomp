@@ -1752,8 +1752,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.FaceBlock => 0,
             EnemyDefinitionId.Eye => 0,
             EnemyDefinitionId.Metroid => 0,
-            EnemyDefinitionId.Shaktool =>
-                ShaktoolVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Shaktool => 0,
             EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 => 0,
             EnemyDefinitionId.Dragon => 0,
             EnemyDefinitionId.Multiviola => 0,
@@ -1768,8 +1767,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Mochtroid => 0,
             EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile => 0,
             EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower => 0,
-            EnemyDefinitionId.Yard =>
-                YardVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Yard => 0,
             EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable or EnemyDefinitionId.ShutterHorizShootable => 0,
             EnemyDefinitionId.Rio => 0,
             EnemyDefinitionId.Holtz => 0,
@@ -1848,9 +1846,7 @@ internal static class EnemySpritemapDefinitions
         return enemyDefinition is
             EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle or
             EnemyDefinitionId.CeresDoor or
-            EnemyDefinitionId.Shaktool or
             EnemyDefinitionId.Chozo or
-            EnemyDefinitionId.Yard or
             EnemyDefinitionId.Botwoon or
             EnemyDefinitionId.KihunterGreen or
             EnemyDefinitionId.KihunterGreenWings or

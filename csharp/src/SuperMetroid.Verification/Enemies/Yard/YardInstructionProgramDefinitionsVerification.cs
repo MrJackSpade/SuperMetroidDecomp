@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Artwork.CompiledEnemyVisualSelectorAssertionsVerification;
@@ -13,125 +14,53 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Yard's crawling, turning, hiding, and airborne instruction entries against bank A3.</summary>
 internal static class YardInstructionProgramDefinitionsVerification
 {
-    /// <summary>The 38 authored entry pointers used to exercise every Yard instruction-list family.</summary>
-    private static readonly ushort[] YardInstructionEntries =
-    [
-        YardInstructionProgramDefinitions.OutsideTurnUpsideRightMovingUp,
-        YardInstructionProgramDefinitions.CrawlingUpsideUpMovingLeft,
-        YardInstructionProgramDefinitions.OutsideTurnUpsideUpMovingLeft,
-        YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingDown,
-        YardInstructionProgramDefinitions.OutsideTurnUpsideLeftMovingDown,
-        YardInstructionProgramDefinitions.CrawlingUpsideDownMovingRight,
-        YardInstructionProgramDefinitions.OutsideTurnUpsideDownMovingRight,
-        YardInstructionProgramDefinitions.CrawlingUpsideRightMovingUp,
-        YardInstructionProgramDefinitions.OutsideTurnUpsideLeftMovingUp,
-        YardInstructionProgramDefinitions.CrawlingUpsideUpMovingRight,
-        YardInstructionProgramDefinitions.OutsideTurnUpsideUpMovingRight,
-        YardInstructionProgramDefinitions.CrawlingUpsideRightMovingDown,
-        YardInstructionProgramDefinitions.OutsideTurnUpsideRightMovingDown,
-        YardInstructionProgramDefinitions.CrawlingUpsideDownMovingLeft,
-        YardInstructionProgramDefinitions.OutsideTurnUpsideDownMovingLeft,
-        YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingUp,
-        YardInstructionProgramDefinitions.InsideTurnUpsideUpMovingLeft,
-        YardInstructionProgramDefinitions.InsideTurnUpsideRightMovingUp,
-        YardInstructionProgramDefinitions.InsideTurnUpsideDownMovingRight,
-        YardInstructionProgramDefinitions.InsideTurnUpsideLeftMovingDown,
-        YardInstructionProgramDefinitions.InsideTurnUpsideUpMovingRight,
-        YardInstructionProgramDefinitions.InsideTurnUpsideLeftMovingUp,
-        YardInstructionProgramDefinitions.InsideTurnUpsideDownMovingLeft,
-        YardInstructionProgramDefinitions.InsideTurnUpsideRightMovingDown,
-        YardInstructionProgramDefinitions.HidingUpsideUpMovingLeft,
-        YardInstructionProgramDefinitions.HiddenUpsideUpMovingLeft,
-        YardInstructionProgramDefinitions.HidingUpsideDownMovingLeft,
-        YardInstructionProgramDefinitions.HidingUpsideDownMovingRight,
-        YardInstructionProgramDefinitions.HidingUpsideUpMovingRight,
-        YardInstructionProgramDefinitions.HiddenUpsideUpMovingRight,
-        YardInstructionProgramDefinitions.HidingUpsideRightMovingUp,
-        YardInstructionProgramDefinitions.HidingUpsideLeftMovingUp,
-        YardInstructionProgramDefinitions.HidingUpsideLeftMovingDown,
-        YardInstructionProgramDefinitions.HidingUpsideRightMovingDown,
-        YardInstructionProgramDefinitions.AirborneFacingLeft,
-        YardInstructionProgramDefinitions.AirborneFacingLeftLoop,
-        YardInstructionProgramDefinitions.AirborneFacingRight,
-        YardInstructionProgramDefinitions.AirborneFacingRightLoop,
-    ];
-
-    /// <summary>Loads the retail cartridge as the oracle for Yard mechanics words and visual selectors.</summary>
+    /// <summary>Loads the retail cartridge for the Yard animation checks.</summary>
     internal static void VerifyYardInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYardInstructionProgramDefinitions), () => VerifyYardInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Compares compiled words, executes all 38 entries, and checks visual selectors without live reads.</summary>
-    internal static void VerifyYardInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+    /// <summary>
+    /// Every program runs for 80 forced updates; a hiding Yard's repeat cue keeps re-showing the pose before it, while a
+    /// visible Yard with an even random draw runs on into the hidden animation; the program oracle matches bank $A3.
+    /// </summary>
+    internal static void VerifyYardInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        int mechanics = 0;
-        int presentation = 0;
-        for (int address = 0xc8c6; address < 0xcc36; address += 2)
+        RoomEnemySystem enemies = CreateYardInstructionSystem(rom, out RoomEnemySlot yard);
+        YardEnemyState state = enemies.YardBehavior._yardStates[0] ?? throw new InvalidOperationException("The Yard has no state.");
+        foreach (YardProgram program in Enum.GetValues<YardProgram>())
         {
-            if (YardInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address))
-            {
-                mechanics++;
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (unchecked((ushort)address))),
-                    YardInstructionProgramDefinitions.ReadMechanicsWord(
-                        unchecked((ushort)address)),
-                    $"Yard mechanics word $A3:{address:X4}");
-            }
-            else
-            {
-                presentation++;
-                AssertThrows<InvalidDataException>(
-                    () => YardInstructionProgramDefinitions.ReadMechanicsWord(
-                        unchecked((ushort)address)),
-                    $"Yard presentation word $A3:{address:X4} is rejected as mechanics");
-            }
-        }
-        AssertEqual(YardInstructionProgramDefinitionsTooling.MechanicsWordCount, mechanics,
-            "Yard compiled mechanics word count");
-        AssertEqual(YardInstructionProgramDefinitions.PresentationWordCount, presentation,
-            "Yard live presentation word count");
-
-        var guard = NewYardInstructionReadGuard(rom);
-        RoomEnemySystem enemies = CreateYardInstructionSystem(guard, out RoomEnemySlot yard);
-        foreach (ushort entry in YardInstructionEntries)
-        {
-            yard.CurrentInstruction = entry;
-            for (int call = 0; call < 80; call++)
-            {
-                yard.InstructionTimer = NativeCountdown.Start(1);
-                enemies.Instructions.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, (ushort)0);
-            }
+            state.Program = AnimationProgramCursor<YardProgram>.Start(program);
+            RunYard(enemies, yard, 80);
         }
 
-        AssertEqual(0, guard.ObservedWords.Count,
-            "Yard execution uses compiled spritemap selectors");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "Yard production execution avoids compiled mechanics bytes");
-        for (int index = 0; index < YardInstructionProgramDefinitions.PresentationWordCount; index++)
+        // Hiding: the repeat cue resumes at the pose before it however often it runs.
+        ushort repeatedPose = YardAnimations.Spritemaps(YardProgram.HidingUpsideUpMovingLeft).Last();
+        state.Behavior = YardBehavior.Hiding;
+        state.Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.HidingUpsideUpMovingLeft);
+        RunYard(enemies, yard, 20);
+        AssertEqual(YardProgram.HidingUpsideUpMovingLeft, state.Program.Program, "a hiding Yard stays in its hiding animation");
+        AssertEqual(repeatedPose, yard.SpritemapPointer, "a hiding Yard keeps re-showing the pose before the repeat cue");
+
+        // Visible, with the fixture's even random draw: the cue runs on into the hidden animation.
+        state.Behavior = YardBehavior.NormalCrawling;
+        state.Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.HidingUpsideUpMovingLeft);
+        RunYard(enemies, yard, 3);
+        AssertEqual(YardProgram.HiddenUpsideUpMovingLeft, state.Program.Program, "a visible Yard's even draw runs on into the hidden animation");
+
+        Suite(nameof(YardAnimationsVerification.VerifyYardAnimations), () => YardAnimationsVerification.VerifyYardAnimations(rom));
+        Console.WriteLine("Yard: all 38 programs run, and the repeat cue holds a hiding Yard and runs a visible one on.");
+    }
+
+    /// <summary>Forces the requested number of animation updates.</summary>
+    private static void RunYard(RoomEnemySystem enemies, RoomEnemySlot yard, int updates)
+    {
+        for (int update = 0; update < updates; update++)
         {
-            ushort address = YardInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertCompiledEnemyVisualSelector(rom, EnemyDefinitionId.Yard,
-                0xa3, address, $"Yard $A3:{address:X4}");
+            yard.InstructionTimer = NativeCountdown.Start(1);
+            enemies.Instructions.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, (ushort)0);
         }
-        AssertThrows<InvalidDataException>(
-            () => YardInstructionProgramDefinitions.ReadMechanicsWord(0xc8c7),
-            "odd Yard instruction pointer is rejected");
-        AssertThrows<InvalidDataException>(
-            () => YardInstructionProgramDefinitions.ReadMechanicsWord(0xcc36),
-            "adjacent Yard callback code is rejected as instruction mechanics");
-
-        _ = ProbeYardInstructionAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeYardInstructionAllocation();
-        AssertTrue(checksum != 0, "Yard instruction allocation probe consumes data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed Yard instruction mechanics lookups allocate no storage");
-
-        Console.WriteLine(
-            "Yard instruction mechanics: 328 compiled words, all 38 authored entries, " +
-            "five private callbacks, and 112 compiled visual selectors pass.");
     }
 
     /// <summary>Creates a bank A3 Yard slot with deterministic random input and its behavior state installed.</summary>
@@ -139,7 +68,6 @@ internal static class YardInstructionProgramDefinitionsVerification
         ISnesAddressSpace bus,
         out RoomEnemySlot yard)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(bus);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
@@ -147,35 +75,10 @@ internal static class YardInstructionProgramDefinitionsVerification
         yard = enemies.SlotTable.Slots[0];
         yard.EnemyDefinitionPointer = EnemyDefinitionId.Yard;
         yard.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
-        var state = new YardEnemyState(yard);
+        var state = new YardEnemyState(yard) { Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.CrawlingUpsideUpMovingLeft) };
         var states = (YardEnemyState?[])enemies.YardBehavior._yardStates;
         states[0] = state;
         return enemies;
-    }
-
-    /// <summary>Alternates crawling and airborne words repeatedly to expose mechanics lookup allocations.</summary>
-    private static int ProbeYardInstructionAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += YardInstructionProgramDefinitions.ReadMechanicsWord(
-                (index & 1) == 0
-                    ? YardInstructionProgramDefinitions.CrawlingUpsideUpMovingLeft
-                    : YardInstructionProgramDefinitions.AirborneFacingRightLoop);
-        }
-        return checksum;
-    }
-
-    /// <summary>Rejects compiled mechanics reads and optionally rejects visual operand reads as well.</summary>
-    internal static CartridgeReadGuard NewYardInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
-    {
-        var guard = new CartridgeReadGuard(source).Forbid(YardInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-            address => $"Production read compiled Yard mechanics byte ${address:X6}.");
-        return forbidPresentation
-            ? guard.ForbidWords(0xa30000, YardInstructionProgramDefinitions.PresentationWordCount, YardInstructionProgramDefinitions.PresentationWordAddress,
-                address => $"Installed Yard read presentation byte ${address:X6}.")
-            : guard.ObserveWords(0xa30000, YardInstructionProgramDefinitions.PresentationWordCount, YardInstructionProgramDefinitions.PresentationWordAddress);
     }
 
     /// <summary>Runs the Yard instruction comparison from the verification command dispatcher.</summary>

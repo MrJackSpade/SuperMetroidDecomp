@@ -1406,7 +1406,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         OwtchBehavior.RegisterOwtchTypedAnimations(table);
         FuneNamiheBehavior.RegisterFuneNamiheTypedAnimations(table);
         EvirBehavior.RegisterEvirTypedAnimations(table);
-        YardBehavior.RegisterYardOwnedInstructions(table);
+        YardBehavior.RegisterYardTypedAnimations(table);
         HoppersBehavior.RegisterHopperTypedAnimations(table);
         ZoaBehavior.RegisterZoaTypedAnimations(table);
         MetroidBehavior.RegisterMetroidTypedAnimations(table);
@@ -1435,10 +1435,12 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         LowerNorfairRioBehavior.RegisterLowerNorfairRioTypedAnimations(table);
         MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailTypedAnimations(table);
         MagdolliteBehavior.RegisterMagdolliteOwnedInstructions(table);
-        ShaktoolBehavior.RegisterShaktoolOwnedInstructions(table);
+        ShaktoolBehavior.RegisterShaktoolTypedAnimations(table);
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        YardBehavior.RegisterYardTypedAnimations(table);
+        ShaktoolBehavior.RegisterShaktoolTypedAnimations(table);
         WorkRobotBehavior.RegisterWorkRobotTypedAnimations(table);
         TourianEntranceStatueBehavior.RegisterTourianEntranceStatueTypedAnimations(table);
         HibashiBehavior.RegisterHibashiTypedAnimations(table);

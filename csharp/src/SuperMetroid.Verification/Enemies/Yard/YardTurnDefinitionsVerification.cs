@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -41,9 +42,9 @@ internal static class YardTurnDefinitionsVerification
                 $"Yard turn {movement}/{disabled} lookahead X");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
                 $"Yard turn {movement}/{disabled} lookahead Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), definition.OutsideTurnInstructionList,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.OutsideTurnProgram),
                 $"Yard turn {movement}/{disabled} outside list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), definition.InsideTurnInstructionList,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.InsideTurnProgram),
                 $"Yard turn {movement}/{disabled} inside list");
         }
 
@@ -87,10 +88,10 @@ internal static class YardTurnDefinitionsVerification
             YardTurnDefinition definition =
                 YardTurnDefinitions.ForMovement(movement, disabled);
             VerifyYardTurnProductionBranch(
-                rom, movement, disabled, empty, definition.OutsideTurnInstructionList,
+                rom, movement, disabled, empty, definition.OutsideTurnProgram,
                 $"Yard outside turn {movement}/{disabled}");
             VerifyYardTurnProductionBranch(
-                rom, movement, disabled, solid, definition.InsideTurnInstructionList,
+                rom, movement, disabled, solid, definition.InsideTurnProgram,
                 $"Yard inside turn {movement}/{disabled}");
         }
 
@@ -102,7 +103,7 @@ internal static class YardTurnDefinitionsVerification
             YardMovementFunction movement,
             bool disabled,
             RoomLevelData level,
-            ushort expectedInstruction,
+            YardProgram expectedProgram,
             string context)
         {
             var enemies = new RoomEnemySystem();
@@ -111,9 +112,10 @@ internal static class YardTurnDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(new(0x0200, 0x0200));
             slot.Radius = new(8, 8);
-            slot.CurrentInstruction = 0xffff;
             var state = new YardEnemyState(slot)
             {
+                // A hiding animation is never a turn's result, so the assertion sees the turn's own choice.
+                Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.HidingUpsideUpMovingLeft),
                 MovementFunction = movement,
                 TurnTransitionDisabled = disabled,
                 CrawlingVelocity = new EightEightVector<RoomPixels>(0x0100, 0x0100),
@@ -121,7 +123,7 @@ internal static class YardTurnDefinitionsVerification
 
             run(slot, state, level);
 
-            AssertEqual(expectedInstruction, slot.CurrentInstruction,
+            AssertEqual(AnimationProgramCursor<YardProgram>.Start(expectedProgram), state.Program,
                 $"{context} production instruction");
             AssertTrue(state.TurnTransitionDisabled,
                 $"{context} disables the next turn transition");

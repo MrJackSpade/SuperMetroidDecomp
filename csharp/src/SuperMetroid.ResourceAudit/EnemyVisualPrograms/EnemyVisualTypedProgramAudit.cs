@@ -1,3 +1,7 @@
+using SuperMetroid.Core.Enemies.Yard.Artwork;
+using SuperMetroid.Core.Enemies.Yard;
+using SuperMetroid.Core.Enemies.Shaktool.Artwork;
+using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
@@ -287,6 +291,10 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(TourianEntranceStatueAnimations), "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueAnimations.cs");
         RequireTypedFrames(WorkRobotAnimations.Programs, WorkRobotFrameDefinitions.Spritemap, WorkRobotFrameDefinitions.Bank,
             nameof(WorkRobotAnimations), "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotAnimations.cs");
+        RequireTypedFrames(ShaktoolAnimations.Programs, ShaktoolFrameDefinitions.Spritemap, ShaktoolFrameDefinitions.Bank,
+            nameof(ShaktoolAnimations), "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolAnimations.cs");
+        RequireTypedFrames(YardAnimations.Programs, YardFrameDefinitions.Spritemap, YardFrameDefinitions.Bank,
+            nameof(YardAnimations), "csharp/src/SuperMetroid.Core/Enemies/Yard/YardAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

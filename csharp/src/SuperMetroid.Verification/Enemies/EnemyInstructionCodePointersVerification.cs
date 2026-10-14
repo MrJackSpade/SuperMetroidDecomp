@@ -66,9 +66,7 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(KiHunterInstruction),
             typeof(MagdolliteInstruction),
             typeof(MamaTurtleInstruction),
-            typeof(ShaktoolInstruction),
             typeof(SpacePirateInstruction),
-            typeof(YardInstruction),
         ];
         Type[] codeCatalogs =
         [
@@ -79,9 +77,7 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(MagdolliteInstruction),
             typeof(MamaTurtleInstruction),
             typeof(MotherBrainInstructionCodes),
-            typeof(ShaktoolInstruction),
             typeof(SpacePirateInstruction),
-            typeof(YardInstruction),
         ];
         foreach (Type catalog in codeCatalogs)
             AssertUniqueMappedInstructionPointers(catalog);

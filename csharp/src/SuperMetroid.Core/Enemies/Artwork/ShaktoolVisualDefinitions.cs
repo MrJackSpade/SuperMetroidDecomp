@@ -1,11 +1,10 @@
-using SuperMetroid.Core.Enemies.Shaktool;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The fifteen distinct bank-$AA OAM compositions selected by Shaktool's seven
-/// articulated enemy records. The native instruction programs own timing and
-/// segment motion; these definitions only identify editable visual frames.
+/// articulated enemy records. Their typed programs own timing and segment
+/// motion; these definitions only identify editable visual frames.
 /// </summary>
 internal static class ShaktoolVisualDefinitions
 {
@@ -51,13 +50,4 @@ internal static class ShaktoolVisualDefinitions
         7 => "down_left",
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
-    /// <summary>Resolves only presentation words in Shaktool's bank-$AA programs.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        if (ShaktoolInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress, out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Shaktool visual operand $AA:{operandAddress:X4} is not compiled.");
-    }
 }

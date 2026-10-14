@@ -1,6 +1,8 @@
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
-using static SuperMetroid.Verification.Enemies.Yard.YardInstructionProgramDefinitionsVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Yard;
@@ -13,62 +15,36 @@ namespace SuperMetroid.Verification.Enemies.Yard;
 /// <summary>Checks installed Yard animation selectors and editable OAM against retail data.</summary>
 internal static class YardVisualsVerification
 {
-    /// <summary>Confirms 112 selectors cover 104 distinct frames without runtime cartridge program reads.</summary>
+    /// <summary>Checks every pose the Yard's programs show against editable stock OAM equal to the cartridge's.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Yard visuals")]
     internal static void VerifyInstalledYardVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
-        var selectedFrames = new HashSet<ushort>();
-        var guard = NewYardInstructionReadGuard(rom, forbidPresentation: true);
-        for (int index = 0;
-             index < YardInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        HashSet<ushort> shown = YardAnimations.Spritemaps(Enum.GetValues<YardProgram>()).ToHashSet();
+        foreach (ushort pointer in shown)
         {
-            ushort operand = YardInstructionProgramDefinitions.PresentationWordAddress(index);
-            int selectorAddress = ((int)new SnesAddress(YardVisualDefinitions.Bank, operand));
-            ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(selectorAddress);
-            AssertEqual(nativePointer, YardVisualDefinitions.FrameAt(operand),
-                $"Yard visual selector {index} matches pinned cartridge");
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Yard, operand,
-                    out ushort installedPointer),
-                $"Yard selector {index} is installed");
-            AssertEqual(nativePointer, installedPointer,
-                $"Yard selector {index} preserves native frame identity");
-            selectedFrames.Add(installedPointer);
             AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
-                    YardVisualDefinitions.Bank, installedPointer,
-                    out EnemySpritemapParts installedParts),
-                $"Yard selector {index} has editable OAM");
+                    YardVisualDefinitions.Bank, pointer, out EnemySpritemapParts installedParts),
+                $"Yard pose $A3:{pointer:X4} has editable OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeOam, new EnemySpritemapDraw { Bank = YardVisualDefinitions.Bank, Pointer = nativePointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(rom, nativeOam, new EnemySpritemapDraw { Bank = YardVisualDefinitions.Bank, Pointer = pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
-                $"Yard selector {index} installed OAM matches cartridge");
-
-            RoomEnemySystem enemies = CreateYardInstructionSystem(
-                guard, out RoomEnemySlot yard);
-            enemies.TileArtwork = stock;
-            yard.CurrentInstruction = unchecked((ushort)(operand - 2));
-            yard.InstructionTimer = NativeCountdown.Start(1);
-            enemies.Instructions.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, (ushort)0);
-            AssertEqual(installedPointer, yard.SpritemapPointer,
-                $"installed Yard instruction {index} selects native frame");
+                $"Yard pose $A3:{pointer:X4} installed OAM matches cartridge");
         }
-        AssertEqual(YardVisualDefinitions.FrameCount, selectedFrames.Count,
-            "112 Yard selectors choose 104 distinct editable frames");
-        AssertEqual(0, guard.ObservedWords.Count,
-            "all installed Yard programs avoid cartridge presentation words");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "all installed Yard programs retain compiled control words");
-        AssertThrows<InvalidDataException>(
-            () => YardVisualDefinitions.FrameAt(
-                YardInstructionProgramDefinitions.CrawlingUpsideUpMovingLeft),
-            "Yard visual catalog rejects adjacent mechanics data");
-        Console.WriteLine(
-            "  Yard visuals: 112 guarded native selectors and 104 editable OAM frames pass.");
+        AssertTrue(YardVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(shown),
+            "the Yard's programs show exactly its 104 installed frames");
+        Console.WriteLine("  Yard visuals: 104 editable OAM frames shown by its programs match the cartridge.");
+    }
+
+    /// <summary>Runs the Yard visual check against the installed stock artwork, without re-extracting every enemy's art.</summary>
+    [VerificationCommand("--yard-visuals")]
+    internal static int YardVisualsCommand()
+    {
+        Suite(nameof(VerifyInstalledYardVisuals), () => VerifyInstalledYardVisuals(
+            CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")), InstalledFixtures.EnemyTiles));
+        return 0;
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class YardEnemyState
 
     /// <summary>Projects one Yard enemy slot into typed debugger-visible state.</summary>
     internal YardEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<YardProgram> Program { get; set; }
 
     /// <summary>
     /// Native variables A/B: signed 8.8 horizontal and vertical crawl velocity, each axis used
@@ -34,12 +38,8 @@ public sealed class YardEnemyState
         internal set => _slot.VariableC = value;
     }
 
-    /// <summary>Native variable D: bank-$A3 hidden-shell instruction-list pointer for the current orientation; $CF5F suppresses the look-at hiding transition.</summary>
-    public ushort HidingInstructionList
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
-    }
+    /// <summary>The hidden-shell animation for the current orientation (native variable D); none, the native $CF5F sentinel, suppresses the look-at hiding transition.</summary>
+    internal YardProgram? HidingProgram { get; set; }
 
     /// <summary>Native variable E: consecutive missing-surface probe count, reset on surface contact; the fourth failure drops Yard instead of installing another outside-corner turn.</summary>
     public ushort ConsecutiveTurnCounter

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Yard.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Fx;
@@ -28,69 +29,42 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         _collision = collision;
     }
 
-    /// <summary>Executes Yard's private animation instructions.</summary>
-    private bool TryProcessYardInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>
+    /// Carries out one cue of the Yard's animations. Repeating the previous pose resumes at the pose shown just before the
+    /// cue, as the native instruction steps its pointer back four bytes; every other cue runs on.
+    /// </summary>
+    private AnimationProgramCursor<YardProgram>? ApplyYardCue(
+        RoomEnemySlot slot, YardEnemyState state, YardCue cue, AnimationProgramCursor<YardProgram> continuation)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Yard ||
-            !Enum.IsDefined((YardInstruction)word))
-            return false;
-
-        switch ((YardInstruction)word)
+        switch (cue.Kind)
         {
-            case YardInstruction.MovementFunctionInY:
-                // Yard animation bytecode owns movement dispatch. The word after the
-                // opcode is a same-bank function pointer, not a branch destination.
-                RequireYardState(slot).MovementFunction = (YardMovementFunction)
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2)));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            case YardInstruction.HidingInstListInY:
-                RequireYardState(slot).HidingInstructionList =
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2)));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            case YardInstruction.DirectionInY:
-            {
-                YardEnemyState yard = RequireYardState(slot);
-                yard.Direction = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                    slot,
-                    unchecked((ushort)(cursor + 2)));
-                if (yard.Direction >= 8)
-                {
-                    throw new InvalidDataException(
-                        $"Yard instruction selected invalid direction {yard.Direction}.");
-                }
-                yard.AirborneFacingDirection =
-                    YardDirectionDefinitions.ForDirection(yard.Direction)
-                        .AirborneFacingDirection;
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            }
-            case YardInstruction.MoveByPixelsInY:
-                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2))))));
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole +
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 4))))));
-                cursor = unchecked((ushort)(cursor + 6));
-                return true;
-            case YardInstruction.GoBack4BytesIfHidingOr50PercentChance:
-                // The native instruction receives Y already advanced past the opcode.
-                // Subtracting six therefore resumes four bytes before the opcode.
-                cursor = RequireYardState(slot).Behavior == YardBehavior.Hiding || (_room.Random.Generate() & 1) != 0
-                    ? unchecked((ushort)(cursor - 4))
-                    : unchecked((ushort)(cursor + 2));
-                return true;
+            case YardCueKind.SetMovementFunction:
+                // Yard animation owns movement dispatch: the operand is a same-bank function pointer, not a branch.
+                state.MovementFunction = cue.MovementFunction;
+                return null;
+            case YardCueKind.SetHidingProgram:
+                state.HidingProgram = cue.OptionalTarget;
+                return null;
+            case YardCueKind.SetDirection:
+                if (cue.Value >= 8)
+                    throw new InvalidDataException($"Yard animation selected invalid direction {cue.Value}.");
+                state.Direction = cue.Value;
+                state.AirborneFacingDirection = YardDirectionDefinitions.ForDirection(state.Direction).AirborneFacingDirection;
+                return null;
+            case YardCueKind.MoveBy:
+                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + cue.Offset)));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + cue.OffsetY)));
+                return null;
+            case YardCueKind.RepeatPreviousPoseUnlessContinuing:
+                if (state.Behavior != YardBehavior.Hiding && (_room.Random.Generate() & 1) == 0)
+                    return null;
+                // The pose record sits immediately before this cue in every authored list.
+                AnimationProgramCursor<YardProgram> previous = continuation with { Position = continuation.Position - 2 };
+                return YardAnimations.Programs.Steps(previous.Program)[previous.Position].Kind == AnimationProgramStepKind.Show
+                    ? previous
+                    : throw new InvalidDataException($"Yard repeat cue in {previous.Program} does not follow a pose.");
             default:
-                throw new InvalidOperationException(
-                    $"Yard does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(YardCueKind)} {cue.Kind}.");
         }
     }
 
@@ -129,10 +103,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         slot.InstructionTimer = NativeCountdown.Start(1);
 
         YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(direction);
-        slot.CurrentInstruction = definition.CrawlingInstructionList;
+        state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
         slot.Properties = unchecked((ushort)(
             slot.Properties | definition.PropertyBits));
-        state.HidingInstructionList = definition.HidingInstructionList;
+        state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(slot, state, direction);
     }
@@ -222,9 +196,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         {
             if (state.Behavior == YardBehavior.Hiding)
                 return;
-            if (state.HidingInstructionList != (ushort)YardMovementFunction.InstructionPending)
+            if (state.HidingProgram is { } hiding)
             {
-                slot.CurrentInstruction = state.HidingInstructionList;
+                state.Program = AnimationProgramCursor<YardProgram>.Start(hiding);
                 slot.SpritemapPointer = YardNothingSpritemap;
                 slot.InstructionTimer = NativeCountdown.Start(1);
                 slot.Timer = NativeCountdown.Start(0);
@@ -331,7 +305,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             SetYardInstructionAndDisableTurn(
                 slot,
                 state,
-                turn.OutsideTurnInstructionList);
+                turn.OutsideTurnProgram);
             return;
         }
 
@@ -347,7 +321,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
                 SetYardInstructionAndDisableTurn(
                     slot,
                     state,
-                    turn.InsideTurnInstructionList);
+                    turn.InsideTurnProgram);
             }
             return;
         }
@@ -362,7 +336,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             SetYardInstructionAndDisableTurn(
                 slot,
                 state,
-                turn.InsideTurnInstructionList);
+                turn.InsideTurnProgram);
             return;
         }
 
@@ -395,9 +369,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     private static void SetYardInstructionAndDisableTurn(
         RoomEnemySlot slot,
         YardEnemyState state,
-        ushort instructionList)
+        YardProgram program)
     {
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<YardProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;
@@ -496,7 +470,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot);
         slot.SpritemapPointer = YardNothingSpritemap;
         state.MovementFunction = YardMovementFunction.InstructionPending;
-        slot.CurrentInstruction = state.HidingInstructionList;
+        state.Program = AnimationProgramCursor<YardProgram>.Start(state.HidingProgram ??
+            throw new InvalidDataException("A landing Yard has no hiding animation to resume."));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -508,8 +483,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     {
         YardAirborneInstructionDefinition definition =
             YardDirectionDefinitions.ForAirborneFacing(state.AirborneFacingDirection);
-        slot.CurrentInstruction = definition.VisibleInstructionList;
-        state.HidingInstructionList = definition.HidingInstructionList;
+        state.Program = AnimationProgramCursor<YardProgram>.Start(definition.VisibleProgram);
+        state.HidingProgram = definition.HidingProgram;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -537,10 +512,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
 
         state.Direction = YardDirectionDefinitions.ForDirection(state.Direction).OppositeDirection;
         YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(state.Direction);
-        slot.CurrentInstruction = definition.CrawlingInstructionList;
+        state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
         slot.Properties = unchecked((ushort)(
             (slot.Properties & 0xfffc) | definition.PropertyBits));
-        state.HidingInstructionList = definition.HidingInstructionList;
+        state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(slot, state, state.Direction);
         state.MovementFunction = definition.MovementFunction;
@@ -686,15 +661,18 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers Yard's private animation words with the shared enemy instruction interpreter.</summary>
-    internal void RegisterYardOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Yard's animations as typed programs (#641); its repeat cue resumes at the previous pose.</summary>
+    internal void RegisterYardTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessYardInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireYardState(slot);
+            AnimationProgramCursor<YardProgram> cursor = state.Program;
+            EnemyProgramAnimation.RunTo(slot, YardAnimations.Programs, ref cursor, YardFrameDefinitions.Spritemap,
+                    (cue, continuation) => ApplyYardCue(slot, state, cue, continuation));
+            state.Program = cursor;
         });
-    }
 
     /// <summary>Routes Yard shots through its custom launch branch before common vulnerability damage.</summary>
     internal void RegisterYardShotReactions(EnemyAiTable table)

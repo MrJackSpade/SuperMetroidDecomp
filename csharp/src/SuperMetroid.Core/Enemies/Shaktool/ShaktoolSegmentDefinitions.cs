@@ -39,11 +39,11 @@ internal static class ShaktoolSegmentDefinitions
     /// Independently checked for #1165 against every original NTSC word and named
     /// disassembly target; indices are validated before this case selection.
     /// </summary>
-    private static ushort InstructionForSegment(int index) => index switch
+    private static ShaktoolProgram InstructionForSegment(int index) => index switch
     {
-        0 or 6 => ShaktoolInstructionProgramDefinitions.SawHandPrimaryPiece,
-        3 => ShaktoolInstructionProgramDefinitions.HeadAimingDown,
-        _ => ShaktoolInstructionProgramDefinitions.ArmPieceNormal,
+        0 or 6 => ShaktoolProgram.SawHandPrimaryPiece,
+        3 => ShaktoolProgram.HeadAimingDown,
+        _ => ShaktoolProgram.ArmPieceNormal,
     };
 
     /// <summary>

@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Enemies.Shaktool.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Enemies.Shaktool;
@@ -66,8 +68,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         state.OrbitAngle = definition.InitialOrbitAngle;
 
         // The second half of $DEB1 is a parallel list-pointer table. Parameter two is
-        // already a byte offset, so +14+p2 selects exactly entries seven through thirteen.
-        slot.CurrentInstruction = definition.InitialInstruction;
+        // already a byte offset, so +14+p2 selects exactly entries seven through thirteen;
+        // the definition names the animation each selects.
+        state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(definition.InitialProgram);
         slot.Layer = definition.Layer;
 
         // Slot zero is the fixed head/anchor. Every later segment's curious drawing-queue
@@ -173,8 +176,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         ushort directionBucket = unchecked((ushort)(((SnesLittleEndian.HighByte(midpoint)) + 8) & 0x00e0));
         state.OrientationAndAcceleration = unchecked((ushort)(
             (SnesLittleEndian.HighByteInPlace(state.OrientationAndAcceleration)) | directionBucket));
-        slot.CurrentInstruction =
-            ShaktoolInstructionDefinitions.ForOrientationBucket(directionBucket);
+        state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
+            ShaktoolInstructionDefinitions.ForOrientationBucket(directionBucket));
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -284,8 +287,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             ShaktoolSegmentState segmentState = RequireShaktoolState(segment);
             CalculateShaktoolAngularVelocity(segment, segmentState);
             segmentState.PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
-            segment.CurrentInstruction =
-                ShaktoolInstructionDefinitions.CollisionForSegment(index);
+            segmentState.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
+                ShaktoolInstructionDefinitions.CollisionForSegment(index));
             segment.InstructionTimer = NativeCountdown.Start(1);
         }
     }
@@ -407,51 +410,42 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             : throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} has no initialized Shaktool state.");
 
-    /// <summary>Animation callback dispatcher for <c>$AA:D931-$D9BA</c>.</summary>
-    internal bool TryProcessShaktoolInstruction(
-        RoomEnemySlot slot,
-        ushort opcode,
-        ref ushort cursor)
+    /// <summary>Carries out one cue of a Shaktool segment's animation (native callbacks <c>$AA:D931-$D9BA</c>).</summary>
+    internal ShaktoolProgram? ApplyShaktoolCue(RoomEnemySlot slot, ShaktoolSegmentState state, ShaktoolCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Shaktool)
-            return false;
-
-        ShaktoolSegmentState state = RequireShaktoolState(slot);
-        if (!Enum.IsDefined((ShaktoolInstruction)opcode))
-            return false;
-        switch ((ShaktoolInstruction)opcode)
+        switch (cue.Kind)
         {
-            case ShaktoolInstruction.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931:
-            case ShaktoolInstruction.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F:
+            case ShaktoolCueKind.LowerAwayFromCenter:
+            case ShaktoolCueKind.RaiseTowardCenter:
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
                 byte centerDirection = unchecked((byte)RequireShaktoolState(group[3])
                     .OrientationAndAcceleration);
                 MoveShaktoolSegmentForAnimation(
                     slot,
-                    opcode == (ushort)ShaktoolInstruction.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931
+                    cue.Kind == ShaktoolCueKind.LowerAwayFromCenter
                         ? unchecked((byte)(centerDirection ^ 0x80))
                         : centerDirection);
                 break;
             }
 
-            case ShaktoolInstruction.Instruction_Shaktool_Lower1Pixel:
-            case ShaktoolInstruction.Instruction_Shaktool_Raise1Pixel:
+            case ShaktoolCueKind.Lower:
+            case ShaktoolCueKind.Raise:
             {
                 byte targetDirection = SnesAngle.FromRaw(state.TargetAngle).TableIndex;
                 MoveShaktoolSegmentForAnimation(
                     slot,
-                    opcode == (ushort)ShaktoolInstruction.Instruction_Shaktool_Lower1Pixel
+                    cue.Kind == ShaktoolCueKind.Lower
                         ? unchecked((byte)(targetDirection ^ 0x80))
                         : targetDirection);
                 break;
             }
 
-            case ShaktoolInstruction.RTL_AAD99F:
+            case ShaktoolCueKind.Nothing:
                 // Explicit RTL stub used between the two long attack pauses.
                 break;
 
-            case ShaktoolInstruction.Instruction_Shaktool_ResetShaktoolFunctions:
+            case ShaktoolCueKind.ResetFunctions:
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
                 for (int index = 0; index < ShaktoolSegmentCount; index++)
@@ -463,11 +457,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             }
 
             default:
-                throw new InvalidOperationException($"Undefined {nameof(ShaktoolInstruction)} {opcode:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(ShaktoolCueKind)} {cue.Kind}.");
         }
 
-        cursor = unchecked((ushort)(cursor + 2));
-        return true;
+        return null;
     }
 
     /// <summary>Ports the one-frame sine movement helper at <c>$AA:D956</c>.</summary>
@@ -551,15 +544,19 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims the Shaktool-specific instruction words in the shared interpreter.</summary>
-    internal void RegisterShaktoolOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Shaktool segments' animations as typed programs (#641).</summary>
+    internal void RegisterShaktoolTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessShaktoolInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireShaktoolState(slot);
+            AnimationProgramCursor<ShaktoolProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, ShaktoolAnimations.Programs, ref cursor, ShaktoolFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyShaktoolCue(slot, state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>`$AA:DF2F`: Shaktool contact is the common normal-enemy touch, death animation included.</summary>
     internal void RegisterShaktoolTouch(EnemyAiTable table)

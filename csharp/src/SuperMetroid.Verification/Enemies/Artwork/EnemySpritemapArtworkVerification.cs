@@ -434,27 +434,8 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(15, shaktoolFrames.Count,
             "Shaktool's visual frame identities are distinct");
-        for (int index = 0;
-             index < ShaktoolInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = ShaktoolInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Shaktool, operand, out ushort selected),
-                $"Shaktool visual operand $AA:{operand:X4} is compiled");
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xaa, operand);
-            AssertEqual(native, selected,
-                $"Shaktool visual selector $AA:{operand:X4} matches the cartridge");
-            AssertTrue(shaktoolFrames.Remove(selected),
-                $"Shaktool visual selector $AA:{operand:X4} has unique installed art");
-        }
-        AssertEqual(0, shaktoolFrames.Count,
-            "every installed Shaktool frame is selected by a native program");
-        AssertThrows<InvalidDataException>(
-            () => ShaktoolVisualDefinitions.FrameAt(
-                ShaktoolInstructionProgramDefinitions.HeadAimingLeft),
-            "Shaktool visual selector rejects neighboring mechanics data");
+        AssertTrue(ShaktoolAnimations.Spritemaps(Enum.GetValues<ShaktoolProgram>()).ToHashSet().SetEquals(shaktoolFrames),
+            "the Shaktool's programs show exactly its installed frames");
         HashSet<ushort> platformFramePointers = TripperKamerVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(18, platformFramePointers.Count,

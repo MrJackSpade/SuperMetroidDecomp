@@ -1,3 +1,13 @@
+using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
+using SuperMetroid.Core.Enemies.PipeBugs;
+using SuperMetroid.Core.Enemies.Crawlers.Artwork;
+using SuperMetroid.Core.Enemies.Crawlers;
+using SuperMetroid.Core.Enemies.Hoppers.Artwork;
+using SuperMetroid.Core.Enemies.Hoppers;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
+using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
+using SuperMetroid.Core.Enemies.LavaJumpers;
 using SuperMetroid.Core.Enemies.Waver.Artwork;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
@@ -153,6 +163,18 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(ElevatorAnimations), "csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorAnimations.cs");
         RequireTypedFrames(WaverAnimations.Programs, WaverFrameDefinitions.Spritemap, WaverFrameDefinitions.Bank,
             nameof(WaverAnimations), "csharp/src/SuperMetroid.Core/Enemies/Waver/WaverAnimations.cs");
+        RequireTypedFrames(NorfairLavaJumperAnimations.Programs, NorfairLavaJumperFrameDefinitions.Spritemap, NorfairLavaJumperFrameDefinitions.Bank,
+            nameof(NorfairLavaJumperAnimations), "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperAnimations.cs");
+        RequireTypedFrames(DeadTourianAnimations.Programs, DeadTourianFrameDefinitions.Spritemap, DeadTourianFrameDefinitions.Bank,
+            nameof(DeadTourianAnimations), "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianAnimations.cs");
+        RequireTypedFrames(DeadTorizoAnimations.Programs, DeadTorizoFrameDefinitions.Spritemap, DeadTorizoFrameDefinitions.Bank,
+            nameof(DeadTorizoAnimations), "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoAnimations.cs");
+        RequireTypedFrames(HopperAnimations.Programs, HopperFrameDefinitions.Spritemap, HopperFrameDefinitions.Bank,
+            nameof(HopperAnimations), "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperAnimations.cs");
+        RequireTypedFrames(MultiviolaAnimations.Programs, MultiviolaFrameDefinitions.Spritemap, MultiviolaFrameDefinitions.Bank,
+            nameof(MultiviolaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaAnimations.cs");
+        RequireTypedFrames(PipeBugAnimations.Programs, PipeBugFrameDefinitions.Spritemap, PipeBugFrameDefinitions.Bank,
+            nameof(PipeBugAnimations), "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/PipeBugAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

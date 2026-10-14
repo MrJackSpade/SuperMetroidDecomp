@@ -101,86 +101,45 @@ internal static class DeadTourianCorpseArtworkVerification
         Console.WriteLine("  Tourian corpse artwork: ten guarded sidehopper/Zoomer/Ripper/Skree variants match cartridge WRAM; a PNG edit and reload reach the live buffer.");
     }
 
-    /// <summary>Matches compiled corpse frame selectors and installed OAM compositions to retail spritemaps.</summary>
+    /// <summary>Matches the installed OAM compositions of every corpse pose the typed programs show to retail spritemaps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Tourian corpse visuals")]
     private static void VerifyDeadTourianCorpseVisuals(
         EnemyTileArtworkCatalog stock)
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        AssertEqual(DeadTourianCorpseVisualDefinitions.CorpseFrameCount,
-            DeadTourianCorpseInstructionProgramDefinitions.ProgramCount,
+        DeadTourianProgram[] corpsePrograms =
+        [
+            DeadTourianProgram.ZoomerCorpse0, DeadTourianProgram.ZoomerCorpse1, DeadTourianProgram.ZoomerCorpse2,
+            DeadTourianProgram.RipperCorpse0, DeadTourianProgram.RipperCorpse1,
+            DeadTourianProgram.SkreeCorpse0, DeadTourianProgram.SkreeCorpse1, DeadTourianProgram.SkreeCorpse2,
+        ];
+        AssertEqual(DeadTourianCorpseVisualDefinitions.CorpseFrameCount, corpsePrograms.Length,
             "every dead Tourian corpse program has an editable composition");
-        for (int index = 0;
-             index < DeadTourianCorpseInstructionProgramDefinitions.ProgramCount;
-             index++)
+        foreach (DeadTourianProgram program in corpsePrograms)
+            VerifyInstalledPose(DeadTourianAnimations.Spritemaps(program).Single(), $"dead Tourian corpse {program}");
+        ushort[] sidehopperPointers = DeadTourianAnimations.Spritemaps(
+            DeadTourianProgram.SidehopperHopping, DeadTourianProgram.SidehopperIdle,
+            DeadTourianProgram.SidehopperCorpse, DeadTourianProgram.SidehopperInitiallyDead).Distinct().ToArray();
+        foreach (ushort pointer in sidehopperPointers)
+            VerifyInstalledPose(pointer, $"dead Sidehopper ${pointer:X4}");
+        AssertEqual(DeadTourianCorpseVisualDefinitions.SidehopperFrameCount, sidehopperPointers.Length,
+            "the dead Sidehopper's programs show five distinct OAM compositions");
+
+        // The typed oracle ties each pose to its native list; here the installed composition must draw as the cartridge's.
+        void VerifyInstalledPose(ushort pointer, string context)
         {
-            ushort operand = DeadTourianCorpseInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            int selectorAddress = ((int)new SnesAddress(DeadTourianCorpseVisualDefinitions.Bank, operand));
-            ushort nativePointer = rom.ReadCartridgeWord(selectorAddress);
-            AssertEqual(nativePointer,
-                DeadTourianCorpseVisualDefinitions.FrameAt(operand),
-                $"dead Tourian corpse selector {index} matches cartridge");
-            EnemyDefinitionId definition = index < 3 ? EnemyDefinitionId.CorpseZoomer :
-                index < 5 ? EnemyDefinitionId.CorpseRipper :
-                EnemyDefinitionId.CorpseSkree;
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    definition, operand, out ushort installedPointer),
-                $"dead Tourian corpse program {index} has an installed selector");
-            AssertEqual(nativePointer, installedPointer,
-                $"dead Tourian corpse program {index} keeps its native identity");
             AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
-                    DeadTourianCorpseVisualDefinitions.Bank, installedPointer,
-                    out EnemySpritemapParts installedParts),
-                $"dead Tourian corpse program {index} has installed OAM");
+                    DeadTourianCorpseVisualDefinitions.Bank, pointer, out EnemySpritemapParts installedParts),
+                $"{context} has installed OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeOam, new EnemySpritemapDraw { Bank = DeadTourianCorpseVisualDefinitions.Bank, Pointer = nativePointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(rom, nativeOam, new EnemySpritemapDraw { Bank = DeadTourianCorpseVisualDefinitions.Bank, Pointer = pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
-            AssertTrue(nativeOam.ImageEquals(installedOam) &&
-                       nativeOam.NextByteOffset == installedOam.NextByteOffset,
-                $"dead Tourian corpse {index} installed OAM matches cartridge");
+            AssertTrue(nativeOam.ImageEquals(installedOam) && nativeOam.NextByteOffset == installedOam.NextByteOffset,
+                $"{context} installed OAM matches cartridge");
         }
-        var sidehopperPointers = new HashSet<ushort>();
-        for (int index = 0;
-             index < DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = DeadSidehopperInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            int selectorAddress = ((int)new SnesAddress(DeadTourianCorpseVisualDefinitions.Bank, operand));
-            ushort nativePointer = rom.ReadCartridgeWord(selectorAddress);
-            AssertEqual(nativePointer,
-                DeadTourianCorpseVisualDefinitions.SidehopperFrameAt(operand),
-                $"dead Sidehopper selector {index} matches cartridge");
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.CorpseSidehopper, operand,
-                    out ushort installedPointer),
-                $"dead Sidehopper selector {index} is installed");
-            AssertEqual(nativePointer, installedPointer,
-                $"dead Sidehopper selector {index} preserves identity");
-            sidehopperPointers.Add(installedPointer);
-            AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
-                    DeadTourianCorpseVisualDefinitions.Bank, installedPointer,
-                    out EnemySpritemapParts installedParts),
-                $"dead Sidehopper selector {index} has installed OAM");
-            var nativeOam = new OamBuffer();
-            var installedOam = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeOam, new EnemySpritemapDraw { Bank = DeadTourianCorpseVisualDefinitions.Bank, Pointer = nativePointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
-            installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
-            AssertTrue(nativeOam.ImageEquals(installedOam) &&
-                       nativeOam.NextByteOffset == installedOam.NextByteOffset,
-                $"dead Sidehopper selector {index} installed OAM matches cartridge");
-        }
-        AssertEqual(DeadTourianCorpseVisualDefinitions.SidehopperFrameCount,
-            sidehopperPointers.Count,
-            "eleven Sidehopper selectors choose five distinct OAM compositions");
-        AssertThrows<InvalidDataException>(
-            () => DeadTourianCorpseVisualDefinitions.FrameAt(
-                DeadTourianCorpseInstructionProgramDefinitions.Zoomer0),
-            "dead Tourian corpse selector rejects adjacent mechanics");
-        Console.WriteLine("  Dead Tourian corpses: eight Zoomer/Ripper/Skree and eleven Sidehopper selectors choose thirteen editable native-parity OAM frames.");
+        Console.WriteLine("  Dead Tourian corpses: eight Zoomer/Ripper/Skree poses and five Sidehopper compositions are editable native-parity OAM frames.");
     }
 
     // Independent copy spans from the pinned sm_a9.c corpse initializers

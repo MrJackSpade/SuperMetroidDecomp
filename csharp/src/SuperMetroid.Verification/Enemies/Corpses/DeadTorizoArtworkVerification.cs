@@ -105,16 +105,10 @@ internal static class DeadTorizoArtworkVerification
         EnemyTileArtworkCatalog stock)
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        int selector = 0xa90000 | DeadTorizoArtworkDefinitions.StationaryOperand;
-        ushort nativePointer = rom.ReadCartridgeWord(selector);
+        // The typed oracle ties the pose to its native list; the export must publish the pose the program shows.
+        ushort nativePointer = DeadTorizoAnimations.Spritemaps(DeadTorizoProgram.Stationary).Single();
         AssertEqual(DeadTorizoArtworkDefinitions.StationarySpritemap, nativePointer,
-            "Dead Torizo stationary visual identity matches its native list");
-        AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                EnemyDefinitionId.CorpseTorizo,
-                DeadTorizoArtworkDefinitions.StationaryOperand, out ushort compiledPointer),
-            "Dead Torizo stationary visual selector is installed");
-        AssertEqual(nativePointer, compiledPointer,
-            "installed stationary selector preserves the physical frame identity");
+            "Dead Torizo stationary export is the pose its program shows");
         AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
                 DeadTorizoArtworkDefinitions.SpritemapBank, nativePointer,
                 out EnemySpritemapParts installedParts),

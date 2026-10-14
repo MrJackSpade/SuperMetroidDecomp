@@ -16,7 +16,6 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTurretDefin
 using static SuperMetroid.Verification.Fx.PaletteFx.PaletteFxInstructionCodesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotLaserInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.PipeBugs.YellowPipeBugInstructionProgramDefinitionsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -641,30 +640,6 @@ internal static class LookupStream3Verification
             "enemy additional room-sprite sort and duplicate exclusion preserve named prefix");
         AssertEqual(all.Length, all.Select(frame => (frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
-    }
-
-    /// <summary>Walks sixteen native Hopper programs to confirm the forty timed-pose operand positions.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for hopper operand positions")]
-    internal static void VerifyStream3HopperOperandPositions(ISnesAddressSpace rom)
-    {
-        var operands = new SortedSet<ushort>();
-        for (int selector = 0; selector < 16; selector++)
-        {
-            int cursor = 0xa30000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3aac2 + selector * 2));
-            cursor += 2; // Each native program first changes off-screen processing.
-            if (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor) == (ushort)HopperInstruction.SidehopperQueueSoundInY)
-                cursor += 4;
-            while (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor) < 0x8000)
-            {
-                operands.Add((ushort)(cursor + 2));
-                cursor += 4;
-            }
-        }
-        AssertEqual(40, operands.Count, "hopper native timed-pose operand count");
-        int index = 0;
-        foreach (ushort operand in operands)
-            AssertEqual(operand, HopperInstructionProgramDefinitions.PresentationWordAddress(index++),
-                "hopper calculated selector position matches native program structure");
     }
 
     /// <summary>Checks file-select patch cells and terminators against ROM, then verifies edited placement and order.</summary>
@@ -2118,12 +2093,11 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.CorpseColor(0, invalid), "stream 3 corpse fade color bounds");
     }
 
-    /// <summary>Checks Mochtroid and yellow-pipe-bug instruction mechanics and visual operands at native addresses.</summary>
+    /// <summary>Checks Mochtroid instruction mechanics and visual operands at native addresses.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for uniform enemy loops")]
     private static void VerifyStream3UniformEnemyLoops(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions());
-        Suite(nameof(VerifyYellowPipeBugInstructionProgramDefinitions), () => VerifyYellowPipeBugInstructionProgramDefinitions());
         Check(0xa30000, [0xa745, 0xa759],
             index =>
             {
@@ -2132,14 +2106,6 @@ internal static class LookupStream3Verification
             }, MochtroidInstructionProgramDefinitionsTooling.PresentationWordAddress,
             MochtroidInstructionProgramDefinitions.ReadMechanicsWord,
             MochtroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
-        Check(0xb30000, [0x8efc, 0x8f10, 0x8f24, 0x8f38],
-            index =>
-            {
-                var word = YellowPipeBugInstructionProgramDefinitionsTooling.MechanicsWord(index);
-                return (word.Address, word.Value);
-            }, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress,
-            YellowPipeBugInstructionProgramDefinitions.ReadMechanicsWord,
-            YellowPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
 
         void Check(int bank, ushort[] starts,
             Func<int, (ushort Address, ushort Value)> wordAt, Func<int, ushort> visualAt,

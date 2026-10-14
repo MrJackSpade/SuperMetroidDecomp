@@ -13,9 +13,6 @@ internal static class DeadTorizoArtworkDefinitions
     internal static EnemySpritemapDefinition[] Frames() =>
         [new(SpritemapBank, HookSpritemap, "dead_torizo_corpse_a9_d761")];
 
-    /// <summary>$A9:D6DE, the stationary corpse-list's sole visual selector.</summary>
-    internal const ushort StationaryOperand = 0xd6de;
-
     /// <summary>$A9:D6E2, the selected 25-part stationary corpse OAM composition.</summary>
     internal const ushort StationarySpritemap = 0xd6e2;
 
@@ -24,13 +21,6 @@ internal static class DeadTorizoArtworkDefinitions
     /// <summary>Appends the stationary corpse after the original frame prefix to preserve older visual overrides.</summary>
     internal static EnemySpritemapDefinition[] StationaryFrames() =>
         [new(SpritemapBank, StationarySpritemap, "dead_torizo_stationary_a9_d6e2")];
-
-    /// <summary>Accepts the sole stationary-corpse visual operand and rejects other bank-$A9 words.</summary>
-    internal static ushort StationaryFrameAt(ushort operandAddress) =>
-        operandAddress == StationaryOperand
-            ? StationarySpritemap
-            : throw new InvalidDataException(
-                $"Dead Torizo visual selector $A9:{operandAddress:X4} is not compiled.");
 
     /// <summary>$B7:A800, the 192-tile source sheet used both for the initial corpse and falling sand.</summary>
     internal const int SourceAddress = 0xb7a800;

@@ -22,7 +22,21 @@ internal static class DeadTourianCorpseDefinitions
     /// <summary>$A9:DC08, CorpseRotEntryFinishedHook_Normal: shared completion callback.</summary>
     private const ushort Finish = 0xdc08;
 
-    /// <summary>Calculates one Zoomer, Ripper, or Skree corpse's instruction, rotting, DMA, movement, and rotation identities.</summary>
+    /// <summary>The corpse pose program of the eight Zoomer, Ripper and Skree variants, in native configuration order.</summary>
+    private static DeadTourianProgram CorpseProgram(int ordinal) => ordinal switch
+    {
+        0 => DeadTourianProgram.ZoomerCorpse0,
+        1 => DeadTourianProgram.ZoomerCorpse1,
+        2 => DeadTourianProgram.ZoomerCorpse2,
+        3 => DeadTourianProgram.RipperCorpse0,
+        4 => DeadTourianProgram.RipperCorpse1,
+        5 => DeadTourianProgram.SkreeCorpse0,
+        6 => DeadTourianProgram.SkreeCorpse1,
+        7 => DeadTourianProgram.SkreeCorpse2,
+        _ => throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, null),
+    };
+
+    /// <summary>Calculates one Zoomer, Ripper, or Skree corpse's animation, rotting, DMA, movement, and rotation identities.</summary>
     internal static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species,int variantIndex)
     {
         int first = species switch
@@ -41,7 +55,7 @@ internal static class DeadTourianCorpseDefinitions
         int rowTiles = skree ? 2 : 3;
         int rotationIndex = species == DeadTourianCorpseSpecies.Zoomer ? 0 : species == DeadTourianCorpseSpecies.Ripper ? 1 : 2;
         return new(
-            DeadTourianCorpseInstructionProgramDefinitions.Program(ordinal),
+            CorpseProgram(ordinal),
             (ushort)(FirstConfiguration+16*ordinal),
             (ushort)((skree ? FirstSkreeRottingArea : FirstWideRottingArea)+(skree ? 128 : 64)*layout),
             (ushort)((skree ? FirstSkreeTransfer : FirstWideTransfer)+(skree ? 34 : 18)*layout),

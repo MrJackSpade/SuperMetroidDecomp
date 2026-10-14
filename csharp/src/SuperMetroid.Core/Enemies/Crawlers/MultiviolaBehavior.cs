@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Crawlers.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
@@ -37,7 +39,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies
         // beginning of every main-AI call. Preserve the visible variable writes: debugging
         // immediately after room load should match $0FAC-$0FB2 before the first frame.
         CalculateMultiviolaVelocityMagnitudes(slot, state);
-        slot.CurrentInstruction = MultiviolaInstructionProgramDefinitions.Flying;
+        state.Program = AnimationProgramCursor<MultiviolaProgram>.Start(MultiviolaProgram.Flying);
     }
 
     /// <summary>Ports <c>MainAI_Multiviola</c> at $A2:B40F.</summary>
@@ -132,6 +134,19 @@ internal sealed class MultiviolaBehavior : IEnemySpecies
     private MultiviolaEnemyState RequireMultiviolaState(RoomEnemySlot slot) =>
         _multiviolaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Multiviola state.");
+
+    /// <summary>Runs Multiviola's spinning flight loop as a typed program (#641).</summary>
+    internal void RegisterMultiviolaTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Multiviola, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireMultiviolaState(slot);
+            AnimationProgramCursor<MultiviolaProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, MultiviolaAnimations.Programs, ref cursor, MultiviolaFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
+
 
     /// <summary>Registers bank $A2 initialization only for the Multiviola enemy definition.</summary>
     internal void RegisterMultiviolaInitializationAi(EnemyAiTable table)

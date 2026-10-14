@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Enemies.Shutters;
 using SuperMetroid.Verification.Enemies.Boulder;
@@ -24,7 +25,6 @@ using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonSpeedsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallPlmsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Boyon.BoyonInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.PipeBugs.BrinstarPipeBugInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Cacatac.CacatacInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresBlastPlacementVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionFrameCatalogVerification;
@@ -216,7 +216,6 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGeneratedVi
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassPlmDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassShardDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.NoobTubePlmDrawDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.PipeBugs.NorfairPipeBugInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Menus.OptionsGeometryLookupsVerification;
@@ -1497,7 +1496,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 2 pipe-program oracle revision");
         Suite(nameof(VerifyPipeBugAnimationDefinitions), () => VerifyPipeBugAnimationDefinitions(rom));
-        Suite(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(rom));
+        Suite(nameof(PipeBugAnimationsVerification.VerifyPipeBugAnimations), () => PipeBugAnimationsVerification.VerifyPipeBugAnimations(rom));
         return 0;
     }
 
@@ -1585,7 +1584,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyProjectileOrigins), () => VerifyProjectileOrigins(rom));
         Suite(nameof(VerifyCompiledSpeedBoosterPlmPrograms), () => VerifyCompiledSpeedBoosterPlmPrograms());
         Suite(nameof(VerifyLookupStream1), () => VerifyLookupStream1(rom));
-        Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions());
+        Suite(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior(rom));
         Suite(nameof(VerifyMetroidBehaviorDefinitions), () => VerifyMetroidBehaviorDefinitions(rom));
         Suite(nameof(VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions), () => VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(rom));
         Suite(nameof(VerifyDragonFireballInstructionProgramDefinitions), () => VerifyDragonFireballInstructionProgramDefinitions());

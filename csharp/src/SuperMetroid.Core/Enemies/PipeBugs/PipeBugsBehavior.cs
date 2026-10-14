@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
+using SuperMetroid.Core.Fx;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Samus;
 
@@ -60,9 +62,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.RespawnDelay = NativeCountdown.Start(BrinstarPipeBugRespawnFrames);
         state.AnimationState = PipeBugAnimationSelector.None;
         state.InstalledAnimationState = PipeBugAnimationSelector.None;
-        slot.CurrentInstruction = PipeBugDefinitions.BrinstarInstructionList(
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugDefinitions.BrinstarProgram(
             strong: slot.Parameter1 != 0,
-            PipeBugAnimationSelector.None);
+            PipeBugAnimationSelector.None));
     }
 
     /// <summary>Ports <c>NorfairPipeBug_Init</c> at $B3:8B61.</summary>
@@ -75,7 +77,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.FormationCounter = 0;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = NorfairPipeBugInstructionProgramDefinitions.RisingLeft;
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GametRisingLeft);
         state.Function = PipeBugEnemyFunction.NorfairWaitForFormation;
     }
 
@@ -87,9 +89,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = slot.Parameter1 != 0
-            ? YellowPipeBugInstructionProgramDefinitions.FlyingLeft
-            : YellowPipeBugInstructionProgramDefinitions.FlyingRight;
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(slot.Parameter1 != 0
+            ? PipeBugProgram.GeegaFlyingLeft
+            : PipeBugProgram.GeegaFlyingRight);
 
         // Parameter two is a logical entry index. Each common linear-speed record is eight
         // bytes: positive fraction/whole followed by its separately authored negative pair.
@@ -297,9 +299,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         if (state.AnimationState == state.InstalledAnimationState)
             return;
         state.InstalledAnimationState = state.AnimationState;
-        slot.CurrentInstruction = PipeBugDefinitions.BrinstarInstructionList(
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugDefinitions.BrinstarProgram(
             strong: slot.Parameter1 != 0,
-            state.AnimationState);
+            state.AnimationState));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -343,9 +345,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(leader);
         foreach (RoomEnemySlot member in formation)
         {
-            member.CurrentInstruction = samusIsRight
-                ? NorfairPipeBugInstructionProgramDefinitions.RisingRight
-                : NorfairPipeBugInstructionProgramDefinitions.RisingLeft;
+            RequirePipeBugState(member).Program = AnimationProgramCursor<PipeBugProgram>.Start(samusIsRight
+                ? PipeBugProgram.GametRisingRight
+                : PipeBugProgram.GametRisingLeft);
             RequirePipeBugState(member).Function = PipeBugEnemyFunction.NorfairRise;
         }
 
@@ -370,11 +372,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
 
         state.Function = state.NorfairPostRiseFunction;
         state.EmergenceY = slot.Position.Y.Whole;
-        InstallPipeBugInstruction(
-            slot,
+        InstallPipeBugProgram(slot, state,
             unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0
-                ? NorfairPipeBugInstructionProgramDefinitions.RisingRight
-                : NorfairPipeBugInstructionProgramDefinitions.RisingLeft);
+                ? PipeBugProgram.GametRisingRight
+                : PipeBugProgram.GametRisingLeft);
     }
 
     /// <summary>Offsets a rising Norfair member by its signed stagger target before its timed flight wait.</summary>
@@ -416,12 +417,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0)
         {
             state.Function = PipeBugEnemyFunction.NorfairFlyRight;
-            slot.CurrentInstruction = NorfairPipeBugInstructionProgramDefinitions.FlyingRight;
+            state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GametFlyingRight);
         }
         else
         {
             state.Function = PipeBugEnemyFunction.NorfairFlyLeft;
-            slot.CurrentInstruction = NorfairPipeBugInstructionProgramDefinitions.FlyingLeft;
+            state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GametFlyingLeft);
         }
     }
 
@@ -498,12 +499,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
         if (slot.Parameter1 != 0)
         {
-            slot.CurrentInstruction = YellowPipeBugInstructionProgramDefinitions.FlyingLeft;
+            state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GeegaFlyingLeft);
             state.Function = PipeBugEnemyFunction.YellowFlyLeft;
         }
         else
         {
-            slot.CurrentInstruction = YellowPipeBugInstructionProgramDefinitions.FlyingRight;
+            state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GeegaFlyingRight);
             state.Function = PipeBugEnemyFunction.YellowFlyRight;
         }
     }
@@ -536,11 +537,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.ArcCounter = YellowPipeBugArcCounterStart;
         state.ArcPhase = 1;
         state.ArcStartX = slot.Position.X.Whole;
-        InstallPipeBugInstruction(
-            slot,
+        InstallPipeBugProgram(slot, state,
             movingLeft
-                ? YellowPipeBugInstructionProgramDefinitions.ArcingLeft
-                : YellowPipeBugInstructionProgramDefinitions.ArcingRight);
+                ? PipeBugProgram.GeegaArcingLeft
+                : PipeBugProgram.GeegaArcingRight);
     }
 
     /// <summary>Applies the two quadratic vertical phases until the bug returns to its spawn height.</summary>
@@ -584,11 +584,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = movingLeft
             ? PipeBugEnemyFunction.YellowFlyLeft
             : PipeBugEnemyFunction.YellowFlyRight;
-        InstallPipeBugInstruction(
-            slot,
+        InstallPipeBugProgram(slot, state,
             movingLeft
-                ? YellowPipeBugInstructionProgramDefinitions.FlyingLeft
-                : YellowPipeBugInstructionProgramDefinitions.FlyingRight);
+                ? PipeBugProgram.GeegaFlyingLeft
+                : PipeBugProgram.GeegaFlyingRight);
     }
 
     /// <summary>Hides an offscreen yellow bug, restores its spawn point, and makes its arc available again.</summary>
@@ -605,9 +604,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.ArcCompleted = false;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = slot.Parameter1 != 0
-            ? YellowPipeBugInstructionProgramDefinitions.FlyingLeft
-            : YellowPipeBugInstructionProgramDefinitions.FlyingRight;
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(slot.Parameter1 != 0
+            ? PipeBugProgram.GeegaFlyingLeft
+            : PipeBugProgram.GeegaFlyingRight);
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         return true;
     }
@@ -690,10 +689,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         _pipeBugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Pipe Bug state.");
 
-    /// <summary>Restarts an instruction list at timer one and clears its animation frame timer.</summary>
-    internal static void InstallPipeBugInstruction(RoomEnemySlot slot, ushort instruction)
+    /// <summary>Restarts an animation at timer one and clears its animation frame timer.</summary>
+    internal static void InstallPipeBugProgram(RoomEnemySlot slot, PipeBugEnemyState state, PipeBugProgram program)
     {
-        slot.CurrentInstruction = instruction;
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -704,6 +703,19 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         if (samus is null)
             throw new InvalidOperationException("Pipe Bug behavior requires the active Samus actor.");
     }
+
+    /// <summary>Runs the Pipe Bugs' loops as typed programs (#641).</summary>
+    internal void RegisterPipeBugTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo or EnemyDefinitionId.Gamet or EnemyDefinitionId.Geega, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequirePipeBugState(slot);
+            AnimationProgramCursor<PipeBugProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, PipeBugAnimations.Programs, ref cursor, PipeBugFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
+
 
     /// <summary>Registers initialization callbacks for Brinstar Zeb/Zebbo, Norfair Gamet, and yellow Geega.</summary>
     internal void RegisterPipeBugsInitializationAi(EnemyAiTable table)

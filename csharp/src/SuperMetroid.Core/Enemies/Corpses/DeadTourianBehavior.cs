@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -96,13 +98,20 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         return sources;
     }
 
+    /// <summary>Each dead Zoomer, Ripper or Skree slot's typed corpse pose (#641).</summary>
+    internal readonly AnimationProgramCursor<DeadTourianProgram>[] _deadTourianCorpsePrograms =
+        new AnimationProgramCursor<DeadTourianProgram>[RoomEnemySystem.MaximumEnemyCount];
+
     /// <summary>Correlates each live enemy slot with the corpse program initialized for that slot.</summary>
     internal readonly DeadTourianCorpseEnemyState?[] _deadTourianCorpseStates =
         new DeadTourianCorpseEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Discards all corpse program state before loading another room.</summary>
-    internal void ResetDeadTourianCorpseRoomState() =>
+    internal void ResetDeadTourianCorpseRoomState()
+    {
         Array.Clear(_deadTourianCorpseStates);
+        Array.Clear(_deadTourianCorpsePrograms);
+    }
 
     /// <summary>Recognizes the three Tourian corpse enemy headers handled by this owner.</summary>
     internal static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionPointer) =>
@@ -174,7 +183,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.VariableA = profile.WaitFunction;
-        DeadSidehopperBehavior.SetDeadSidehopperInstruction(slot, definition.InitialInstructionPointer);
+        DeadSidehopperBehavior.StartDeadTourianProgram(slot, _deadTourianCorpsePrograms, definition.InitialProgram);
         CorpseRottingTableProcessor.Initialize(
             _room.Scratch.RotTable(definition.RottingTablePointer, definition.EntryCount));
         InitializeDeadTourianCorpseGraphics(variant, installedTiles);
@@ -365,6 +374,18 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
                                            c.SelectedShotAiPointer == c.Enemy.Definition.ShotAiPointer,
             c => TriggerDeadTourianCorpseRotting(c.Enemy));
     }
+
+    /// <summary>Runs the dead Zoomer, Ripper and Skree corpse poses as typed programs (#641).</summary>
+    internal void RegisterDeadTourianTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer), (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            AnimationProgramCursor<DeadTourianProgram> cursor = _deadTourianCorpsePrograms[slot.SlotIndex];
+            EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.Spritemap,
+                (cue, _) => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));
+            _deadTourianCorpsePrograms[slot.SlotIndex] = cursor;
+        });
 
     /// <summary>Registers the three corpse headers with their common initialization routine.</summary>
     internal void RegisterDeadTourianInitializationAi(EnemyAiTable table)

@@ -410,15 +410,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon)
             return DragonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (PipeBugsBehavior.IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer))
-            return BrinstarPipeBugInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Gamet)
-            return NorfairPipeBugInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Geega)
-            return YellowPipeBugInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac)
             return CacatacInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -434,32 +425,17 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke)
             return StokeInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Squeept)
-            return NorfairLavaJumperInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom)
             return BeetomInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon)
             return AlcoonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Multiviola)
-            return MultiviolaInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp)
             return PowampInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Puyo)
             return PuyoInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo)
-            return DeadTorizoInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper)
-            return DeadSidehopperInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (DeadTourianBehavior.IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
-            return DeadTourianCorpseInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Rio)
             return RioInstructionProgramDefinitions.ReadMechanicsWord(address);
@@ -475,9 +451,6 @@ internal sealed class EnemyInstructionInterpreter
 
         if (PlatformsBehavior.IsPlatformDefinition(slot.EnemyDefinitionPointer))
             return PlatformInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (HoppersBehavior.IsHopperDefinition(slot.EnemyDefinitionPointer))
-            return HopperInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.HZoomer)
             return HZoomerInstructionProgramDefinitions.ReadMechanicsWord(address);

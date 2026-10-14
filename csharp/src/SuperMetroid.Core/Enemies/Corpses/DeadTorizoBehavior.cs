@@ -1,4 +1,6 @@
-﻿using System.Buffers.Binary;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
+using System.Buffers.Binary;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -34,6 +36,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
     internal readonly List<VramWriteEntry> _deadTorizoFrameVramTransfers = [];
     /// <summary>Single corpse state owned by enemy slot zero in the loaded room.</summary>
     internal DeadTorizoEnemyState? _deadTorizo;
+    /// <summary>Slot zero's typed corpse pose (#641), started before the corpse state exists.</summary>
+    internal AnimationProgramCursor<DeadTorizoProgram> _deadTorizoProgram;
 
     /// <summary>Last library-two sound emitted by a completed corpse row.</summary>
     public ushort? LastDeadTorizoSoundEffect { get; private set; }
@@ -42,6 +46,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
     internal void ResetDeadTorizoRoomState()
     {
         _deadTorizo = null;
+        _deadTorizoProgram = default;
         _deadTorizoFrameVramTransfers.Clear();
         LastDeadTorizoSoundEffect = null;
     }
@@ -60,7 +65,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         slot.VariableA = (ushort)DeadTorizoFunction.Wait;
         slot.Properties = slot.Properties.With(
             EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
-        slot.CurrentInstruction = DeadTorizoInstructionProgramDefinitions.Stationary;
+        _deadTorizoProgram = AnimationProgramCursor<DeadTorizoProgram>.Start(DeadTorizoProgram.Stationary);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.PaletteIndex = EnemyPaletteBits.Palette1;
@@ -420,6 +425,15 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
                                            c.SelectedShotAi == EnemyInteractionCallback.DeadTorizoTouchAndShot,
             c => TriggerDeadTorizoRotting(c.Enemy));
     }
+
+    /// <summary>Runs Dead Torizo's stationary corpse pose as a typed program (#641).</summary>
+    internal void RegisterDeadTorizoTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            EnemyProgramAnimation.Run(slot, DeadTorizoAnimations.Programs, ref _deadTorizoProgram, DeadTorizoFrameDefinitions.Spritemap);
+        });
 
     /// <summary>Associates the corpse definition with slot-zero rotting setup.</summary>
     internal void RegisterDeadTorizoInitializationAi(EnemyAiTable table)

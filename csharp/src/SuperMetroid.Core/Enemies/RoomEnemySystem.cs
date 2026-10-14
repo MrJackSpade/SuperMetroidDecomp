@@ -1407,7 +1407,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         FuneNamiheBehavior.RegisterFuneNamiheOwnedInstructions(table);
         EvirBehavior.RegisterEvirOwnedInstructions(table);
         YardBehavior.RegisterYardOwnedInstructions(table);
-        HoppersBehavior.RegisterHoppersOwnedInstructions(table);
+        HoppersBehavior.RegisterHopperTypedAnimations(table);
         ZoaBehavior.RegisterZoaTypedAnimations(table);
         MetroidBehavior.RegisterMetroidOwnedInstructions(table);
         CrawlersBehavior.RegisterCrawlersOwnedInstructions(table);
@@ -1425,12 +1425,12 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         RidleyBehavior.RegisterRidleyTypedAnimations(table);
         CeresSteamBehavior.RegisterCeresSteamTypedAnimations(table);
         CeresDoorBehavior.RegisterCeresDoorTypedAnimations(table);
-        DeadSidehopperBehavior.RegisterDeadSidehopperOwnedInstructions(table);
+        DeadSidehopperBehavior.RegisterDeadSidehopperTypedAnimations(table);
         ShitroidBehavior.RegisterShitroidTypedAnimations(table);
         SporeSpawnBehavior.RegisterSporeSpawnTypedAnimations(table);
         RinkaBehavior.RegisterRinkaOwnedInstructions(table);
         RioBehavior.RegisterRioOwnedInstructions(table);
-        NorfairLavaJumpingEnemyBehavior.RegisterNorfairLavaJumpingEnemyOwnedInstructions(table);
+        NorfairLavaJumpingEnemyBehavior.RegisterNorfairLavaJumpingEnemyTypedAnimations(table);
         NorfairRioBehavior.RegisterNorfairRioOwnedInstructions(table);
         LowerNorfairRioBehavior.RegisterLowerNorfairRioOwnedInstructions(table);
         MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailOwnedInstructions(table);
@@ -1439,6 +1439,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        PipeBugsBehavior.RegisterPipeBugTypedAnimations(table);
+        MultiviolaBehavior.RegisterMultiviolaTypedAnimations(table);
+        DeadTorizoBehavior.RegisterDeadTorizoTypedAnimations(table);
+        DeadTourianBehavior.RegisterDeadTourianTypedAnimations(table);
         ElevatorBehavior.RegisterElevatorTypedAnimations(table);
         ShuttersBehavior.RegisterShuttersTypedAnimations(table);
         ChootBehavior.RegisterChootTypedAnimations(table);

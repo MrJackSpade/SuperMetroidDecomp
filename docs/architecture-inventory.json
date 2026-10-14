@@ -24412,19 +24412,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.PipeBugVisualDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/PipeBugVisualDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.PirateArtworkNameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -26126,6 +26113,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Corpses.Artwork.DeadTorizoFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/Artwork/DeadTorizoFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Corpses.Artwork.DeadTourianFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/Artwork/DeadTourianFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRotTable",
       "kind": "struct",
       "scope": "product",
@@ -26414,77 +26427,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperInstruction",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadSidehopperInstruction.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadSidehopperInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperInstructionProgramDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadSidehopperInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperInstructionProgramDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Corpses.DeadSidehopperInstructionProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadSidehopperInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Corpses/DeadSidehopperInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperLaunchDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -26493,6 +26435,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadSidehopperLaunchDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTorizoAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoAnimations.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -26550,6 +26505,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTorizoFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadTorizoFunction",
       "kind": "enum",
       "scope": "product",
@@ -26589,62 +26557,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTorizoInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTorizoProgram",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoProgram.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTorizoInstructionProgramDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadTorizoInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTorizoInstructionProgramDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Corpses.DeadTorizoInstructionProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadTorizoInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTorizoInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Corpses/DeadTorizoInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadTorizoVramTransferDefinition",
@@ -26750,6 +26673,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianBehavior",
       "kind": "class",
       "scope": "product",
@@ -26841,96 +26777,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianCorpseInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseInstructionProgramDefinitionsAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadTourianCorpseInstructionProgramDefinitionsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseInstructionProgramDefinitionsAccess.extension(SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseInstructionProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadTourianCorpseInstructionProgramDefinitionsAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseInstructionProgramDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadTourianCorpseInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseInstructionProgramDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseInstructionProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadTourianCorpseInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Corpses/DeadTourianCorpseInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianCorpseSpecies",
       "kind": "enum",
       "scope": "product",
@@ -26944,6 +26790,58 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianProgram",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianProgram.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeathExplosionScatterDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -26952,6 +26850,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeathExplosionScatterDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Crawlers.Artwork.MultiviolaFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Crawlers/Artwork/MultiviolaFrameDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -27171,6 +27082,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Crawlers.MultiviolaAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Crawlers.MultiviolaBehavior",
       "kind": "class",
       "scope": "product",
@@ -27197,30 +27121,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Crawlers.MultiviolaInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.Crawlers.MultiviolaFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaFrame.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Crawlers.MultiviolaInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
+      "type": "SuperMetroid.Core.Enemies.Crawlers.MultiviolaProgram",
+      "kind": "enum",
+      "scope": "product",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Crawlers/MultiviolaInstructionProgramDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaProgram.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Crawlers.SciserInstructionProgramDefinitions",
@@ -30719,6 +30643,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Hoppers.Artwork.HopperFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Hoppers/Artwork/HopperFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Hoppers.HopperAnimationDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -30730,6 +30667,45 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Hoppers.HopperEnemyFunction",
@@ -30758,88 +30734,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperInstruction",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperInstruction.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperInstructionProgramDefinitions.ProgramDefinition",
+      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperFrame",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperFrame.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperInstructionProgramDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
+      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperProgram",
+      "kind": "enum",
+      "scope": "product",
       "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
+        "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Hoppers/HopperInstructionProgramDefinitionsConstants.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperProgram.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperInstructionProgramDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Hoppers.HopperInstructionProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Hoppers/HopperInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Hoppers.HopperInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Hoppers/HopperInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Hoppers.HoppersBehavior",
@@ -31349,6 +31267,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.LavaJumpers.Artwork.NorfairLavaJumperFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/Artwork/NorfairLavaJumperFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumpDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -31362,30 +31293,69 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperAnimations",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperAnimations.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
+      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperCue",
+      "kind": "record struct",
+      "scope": "product",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/LavaJumpers/NorfairLavaJumperInstructionProgramDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperCue.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperProgram",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperProgram.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumpingEnemyBehavior",
@@ -32832,56 +32802,17 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.PipeBugs.Artwork.PipeBugFrameDefinitions",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/BrinstarPipeBugInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/Artwork/PipeBugFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/PipeBugs/BrinstarPipeBugInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/NorfairPipeBugInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/PipeBugs/NorfairPipeBugInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.PipeBugs.PipeBugAnimationSelector",
@@ -32895,6 +32826,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.PipeBugs.PipeBugAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/PipeBugAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.PipeBugs.PipeBugDefinitions",
@@ -32936,6 +32880,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.PipeBugs.PipeBugFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/PipeBugFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.PipeBugs.PipeBugProgram",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/PipeBugProgram.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.PipeBugs.PipeBugsBehavior",
       "kind": "class",
       "scope": "product",
@@ -32947,32 +32917,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.PipeBugs.YellowPipeBugInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/YellowPipeBugInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.PipeBugs.YellowPipeBugInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/PipeBugs/YellowPipeBugInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Platforms.PlatformEnemyState",
@@ -92751,19 +92695,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Corpses.DeadSidehopperInstructionProgramDefinitionsVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadSidehopperInstructionProgramDefinitionsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.Corpses.DeadSidehopperLaunchDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -92777,6 +92708,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTorizoAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTorizoAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTorizoArtworkVerification",
       "kind": "static class",
       "scope": "test",
@@ -92785,6 +92729,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTorizoArtworkVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTorizoBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTorizoBehaviorVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -92816,14 +92773,40 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTorizoInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTorizoNativeListAddresses",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTorizoInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTorizoNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTourianAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTourianAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTourianBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTourianBehaviorVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -92855,17 +92838,17 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTourianCorpseInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Corpses.DeadTourianNativeListAddresses",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTourianCorpseInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTourianNativeListAddresses.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Crawlers.CrawlerAnimationDefinitionsVerification",
@@ -92920,17 +92903,43 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Crawlers.MultiviolaInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Crawlers.MultiviolaAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/MultiviolaInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/MultiviolaAnimationsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Crawlers.MultiviolaBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/MultiviolaBehaviorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Crawlers.MultiviolaNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/MultiviolaNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Crawlers.SciserInstructionProgramDefinitionsVerification",
@@ -94155,6 +94164,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Hoppers.HopperNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Kago.KagoAnimationsVerification",
       "kind": "static class",
       "scope": "test",
@@ -94311,17 +94346,43 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumperInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumperAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/LavaJumpers/NorfairLavaJumperInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/LavaJumpers/NorfairLavaJumperAnimationsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumperBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/LavaJumpers/NorfairLavaJumperBehaviorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumperNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/LavaJumpers/NorfairLavaJumperNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.LookupSmallGameTablesVerification",
@@ -94805,32 +94866,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.PipeBugs.BrinstarPipeBugInstructionProgramDefinitionsVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/BrinstarPipeBugInstructionProgramDefinitionsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.PipeBugs.NorfairPipeBugInstructionProgramDefinitionsVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/NorfairPipeBugInstructionProgramDefinitionsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.PipeBugs.PipeBugAnimationDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -94844,17 +94879,43 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.PipeBugs.YellowPipeBugInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.PipeBugs.PipeBugAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/YellowPipeBugInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/PipeBugAnimationsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.PipeBugs.PipeBugBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/PipeBugBehaviorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.PipeBugs.PipeBugNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/PipeBugNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Platforms.PlatformInstructionProgramDefinitionsVerification",

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.PipeBugs;
+using SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Core.Input;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Hardware;
@@ -772,13 +774,15 @@ internal static class RidleyFullMovieVerification
         AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
         var actor = runtime.Enemies.SlotTable.Slots[6];
         AssertEqual(EnemyDefinitionId.Zebbo, actor.EnemyDefinitionPointer, "native source-room pipe bug");
-        actor.CurrentInstruction = NativeSnapshotMemory.PipeBugBeforeFadeInstruction;
+        var pipeBugPointers = new PipeBugNativeInstructionPointers(CartridgeImportSource.Require(bus));
+        PipeBugEnemyState pipeBug = runtime.Enemies.PipeBugStates[6] ?? throw new InvalidOperationException("The source-room pipe bug has no state.");
+        pipeBug.Program = pipeBugPointers.CursorAt(NativeSnapshotMemory.PipeBugBeforeFadeInstruction);
         actor.InstructionTimer = NativeCountdown.Start(1);
         actor.SpritemapPointer = NativeSnapshotMemory.PipeBugBeforeFadeSpritemap;
         game.Step(0);
         AssertEqual((ushort)0xadd4, runtime.System.RandomNumber, "first source fade advances native HDMA/RNG");
         AssertEqual((ushort)0xa4e2, runtime.Nmi.NmiFrameCounter, "fade accepts exactly one NMI per update");
-        AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeInstruction, actor.CurrentInstruction, "fade advances the native enemy instruction");
+        AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeInstruction, pipeBugPointers.Pointer(pipeBug.Program), "fade advances the native enemy instruction");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
         AssertEqual((ushort)2, actor.InstructionTimer.RawValue, "fade installs the native visual duration");
         int fadeSteps = 0;

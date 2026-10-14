@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class MultiviolaEnemyState
 
     /// <summary>Binds the typed velocity view to an existing native enemy slot.</summary>
     internal MultiviolaEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<MultiviolaProgram> Program { get; set; }
 
     /// <summary>
     /// Signed 16.16 velocity: native <c>$0FAC,x</c>/<c>$0FAE,x</c> hold the horizontal whole and

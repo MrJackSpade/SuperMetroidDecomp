@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Verification.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Boulder;
@@ -127,37 +128,10 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(rom, stock));
     }
 
-    /// <summary>Confirms the hopper family shares compiled bank $A3 frame selectors without admitting physics words.</summary>
+    /// <summary>Runs the hopper family's typed animations with the installed stock artwork.</summary>
     private static void VerifyInstalledHopperInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
-        EnemyDefinitionId[] definitions =
-        [
-            EnemyDefinitionId.Sidehopper,
-            EnemyDefinitionId.Dessgeega,
-            EnemyDefinitionId.SidehopperLarge,
-            EnemyDefinitionId.SidehopperTourian,
-            EnemyDefinitionId.DessgeegaLarge,
-        ];
-        for (int index = 0;
-             index < HopperInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = HopperInstructionProgramDefinitions.PresentationWordAddress(index);
-            ushort compiled = EnemySpritemapDefinitions.HopperFrameAt(operand);
-            AssertEqual(ReadHopperAnimationWord(rom, 0xa30000 | operand), compiled,
-                $"Hopper visual selector $A3:{operand:X4} matches the pinned cartridge");
-            foreach (EnemyDefinitionId definition in definitions)
-            {
-                AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                        definition, operand, out ushort selected) && selected == compiled,
-                    $"Hopper family ${(int)definition:X4} compiles visual operand $A3:{operand:X4}");
-            }
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.HopperFrameAt(
-                HopperInstructionProgramDefinitions.LastAdjacentPhysicsWord),
-            "Hopper rejects adjacent physics data as a visual selector");
         Suite(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(rom, stock));
     }
 
@@ -812,29 +786,8 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(MultiviolaVisualDefinitions.FrameCount, multiviolaFrames.Count,
             "Multiviola's fourteen-frame loop selects eight distinct OAM frames");
-        var selectedMultiviolaFrames = new HashSet<ushort>();
-        for (int index = 0;
-             index < MultiviolaInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = MultiviolaInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa2, operand);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Multiviola, operand, out ushort selected),
-                $"Multiviola visual selector $A2:{operand:X4} is installed");
-            AssertEqual(native, selected,
-                $"Multiviola visual selector $A2:{operand:X4} matches the cartridge");
-            AssertTrue(multiviolaFrames.Contains(selected),
-                $"Multiviola visual target $A2:{selected:X4} has installed art");
-            selectedMultiviolaFrames.Add(selected);
-        }
-        AssertTrue(selectedMultiviolaFrames.SetEquals(multiviolaFrames),
-            "every installed Multiviola composition is selected by its loop");
-        AssertThrows<InvalidDataException>(
-            () => MultiviolaVisualDefinitions.FrameAt(
-                MultiviolaInstructionProgramDefinitions.Flying),
-            "Multiviola visual selector rejects its neighboring duration word");
+        AssertTrue(MultiviolaAnimations.Spritemaps(MultiviolaProgram.Flying).ToHashSet().SetEquals(multiviolaFrames),
+            "every installed Multiviola composition is shown by its loop");
         HashSet<ushort> lavaJumperFrames = NorfairLavaJumperVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(NorfairLavaJumperVisualDefinitions.FrameCount,
@@ -842,30 +795,8 @@ internal static class EnemySpritemapArtworkVerification
             "Norfair lava jumper has eleven distinct installed identities");
         AssertTrue(lavaJumperFrames.Contains(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap),
             "Norfair lava jumper retains its native bank-local empty frame");
-        var selectedLavaJumperFrames = new HashSet<ushort>();
-        for (int index = 0;
-             index < NorfairLavaJumperInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = NorfairLavaJumperInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa2, operand);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Squeept,
-                    operand, out ushort selected),
-                $"lava-jumper visual selector $A2:{operand:X4} is installed");
-            AssertEqual(native, selected,
-                $"lava-jumper visual selector $A2:{operand:X4} matches the cartridge");
-            AssertTrue(lavaJumperFrames.Contains(selected),
-                $"lava-jumper visual target $A2:{selected:X4} has installed art");
-            selectedLavaJumperFrames.Add(selected);
-        }
-        AssertTrue(selectedLavaJumperFrames.SetEquals(lavaJumperFrames),
-            "every installed lava-jumper frame is selected by a native program");
-        AssertThrows<InvalidDataException>(
-            () => NorfairLavaJumperVisualDefinitions.FrameAt(
-                NorfairLavaJumperInstructionProgramDefinitions.Hidden),
-            "lava-jumper visual selector rejects a neighboring duration word");
+        AssertTrue(NorfairLavaJumperAnimations.Spritemaps(Enum.GetValues<NorfairLavaJumperProgram>()).ToHashSet().SetEquals(lavaJumperFrames),
+            "every installed lava-jumper frame is shown by a typed program");
         HashSet<ushort> chozoFrames = ChozoStatueVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(ChozoStatueVisualDefinitions.FrameCount, chozoFrames.Count,
@@ -1749,23 +1680,19 @@ internal static class EnemySpritemapArtworkVerification
             editedDragon.LowTable[0],
             "Dragon authored body offset changes installed room OAM");
         OamBuffer stockMultiviola = DrawEnemy(stock, NewFrameReadGuard(rom),
-            MultiviolaVisualDefinitions.FrameAt(
-                MultiviolaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            MultiviolaVisualDefinitions.Frames()[0].Pointer,
             EnemyDefinitionId.Multiviola);
         OamBuffer editedMultiviola = DrawEnemy(edited, NewFrameReadGuard(rom),
-            MultiviolaVisualDefinitions.FrameAt(
-                MultiviolaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            MultiviolaVisualDefinitions.Frames()[0].Pointer,
             EnemyDefinitionId.Multiviola);
         AssertEqual(unchecked((byte)(stockMultiviola.LowTable[0] + 1)),
             editedMultiviola.LowTable[0],
             "Multiviola authored body offset changes installed room OAM");
         OamBuffer stockLavaJumper = DrawEnemy(stock, NewFrameReadGuard(rom),
-            NorfairLavaJumperVisualDefinitions.FrameAt(
-                NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(0)),
+            NorfairLavaJumperAnimations.Spritemaps(NorfairLavaJumperProgram.Hidden).First(),
             EnemyDefinitionId.Squeept);
         OamBuffer editedLavaJumper = DrawEnemy(edited, NewFrameReadGuard(rom),
-            NorfairLavaJumperVisualDefinitions.FrameAt(
-                NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(0)),
+            NorfairLavaJumperAnimations.Spritemaps(NorfairLavaJumperProgram.Hidden).First(),
             EnemyDefinitionId.Squeept);
         AssertEqual(unchecked((byte)(stockLavaJumper.LowTable[0] + 1)),
             editedLavaJumper.LowTable[0],
@@ -2074,19 +2001,15 @@ internal static class EnemySpritemapArtworkVerification
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
-        foreach ((EnemyDefinitionId definition, ushort operand, string name) in new[]
+        foreach ((EnemyDefinitionId definition, PipeBugProgram program, string name) in new[]
                  {
-                     (EnemyDefinitionId.Zeb, (ushort)0x87ad,
-                         "Brinstar Pipe Bug"),
-                     (EnemyDefinitionId.Zebbo, (ushort)0x8a1f,
-                         "strong Brinstar Pipe Bug"),
-                     (EnemyDefinitionId.Gamet, (ushort)0x8ae3,
-                         "Norfair Pipe Bug"),
-                     (EnemyDefinitionId.Geega, (ushort)0x8efe,
-                         "yellow Pipe Bug"),
+                     (EnemyDefinitionId.Zeb, PipeBugProgram.ZebRisingLeft, "Brinstar Pipe Bug"),
+                     (EnemyDefinitionId.Zebbo, PipeBugProgram.ZebboRisingLeft, "strong Brinstar Pipe Bug"),
+                     (EnemyDefinitionId.Gamet, PipeBugProgram.GametRisingLeft, "Norfair Pipe Bug"),
+                     (EnemyDefinitionId.Geega, PipeBugProgram.GeegaFlyingLeft, "yellow Pipe Bug"),
                  })
         {
-            ushort pointer = PipeBugVisualDefinitions.FrameAt(definition, operand);
+            ushort pointer = PipeBugAnimations.Spritemaps(program).First();
             OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
                 pointer, definition);
             OamBuffer editedFrame = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -2255,8 +2178,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Beetom Y offset changes installed room OAM");
         AssertEqual(stockBeetom.LowTable[0], editedBeetom.LowTable[0],
             "Beetom visual edit leaves physical X unchanged");
-        ushort hopperPointer = EnemySpritemapDefinitions.HopperFrameAt(
-            HopperInstructionProgramDefinitions.PresentationWordAddress(0));
+        ushort hopperPointer = HopperAnimations.Spritemaps(HopperProgram.SidehopperFloorJumping).Single();
         OamBuffer stockHopper = DrawEnemy(stock, NewFrameReadGuard(rom),
             hopperPointer, EnemyDefinitionId.Sidehopper);
         OamBuffer editedHopper = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -3280,8 +3202,7 @@ internal static class EnemySpritemapArtworkVerification
             waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(editedWaver.LowTable[1], retainedWaver.LowTable[1],
             "previous-version override retains edited Waver composition");
-        ushort retainedPipePointer = PipeBugVisualDefinitions.FrameAt(
-            EnemyDefinitionId.Gamet, 0x8ae3);
+        ushort retainedPipePointer = PipeBugAnimations.Spritemaps(PipeBugProgram.GametRisingLeft).First();
         OamBuffer editedPipe = DrawEnemy(edited, NewFrameReadGuard(rom),
             retainedPipePointer, EnemyDefinitionId.Gamet);
         OamBuffer retainedPipe = DrawEnemy(upgraded, NewFrameReadGuard(rom),
@@ -3300,8 +3221,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = priorFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog priorUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
-        ushort pipePointer = PipeBugVisualDefinitions.FrameAt(
-            EnemyDefinitionId.Gamet, 0x8ae3);
+        ushort pipePointer = PipeBugAnimations.Spritemaps(PipeBugProgram.GametRisingLeft).First();
         OamBuffer stockPipe = DrawEnemy(stock, NewFrameReadGuard(rom),
             pipePointer, EnemyDefinitionId.Gamet);
         OamBuffer upgradedPipe = DrawEnemy(priorUpgraded, NewFrameReadGuard(rom),

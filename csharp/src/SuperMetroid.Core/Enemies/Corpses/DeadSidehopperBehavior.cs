@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -41,24 +43,17 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         _collision = dependencies.Collision;
     }
 
-    /// <summary>Executes the dead Sidehopper's private animation instruction.</summary>
-    private bool TryProcessDeadSidehopperInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out the dead Sidehopper's animation cue.</summary>
+    private DeadTourianProgram? ApplyDeadSidehopperCue(RoomEnemySlot slot, DeadTourianCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.CorpseSidehopper ||
-            !Enum.IsDefined((DeadSidehopperInstruction)word))
-            return false;
-
-        switch ((DeadSidehopperInstruction)word)
+        switch (cue.Kind)
         {
-            case DeadSidehopperInstruction.EndHop:
-                // `$A9:ECD0` is embedded at the end of the landing animation. It
-                // hands ownership back to main AI without consuming an operand.
+            case DeadTourianCueKind.EndHop:
+                // `$A9:ECD0` ends the landing animation and hands ownership back to main AI.
                 SelectDeadSidehopperPostAnimationState(slot);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return null;
             default:
-                throw new InvalidOperationException(
-                    $"Dead Sidehopper does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(DeadTourianCueKind)} {cue.Kind}.");
         }
     }
 
@@ -66,6 +61,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     private const ushort DeadMonsterSolidProperty = 0x8000;
     /// <summary>Native corpse bit that rejects later shot callbacks once decomposition begins.</summary>
     internal const ushort DeadMonsterInteractionRejectedProperty = 0x0400;
+
+    /// <summary>Each dead Sidehopper slot's typed animation (#641), started before its corpse state exists.</summary>
+    internal readonly AnimationProgramCursor<DeadTourianProgram>[] _deadSidehopperPrograms =
+        new AnimationProgramCursor<DeadTourianProgram>[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Stores each room enemy slot's private hop, palette, and rotting state.</summary>
     internal readonly DeadSidehopperEnemyState?[] _deadSidehopperStates =
@@ -79,6 +78,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     internal void ResetDeadSidehopperRoomState()
     {
         Array.Clear(_deadSidehopperStates);
+        Array.Clear(_deadSidehopperPrograms);
         _deadMonsters.Clear();
         _deadSidehopperLevel = null;
         _deadSidehopperCameraX = 0;
@@ -125,9 +125,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         slot.Position = slot.Position.WithWhole(new(488, 184));
         slot.PaletteIndex = EnemyPaletteBits.Palette1;
         slot.Radius = slot.Radius.WithY(21);
-        SetDeadSidehopperInstruction(
-            slot,
-            DeadSidehopperInstructionProgramDefinitions.AliveIdle);
+        SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperIdle);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
@@ -142,9 +140,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     private void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
-        SetDeadSidehopperInstruction(
-            slot,
-            DeadSidehopperInstructionProgramDefinitions.InitiallyDead);
+        SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperInitiallyDead);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
@@ -209,9 +205,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
                 if (MoveDeadSidehopper(slot, state, level))
                 {
                     state.JumpPhase = unchecked((ushort)((state.JumpPhase + 1) & 3));
-                    SetDeadSidehopperInstruction(
-                        slot,
-                        DeadSidehopperInstructionProgramDefinitions.AliveHopping);
+                    SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperHopping);
                     state.Function = DeadSidehopperAiFunction.NoOperation;
                 }
                 return;
@@ -236,9 +230,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
                 }
 
                 state.Function = DeadSidehopperAiFunction.ActivatedMovement;
-                SetDeadSidehopperInstruction(
-                    slot,
-                    DeadSidehopperInstructionProgramDefinitions.AliveIdle);
+                SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperIdle);
                 state.Velocity = DeadSidehopperLaunchDefinitions.Velocity(state.JumpPhase);
                 return;
 
@@ -371,9 +363,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         if (state.PaletteStage < 8)
             return;
 
-        SetDeadSidehopperInstruction(
-            slot,
-            DeadSidehopperInstructionProgramDefinitions.AliveCorpse);
+        SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperCorpse);
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
         slot.Properties = unchecked((ushort)(slot.Properties | DeadMonsterSolidProperty));
         slot.Radius = slot.Radius.WithY(12);
@@ -565,10 +555,14 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Selects a new animation and resets both instruction clocks before its first word runs.</summary>
-    internal static void SetDeadSidehopperInstruction(RoomEnemySlot slot, ushort instruction)
+    /// <summary>Starts a new dead Sidehopper animation, resetting both instruction clocks before its first step runs.</summary>
+    internal void SetDeadSidehopperProgram(RoomEnemySlot slot, DeadTourianProgram program) =>
+        StartDeadTourianProgram(slot, _deadSidehopperPrograms, program);
+
+    /// <summary>Starts <paramref name="program"/> in <paramref name="slot"/>'s entry of <paramref name="programs"/> and resets both instruction clocks.</summary>
+    internal static void StartDeadTourianProgram(RoomEnemySlot slot, AnimationProgramCursor<DeadTourianProgram>[] programs, DeadTourianProgram program)
     {
-        slot.CurrentInstruction = instruction;
+        programs[slot.SlotIndex] = AnimationProgramCursor<DeadTourianProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -624,15 +618,17 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims the landing instruction that returns the actor to its post-animation AI state.</summary>
-    internal void RegisterDeadSidehopperOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the dead Sidehopper's animations as typed programs (#641); the landing cue goes back to main AI.</summary>
+    internal void RegisterDeadSidehopperTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessDeadSidehopperInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            AnimationProgramCursor<DeadTourianProgram> cursor = _deadSidehopperPrograms[slot.SlotIndex];
+            EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.Spritemap,
+                (cue, _) => ApplyDeadSidehopperCue(slot, cue));
+            _deadSidehopperPrograms[slot.SlotIndex] = cursor;
         });
-    }
 
     /// <summary>Uses the private power-bomb callback in place of common enemy damage handling.</summary>
     internal void RegisterDeadSidehopperPowerBombReactions(EnemyAiTable table)

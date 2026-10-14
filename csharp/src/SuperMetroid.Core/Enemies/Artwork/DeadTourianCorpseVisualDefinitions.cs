@@ -10,28 +10,17 @@ internal static class DeadTourianCorpseVisualDefinitions
     /// <summary>The native corpse instruction and OAM bank, $A9.</summary>
     internal const byte Bank = 0xa9;
 
-    /// <summary>Distinct dead Zoomer, Ripper, and Skree operand-to-frame identities in bank $A9.</summary>
-    private static readonly (ushort Operand, ushort Frame, string Name)[] Entries =
+    /// <summary>Distinct dead Zoomer, Ripper, and Skree frame identities in bank $A9.</summary>
+    private static readonly (ushort Frame, string Name)[] Entries =
     [
-        (0xecf7, 0xed79, "dead_zoomer_corpse_0"),
-        (0xecfd, 0xed85, "dead_zoomer_corpse_2"),
-        (0xed03, 0xed91, "dead_zoomer_corpse_4"),
-        (0xed09, 0xed9d, "dead_ripper_corpse_0"),
-        (0xed0f, 0xeda9, "dead_ripper_corpse_2"),
-        (0xed15, 0xedb5, "dead_skree_corpse_0"),
-        (0xed1b, 0xedcb, "dead_skree_corpse_2"),
-        (0xed21, 0xede1, "dead_skree_corpse_4"),
-    ];
-
-    /// <summary>Dead Sidehopper hop, idle, corpse, and initially-dead selectors, including reused OAM roots.</summary>
-    private static readonly (ushort Operand, ushort Frame)[] SidehopperSelectors =
-    [
-        (0xecae, 0xee3c), (0xecb2, 0xee61),
-        (0xecb6, 0xee3c), (0xecba, 0xee61),
-        (0xecbe, 0xee3c), (0xecc2, 0xee61),
-        (0xecc6, 0xee3c), (0xecca, 0xee61),
-        (0xece5, 0xee86), (0xeceb, 0xed25),
-        (0xecf1, 0xed4f),
+        (0xed79, "dead_zoomer_corpse_0"),
+        (0xed85, "dead_zoomer_corpse_2"),
+        (0xed91, "dead_zoomer_corpse_4"),
+        (0xed9d, "dead_ripper_corpse_0"),
+        (0xeda9, "dead_ripper_corpse_2"),
+        (0xedb5, "dead_skree_corpse_0"),
+        (0xedcb, "dead_skree_corpse_2"),
+        (0xede1, "dead_skree_corpse_4"),
     ];
 
     /// <summary>Provides each installed corpse spritemap once for the four dead Tourian enemy families.</summary>
@@ -45,28 +34,4 @@ internal static class DeadTourianCorpseVisualDefinitions
         new(Bank, 0xed25, "dead_sidehopper_corpse"),
         new(Bank, 0xed4f, "dead_sidehopper_initially_dead"),
     ];
-
-    /// <summary>Resolves a compiled Zoomer, Ripper, or Skree visual operand, rejecting addresses outside that set.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        foreach ((ushort operand, ushort frame, _) in Entries)
-        {
-            if (operand == operandAddress)
-                return frame;
-        }
-        throw new InvalidDataException(
-            $"Dead Tourian corpse visual selector $A9:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>Resolves the separate dead Sidehopper selector range, including repeated hop poses.</summary>
-    internal static ushort SidehopperFrameAt(ushort operandAddress)
-    {
-        foreach ((ushort operand, ushort frame) in SidehopperSelectors)
-        {
-            if (operand == operandAddress)
-                return frame;
-        }
-        throw new InvalidDataException(
-            $"Dead Sidehopper visual selector $A9:{operandAddress:X4} is not compiled.");
-    }
 }

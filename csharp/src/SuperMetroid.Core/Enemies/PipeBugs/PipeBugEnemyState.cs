@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>
@@ -17,6 +18,9 @@ public sealed class PipeBugEnemyState
         _slot = slot;
         DefinitionAtInitialization = slot.EnemyDefinitionPointer;
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<PipeBugProgram> Program { get; set; }
 
     /// <summary>
     /// Header which created this physical state projection. Generic death clears the live

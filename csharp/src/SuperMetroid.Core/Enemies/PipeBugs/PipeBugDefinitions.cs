@@ -33,17 +33,17 @@ internal static class PipeBugDefinitions
     /// $B3:882B/$8833 dispatch normal/strong rising/shooting programs by the native
     /// facing and shooting flags. Every value names its actual behavior and species.
     /// </summary>
-    internal static ushort BrinstarInstructionList(bool strong, PipeBugAnimationSelector selector) =>
+    internal static PipeBugProgram BrinstarProgram(bool strong, PipeBugAnimationSelector selector) =>
         (strong, selector) switch
         {
-            (false, PipeBugAnimationSelector.None) => BrinstarPipeBugInstructionProgramDefinitions.NormalRisingLeft,
-            (false, PipeBugAnimationSelector.Shooting) => BrinstarPipeBugInstructionProgramDefinitions.NormalShootingLeft,
-            (false, PipeBugAnimationSelector.FacingRight) => BrinstarPipeBugInstructionProgramDefinitions.NormalRisingRight,
-            (false, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting) => BrinstarPipeBugInstructionProgramDefinitions.NormalShootingRight,
-            (true, PipeBugAnimationSelector.None) => BrinstarPipeBugInstructionProgramDefinitions.StrongRisingLeft,
-            (true, PipeBugAnimationSelector.Shooting) => BrinstarPipeBugInstructionProgramDefinitions.StrongShootingLeft,
-            (true, PipeBugAnimationSelector.FacingRight) => BrinstarPipeBugInstructionProgramDefinitions.StrongRisingRight,
-            (true, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting) => BrinstarPipeBugInstructionProgramDefinitions.StrongShootingRight,
+            (false, PipeBugAnimationSelector.None) => PipeBugProgram.ZebRisingLeft,
+            (false, PipeBugAnimationSelector.Shooting) => PipeBugProgram.ZebShootingLeft,
+            (false, PipeBugAnimationSelector.FacingRight) => PipeBugProgram.ZebRisingRight,
+            (false, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting) => PipeBugProgram.ZebShootingRight,
+            (true, PipeBugAnimationSelector.None) => PipeBugProgram.ZebboRisingLeft,
+            (true, PipeBugAnimationSelector.Shooting) => PipeBugProgram.ZebboShootingLeft,
+            (true, PipeBugAnimationSelector.FacingRight) => PipeBugProgram.ZebboRisingRight,
+            (true, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting) => PipeBugProgram.ZebboShootingRight,
             _ => throw new InvalidDataException(
                 $"Pipe Bug animation selector ${(ushort)selector:X4} exceeds its four-entry table."),
         };

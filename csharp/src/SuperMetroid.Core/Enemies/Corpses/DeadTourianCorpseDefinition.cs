@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>One immutable native dead-monster initialization record.</summary>
 internal readonly record struct DeadTourianCorpseDefinition(
-    ushort InitialInstructionPointer,
+    DeadTourianProgram InitialProgram,
     ushort ConfigurationPointer,
     ushort RottingTablePointer,
     ushort VramTransferPointer,

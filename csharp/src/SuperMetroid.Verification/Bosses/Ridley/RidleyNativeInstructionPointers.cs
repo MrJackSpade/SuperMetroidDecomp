@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -17,6 +18,8 @@ internal sealed class RidleyNativeInstructionPointers
     private readonly Dictionary<RidleyBodyProgram, ushort[]> body;
     /// <summary>Each fireball program's step addresses.</summary>
     private readonly Dictionary<RidleyFireballProgram, ushort[]> fireball;
+    /// <summary>The source room's Pipe Bugs' pointer translation.</summary>
+    private readonly PipeBugNativeInstructionPointers pipeBugs;
 
     /// <summary>Walks every typed Ridley program beside its native list, failing on any mismatch.</summary>
     internal RidleyNativeInstructionPointers(IImportCartridgeSource cartridge)
@@ -24,6 +27,7 @@ internal sealed class RidleyNativeInstructionPointers
         body = RidleyAnimationsVerification.BodyStepAddresses(cartridge);
         RidleyAnimationsVerification.BreakupStepAddresses(cartridge);
         fireball = RidleyAnimationsVerification.FireballStepAddresses(cartridge);
+        pipeBugs = new PipeBugNativeInstructionPointers(cartridge);
     }
 
     /// <summary>The native instruction pointer of Ridley's body, from <paramref name="state"/>'s body cursor.</summary>
@@ -34,8 +38,8 @@ internal sealed class RidleyNativeInstructionPointers
         RidleyNativeListAddresses.BodyEntries.Single(item => item.Program == program).Entry;
 
     /// <summary>
-    /// The native instruction pointer of <paramref name="actor"/>: Ridley's body and breakup fragments translate their
-    /// typed cursors; other actors still hold native pointers.
+    /// The native instruction pointer of <paramref name="actor"/>: Ridley's body and breakup fragments and the Pipe Bugs
+    /// translate their typed cursors; other actors still hold native pointers.
     /// </summary>
     internal ushort Enemy(RoomEnemySystem enemies, RoomEnemySlot actor)
     {
@@ -48,6 +52,8 @@ internal sealed class RidleyNativeInstructionPointers
             // A fragment's frame sits at its list entry and its hold at the sleep after the frame record.
             return checked((ushort)(RidleyAnimationsVerification.BreakupList(cursor.Program) + (cursor.Position == 0 ? 0 : 4)));
         }
+        if (enemies.PipeBugStates[actor.SlotIndex] is { } pipeBug)
+            return pipeBugs.Pointer(pipeBug.Program);
         return actor.CurrentInstruction;
     }
 

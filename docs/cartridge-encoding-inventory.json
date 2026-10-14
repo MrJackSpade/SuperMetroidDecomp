@@ -23,33 +23,33 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 32129,
-    "PointerDispatch": 768,
-    "OpaqueWordArray": 1061,
-    "CatalogHexLiteral": 97059,
+    "RawHexLiteral": 32010,
+    "PointerDispatch": 747,
+    "OpaqueWordArray": 1060,
+    "CatalogHexLiteral": 97140,
     "JustifiedHexLiteral": 148,
     "RawWidthOperation": 44,
     "OwnedWidthOperation": 72,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 19,
-    "class:NumericQuantity": 54688,
-    "class:DomainIdentity": 7286,
+    "class:NumericQuantity": 54635,
+    "class:DomainIdentity": 7384,
     "class:ComposableBits": 1462,
-    "class:StructuredInstruction": 43550,
-    "class:CartridgeAddress": 23463,
-    "class:Unknown": 857,
-    "storageWidthMembers": 1546
+    "class:StructuredInstruction": 43545,
+    "class:CartridgeAddress": 23364,
+    "class:Unknown": 856,
+    "storageWidthMembers": 1543
   },
   "subsystems": [
     {
       "name": "Asset catalogs and decoders",
       "totals": {
-        "CatalogHexLiteral": 9491,
+        "CatalogHexLiteral": 9562,
         "JustifiedHexLiteral": 5,
         "OwnedWidthOperation": 2,
-        "class:NumericQuantity": 522,
-        "class:DomainIdentity": 491,
+        "class:NumericQuantity": 493,
+        "class:DomainIdentity": 591,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 8391,
         "class:Unknown": 73,
@@ -292,8 +292,8 @@
           "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/DeadTourianCorpseVisualDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 44,
-            "class:NumericQuantity": 39,
+            "CatalogHexLiteral": 14,
+            "class:NumericQuantity": 9,
             "class:CartridgeAddress": 5
           }
         },
@@ -480,14 +480,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/PipeBugVisualDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 4,
-            "class:NumericQuantity": 4
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/PowampVisualDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -652,6 +644,24 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/Artwork/DeadTourianFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 14,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 13
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/Artwork/MultiviolaFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 9,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 8
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Elevator/Artwork/ElevatorFrameDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -679,6 +689,15 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Hoppers/Artwork/HopperFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 25,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 24
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Kago/Artwork/KagoFrameDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -697,12 +716,30 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/Artwork/NorfairLavaJumperFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 12,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 11
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Nuclear/Artwork/NuclearWaffleFrameDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 9,
             "class:NumericQuantity": 1,
             "class:DomainIdentity": 8
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/Artwork/PipeBugFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 45,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 44
           }
         },
         {
@@ -3647,9 +3684,9 @@
       "totals": {
         "RawHexLiteral": 1,
         "PointerDispatch": 8,
-        "CatalogHexLiteral": 1086,
+        "CatalogHexLiteral": 1087,
         "class:NumericQuantity": 531,
-        "class:DomainIdentity": 332,
+        "class:DomainIdentity": 333,
         "class:ComposableBits": 13,
         "class:CartridgeAddress": 219,
         "storageWidthMembers": 8
@@ -3896,8 +3933,8 @@
           "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/DeadTorizoArtworkDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 6,
-            "class:NumericQuantity": 5,
+            "CatalogHexLiteral": 5,
+            "class:NumericQuantity": 4,
             "class:CartridgeAddress": 1
           }
         },
@@ -3907,6 +3944,15 @@
           "totals": {
             "CatalogHexLiteral": 5,
             "class:NumericQuantity": 5
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/Artwork/DeadTorizoFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 2,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 1
           }
         }
       ]
@@ -5355,19 +5401,19 @@
       "name": "Enemies: regular AI and instruction programs",
       "totals": {
         "RawHexLiteral": 660,
-        "PointerDispatch": 250,
+        "PointerDispatch": 233,
         "OpaqueWordArray": 5,
-        "CatalogHexLiteral": 21304,
+        "CatalogHexLiteral": 21256,
         "JustifiedHexLiteral": 1,
         "OwnedWidthOperation": 12,
         "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 17693,
+        "class:NumericQuantity": 17655,
         "class:DomainIdentity": 85,
         "class:ComposableBits": 209,
         "class:StructuredInstruction": 488,
-        "class:CartridgeAddress": 3716,
+        "class:CartridgeAddress": 3689,
         "class:Unknown": 47,
-        "storageWidthMembers": 486
+        "storageWidthMembers": 484
       },
       "addressInterpretingTypes": [
         "AlcoonFireballInstructionProgramDefinitions",
@@ -5375,12 +5421,10 @@
         "BeetomInstructionProgramDefinitions",
         "BlueBrinstarFaceBlockInstructionProgramDefinitions",
         "BoyonInstructionProgramDefinitions",
-        "BrinstarPipeBugInstructionProgramDefinitions",
         "CacatacInstructionProgramDefinitions",
         "CacatacProjectileInstructionProgramDefinitions",
         "ChozoTourianDustInstructionProgramDefinitions",
         "CommonEnemyProjectileInstructionProgramDefinitions",
-        "DeadTourianCorpseInstructionProgramDefinitions",
         "DragonFireballInstructionProgramDefinitions",
         "EnemyDeathInstructionProgramDefinitions",
         "EvirBehavior",
@@ -5400,9 +5444,6 @@
         "MochtroidInstructionProgramDefinitions",
         "MorphBallEyeBehavior",
         "MorphBallEyeInstructionProgramDefinitions",
-        "MultiviolaInstructionProgramDefinitions",
-        "NorfairLavaJumperInstructionProgramDefinitions",
-        "NorfairLavaJumpingEnemyBehavior",
         "NorfairRioBehavior",
         "NorfairRioInstructionProgramDefinitions",
         "NuclearWaffleProjectileInstructionProgramDefinitions",
@@ -5430,8 +5471,7 @@
         "WorkRobotLaserInstructionProgramDefinitions",
         "WreckedShipAtticPlmRomData",
         "YappingMawBodyProjectileInstructionProgramDefinitions",
-        "YappingMawInstructionProgramDefinitions",
-        "YellowPipeBugInstructionProgramDefinitions"
+        "YappingMawInstructionProgramDefinitions"
       ],
       "files": [
         {
@@ -6110,23 +6150,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadSidehopperInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadSidehopperInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 9,
-            "class:NumericQuantity": 5,
-            "class:CartridgeAddress": 4
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadSidehopperLaunchDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -6165,15 +6188,6 @@
           "totals": {
             "CatalogHexLiteral": 4,
             "class:CartridgeAddress": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 6,
-            "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 3
           }
         },
         {
@@ -6218,16 +6232,6 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "storageWidthMembers": 13
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianCorpseInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 1,
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 1
           }
         },
         {
@@ -6304,16 +6308,6 @@
             "RawHexLiteral": 6,
             "class:NumericQuantity": 4,
             "class:ComposableBits": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 3,
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 3
           }
         },
         {
@@ -7172,23 +7166,7 @@
           "path": "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperEnemyState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "storageWidthMembers": 8
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 2,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HopperInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 6,
-            "class:NumericQuantity": 6
+            "storageWidthMembers": 7
           }
         },
         {
@@ -7348,25 +7326,13 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 8,
-            "CatalogHexLiteral": 6,
-            "class:NumericQuantity": 6,
-            "class:CartridgeAddress": 8
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumpingEnemyBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 6,
-            "PointerDispatch": 1,
             "class:NumericQuantity": 2,
             "class:DomainIdentity": 1,
-            "class:ComposableBits": 3,
-            "class:CartridgeAddress": 1
+            "class:ComposableBits": 3
           }
         },
         {
@@ -7383,7 +7349,7 @@
           "totals": {
             "RawHexLiteral": 1,
             "class:ComposableBits": 1,
-            "storageWidthMembers": 2
+            "storageWidthMembers": 1
           }
         },
         {
@@ -7798,24 +7764,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/BrinstarPipeBugInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 2,
-            "CatalogHexLiteral": 8,
-            "class:NumericQuantity": 8,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/NorfairPipeBugInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 4,
-            "class:NumericQuantity": 4
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/PipeBugEnemyFunction.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -7836,16 +7784,6 @@
           "totals": {
             "RawHexLiteral": 4,
             "class:ComposableBits": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/YellowPipeBugInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 2,
-            "CatalogHexLiteral": 4,
-            "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 2
           }
         },
         {
@@ -9306,21 +9244,21 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 30501,
-        "PointerDispatch": 269,
-        "OpaqueWordArray": 930,
-        "CatalogHexLiteral": 1681,
+        "RawHexLiteral": 30382,
+        "PointerDispatch": 265,
+        "OpaqueWordArray": 929,
+        "CatalogHexLiteral": 1738,
         "RawWidthOperation": 44,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 10848,
-        "class:DomainIdentity": 573,
+        "class:NumericQuantity": 10862,
+        "class:DomainIdentity": 570,
         "class:ComposableBits": 545,
-        "class:StructuredInstruction": 13432,
-        "class:CartridgeAddress": 7534,
-        "class:Unknown": 508,
-        "storageWidthMembers": 85
+        "class:StructuredInstruction": 13427,
+        "class:CartridgeAddress": 7462,
+        "class:Unknown": 507,
+        "storageWidthMembers": 84
       },
       "addressInterpretingTypes": [
         "",
@@ -9429,8 +9367,7 @@
         "WorkRobotVisualsVerification",
         "WrapShotEnemiesVerification",
         "XrayRevealVerification",
-        "YappingMawBodyProjectileInstructionProgramDefinitionsTooling",
-        "YellowPipeBugInstructionProgramDefinitionsTooling"
+        "YappingMawBodyProjectileInstructionProgramDefinitionsTooling"
       ],
       "files": [
         {
@@ -10233,37 +10170,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Corpses/DeadTorizoInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1,
-            "storageWidthMembers": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Corpses/DeadTourianCorpseInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Crawlers/HZoomerInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
             "RawHexLiteral": 1,
             "PointerDispatch": 1,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Crawlers/MultiviolaInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
           }
         },
         {
@@ -10393,14 +10305,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Hoppers/HopperInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Kago/KagoBugProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
@@ -10413,14 +10317,6 @@
           "project": "SuperMetroid.Tooling",
           "totals": {
             "PointerDispatch": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/LavaJumpers/NorfairLavaJumperInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
             "class:CartridgeAddress": 1
           }
         },
@@ -10478,31 +10374,6 @@
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Owtch/OwtchInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 3,
-            "class:CartridgeAddress": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/PipeBugs/BrinstarPipeBugInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/PipeBugs/NorfairPipeBugInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/PipeBugs/YellowPipeBugInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
             "RawHexLiteral": 1,
@@ -13661,13 +13532,13 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 210,
+            "RawHexLiteral": 201,
             "PointerDispatch": 1,
             "OpaqueWordArray": 2,
-            "class:NumericQuantity": 95,
+            "class:NumericQuantity": 93,
             "class:DomainIdentity": 1,
             "class:StructuredInstruction": 15,
-            "class:CartridgeAddress": 102
+            "class:CartridgeAddress": 95
           }
         },
         {
@@ -14155,36 +14026,27 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadSidehopperInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadSidehopperLaunchDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 8,
+            "RawHexLiteral": 5,
             "PointerDispatch": 2,
             "CountdownSignTest": 1,
-            "class:NumericQuantity": 3,
+            "class:NumericQuantity": 2,
             "class:ComposableBits": 2,
-            "class:CartridgeAddress": 3,
-            "class:Unknown": 3
+            "class:CartridgeAddress": 2,
+            "class:Unknown": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTorizoArtworkVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 48,
+            "RawHexLiteral": 47,
             "class:NumericQuantity": 33,
             "class:DomainIdentity": 1,
             "class:ComposableBits": 1,
-            "class:CartridgeAddress": 13
+            "class:CartridgeAddress": 12
           }
         },
         {
@@ -14205,12 +14067,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTorizoInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTorizoNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 3
+            "CatalogHexLiteral": 2,
+            "class:NumericQuantity": 2
           }
         },
         {
@@ -14233,12 +14094,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTourianCorpseInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Corpses/DeadTourianNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 2
+            "CatalogHexLiteral": 14,
+            "class:NumericQuantity": 13,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -14271,12 +14132,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/MultiviolaInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/MultiviolaNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 7,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 5
+            "CatalogHexLiteral": 2,
+            "class:NumericQuantity": 2
           }
         },
         {
@@ -14900,12 +14760,20 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperAnimationDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 14,
+            "RawHexLiteral": 7,
             "OpaqueWordArray": 1,
-            "class:NumericQuantity": 3,
+            "class:NumericQuantity": 1,
             "class:StructuredInstruction": 5,
-            "class:CartridgeAddress": 5,
             "class:Unknown": 2
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 21,
+            "class:NumericQuantity": 17,
+            "class:CartridgeAddress": 4
           }
         },
         {
@@ -14984,12 +14852,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/LavaJumpers/NorfairLavaJumperInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/LavaJumpers/NorfairLavaJumperNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 10,
-            "class:NumericQuantity": 6,
-            "class:CartridgeAddress": 4
+            "CatalogHexLiteral": 6,
+            "class:NumericQuantity": 5,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -15218,39 +15086,20 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/BrinstarPipeBugInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 19,
-            "class:NumericQuantity": 11,
-            "class:CartridgeAddress": 8
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/NorfairPipeBugInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 11,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 10
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/PipeBugAnimationDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 9,
-            "class:NumericQuantity": 5,
+            "RawHexLiteral": 8,
+            "class:NumericQuantity": 4,
             "class:CartridgeAddress": 4
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/YellowPipeBugInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/PipeBugNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 11,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 10
+            "CatalogHexLiteral": 17,
+            "class:NumericQuantity": 17
           }
         },
         {
@@ -18178,14 +18027,14 @@
           "path": "csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 222,
+            "RawHexLiteral": 210,
             "PointerDispatch": 2,
             "OpaqueWordArray": 3,
-            "class:NumericQuantity": 36,
-            "class:DomainIdentity": 10,
+            "class:NumericQuantity": 33,
+            "class:DomainIdentity": 7,
             "class:ComposableBits": 15,
             "class:StructuredInstruction": 21,
-            "class:CartridgeAddress": 140,
+            "class:CartridgeAddress": 134,
             "class:Unknown": 5
           }
         },
@@ -18193,14 +18042,14 @@
           "path": "csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 352,
-            "PointerDispatch": 4,
-            "OpaqueWordArray": 10,
-            "class:NumericQuantity": 64,
+            "RawHexLiteral": 344,
+            "PointerDispatch": 3,
+            "OpaqueWordArray": 9,
+            "class:NumericQuantity": 63,
             "class:DomainIdentity": 29,
             "class:ComposableBits": 14,
-            "class:StructuredInstruction": 120,
-            "class:CartridgeAddress": 134,
+            "class:StructuredInstruction": 115,
+            "class:CartridgeAddress": 130,
             "class:Unknown": 5
           }
         },
@@ -21802,35 +21651,11 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadSidehopperInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadTorizoInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
           "path": "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadTorizoVramTransferDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 2,
             "class:NumericQuantity": 2
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadTourianCorpseInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
           }
         },
         {
@@ -22039,14 +21864,6 @@
           "totals": {
             "CatalogHexLiteral": 3,
             "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Hoppers/HopperInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 2,
-            "class:NumericQuantity": 2
           }
         },
         {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>
@@ -42,8 +43,8 @@ public sealed class HopperEnemyState
         internal set => _slot.VariableD = value;
     }
 
-    /// <summary>Native extension offset $00: last installed bank-$A3 idle/jumping instruction-list identity, retained alongside the live instruction cursor.</summary>
-    public ushort InstalledInstructionList { get; internal set; }
+    /// <summary>Native extension offset $00's installed landed or jumping animation: where the typed program (#641) resumes.</summary>
+    internal AnimationProgramCursor<HopperProgram> Program { get; set; }
     /// <summary>Native extension offset $02: initial quadratic record index calculated with step 3 and accumulated-height threshold $1000 using the cartridge's odd-byte speed-word reads.</summary>
     public ushort SmallHopInitialYSpeedTableIndex { get; internal set; }
     /// <summary>Native extension offset $04: initial quadratic record index calculated with step 4 and accumulated-height threshold $3000 using the cartridge's odd-byte speed-word reads.</summary>

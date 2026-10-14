@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.PipeBugs;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -252,6 +253,7 @@ internal static class NativeSnapshotImportVerification
         runtime.RoomLayer3Fx.baseYSubposition = W(NativeSnapshotMemory.LiquidBaseFraction);
         runtime.RoomLayer3Fx.CurrentYPosition = W(NativeSnapshotMemory.AcidSurface);
         runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
+        var pipeBugPointers = new PipeBugNativeInstructionPointers(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and
         // +$0A/+$0C the radii, each imported as one typed value below.
         for (int index = 0; index < runtime.Enemies.SlotTable.Slots.Count; index++)
@@ -285,6 +287,9 @@ internal static class NativeSnapshotImportVerification
             slot.VariableD = W(address + 54);
             slot.VariableE = W(address + 56);
             slot.VariableF = W(address + 58);
+            // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
+            if (runtime.Enemies.PipeBugStates[index] is { } pipeBug)
+                pipeBug.Program = pipeBugPointers.CursorAt(slot.CurrentInstruction);
             if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
             {
                 pipe.SpawnPosition = new(slot.VariableB, slot.VariableC);

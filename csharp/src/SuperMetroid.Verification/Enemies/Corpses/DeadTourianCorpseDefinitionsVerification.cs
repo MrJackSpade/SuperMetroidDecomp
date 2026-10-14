@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -35,7 +36,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
                     DeadTourianCorpseDefinitions.For(family.Species, variantIndex);
                 AssertEqual(
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((family.InstructionTable + variantIndex * 2)),
-                    definition.InitialInstructionPointer,
+                    NativeEnemyProgramOracle.EntryOf(DeadTourianNativeListAddresses.Entries, definition.InitialProgram),
                     $"dead {family.Species} variant {variantIndex} instruction selector");
                 AssertEqual(
                     CartridgeImportSource.Require(rom).ReadCartridgeWord((family.ConfigurationTable + variantIndex * 2)),
@@ -113,8 +114,9 @@ internal static class DeadTourianCorpseDefinitionsVerification
             $"dead {species} variant {variantIndex} species");
         AssertEqual(variantIndex, state.VariantIndex,
             $"dead {species} variant {variantIndex} index");
-        AssertEqual(expected.InitialInstructionPointer, slot.CurrentInstruction,
-            $"dead {species} variant {variantIndex} installed instruction");
+        AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(expected.InitialProgram),
+            enemies.DeadTourianBehavior._deadTourianCorpsePrograms[slot.SlotIndex],
+            $"dead {species} variant {variantIndex} started animation");
         AssertEqual(expected.ConfigurationPointer, state.ConfigurationPointer,
             $"dead {species} variant {variantIndex} configuration");
         AssertEqual(expected.RottingTablePointer, state.TablePointer,

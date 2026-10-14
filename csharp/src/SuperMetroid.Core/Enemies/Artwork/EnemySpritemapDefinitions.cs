@@ -1761,24 +1761,17 @@ internal static class EnemySpritemapDefinitions
                 TripperKamerVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Dragon =>
                 DragonVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.Multiviola =>
-                MultiviolaVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.Squeept =>
-                NorfairLavaJumperVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Multiviola => 0,
+            EnemyDefinitionId.Squeept => 0,
             EnemyDefinitionId.Chozo =>
                 ChozoStatueVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Viola =>
                 ViolaVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Rinka =>
                 RinkaVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.CorpseTorizo =>
-                DeadTorizoArtworkDefinitions.StationaryFrameAt(operandAddress),
-            EnemyDefinitionId.CorpseZoomer or
-                EnemyDefinitionId.CorpseRipper or
-                EnemyDefinitionId.CorpseSkree =>
-                DeadTourianCorpseVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.CorpseSidehopper =>
-                DeadTourianCorpseVisualDefinitions.SidehopperFrameAt(operandAddress),
+            EnemyDefinitionId.CorpseTorizo => 0,
+            EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree => 0,
+            EnemyDefinitionId.CorpseSidehopper => 0,
             EnemyDefinitionId.Mochtroid =>
                 MochtroidVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile =>
@@ -1797,11 +1790,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Bull => 0,
             EnemyDefinitionId.Alcoon => AlcoonFrameAt(operandAddress),
             EnemyDefinitionId.Beetom => BeetomFrameAt(operandAddress),
-            EnemyDefinitionId.Sidehopper or
-                EnemyDefinitionId.Dessgeega or
-                EnemyDefinitionId.SidehopperLarge or
-                EnemyDefinitionId.SidehopperTourian or
-                EnemyDefinitionId.DessgeegaLarge => HopperFrameAt(operandAddress),
+            EnemyDefinitionId.Sidehopper or EnemyDefinitionId.Dessgeega or EnemyDefinitionId.SidehopperLarge or EnemyDefinitionId.SidehopperTourian or EnemyDefinitionId.DessgeegaLarge => 0,
             EnemyDefinitionId.Choot => 0,
             EnemyDefinitionId.HZoomer => HZoomerFrameAt(operandAddress),
             EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2 => 0,
@@ -1834,11 +1823,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Zoa => 0,
             EnemyDefinitionId.Metaree => SkreeMetareeFrameAt(true, operandAddress),
             EnemyDefinitionId.Skree => SkreeMetareeFrameAt(false, operandAddress),
-            EnemyDefinitionId.Zeb or
-                EnemyDefinitionId.Zebbo or
-                EnemyDefinitionId.Gamet or
-                EnemyDefinitionId.Geega =>
-                PipeBugVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
+            EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo or EnemyDefinitionId.Gamet or EnemyDefinitionId.Geega => 0,
             EnemyDefinitionId.MiniKraid or
                 EnemyDefinitionId.KraidNail or
                 EnemyDefinitionId.KraidNailBad =>
@@ -1892,16 +1877,9 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Shaktool or
             EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or
             EnemyDefinitionId.Dragon or
-            EnemyDefinitionId.Multiviola or
-            EnemyDefinitionId.Squeept or
             EnemyDefinitionId.Chozo or
             EnemyDefinitionId.Viola or
             EnemyDefinitionId.Rinka or
-            EnemyDefinitionId.CorpseTorizo or
-            EnemyDefinitionId.CorpseZoomer or
-            EnemyDefinitionId.CorpseRipper or
-            EnemyDefinitionId.CorpseSkree or
-            EnemyDefinitionId.CorpseSidehopper or
             EnemyDefinitionId.Mochtroid or
             EnemyDefinitionId.Evir or
             EnemyDefinitionId.EvirProjectile or
@@ -1915,11 +1893,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Puyo or
             EnemyDefinitionId.Alcoon or
             EnemyDefinitionId.Beetom or
-            EnemyDefinitionId.Sidehopper or
-            EnemyDefinitionId.Dessgeega or
-            EnemyDefinitionId.SidehopperLarge or
-            EnemyDefinitionId.SidehopperTourian or
-            EnemyDefinitionId.DessgeegaLarge or
             EnemyDefinitionId.HZoomer or
             EnemyDefinitionId.Fune or
             EnemyDefinitionId.Namihe or
@@ -1937,10 +1910,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Cacatac or
             EnemyDefinitionId.Magdollite or EnemyDefinitionId.Skultera or
             EnemyDefinitionId.Metaree or EnemyDefinitionId.Skree or
-            EnemyDefinitionId.Zeb or
-            EnemyDefinitionId.Zebbo or
-            EnemyDefinitionId.Gamet or
-            EnemyDefinitionId.Geega or
             EnemyDefinitionId.MiniKraid or
             EnemyDefinitionId.KraidNail or
             EnemyDefinitionId.KraidNailBad or
@@ -2095,21 +2064,6 @@ internal static class EnemySpritemapDefinitions
     }
 
     /// <summary>
-    /// The forty small/large Sidehopper and Dessgeega floor/ceiling operands
-    /// select twenty-four compositions. Tourian Sidehoppers share the large
-    /// Sidehopper instruction lists and visual identities.
-    /// </summary>
-    internal static ushort HopperFrameAt(ushort operandAddress)
-    {
-        if (HopperInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(HopperBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Hopper visual operand $A3:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
     /// The twenty <c>$A3:DFD1-E035</c> HZoomer visual operands select
     /// installed five-frame compositions for each of four surface orientations.
     /// </summary>
@@ -2158,7 +2112,6 @@ internal static class EnemySpritemapDefinitions
             _ => throw new InvalidDataException(
                 $"Skree visual operand $A3:{operandAddress:X4} is not compiled."),
         });
-
 
     /// <summary>
     /// The twenty-two Skultera frame operands are fixed visual identities; control

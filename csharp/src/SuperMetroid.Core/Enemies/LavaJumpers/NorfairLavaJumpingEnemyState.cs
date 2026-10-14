@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>
@@ -21,11 +22,14 @@ public sealed class NorfairLavaJumpingEnemyState
     public bool AnimationFinished { get; internal set; }
 
     /// <summary>
-    /// Native family-extra variable $01. Function six remembers the last installed list so
-    /// it does not restart an animation which is already running. Like variable $00, this
-    /// is separate from the ordinary A-F words and therefore has explicit host storage.
+    /// Native family-extra variable $01. Function six remembers the last started animation so it does not restart one
+    /// which is already running; none since initialization. Like variable $00, this is separate from the ordinary A-F
+    /// words and therefore has explicit host storage.
     /// </summary>
-    public ushort InstalledInstructionList { get; internal set; }
+    internal NorfairLavaJumperProgram? InstalledProgram { get; set; }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<NorfairLavaJumperProgram> Program { get; set; }
 
     /// <summary>Signed 8.8 vertical velocity, stored in native enemy variable C.</summary>
     public ushort YVelocity

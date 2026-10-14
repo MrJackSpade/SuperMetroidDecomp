@@ -1,25 +1,24 @@
+using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
+using SuperMetroid.Verification.Enemies.PipeBugs;
+using SuperMetroid.Verification.Enemies.LavaJumpers;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rooms;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Enemies.PipeBugs.BrinstarPipeBugInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePirateInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumperInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.PipeBugs.NorfairPipeBugInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.PaletteFxInstructionCodesVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailArtworkVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.StatueWalkDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Enemies.PipeBugs.YellowPipeBugInstructionProgramDefinitionsVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
@@ -1135,26 +1134,10 @@ internal static class LookupStream2Verification
     /// <summary>Checks lava-jumper control and visual selectors, parent/follower programs, and handshake.</summary>
     internal static void VerifyLookupStream2LavaJumperLayout(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifyNorfairLavaJumperInstructionProgramDefinitions), () => VerifyNorfairLavaJumperInstructionProgramDefinitions(rom));
-        int visual = 0;
-        int cursor = 0xbe3c;
-        while (cursor < 0xbe86)
-        {
-            ushort word = ReadVerificationWord(rom, 0xa20000 | cursor);
-            if (word < 0x8000)
-            {
-                ushort operand = (ushort)(cursor + 2);
-                AssertEqual(operand, NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(visual++), "Lava-jumper calculated pose address follows native instruction widths");
-                AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa2, operand, out ushort selector), "Lava-jumper pose has an installed selector");
-                AssertEqual(ReadVerificationWord(rom, 0xa20000 | operand), selector, "Lava-jumper selector matches exact native operand");
-                cursor += 4;
-            }
-            else cursor += word is 0x8123 or 0x8110 or 0x80ed ? 4 : 2;
-        }
-        AssertEqual(0xbe86, cursor, "Lava-jumper native walker stops before velocity data");
-        AssertEqual(14, visual, "All fourteen lava-jumper visual operands independently confirmed");
-        Console.WriteLine("Lava-jumper calculated layout:23 native controls,14 native selectors, actual parent/follower programs and handshake pass; seven pose holds remain pending.");
+        Suite(nameof(NorfairLavaJumperBehaviorVerification.VerifyNorfairLavaJumperBehavior), () => NorfairLavaJumperBehaviorVerification.VerifyNorfairLavaJumperBehavior(rom));
+        Suite(nameof(NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations), () => NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations(rom));
     }
+
     /// <summary>Checks Chozo statue instruction controls, visuals, and list boundaries.</summary>
     internal static void VerifyLookupStream2ChozoLayout(SuperMetroidAddressSpace rom)
     {
@@ -1356,30 +1339,12 @@ internal static class LookupStream2Verification
     /// <summary>Checks Brinstar, Norfair, and yellow Pipe Bug visual program geometry.</summary>
     internal static void VerifyLookupStream2PipeBugVisualGeometry(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(rom));
-        Suite(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(rom));
-        Suite(nameof(VerifyYellowPipeBugInstructionProgramDefinitions), () => VerifyYellowPipeBugInstructionProgramDefinitions(rom));
-        for (int index = 0; index < BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-            Check(index < 28 ? EnemyDefinitionId.Zeb : EnemyDefinitionId.Zebbo,
-                BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index));
-        for (int index = 0; index < NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-            Check(EnemyDefinitionId.Gamet, NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index));
-        for (int index = 0; index < YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-            Check(EnemyDefinitionId.Geega, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index));
-        Console.WriteLine("Pipe Bug visual geometry:88 native selectors/single-part headers, adjacent mechanics rejection and existing actual variant program checks pass.");
-
-        void Check(EnemyDefinitionId enemy, ushort address)
-        {
-            ushort expected = ReadVerificationWord(rom, 0xb30000 | address);
-            AssertEqual(expected, PipeBugVisualDefinitions.FrameAt(enemy, address), "Native Pipe Bug visual selector");
-            AssertEqual((ushort)1, ReadVerificationWord(rom, 0xb30000 | expected), "Native seven-byte single-part composition");
-            for (int delta = -2; delta <= 2; delta++)
-            {
-                if (delta == 0) continue;
-                ushort invalid = unchecked((ushort)(address + delta));
-                AssertThrows<InvalidDataException>(() => PipeBugVisualDefinitions.FrameAt(enemy, invalid), "Nonvisual adjacent bytes rejected");
-            }
-        }
+        Suite(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior(rom));
+        Suite(nameof(PipeBugAnimationsVerification.VerifyPipeBugAnimations), () => PipeBugAnimationsVerification.VerifyPipeBugAnimations(rom));
+        ushort[] poses = PipeBugAnimations.Spritemaps(Enum.GetValues<PipeBugProgram>()).Distinct().ToArray();
+        foreach (ushort pose in poses)
+            AssertEqual((ushort)1, ReadVerificationWord(rom, (int)new SnesAddress(PipeBugFrameDefinitions.Bank, pose)), "Native seven-byte single-part composition");
+        Console.WriteLine($"Pipe Bug visual geometry: {poses.Length} native single-part poses and the typed loops pass.");
     }
 
     /// <summary>Checks five-member Pipe Bug formation positions and native spawn data.</summary>
@@ -1416,9 +1381,8 @@ internal static class LookupStream2Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), (ushort)state.NorfairPostRiseFunction,
                     "Actual formation writes native role function");
                 AssertEqual(PipeBugEnemyFunction.NorfairRise, state.Function, "Actual formation begins rising");
-                AssertEqual(samusX < 128 ? NorfairPipeBugInstructionProgramDefinitions.RisingLeft
-                    : NorfairPipeBugInstructionProgramDefinitions.RisingRight,
-                    enemies.SlotTable.Slots[member].CurrentInstruction, "Actual formation selects facing");
+                AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(samusX < 128 ? PipeBugProgram.GametRisingLeft : PipeBugProgram.GametRisingRight),
+                    state.Program, "Actual formation selects facing");
                 AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].InstructionTimer.RawValue,
                     "Only leader instruction timer resets");
                 AssertEqual((ushort)(member == 0 ? 0 : member + 8), enemies.SlotTable.Slots[member].Timer.RawValue,

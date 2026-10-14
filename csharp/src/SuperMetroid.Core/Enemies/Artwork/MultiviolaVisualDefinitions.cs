@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// Eight distinct bank-$A2 OAM compositions in Multiviola's fourteen-frame
-/// flight loop. Durations and the loop branch remain compiled simulation data.
+/// flight loop. Durations and the loop branch live in its typed program.
 /// </summary>
 internal static class MultiviolaVisualDefinitions
 {
@@ -13,32 +13,8 @@ internal static class MultiviolaVisualDefinitions
     /// <summary>Eight distinct compositions selected by the fourteen-frame flight loop.</summary>
     internal const int FrameCount = 8;
 
-    /// <summary>Builds the export list from compiled visual operands, preserving loop order.</summary>
-    internal static EnemySpritemapDefinition[] Frames()
-    {
-        var frames = new EnemySpritemapDefinition[FrameCount];
-        for (int index = 0; index < frames.Length; index++)
-        {
-            ushort operand = MultiviolaInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            frames[index] = new EnemySpritemapDefinition(Bank, FrameAt(operand),
-                $"multiviola_spin_{index}");
-        }
-        return frames;
-    }
-
-    /// <summary>Resolves only a visual operand of the native flight loop.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        for (int index = 0;
-             index < MultiviolaInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-            if (MultiviolaInstructionProgramDefinitions.PresentationWordAddress(index) ==
-                    operandAddress &&
-                CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress,
-                    out ushort frame))
-                return frame;
-        throw new InvalidDataException(
-            $"Multiviola visual operand $A2:{operandAddress:X4} is not compiled.");
-    }
+    /// <summary>Builds the export list from the flight loop's first pass out, preserving loop order.</summary>
+    internal static EnemySpritemapDefinition[] Frames() =>
+        [.. MultiviolaAnimations.Spritemaps(MultiviolaProgram.Flying).Take(FrameCount)
+            .Select((frame, index) => new EnemySpritemapDefinition(Bank, frame, $"multiviola_spin_{index}"))];
 }

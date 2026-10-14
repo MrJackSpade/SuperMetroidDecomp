@@ -1,3 +1,8 @@
+using SuperMetroid.Verification.Enemies.PipeBugs;
+using SuperMetroid.Verification.Enemies.Crawlers;
+using SuperMetroid.Verification.Enemies.Hoppers;
+using SuperMetroid.Verification.Enemies.Corpses;
+using SuperMetroid.Verification.Enemies.LavaJumpers;
 using SuperMetroid.Verification.Enemies.Waver;
 using SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Enemies.Shutters;
@@ -32,7 +37,6 @@ using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonSpeedsVerification;
 using static SuperMetroid.Verification.Enemies.Boulder.BoulderBounceDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Boyon.BoyonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Boyon.BoyonSpeedDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.PipeBugs.BrinstarPipeBugInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Bull.BullMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Cacatac.CacatacInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Cacatac.CacatacMovementDefinitionsVerification;
@@ -65,12 +69,9 @@ using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireRumbleDefinitio
 using static SuperMetroid.Verification.Samus.Abilities.CrystalFlashPaletteTimingDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Animals.DachoraInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Corpses.DeadSidehopperCorpseDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Corpses.DeadSidehopperInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Corpses.DeadSidehopperLaunchDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Corpses.DeadTorizoCorpseDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Corpses.DeadTorizoInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Corpses.DeadTourianCorpseDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Corpses.DeadTourianCorpseInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.DownwardGatePlmsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.DownwardGateProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Dragon.DragonAnimationDefinitionsVerification;
@@ -169,13 +170,10 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassShardD
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainNeckSineVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTopTubeInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTurretDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Crawlers.MultiviolaInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePirateInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.NoobTubePlmDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.NoobTubeProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumpDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumperInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.PipeBugs.NorfairPipeBugInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.NorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleProjectileInstructionProgramDefinitionsVerification;
@@ -289,7 +287,6 @@ using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawInstruction
 using static SuperMetroid.Verification.Enemies.Yard.YardDirectionDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardTurnDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.PipeBugs.YellowPipeBugInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeExplosionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.ZebetiteDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.ZeroInstructionProgramDefinitionsVerification;
@@ -401,19 +398,22 @@ internal static class EnemyTrigonometryVerification
         new(nameof(ShutterBehaviorVerification.VerifyHorizontalShutterInitialFunctionSelection), () => ShutterBehaviorVerification.VerifyHorizontalShutterInitialFunctionSelection(LoadRepositoryRom())),
         new(nameof(ChootAnimationsVerification.VerifyChootAnimations), () => ChootAnimationsVerification.VerifyChootAnimations(LoadRepositoryRom())),
         new(nameof(ChootBehaviorVerification.VerifyChootBehavior), () => ChootBehaviorVerification.VerifyChootBehavior(LoadRepositoryRom(), null)),
-        new(nameof(VerifyNorfairLavaJumperInstructionProgramDefinitions), () => VerifyNorfairLavaJumperInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations), () => NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations(LoadRepositoryRom())),
+        new(nameof(NorfairLavaJumperBehaviorVerification.VerifyNorfairLavaJumperBehavior), () => NorfairLavaJumperBehaviorVerification.VerifyNorfairLavaJumperBehavior(LoadRepositoryRom())),
         new(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyMultiviolaInstructionProgramDefinitions), () => VerifyMultiviolaInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(MultiviolaAnimationsVerification.VerifyMultiviolaAnimations), () => MultiviolaAnimationsVerification.VerifyMultiviolaAnimations(LoadRepositoryRom())),
+        new(nameof(MultiviolaBehaviorVerification.VerifyMultiviolaBehavior), () => MultiviolaBehaviorVerification.VerifyMultiviolaBehavior(LoadRepositoryRom())),
         new(nameof(PolypAnimationsVerification.VerifyPolypAnimations), () => PolypAnimationsVerification.VerifyPolypAnimations(LoadRepositoryRom())),
         new(nameof(PolypBehaviorVerification.VerifyPolypBehavior), () => PolypBehaviorVerification.VerifyPolypBehavior(LoadRepositoryRom())),
         new(nameof(VerifyPowampInstructionProgramDefinitions), () => VerifyPowampInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations), () => WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations(LoadRepositoryRom())),
         new(nameof(WreckedShipGhostBehaviorVerification.VerifyWreckedShipGhostBehavior), () => WreckedShipGhostBehaviorVerification.VerifyWreckedShipGhostBehavior(LoadRepositoryRom())),
         new(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyDeadTorizoInstructionProgramDefinitions), () => VerifyDeadTorizoInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyDeadSidehopperInstructionProgramDefinitions), () => VerifyDeadSidehopperInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyDeadTourianCorpseInstructionProgramDefinitions), () => VerifyDeadTourianCorpseInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(DeadTorizoAnimationsVerification.VerifyDeadTorizoAnimations), () => DeadTorizoAnimationsVerification.VerifyDeadTorizoAnimations(LoadRepositoryRom())),
+        new(nameof(DeadTorizoBehaviorVerification.VerifyDeadTorizoBehavior), () => DeadTorizoBehaviorVerification.VerifyDeadTorizoBehavior(LoadRepositoryRom())),
+        new(nameof(DeadTourianAnimationsVerification.VerifyDeadTourianAnimations), () => DeadTourianAnimationsVerification.VerifyDeadTourianAnimations(LoadRepositoryRom())),
+        new(nameof(DeadTourianBehaviorVerification.VerifyDeadSidehopperBehavior), () => DeadTourianBehaviorVerification.VerifyDeadSidehopperBehavior(LoadRepositoryRom())),
         new(nameof(VerifyRioInstructionProgramDefinitions), () => VerifyRioInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyAtomicMovementDefinitions), () => VerifyAtomicMovementDefinitions(LoadRepositoryRom())),
         new(nameof(AtomicAnimationsVerification.VerifyAtomicAnimations), () => AtomicAnimationsVerification.VerifyAtomicAnimations(LoadRepositoryRom())),
@@ -430,6 +430,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyFuneNamiheInstructionProgramDefinitions), () => VerifyFuneNamiheInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(LoadRepositoryRom())),
+        new(nameof(HopperAnimationsVerification.VerifyHopperAnimations), () => HopperAnimationsVerification.VerifyHopperAnimations(LoadRepositoryRom())),
         new(nameof(VerifyChootPatternDefinitions), () => VerifyChootPatternDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCrawlerAnimationDefinitions), () => VerifyCrawlerAnimationDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyHZoomerInstructionProgramDefinitions), () => VerifyHZoomerInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -526,9 +527,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyCeresDoorAnimations), () => VerifyCeresDoorAnimations(LoadRepositoryRom())),
         new(nameof(VerifyCeresBabyAnimations), () => VerifyCeresBabyAnimations(LoadRepositoryRom())),
         new(nameof(VerifyPipeBugAnimationDefinitions), () => VerifyPipeBugAnimationDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyYellowPipeBugInstructionProgramDefinitions), () => VerifyYellowPipeBugInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(PipeBugAnimationsVerification.VerifyPipeBugAnimations), () => PipeBugAnimationsVerification.VerifyPipeBugAnimations(LoadRepositoryRom())),
+        new(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior(LoadRepositoryRom())),
         new(nameof(VerifyDraygonBurialEvirDefinitions), () => VerifyDraygonBurialEvirDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyDraygonHealthPaletteDefinitions), () => VerifyDraygonHealthPaletteDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyFakeKraidProjectileDefinitions), () => VerifyFakeKraidProjectileDefinitions(LoadRepositoryRom())),

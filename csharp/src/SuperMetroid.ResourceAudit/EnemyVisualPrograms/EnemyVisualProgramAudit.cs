@@ -62,12 +62,6 @@ internal static class EnemyVisualProgramAudit
                 shape = "single";
                 addresses.Add(single);
             }
-            else if (type == typeof(DeadTourianCorpseInstructionProgramDefinitions))
-            {
-                shape = "corpse-programs";
-                for (int i = 0; i < DeadTourianCorpseInstructionProgramDefinitions.ProgramCount; i++)
-                    addresses.Add(DeadTourianCorpseInstructionProgramDefinitionsTooling.PresentationWordAddress(i));
-            }
             else if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
             {
                 shape = "two-families";
@@ -193,9 +187,7 @@ internal static class EnemyVisualProgramAudit
             return;
         }
         ushort pointer;
-        if (type == typeof(DeadTourianCorpseInstructionProgramDefinitions))
-            pointer = DeadTourianCorpseVisualDefinitions.FrameAt(operand);
-        else if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
+        if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
             pointer = EnemySpritemapDefinitions.SkreeMetareeFrameAt(
                 Enumerable.Range(0, SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount())
                     .Any(i => SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(true, i) == operand), operand);

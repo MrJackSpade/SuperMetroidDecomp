@@ -95,7 +95,6 @@ internal static class DefinitionAudit
         bool kraidFamily = calculated && bank is 0xa6 or 0xa7;
         bool platform = calculated && bank == 0xa3 && PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address);
         string calculatedMethod = platform ? "FrameAt" : bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
-            : bank == 0xa2 ? "BoyonFrameAt"
             : FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "FuneNamiheFrameAt"
             : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : "BeetomFrameAt";
         string relative = calculated

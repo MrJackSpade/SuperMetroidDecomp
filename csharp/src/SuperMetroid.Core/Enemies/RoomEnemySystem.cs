@@ -1386,7 +1386,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     private void RegisterOwnedInstructions(EnemyAiTable table)
     {
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneTypedAnimations(table);
-        BoyonBehavior.RegisterBoyonOwnedInstructions(table);
+        BoyonBehavior.RegisterBoyonTypedAnimations(table);
         StokeBehavior.RegisterStokeTypedAnimations(table);
         MamaTurtleBehavior.RegisterMamaTurtleOwnedInstructions(table);
         DragonBehavior.RegisterDragonTypedAnimations(table);
@@ -1418,7 +1418,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         PlatformsBehavior.RegisterPlatformsOwnedInstructions(table);
         AlcoonBehavior.RegisterAlcoonOwnedInstructions(table);
         KiHunterBehavior.RegisterKiHunterOwnedInstructions(table);
-        SparkBehavior.RegisterSparkOwnedInstructions(table);
+        SparkBehavior.RegisterSparkTypedAnimations(table);
         HibashiBehavior.RegisterHibashiOwnedInstructions(table);
         FakeKraidBehavior.RegisterFakeKraidOwnedInstructions(table);
         WalkingSpacePirateBehavior.RegisterWalkingSpacePirateOwnedInstructions(table);
@@ -1439,6 +1439,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        SparkBehavior.RegisterSparkTypedAnimations(table);
+        PowampBehavior.RegisterPowampTypedAnimations(table);
+        BoyonBehavior.RegisterBoyonTypedAnimations(table);
         SkulteraBehavior.RegisterSkulteraTypedAnimations(table);
         MochtroidBehavior.RegisterMochtroidTypedAnimations(table);
         MetareeBehavior.RegisterMetareeTypedAnimations(table);

@@ -17,8 +17,8 @@ internal static class OrdinaryEnemyResourceChecks
             ("Hibashi", HibashiVisualDefinitions.Bank, HibashiVisualDefinitions.Operands(), null, HibashiVisualDefinitions.FrameCount),
             ("Zebetite", ZebetiteVisualDefinitions.Bank, null, ZebetiteVisualDefinitions.Spritemaps(), ZebetiteVisualDefinitions.FrameCount),
             ("WreckedShipGhost", WreckedShipGhostVisualDefinitions.Bank, null, WreckedShipGhostVisualDefinitions.Spritemaps(), WreckedShipGhostVisualDefinitions.FrameCount),
-            ("Powamp", PowampVisualDefinitions.Bank, PowampVisualDefinitions.Operands(), null, PowampVisualDefinitions.FrameCount),
-            ("Spark", SparkVisualDefinitions.Bank, SparkVisualDefinitions.Operands(), null, SparkVisualDefinitions.FrameCount),
+            ("Powamp", PowampVisualDefinitions.Bank, null, [.. PowampVisualDefinitions.Frames().Select(frame => frame.Pointer)], PowampVisualDefinitions.FrameCount),
+            ("Spark", SparkVisualDefinitions.Bank, null, [.. SparkVisualDefinitions.Frames().Select(frame => frame.Pointer)], SparkVisualDefinitions.FrameCount),
             ("Shitroid", ShitroidVisualDefinitions.Bank, null, ShitroidVisualDefinitions.Spritemaps(), ShitroidVisualDefinitions.FrameCount),
         ];
         int offset = 0;

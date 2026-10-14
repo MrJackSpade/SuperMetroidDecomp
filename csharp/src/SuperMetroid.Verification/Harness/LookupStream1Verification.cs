@@ -12,7 +12,6 @@ using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareCompositions
 using static SuperMetroid.Verification.Areas.Escape.Artwork.EscapeTimerPresentationVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Powamp.PowampInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Artwork.SamusBodyArtworkVerification;
 using static SuperMetroid.Verification.Samus.SamusContentIdentityVerification;
@@ -263,9 +262,8 @@ internal static class LookupStream1Verification
         foreach (ushort root in new ushort[] { 0xc163, 0xc173, 0xc183, 0xc191 })
         {
             bool isBody = root < 0xc183;
-            var guard = NewPowampInstructionReadGuard(rom);
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guard);
+            enemies.BindFixtureBus(rom);
             Action<RoomEnemySlot> initialize = enemies.PowampBehavior.InitializePowamp;
             var balloon = enemies.SlotTable.Slots[0];
             balloon.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
@@ -278,7 +276,15 @@ internal static class LookupStream1Verification
             initialize(body);
             body.Position = body.Position.WithWholeY(100);
             var slot = isBody ? body : balloon;
-            slot.CurrentInstruction = root;
+            PowampEnemyState slotState = enemies.PowampBehavior.RequirePowampState(slot);
+            slotState.Program = AnimationProgramCursor<PowampProgram>.Start(root switch
+            {
+                0xc163 => PowampProgram.BodyFast,
+                0xc173 => PowampProgram.BodySlow,
+                0xc183 => PowampProgram.BalloonInflate0,
+                _ => PowampProgram.BalloonStartSinking,
+            });
+            var pair = new PowampBalloon(balloon, enemies.PowampBehavior.RequirePowampState(balloon));
             slot.InstructionTimer = NativeCountdown.Start(1);
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             int calls = 0;
@@ -286,16 +292,14 @@ internal static class LookupStream1Verification
             {
                 ushort address = (ushort)(root + pose * 4), duration = Word(0xa80000 | address);
                 ushort sprite = Word(0xa80000 | (address + 2));
-                AssertEqual(duration, PowampInstructionProgramDefinitions.ReadMechanicsWord(address), "Native Powamp duration");
                 for (int held = 0; held < duration; held++)
                 {
                     EnemyInstructionRunner.Process(enemies, arguments); calls++;
                     AssertEqual((ushort)(duration - held), slot.InstructionTimer.RawValue, "Every uninterrupted Powamp hold tick");
                     AssertEqual(sprite, slot.SpritemapPointer, "Native Powamp held visual");
-                    AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Powamp held cursor");
                     if (!isBody)
                     {
-                        PowampBehavior.AlignPowampBalloonY(body, balloon);
+                        PowampBehavior.AlignPowampBalloonY(body, pair);
                         int nativeOffset = unchecked((short)Word(0xa80000 | ((root == 0xc183 ? 0xc277 : 0xc27d) + pose * 2)));
                         AssertEqual((ushort)(100 + nativeOffset), balloon.Position.Y.Whole, "Native pose-driven balloon collision center");
                     }
@@ -305,20 +309,18 @@ internal static class LookupStream1Verification
             EnemyInstructionRunner.Process(enemies, arguments);
             if (isBody)
             {
-                AssertEqual((ushort)(root + 4), slot.CurrentInstruction, "Actual Powamp Goto repeats first pose");
+                AssertEqual(Word(0xa80000 | (root + 2)), slot.SpritemapPointer, "Actual Powamp loop repeats first pose");
                 AssertEqual(Word(0xa80000 | root), slot.InstructionTimer.RawValue, "Powamp loop first hold reload");
             }
             else
             {
-                AssertEqual((ushort)(root + 12), slot.CurrentInstruction, "Powamp Sleep parks at existing terminal cursor");
                 AssertEqual((ushort)0, slot.InstructionTimer.RawValue, "Powamp Sleep follows full terminal hold");
                 ushort terminalY = balloon.Position.Y.Whole;
-                PowampBehavior.AlignPowampBalloonY(body, balloon);
+                PowampBehavior.AlignPowampBalloonY(body, pair);
                 AssertEqual(terminalY, balloon.Position.Y.Whole, "Sleep preserves terminal balloon collision center");
                 EnemyInstructionRunner.Process(enemies, arguments);
                 AssertEqual(ushort.MaxValue, slot.InstructionTimer.RawValue, "Sleeping Powamp retains native timer underflow");
             }
-            AssertEqual(0, guard.ForbiddenReadAttempts, "Powamp timing uses no cartridge mechanics reads");
         }
         Console.WriteLine("Powamp cadence:12 native holds,376 uninterrupted exposure ticks,both Goto/Sleep boundaries and native balloon centers pass.");
     }
@@ -1727,53 +1729,6 @@ internal static class LookupStream1Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 HUD posture")]
     private static byte LookupStream1HudPostureRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks Powamp instruction control and visual operand addresses across all four programs.</summary>
-    internal static void VerifyLookupStream1PowampPrograms(ISnesAddressSpace rom)
-    {
-        ushort Word(int pointer) => (ushort)(SnesLittleEndian.Word(LookupStream1PowampProgramsRomByte(rom, 0xa80000 | pointer), LookupStream1PowampProgramsRomByte(rom, 0xa80000 | pointer + 1)));
-        var expectedMechanics = new List<ushort>(); var expectedVisual = new List<ushort>();
-        // Traverse original native words, using their instruction/frame encoding rather than the calculated program layout.
-        for (int cursor = 0xc163; cursor < 0xc19f;)
-        {
-            ushort value = Word(cursor);
-            expectedMechanics.Add((ushort)cursor);
-            cursor += 2;
-            if ((value & 0x8000) == 0) { expectedVisual.Add((ushort)cursor); cursor += 2; }
-            else if (value == (ushort)CommonEnemyInstruction.Goto) { expectedMechanics.Add((ushort)cursor); cursor += 2; }
-            else AssertEqual((ushort)CommonEnemyInstruction.Sleep, value, "Powamp native terminal opcode");
-        }
-        AssertEqual(expectedMechanics.Count, PowampInstructionProgramDefinitions.MechanicsWordCount, "Powamp calculated control count");
-        AssertEqual(expectedVisual.Count, PowampInstructionProgramDefinitions.PresentationWordCount, "Powamp calculated visual operand count");
-        for (int index = 0; index < expectedMechanics.Count; index++)
-        {
-            var actual = PowampInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(expectedMechanics[index], actual.Address, "Powamp ordered native control identity");
-            AssertEqual(Word(actual.Address), actual.Value, "Powamp every native control and still-required hold value");
-            AssertEqual(actual.Value, PowampInstructionProgramDefinitions.ReadMechanicsWord(actual.Address), "Powamp control read resolves calculated record");
-        }
-        for (int index = 0; index < expectedVisual.Count; index++)
-        {
-            AssertEqual(expectedVisual[index], PowampInstructionProgramDefinitions.PresentationWordAddress(index), "Powamp calculated native visual operand location");
-            AssertThrows<InvalidDataException>(() => PowampInstructionProgramDefinitions.ReadMechanicsWord(expectedVisual[index]), "Powamp visual operands remain outside control domain");
-        }
-        for (int address = 0xc162; address <= 0xc1a0; address++)
-        {
-            bool expected = expectedMechanics.Any(word => address == word || address == word + 1);
-            AssertEqual(expected, PowampInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa80000 | address), "Powamp exact native control byte coverage");
-            AssertTrue(!PowampInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa70000 | address), "Powamp wrong bank rejects");
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 18, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => PowampInstructionProgramDefinitions.MechanicsWord(invalid), "Powamp control index rejection");
-        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => PowampInstructionProgramDefinitions.PresentationWordAddress(invalid), "Powamp visual index rejection");
-        foreach (ushort invalid in new ushort[] { 0xc162, 0xc164, 0xc19f, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => PowampInstructionProgramDefinitions.ReadMechanicsWord(invalid), "Powamp non-word/adjacent control pointer rejects");
-        Console.WriteLine("Powamp program layout:18 native controls,12 visual operands, exact order/domains/byte classification pass; five chosen timing inputs remain required.");
-    }
-
-    /// <summary>Reads native bank-$A8 Powamp program words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Powamp programs")]
-    private static byte LookupStream1PowampProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks escape timer OAM frames, anchors, edited layout, and actual emitted sprites.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)

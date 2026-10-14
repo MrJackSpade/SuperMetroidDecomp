@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies.Sparks;
+using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -1125,9 +1127,13 @@ internal static class LookupStream3Verification
             int offset = 2 * (parameter & 3);
             ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
             var function = (SparkEnemyFunction)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset);
-            AssertEqual(new SparkMovementDefinition(list, function),
-                SparkMovementDefinitions.InitialState((ushort)parameter),
-                "stream 3 native Spark selector including adjacent-word case");
+            SparkMovementDefinition definition = SparkMovementDefinitions.InitialState((ushort)parameter);
+            // Selector three's list word is the following main-AI function pointer, which starts no animation.
+            AssertEqual(list, definition.Program is { } program
+                    ? NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, program)
+                    : (ushort)SparkEnemyFunction.AlwaysActive,
+                "stream 3 native Spark list selector including adjacent-word case");
+            AssertEqual(function, definition.Function, "stream 3 native Spark function selector including adjacent-word case");
         }
         for (int bucket = 0; bucket <= ushort.MaxValue; bucket++)
         {

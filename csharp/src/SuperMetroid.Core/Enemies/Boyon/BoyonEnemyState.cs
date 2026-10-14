@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class BoyonEnemyState
 
     /// <summary>Projects Boyon's common and extended bounce state from its occupied slot.</summary>
     internal BoyonEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<BoyonProgram> Program { get; set; }
 
     /// <summary>Low-byte multiplier selected by parameter-one's low byte.</summary>
     public ushort SpeedMultiplier

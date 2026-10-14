@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Powamp;
 using SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Enemies.Dragon;
@@ -29,7 +30,6 @@ using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonNavigationDefinitio
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonSpeedsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallPlmsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallVisualsVerification;
-using static SuperMetroid.Verification.Enemies.Boyon.BoyonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresBlastPlacementVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionFrameCatalogVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeVramTransferDefinitionsVerification;
@@ -1240,7 +1240,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Powamp program oracle revision");
-        Suite(nameof(VerifyLookupStream1PowampPrograms), () => VerifyLookupStream1PowampPrograms(rom));
+        Suite(nameof(PowampBehaviorVerification.VerifyPowampBehavior), () => PowampBehaviorVerification.VerifyPowampBehavior(rom));
         return 0;
     }
 
@@ -3675,19 +3675,6 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(launchOracle.Rom)),
             "Enemy fireball launch oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyCompiledEnemyFireballLaunches), () => VerifyCompiledEnemyFireballLaunches(launchOracle));
-        return 0;
-    }
-
-    /// <summary>Checks Boyon instruction loops and animation frames.</summary>
-    [VerificationCommand("--lookup-boyon-programs")]
-    internal static int LookupBoyonProgramsCommand()
-    {
-        var boyonOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(boyonOracle.Rom)),
-            "Boyon oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyBoyonInstructionProgramDefinitions), () => VerifyBoyonInstructionProgramDefinitions(boyonOracle));
-        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
         return 0;
     }
 

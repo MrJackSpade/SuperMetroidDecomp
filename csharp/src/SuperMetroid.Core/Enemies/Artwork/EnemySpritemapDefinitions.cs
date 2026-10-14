@@ -1743,7 +1743,7 @@ internal static class EnemySpritemapDefinitions
         {
             EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle =>
                 MamaTurtleVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.Boyon => BoyonFrameAt(operandAddress),
+            EnemyDefinitionId.Boyon => 0,
             EnemyDefinitionId.Sciser => 0,
             EnemyDefinitionId.Zero => 0,
             EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or
@@ -1858,7 +1858,6 @@ internal static class EnemySpritemapDefinitions
         return enemyDefinition is
             EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle or
             EnemyDefinitionId.CeresDoor or
-            EnemyDefinitionId.Boyon or
             EnemyDefinitionId.Metroid or
             EnemyDefinitionId.Shaktool or
             EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or
@@ -2036,27 +2035,6 @@ internal static class EnemySpritemapDefinitions
         }
         throw new InvalidDataException(
             $"Beetom visual operand $A8:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
-    /// The ten fixed pointer operands interleaved with Boyon's compiled idle and bounce
-    /// instructions. Repeated frames retain the cartridge's exact visual sequence.
-    /// </summary>
-    internal static ushort BoyonFrameAt(ushort operandAddress)
-    {
-        if (BoyonInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-        {
-            bool bouncing = BoyonInstructionProgramDefinitions.IsBouncingOperand(operandAddress);
-            int firstOperand = (bouncing ? BoyonInstructionProgramDefinitions.Bouncing : BoyonInstructionProgramDefinitions.Idle) + 6;
-            int frame = (operandAddress - firstOperand) / 4;
-            int peak = bouncing ? 3 : 2;
-            int pose = peak - Math.Abs(peak - frame);
-            // One five-byte OAM entry and a two-byte count per frame; both sequences
-            // advance to their peak pose then reverse without repeating the endpoints.
-            return (ushort)((bouncing ? 0x88ef : 0x88da) + 7 * pose);
-        }
-        throw new InvalidDataException(
-            $"Boyon visual operand $A2:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>

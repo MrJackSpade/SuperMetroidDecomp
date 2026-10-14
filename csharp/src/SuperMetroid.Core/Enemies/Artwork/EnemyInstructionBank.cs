@@ -9,8 +9,6 @@ internal enum EnemyInstructionBank : byte
     /// <summary>Bank $86: enemy projectile instruction lists and spritemaps.</summary>
     Bank86 = 0x86,
 
-    /// <summary>Bank $A2: enemy AI bank (Boyon, shutters, Polyp and others).</summary>
-    BankA2 = 0xa2,
 
     /// <summary>Bank $A3: enemy AI bank (elevator, platforms and others).</summary>
     BankA3 = 0xa3,

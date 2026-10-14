@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class SparkEnemyState
 
     /// <summary>Projects Spark's three private words from its occupied enemy slot.</summary>
     internal SparkEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer; none when the selected list word is not an animation.</summary>
+    internal AnimationProgramCursor<SparkProgram>? Program { get; set; }
 
     /// <summary>Variable B holds the literal bank-$A8 indirect main-function address.</summary>
     public SparkEnemyFunction Function

@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.FallingSparks;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Sparks.Artwork;
+using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.Sparks;
@@ -19,31 +21,25 @@ internal sealed class SparkBehavior : IEnemySpecies
         _room = room;
     }
 
-    /// <summary>Executes Spark's private animation instructions.</summary>
-    private static bool TryProcessSparkInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of Spark's animations.</summary>
+    private static SparkProgram? ApplySparkCue(RoomEnemySlot slot, SparkCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Spark ||
-            !Enum.IsDefined((SparkInstruction)word))
-            return false;
-
-        switch ((SparkInstruction)word)
+        switch (cue.Kind)
         {
-            case SparkInstruction.SetAsIntangible:
-                // Spark flicker-out command: property bit $0400 removes the actor from
-                // every ordinary Samus, beam, and grapple collision pass.
+            case SparkCueKind.BecomeIntangible:
+                // Flicker-out: property bit $0400 removes the actor from every ordinary Samus, beam and grapple
+                // collision pass.
                 slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case SparkInstruction.SetAsTangible:
-                // Spark flicker-on command executes before the first visible activation
-                // frame, so collision and art become live together.
+                break;
+            case SparkCueKind.BecomeTangible:
+                // Flicker-on runs this before the first visible activation frame, so collision and art become live
+                // together.
                 slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Spark does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(SparkCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
 
@@ -66,7 +62,7 @@ internal sealed class SparkBehavior : IEnemySpecies
         SetSparkFunctionTimer(state, additionalTime: 0);
 
         slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.CurrentInstruction = definition.InstructionList;
+        state.Program = definition.Program is { } program ? AnimationProgramCursor<SparkProgram>.Start(program) : null;
         slot.Timer = NativeCountdown.Start(0);
 
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
@@ -93,7 +89,7 @@ internal sealed class SparkBehavior : IEnemySpecies
                     return;
 
                 state.Function = SparkEnemyFunction.IntermittentActive;
-                InstallSparkInstructionList(slot, SparkInstructionProgramDefinitions.FlickerOn);
+                InstallSparkProgram(slot, state, SparkProgram.FlickerOn);
                 SetSparkFunctionTimer(state, additionalTime: 0);
                 return;
 
@@ -102,7 +98,7 @@ internal sealed class SparkBehavior : IEnemySpecies
                     return;
 
                 state.Function = SparkEnemyFunction.IntermittentInactive;
-                InstallSparkInstructionList(slot, SparkInstructionProgramDefinitions.FlickerOut);
+                InstallSparkProgram(slot, state, SparkProgram.FlickerOut);
                 SetSparkFunctionTimer(state, additionalTime: 8);
                 return;
 
@@ -147,10 +143,10 @@ internal sealed class SparkBehavior : IEnemySpecies
         state.FunctionTimer = unchecked((ushort)(baseTime + additionalTime));
     }
 
-    /// <summary>Selects an animation list and makes its first instruction due on the next pass.</summary>
-    private static void InstallSparkInstructionList(RoomEnemySlot slot, ushort pointer)
+    /// <summary>Selects an animation and makes its first step due on the next pass.</summary>
+    private static void InstallSparkProgram(RoomEnemySlot slot, SparkEnemyState state, SparkProgram program)
     {
-        slot.CurrentInstruction = pointer;
+        state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -179,15 +175,20 @@ internal sealed class SparkBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers Spark's tangible and intangible animation commands.</summary>
-    internal static void RegisterSparkOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Spark's animations as typed programs (#641).</summary>
+    internal void RegisterSparkTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Spark, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessSparkInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            SparkEnemyState state = RequireSparkState(slot);
+            // Selector three's list word is the main-AI function pointer that follows the table: code, not a list.
+            AnimationProgramCursor<SparkProgram> cursor = state.Program ?? throw new InvalidDataException(
+                "Spark selector three starts at the main-AI function pointer, which is not an animation list.");
+            EnemyProgramAnimation.Run(slot, SparkAnimations.Programs, ref cursor, SparkFrameDefinitions.Spritemap,
+                (cue, _) => ApplySparkCue(slot, cue));
+            state.Program = cursor;
         });
-    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

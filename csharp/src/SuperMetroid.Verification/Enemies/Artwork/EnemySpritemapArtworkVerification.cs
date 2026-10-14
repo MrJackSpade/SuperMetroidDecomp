@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Verification.Enemies.Crawlers;
@@ -1806,7 +1807,7 @@ internal static class EnemySpritemapArtworkVerification
             "editable elevator OAM offset changes its displayed frame");
         AssertEqual(stockElevator.LowTable[0], editedElevator.LowTable[0],
             "elevator visual edit leaves its physical X position unchanged");
-        ushort framePointer = EnemySpritemapDefinitions.BoyonFrameAt(0x86ad);
+        ushort framePointer = BoyonAnimations.Spritemaps(BoyonProgram.IdleLoop).First();
         var stockOam = DrawEnemy(stock, NewFrameReadGuard(rom), framePointer,
             EnemyDefinitionId.Boyon);
         var editedOam = DrawEnemy(edited, NewFrameReadGuard(rom), framePointer,

@@ -63,7 +63,6 @@ internal static class EnemyInstructionCodePointersVerification
         [
             typeof(AlcoonInstruction),
             typeof(BeetomInstruction),
-            typeof(BoyonInstruction),
             typeof(ChozoStatueInstruction),
             typeof(EvirInstruction),
             typeof(FakeKraidInstruction),
@@ -80,7 +79,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(RinkaInstruction),
             typeof(ShaktoolInstruction),
             typeof(SpacePirateInstruction),
-            typeof(SparkInstruction),
             typeof(WorkRobotInstruction),
             typeof(YappingMawInstruction),
             typeof(YardInstruction),
@@ -89,7 +87,6 @@ internal static class EnemyInstructionCodePointersVerification
         [
             typeof(AlcoonInstruction),
             typeof(BeetomInstruction),
-            typeof(BoyonInstruction),
             typeof(ChozoStatueInstruction),
             typeof(CommonEnemyInstruction),
             typeof(EvirInstruction),
@@ -107,7 +104,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(RioInstructionCodes),
             typeof(ShaktoolInstruction),
             typeof(SpacePirateInstruction),
-            typeof(SparkInstruction),
             typeof(WorkRobotInstruction),
             typeof(YappingMawInstruction),
             typeof(YardInstruction),

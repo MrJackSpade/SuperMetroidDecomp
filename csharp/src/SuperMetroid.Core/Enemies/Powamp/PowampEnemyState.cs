@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class PowampEnemyState
 
     /// <summary>Projects the live Powamp slot into its typed variable view.</summary>
     internal PowampEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<PowampProgram> Program { get; set; }
 
     /// <summary>Whether population parameter one is nonzero, selecting the balloon interpretation of shared variables; zero selects the immediately following moving body.</summary>
     public bool IsBalloon => _slot.Parameter1 != 0;

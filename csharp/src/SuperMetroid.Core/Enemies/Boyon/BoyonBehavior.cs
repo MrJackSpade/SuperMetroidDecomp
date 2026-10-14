@@ -1,32 +1,33 @@
-﻿using SuperMetroid.Core.Samus;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Boyon.Artwork;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>The Boyon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BoyonBehavior : IEnemySpecies
 {
-    /// <summary>Executes Boyon's private animation instructions.</summary>
-    private bool TryProcessBoyonInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of Boyon's animations.</summary>
+    private BoyonProgram? ApplyBoyonCue(RoomEnemySlot slot, BoyonEnemyState state, BoyonCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Boyon ||
-            !Enum.IsDefined((BoyonInstruction)word))
-            return false;
-
-        switch ((BoyonInstruction)word)
+        switch (cue.Kind)
         {
-            case BoyonInstruction.Return:
-                // `$A2:88C5` is an explicit RTL instruction. It consumes only itself;
-                // keeping it distinct documents the idle-list seam in the ROM.
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case BoyonInstruction.StartBounce:
-                StartBoyonBounce(RequireBoyonState(slot));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+            case BoyonCueKind.Return:
+                // `$A2:88C5` is an explicit RTL instruction with no effect; keeping it documents the idle-list seam.
+                break;
+            case BoyonCueKind.StartBounce:
+                StartBoyonBounce(state);
+                break;
+            case BoyonCueKind.ProcessOffScreen:
+                slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
+                break;
+            case BoyonCueKind.StopProcessingOffScreen:
+                slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Boyon does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(BoyonCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Library-two sound request emitted by Boyon's start-bounce instruction.</summary>
@@ -55,7 +56,6 @@ internal sealed class BoyonBehavior : IEnemySpecies
         // idle list. RoomEnemySystem's load tail intentionally restores the same transient
         // empty map; the first processed instruction frame installs real bank-$A2 art.
         slot.SpritemapPointer = 0x804d;
-        SetBoyonInstructionList(slot, BoyonInstructionProgramDefinitions.Idle);
 
         var state = new BoyonEnemyState(slot)
         {
@@ -72,6 +72,7 @@ internal sealed class BoyonBehavior : IEnemySpecies
             BounceSpeedCalculated = false,
         };
         _boyonStates[slot.SlotIndex] = state;
+        SetBoyonProgram(slot, state, BoyonProgram.Idle);
     }
 
     /// <summary>Ports <c>MainAI_Boyon</c> at <c>$A2:879C</c>.</summary>
@@ -101,7 +102,7 @@ internal sealed class BoyonBehavior : IEnemySpecies
             if (!state.Bouncing)
             {
                 state.Bouncing = true;
-                SetBoyonInstructionList(slot, BoyonInstructionProgramDefinitions.Bouncing);
+                SetBoyonProgram(slot, state, BoyonProgram.Bouncing);
             }
         }
         else if (state.BounceDisabled)
@@ -111,7 +112,7 @@ internal sealed class BoyonBehavior : IEnemySpecies
             if (!state.IdleDisabled)
             {
                 state.IdleDisabled = true;
-                SetBoyonInstructionList(slot, BoyonInstructionProgramDefinitions.Idle);
+                SetBoyonProgram(slot, state, BoyonProgram.Idle);
             }
             return;
         }
@@ -205,10 +206,10 @@ internal sealed class BoyonBehavior : IEnemySpecies
         return EnemyMath.IsNegative16(distance - slot.Parameter2);
     }
 
-    /// <summary>Installs an idle or bounce list and restarts its instruction and auxiliary timers.</summary>
-    private static void SetBoyonInstructionList(RoomEnemySlot slot, ushort instructionList)
+    /// <summary>Starts the idle or bounce animation and restarts its instruction and auxiliary timers.</summary>
+    private static void SetBoyonProgram(RoomEnemySlot slot, BoyonEnemyState state, BoyonProgram program)
     {
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<BoyonProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -245,15 +246,19 @@ internal sealed class BoyonBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers the Boyon-only return and start-bounce opcodes with the enemy interpreter.</summary>
-    internal void RegisterBoyonOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Boyon's idle and bouncing loops as typed programs (#641).</summary>
+    internal void RegisterBoyonTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessBoyonInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireBoyonState(slot);
+            AnimationProgramCursor<BoyonProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, BoyonAnimations.Programs, ref cursor, BoyonFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyBoyonCue(slot, state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

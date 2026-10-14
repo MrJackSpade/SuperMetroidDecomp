@@ -1,3 +1,6 @@
+using SuperMetroid.Verification.Enemies.Sparks;
+using SuperMetroid.Verification.Enemies.Powamp;
+using SuperMetroid.Verification.Enemies.Boyon;
 using SuperMetroid.Verification.Enemies.Skultera;
 using SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Enemies.Skree;
@@ -43,7 +46,6 @@ using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonHealthPaletteDefini
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonNavigationDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonSpeedsVerification;
 using static SuperMetroid.Verification.Enemies.Boulder.BoulderBounceDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Boyon.BoyonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Boyon.BoyonSpeedDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Bull.BullMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Cacatac.CacatacMovementDefinitionsVerification;
@@ -199,7 +201,6 @@ using static SuperMetroid.Verification.Samus.Poses.PoseCollisionDefinitionsVerif
 using static SuperMetroid.Verification.Samus.Poses.PoseDispatchDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseInputDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseProjectileOriginVerification;
-using static SuperMetroid.Verification.Enemies.Powamp.PowampInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Powamp.PowampSpikeInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombCallbackDefinitionsVerification;
 using static SuperMetroid.Verification.Rendering.PowerBombShapeDefinitionsVerification;
@@ -404,7 +405,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(MultiviolaBehaviorVerification.VerifyMultiviolaBehavior), () => MultiviolaBehaviorVerification.VerifyMultiviolaBehavior(LoadRepositoryRom())),
         new(nameof(PolypAnimationsVerification.VerifyPolypAnimations), () => PolypAnimationsVerification.VerifyPolypAnimations(LoadRepositoryRom())),
         new(nameof(PolypBehaviorVerification.VerifyPolypBehavior), () => PolypBehaviorVerification.VerifyPolypBehavior(LoadRepositoryRom())),
-        new(nameof(VerifyPowampInstructionProgramDefinitions), () => VerifyPowampInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(PowampAnimationsVerification.VerifyPowampAnimations), () => PowampAnimationsVerification.VerifyPowampAnimations(LoadRepositoryRom())),
+        new(nameof(PowampBehaviorVerification.VerifyPowampBehavior), () => PowampBehaviorVerification.VerifyPowampBehavior(LoadRepositoryRom())),
         new(nameof(WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations), () => WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations(LoadRepositoryRom())),
         new(nameof(WreckedShipGhostBehaviorVerification.VerifyWreckedShipGhostBehavior), () => WreckedShipGhostBehaviorVerification.VerifyWreckedShipGhostBehavior(LoadRepositoryRom())),
         new(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -418,6 +420,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifySbugMovementDefinitions), () => VerifySbugMovementDefinitions(LoadRepositoryRom())),
         new(nameof(SbugAnimationsVerification.VerifySbugAnimations), () => SbugAnimationsVerification.VerifySbugAnimations(LoadRepositoryRom())),
         new(nameof(VerifySparkMovementDefinitions), () => VerifySparkMovementDefinitions(LoadRepositoryRom())),
+        new(nameof(SparkAnimationsVerification.VerifySparkAnimations), () => SparkAnimationsVerification.VerifySparkAnimations(LoadRepositoryRom())),
         new(nameof(VerifyElevatorInputDefinitions), () => VerifyElevatorInputDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyOwtchMovementDefinitions), () => VerifyOwtchMovementDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(LoadRepositoryRom())),
@@ -559,7 +562,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyCrocomireMeltingDefinitions), () => VerifyCrocomireMeltingDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyDraygonIntroDanceDefinitions), () => VerifyDraygonIntroDanceDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCompiledBoyonSpeeds), () => VerifyCompiledBoyonSpeeds(LoadRepositoryRom())),
-        new(nameof(VerifyBoyonInstructionProgramDefinitions), () => VerifyBoyonInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(BoyonAnimationsVerification.VerifyBoyonAnimations), () => BoyonAnimationsVerification.VerifyBoyonAnimations(LoadRepositoryRom())),
+        new(nameof(BoyonBehaviorVerification.VerifyBoyonBehavior), () => BoyonBehaviorVerification.VerifyBoyonBehavior(LoadRepositoryRom())),
         new(nameof(SkulteraAnimationsVerification.VerifySkulteraAnimations), () => SkulteraAnimationsVerification.VerifySkulteraAnimations(LoadRepositoryRom())),
         new(nameof(SkulteraBehaviorVerification.VerifySkulteraBehavior), () => SkulteraBehaviorVerification.VerifySkulteraBehavior(LoadRepositoryRom())),
         new(nameof(VerifyCompiledSurfaceMotion), () => VerifyCompiledSurfaceMotion(LoadRepositoryRom())),

@@ -383,14 +383,8 @@ internal sealed class EnemyInstructionInterpreter
         if (FuneNamiheBehavior.IsFuneNamiheDefinition(slot.EnemyDefinitionPointer))
             return FuneNamiheInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Spark)
-            return SparkInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi)
             return HibashiInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon)
-            return BoyonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite)
             return MagdolliteInstructionProgramDefinitions.ReadMechanicsWord(address);
@@ -403,9 +397,6 @@ internal sealed class EnemyInstructionInterpreter
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon)
             return AlcoonInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp)
-            return PowampInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Puyo)
             return PuyoInstructionProgramDefinitions.ReadMechanicsWord(address);

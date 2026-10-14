@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class CompiledEnemyVisualSelectorsTooling
 {
     /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
-    internal static int CalculatedCount => BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
+    internal static int CalculatedCount => BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount +
         FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
         FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
@@ -62,12 +62,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
             return new(0x860000 | operand, EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operand));
         }
         index -= FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount;
-        if (index < BoyonInstructionProgramDefinitionsTooling.PresentationWordCount)
-        {
-            ushort operand = BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa20000 | operand, EnemySpritemapDefinitions.BoyonFrameAt(operand));
-        }
-        index -= BoyonInstructionProgramDefinitionsTooling.PresentationWordCount;
         if (index < PlatformInstructionProgramDefinitionsTooling.PresentationWordCount)
         {
             ushort operand = PlatformInstructionProgramDefinitionsTooling.PresentationWordAddress(index);

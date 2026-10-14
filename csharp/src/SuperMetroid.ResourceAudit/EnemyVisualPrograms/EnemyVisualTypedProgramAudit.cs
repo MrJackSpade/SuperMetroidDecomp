@@ -1,3 +1,9 @@
+using SuperMetroid.Core.Enemies.Sparks.Artwork;
+using SuperMetroid.Core.Enemies.Sparks;
+using SuperMetroid.Core.Enemies.Powamp.Artwork;
+using SuperMetroid.Core.Enemies.Powamp;
+using SuperMetroid.Core.Enemies.Boyon.Artwork;
+using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Skultera.Artwork;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.Metroids.Artwork;
@@ -213,6 +219,12 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MochtroidAnimations), "csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidAnimations.cs");
         RequireTypedFrames(SkulteraAnimations.Programs, SkulteraFrameDefinitions.Spritemap, SkulteraFrameDefinitions.Bank,
             nameof(SkulteraAnimations), "csharp/src/SuperMetroid.Core/Enemies/Skultera/SkulteraAnimations.cs");
+        RequireTypedFrames(BoyonAnimations.Programs, BoyonFrameDefinitions.Spritemap, BoyonFrameDefinitions.Bank,
+            nameof(BoyonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Boyon/BoyonAnimations.cs");
+        RequireTypedFrames(PowampAnimations.Programs, PowampFrameDefinitions.Spritemap, PowampFrameDefinitions.Bank,
+            nameof(PowampAnimations), "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampAnimations.cs");
+        RequireTypedFrames(SparkAnimations.Programs, SparkFrameDefinitions.Spritemap, SparkFrameDefinitions.Bank,
+            nameof(SparkAnimations), "csharp/src/SuperMetroid.Core/Enemies/Sparks/SparkAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

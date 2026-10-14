@@ -1437,7 +1437,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ShaktoolBehavior.RegisterShaktoolOwnedInstructions(table);
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsOwnedInstructions(table);
-        BombTorizoBehavior.RegisterBombTorizoOwnedInstructions(table);
+        BombTorizoBehavior.RegisterBombTorizoTypedAnimations(table);
 }
 
     // Each species registers its own run of reactions; first match wins, so the interleaving below is the
@@ -1619,13 +1619,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
         Projectiles.RegisterCeresFallingTilePreInstruction(table);
 
-        BombTorizoBehavior.RegisterStatueBreakingSoundInstruction(table);
 
         OldTourianEscapeShaftWallBehavior.RegisterWallExplosionSoundInstruction(table);
 
         NoobTubeBehavior.RegisterFallingAngleInstructions(table);
 
-        Projectiles.RegisterProbabilityGotoInstruction(table);
 
         RidleyProjectiles.RegisterFireballCues(table);
 

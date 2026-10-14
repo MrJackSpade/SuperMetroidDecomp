@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Beetom;
@@ -45,7 +44,7 @@ internal static partial class CompiledEnemyVisualSelectors
         Enum.IsDefined((EnemyInstructionBank)SnesAddressMath.BankNumber(address)) &&
         (EnemyInstructionBank)SnesAddressMath.BankNumber(address) switch
     {
-        EnemyInstructionBank.Bank86 => BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        EnemyInstructionBank.Bank86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         EnemyInstructionBank.BankA2 => ShutterVisualDefinitions.IsPresentationWord((ushort)address) || BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address) || VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address),
         EnemyInstructionBank.BankA3 => ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         EnemyInstructionBank.BankA6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
@@ -74,10 +73,6 @@ internal static partial class CompiledEnemyVisualSelectors
             {
                 EnemyInstructionBank.Bank86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(operandAddress)
-                    : BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord(operandAddress)
-                    ? EnemyProjectileSpritemapDefinitions.BombTorizoDroolFrameAt(operandAddress)
-                    : BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord(operandAddress)
-                    ? EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(operandAddress)
                     : EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operandAddress),
                 EnemyInstructionBank.BankA2 => ShutterVisualDefinitions.IsPresentationWord(operandAddress) ? ShutterVisualDefinitions.PointerAt(operandAddress)
                     : VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord(operandAddress)

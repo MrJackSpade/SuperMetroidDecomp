@@ -33,7 +33,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         foreach ((int address, TorizoRandomizedProjectileDefinition definition, string name)
             in definitions)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), definition.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), TorizoNativeListAddresses.ProjectileEntry(definition.Program),
                 $"{name} instruction");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Offset.X,
                 $"{name} X offset");
@@ -53,8 +53,8 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
             enemies.BombTorizoBehavior.InitializeTorizoRandomizedProjectile(projectile, torizo, definition);
 
-            AssertEqual(definition.InstructionList, projectile.InstructionPointer,
-                $"{name} production instruction");
+            AssertEqual<TorizoProjectileProgram?>(definition.Program, (projectile.Animation as TorizoProjectileAnimation)?.Cursor.Program,
+                $"{name} production program");
             AssertEqual(unchecked((ushort)(1000 + definition.Offset.X)), projectile.Position.X.Whole,
                 $"{name} production X");
             AssertEqual(unchecked((ushort)(definition.BaseVelocity.X.SignedRawValue - 128)), projectile.Velocity.X.RawValue,
@@ -122,8 +122,8 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
 
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
         AssertTrue(projectile.IsActive, $"{methodName} facing {facingRight} allocation");
-        AssertEqual(expected.InstructionList, projectile.InstructionPointer,
-            $"{methodName} facing {facingRight} instruction");
+        AssertEqual<TorizoProjectileProgram?>(expected.Program, (projectile.Animation as TorizoProjectileAnimation)?.Cursor.Program,
+            $"{methodName} facing {facingRight} program");
         AssertEqual(unchecked((ushort)(1000 + expected.Offset.X)), projectile.Position.X.Whole,
             $"{methodName} facing {facingRight} X");
         AssertEqual(unchecked((ushort)(500 + expected.Offset.Y)), projectile.Position.Y.Whole,

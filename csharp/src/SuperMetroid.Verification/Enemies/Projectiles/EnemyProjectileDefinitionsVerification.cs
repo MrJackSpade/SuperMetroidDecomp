@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Torizo;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -172,6 +173,20 @@ internal static class EnemyProjectileDefinitionsVerification
                 };
                 AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started
                         && started.Cursor == AnimationProgramCursor<SporeSpawnProjectileProgram>.Start(expected),
+                    $"{kind} production shot starts the typed {expected} program");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+            }
+            else if (kind is RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile)
+            {
+                // Torizo's shot programs are typed (#1289); VerifyTorizoProjectileAnimations matches them to the native lists.
+                TorizoProjectileProgram expected = kind switch
+                {
+                    RoomEnemyProjectileKind.GoldenTorizoEgg => TorizoProjectileProgram.ChozoOrbWallImpact,
+                    RoomEnemyProjectileKind.GoldenTorizoSuperMissile => TorizoProjectileProgram.SuperMissileImpact,
+                    _ => TorizoProjectileProgram.ChozoOrbShot,
+                };
+                AssertTrue(projectile.Animation is TorizoProjectileAnimation started
+                        && started.Cursor == AnimationProgramCursor<TorizoProjectileProgram>.Start(expected),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
             }

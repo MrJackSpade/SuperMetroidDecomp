@@ -38,4 +38,11 @@ public readonly record struct SamusProjectileDirectionWord(ushort Raw)
     /// </summary>
     public ushort WithCollisionLifecycleState() =>
         unchecked((ushort)(Raw | CollisionLifecycleState));
+
+    /// <summary>
+    /// Returns the native direction word after clearing collision lifecycle state <c>$10</c>, without altering its
+    /// low-nibble direction or unrelated high-byte state.
+    /// </summary>
+    public ushort WithoutCollisionLifecycleState() =>
+        unchecked((ushort)(Raw & ~CollisionLifecycleState));
 }

@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Rooms.RoomEnemiesVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using System.Text.Json;
-using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoDormantDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeOverlayTilemapsVerification;
 using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresEscapeTileArtworkVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireBg2ScrollVerification;
@@ -36,7 +35,6 @@ using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkSporeSpaw
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkTourianStatueColorsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkWorkRobotPaletteVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkZebetiteColorsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoInitialDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainCorpseArtworkVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEscapeTextArtworkVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainSpecialSpriteArtworkVerification;
@@ -98,8 +96,6 @@ internal static class EnemyTileArtworkVerification
             return;
         }
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        Suite(nameof(VerifyBombTorizoDormantDefinitions), () => VerifyBombTorizoDormantDefinitions(bus));
-        Suite(nameof(VerifyGoldenTorizoInitialDefinitions), () => VerifyGoldenTorizoInitialDefinitions(bus));
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
             "enemy-tiles-" + Guid.NewGuid().ToString("N"));
         try

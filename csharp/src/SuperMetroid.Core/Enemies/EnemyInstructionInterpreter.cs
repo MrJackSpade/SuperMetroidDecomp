@@ -155,13 +155,9 @@ internal sealed class EnemyInstructionInterpreter
                 yieldInterpreter = true;
                 return;
             case CommonEnemyInstruction.CopyToVram:
-                ApplyEnemyInstructionVramTransfer(slot, cursor);
-
-                // The descriptor is seven bytes rather than words. The next command is
-                // therefore at opcode+2+7, an odd bank address used intentionally by
-                // the Torizo crumbling-statue stream.
-                cursor = unchecked((ushort)(cursor + 9));
-                return;
+                // Only Torizo's lists copy tiles, and its typed programs carry the transfers (#641).
+                throw new InvalidDataException(
+                    $"Enemy tile transfer ${slot.Definition.Bank:X2}:${cursor:X4} has no translated owner.");
             default:
                 throw new InvalidOperationException(
                     $"Undefined {nameof(CommonEnemyInstruction)} {(int)instruction:X4}.");
@@ -330,37 +326,11 @@ internal sealed class EnemyInstructionInterpreter
     }
 
     /// <summary>
-    /// Applies the bank-$A0 common $814B command. Installed Torizo tile art
-    /// resolves by its compiled descriptor. Unknown transfers cannot fall back
-    /// to an address-based cartridge decoder.
-    /// </summary>
-    [PpuLayoutBoundary("codec: Torizo instruction-list VRAM transfer records ($AA, bank-$A0 $814B)")]
-    internal void ApplyEnemyInstructionVramTransfer(RoomEnemySlot slot,
-        ushort instruction)
-    {
-        if (slot.EnemyDefinitionPointer is not (EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo) ||
-            !TorizoInstructionVramTransferDefinitions.TryGet(
-                instruction, out TorizoInstructionVramTransferDefinition transfer))
-            throw new InvalidDataException(
-                $"Enemy tile transfer ${slot.Definition.Bank:X2}:${instruction:X4} has no compiled descriptor.");
-        var installed = _room.Artwork?.TorizoInstructionVram ?? throw new InvalidDataException(
-            "Torizo instruction-time tile transfers require installed artwork.");
-        if (!installed.TryResolve(transfer.SourceAddress, transfer.ByteCount,
-                out ReadOnlyMemory<byte> characters))
-            throw new InvalidDataException(
-                $"Torizo tile transfer $AA:${instruction:X4} has no installed art.");
-        _presentation.Vram.LoadBytes(transfer.DestinationWord * 2, characters.Span);
-    }
-
-    /// <summary>
     /// Resolves simulation-owned enemy instruction words from compiled definitions.
     /// Presentation selectors resolve separately to installed artwork identities.
     /// </summary>
     internal static ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
-        if (slot.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo)
-            return TorizoInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer is
             EnemyDefinitionId.ShipTop or
             EnemyDefinitionId.ShipBottomEntrance)

@@ -10,7 +10,6 @@ using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoJumpLandingDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePirateInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumperInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.PipeBugs.NorfairPipeBugInstructionProgramDefinitionsVerification;
@@ -1431,43 +1430,6 @@ internal static class LookupStream2Verification
         Console.WriteLine("Norfair Pipe Bug formation:ten native immediates, both actual facing formations and leader-only timer resets pass.");
     }
 
-    /// <summary>Checks Golden Torizo initial and landing control words and bounded dispatch.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo control words")]
-    internal static void VerifyLookupStream2GoldenControl(SuperMetroidAddressSpace rom)
-    {
-        Suite(nameof(VerifyGoldenTorizoJumpLandingDefinitions), () => VerifyGoldenTorizoJumpLandingDefinitions(rom));
-        int address = 0xc9cb;
-        for (int index = 0; index < 7; index++)
-        {
-            InstructionMechanicsWord actual =
-                GoldenTorizoInitialInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual((ushort)address, actual.Address, "Golden initial native instruction cursor");
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xaa0000 | address);
-            AssertEqual(native, actual.Value, "Golden initial native control word");
-            AssertTrue(GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(
-                actual.Address, out ushort selected) && selected == native,
-                "Golden initial runtime word dispatch");
-            for (int byteIndex = 0; byteIndex < 2; byteIndex++)
-                AssertTrue(GoldenTorizoInitialInstructionProgramDefinitions.IsCompiledMechanicsByte(
-                    0xaa0000 | (address + byteIndex)), "Golden initial control byte ownership");
-            address += native == 0x814b ? 9 : native < 0x8000 ? 4 : 2;
-        }
-        AssertEqual(0xc9e2, address, "Golden initial terminal sleep boundary");
-        ushort operand = GoldenTorizoInitialInstructionProgramDefinitions.InitialFrameOperand;
-        AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xaa, operand, out ushort visual),
-            "Golden initial installed sprite selector");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xaa0000 | operand), visual,
-            "Golden initial exact native sprite selection");
-        AssertTrue(!GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(operand, out _),
-            "Golden initial visual operand excluded from mechanics");
-        AssertTrue(!GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord((ushort)address, out _),
-            "Golden initial next program excluded from mechanics");
-        AssertThrows<IndexOutOfRangeException>(() => GoldenTorizoInitialInstructionProgramDefinitions.MechanicsWord(7),
-            "Golden initial control index boundary");
-        AssertThrows<IndexOutOfRangeException>(() => GoldenTorizoJumpLandingInstructionProgramDefinitions.MechanicsWord(20),
-            "Golden landing control index boundary");
-        Console.WriteLine("Golden Torizo control dispatch:7 initial words,20 landing words, native instruction positions, exact installed initial sprite and bounded ownership pass.");
-    }
     /// <summary>Checks projectile trail appearance catalog and independent sprite edits.</summary>
     internal static void VerifyLookupStream2TrailAppearance(ISnesAddressSpace rom)
     {
@@ -2641,7 +2603,6 @@ internal static class LookupStream2Verification
     [VerificationCommand("--lookup-stream2-golden-control")]
     internal static int LookupStream2GoldenControlCommand()
     {
-        Suite(nameof(VerifyLookupStream2GoldenControl), () => VerifyLookupStream2GoldenControl(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
 

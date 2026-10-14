@@ -36,6 +36,8 @@ internal static class GoldenTorizoCartridgeFallbackVerification
         samus.Health = 1499;
         RoomEnemySlot boss = runtime.Enemies.SlotTable.Slots.Single(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
+        TorizoEnemyState state = runtime.Enemies.BombTorizoBehavior.GoldenTorizo
+            ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.");
         bool enteredCombat = false;
         for (int frame = 0; frame < 850; frame++)
         {
@@ -49,14 +51,14 @@ internal static class GoldenTorizoCartridgeFallbackVerification
             {
                 throw new InvalidOperationException(
                     $"Cartridge-backed Golden Torizo failed at frame {frame}, " +
-                    $"instruction=${boss.CurrentInstruction:X4}.", error);
+                    $"program={state.BodyProgram}.", error);
             }
-            enteredCombat |= boss.CurrentInstruction >=
-                GoldenTorizoCombatInstructionPointers.WalkingLeftLeftLeg;
+            // The awakening hands off to the walking-left lists; every later Golden Torizo list is combat.
+            enteredCombat |= state.BodyProgram.Program >= TorizoBodyProgram.GoldenWalkingLeftLeftLegMoving;
         }
         AssertTrue(enteredCombat,
             "cartridge-backed installed-art Golden Torizo reaches walking combat; " +
-            $"instruction=${boss.CurrentInstruction:X4}, health={samus.Health}");
+            $"program={state.BodyProgram}, health={samus.Health}");
         Console.WriteLine("Golden Torizo cartridge fallback: 850 wake/combat frames with installed artwork.");
     }
 }

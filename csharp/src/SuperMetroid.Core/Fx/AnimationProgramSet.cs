@@ -67,6 +67,20 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
         Func<TCue, AnimationProgramCursor<TProgram>, TProgram?> publish)
     {
         Ensure.NotNull(publish);
+        return AdvanceTo(ref cursor, ref counter,
+            (cue, continuation) => publish(cue, continuation) is { } program ? AnimationProgramCursor<TProgram>.Start(program) : null);
+    }
+
+    /// <summary>
+    /// Like <see cref="Advance"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the
+    /// program continues at, as a native return to a saved instruction pointer does, or null to run on.
+    /// </summary>
+    internal AnimationProgramAdvance<TFrame> AdvanceTo(
+        ref AnimationProgramCursor<TProgram> cursor,
+        ref NativeCountdown counter,
+        Func<TCue, AnimationProgramCursor<TProgram>, AnimationProgramCursor<TProgram>?> publish)
+    {
+        Ensure.NotNull(publish);
         for (int visited = 0; visited < stepLimit; visited++)
         {
             AnimationProgramStep<TProgram, TFrame, TCue> step = Step(cursor);
@@ -81,7 +95,7 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
                 case AnimationProgramStepKind.Cue:
                     cursor = cursor with { Position = cursor.Position + 1 };
                     if (publish(step.PublishedCue, cursor) is { } redirect)
-                        cursor = AnimationProgramCursor<TProgram>.Start(redirect);
+                        cursor = Validate(redirect);
                     break;
                 case AnimationProgramStepKind.SetCounter:
                     counter = NativeCountdown.FromRaw((ushort)step.Duration);
@@ -106,6 +120,13 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
             }
         }
         throw new InvalidOperationException($"Animation program {cursor.Program} ran {stepLimit} steps without showing a frame.");
+    }
+
+    /// <summary>Rejects a redirect outside its program, so a stale saved cursor fails where it is resumed.</summary>
+    private AnimationProgramCursor<TProgram> Validate(AnimationProgramCursor<TProgram> cursor)
+    {
+        _ = Step(cursor);
+        return cursor;
     }
 
     /// <summary>The step under <paramref name="cursor"/>, rejecting a cursor outside its program.</summary>

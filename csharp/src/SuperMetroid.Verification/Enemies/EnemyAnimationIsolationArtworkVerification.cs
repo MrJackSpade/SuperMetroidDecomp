@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRightOrbFramesV
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -30,7 +31,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
 
         EnemyExtendedFrameDocument extended = fixture.ExtendedDocument();
         var torizo = EnemyExtendedFrameDefinitions.Frames
-            .Where(frame => frame.Bank == TorizoInstructionProgramDefinitions.Bank).ToArray();
+            .Where(frame => frame.Bank == TorizoFrameDefinitions.Bank).ToArray();
         for (int index = 0; index < torizo.Length; index++)
             extended.Frames[torizo[index].Name] =
             [
@@ -92,7 +93,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
         else
         {
             var definitions = EnemyExtendedFrameDefinitions.Frames
-                .Where(value => value.Bank == TorizoInstructionProgramDefinitions.Bank).ToArray();
+                .Where(value => value.Bank == TorizoFrameDefinitions.Bank).ToArray();
             var orb = definitions.Where(value => GoldenTorizoRightOrbFrames().Contains(value.Pointer)).ToArray();
             int orbIndex = Array.FindIndex(orb, value => value.Pointer == actor.SpritemapPointer);
             ushort selected = orbIndex >= 0 ? orb[(orbIndex + 1) % orb.Length].Pointer : actor.SpritemapPointer;

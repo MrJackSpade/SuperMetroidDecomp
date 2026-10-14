@@ -126,12 +126,41 @@ internal sealed class EnemyProjectileHandlerTable
             throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name} is registered twice.");
     }
 
+    /// <summary>Registers the handler that carries out every cue of type <typeparamref name="TCue"/> and may redirect its program.</summary>
+    internal void RegisterBranchingCue<TProgram, TCue>(EnemyProjectileBranchingCueHandler<TProgram, TCue> handler)
+        where TProgram : struct, Enum
+    {
+        if (!_cues.TryAdd(typeof(TCue), Ensure.NotNull(handler)))
+            throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name} is registered twice.");
+    }
+
     /// <summary>Carries out <paramref name="cue"/> with its family's registered handler.</summary>
     internal void PublishCue<TCue>(RoomEnemyProjectileSlot projectile, SamusState? samus, TCue cue)
     {
         if (!_cues.TryGetValue(typeof(TCue), out Delegate? handler))
             throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name}.{cue} has no registered handler.");
         ((EnemyProjectileCueHandler<TCue>)handler)(projectile, samus, cue);
+    }
+
+    /// <summary>
+    /// Carries out <paramref name="cue"/> of a program animation with its family's registered handler, returning the
+    /// program a branching handler redirects to, or null.
+    /// </summary>
+    internal TProgram? PublishProgramCue<TProgram, TCue>(RoomEnemyProjectileSlot projectile, SamusState? samus, TCue cue)
+        where TProgram : struct, Enum
+    {
+        if (!_cues.TryGetValue(typeof(TCue), out Delegate? handler))
+            throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name}.{cue} has no registered handler.");
+        switch (handler)
+        {
+            case EnemyProjectileBranchingCueHandler<TProgram, TCue> branching:
+                return branching(projectile, samus, cue);
+            case EnemyProjectileCueHandler<TCue> plain:
+                plain(projectile, samus, cue);
+                return null;
+            default:
+                throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name}'s handler does not run {typeof(TProgram).Name} programs.");
+        }
     }
 
     /// <summary>The handler registered for <paramref name="id"/>, if any.</summary>

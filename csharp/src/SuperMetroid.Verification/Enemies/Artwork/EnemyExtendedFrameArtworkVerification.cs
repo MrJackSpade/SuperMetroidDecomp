@@ -27,6 +27,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks installed extended enemy OAM compositions, editable frame migration, and guarded visual reads against native data.</summary>
 internal static class EnemyExtendedFrameArtworkVerification
 {
+    /// <summary>The one pose Torizo's shared falling-left lists show.</summary>
+    private static ushort TorizoFallingLeftFrame => TorizoAnimations.Spritemaps(TorizoBodyProgram.FacingLeftFalling1).Single();
+
     /// <summary>
     /// Collects the Draygon presentation selectors that do not name an installed OAM frame and
     /// checks each such native frame holds a BG2 command component.
@@ -888,9 +891,9 @@ internal static class EnemyExtendedFrameArtworkVerification
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog upgradedVersionTwenty = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockFallingLeft = DrawExtendedForBank(stock, guard,
-            0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, new(0x0040, 0x0080));
+            0xaa, TorizoFallingLeftFrame, new(0x0040, 0x0080));
         OamBuffer inheritedFallingLeft = DrawExtendedForBank(upgradedVersionTwenty,
-            guard, 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, new(0x0040, 0x0080));
+            guard, 0xaa, TorizoFallingLeftFrame, new(0x0040, 0x0080));
         AssertTrue(stockFallingLeft.ImageEquals(inheritedFallingLeft),
             "version-twenty override inherits the Torizo falling-left frame");
         AssertTrue(DrawExtended(upgradedVersionTwenty, guard,
@@ -913,12 +916,12 @@ internal static class EnemyExtendedFrameArtworkVerification
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog editedFallingLeft = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedFallingLeft = DrawExtendedForBank(editedFallingLeft,
-            guard, 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, new(0x0040, 0x0080));
+            guard, 0xaa, TorizoFallingLeftFrame, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockFallingLeft.LowTable[0] + 1)),
             movedFallingLeft.LowTable[0],
             "editable Torizo falling-left component changes live OAM");
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
-                TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
+                TorizoFallingLeftFrame,
                 out var unchangedFallingLeftCollision) &&
                    unchangedFallingLeftCollision[0].Offset.X == -16 &&
                    unchangedFallingLeftCollision[0].HitboxList == 0x87c7,
@@ -944,7 +947,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(stockLeftFootOrb.ImageEquals(inheritedLeftFootOrb),
             "version-twenty-one override inherits Golden Torizo left-foot orb art");
         AssertTrue(DrawExtendedForBank(upgradedVersionTwentyOne, guard,
-                0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
+                0xaa, TorizoFallingLeftFrame,
                 new(0x0040, 0x0080)).LowTable.SequenceEqual(movedFallingLeft.LowTable),
             "version-twenty-one migration retains the edited falling-left frame");
 
@@ -968,7 +971,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(stockLeftJumpBack.ImageEquals(inheritedLeftJumpBack),
             "version-twenty-two override inherits left-facing jump-back art");
         AssertTrue(DrawExtendedForBank(upgradedVersionTwentyTwo, guard,
-                0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
+                0xaa, TorizoFallingLeftFrame,
                 new(0x0040, 0x0080)).LowTable.SequenceEqual(movedFallingLeft.LowTable),
             "version-twenty-two migration retains the edited falling-left frame");
 
@@ -992,7 +995,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(stockLeftOrb.ImageEquals(inheritedLeftOrb),
             "version-twenty-three override inherits left-orb art");
         AssertTrue(DrawExtendedForBank(upgradedVersionTwentyThree, guard,
-                0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
+                0xaa, TorizoFallingLeftFrame,
                 new(0x0040, 0x0080)).LowTable.SequenceEqual(movedFallingLeft.LowTable),
             "version-twenty-three migration retains the edited falling-left frame");
 

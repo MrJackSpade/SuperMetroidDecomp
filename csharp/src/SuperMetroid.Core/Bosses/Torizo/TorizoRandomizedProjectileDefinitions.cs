@@ -8,9 +8,9 @@ internal static class TorizoRandomizedProjectileDefinitions
     /// </summary>
     internal static TorizoRandomizedProjectileDefinition BombChozoOrb(bool facingRight) =>
         facingRight
-            ? new(0xab1d,
+            ? new(TorizoProjectileProgram.ChozoOrbMovingRight,
                 new(27, -40), new(400, -416))
-            : new(0xab15,
+            : new(TorizoProjectileProgram.ChozoOrbMovingLeft,
                 new(-27, -40), new(-400, -416));
 
     /// <summary>
@@ -18,9 +18,9 @@ internal static class TorizoRandomizedProjectileDefinitions
     /// </summary>
     internal static TorizoRandomizedProjectileDefinition GoldenChozoOrb(bool facingRight) =>
         facingRight
-            ? new(0xab1d,
+            ? new(TorizoProjectileProgram.ChozoOrbMovingRight,
                 new(27, -40), new(256, -448))
-            : new(0xab15,
+            : new(TorizoProjectileProgram.ChozoOrbMovingLeft,
                 new(-27, -40), new(-256, -448));
 
     /// <summary>
@@ -29,9 +29,9 @@ internal static class TorizoRandomizedProjectileDefinitions
     /// </summary>
     internal static TorizoRandomizedProjectileDefinition GoldenEgg(bool movingRight) =>
         movingRight
-            ? new(GoldenTorizoEggInstructionProgramDefinitions.BouncingRight,
+            ? new(TorizoProjectileProgram.EggBouncingRight,
                 new(16, -1), new(128, -384))
-            : new(GoldenTorizoEggInstructionProgramDefinitions.BouncingLeft,
+            : new(TorizoProjectileProgram.EggBouncingLeft,
                 new(-16, -1), new(-128, -384));
 
     /// <summary>
@@ -40,8 +40,8 @@ internal static class TorizoRandomizedProjectileDefinitions
     /// </summary>
     internal static TorizoRandomizedProjectileDefinition GoldenEyeBeam(bool facingRight) =>
         facingRight
-            ? new(GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal,
+            ? new(TorizoProjectileProgram.EyeBeamNormal,
                 new(20, -30), new(1024, 1024))
-            : new(GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal,
+            : new(TorizoProjectileProgram.EyeBeamNormal,
                 new(-20, -30), new(-1024, 1024));
 }

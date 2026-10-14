@@ -50,8 +50,8 @@ internal static class FrontendRomFreeGoldenTorizoVerification
                     nativeRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
                     installedRoom.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
                     ForceGoldenTorizoLeftTurn(nativeRoom, installedRoom,
-                        GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge);
-                }, golden: new GoldenTorizoForcing { ForcedGoldenLeftTurnStart = GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge }, heldInput: heldInput);
+                        TorizoBodyProgram.GoldenDodgeTurningLeft);
+                }, golden: new GoldenTorizoForcing { ForcedGoldenLeftTurnStart = TorizoBodyProgram.GoldenDodgeTurningLeft }, heldInput: heldInput);
         }
         finally
         {

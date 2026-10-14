@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks both Torizo wake records and their use by the actual enemy initializer.</summary>
 internal static class TorizoInitializationDefinitionsVerification
@@ -22,7 +23,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeInstructionLists + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
-            ushort[] actual = [compiled.Position.X, compiled.Position.Y, compiled.Instruction, compiled.PropertyMask, compiled.Radius.X, compiled.Radius.Y];
+            ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Program), compiled.PropertyMask, compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
             var enemies = new RoomEnemySystem();
@@ -49,7 +50,10 @@ internal static class TorizoInitializationDefinitionsVerification
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
-                AssertEqual(native[2], actor.CurrentInstruction, "Real Torizo initial instruction selection");
+                TorizoEnemyState started = enemies.BombTorizoBehavior._torizoState
+                    ?? throw new InvalidOperationException("Verification requires the initialized Torizo state.");
+                AssertEqual(native[2], TorizoNativeListAddresses.Entry(started.BodyProgram.Program), "Real Torizo initial program selection");
+                AssertEqual(AnimationProgramCursor<TorizoBodyProgram>.Start(started.BodyProgram.Program), started.BodyProgram, "Real Torizo starts its initial program");
                 AssertEqual((ushort)(properties | native[3]), actor.Properties, "All population property bits preserved by native OR");
                 AssertEqual(native[4], actor.Radius.X, "Real Torizo X hitbox radius");
                 AssertEqual(native[5], actor.Radius.Y, "Real Torizo Y hitbox radius");

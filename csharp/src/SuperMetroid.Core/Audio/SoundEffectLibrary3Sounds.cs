@@ -9,6 +9,9 @@ public static class SoundEffectLibrary3Sounds
     /// </summary>
     public static readonly SoundEffectId MotherBrainFormThreeFootstep = new(SoundEffectLibrary.Library3, 0x16); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
+    /// <summary>$86:AB4B and $86:B3EF queue library-three $13 (Max6) when a Torizo Chozo orb or eye beam strikes the floor.</summary>
+    public static readonly SoundEffectId TorizoProjectileFloorImpact = new(SoundEffectLibrary.Library3, 0x13); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$A9:CBFF-CC02 queues library-three $19 with Max6 when the Baby Metroid takes its fatal blow.</summary>
     public static readonly SoundEffectId BabyMetroidDeathCry = new(SoundEffectLibrary.Library3, 0x19); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

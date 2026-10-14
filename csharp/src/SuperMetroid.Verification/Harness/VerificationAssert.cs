@@ -11,10 +11,7 @@ using static SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockI
 using static SuperMetroid.Verification.Rooms.Doors.BlueDoorPlmDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.BombBlockProgramsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoAttackDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoDormantDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoDroolInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoStatueFragmentDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoStatueInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.BossOamRootGeometryVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonAnimationsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonHealthPaletteDefinitionsVerification;
@@ -3562,7 +3559,6 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Bomb Torizo statue NTSC J/U v1.0 oracle");
         Suite(nameof(VerifyBombTorizoStatueFragmentDefinitions), () => VerifyBombTorizoStatueFragmentDefinitions(oracle));
-        Suite(nameof(VerifyBombTorizoStatueInstructionProgramDefinitions), () => VerifyBombTorizoStatueInstructionProgramDefinitions(oracle));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
         return 0;
     }
@@ -3574,8 +3570,6 @@ internal static class VerificationAssert
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Bomb Torizo NTSC J/U v1.0 oracle");
-        Suite(nameof(VerifyBombTorizoDormantDefinitions), () => VerifyBombTorizoDormantDefinitions(oracle));
-        Suite(nameof(VerifyBombTorizoDroolInstructionProgramDefinitions), () => VerifyBombTorizoDroolInstructionProgramDefinitions(oracle));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
         return 0;
     }

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
@@ -18,7 +19,7 @@ internal static class StatueWalkDefinitionsVerification
         for (ushort offset = 0; offset <= 38; offset++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalkDefinitions.Velocity(offset), "Torizo all complete native byte windows");
         var enemies = new RoomEnemySystem();
-        Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, ushort, ushort, ushort> walk = enemies.BombTorizoBehavior.ProcessGoldenTorizoWalkInstruction;
+        Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, ushort, AnimationProgramCursor<TorizoBodyProgram>?> walk = enemies.BombTorizoBehavior.ProcessGoldenTorizoWalkInstruction;
         Action<RoomEnemySlot, ChozoStatueState, SamusState, RoomLevelData, ushort> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -29,11 +30,11 @@ internal static class StatueWalkDefinitionsVerification
         for (ushort offset = 0; offset < 40; offset += 2)
         {
             slot.Position = slot.Position.WithWholeY(256).WithWholeX(256).WithFractionX(123);
-            ushort next = walk(slot, torizo, null, level, 0x1000, offset);
+            AnimationProgramCursor<TorizoBodyProgram>? next = walk(slot, torizo, null, level, offset);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), torizo.Velocity.X.RawValue, "Torizo actual walking velocity without bus");
             AssertEqual(unchecked((ushort)(256 + (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)))), slot.Position.X.Whole, "Torizo real whole-pixel movement");
             AssertEqual((ushort)123, slot.Position.X.Fraction, "Torizo preserves subpixel state");
-            AssertEqual((ushort)0x1004, next, "Torizo instruction operand handoff");
+            AssertTrue(next is null, "Torizo walking step runs on without a wall");
         }
         for (ushort offset = 0; offset < 64; offset += 2)
         {

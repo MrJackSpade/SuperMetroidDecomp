@@ -30,6 +30,7 @@ using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Compares installed ROM-free frontend execution with a cartridge-backed reference.</summary>
 internal static class FrontendRomFreeVerification
@@ -336,21 +337,22 @@ internal static class FrontendRomFreeVerification
                         {
                             RoomEnemySlot boss = game.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.Single(
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
-                            boss.CurrentInstruction = GoldenTorizoRightSonicInstructionProgramDefinitions.Start;
+                            (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram =
+                                AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSonicBoomsFacingRightLeftFootFwd0);
                             boss.InstructionTimer = NativeCountdown.Start(1);
                         }
-                    }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = GoldenTorizoRightSonicInstructionProgramDefinitions.Start });
+                    }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = TorizoBodyProgram.GoldenSonicBoomsFacingRightLeftFootFwd0 });
                 VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo right-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
                             RoomEnemySlot boss = game.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.Single(
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
-                            boss.CurrentInstruction =
-                                GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward;
+                            (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram =
+                                AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSonicBoomsFacingRightRightFootFwd0);
                             boss.InstructionTimer = NativeCountdown.Start(1);
                         }
-                    }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward });
+                    }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = TorizoBodyProgram.GoldenSonicBoomsFacingRightRightFootFwd0 });
                 VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo stunned tile loop" }, frameCount: 80, setup: (nativeRoom, installedRoom) =>
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
@@ -358,21 +360,18 @@ internal static class FrontendRomFreeVerification
                             RoomEnemySystem enemies = game.GameplayRuntimeForVerification.Enemies;
                             RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
-                            boss.CurrentInstruction = GoldenTorizoStunnedInstructionProgramDefinitions.Start;
+                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).BodyProgram =
+                                AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.Stunned0);
                             boss.InstructionTimer = NativeCountdown.Start(1);
-                            boss.Parameter2 |= GoldenTorizoBehavioralProperties.Stunned;
-                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnInstruction =
-                                GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
+                            boss.Parameter2 = (ushort)((TorizoBehaviorFlags)boss.Parameter2 | TorizoBehaviorFlags.Stunned);
+                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnCursor =
+                                AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenWalkingLeftRightLegMoving);
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenStun = true });
-                foreach (ushort leftTurnStart in new ushort[]
+                foreach (TorizoBodyProgram leftTurnStart in new[] { TorizoBodyProgram.GoldenDodgeTurningLeft, TorizoBodyProgram.GoldenTurningLeft })
                 {
-                    GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge,
-                    GoldenTorizoLeftTurnInstructionProgramDefinitions.Turn,
-                })
-                {
-                    VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = $"Golden Torizo left turn $AA:{leftTurnStart:X4}" }, frameCount: leftTurnStart ==
-                            GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge
+                    VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = $"Golden Torizo left turn {leftTurnStart}" }, frameCount: leftTurnStart ==
+                            TorizoBodyProgram.GoldenDodgeTurningLeft
                                 ? 120 : 8, setup: (nativeRoom, installedRoom) =>
                             ForceGoldenTorizoLeftTurn(nativeRoom, installedRoom,
                                 leftTurnStart), golden: new GoldenTorizoForcing { ForcedGoldenLeftTurnStart = leftTurnStart });
@@ -386,10 +385,11 @@ internal static class FrontendRomFreeVerification
                             RoomEnemySystem enemies = game.GameplayRuntimeForVerification.Enemies;
                             RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
-                            boss.CurrentInstruction = GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Start;
+                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).BodyProgram =
+                                AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd0);
                             boss.InstructionTimer = NativeCountdown.Start(1);
-                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnInstruction =
-                                GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
+                            (enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnCursor =
+                                AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenWalkingLeftRightLegMoving);
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenLeftFootOrb = true });
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded in every sampled room.");
@@ -557,8 +557,6 @@ internal static class FrontendRomFreeVerification
         {
             AssertTrue(awakenedGoldenTorizo is not null,
                 "Golden Torizo wake-up fixture loaded its live boss slot");
-            VerifyTorizoOperandFreeCallbackDoesNotReadNextWord(
-                installed.GameplayRuntimeForVerification.Enemies, (awakenedGoldenTorizo ?? throw new InvalidOperationException("Verification requires awakenedGoldenTorizo.")));
         }
         bool goldenWakeObserved = false;
         bool goldenWalkingObserved = false;
@@ -598,76 +596,44 @@ internal static class FrontendRomFreeVerification
                 $"installed {room.RoomName} game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed {room.RoomName} phase at frame {frame}");
-            if (awakenedGoldenTorizo is not null &&
-                awakenedGoldenTorizo.CurrentInstruction >
-                    GoldenTorizoInitialInstructionProgramDefinitions.Sleep)
+            TorizoBodyProgram? goldenProgram = awakenedGoldenTorizo is null ? null
+                : (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo
+                    ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram.Program;
+            bool GoldenRuns(TorizoBodyProgram first, TorizoBodyProgram last) =>
+                goldenProgram is { } running && running >= first && running <= last;
+            if (goldenProgram is { } awake && awake != TorizoBodyProgram.GoldenInitial0)
                 goldenWakeObserved = true;
-            if (awakenedGoldenTorizo is not null &&
-                awakenedGoldenTorizo.CurrentInstruction >=
-                    GoldenTorizoWalkingInstructionProgramDefinitions.Start &&
-                awakenedGoldenTorizo.CurrentInstruction <
-                    GoldenTorizoWalkingInstructionProgramDefinitions.End)
+            if (GoldenRuns(TorizoBodyProgram.GoldenWalkingLeftRightLegMoving, TorizoBodyProgram.GoldenWalkingLeftLeftLegMoving))
                 goldenWalkingObserved = true;
-            if (awakenedGoldenTorizo is not null &&
-                awakenedGoldenTorizo.CurrentInstruction >=
-                    GoldenTorizoRightwardInstructionProgramDefinitions.Start &&
-                awakenedGoldenTorizo.CurrentInstruction <
-                    GoldenTorizoRightwardInstructionProgramDefinitions.End)
+            if (GoldenRuns(TorizoBodyProgram.GoldenDodgeTurningRight, TorizoBodyProgram.GoldenWalkingRightRightLegMoving))
                 goldenRightwardObserved = true;
-            if (awakenedGoldenTorizo is not null &&
-                awakenedGoldenTorizo.CurrentInstruction >=
-                    TorizoJumpBackInstructionProgramDefinitions.Start &&
-                awakenedGoldenTorizo.CurrentInstruction <
-                    TorizoJumpBackInstructionProgramDefinitions.End)
+            if (GoldenRuns(TorizoBodyProgram.FacingRightJumpBackwardLandRightFootFwd0, TorizoBodyProgram.FacingRightJumpBackwardsLandLeftFootFwd4))
                 goldenJumpBackObserved = true;
-            if (awakenedGoldenTorizo is not null &&
-                awakenedGoldenTorizo.CurrentInstruction >=
-                    GoldenTorizoRightOrbInstructionProgramDefinitions.Start &&
-                awakenedGoldenTorizo.CurrentInstruction <
-                    GoldenTorizoRightOrbInstructionProgramDefinitions.End)
+            if (GoldenRuns(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd0, TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd1))
                 goldenRightOrbObserved = true;
-            if (awakenedGoldenTorizo is not null &&
-                awakenedGoldenTorizo.CurrentInstruction >=
-                    GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.Start &&
-                awakenedGoldenTorizo.CurrentInstruction <
-                    GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.End)
+            if (GoldenRuns(TorizoBodyProgram.GoldenEyeBeamAttack0, TorizoBodyProgram.GoldenEyeBeamAttack2))
                 goldenEyeBeamAttackObserved = true;
-            if (awakenedGoldenTorizo is not null &&
-                golden.ForcedGoldenSonicStart is ushort sonicStart &&
-                awakenedGoldenTorizo.CurrentInstruction >= sonicStart &&
-                awakenedGoldenTorizo.CurrentInstruction <
-                    (sonicStart == GoldenTorizoRightSonicInstructionProgramDefinitions.Start
-                        ? GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward
-                        : GoldenTorizoRightSonicInstructionProgramDefinitions.End))
+            // Each forced sonic attack is its entry program and the loop that follows it.
+            if (golden.ForcedGoldenSonicStart is { } sonicStart && GoldenRuns(sonicStart, sonicStart + 1))
                 forcedGoldenSonicObserved = true;
-            if (awakenedGoldenTorizo is not null && golden.ForcedGoldenStun &&
-                awakenedGoldenTorizo.CurrentInstruction >=
-                    GoldenTorizoStunnedInstructionProgramDefinitions.Start &&
-                awakenedGoldenTorizo.CurrentInstruction <
-                    GoldenTorizoStunnedInstructionProgramDefinitions.End)
+            if (golden.ForcedGoldenStun && GoldenRuns(TorizoBodyProgram.Stunned0, TorizoBodyProgram.Stunned1))
                 forcedGoldenStunObserved = true;
             // The stun's ClearAnimationLock and its return path's UnmarkStunned release the
             // boss; later attacks may lock again, so observe the release, not the last frame.
             else if (forcedGoldenStunObserved && !forcedGoldenStunReleased &&
                      (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).ShotGuard == 0 &&
-                     ((awakenedGoldenTorizo ?? throw new InvalidOperationException("Verification requires awakenedGoldenTorizo.")).Parameter2 & GoldenTorizoBehavioralProperties.Stunned) == 0)
+                     ((awakenedGoldenTorizo ?? throw new InvalidOperationException("Verification requires awakenedGoldenTorizo.")).Parameter2 & (ushort)TorizoBehaviorFlags.Stunned) == 0)
                 forcedGoldenStunReleased = true;
             if (awakenedGoldenTorizo is not null &&
                 golden.ForcedGoldenLeftTurnStart is not null &&
-                awakenedGoldenTorizo.SpritemapPointer ==
-                    GoldenTorizoLeftTurnInstructionProgramDefinitions.FacingScreenFrame)
+                awakenedGoldenTorizo.SpritemapPointer == GoldenTorizoFacingScreenFrame)
                 forcedGoldenLeftTurnObserved = true;
             if (awakenedGoldenTorizo is not null &&
-                golden.ForcedGoldenLeftTurnStart ==
-                    GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge &&
+                golden.ForcedGoldenLeftTurnStart == TorizoBodyProgram.GoldenDodgeTurningLeft &&
                 awakenedGoldenTorizo.SpritemapPointer ==
-                    TorizoFallingLeftInstructionProgramDefinitions.FallingFrame)
+                    TorizoAnimations.Spritemaps(TorizoBodyProgram.FacingLeftFalling1).Single())
                 forcedGoldenFallingLeftObserved = true;
-            if (awakenedGoldenTorizo is not null &&
-                awakenedGoldenTorizo.CurrentInstruction >=
-                    GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Start &&
-                awakenedGoldenTorizo.CurrentInstruction <
-                    GoldenTorizoLeftFootOrbInstructionProgramDefinitions.End)
+            if (GoldenRuns(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd1))
                 goldenLeftFootOrbProgramObserved = true;
             if (!actual.Pixels.SequenceEqual(expected.Pixels))
             {
@@ -761,8 +727,7 @@ internal static class FrontendRomFreeVerification
             if (golden.ForcedGoldenLeftTurnStart is not null)
             {
                 AssertTrue(forcedGoldenLeftTurnObserved &&
-                           (golden.ForcedGoldenLeftTurnStart !=
-                                GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge ||
+                           (golden.ForcedGoldenLeftTurnStart != TorizoBodyProgram.GoldenDodgeTurningLeft ||
                             forcedGoldenFallingLeftObserved) &&
                            installed.GameState == SuperMetroidGameState.MainGameplay,
                     "forced Golden Torizo left turn reaches required poses: " +
@@ -785,22 +750,6 @@ internal static class FrontendRomFreeVerification
                 $"eyeBeam={goldenEyeBeamAttackObserved}, state={installed.GameState}");
         }
         Console.WriteLine($"Frontend {room.RoomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
-    }
-
-    /// <summary>
-    /// A synthetic return cursor intentionally sits outside all compiled
-    /// Torizo lists. A previous eager operand prefetch tried to read the
-    /// nonexistent following word even though this opcode has no operand.
-    /// The installed room's zero-ROM bus makes that exact mistake observable.
-    /// </summary>
-    private static void VerifyTorizoOperandFreeCallbackDoesNotReadNextWord(
-        RoomEnemySystem enemies, RoomEnemySlot torizo)
-    {
-        ushort cursor = 0xf000;
-        AssertTrue(enemies.BombTorizoBehavior.TryProcessBombTorizoInstruction(
-                torizo, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
-                (ushort)TorizoInstruction.Instruction_Torizo_Return, ref cursor, out _),
-            "operand-free Torizo return executes without reading $AA:F002");
     }
 
     /// <summary>Wraps installed memory with a guard rejecting cartridge reads and marked BG2 visual streams.</summary>

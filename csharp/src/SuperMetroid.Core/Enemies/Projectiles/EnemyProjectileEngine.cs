@@ -767,14 +767,7 @@ internal sealed class EnemyProjectileEngine
                         projectile,
                         unchecked((ushort)(cursor + 2)));
                     projectile.Damage = unchecked((ushort)(projectile.Damage | (mask & 0x0fff)));
-                    if ((mask & 0x1000) != 0)
-                        projectile.DrawPriority = EnemyProjectileDrawPriority.High;
-                    if ((mask & 0x2000) != 0)
-                        projectile.CanDamageSamus = false;
-                    if ((mask & 0x4000) != 0)
-                        projectile.PersistsOnSamusContact = true;
-                    if ((mask & 0x8000) != 0)
-                        projectile.BlocksSamusProjectiles = true;
+                    SetPropertyFlags(projectile, (EnemyProjectilePropertyFlags)(mask & 0xf000));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
@@ -784,14 +777,7 @@ internal sealed class EnemyProjectileEngine
                         projectile,
                         unchecked((ushort)(cursor + 2)));
                     projectile.Damage = unchecked((ushort)(projectile.Damage & (mask & 0x0fff)));
-                    if ((mask & 0x1000) == 0)
-                        projectile.DrawPriority = EnemyProjectileDrawPriority.Low;
-                    if ((mask & 0x2000) == 0)
-                        projectile.CanDamageSamus = true;
-                    if ((mask & 0x4000) == 0)
-                        projectile.PersistsOnSamusContact = false;
-                    if ((mask & 0x8000) == 0)
-                        projectile.BlocksSamusProjectiles = false;
+                    ClearPropertyFlags(projectile, (EnemyProjectilePropertyFlags)(~mask & 0xf000));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
@@ -944,30 +930,15 @@ internal sealed class EnemyProjectileEngine
                     projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
                     projectile.InstructionTimer = NativeCountdown.Start(1);
                     return;
-                case EnemyProjectileInstruction.RTS_8681DE:
-                    // Bomb Torizo's impact list uses this address as a compact no-op before
-                    // its counted branch. It is a real callable ROM entry, not a typo for
-                    // MoveRandomlyWithinRadius at the following byte.
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
                 case EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius:
                     MoveEnemyProjectileRandomlyWithinRadius(projectile, cursor);
                     cursor = unchecked((ushort)(cursor + 6));
-                    break;
-                case EnemyProjectileInstruction.Torizo_ResetPosition:
-                    projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
-                    cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.UNUSED_Instruction_EnemyProj_MoveHorizontally_GotoY_86AD92:
                     projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
                     cursor = ReadEnemyProjectileInstructionMechanicsWord(projectile,
                         unchecked((ushort)(cursor +
                             (unchecked((short)projectile.Velocity.X.RawValue) < 0 ? 2 : 4))));
-                    break;
-                case EnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched:
-                    cursor = (projectile.Variable0 & 0x8000) != 0
-                        ? GoldenTorizoEggInstructionProgramDefinitions.HatchedRight
-                        : GoldenTorizoEggInstructionProgramDefinitions.HatchedLeft;
                     break;
                 case EnemyProjectileInstruction.UNUSED_Instruction_ResetPosition_86B436:
                     projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
@@ -998,10 +969,6 @@ internal sealed class EnemyProjectileEngine
                 case EnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_10:
                     SpawnRandomEnemyDeathSprite(projectile, cursor, mask: 0x001f, center: 16);
                     cursor = unchecked((ushort)(cursor + 4));
-                    break;
-                case EnemyProjectileInstruction.TorizoLandingDustClouds:
-                    projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 4)));
-                    cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:
                     throw new InvalidDataException(
@@ -1226,57 +1193,6 @@ internal sealed class EnemyProjectileEngine
                 address);
         }
 
-        if (TorizoLandingDustInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return TorizoLandingDustInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.BombTorizoExplosiveSwipe)
-        {
-            return TorizoExplosiveSwipeInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (BombTorizoDroolInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return BombTorizoDroolInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (TorizoExplosionInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return TorizoExplosionInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (TorizoChozoOrbInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return TorizoChozoOrbInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (TorizoSonicBoomInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return TorizoSonicBoomInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.BombTorizoStatueBreaking)
-        {
-            return BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoEgg)
-        {
-            return GoldenTorizoEggInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoSuperMissile)
-        {
-            return GoldenTorizoSuperMissileInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoEyeBeam)
-        {
-            return GoldenTorizoEyeBeamInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         throw new InvalidDataException(
             $"Enemy projectile {projectile.Kind} reached uncompiled bank-$86 mechanics " +
             $"pointer ${address:X4}.");
@@ -1306,26 +1222,36 @@ internal sealed class EnemyProjectileEngine
         _ = _spriteObjects.SpawnRoomSpriteObject(new(x, y), kind, graphicsIndex: 0);
     }
 
-    /// <summary>Uses native RNG rejection and sign bits to reposition a projectile within its packed X/Y masks.</summary>
+    /// <summary>Decodes a native scatter command's packed X and Y mask/center bytes and scatters the projectile.</summary>
     private void MoveEnemyProjectileRandomlyWithinRadius(
         RoomEnemyProjectileSlot projectile,
         ushort instructionPointer)
     {
         // $86:81DF consumes four packed bytes: X mask/center followed by Y mask/center.
-        // Each axis rejects negative candidate offsets, while two independent bits from the
-        // first random sample choose the eventual signs. This peculiar rejection loop is
-        // observable in Bomb Torizo's sonic-boom wall impact, so a host RNG approximation
-        // would produce a visibly different debris cloud and desynchronize later randomness.
         ushort xParameters = ReadEnemyProjectileInstructionMechanicsWord(
             projectile,
             unchecked((ushort)(instructionPointer + 2)));
         ushort yParameters = ReadEnemyProjectileInstructionMechanicsWord(
             projectile,
             unchecked((ushort)(instructionPointer + 4)));
-        byte xMask = unchecked((byte)xParameters);
-        byte xCenter = SnesLittleEndian.HighByte(xParameters);
-        byte yMask = unchecked((byte)yParameters);
-        byte yCenter = SnesLittleEndian.HighByte(yParameters);
+        Scatter(projectile, new EnemyProjectileScatter(
+            new(unchecked((byte)xParameters), unchecked((byte)yParameters)),
+            new(SnesLittleEndian.HighByte(xParameters), SnesLittleEndian.HighByte(yParameters))));
+    }
+
+    /// <summary>
+    /// Uses native RNG rejection and sign bits to reposition a projectile within <paramref name="scatter"/>'s masks.
+    /// Each axis rejects negative candidate offsets, while two independent bits from the first random sample choose
+    /// the eventual signs. This peculiar rejection loop is observable in Bomb Torizo's sonic-boom wall impact, so a
+    /// host RNG approximation would produce a visibly different debris cloud and desynchronize later randomness.
+    /// </summary>
+    internal void Scatter(RoomEnemyProjectileSlot projectile, EnemyProjectileScatter scatter)
+    {
+        Ensure.NotNull(projectile);
+        byte xMask = checked((byte)scatter.Range.X);
+        byte xCenter = checked((byte)scatter.Center.X);
+        byte yMask = checked((byte)scatter.Range.Y);
+        byte yCenter = checked((byte)scatter.Center.Y);
         ushort signSample = _room.Random.Generate();
 
         int xOffset;
@@ -1599,18 +1525,37 @@ internal sealed class EnemyProjectileEngine
         }, EnemyProjectilePreInstruction.CeresFallingTile);
     }
 
-    /// <summary>Registers the bank-$86 conditional goto that takes its operand branch on one of four RNG high-bit outcomes.</summary>
-    internal void RegisterProbabilityGotoInstruction(EnemyProjectileHandlerTable table)
+    /// <summary>
+    /// Draws the bank-$86 one-in-four branch ($86:A456): it is taken when both high bits of the room's next random
+    /// number are set.
+    /// </summary>
+    internal bool TakeOneInFourBranch() => (_room.Random.Generate() & 0xc000) == 0xc000;
+
+    /// <summary>Sets every behavior bit in <paramref name="flags"/>, as a list's property OR does.</summary>
+    internal static void SetPropertyFlags(RoomEnemyProjectileSlot projectile, EnemyProjectilePropertyFlags flags)
     {
-        table.RegisterInstruction(EnemyProjectileInstruction.GotoY_Probability_1_4, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
-                cursor = (_room.Random.Generate() & 0xc000) == 0xc000
-                    ? EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(
-                        projectile,
-                        unchecked((ushort)(cursor + 2)))
-                    : unchecked((ushort)(cursor + 4));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
+        Ensure.NotNull(projectile);
+        if (flags.HasFlag(EnemyProjectilePropertyFlags.HighPriority))
+            projectile.DrawPriority = EnemyProjectileDrawPriority.High;
+        if (flags.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus))
+            projectile.CanDamageSamus = false;
+        if (flags.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact))
+            projectile.PersistsOnSamusContact = true;
+        if (flags.HasFlag(EnemyProjectilePropertyFlags.BlocksShots))
+            projectile.BlocksSamusProjectiles = true;
+    }
+
+    /// <summary>Clears every behavior bit in <paramref name="flags"/>, as a list's property AND clears the bits its mask leaves out.</summary>
+    internal static void ClearPropertyFlags(RoomEnemyProjectileSlot projectile, EnemyProjectilePropertyFlags flags)
+    {
+        Ensure.NotNull(projectile);
+        if (flags.HasFlag(EnemyProjectilePropertyFlags.HighPriority))
+            projectile.DrawPriority = EnemyProjectileDrawPriority.Low;
+        if (flags.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus))
+            projectile.CanDamageSamus = true;
+        if (flags.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact))
+            projectile.PersistsOnSamusContact = false;
+        if (flags.HasFlag(EnemyProjectilePropertyFlags.BlocksShots))
+            projectile.BlocksSamusProjectiles = false;
     }
 }

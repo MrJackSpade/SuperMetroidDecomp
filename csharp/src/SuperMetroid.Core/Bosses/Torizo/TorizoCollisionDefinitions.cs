@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoCollisionDefinitions
 {
     /// <summary>Bank $AA owns both the ordered frame components and their hitbox-list pointers.</summary>
-    internal const byte Bank = TorizoInstructionProgramDefinitions.Bank;
+    internal const byte Bank = Artwork.TorizoFrameDefinitions.Bank;
 
     /// <summary>The two frames whose collision is a single empty component.</summary>
     internal enum EmptyFrame : ushort

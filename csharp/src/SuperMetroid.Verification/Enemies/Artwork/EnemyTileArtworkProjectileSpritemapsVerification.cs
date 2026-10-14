@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
@@ -57,6 +58,21 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft,
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp,
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown,
+        RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
+        RoomEnemyProjectileKind.BombTorizoInitialDrool,
+        RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
+        RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
+        RoomEnemyProjectileKind.BombTorizoDeathExplosion,
+        RoomEnemyProjectileKind.BombTorizoStatueBreaking,
+        RoomEnemyProjectileKind.BombTorizoChozoOrb,
+        RoomEnemyProjectileKind.BombTorizoSonicBoom,
+        RoomEnemyProjectileKind.GoldenTorizoChozoOrb,
+        RoomEnemyProjectileKind.GoldenTorizoSonicBoom,
+        RoomEnemyProjectileKind.BombTorizoRightFootDust,
+        RoomEnemyProjectileKind.BombTorizoLeftFootDust,
+        RoomEnemyProjectileKind.GoldenTorizoEgg,
+        RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
+        RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
     ];
 
     /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
@@ -138,12 +154,12 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                  {
                      ("Golden Torizo Super Missile",
                          RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
-                         GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount,
-                         GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordAddress),
+                         TorizoFrameCount(TorizoProjectileFamily.SuperMissile),
+                         TorizoFrameKey(TorizoProjectileFamily.SuperMissile)),
                      ("Golden Torizo eye beam",
                          RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
-                         GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount,
-                         GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordAddress),
+                         TorizoFrameCount(TorizoProjectileFamily.EyeBeam),
+                         TorizoFrameKey(TorizoProjectileFamily.EyeBeam)),
                  })
         {
             for (int index = 0; index < count; index++)
@@ -158,11 +174,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }
         }
         for (int index = 0;
-             index < GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount;
+             index < TorizoFrameCount(TorizoProjectileFamily.Egg);
              index++)
         {
-            ushort operand = GoldenTorizoEggInstructionProgramDefinitions
-                .PresentationWordAddress(index);
+            ushort operand = TorizoFrameKey(TorizoProjectileFamily.Egg)(index);
             OamBuffer native = DrawReferenceProgramFrame(operand, bus,
                 RoomEnemyProjectileKind.GoldenTorizoEgg);
             OamBuffer extracted = DrawProgramFrame(stock, operand,
@@ -176,23 +191,23 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             Func<int, ushort> AddressAt)[]
         {
             ("drool", RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
-                BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount,
-                BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress),
+                TorizoFrameCount(TorizoProjectileFamily.Drool),
+                TorizoFrameKey(TorizoProjectileFamily.Drool)),
             ("explosive swipe", RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
-                TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordCount,
-                TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordAddress),
+                TorizoFrameCount(TorizoProjectileFamily.Swipe),
+                TorizoFrameKey(TorizoProjectileFamily.Swipe)),
             ("sonic boom", RoomEnemyProjectileKind.BombTorizoSonicBoom,
-                TorizoSonicBoomInstructionProgramDefinitions.PresentationWordCount,
-                TorizoSonicBoomInstructionProgramDefinitions.PresentationWordAddress),
+                TorizoFrameCount(TorizoProjectileFamily.SonicBoom),
+                TorizoFrameKey(TorizoProjectileFamily.SonicBoom)),
             ("landing dust", RoomEnemyProjectileKind.BombTorizoRightFootDust,
-                TorizoLandingDustInstructionProgramDefinitions.PresentationWordCount,
-                TorizoLandingDustInstructionProgramDefinitions.PresentationWordAddress),
+                TorizoFrameCount(TorizoProjectileFamily.LandingDust),
+                TorizoFrameKey(TorizoProjectileFamily.LandingDust)),
             ("explosion", RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
-                TorizoExplosionInstructionProgramDefinitions.PresentationWordCount,
-                TorizoExplosionInstructionProgramDefinitions.PresentationWordAddress),
+                TorizoFrameCount(TorizoProjectileFamily.Explosion),
+                TorizoFrameKey(TorizoProjectileFamily.Explosion)),
             ("Chozo orb", RoomEnemyProjectileKind.BombTorizoChozoOrb,
-                TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount,
-                TorizoChozoOrbInstructionProgramDefinitions.PresentationWordAddress),
+                TorizoFrameCount(TorizoProjectileFamily.ChozoOrb),
+                TorizoFrameKey(TorizoProjectileFamily.ChozoOrb)),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in torizoFamilies)
@@ -287,8 +302,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             int Count, Func<int, ushort> AddressAt)[]
         {
             ("Bomb Torizo statue fragments", RoomEnemyProjectileKind.BombTorizoStatueBreaking,
-                BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount,
-                BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress),
+                TorizoFrameCount(TorizoProjectileFamily.StatueFragment),
+                TorizoFrameKey(TorizoProjectileFamily.StatueFragment)),
             ("Mother Brain glass", RoomEnemyProjectileKind.MotherBrainGlassShard,
                 MotherBrainGlassVisualDefinitions.ProjectileFrameCount,
                 index => MotherBrainGlassVisualDefinitions.PresentationKey(MotherBrainGlassVisualDefinitions.ProjectileFrames[index])),
@@ -370,20 +385,17 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             .Single(frame => frame.OperandAddress == alcoonOperand).Name;
         SpriteVisualPart[] alcoon = document.ProgramFrames[alcoonFrameName];
         alcoon[0] = alcoon[0] with { OffsetX = alcoon[0].OffsetX + 1 };
-        ushort goldenMissileOperand = GoldenTorizoSuperMissileInstructionProgramDefinitions
-            .PresentationWordAddress(0);
+        ushort goldenMissileOperand = TorizoFrameKey(TorizoProjectileFamily.SuperMissile)(0);
         string goldenMissileFrameName = EnemyProjectilePresentationFrameDefinitions.All
             .Single(frame => frame.OperandAddress == goldenMissileOperand).Name;
         SpriteVisualPart[] goldenMissile = document.ProgramFrames[goldenMissileFrameName];
         goldenMissile[0] = goldenMissile[0] with { OffsetX = goldenMissile[0].OffsetX + 1 };
-        ushort goldenEyeOperand = GoldenTorizoEyeBeamInstructionProgramDefinitions
-            .PresentationWordAddress(0);
+        ushort goldenEyeOperand = TorizoFrameKey(TorizoProjectileFamily.EyeBeam)(0);
         string goldenEyeFrameName = EnemyProjectilePresentationFrameDefinitions.All
             .Single(frame => frame.OperandAddress == goldenEyeOperand).Name;
         SpriteVisualPart[] goldenEye = document.ProgramFrames[goldenEyeFrameName];
         goldenEye[0] = goldenEye[0] with { OffsetX = goldenEye[0].OffsetX + 1 };
-        ushort goldenEggOperand = GoldenTorizoEggInstructionProgramDefinitions
-            .PresentationWordAddress(0);
+        ushort goldenEggOperand = TorizoFrameKey(TorizoProjectileFamily.Egg)(0);
         string goldenEggFrameName = EnemyProjectilePresentationFrameDefinitions.All
             .Single(frame => frame.OperandAddress == goldenEggOperand).Name;
         SpriteVisualPart[] goldenEgg = document.ProgramFrames[goldenEggFrameName];
@@ -1075,4 +1087,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                      low == (ushort)SkreeMetareeParticleOperand.Metaree + 1);
             },
             address => $"Installed enemy projectile reread visual byte ${address:X6}.");
+
+    /// <summary>The installed frames of Torizo projectile family <paramref name="family"/>.</summary>
+    private static int TorizoFrameCount(TorizoProjectileFamily family) => TorizoProjectileVisualDefinitions.Frames(family).Count;
+
+    /// <summary>The installed artwork key of each frame of Torizo projectile family <paramref name="family"/>, by index.</summary>
+    private static Func<int, ushort> TorizoFrameKey(TorizoProjectileFamily family) =>
+        index => TorizoProjectileVisualDefinitions.PresentationKey(TorizoProjectileVisualDefinitions.Frames(family)[index]);
 }

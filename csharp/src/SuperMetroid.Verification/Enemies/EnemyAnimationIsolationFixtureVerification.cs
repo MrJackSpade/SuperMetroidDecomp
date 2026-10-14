@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Provides matching cartridge-free enemy rooms and mechanical state comparisons.</summary>
 internal static class EnemyAnimationIsolationFixtureVerification
@@ -78,13 +79,13 @@ internal static class EnemyAnimationIsolationFixtureVerification
             if (golden)
             {
                 Actor.ExtraProperties = (ushort)EnemyExtraProperties.UsesExtendedSpritemap;
-                Actor.CurrentInstruction = GoldenTorizoRightOrbInstructionProgramDefinitions.Start;
                 Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
                 Enemies.BombTorizoBehavior._torizoState = new TorizoEnemyState(Actor, isGolden: true)
                 {
                     Function = TorizoFunction.GoldenPreInstruction,
                     PreInstruction = TorizoPreInstruction.Idle,
-                    ReturnInstruction = GoldenTorizoRightOrbInstructionProgramDefinitions.Start,
+                    BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd0),
+                    ReturnCursor = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd0),
                     Velocity = new EightEightVector<RoomPixels>(0, 256),
                 };
             }

@@ -6,6 +6,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks Golden Torizo's landing attack selection with the native 16-bit NMI counter.</summary>
 internal static class GoldenTorizoAttackChoiceVerification
@@ -28,13 +30,16 @@ internal static class GoldenTorizoAttackChoiceVerification
 
         samus.Position = samus.Position.WithWholeX(0x01b8);
         samus.Missiles = 187;
-        torizo.CurrentInstruction = landedFacingLeft;
+        TorizoEnemyState state = runtime.Enemies.BombTorizoBehavior.GoldenTorizo
+            ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.");
+        state.BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoNativeListAddresses.ProgramAt(landedFacingLeft)
+            ?? throw new InvalidOperationException("No Torizo program starts at the landing list."));
         torizo.InstructionTimer = NativeCountdown.Start(1);
         runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, Level = runtime.Room.LevelData, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, NmiFrameCounter8 = 0x2d, NmiFrameCounter = 0xefd8 });
-        AssertTrue(torizo.CurrentInstruction is > sonicBoomsFacingLeft and
-                < 0xcc57,
+        ushort running = TorizoNativeListAddresses.Entry(state.BodyProgram.Program);
+        AssertTrue(running is >= sonicBoomsFacingLeft and < 0xcc57,
             $"NMI_FrameCounter selects the sonic-boom list, not chozo orbs (${chozoOrbsFacingLeft:X4}); " +
-            $"instruction ${torizo.CurrentInstruction:X4}");
+            $"program {state.BodyProgram.Program} at ${running:X4}");
         Console.WriteLine("Golden Torizo attack choice: the landing chooser adds NMI_FrameCounter, not the 8-bit counter.");
     }
 

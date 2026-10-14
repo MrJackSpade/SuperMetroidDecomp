@@ -34,6 +34,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -152,6 +153,13 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             }
         }
 
+        // Torizo's families install their typed frames in each family's native operand order.
+        static void AddTorizo(Dictionary<ushort, string> target, string family, TorizoProjectileFamily torizoFamily)
+        {
+            IReadOnlyList<TorizoProjectileFrame> torizoFrames = TorizoProjectileVisualDefinitions.Frames(torizoFamily);
+            Add(target, family, torizoFrames.Count, index => TorizoProjectileVisualDefinitions.PresentationKey(torizoFrames[index]));
+        }
+
         Add(frames, "ceres_ridley", RidleyFireballVisualDefinitions.ProjectileFrameCount,
             index => RidleyFireballVisualDefinitions.PresentationKey(RidleyFireballVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "old_tourian_escape_wall_explosion", OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordCount,
@@ -196,39 +204,21 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress);
         if (generation >= CatalogGeneration.PreGoldenTorizoEgg)
         {
-            Add(frames, "golden_torizo_super_missile",
-                GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount,
-                GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordAddress);
-            Add(frames, "golden_torizo_eye_beam",
-                GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount,
-                GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordAddress);
+            AddTorizo(frames, "golden_torizo_super_missile", TorizoProjectileFamily.SuperMissile);
+            AddTorizo(frames, "golden_torizo_eye_beam", TorizoProjectileFamily.EyeBeam);
         }
         if (generation >= CatalogGeneration.PreTorizoEffects)
         {
-            Add(frames, "golden_torizo_egg",
-                GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount,
-                GoldenTorizoEggInstructionProgramDefinitions.PresentationWordAddress);
+            AddTorizo(frames, "golden_torizo_egg", TorizoProjectileFamily.Egg);
         }
         if (generation >= CatalogGeneration.PreGenericEnemyDeath)
         {
-            Add(frames, "torizo_drool",
-                BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount,
-                BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress);
-            Add(frames, "torizo_explosive_swipe",
-                TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordCount,
-                TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordAddress);
-            Add(frames, "torizo_sonic_boom",
-                TorizoSonicBoomInstructionProgramDefinitions.PresentationWordCount,
-                TorizoSonicBoomInstructionProgramDefinitions.PresentationWordAddress);
-            Add(frames, "torizo_landing_dust",
-                TorizoLandingDustInstructionProgramDefinitions.PresentationWordCount,
-                TorizoLandingDustInstructionProgramDefinitions.PresentationWordAddress);
-            Add(frames, "torizo_explosion",
-                TorizoExplosionInstructionProgramDefinitions.PresentationWordCount,
-                TorizoExplosionInstructionProgramDefinitions.PresentationWordAddress);
-            Add(frames, "torizo_chozo_orb",
-                TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount,
-                TorizoChozoOrbInstructionProgramDefinitions.PresentationWordAddress);
+            AddTorizo(frames, "torizo_drool", TorizoProjectileFamily.Drool);
+            AddTorizo(frames, "torizo_explosive_swipe", TorizoProjectileFamily.Swipe);
+            AddTorizo(frames, "torizo_sonic_boom", TorizoProjectileFamily.SonicBoom);
+            AddTorizo(frames, "torizo_landing_dust", TorizoProjectileFamily.LandingDust);
+            AddTorizo(frames, "torizo_explosion", TorizoProjectileFamily.Explosion);
+            AddTorizo(frames, "torizo_chozo_orb", TorizoProjectileFamily.ChozoOrb);
         }
         if (generation >= CatalogGeneration.PreEnvironmentAndAttack)
         {
@@ -277,9 +267,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         }
         if (generation >= CatalogGeneration.PreWorkRobot)
         {
-            Add(frames, "bomb_torizo_statue_fragment",
-                BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount,
-                BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress);
+            AddTorizo(frames, "bomb_torizo_statue_fragment", TorizoProjectileFamily.StatueFragment);
             Add(frames, "mother_brain_glass", MotherBrainGlassVisualDefinitions.ProjectileFrameCount,
                 index => MotherBrainGlassVisualDefinitions.PresentationKey(MotherBrainGlassVisualDefinitions.ProjectileFrames[index]));
             Add(frames, "mother_brain_hand_beam", MotherBrainHandBeamVisualDefinitions.ProjectileFrameCount,

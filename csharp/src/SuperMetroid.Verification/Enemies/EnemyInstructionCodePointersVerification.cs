@@ -96,7 +96,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(SpacePirateInstruction),
             typeof(SparkInstruction),
             typeof(StokeInstruction),
-            typeof(TorizoInstruction),
             typeof(WaverInstruction),
             typeof(WorkRobotInstruction),
             typeof(YappingMawInstruction),
@@ -141,7 +140,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(SpacePirateInstruction),
             typeof(SparkInstruction),
             typeof(StokeInstruction),
-            typeof(TorizoInstruction),
             typeof(WaverInstruction),
             typeof(WorkRobotInstruction),
             typeof(YappingMawInstruction),
@@ -164,7 +162,6 @@ internal static class EnemyInstructionCodePointersVerification
         [
             (typeof(GunshipInstructionProgramDefinitions), 0xa2),
             (typeof(OrdinaryEnemyInstructionLists), 0xa3),
-            (typeof(TorizoInstructionLists), 0xaa),
         ];
         foreach ((Type catalog, _) in bankLocalCatalogs)
             AssertUniqueMappedInstructionPointers(catalog);

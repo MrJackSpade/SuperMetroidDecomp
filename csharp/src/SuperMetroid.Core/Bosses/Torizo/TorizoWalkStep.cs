@@ -6,9 +6,9 @@ internal sealed record TorizoWalkStep
     /// <summary>Table offset.</summary>
     public required ushort TableOffset { get; init; }
 
-    /// <summary>Collision facing right.</summary>
-    public required ushort CollisionFacingRight { get; init; }
+    /// <summary>The program a wall collision turns into while facing right.</summary>
+    public required TorizoBodyProgram CollisionFacingRight { get; init; }
 
-    /// <summary>Collision facing left.</summary>
-    public required ushort CollisionFacingLeft { get; init; }
+    /// <summary>The program a wall collision turns into while facing left.</summary>
+    public required TorizoBodyProgram CollisionFacingLeft { get; init; }
 }

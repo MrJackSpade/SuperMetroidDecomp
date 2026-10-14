@@ -10,11 +10,9 @@ using static SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockI
 using static SuperMetroid.Verification.Rooms.Doors.BlueDoorPlmDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BombSpreadLaunchDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoAttackDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoDroolInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoDroolSineVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoStatueFragmentDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoStatueInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonAnimationsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonHealthPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonNavigationDefinitionsVerification;
@@ -109,9 +107,6 @@ using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheFireballInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoEggInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoEyeBeamInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoSuperMissileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleBodyPlacementVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleCompiledMathVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleConnectionDefinitionsVerification;
@@ -256,6 +251,8 @@ using static SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateProjectil
 using static SuperMetroid.Verification.Enemies.Sparks.SparkMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification;
+using static SuperMetroid.Verification.Bosses.Torizo.TorizoAnimationsVerification;
+using static SuperMetroid.Verification.Bosses.Torizo.TorizoProjectileAnimationsVerification;
 using static SuperMetroid.Verification.Samus.Movement.SquareSlopeDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.StationAccessPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.StatueWalkDefinitionsVerification;
@@ -264,13 +261,8 @@ using static SuperMetroid.Verification.Enemies.Stoke.StokeProjectileInstructionP
 using static SuperMetroid.Verification.Samus.Projectiles.SuitPickupBeamCurveDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
 using static SuperMetroid.Verification.Samus.Movement.SurfaceMotionDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.TorizoChozoOrbInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.TorizoExplosionInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.TorizoExplosiveSwipeInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoInitializationDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.TorizoLandingDustInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoRandomizedProjectileDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.TorizoSonicBoomInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianAccessPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianEntranceStatueInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueProjectileInstructionProgramDefinitionsVerification;
@@ -362,17 +354,9 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyChozoTourianDustInstructionProgramDefinitions), () => VerifyChozoTourianDustInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyTourianStatueProjectileInstructionProgramDefinitions), () => VerifyTourianStatueProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySporeSpawnAnimations), () => VerifySporeSpawnAnimations(LoadRepositoryRom())),
+        new(nameof(VerifyTorizoAnimations), () => VerifyTorizoAnimations(LoadRepositoryRom())),
+        new(nameof(VerifyTorizoProjectileAnimations), () => VerifyTorizoProjectileAnimations(LoadRepositoryRom())),
         new(nameof(VerifyBotwoonProjectileAnimations), () => VerifyBotwoonProjectileAnimations(LoadRepositoryRom())),
-        new(nameof(VerifyTorizoLandingDustInstructionProgramDefinitions), () => VerifyTorizoLandingDustInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyTorizoExplosiveSwipeInstructionProgramDefinitions), () => VerifyTorizoExplosiveSwipeInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyBombTorizoDroolInstructionProgramDefinitions), () => VerifyBombTorizoDroolInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyTorizoExplosionInstructionProgramDefinitions), () => VerifyTorizoExplosionInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyTorizoChozoOrbInstructionProgramDefinitions), () => VerifyTorizoChozoOrbInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyTorizoSonicBoomInstructionProgramDefinitions), () => VerifyTorizoSonicBoomInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyBombTorizoStatueInstructionProgramDefinitions), () => VerifyBombTorizoStatueInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyGoldenTorizoEggInstructionProgramDefinitions), () => VerifyGoldenTorizoEggInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions), () => VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions), () => VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEnemyProjectileInstructionOwnerCoverage), () => VerifyEnemyProjectileInstructionOwnerCoverage()),
         new(nameof(VerifyGunshipInstructionProgramDefinitions), () => VerifyGunshipInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyDraygonAnimations), () => VerifyDraygonAnimations(LoadRepositoryRom())),

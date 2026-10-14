@@ -121,12 +121,12 @@
       "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoInstructionProgramDefinitions",
+      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoAnimations",
       "flags": [
         "large"
       ],
       "disposition": "definition-catalog",
-      "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
+      "reason": "Generated typed program set: 120 body programs of frames, cues and branches, verified step by step against the cartridge, with no behaviour or mutable state."
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinitions",

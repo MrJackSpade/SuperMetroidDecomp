@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -96,10 +97,10 @@ internal static class EnemyRomTablePointersVerification
     {
 
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
-            GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(false),
+            TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileProgram.SuperMissileLeftInitial),
             "Golden Torizo left reflected-Super list");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2)),
-            GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(true),
+            TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileProgram.SuperMissileRightInitial),
             "Golden Torizo right reflected-Super list");
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
@@ -139,8 +140,8 @@ internal static class EnemyRomTablePointersVerification
             RoomEnemyProjectileSlot projectile = system.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.IsActive);
             AssertEqual(
-                GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(facingRight),
-                projectile.InstructionPointer,
+                facingRight ? TorizoProjectileProgram.SuperMissileRightInitial : TorizoProjectileProgram.SuperMissileLeftInitial,
+                (projectile.Animation as TorizoProjectileAnimation)?.Cursor.Program,
                 $"Golden Torizo production reflected-Super selector {facingRight} avoids ROM");
         }
 

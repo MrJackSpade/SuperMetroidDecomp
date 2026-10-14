@@ -2,6 +2,7 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Enemies.MaridiaSnails;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Bosses.Artwork;
@@ -172,7 +173,7 @@ internal static class EnemyExtendedFrameDefinitions
         EnemyExtendedFrameDefinition Emit(EnemyExtendedFrameDefinition frame)
         {
             count++;
-            if (frame.Bank == TorizoInstructionProgramDefinitions.Bank) torizoFrames.Add(frame.Pointer);
+            if (frame.Bank == TorizoFrameDefinitions.Bank) torizoFrames.Add(frame.Pointer);
             return frame;
         }
         for (int index = 0;
@@ -317,18 +318,14 @@ internal static class EnemyExtendedFrameDefinitions
         if (count != PreGoldenTorizoAwakeningFrameCount)
             throw new InvalidDataException("Golden Torizo awakening extended-frame prefix changed.");
         var goldenAwakeningPointers = new HashSet<ushort> { 0xaa30 };
-        for (int index = 0;
-             index < GoldenTorizoAwakeningInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in TorizoAnimations.Spritemaps(
+                     TorizoBodyProgram.GoldenInitial0Resumed,
+                     TorizoBodyProgram.GoldenInitial1,
+                     TorizoBodyProgram.GoldenInitial2,
+                     TorizoBodyProgram.GoldenInitial3))
         {
-            ushort operand = GoldenTorizoAwakeningInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
-                    out ushort pointer))
-                throw new InvalidDataException(
-                    $"Golden Torizo awakening visual operand $AA:{operand:X4} is not compiled.");
             if (goldenAwakeningPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_awake_{pointer:X4}"));
         }
         if (goldenAwakeningPointers.Count - 1 != GoldenTorizoAwakeningFrameCount)
@@ -338,18 +335,12 @@ internal static class EnemyExtendedFrameDefinitions
         if (count != PreGoldenTorizoWalkingFrameCount)
             throw new InvalidDataException("Golden Torizo walking extended-frame prefix changed.");
         var goldenWalkingPointers = new HashSet<ushort>();
-        for (int index = 0;
-             index < GoldenTorizoWalkingInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in TorizoAnimations.Spritemaps(
+                     TorizoBodyProgram.GoldenWalkingLeftRightLegMoving,
+                     TorizoBodyProgram.GoldenWalkingLeftLeftLegMoving))
         {
-            ushort operand = GoldenTorizoWalkingInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
-                    out ushort pointer))
-                throw new InvalidDataException(
-                    $"Golden Torizo walking visual operand $AA:{operand:X4} is not compiled.");
             if (goldenWalkingPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_walk_left_{pointer:X4}"));
         }
         if (goldenWalkingPointers.Count != GoldenTorizoWalkingFrameCount)
@@ -359,18 +350,14 @@ internal static class EnemyExtendedFrameDefinitions
         if (count != PreGoldenTorizoRightwardFrameCount)
             throw new InvalidDataException("Golden Torizo rightward extended-frame prefix changed.");
         var goldenRightwardPointers = new HashSet<ushort>();
-        for (int index = 0;
-             index < GoldenTorizoRightwardInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in TorizoAnimations.Spritemaps(
+                     TorizoBodyProgram.GoldenDodgeTurningRight,
+                     TorizoBodyProgram.GoldenTurningRight,
+                     TorizoBodyProgram.GoldenWalkingRightLeftLegMoving,
+                     TorizoBodyProgram.GoldenWalkingRightRightLegMoving))
         {
-            ushort operand = GoldenTorizoRightwardInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
-                    out ushort pointer))
-                throw new InvalidDataException(
-                    $"Golden Torizo rightward visual operand $AA:{operand:X4} is not compiled.");
             if (goldenRightwardPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_rightward_{pointer:X4}"));
         }
         if (goldenRightwardPointers.Count != GoldenTorizoRightwardFrameCount)
@@ -380,18 +367,20 @@ internal static class EnemyExtendedFrameDefinitions
         if (count != PreTorizoJumpBackFrameCount)
             throw new InvalidDataException("Torizo jump-back extended-frame prefix changed.");
         var jumpBackPointers = new HashSet<ushort>();
-        for (int index = 0;
-             index < TorizoJumpBackInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in TorizoAnimations.Spritemaps(
+                     TorizoBodyProgram.FacingRightJumpBackwardLandRightFootFwd0,
+                     TorizoBodyProgram.FacingRightJumpBackwardLandRightFootFwd1,
+                     TorizoBodyProgram.FacingRightJumpBackwardLandRightFootFwd2,
+                     TorizoBodyProgram.FacingRightJumpBackwardLandRightFootFwd3,
+                     TorizoBodyProgram.FacingRightJumpBackwardLandRightFootFwd4,
+                     TorizoBodyProgram.FacingRightJumpBackwardsLandLeftFootFwd0,
+                     TorizoBodyProgram.FacingRightJumpBackwardsLandLeftFootFwd1,
+                     TorizoBodyProgram.FacingRightJumpBackwardsLandLeftFootFwd2,
+                     TorizoBodyProgram.FacingRightJumpBackwardsLandLeftFootFwd3,
+                     TorizoBodyProgram.FacingRightJumpBackwardsLandLeftFootFwd4))
         {
-            ushort operand = TorizoJumpBackInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
-                    out ushort pointer))
-                throw new InvalidDataException(
-                    $"Torizo jump-back visual operand $AA:{operand:X4} is not compiled.");
             if (jumpBackPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"torizo_jump_back_{pointer:X4}"));
         }
         if (jumpBackPointers.Count != TorizoJumpBackFrameCount)
@@ -401,18 +390,12 @@ internal static class EnemyExtendedFrameDefinitions
         if (count != PreGoldenTorizoRightOrbFrameCount)
             throw new InvalidDataException("Golden Torizo right-orb frame prefix changed.");
         var rightOrbPointers = new HashSet<ushort>();
-        for (int index = 0;
-             index < GoldenTorizoRightOrbInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in TorizoAnimations.Spritemaps(
+                     TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd0,
+                     TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd1))
         {
-            ushort operand = GoldenTorizoRightOrbInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
-                    out ushort pointer))
-                throw new InvalidDataException(
-                    $"Golden Torizo right-orb visual operand $AA:{operand:X4} is not compiled.");
             if (rightOrbPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_right_orb_{pointer:X4}"));
         }
         if (rightOrbPointers.Count != GoldenTorizoRightOrbFrameCount)
@@ -424,18 +407,14 @@ internal static class EnemyExtendedFrameDefinitions
         // AC88 is already the orb attack's editable frame; the sonic list
         // intentionally reuses that identity instead of adding a duplicate.
         var rightSonicPointers = new HashSet<ushort> { 0xac88 };
-        for (int index = 0;
-             index < GoldenTorizoRightSonicInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in TorizoAnimations.Spritemaps(
+                     TorizoBodyProgram.GoldenSonicBoomsFacingRightLeftFootFwd0,
+                     TorizoBodyProgram.GoldenSonicBoomsFacingRightLeftFootFwd1,
+                     TorizoBodyProgram.GoldenSonicBoomsFacingRightRightFootFwd0,
+                     TorizoBodyProgram.GoldenSonicBoomsFacingRightRightFootFwd1))
         {
-            ushort operand = GoldenTorizoRightSonicInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
-                    out ushort pointer))
-                throw new InvalidDataException(
-                    $"Golden Torizo right-sonic visual operand $AA:{operand:X4} is not compiled.");
             if (rightSonicPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_right_sonic_{pointer:X4}"));
         }
         if (rightSonicPointers.Count - 1 != GoldenTorizoRightSonicFrameCount)
@@ -444,31 +423,21 @@ internal static class EnemyExtendedFrameDefinitions
                 $"new visual frames, expected {GoldenTorizoRightSonicFrameCount}.");
         if (count != PreTorizoFallingLeftFrameCount)
             throw new InvalidDataException("Torizo falling-left extended-frame prefix changed.");
-        ushort fallingLeftOperand = TorizoFallingLeftInstructionProgramDefinitions
-            .PresentationWordAddress(0);
-        if (!CompiledEnemyVisualSelectors.TryGet(0xaa, fallingLeftOperand,
-                out ushort fallingLeftPointer) ||
-            !TorizoFallingLeftInstructionProgramDefinitions.IsFallingFrame(fallingLeftPointer))
-            throw new InvalidDataException(
-                $"Torizo falling-left visual operand $AA:{fallingLeftOperand:X4} is not compiled.");
-        yield return Emit(new EnemyExtendedFrameDefinition(0xaa, fallingLeftPointer,
+        // The falling-left lists show one pose throughout.
+        ushort fallingLeftPointer = TorizoAnimations.Spritemaps(TorizoBodyProgram.FacingLeftFalling0,
+            TorizoBodyProgram.FacingLeftFalling1, TorizoBodyProgram.FacingLeftFalling2).Distinct().Single();
+        yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, fallingLeftPointer,
             $"torizo_falling_left_{fallingLeftPointer:X4}"));
         if (count != PreGoldenTorizoLeftFootOrbFrameCount)
             throw new InvalidDataException("Golden Torizo left-foot orb frame prefix changed.");
         // The opening ABEC pose is the sonic attack's existing editable frame.
         var leftFootOrbPointers = new HashSet<ushort> { 0xabec };
-        for (int index = 0;
-             index < GoldenTorizoLeftFootOrbInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in TorizoAnimations.Spritemaps(
+                     TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd0,
+                     TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd1))
         {
-            ushort operand = GoldenTorizoLeftFootOrbInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
-                    out ushort pointer))
-                throw new InvalidDataException(
-                    $"Golden Torizo left-foot orb visual operand $AA:{operand:X4} is not compiled.");
             if (leftFootOrbPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_left_foot_orb_{pointer:X4}"));
         }
         if (leftFootOrbPointers.Count - 1 != GoldenTorizoLeftFootOrbFrameCount)
@@ -479,18 +448,20 @@ internal static class EnemyExtendedFrameDefinitions
             throw new InvalidDataException("Left-facing Torizo jump-back frame prefix changed.");
         // B014 was installed earlier for the shared falling-left animation.
         var leftJumpBackPointers = new HashSet<ushort> { fallingLeftPointer };
-        for (int index = 0;
-             index < TorizoJumpBackLeftInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in TorizoAnimations.Spritemaps(
+                     TorizoBodyProgram.FacingLeftJumpingBackwardLandLeftFootFwd0,
+                     TorizoBodyProgram.FacingLeftJumpingBackwardLandLeftFootFwd1,
+                     TorizoBodyProgram.FacingLeftJumpingBackwardLandLeftFootFwd2,
+                     TorizoBodyProgram.FacingLeftJumpingBackwardLandLeftFootFwd3,
+                     TorizoBodyProgram.FacingLeftJumpingBackwardLandLeftFootFwd4,
+                     TorizoBodyProgram.FacingLeftJumpingBackwardRightFootFwd0,
+                     TorizoBodyProgram.FacingLeftJumpingBackwardRightFootFwd1,
+                     TorizoBodyProgram.FacingLeftJumpingBackwardRightFootFwd2,
+                     TorizoBodyProgram.FacingLeftJumpingBackwardRightFootFwd3,
+                     TorizoBodyProgram.FacingLeftJumpingBackwardRightFootFwd4))
         {
-            ushort operand = TorizoJumpBackLeftInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
-                    out ushort pointer))
-                throw new InvalidDataException(
-                    $"Left-facing Torizo jump-back visual operand $AA:{operand:X4} is not compiled.");
             if (leftJumpBackPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"torizo_jump_back_left_{pointer:X4}"));
         }
         if (leftJumpBackPointers.Count - 1 != TorizoJumpBackLeftNewFrameCount)
@@ -500,18 +471,14 @@ internal static class EnemyExtendedFrameDefinitions
         if (count != PreGoldenTorizoLeftOrbFrameCount)
             throw new InvalidDataException("Golden Torizo left-orb frame prefix changed.");
         var leftOrbPointers = new HashSet<ushort>();
-        for (int index = 0;
-             index < GoldenTorizoLeftOrbInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in TorizoAnimations.Spritemaps(
+                     TorizoBodyProgram.GoldenSpewChozoOrbsFaceLeftRightFootFwd0,
+                     TorizoBodyProgram.GoldenSpewChozoOrbsFaceLeftRightFootFwd1,
+                     TorizoBodyProgram.GoldenSpewChozoOrbsFacingLeftLeftFootFwd0,
+                     TorizoBodyProgram.GoldenSpewChozoOrbsFacingLeftLeftFootFwd1))
         {
-            ushort operand = GoldenTorizoLeftOrbInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(0xaa, operand,
-                    out ushort pointer))
-                throw new InvalidDataException(
-                    $"Golden Torizo left-orb visual operand $AA:{operand:X4} is not compiled.");
             if (leftOrbPointers.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(0xaa, pointer,
+                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank, pointer,
                     $"golden_torizo_left_orb_{pointer:X4}"));
         }
         if (leftOrbPointers.Count != GoldenTorizoLeftOrbFrameCount)
@@ -520,14 +487,10 @@ internal static class EnemyExtendedFrameDefinitions
                 $"visual frames, expected {GoldenTorizoLeftOrbFrameCount}.");
         if (count != PreCompleteTorizoFrameCount)
             throw new InvalidDataException("Complete Torizo extended-frame prefix changed.");
-        for (int index = 0; index < TorizoInstructionProgramDefinitions.PresentationWordCount; index++)
+        foreach (ushort pointer in TorizoAnimations.Spritemaps(TorizoAnimations.AllPrograms))
         {
-            ushort operand = TorizoInstructionProgramDefinitions.PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(TorizoInstructionProgramDefinitions.Bank,
-                    operand, out ushort pointer))
-                throw new InvalidDataException($"Torizo frame operand $AA:{operand:X4} is not compiled.");
             if (torizoFrames.Add(pointer))
-                yield return Emit(new EnemyExtendedFrameDefinition(TorizoInstructionProgramDefinitions.Bank,
+                yield return Emit(new EnemyExtendedFrameDefinition(TorizoFrameDefinitions.Bank,
                     pointer, $"torizo_combat_{pointer:X4}"));
         }
         if (count != PreMotherBrainBodyFrameCount)

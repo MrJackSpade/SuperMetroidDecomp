@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -26,11 +27,14 @@ public sealed class TorizoEnemyState
     /// <summary>Persistent target colors and numerator shared by awakening and death fades.</summary>
     internal CartridgePaletteTransition? PaletteTransition { get; set; }
 
-    /// <summary>Native <c>toriz_var_00</c>: instruction-list return/landing target.</summary>
-    public ushort ReturnInstruction { get; internal set; }
+    /// <summary>The body program's cursor, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<TorizoBodyProgram> BodyProgram { get; set; }
 
-    /// <summary>Native <c>toriz_var_01</c>: interrupted list restored after head damage.</summary>
-    public ushort InterruptedInstruction { get; internal set; }
+    /// <summary>Native <c>toriz_var_00</c>: the body program's return/landing point.</summary>
+    internal AnimationProgramCursor<TorizoBodyProgram> ReturnCursor { get; set; }
+
+    /// <summary>Native <c>toriz_var_01</c>: the body program the gut explosion interrupted, restored afterwards.</summary>
+    internal AnimationProgramCursor<TorizoBodyProgram> InterruptedCursor { get; set; }
 
     /// <summary>Native <c>toriz_var_03</c>: delayed in-air transition counter.</summary>
     public NativeCountdown AirTransitionTimer { get; internal set; }
@@ -47,8 +51,8 @@ public sealed class TorizoEnemyState
     /// <summary>Native <c>toriz_var_05</c>: last missile-family word seen by Golden Torizo.</summary>
     public ushort CapturedProjectileFamily { get; internal set; }
 
-    /// <summary>Native <c>toriz_var_06</c>: Golden Torizo egg/attack-list flag word.</summary>
-    public ushort AttackFlags { get; internal set; }
+    /// <summary>Whether Golden Torizo's eye beams explode on impact; its eye-beam list enables them.</summary>
+    public bool EyeBeamExplosionsEnabled { get; internal set; }
 
     /// <summary>Native <c>toriz_var_07</c>: consecutive frames Samus has space-jumped.</summary>
     public ushort SamusSpaceJumpFrames { get; internal set; }

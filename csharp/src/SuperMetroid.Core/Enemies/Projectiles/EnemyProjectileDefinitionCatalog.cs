@@ -28,6 +28,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -349,60 +350,60 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.BotwoonBody => new(0xEA80, 0xE8F3, 0x0202, 0xE080, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.BotwoonSpit => new(0xEC05, 0xEBAE, 0x0202, 0x1060, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.BombTorizoLowHealthDrool => new(
-0x84FB, (ushort)BombTorizoDroolProgram.NoDelay,
+0x84FB, TorizoProjectileVisualDefinitions.DroolNoDelayList,
             0x0201, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoInitialDrool => new(
-0x84FB, (ushort)BombTorizoDroolProgram.NoDelay,
+0x84FB, TorizoProjectileVisualDefinitions.DroolNoDelayList,
             0x0201, 0x2000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoExplosiveSwipe => new(
-0xA919, TorizoExplosiveSwipeInstructionProgramDefinitions.Initial,
+0xA919, TorizoProjectileVisualDefinitions.SwipeInitialList,
             0x1010, 0x500A, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoLowHealthExplosion => new(
-0x84FB, TorizoExplosionInstructionProgramDefinitions.LowHealthInitial,
+0x84FB, TorizoProjectileVisualDefinitions.ExplosionLowHealthInitialList,
             0x1004, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoDeathExplosion => new(
-0x84FB, TorizoExplosionInstructionProgramDefinitions.DeathInitial,
+0x84FB, TorizoProjectileVisualDefinitions.ExplosionDeathInitialList,
             0x1004, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoStatueBreaking => new(
             (ushort)EnemyProjectilePreInstruction.RTS_8684FB,
-            BombTorizoStatueInstructionProgramDefinitions.Program(8),
+            TorizoProjectileVisualDefinitions.StatueFragment8List,
             0x0808, 0x3000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoChozoOrb => new(
-0xACAD, TorizoChozoOrbInstructionProgramDefinitions.MovingLeft,
-            0x0707, 0x9008, 0x0000, TorizoChozoOrbInstructionProgramDefinitions.Shot),
+0xACAD, TorizoProjectileVisualDefinitions.ChozoOrbMovingLeftList,
+            0x0707, 0x9008, 0x0000, TorizoProjectileVisualDefinitions.ChozoOrbShotList),
         RoomEnemyProjectileKind.BombTorizoSonicBoom => new(
             (ushort)EnemyProjectilePreInstruction.TorizoSonicBoom,
-            TorizoSonicBoomInstructionProgramDefinitions.FiredLeft,
+            TorizoProjectileVisualDefinitions.SonicBoomFiredLeftList,
             0x1403, 0x100A, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.GoldenTorizoChozoOrb => new(
-0xACFA, TorizoChozoOrbInstructionProgramDefinitions.MovingLeft,
-            0x0707, 0xB050, 0x0000, TorizoChozoOrbInstructionProgramDefinitions.Shot),
+0xACFA, TorizoProjectileVisualDefinitions.ChozoOrbMovingLeftList,
+            0x0707, 0xB050, 0x0000, TorizoProjectileVisualDefinitions.ChozoOrbShotList),
         RoomEnemyProjectileKind.GoldenTorizoSonicBoom => new(
             (ushort)EnemyProjectilePreInstruction.TorizoSonicBoom,
-            TorizoSonicBoomInstructionProgramDefinitions.FiredLeft,
+            TorizoProjectileVisualDefinitions.SonicBoomFiredLeftList,
             0x1403, 0x1078, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoRightFootDust => new(
-0x84FB, TorizoLandingDustInstructionProgramDefinitions.RightFoot,
+0x84FB, TorizoProjectileVisualDefinitions.LandingDustRightFootList,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.BombTorizoLeftFootDust => new(
-0x84FB, TorizoLandingDustInstructionProgramDefinitions.LeftFoot,
+0x84FB, TorizoProjectileVisualDefinitions.LandingDustLeftFootList,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.GoldenTorizoEgg => new(
             (ushort)EnemyProjectilePreInstruction.GoldenTorizoEgg_Bouncing,
-            GoldenTorizoEggInstructionProgramDefinitions.BouncingLeft,
+            TorizoProjectileVisualDefinitions.EggBouncingLeftList,
             0x0707, 0x6064, 0x0000,
-            TorizoChozoOrbInstructionProgramDefinitions.WallImpact),
+            TorizoProjectileVisualDefinitions.ChozoOrbWallImpactList),
         RoomEnemyProjectileKind.GoldenTorizoSuperMissile => new(
             (ushort)EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Held,
-            GoldenTorizoSuperMissileInstructionProgramDefinitions.RightInitial,
+            TorizoProjectileVisualDefinitions.SuperMissileRightInitialList,
             0x0404, 0xA0C8, 0x0000,
-            GoldenTorizoSuperMissileInstructionProgramDefinitions.Impact),
+            TorizoProjectileVisualDefinitions.SuperMissileImpactList),
         RoomEnemyProjectileKind.GoldenTorizoEyeBeam => new(
             (ushort)EnemyProjectilePreInstruction.GoldenTorizoEyeBeam,
-            GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal,
+            TorizoProjectileVisualDefinitions.EyeBeamNormalList,
             0x0303, 0x700A, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.TourianStatueSplash => new(0xB977, TourianStatueProjectileInstructionProgramDefinitions.Splash, 0x0000, 0x3000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.TourianStatueEyeGlow => new(0x84FB, TourianStatueProjectileInstructionProgramDefinitions.EyeGlow, 0x0000, 0x3000, 0x0000, 0x84FC),

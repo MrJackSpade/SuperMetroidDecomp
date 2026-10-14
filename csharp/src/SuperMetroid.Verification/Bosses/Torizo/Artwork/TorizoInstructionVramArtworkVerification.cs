@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -41,9 +42,9 @@ internal static class TorizoInstructionVramArtworkVerification
 
         ushort previousInstruction = 0;
         var authoredOpcodes = new HashSet<ushort>();
-        foreach (TorizoInstructionVramTransferDefinition transfer in
-                 TorizoInstructionVramTransferDefinitions.All)
+        for (int transferIndex = 0; transferIndex < TorizoInstructionVramTransferDefinitions.All.Length; transferIndex++)
         {
+            TorizoInstructionVramTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.All[transferIndex];
             AssertTrue(transfer.Instruction > previousInstruction,
                 "Torizo transfer opcodes are distinct and sorted");
             previousInstruction = transfer.Instruction;
@@ -59,10 +60,6 @@ internal static class TorizoInstructionVramArtworkVerification
                 $"Torizo transfer $AA:{transfer.Instruction:X4} source");
             AssertEqual(transfer.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
                 $"Torizo transfer $AA:{transfer.Instruction:X4} VRAM destination");
-            AssertTrue(TorizoInstructionVramTransferDefinitions.TryGet(
-                    transfer.Instruction, out TorizoInstructionVramTransferDefinition selected) &&
-                       selected == transfer,
-                $"Torizo transfer $AA:{transfer.Instruction:X4} lookup");
             AssertTrue((stock.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires stock.TorizoInstructionVram.")).TryResolve(
                     transfer.SourceAddress, transfer.ByteCount,
                     out ReadOnlyMemory<byte> installed),
@@ -71,7 +68,7 @@ internal static class TorizoInstructionVramArtworkVerification
                 AssertEqual(rom.ReadCartridgeByte(transfer.SourceAddress + offset),
                     installed.Span[offset],
                     $"Torizo transfer $AA:{transfer.Instruction:X4} byte {offset:X4}");
-            installedEnemies.Instructions.ApplyEnemyInstructionVramTransfer(installedSlot, transfer.Instruction);
+            UploadTorizoTiles(installedEnemies, installedSlot, transferIndex);
             for (int offset = 0; offset < transfer.ByteCount; offset++)
                 AssertEqual(installed.Span[offset],
                     installedVram.ReadByte(transfer.DestinationWord * 2 + offset),
@@ -95,8 +92,6 @@ internal static class TorizoInstructionVramArtworkVerification
             AssertTrue(authoredOpcodes.Contains(unchecked((ushort)address)),
                 $"native Torizo $814B descriptor $AA:{address:X4} is catalogued");
         }
-        AssertTrue(!TorizoInstructionVramTransferDefinitions.TryGet(0xb879, out _),
-            "non-transfer Torizo instruction is rejected");
 
         TorizoInstructionTileSheetDefinition golden =
             TorizoInstructionVramArtworkDefinitions.GoldenAwakening;
@@ -137,7 +132,12 @@ internal static class TorizoInstructionVramArtworkVerification
         RoomEnemySlot editedSlot = editedEnemies.SlotTable.Slots[0];
         editedSlot.EnemyDefinitionPointer = EnemyDefinitionId.GoldenTorizo;
         editedSlot.Definition = installedSlot.Definition;
-        editedEnemies.Instructions.ApplyEnemyInstructionVramTransfer(editedSlot, GoldenTorizoInitialInstructionProgramDefinitions.Initial);
+        // Golden Torizo's initial program uploads its awakening sheet first.
+        int goldenUpload = TorizoAnimations.Programs.Steps(TorizoBodyProgram.GoldenInitial0)
+            .First(step => step.Kind == AnimationProgramStepKind.Cue && step.Cue.Kind == TorizoCueKind.CopyTiles).Cue.Transfer;
+        AssertEqual(golden.SourceAddress, TorizoInstructionVramTransferDefinitions.All[goldenUpload].SourceAddress,
+            "Golden Torizo's initial upload copies its awakening sheet");
+        UploadTorizoTiles(editedEnemies, editedSlot, goldenUpload);
         AssertEqual(editedBytes.Span[0], editedVram.ReadByte(0x6d00 * 2),
             "edited Golden Torizo PNG changes production VRAM upload");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
@@ -154,6 +154,14 @@ internal static class TorizoInstructionVramArtworkVerification
             "Torizo instruction VRAM: 52 native descriptors, eight installed tile PNGs, " +
             "byte parity, live edit, reload, and invalid-asset rejection pass.");
     }
+
+    /// <summary>Copies tile transfer <paramref name="transfer"/> through Torizo's production tile-copy cue.</summary>
+    private static void UploadTorizoTiles(RoomEnemySystem enemies, RoomEnemySlot slot, int transfer) =>
+        AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(slot, new TorizoEnemyState(slot, isGolden: true),
+                new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
+                new TorizoCue(TorizoCueKind.CopyTiles, Transfer: transfer),
+                AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenInitial0)) is null,
+            $"Torizo tile transfer {transfer} runs on");
 
     /// <summary>Rejects cartridge reads and CPU bus writes by installed Torizo tile transfers.</summary>
     private static CartridgeReadGuard NewForbiddenTorizoRomBus() =>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
@@ -29,15 +30,11 @@ internal static class TorizoPaletteShakeVerification
         actor.Definition = RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer);
         var state = new TorizoEnemyState(actor, false);
         enemies.BombTorizoBehavior._torizoState = state;
-        void Execute(ushort opcode)
-        {
-            ushort cursor = 0xb939;
-            AssertTrue(enemies.BombTorizoBehavior.TryProcessBombTorizoInstruction(
-                    actor, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
-                    opcode, ref cursor, out _),
-                "Torizo instruction handled");
-            AssertEqual((ushort)0xb93b, cursor, "Torizo operand-free cursor");
-        }
+        void Execute(TorizoCueKind kind) =>
+            AssertTrue(enemies.BombTorizoBehavior.ApplyTorizoCue(
+                    actor, state, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
+                    new TorizoCue(kind), AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.BombTorizoInitial1)) is null,
+                "Torizo palette cue runs on");
         enemies.Earthquake.EarthquakeType = 4;
         enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(32);
         // The native awakening loop invokes B271 every four frames. It must not
@@ -45,7 +42,7 @@ internal static class TorizoPaletteShakeVerification
         for (int frame = 0; frame < 96; frame++)
         {
             if (frame < 64 && frame % 4 == 0)
-                Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
+                Execute(TorizoCueKind.AdvancePaletteFade);
             ushort timerBeforeShake = enemies.Earthquake.EarthquakeTimer.RawValue;
             var shake = enemies.HandleRoomShaking(false);
             // An accepted shake frame is exactly one that consumes an earthquake-timer tick.
@@ -56,20 +53,20 @@ internal static class TorizoPaletteShakeVerification
                 AssertEqual((short)(((32 - frame) & 2) == 0 ? 2 : -2), shake.Bg1.Y, "Landing BG1 Y");
             }
         }
-        Execute((ushort)TorizoInstruction.Instruction_Torizo_SetupPaletteTransitionToBlack);
+        Execute(TorizoCueKind.FadeToBlack);
         AssertEqual((ushort)0x7fff, cgram.Colors[144], "Black target setup does not black out current palette");
         for (int call = 0; call < 14; call++)
-            Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
+            Execute(TorizoCueKind.AdvancePaletteFade);
         for (int i = 0; i < 256; i++)
             AssertEqual((ushort)(i is >= 144 and < 176 ? 0 : 0x7fff), cgram.Colors[i], $"Masked fade color {i}");
         AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer.RawValue, "Completed fade does not create an earthquake");
         state.PaletteTransition = null;
         for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
-        Execute((ushort)TorizoInstruction.Instruction_Torizo_SetupPaletteTransitionToNormalTorizo);
+        Execute(TorizoCueKind.FadeToNormalColors);
         AssertEqual((ushort)0x7fff, cgram.Colors[145], "Normal target setup preserves current colors");
-        Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
+        Execute(TorizoCueKind.AdvancePaletteFade);
         AssertEqual((ushort)0x7fff, cgram.Colors[145], "Native transition number zero is a no-op");
-        Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
+        Execute(TorizoCueKind.AdvancePaletteFade);
         AssertEqual((ushort)0x7bde, cgram.Colors[145], "First denominator-12 step toward native normal color 56BA");
         // Save mid-fade: target and numerator must survive, not restart from white.
         using var saved = new MemoryStream();
@@ -80,7 +77,7 @@ internal static class TorizoPaletteShakeVerification
         for (int i = 0; i < 256; i++) restoredColors.SetColor(i, cgram.Colors[i]);
         for (int call = 2; call < 14; call++)
         {
-            Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
+            Execute(TorizoCueKind.AdvancePaletteFade);
             (restored.PaletteTransition ?? throw new InvalidOperationException("Verification requires restored.PaletteTransition.")).Step(restoredColors, TorizoPaletteDefinitions.BodyPaletteMask);
             AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(restoredColors)), "Mid-fade save preserves each color step");
         }

@@ -46,6 +46,27 @@ internal static class EnemyProgramAnimation
         where TFrame : struct
         where TCue : notnull
     {
+        Ensure.NotNull(publish);
+        RunTo(slot, programs, ref cursor, spritemap,
+            (cue, continuation) => publish(cue, continuation) is { } program ? AnimationProgramCursor<TProgram>.Start(program) : null,
+            counter);
+    }
+
+    /// <summary>
+    /// Like <see cref="Run"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the program
+    /// continues at, as a native return to a saved instruction pointer does, or null to run on.
+    /// </summary>
+    internal static void RunTo<TProgram, TFrame, TCue>(
+        RoomEnemySlot slot,
+        AnimationProgramSet<TProgram, TFrame, TCue> programs,
+        ref AnimationProgramCursor<TProgram> cursor,
+        Func<TFrame, ushort> spritemap,
+        Func<TCue, AnimationProgramCursor<TProgram>, AnimationProgramCursor<TProgram>?> publish,
+        EnemyProgramCounter counter)
+        where TProgram : struct, Enum
+        where TFrame : struct
+        where TCue : notnull
+    {
         Ensure.NotNull(slot);
         Ensure.NotNull(programs);
         Ensure.NotNull(spritemap);
@@ -55,7 +76,7 @@ internal static class EnemyProgramAnimation
             EnemyProgramCounter.SlotTimer => slot.Timer,
             _ => throw new InvalidOperationException($"Undefined {nameof(EnemyProgramCounter)} {counter}."),
         };
-        AnimationProgramAdvance<TFrame> advance = programs.Advance(ref cursor, ref loopCounter, publish);
+        AnimationProgramAdvance<TFrame> advance = programs.AdvanceTo(ref cursor, ref loopCounter, publish);
         if (counter == EnemyProgramCounter.SlotTimer)
             slot.Timer = loopCounter;
         switch (advance.Kind)
@@ -69,6 +90,10 @@ internal static class EnemyProgramAnimation
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
                 return;
             case AnimationProgramAdvanceKind.Hold:
+                return;
+            case AnimationProgramAdvanceKind.Stop:
+                // The common stop deletes the enemy.
+                slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 return;
             default:
                 throw new InvalidOperationException($"Enemy {slot.EnemyDefinitionPointer}'s programs have no {advance.Kind} step.");

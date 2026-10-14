@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRightOrbDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -34,24 +33,9 @@ internal static class EnemyAnimationIsolationStockParityVerification
             AssertEqual(source.ReadCartridgeWordFixedBank(((int)new SnesAddress(EnemySpritemapDefinitions.BoyonBank, address))), EnemySpritemapDefinitions.BoyonFrameAt(address),
                 $"stock Boyon native visual identity {address:X4}");
         }
-        for (int index = 0; index < TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
-        {
-            InstructionMechanicsWord word = TorizoInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(source.ReadCartridgeWordFixedBank(((int)new SnesAddress(TorizoInstructionProgramDefinitions.Bank, word.Address))), word.Value,
-                $"stock Torizo control/timing word {word.Address:X4}");
-        }
-        for (int index = 0; index < TorizoInstructionProgramDefinitions.PresentationWordCount; index++)
-        {
-            ushort address = TorizoInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet(TorizoInstructionProgramDefinitions.Bank, address, out ushort selected),
-                $"declared Torizo visual identity {address:X4} has a compiled selector");
-            AssertEqual(source.ReadCartridgeWordFixedBank(((int)new SnesAddress(TorizoInstructionProgramDefinitions.Bank, address))), selected,
-                $"stock Torizo native visual identity {address:X4}");
-        }
-        Suite(nameof(VerifyGoldenTorizoRightOrbDefinitions), () => VerifyGoldenTorizoRightOrbDefinitions(source));
-        Console.WriteLine($"Animation stock parity: {BoyonInstructionProgramDefinitionsTooling.MechanicsWordCount} Boyon and " +
-            $"{TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount} shared/Bomb/Golden Torizo control/timing words; " +
-            $"{BoyonInstructionProgramDefinitionsTooling.PresentationWordCount + TorizoInstructionProgramDefinitions.PresentationWordCount} " +
+        // Torizo's lists are typed programs (#1289); VerifyTorizoAnimations matches them to the native lists.
+        Console.WriteLine($"Animation stock parity: {BoyonInstructionProgramDefinitionsTooling.MechanicsWordCount} Boyon " +
+            $"control/timing words and {BoyonInstructionProgramDefinitionsTooling.PresentationWordCount} " +
             "separate native visual selectors match the pinned import source.");
     }
 

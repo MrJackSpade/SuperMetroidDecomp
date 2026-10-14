@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class TorizoInstructionVramTransferDefinitions
 {
-
     /// <summary>Sorted $814B transfer sites with immutable lengths, source identities, and OBJ destinations.</summary>
     internal static readonly TorizoInstructionVramTransferDefinition[] Entries =
     [
@@ -64,28 +63,4 @@ internal static class TorizoInstructionVramTransferDefinitions
         new(0xd1bf, 0x0040, 0xaab2f9, 0x7d80),
         new(0xd1cc, 0x0040, 0xaab339, 0x7d80),
     ];
-
-    /// <summary>Finds a compiled Torizo instruction transfer without consulting the native ROM at runtime.</summary>
-    internal static bool TryGet(ushort instruction,
-        out TorizoInstructionVramTransferDefinition transfer)
-    {
-        int low = 0;
-        int high = Entries.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            TorizoInstructionVramTransferDefinition entry = Entries[middle];
-            if (entry.Instruction == instruction)
-            {
-                transfer = entry;
-                return true;
-            }
-            if (entry.Instruction < instruction)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-        transfer = default;
-        return false;
-    }
 }

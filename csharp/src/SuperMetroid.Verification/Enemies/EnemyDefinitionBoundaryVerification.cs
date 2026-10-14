@@ -25,6 +25,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 /// <summary>Checks statically identified enemy definition conversions against ROM and installed artwork.</summary>
 internal static class EnemyDefinitionBoundaryVerification
@@ -47,9 +48,9 @@ internal static class EnemyDefinitionBoundaryVerification
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         foreach ((ushort x, ushort y) in new (ushort, ushort)[] { (128, 96), (0, 0), (511, 252) })
         {
-            AssertTrue((artwork.ExtendedFrames ?? throw new InvalidOperationException("Verification requires artwork.ExtendedFrames.")).TryGet(TorizoInstructionProgramDefinitions.Bank, frame, out _),
+            AssertTrue((artwork.ExtendedFrames ?? throw new InvalidOperationException("Verification requires artwork.ExtendedFrames.")).TryGet(TorizoFrameDefinitions.Bank, frame, out _),
                 $"installed Torizo extended frame {frame:X4}");
-            OamBuffer actual = DrawExtendedForBank(artwork, memory, TorizoInstructionProgramDefinitions.Bank, frame, new(x, y));
+            OamBuffer actual = DrawExtendedForBank(artwork, memory, TorizoFrameDefinitions.Bank, frame, new(x, y));
             var expected = new OamBuffer();
             int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | frame));
             for (int index = 0; index < count; index++)
@@ -59,49 +60,22 @@ internal static class EnemyDefinitionBoundaryVerification
                 ushort cy = unchecked((ushort)(y + (short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 2))));
                 if (((cx + 128) & 0xfe00) != 0 || ((cy + 128) & 0xfe00) != 0)
                     continue;
-                DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = TorizoInstructionProgramDefinitions.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (SnesLittleEndian.HighByte(cy)) == 0 });
+                DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = TorizoFrameDefinitions.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (SnesLittleEndian.HighByte(cy)) == 0 });
             }
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Torizo composed OAM count");
             AssertTrue(expected.ImageEquals(actual), "Torizo composed OAM bytes and origin arithmetic");
             drawCases++;
         }
         AssertThrows<InvalidDataException>(() => DrawExtendedForBank(null, memory,
-                TorizoInstructionProgramDefinitions.Bank, 0x87d0, new(128, 96)),
+                TorizoFrameDefinitions.Bank, 0x87d0, new(128, 96)),
             "missing enemy artwork cannot recover an address decoder");
-        Console.WriteLine($"Enemy definitions: all 1,761 Torizo mechanics words, 564 selectors, 106 physical frames, corpse metadata, 50 Crocomire reactions, 393 editable palette colors and {drawCases} composed OAM cases pass.");
+        Console.WriteLine($"Enemy definitions: all 106 Torizo physical frames, corpse metadata, 50 Crocomire reactions, 393 editable palette colors and {drawCases} composed OAM cases pass.");
     }
 
-    /// <summary>Checks Torizo control words, visual selectors, physical components, and hitbox records against bank AA.</summary>
+    /// <summary>Checks Torizo's physical components and hitbox records against bank AA.</summary>
     private static void VerifyCompleteTorizoDefinitions(ISnesAddressSpace source)
     {
-        AssertEqual(1761, TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount, "complete Torizo mechanics count");
-        AssertEqual(564, TorizoInstructionProgramDefinitions.PresentationWordCount, "complete Torizo visual operand count");
-        var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        ushort previous = 0;
-        for (int index = 0; index < TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
-        {
-            InstructionMechanicsWord word = TorizoInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertTrue(word.Address > previous, "Torizo mechanics are ordered and unique");
-            previous = word.Address;
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | word.Address)), word.Value, $"Torizo word {word.Address:X4}");
-            foreach (EnemyDefinitionId pointer in new[] { EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo })
-            {
-                RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-                slot.EnemyDefinitionPointer = pointer;
-                AssertEqual(word.Value, (ushort)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, word.Address),
-                    "both Torizo interpreters resolve compiled words without a bus");
-            }
-        }
-        for (int index = 0; index < TorizoInstructionProgramDefinitions.PresentationWordCount; index++)
-        {
-            ushort operand = TorizoInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(!TorizoInstructionProgramDefinitions.TryReadMechanicsWord(operand, out _),
-                "Torizo visual operands cannot be read as mechanics");
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet(TorizoInstructionProgramDefinitions.Bank, operand, out ushort pointer),
-                "every Torizo sprite selector is compiled");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | operand)), pointer, "Torizo selector matches pinned source");
-        }
+        // The lists themselves are typed programs (#1289); VerifyTorizoAnimations matches them to the native lists.
         AssertEqual(106, TorizoCollisionDefinitions.FrameCount, "complete Torizo physical frame count");
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         {

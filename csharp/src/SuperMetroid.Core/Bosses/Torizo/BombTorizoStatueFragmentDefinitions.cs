@@ -9,12 +9,15 @@ internal static class BombTorizoStatueFragmentDefinitions
     /// </summary>
     internal const ushort ProjectileDefinition = 0xa993;
 
+    /// <summary>The fragments the breaking statue hand emits.</summary>
+    internal const int FragmentCount = 16;
+
     /// <summary>Returns the definition selected by an even native parameter.
     /// The initializer at $86:A764 reads program pointers at $86:A7AB, X offsets at
     /// $86:A7CB, and eight wrapping Y/velocity/acceleration rows at $86:A7EB/A7FB/A80B.</summary>
     internal static BombTorizoStatueFragmentDefinition ForParameter(ushort parameter)
     {
-        if ((parameter & 1) != 0 || parameter >= BombTorizoStatueInstructionProgramDefinitions.ProgramCount * 2)
+        if ((parameter & 1) != 0 || parameter >= FragmentCount * 2)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(parameter),
@@ -29,7 +32,7 @@ internal static class BombTorizoStatueFragmentDefinitions
         int x = 16 * (cell % 3) - 8;
         if (index >= 8) x = 16 - x;
         return new(
-            BombTorizoStatueInstructionProgramDefinitions.Program(index),
+            TorizoProjectileAnimations.StatueFragment(index),
             new Offset16<RoomPixels>((short)x, (short)(16 * (cell / 3) - 8)),
             YVelocity: 0x0100,
             Acceleration: 0x0010);

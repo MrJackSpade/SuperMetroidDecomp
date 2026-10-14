@@ -11,9 +11,6 @@ internal static class EnemyVisualProgramSpecializations
     private static readonly HashSet<string> ControlOnly =
     [
         nameof(CommonEnemyProjectileInstructionProgramDefinitions),
-        nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions),
-        nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions),
-        nameof(GoldenTorizoStunnedInstructionProgramDefinitions),
         nameof(TourianEntranceStatueInstructionProgramDefinitions),
     ];
 

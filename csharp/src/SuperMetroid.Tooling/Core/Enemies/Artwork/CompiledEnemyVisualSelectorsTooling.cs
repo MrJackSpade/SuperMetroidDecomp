@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Beetom;
@@ -18,7 +17,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class CompiledEnemyVisualSelectorsTooling
 {
     /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
-    internal static int CalculatedCount => BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount + BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount + BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount + BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount + GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount + HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount + (VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
+    internal static int CalculatedCount => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount + BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount + GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount + HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount + (VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
         BoulderInstructionProgramDefinitionsTooling.PresentationWordCount +
         FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
         FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount + AtomicInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -58,18 +57,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
             return new(0x860000 | operand, EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(operand));
         }
         index -= AlcoonFireballInstructionProgramDefinitions.PresentationWordCount;
-        if (index < BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount)
-        {
-            ushort operand = BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress(index);
-            return new(0x860000 | operand, EnemyProjectileSpritemapDefinitions.BombTorizoDroolFrameAt(operand));
-        }
-        index -= BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount;
-        if (index < BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount)
-        {
-            ushort operand = BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress(index);
-            return new(0x860000 | operand, EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(operand));
-        }
-        index -= BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount;
         if (index < FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount)
         {
             ushort operand = FuneNamiheFireballInstructionProgramDefinitions.PresentationWordAddress(index);

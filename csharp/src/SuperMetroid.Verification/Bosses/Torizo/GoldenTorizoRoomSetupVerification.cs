@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -34,13 +35,17 @@ internal static class GoldenTorizoRoomSetupVerification
         }
     }
 
+    /// <summary>The facing-screen pose both Golden Torizo left turns show.</summary>
+    internal static ushort GoldenTorizoFacingScreenFrame =>
+        TorizoAnimations.Spritemaps(TorizoBodyProgram.GoldenTurningLeft).Single();
+
     /// <summary>
     /// Start both real-room instances from the same awakened boss state before
     /// selecting a callable turn. The fixture preserves the cartridge's room
-    /// and enemy population; only the instruction cursor is chosen for coverage.
+    /// and enemy population; only the body program is chosen for coverage.
     /// </summary>
     internal static void ForceGoldenTorizoLeftTurn(
-        SuperMetroidGame native, SuperMetroidGame installed, ushort instruction)
+        SuperMetroidGame native, SuperMetroidGame installed, TorizoBodyProgram program)
     {
         PrimeGoldenTorizoAwakenedRoom(native, installed);
         foreach (SuperMetroidGame game in new[] { native, installed })
@@ -48,10 +53,10 @@ internal static class GoldenTorizoRoomSetupVerification
             RoomEnemySlot boss = game.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.Single(
                 slot => slot.EnemyDefinitionPointer ==
                     EnemyDefinitionId.GoldenTorizo);
-            AssertTrue(boss.SpritemapPointer !=
-                    GoldenTorizoLeftTurnInstructionProgramDefinitions.FacingScreenFrame,
+            AssertTrue(boss.SpritemapPointer != GoldenTorizoFacingScreenFrame,
                 "forced left-turn starts before the shared facing-screen frame");
-            boss.CurrentInstruction = instruction;
+            (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo
+                ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(program);
             boss.InstructionTimer = NativeCountdown.Start(1);
         }
     }

@@ -1,10 +1,11 @@
+using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Literal inventory writes in InitAI_Torizo.GTCode at $AA:C917-C95A.</summary>
 internal static class GoldenTorizoCodeDefinitions
 {
     /// <summary>$AA:C919 CMP operand: exactly held A+B+X+Y, with no other controller bits.</summary>
-    internal const ushort ControllerChord = 0xc0c0;
+    internal const SnesButton ControllerChord = SnesButton.A | SnesButton.B | SnesButton.X | SnesButton.Y;
     /// <summary>$AA:C91E immediate: current and maximum energy, exactly 700 rather than 799.</summary>
     internal const ushort Energy = 700;
     /// <summary>$AA:C927 immediate: current and maximum reserve energy; reserve mode is not written.</summary>

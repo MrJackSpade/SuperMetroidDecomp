@@ -39,7 +39,8 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             // typed shot programs, and the goop a typed touch program. Phantoon's flames and the pre-Phantoon room
             // projectile start typed programs too (#1286), and both flames' shots start typed programs. Ridley's fireballs
             // and afterburns run typed programs (#1287); their shot lists stay the common native deletion. Spore Spawn's
-            // stalk, spores and emitters run typed programs, shots included (#1288).
+            // stalk, spores and emitters run typed programs, shots included (#1288). Every Torizo projectile runs typed
+            // programs (#1289); the orbs', egg's and super missile's shots start typed programs too.
             bool typed = kind is RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit or
                 RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces or RoomEnemyProjectileKind.DraygonGoop or
@@ -55,7 +56,22 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight or RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft or
                 RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown or
                 RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or
-                RoomEnemyProjectileKind.SporeSpawnSpawner;
+                RoomEnemyProjectileKind.SporeSpawnSpawner or
+                RoomEnemyProjectileKind.BombTorizoLowHealthDrool or
+                RoomEnemyProjectileKind.BombTorizoInitialDrool or
+                RoomEnemyProjectileKind.BombTorizoExplosiveSwipe or
+                RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or
+                RoomEnemyProjectileKind.BombTorizoDeathExplosion or
+                RoomEnemyProjectileKind.BombTorizoStatueBreaking or
+                RoomEnemyProjectileKind.BombTorizoChozoOrb or
+                RoomEnemyProjectileKind.BombTorizoSonicBoom or
+                RoomEnemyProjectileKind.GoldenTorizoChozoOrb or
+                RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
+                RoomEnemyProjectileKind.BombTorizoRightFootDust or
+                RoomEnemyProjectileKind.BombTorizoLeftFootDust or
+                RoomEnemyProjectileKind.GoldenTorizoEgg or
+                RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
+                RoomEnemyProjectileKind.GoldenTorizoEyeBeam;
             if (!typed)
                 VerifyEntry(definition.InitialInstructionList, "initial");
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet))
@@ -64,7 +80,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
                 RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or
-                RoomEnemyProjectileKind.SporeSpawnSpawner))
+                RoomEnemyProjectileKind.SporeSpawnSpawner or RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile))
                 VerifyEntry(definition.ShotInstructionList, "shot");
 
             void VerifyEntry(ushort address, string role)

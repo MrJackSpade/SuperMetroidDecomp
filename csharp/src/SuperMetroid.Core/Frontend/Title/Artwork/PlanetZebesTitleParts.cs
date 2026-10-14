@@ -14,7 +14,7 @@ internal sealed class PlanetZebesTitleParts : IReadOnlyList<CompiledSpritePart>
         backdrop == CeresDestructionBackdrop.Title
             ? supplied.CalculateIfMatching(new PlanetZebesTitleParts()) : supplied;
     /// <summary>All non-space glyphs in the twelve-column title.</summary>
-    public int Count => PlanetZebesTitleAtlas.Text.Length - 1;
+    public int Count => PlanetZebesTitleGlyphDefinitions.Text.Length - 1;
     /// <summary>Places one atlas glyph in reverse native draw order while skipping the word space.</summary>
     public CompiledSpritePart this[int index]
     {
@@ -22,9 +22,9 @@ internal sealed class PlanetZebesTitleParts : IReadOnlyList<CompiledSpritePart>
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int glyph = Count - 1 - index;
-            int column = glyph + (glyph >= PlanetZebesTitleAtlas.SpaceColumn ? 1 : 0);
-            return new(SnesSpritemapXWord.Create(-4 * PlanetZebesTitleAtlas.Text.Length + 8 * column, false),
-                unchecked((byte)-8), SnesObjAttributeWord.Create(PlanetZebesTitleAtlas.Tile(PlanetZebesTitleAtlas.Text[column]), 0, 0, 0), true);
+            int column = glyph + (glyph >= PlanetZebesTitleGlyphDefinitions.SpaceColumn ? 1 : 0);
+            return new(SnesSpritemapXWord.Create(-4 * PlanetZebesTitleGlyphDefinitions.Text.Length + 8 * column, false),
+                unchecked((byte)-8), SnesObjAttributeWord.Create(PlanetZebesTitleGlyphDefinitions.Tile(PlanetZebesTitleGlyphDefinitions.Text[column]), 0, 0, 0), true);
         }
     }
     /// <summary>Enumerates title letters from the rightmost glyph to the leftmost.</summary>

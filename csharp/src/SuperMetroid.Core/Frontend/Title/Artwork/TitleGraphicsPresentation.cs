@@ -139,7 +139,7 @@ public sealed class TitleGraphicsPresentation
         var result = new Dictionary<ushort, SpriteComposition>();
         foreach (TitleSpriteFrame frame in frames)
         {
-            if (frame is null || frame.Pointer < 0x8000 || frame.Parts is null ||
+            if (frame is null || frame.Pointer < LoRomExpansionReadMap.RomStart || frame.Parts is null ||
                 frame.Parts.Length > TitleGraphicsFormat.MaximumSpriteParts)
                 throw new InvalidDataException("Title composition has an invalid frame pointer or part count.");
             var parts = new CompiledSpritePart[frame.Parts.Length];

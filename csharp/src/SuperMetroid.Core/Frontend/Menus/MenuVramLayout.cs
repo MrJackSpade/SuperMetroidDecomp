@@ -42,4 +42,7 @@ public static class MenuVramLayout
     /// <summary>VMADD $5800-$5BFF: the menu BG2 32x32 tilemap.</summary>
     public static readonly PpuLayoutCell Bg2Tilemap = new(nameof(Bg2Tilemap), PpuLayoutRegion.Vram,
         Bg2TilemapWord, SnesPpuLayout.TilemapPageWordCount, "BG tilemap words (32x32)", PpuMemoryLayout.Vram);
+
+    /// <summary>File-select OBSEL=$03 places the shared menu OBJ characters at VRAM byte $C000.</summary>
+    internal const int MapSpriteByteAddress = 0xc000;
 }

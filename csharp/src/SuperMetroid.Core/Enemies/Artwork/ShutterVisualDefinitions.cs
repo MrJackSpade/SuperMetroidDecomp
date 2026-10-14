@@ -50,7 +50,7 @@ internal static class ShutterVisualDefinitions
     internal static ushort PointerAt(ushort operandAddress)
     {
         if (GrowingShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-            return GrowingFrame((operandAddress - (GrowingShutterInstructionProgramDefinitions.TenPixels + 2)) / 6);
+            return GrowingFrame(GrowingShutterInstructionProgramDefinitions.OperandFrame(operandAddress));
         if (HorizontalShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress))
             return HorizontalFrame;
         throw new InvalidDataException($"Shutter visual operand $A2:{operandAddress:X4} is not compiled.");

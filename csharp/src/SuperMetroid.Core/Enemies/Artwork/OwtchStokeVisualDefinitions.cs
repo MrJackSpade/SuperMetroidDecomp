@@ -15,7 +15,7 @@ internal static class OwtchStokeVisualDefinitions
     {
         if (enemyDefinition == EnemyDefinitionId.Owtch)
         {
-            int offset = address - OwtchInstructionProgramDefinitions.MovingLeft;
+            int offset = OwtchInstructionProgramDefinitions.OperandOffset(address);
             int within = offset % 18;
             if ((uint)offset < 36 && within is >= 4 and <= 12 && within % 4 == 0)
             {
@@ -26,7 +26,7 @@ internal static class OwtchStokeVisualDefinitions
         }
         else if (enemyDefinition == EnemyDefinitionId.Stoke)
         {
-            int offset = address - StokeInstructionProgramDefinitions.MovingLeft;
+            int offset = StokeInstructionProgramDefinitions.OperandOffset(address);
             if ((uint)offset < 76)
             {
                 int frame = (offset % 38) switch

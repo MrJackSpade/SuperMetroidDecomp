@@ -24,7 +24,7 @@ internal static class RipperVisualDefinitions
         int offset = address - (ordinary ? RipperInstructionProgramDefinitions.RipperMovingRight :
             RipperInstructionProgramDefinitions.GRipperMovingLeft) - 2;
         if (!ordinary && !IsVisualOffset(offset))
-            offset = address - RipperInstructionProgramDefinitions.Ripper2MovingRight - 2;
+            offset = RipperInstructionProgramDefinitions.Ripper2OperandOffset(address);
         if (!IsVisualOffset(offset))
             throw new InvalidDataException(
                 $"Ripper-family ${(int)enemyDefinition:X4} visual operand ${address:X4} is not compiled.");

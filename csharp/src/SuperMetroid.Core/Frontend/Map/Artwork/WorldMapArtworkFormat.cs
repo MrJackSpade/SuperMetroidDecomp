@@ -14,7 +14,7 @@ public static class WorldMapArtworkFormat
     /// <summary>$81:8DDB LoadInitialMenuTiles transfers $5600 bytes from $8E:8000.</summary>
     public const int ForegroundSource = SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.InitialMenuForegroundCharacters;
     /// <summary>Size in bytes of the native 4-bpp foreground character transfer.</summary>
-    public const int ForegroundBytes = 0x5600;
+    public const int ForegroundBytes = 22016;
     /// <summary>Number of 32-byte 4-bpp characters in the foreground atlas.</summary>
     public const int ForegroundTileCount = ForegroundBytes / 32;
     /// <summary>Foreground atlas height in pixels.</summary>
@@ -22,7 +22,7 @@ public static class WorldMapArtworkFormat
     /// <summary>$81:8DDB also installs $600 bytes of 2-bpp BG3 characters from $8E:D600.</summary>
     public const int BackgroundSource = SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.InitialMenuBackgroundCharacters;
     /// <summary>Size in bytes of the native 2-bpp background character transfer.</summary>
-    public const int BackgroundBytes = 0x600;
+    public const int BackgroundBytes = 1536;
     /// <summary>Number of 16-byte 2-bpp characters in the background atlas.</summary>
     public const int BackgroundTileCount = BackgroundBytes / 16;
     /// <summary>Background atlas height in pixels.</summary>
@@ -30,5 +30,5 @@ public static class WorldMapArtworkFormat
     /// <summary>Menu BG1 character base in byte-addressed VRAM.</summary>
     public const int ForegroundDestination = 0;
     /// <summary>Menu BG3 character base in byte-addressed VRAM, BG34NBA=$04.</summary>
-    public const int BackgroundDestination = 0x8000;
+    public const int BackgroundDestination = WorldMapVramLayout.BackgroundByteAddress;
 }

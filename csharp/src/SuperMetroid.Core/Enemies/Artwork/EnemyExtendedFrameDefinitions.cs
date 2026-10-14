@@ -448,7 +448,7 @@ internal static class EnemyExtendedFrameDefinitions
             .PresentationWordAddress(0);
         if (!CompiledEnemyVisualSelectors.TryGet(0xaa, fallingLeftOperand,
                 out ushort fallingLeftPointer) ||
-            fallingLeftPointer != TorizoFallingLeftInstructionProgramDefinitions.FallingFrame)
+            !TorizoFallingLeftInstructionProgramDefinitions.IsFallingFrame(fallingLeftPointer))
             throw new InvalidDataException(
                 $"Torizo falling-left visual operand $AA:{fallingLeftOperand:X4} is not compiled.");
         yield return Emit(new EnemyExtendedFrameDefinition(0xaa, fallingLeftPointer,

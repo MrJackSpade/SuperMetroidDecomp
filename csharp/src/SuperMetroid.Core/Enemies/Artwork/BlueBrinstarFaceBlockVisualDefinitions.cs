@@ -27,7 +27,7 @@ internal static class BlueBrinstarFaceBlockVisualDefinitions
     {
         if (BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord(operandAddress))
         {
-            int offset = operandAddress - BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusLeft;
+            int offset = BlueBrinstarFaceBlockInstructionProgramDefinitions.OperandOffset(operandAddress);
             if (offset >= 28) return MapPointer(0);
             int frame = (offset % 14 - 2) / 4;
             return MapPointer(frame == 0 ? 0 : frame + 2 * (offset / 14));

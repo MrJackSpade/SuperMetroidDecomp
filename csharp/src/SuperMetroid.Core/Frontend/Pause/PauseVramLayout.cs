@@ -46,4 +46,7 @@ public static class PauseVramLayout
     /// <summary>VMADD $5880-$5FFF: the FX rows <c>QueueClearingOfFxTilemap</c> ($80:A211) fills below the HUD.</summary>
     public static readonly PpuLayoutCell Bg3FxRows = new(nameof(Bg3FxRows), PpuLayoutRegion.Vram,
         0x5880, 0x0780, "BG3 tilemap words", GameplayVramLayout.HudTilemap);
+
+    /// <summary>Pause OBSEL=$01 places the shared menu OBJ characters at VRAM byte $4000.</summary>
+    internal const int MapSpriteByteAddress = 0x4000;
 }

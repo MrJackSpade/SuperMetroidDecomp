@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
 /// <summary>Title lettering and Ceres OBJ atlas glyph selection.</summary>
-internal static class PlanetZebesTitleAtlas
+internal static class PlanetZebesTitleGlyphDefinitions
 {
     /// <summary>English title selected by native8C:9654; the space occupies column6.</summary>
     internal const string Text = "PLANET ZEBES";

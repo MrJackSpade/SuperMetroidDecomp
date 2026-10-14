@@ -123,24 +123,32 @@ internal static class EncodingInventory
                 return "Hosts and GPU renderer";
         }
         string directory = segments.Length > 3 ? segments[3] : string.Empty;
-        if (directory is "Game" or "Assets" or "Rooms" or "Rendering")
+        string module = segments.Length > 4 ? segments[4] : string.Empty;
+        // Installed-artwork catalogs and decoders (Assets and every domain's Artwork module) migrate together unless a
+        // boss, sequence or other named family owns them, as when they shared the former flat Assets directory.
+        if (directory == "Assets" || path.Contains("/Artwork/", StringComparison.Ordinal))
         {
             foreach (var (fragment, subsystem) in NameRules)
             {
                 if (name.Contains(fragment, StringComparison.Ordinal))
                     return subsystem;
             }
+            return "Asset catalogs and decoders";
         }
         return directory switch
         {
-            "Game" => name.Contains("Enemy", StringComparison.Ordinal) || name.Contains("Instruction", StringComparison.Ordinal)
-                ? Enemies : "Gameplay core",
-            "Assets" => "Asset catalogs and decoders",
-            "Rooms" => "Rooms: setup, scrolling and level data",
+            "Bosses" => "Boss: " + module switch { "MotherBrain" => "Mother Brain", "SporeSpawn" => "Spore Spawn", _ => module },
+            "Enemies" => module == "Projectiles" ? EnemyProjectiles : Enemies,
+            "Samus" => Samus,
+            "Rooms" => module is "Plms" or "Doors" ? Plms : "Rooms: setup, scrolling and level data",
+            "Fx" => RoomEffects,
+            "Areas" => Sequences,
+            "Frontend" => module is "CeresCinematics" or "Intro" or "Ending" ? Sequences : "Menus, map, HUD and messages",
+            "Hud" or "Map" => "Menus, map, HUD and messages",
             "Audio" => "Audio",
-            "Frontend" => "Menus, map, HUD and messages",
             "Hardware" or "Rendering" or "Spatial" => "Rendering and hardware",
-            "Runtime" or "Input" => "Runtime and input",
+            "Runtime" or "Input" or "Gameplay" => "Runtime and input",
+            "Programs" or "Progression" or "Saves" => "Gameplay core",
             _ => "Core infrastructure",
         };
     }

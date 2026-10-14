@@ -134,4 +134,7 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
         return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
             color * sizeof(ushort)));
     }
+
+    /// <summary>A color operand's byte offset from the first frame's first color, after the frame's leading command word.</summary>
+    internal static int ColorOffset(ushort pointer) => pointer - (FirstFramePointer + 2);
 }

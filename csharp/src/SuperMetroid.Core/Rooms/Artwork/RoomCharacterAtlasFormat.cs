@@ -8,7 +8,7 @@ public static class RoomCharacterAtlasFormat
     /// <summary>Bytes occupied by one 8x8 SNES character with four bitplanes.</summary>
     public const int BytesPerTile = 32;
     /// <summary>Largest accepted compiled stream: $8000 bytes, or 1024 complete 4-bpp characters.</summary>
-    public const int MaximumNativeBytes = 0x8000;
+    public const int MaximumNativeBytes = 32768;
     /// <summary>Editable PNG filename for the common room elements (CRE) character stream shared by room graphics sets.</summary>
     public const string CreFileName = "room-characters-cre.png";
 

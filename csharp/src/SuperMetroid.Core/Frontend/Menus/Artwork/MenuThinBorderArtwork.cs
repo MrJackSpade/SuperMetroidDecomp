@@ -13,17 +13,17 @@ internal sealed class MenuThinBorderArtwork
     /// <summary>Only pixels differing from the calculable stock line pattern are retained.</summary>
     internal readonly Dictionary<int, byte>? edits;
     /// <summary>Admits atlas tile $AD or $AE, the two thin-border cells.</summary>
-    internal static bool Contains(int tile) => tile is 0xad or 0xae;
+    internal static bool Contains(int tile) => Enum.IsDefined((MenuThinBorderCell)tile);
 
     /// <summary>Compares both tile cells with the stock line pattern and records independent pixel edits.</summary>
     internal MenuThinBorderArtwork(IndexedPngImage image)
     {
-        for (int tile = 0xad; tile <= 0xae; tile++)
+        foreach (int tile in Enum.GetValues<MenuThinBorderCell>().Select(cell => (int)cell))
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
             byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
-            if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+            if (pixel != Basis((MenuThinBorderCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
         }
     }
 
@@ -31,10 +31,10 @@ internal sealed class MenuThinBorderArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
+        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis((MenuThinBorderCell)tile, point);
     }
 
     /// <summary>Draws palette index six across row one and down the left edge of the corner cell.</summary>
-    private static byte Basis(int tile, Position16<CharacterPixels> point) =>
-        point.Y == 1 || tile == 0xae && point.X == 0 && point.Y > 1 ? (byte)6 : (byte)0;
+    private static byte Basis(MenuThinBorderCell cell, Position16<CharacterPixels> point) =>
+        point.Y == 1 || cell == MenuThinBorderCell.Corner && point.X == 0 && point.Y > 1 ? (byte)6 : (byte)0;
 }

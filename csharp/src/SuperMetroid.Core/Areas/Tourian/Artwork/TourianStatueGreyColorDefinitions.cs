@@ -14,7 +14,7 @@ internal static class TourianStatueGreyColorDefinitions
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         frame = color = 0;
-        int offset = pointer - (TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FirstFramePointer + 2);
+        int offset = TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorOffset(pointer);
         if ((uint)offset >= TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount *
             TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameByteCount) return false;
         int within = offset % TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameByteCount;

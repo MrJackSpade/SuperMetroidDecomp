@@ -68,15 +68,15 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
     /// <summary>Calculates the selected loading tint from a normal-suit source and shared channel rules.</summary>
     private Bgr555 Expected(LoadingSuitColor slot) => slot switch
     {
-        LoadingSuitColor.PowerDim1 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb6d), 2),
-        LoadingSuitColor.PowerDim2 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb6f), 2),
-        LoadingSuitColor.PowerBright9 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb7d), 0),
-        LoadingSuitColor.PowerDim12 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb83), 2),
-        LoadingSuitColor.VariaBright10 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce5), 0),
-        LoadingSuitColor.VariaBright11 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce7), 0)
+        LoadingSuitColor.PowerDim1 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.PowerDim1)), 2),
+        LoadingSuitColor.PowerDim2 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.PowerDim2)), 2),
+        LoadingSuitColor.PowerBright9 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.PowerBright9)), 0),
+        LoadingSuitColor.PowerDim12 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.PowerDim12)), 2),
+        LoadingSuitColor.VariaBright10 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.VariaBright10)), 0),
+        LoadingSuitColor.VariaBright11 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.VariaBright11)), 0)
             .WithBlue(variaBright10.Apply(Expected(LoadingSuitColor.VariaBright10)).Blue),
-        LoadingSuitColor.VariaDim12 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce9), 2),
-        LoadingSuitColor.GravityDim2 => LoadingPaletteColorDefinitions.TintColor(Normal(0xde3b), 2),
+        LoadingSuitColor.VariaDim12 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.VariaDim12)), 2),
+        LoadingSuitColor.GravityDim2 => LoadingPaletteColorDefinitions.TintColor(Normal(LoadingPaletteColorDefinitions.NormalSource(LoadingSuitColor.GravityDim2)), 2),
         _ => throw new InvalidOperationException($"Undefined loading suit color {slot}."),
     };
 

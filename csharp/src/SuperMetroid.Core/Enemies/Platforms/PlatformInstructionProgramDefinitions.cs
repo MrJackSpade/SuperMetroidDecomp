@@ -81,4 +81,7 @@ internal abstract class PlatformInstructionProgramDefinitions
         throw new InvalidDataException(
             $"Tripper/Kamer instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
+
+    /// <summary>A visual operand's byte offset from the first (Kamer moving-left) program.</summary>
+    internal static int KamerOperandOffset(ushort operandAddress) => operandAddress - KamerMovingLeft;
 }

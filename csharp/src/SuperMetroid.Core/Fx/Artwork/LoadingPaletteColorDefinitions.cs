@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Artwork;
+
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Calculated repeated-row identities in the three suit-loading palettes.</summary>
@@ -129,6 +131,20 @@ public static class LoadingPaletteColorDefinitions
         int blue = Math.Min(31, original.Blue + 30 - 10 * shade);
         return new(original.Red, green, blue);
     }
+
+    /// <summary>The normal-suit color word ($9B bank) each calculated loading tint endpoint derives from.</summary>
+    internal static ushort NormalSource(LoadingSuitColor slot) => slot switch
+    {
+        LoadingSuitColor.PowerDim1 => 0xdb6d,
+        LoadingSuitColor.PowerDim2 => 0xdb6f,
+        LoadingSuitColor.PowerBright9 => 0xdb7d,
+        LoadingSuitColor.PowerDim12 => 0xdb83,
+        LoadingSuitColor.VariaBright10 => 0xdce5,
+        LoadingSuitColor.VariaBright11 => 0xdce7,
+        LoadingSuitColor.VariaDim12 => 0xdce9,
+        LoadingSuitColor.GravityDim2 => 0xde3b,
+        _ => throw new ArgumentOutOfRangeException(nameof(slot), slot, "Not a calculated loading tint endpoint."),
+    };
 
     /// <summary>Applies the three saturating loading tint levels to one RGB5 input.</summary>
     /// <remarks>Shade0..2 runs bright to dim. Green=max(0,15-10*shade),

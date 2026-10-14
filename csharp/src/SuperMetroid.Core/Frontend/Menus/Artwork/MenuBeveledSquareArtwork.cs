@@ -14,17 +14,17 @@ internal sealed class MenuBeveledSquareArtwork
     /// <summary>Only source pixels differing from the calculated square are retained.</summary>
     internal readonly Dictionary<int, byte>? edits;
     /// <summary>Restricts lookup to the menu's $98 and $99 square cells.</summary>
-    internal static bool Contains(int tile) => tile is 0x98 or 0x99;
+    internal static bool Contains(int tile) => Enum.IsDefined((MenuBeveledSquareCell)tile);
 
     /// <summary>Scans both source cells and keeps independent pixel edits outside the stock role-based colors.</summary>
     internal MenuBeveledSquareArtwork(IndexedPngImage image)
     {
-        for (int tile = 0x98; tile <= 0x99; tile++)
+        foreach (int tile in Enum.GetValues<MenuBeveledSquareCell>().Select(cell => (int)cell))
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
             byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
-            if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+            if (pixel != Basis((MenuBeveledSquareCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
         }
     }
 
@@ -32,14 +32,14 @@ internal sealed class MenuBeveledSquareArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
+        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis((MenuBeveledSquareCell)tile, point);
     }
 
     /// <summary>Calculates the six-by-six inset with bottom/right shadow precedence at the corners.</summary>
-    private static byte Basis(int tile, Position16<CharacterPixels> point)
+    private static byte Basis(MenuBeveledSquareCell cell, Position16<CharacterPixels> point)
     {
         if (point.X is 0 or 7 || point.Y is 0 or 7) return 0;
-        (byte face, byte highlight, byte shadow) = tile == 0x98 ? ((byte)11, (byte)14, (byte)12) : ((byte)10, (byte)9, (byte)7);
+        (byte face, byte highlight, byte shadow) = cell == MenuBeveledSquareCell.Light ? ((byte)11, (byte)14, (byte)12) : ((byte)10, (byte)9, (byte)7);
         if (point.X == 6 || point.Y == 6) return shadow;
         return point.X == 1 || point.Y == 1 ? highlight : face;
     }

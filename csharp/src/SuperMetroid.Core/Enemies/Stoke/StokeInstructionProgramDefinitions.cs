@@ -73,4 +73,7 @@ internal abstract class StokeInstructionProgramDefinitions
         throw new InvalidDataException(
             $"Stoke instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
+
+    /// <summary>A visual operand's byte offset from the first (moving-left) program.</summary>
+    internal static int OperandOffset(ushort operandAddress) => operandAddress - MovingLeft;
 }

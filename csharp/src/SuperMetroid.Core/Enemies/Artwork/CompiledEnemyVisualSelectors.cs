@@ -41,27 +41,29 @@ internal static partial class CompiledEnemyVisualSelectors
     ];
 
     /// <summary>Recognizes operands whose visual target is computed from a compiled instruction family.</summary>
-    internal static bool IsCalculatedSelector(int address) => (SnesAddressMath.BankNumber(address)) switch
+    internal static bool IsCalculatedSelector(int address) =>
+        Enum.IsDefined((EnemyInstructionBank)SnesAddressMath.BankNumber(address)) &&
+        (EnemyInstructionBank)SnesAddressMath.BankNumber(address) switch
     {
-        0x86 => BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        0xa2 => ShutterVisualDefinitions.IsPresentationWord((ushort)address) || BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address) || VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address),
-        0xa3 => ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
+        EnemyInstructionBank.Bank86 => BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        EnemyInstructionBank.BankA2 => ShutterVisualDefinitions.IsPresentationWord((ushort)address) || BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address) || VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address),
+        EnemyInstructionBank.BankA3 => ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        EnemyInstructionBank.BankA6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        0xa7 => PhantoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        0xa8 => BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
+        EnemyInstructionBank.BankA7 => PhantoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        EnemyInstructionBank.BankA8 => BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        _ => false,
+        _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${SnesAddressMath.BankNumber(address):X2}."),
     };
     /// <summary>Resolves special and calculated sprite operands, then searches literal bank entries.</summary>
     internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)
     {
-        if (bank == 0xa2 && operandAddress == PolypInstructionProgramDefinitions.PresentationWord)
+        if ((EnemyInstructionBank)bank == EnemyInstructionBank.BankA2 && PolypInstructionProgramDefinitions.IsPresentationWord(operandAddress))
         {
             pointer = PolypInstructionProgramDefinitions.FrameAt(operandAddress);
             return true;
         }
-        if (bank == 0x86 && operandAddress == PolypRockInstructionProgramDefinitions.PresentationWord)
+        if ((EnemyInstructionBank)bank == EnemyInstructionBank.Bank86 && PolypRockInstructionProgramDefinitions.IsPresentationWord(operandAddress))
         {
             pointer = PolypRockInstructionProgramDefinitions.FrameAt(operandAddress);
             return true;
@@ -69,25 +71,25 @@ internal static partial class CompiledEnemyVisualSelectors
         int key = ((int)new SnesAddress(bank, operandAddress));
         if (IsCalculatedSelector(key))
         {
-            pointer = bank switch
+            pointer = (EnemyInstructionBank)bank switch
             {
-                0x86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord(operandAddress)
+                EnemyInstructionBank.Bank86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(operandAddress)
                     : BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemyProjectileSpritemapDefinitions.BombTorizoDroolFrameAt(operandAddress)
                     : BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(operandAddress)
                     : EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operandAddress),
-                0xa2 => ShutterVisualDefinitions.IsPresentationWord(operandAddress) ? ShutterVisualDefinitions.PointerAt(operandAddress)
+                EnemyInstructionBank.BankA2 => ShutterVisualDefinitions.IsPresentationWord(operandAddress) ? ShutterVisualDefinitions.PointerAt(operandAddress)
                     : VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.KamerPlatformFrameAt(operandAddress) : EnemySpritemapDefinitions.BoyonFrameAt(operandAddress),
-                0xa3 => PlatformInstructionProgramDefinitions.IsPresentationWord(operandAddress)
+                EnemyInstructionBank.BankA3 => PlatformInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? TripperKamerVisualDefinitions.FrameAt(operandAddress) : EnemySpritemapDefinitions.ElevatorFrameAt(operandAddress),
-                0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord(operandAddress)
+                EnemyInstructionBank.BankA6 => BoulderInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)
                     : KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operandAddress),
-                0xa7 => PhantoonInstructionProgramDefinitions.FrameAt(operandAddress),
-                _ => FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress)
+                EnemyInstructionBank.BankA7 => PhantoonInstructionProgramDefinitions.FrameAt(operandAddress),
+                EnemyInstructionBank.BankA8 => FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)
                     : AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.AlcoonFrameAt(operandAddress)
@@ -96,6 +98,7 @@ internal static partial class CompiledEnemyVisualSelectors
                     : BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operandAddress)
                     : EnemySpritemapDefinitions.AtomicFrameAt(operandAddress),
+                _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${bank:X2}."),
             };
             return true;
         }

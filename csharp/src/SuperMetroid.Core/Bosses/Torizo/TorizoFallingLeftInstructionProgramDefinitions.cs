@@ -47,4 +47,7 @@ internal abstract class TorizoFallingLeftInstructionProgramDefinitions
         Op((ushort)CommonEnemyInstruction.Goto, BombTorizoWalkingLeftLeg));
     /// <summary>Locates a separately installed frame operand within the compiled falling-left program.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+
+    /// <summary>Whether <paramref name="pointer"/> is the falling-left pose's frame.</summary>
+    internal static bool IsFallingFrame(ushort pointer) => pointer == FallingFrame;
 }

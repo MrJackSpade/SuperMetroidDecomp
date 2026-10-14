@@ -15,4 +15,7 @@ public static class WorldMapVramLayout
     public static readonly PpuLayoutCell Background = new(nameof(Background), PpuLayoutRegion.Vram,
         WorldMapArtworkFormat.BackgroundDestination / sizeof(ushort), WorldMapArtworkFormat.BackgroundBytes / sizeof(ushort),
         "2-bpp BG characters", PpuMemoryLayout.Vram);
+
+    /// <summary>Menu BG3 character base in byte-addressed VRAM, BG34NBA=$04.</summary>
+    internal const int BackgroundByteAddress = 0x8000;
 }

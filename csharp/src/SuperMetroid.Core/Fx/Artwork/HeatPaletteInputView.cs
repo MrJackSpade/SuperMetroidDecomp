@@ -36,10 +36,10 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
     internal HeatPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
-        Bgr555 red = colors[0xe55c];
-        Bgr555 mixed = colors[0xe55e];
-        Bgr555 redBase = ReadBase(0xe46e);
-        Bgr555 mixedBase = ReadBase(0xe470);
+        Bgr555 red = colors[(ushort)HeatPaletteEndpoint.Red];
+        Bgr555 mixed = colors[(ushort)HeatPaletteEndpoint.Mixed];
+        Bgr555 redBase = ReadBase(HeatPaletteColorDefinitions.RedEndpointBase);
+        Bgr555 mixedBase = ReadBase(HeatPaletteColorDefinitions.MixedEndpointBase);
         redTarget = red.Red;
         mixedRedTarget = mixed.Red;
         mixedGreenTarget = mixed.Green;
@@ -47,8 +47,8 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
         blueOverride = red.Blue == redBase.Blue ? null : red.Blue;
         int calculatedBlue = mixedBase.Blue + mixedGreenTarget - mixedBase.Green;
         mixedBlueOverride = mixed.Blue == calculatedBlue ? null : mixed.Blue;
-        colors.Remove(0xe55c);
-        colors.Remove(0xe55e);
+        colors.Remove((ushort)HeatPaletteEndpoint.Red);
+        colors.Remove((ushort)HeatPaletteEndpoint.Mixed);
     }
 
     /// <summary>Resolves a base suit color from installed entries or its compiled loading-palette alias.</summary>
@@ -63,15 +63,15 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
     /// <summary>Reconstructs $E55C/$E55E from selected channels and live base colors, or reads another installed entry.</summary>
     public bool TryGetValue(ushort pointer, out Bgr555 value)
     {
-        if (pointer == 0xe55c)
+        if ((HeatPaletteEndpoint)pointer == HeatPaletteEndpoint.Red)
         {
-            Bgr555 original = ReadBase(0xe46e);
+            Bgr555 original = ReadBase(HeatPaletteColorDefinitions.RedEndpointBase);
             value = new(redTarget, greenOverride ?? original.Green, blueOverride ?? original.Blue);
             return true;
         }
-        if (pointer == 0xe55e)
+        if ((HeatPaletteEndpoint)pointer == HeatPaletteEndpoint.Mixed)
         {
-            Bgr555 original = ReadBase(0xe470);
+            Bgr555 original = ReadBase(HeatPaletteColorDefinitions.MixedEndpointBase);
             int blue = mixedBlueOverride ?? (original.Blue + mixedGreenTarget - original.Green);
             value = new(mixedRedTarget, mixedGreenTarget, blue);
             return true;
@@ -84,15 +84,15 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
     /// <summary>Installed entries plus the two calculated heat endpoints.</summary>
     public int Count => colors.Count + 2;
     /// <summary>Recognizes either calculated endpoint or a remaining installed pointer.</summary>
-    public bool ContainsKey(ushort key) => key is 0xe55c or 0xe55e || colors.ContainsKey(key);
+    public bool ContainsKey(ushort key) => Enum.IsDefined((HeatPaletteEndpoint)key) || colors.ContainsKey(key);
     /// <summary>Enumerates installed pointers followed by the two calculated endpoint pointers.</summary>
     public IEnumerable<ushort> Keys
     {
         get
         {
             foreach (ushort key in colors.Keys) yield return key;
-            yield return 0xe55c;
-            yield return 0xe55e;
+            yield return (ushort)HeatPaletteEndpoint.Red;
+            yield return (ushort)HeatPaletteEndpoint.Mixed;
         }
     }
     /// <summary>Resolves every current heat color in key-enumeration order.</summary>

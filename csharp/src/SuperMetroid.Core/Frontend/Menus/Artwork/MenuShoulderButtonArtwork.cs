@@ -18,21 +18,21 @@ internal sealed class MenuShoulderButtonArtwork
     /// <summary>Imported pixels that differ from the calculated button pill and selected glyphs.</summary>
     internal readonly Dictionary<int, byte>? edits;
     /// <summary>Recognizes the four menu-atlas tiles used by pressed L and R buttons.</summary>
-    internal static bool Contains(int tile) => tile is >= 0x28 and <= 0x2a or 0x2e;
+    internal static bool Contains(int tile) => Enum.IsDefined((MenuShoulderButtonCell)tile);
 
     /// <summary>Reads the authored L/R glyphs, then keeps only differences from the rounded pill calculation.</summary>
     internal MenuShoulderButtonArtwork(IndexedPngImage image)
     {
-        leftLetter = ReadLetter(0x29);
-        rightLetter = ReadLetter(0x2e);
-        for (int tile = 0x28; tile <= 0x2e; tile++)
+        leftLetter = ReadLetter((int)MenuShoulderButtonCell.L);
+        rightLetter = ReadLetter((int)MenuShoulderButtonCell.R);
+        foreach (int tile in Enum.GetValues<MenuShoulderButtonCell>().Select(cell => (int)cell))
         {
             if (!Contains(tile)) continue;
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
             {
                 byte pixel = Source(tile, x, y);
-                if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+                if (pixel != Basis((MenuShoulderButtonCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
             }
         }
         ushort ReadLetter(int tile)
@@ -50,19 +50,25 @@ internal sealed class MenuShoulderButtonArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
+        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis((MenuShoulderButtonCell)tile, point);
     }
 
     /// <summary>Composes a glyph mask with the shared 24-by-seven pill outline and shaded edge.</summary>
-    private byte Basis(int tile, Position16<CharacterPixels> point)
+    private byte Basis(MenuShoulderButtonCell cell, Position16<CharacterPixels> point)
     {
         if (point.Y == 7) return 0;
-        if (tile is 0x29 or 0x2e && point.X is >= 2 and <= 5 && point.Y is >= 1 and <= 4)
+        if (cell is MenuShoulderButtonCell.L or MenuShoulderButtonCell.R && point.X is >= 2 and <= 5 && point.Y is >= 1 and <= 4)
         {
-            ushort glyph = tile == 0x29 ? leftLetter : rightLetter;
+            ushort glyph = cell == MenuShoulderButtonCell.L ? leftLetter : rightLetter;
             if ((glyph & (1 << ((point.Y - 1) * 4 + point.X - 2))) != 0) return 4;
         }
-        int position = point.X + (tile == 0x28 ? 0 : tile == 0x2a ? 16 : 8);
+        int position = point.X + cell switch
+        {
+            MenuShoulderButtonCell.LeftEdge => 0,
+            MenuShoulderButtonCell.RightEdge => 16,
+            MenuShoulderButtonCell.L or MenuShoulderButtonCell.R => 8,
+            _ => throw new ArgumentOutOfRangeException(nameof(cell), cell, "Not a pressed-button cell."),
+        };
         int left = Inset(point.Y), right = 23 - left;
         if (point.Y == 6) right = Math.Max(right, 23 - Inset(point.Y - 1) - 1);
         if (position < left || position > right) return 0;

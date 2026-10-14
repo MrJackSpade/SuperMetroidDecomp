@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>$82:CAE9: first 24x24 helmet block begins at tileD0; three adjacent three-tile-wide poses share its atlas rows.</summary>
-    private const int FirstBodyTile = 0xd0;
+    private const int FirstBodyTile = FileSelectPresentationDefinitions.HelmetFirstBodyCell;
     /// <summary>$82:CB2B: first two-tile visor strip begins atD9, with consecutive pairs packed into available atlas columns.</summary>
-    private const int FirstVisorTile = 0xd9;
+    private const int FirstVisorTile = FileSelectPresentationDefinitions.HelmetFirstVisorCell;
     /// <summary>$82:CAE9-CBCA: each body pose is three8pixel tiles square, composed from four overlapping16pixel OBJs.</summary>
     private const int BodyTileSide = 3;
     /// <summary>$82:CB2B-CBCA: selected visor overlay top lies two pixels above the shared helmet anchor.</summary>

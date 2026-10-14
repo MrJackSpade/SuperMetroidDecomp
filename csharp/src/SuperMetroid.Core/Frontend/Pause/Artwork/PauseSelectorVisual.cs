@@ -33,12 +33,13 @@ internal sealed class PauseSelectorVisual
     private static CompiledSpritePart Part(int group, int index)
     {
         if ((uint)index >= (uint)Count(group)) throw new ArgumentOutOfRangeException(nameof(index));
-        if (group == 0) return new(SnesSpritemapXWord.Create(-4, false), 0xfc, SnesObjAttributeWord.Create(0x46, 0, 3), true);
+        if (group == 0) return new(SnesSpritemapXWord.Create(-4, false), unchecked((byte)-4), SnesObjAttributeWord.Create(PauseSelectorDefinitions.CursorCell, 0, 3), true);
         int width = group == 1 ? 6 : 10;
         int cell = group == 1 ? BeamOrder[index] : EquipmentOrder[index];
         int column = cell % width, row = cell / width;
         int x = (group == 1 ? -16 : -36) + 8 * column;
-        int tile = column == width - 1 ? (row == 0 ? 0x5d : 0x5e) : column == 0 && row == 0 ? 0x5b : 0x5c;
+        int tile = column == width - 1 ? (row == 0 ? PauseSelectorDefinitions.GridTopRightCell : PauseSelectorDefinitions.GridRightCell)
+            : column == 0 && row == 0 ? PauseSelectorDefinitions.GridTopLeftCell : PauseSelectorDefinitions.GridCell;
         return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)(-4 + 8 * row)),
             SnesObjAttributeWord.Create(tile, 0, 3), true);
     }

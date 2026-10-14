@@ -371,7 +371,7 @@ public sealed class GameOptionsPresentation
     /// <summary>Validates an OAM origin, allowing hidden cursor X positions when requested.</summary>
     private static void ValidatePoint(Position16<OamPixels> point, string owner, bool allowOffscreenX)
     {
-        int maximumX = allowOffscreenX ? 0x1ff : byte.MaxValue;
+        int maximumX = allowOffscreenX ? SnesSpritemapXWord.OffsetFieldMaximum : byte.MaxValue;
         if (point.X < 0 || point.X > maximumX || (uint)point.Y > byte.MaxValue)
             throw new InvalidDataException(
                 $"Options {owner} requires X=0..{maximumX} and Y=0..255.");

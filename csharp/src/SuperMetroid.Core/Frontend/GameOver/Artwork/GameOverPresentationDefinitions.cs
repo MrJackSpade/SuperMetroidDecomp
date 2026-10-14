@@ -151,4 +151,13 @@ public static class GameOverPresentationDefinitions
         GameOverBabyPalette.OpenCry => "Baby.OpenCry",
         _ => throw new ArgumentOutOfRangeException(nameof(palette)),
     };
+
+    /// <summary>$82:CFF6: the closed Baby's sixteen-pixel cell.</summary>
+    internal const int ClosedBabyCell = 0x90;
+
+    /// <summary>$82:D004: the open Baby's sixteen-pixel cell.</summary>
+    internal const int OpenBabyCell = 0x9b;
+
+    /// <summary>$82:CFE0: the eight-pixel container-cap cell, reflected to form all four caps.</summary>
+    internal const int ContainerCapCell = 0x9a;
 }

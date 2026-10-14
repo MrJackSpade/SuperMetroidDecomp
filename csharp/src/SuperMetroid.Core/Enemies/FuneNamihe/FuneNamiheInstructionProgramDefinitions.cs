@@ -81,4 +81,7 @@ internal abstract class FuneNamiheInstructionProgramDefinitions
         throw new InvalidDataException(
             $"Fune/Namihe instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
+
+    /// <summary>Whether a Fune/Namihe visual operand belongs to Namihe's programs, which follow Fune's.</summary>
+    internal static bool IsNamiheOperand(ushort operandAddress) => operandAddress >= NamiheIdleLeft;
 }

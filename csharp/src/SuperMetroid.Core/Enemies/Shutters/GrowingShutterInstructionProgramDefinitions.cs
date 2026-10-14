@@ -37,4 +37,7 @@ internal abstract class GrowingShutterInstructionProgramDefinitions
         throw new InvalidDataException(
             $"Growing-shutter instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
+
+    /// <summary>The growing-shutter frame a visual operand selects; each frame is a six-byte record after the ten-pixel program's first word.</summary>
+    internal static int OperandFrame(ushort operandAddress) => (operandAddress - (TenPixels + 2)) / 6;
 }

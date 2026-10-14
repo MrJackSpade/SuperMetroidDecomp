@@ -54,7 +54,7 @@ internal static class TripperKamerVisualDefinitions
         if (!PlatformInstructionProgramDefinitions.IsPresentationWord(operandAddress))
             throw new InvalidDataException(
                 $"Tripper/Kamer visual operand $A3:{operandAddress:X4} is not compiled.");
-        int offset = operandAddress - PlatformInstructionProgramDefinitions.KamerMovingLeft;
+        int offset = PlatformInstructionProgramDefinitions.KamerOperandOffset(operandAddress);
         int program = offset / 22;
         int frame = (offset % 22 - 4) / 4;
         // Kamer maps have two OAM entries: 2 + 2*5 bytes each.

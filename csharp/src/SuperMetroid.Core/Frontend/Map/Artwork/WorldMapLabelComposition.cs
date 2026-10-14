@@ -56,7 +56,7 @@ internal sealed class WorldMapLabelComposition
         for (int index = 0; regular && index < parts.Length; index++)
         {
             var part = parts[index];
-            int tile = 0x6a + text[text.Length - 1 - index] - 'A';
+            int tile = WorldMapTileDefinitions.LabelLetterACell + text[text.Length - 1 - index] - 'A';
             regular = part is not null && part.OffsetX is >= -256 and <= 255 &&
                 part.OffsetY == VerticalOffset(id, index) && part.TileColumn == tile % 16 && part.TileRow == tile / 16 &&
                 part.Size == 8 && part.Priority == 3 && part.Palette is null && !part.FlipX && !part.FlipY;
@@ -81,7 +81,7 @@ internal sealed class WorldMapLabelComposition
         string text = Text(identity);
         for (int index = 0; index < text.Length; index++)
         {
-            int tile = 0x6a + text[text.Length - 1 - index] - 'A';
+            int tile = WorldMapTileDefinitions.LabelLetterACell + text[text.Length - 1 - index] - 'A';
             oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(HorizontalOffset(index, text.Length), false),
                 unchecked((byte)VerticalOffset(identity, index)),
                 SnesObjAttributeWord.Create(tile, 0, 3).WithPaletteBits(paletteBits), origin);

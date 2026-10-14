@@ -17,22 +17,22 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
         return supplied.CalculateIfMatching(new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(frame) - FirstNativeSpritemap));
     }
 
-    /// <summary>$82:C5D1 first menu missile spritemap identity34; playback order comes from82:BAB2, not atlas ordering.</summary>
-    private const int FirstNativeSpritemap = 0x34;
+    /// <summary>The first menu missile spritemap identity (<see cref="MenuMissileAnimationDefinitions.FirstNativeSpritemap"/>).</summary>
+    private const int FirstNativeSpritemap = MenuMissileAnimationDefinitions.FirstNativeSpritemap;
     /// <summary>$82:CBCB: first missile pose left tileDF and right tileEF.</summary>
     private const int FirstLeftTile = SecondLeftTile + 1 - MapSpriteFormat.TileColumns;
     /// <summary>$82:CBCB: right tile $EF of the first missile pose.</summary>
     private const int FirstRightTile = SecondLeftTile + 1;
     /// <summary>$82:CBD7: second missile pose left tileEE is the top-left of the EE/EF/FE/FF two-by-two atlas block.</summary>
-    private const int SecondLeftTile = 0xee;
+    private const int SecondLeftTile = MenuMissileAnimationDefinitions.SecondPoseLeftCell;
     /// <summary>$82:CBD7/CBEF: selected right tileFF shared by second and final missile poses.</summary>
     private const int SharedRightTile = SecondLeftTile + MapSpriteFormat.TileColumns + 1;
     /// <summary>$82:CBE3: third missile pose left tileFE and right tileCC.</summary>
     private const int ThirdLeftTile = SecondLeftTile + MapSpriteFormat.TileColumns;
     /// <summary>$82:CBE3: right tile $CC of the third missile pose.</summary>
-    private const int ThirdRightTile = 0xcc;
+    private const int ThirdRightTile = MenuMissileAnimationDefinitions.ThirdPoseRightCell;
     /// <summary>$82:CBEF: final missile pose left tileC8; native part order is left then right.</summary>
-    private const int FinalLeftTile = 0xc8;
+    private const int FinalLeftTile = MenuMissileAnimationDefinitions.FinalPoseLeftCell;
     /// <summary>Each selection missile pose uses two eight-pixel OBJ parts.</summary>
     public int Count => 2;
     /// <summary>Calculates the left or right tile and centered offset for one native missile pose, honoring its frame-specific part order.</summary>

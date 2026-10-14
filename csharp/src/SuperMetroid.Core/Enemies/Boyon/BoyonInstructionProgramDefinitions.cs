@@ -41,4 +41,7 @@ internal abstract class BoyonInstructionProgramDefinitions
         throw new InvalidDataException(
             $"Boyon instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
+
+    /// <summary>Whether a visual operand belongs to the bouncing program, which follows the idle program.</summary>
+    internal static bool IsBouncingOperand(ushort operandAddress) => operandAddress >= Bouncing;
 }

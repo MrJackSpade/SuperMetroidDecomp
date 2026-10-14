@@ -34,4 +34,7 @@ internal abstract class VerticalShutterInstructionProgramDefinitions
         throw new InvalidDataException(
             $"Vertical-shutter instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
+
+    /// <summary>The Kamer platform animation frame a visual operand selects; each frame is a four-byte duration/operand pair after the program's first word.</summary>
+    internal static int KamerOperandFrame(ushort operandAddress) => (operandAddress - (KamerPlatform + 2)) / 4;
 }

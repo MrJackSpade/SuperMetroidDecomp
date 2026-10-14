@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 internal sealed class MapObjectTileArtwork
 {
     /// <summary>$B6:C8E0..C9FF, menu tiles47..4F: six partial bars, empty, full and cap.</summary>
-    internal const int FirstReserveTile = 0x47, ReserveTileCount = 9;
+    internal const int FirstReserveTile = MapMarkerCellDefinitions.FirstReserveCell, ReserveTileCount = 9;
     /// <summary>$B6:CB60..CBDf, tiles5B..5E: selector left corner, horizontal line and right ends.</summary>
-    internal const int FirstHighlightTile = 0x5b, HighlightTileCount = 4;
+    internal const int FirstHighlightTile = MapMarkerCellDefinitions.FirstHighlightCell, HighlightTileCount = 4;
     /// <summary>Shared reserve cursor46 atB6:C8C0, reused in the left selector corner with swapped colors1/2.</summary>
-    private const int CursorTile = 0x46;
+    private const int CursorTile = MapMarkerCellDefinitions.ReserveCursorCell;
     /// <summary>Unmodeled OBJ characters retained as encoded 4bpp source data.</summary>
     internal readonly byte[] otherCharacters;
     /// <summary>Calculates menu's small-letter glyph characters.</summary>

@@ -14,9 +14,9 @@ public static class MapPresentationFormat
     /// <summary>Bit position 10 of the three-bit palette field, immediately above the ten-bit SNES BG character index.</summary>
     public const int PaletteShift = 10;
     /// <summary>$2000, SNES BG tile priority mask at bit 13, used when compiling an edited cell's priority attribute.</summary>
-    public const int PriorityBit = 0x2000;
+    public const int PriorityBit = SnesBgTilemapWord.PriorityMask;
     /// <summary>$4000, SNES BG character horizontal-mirror mask at bit 14, preserved when exporting or compiling map cells.</summary>
-    public const int FlipXBit = 0x4000;
+    public const int FlipXBit = (int)SnesTileFlipFlags.Horizontal;
     /// <summary>$8000, SNES BG character vertical-mirror mask at bit 15, preserved when exporting or compiling map cells.</summary>
-    public const int FlipYBit = 0x8000;
+    public const int FlipYBit = (int)SnesTileFlipFlags.Vertical;
 }

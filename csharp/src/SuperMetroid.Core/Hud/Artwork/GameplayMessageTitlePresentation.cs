@@ -160,7 +160,7 @@ public sealed class GameplayMessageTitlePresentation
     /// <summary>Recovers a supported title character from the tile portion of a BG3 word.</summary>
     internal static char DecodeGlyph(ushort word)
     {
-        ushort tile = (ushort)(word & 0x03ff);
+        ushort tile = (ushort)new SnesBgTilemapWord(word).CharacterIndex;
         if (GameplayMessageTitleDefinitions.IsLetterTile(tile))
             return (char)('A' + tile - GameplayMessageTitleDefinitions.FirstLetterTile);
         GameplayMessageTitleGlyph glyph = ClosedNativeWords.Decode<GameplayMessageTitleGlyph>(

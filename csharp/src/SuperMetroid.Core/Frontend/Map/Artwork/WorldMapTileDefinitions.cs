@@ -420,4 +420,7 @@ internal static class WorldMapTileDefinitions
         };
         return At(tile, selected.sx, selected.sy);
     }
+
+    /// <summary>$6A: the world-map label font's A cell; the letters follow alphabetically.</summary>
+    internal const int LabelLetterACell = 0x6a;
 }

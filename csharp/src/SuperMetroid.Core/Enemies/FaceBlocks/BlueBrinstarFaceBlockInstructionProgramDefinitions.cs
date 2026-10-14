@@ -35,4 +35,7 @@ internal abstract class BlueBrinstarFaceBlockInstructionProgramDefinitions
         if (address == Initial + 4) return (ushort)CommonEnemyInstruction.Sleep;
         throw new InvalidDataException($"Blue Brinstar face-block instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
+
+    /// <summary>A visual operand's byte offset from the first (Samus-left) program.</summary>
+    internal static int OperandOffset(ushort operandAddress) => operandAddress - SamusLeft;
 }

@@ -24842,6 +24842,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyInstructionBank",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyInstructionBank.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyPaletteSheet",
       "kind": "class",
       "scope": "product",
@@ -39322,14 +39335,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.ZebesPlanetBandAtlas",
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.ZebesPlanetBandCellDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/ZebesPlanetBandAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/ZebesPlanetBandCellDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -47261,6 +47274,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapMarkerCell",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapMarkerCell.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapMarkerCellDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapMarkerCellDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapMarkerGeometry",
       "kind": "static class",
       "scope": "product",
@@ -48113,6 +48152,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuAtlasCellDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuAtlasCellDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuAtlasCellRange",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuAtlasCellRange.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuBeveledSquareArtwork",
       "kind": "class",
       "scope": "product",
@@ -48156,6 +48221,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuBeveledSquareCell",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuBeveledSquareCell.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuBorderParts",
@@ -48229,6 +48307,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuCompactLetteringDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuCompactLetteringDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuCursorParts",
       "kind": "class",
       "scope": "product",
@@ -48298,6 +48389,58 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuLargeFontCellDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuLargeFontCellDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuLargeFontLetter",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuLargeFontLetter.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuLetteringStrip",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuLetteringStrip.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuPanelCell",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuPanelCell.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuPanelTileArtwork",
@@ -48422,6 +48565,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuShoulderButtonCell",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuShoulderButtonCell.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuShoulderHighlightArtwork",
       "kind": "class",
       "scope": "product",
@@ -48465,6 +48621,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuShoulderHighlightCell",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuShoulderHighlightCell.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuSmallFontArtwork",
@@ -48568,6 +48737,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuThinBorderCell",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Menus/Artwork/MenuThinBorderCell.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Menus.MenuMissileAnimationDefinitions",
@@ -50154,14 +50336,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Title.Artwork.PlanetZebesTitleAtlas",
+      "type": "SuperMetroid.Core.Frontend.Title.Artwork.PlanetZebesTitleGlyphDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/PlanetZebesTitleAtlas.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/PlanetZebesTitleGlyphDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -51066,6 +51248,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.Artwork.HeatPaletteEndpoint",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/Artwork/HeatPaletteEndpoint.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.HeatPaletteInputView",

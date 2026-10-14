@@ -104,7 +104,7 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         int x = -part.X.SignedOffset - size;
         return part with
         {
-            X = new SnesSpritemapXWord((ushort)((part.X.Raw & ~0x1ff) | (x & 0x1ff))),
+            X = part.X.WithOffset(x),
             Attributes = new SnesObjAttributeWord((ushort)(part.Attributes.Raw ^ (ushort)SnesTileFlipFlags.Horizontal)),
         };
     }

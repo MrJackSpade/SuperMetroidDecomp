@@ -95,4 +95,16 @@ internal abstract class BeetomInstructionProgramDefinitions
         return (drain <= 16 && drain % 4 == 0) ||
             (drain >= 18 && drain <= 30 && drain % 4 == 2) || drain is 34 or 36;
     }
+
+    /// <summary>Byte offset of the hop program within one facing's programs.</summary>
+    internal const int HopProgramOffset = HopLeft - CrawlingLeft;
+
+    /// <summary>Byte offset of the draining program within one facing's programs.</summary>
+    internal const int DrainingProgramOffset = DrainingLeft - CrawlingLeft;
+
+    /// <summary>Byte length of one facing's crawling, hop and draining programs.</summary>
+    internal const int FacingProgramsLength = CrawlingRight - CrawlingLeft;
+
+    /// <summary>A visual operand's byte offset from the first (crawling-left) program.</summary>
+    internal static int OperandOffset(ushort operandAddress) => operandAddress - CrawlingLeft;
 }

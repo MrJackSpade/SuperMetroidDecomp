@@ -78,4 +78,7 @@ internal abstract class RipperInstructionProgramDefinitions
         value = 0;
         return false;
     }
+
+    /// <summary>A Ripper 2 visual operand's byte offset from its moving-right program's first operand.</summary>
+    internal static int Ripper2OperandOffset(ushort operandAddress) => operandAddress - Ripper2MovingRight - 2;
 }

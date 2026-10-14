@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Native atlas anchors for the planet's rims, two-row bands, and edge patches.</summary>
-internal static class ZebesPlanetBandAtlas
+internal static class ZebesPlanetBandCellDefinitions
 {
     /// <summary>Tile00, northwest two-by-two small-cell patch, with empty top-left.</summary>
     internal const int Northwest = 0x00;

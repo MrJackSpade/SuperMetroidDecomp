@@ -14,19 +14,19 @@ internal sealed class MenuShoulderHighlightArtwork
     /// <summary>Only pixels differing from the calculated symmetric contour, keyed by tile and local pixel index.</summary>
     internal readonly Dictionary<int, byte>? edits;
     /// <summary>Admits only the four native shoulder-highlight tile identities.</summary>
-    internal static bool Contains(int tile) => tile is 0x3c or 0x3d or 0x43 or 0x51;
+    internal static bool Contains(int tile) => Enum.IsDefined((MenuShoulderHighlightCell)tile);
 
     /// <summary>Compares supplied tile pixels with the calculated contour and retains independently edited exceptions.</summary>
     internal MenuShoulderHighlightArtwork(IndexedPngImage image)
     {
-        for (int tile = 0x3c; tile <= 0x51; tile++)
+        foreach (int tile in Enum.GetValues<MenuShoulderHighlightCell>().Select(cell => (int)cell))
         {
             if (!Contains(tile)) continue;
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
             {
                 byte pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
-                if (pixel != Basis(tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
+                if (pixel != Basis((MenuShoulderHighlightCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
             }
         }
     }
@@ -35,14 +35,14 @@ internal sealed class MenuShoulderHighlightArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
+        return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis((MenuShoulderHighlightCell)tile, point);
     }
 
     /// <summary>Maps each tile-local pixel into the combined shoulder frame and computes its quadratic cutout edge.</summary>
-    private static byte Basis(int tile, Position16<CharacterPixels> point)
+    private static byte Basis(MenuShoulderHighlightCell cell, Position16<CharacterPixels> point)
     {
-        int row = point.Y + (tile is 0x43 or 0x51 ? 8 : 0);
-        int column = point.X + (tile is 0x3d or 0x43 ? 8 : 0);
+        int row = point.Y + (cell is MenuShoulderHighlightCell.BottomRight or MenuShoulderHighlightCell.BottomLeft ? 8 : 0);
+        int column = point.X + (cell is MenuShoulderHighlightCell.TopRight or MenuShoulderHighlightCell.BottomRight ? 8 : 0);
         if (row is 0 or 15 || column == 0) return 0;
         if (row is < 4 or > 12) return 6;
         int distance = row - 8;

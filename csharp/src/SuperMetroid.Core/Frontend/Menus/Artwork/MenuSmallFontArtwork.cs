@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 internal sealed class MenuSmallFontArtwork
 {
     /// <summary>Native starting tile and 41-tile span of the menu's small font in the shared sheet.</summary>
-    internal const int FirstTile = 0x60, TileCount = 41;
+    internal const int FirstTile = MenuAtlasCellDefinitions.SmallFontFirstCell, TileCount = 41;
     /// <summary>One eight-bit ink silhouette row per glyph row, extracted from selected index-14 pixels.</summary>
     internal readonly byte[] faces = new byte[TileCount * 8];
     /// <summary>Supplied pixels that differ from the calculated foreground/shadow rule, including authored B and K trims.</summary>

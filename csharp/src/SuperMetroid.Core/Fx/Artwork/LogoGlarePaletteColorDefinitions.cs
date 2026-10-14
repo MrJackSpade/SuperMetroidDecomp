@@ -18,7 +18,7 @@ internal static class LogoGlarePaletteColorDefinitions
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         frame = color = 0;
-        int offset = pointer - (PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FirstFramePointer + Bgr555.ByteCount);
+        int offset = PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorOffset(pointer);
         if ((uint)offset >= PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount *
             PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameByteCount) return false;
         int within = offset % PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameByteCount;

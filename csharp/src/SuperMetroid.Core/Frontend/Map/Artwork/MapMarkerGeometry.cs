@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
@@ -58,44 +59,44 @@ internal static class MapMarkerGeometry
             case MapSpriteId.ElevatorMaridia:
                 int column = 3 - index;
                 x = -8 + 8 * column; y = -8;
-                tile = id switch
+                tile = MenuCompactLetteringDefinitions.Strip(id switch
                 {
-                    MapSpriteId.ElevatorCrateria => column,
-                    MapSpriteId.ElevatorBrinstar => 4 + column,
-                    MapSpriteId.ElevatorNorfair => 0x10 + column + (column >= 1 ? 1 : 0),
-                    MapSpriteId.ElevatorMaridia => 0x15 + column + (column >= 2 ? 1 : 0),
+                    MapSpriteId.ElevatorCrateria => "CRATERIA",
+                    MapSpriteId.ElevatorBrinstar => "BRINSTAR",
+                    MapSpriteId.ElevatorNorfair => "NORFAIR",
+                    MapSpriteId.ElevatorMaridia => "MARIDIA",
                     _ => throw new ArgumentOutOfRangeException(nameof(id)),
-                };
+                }).OrderedCells[column];
                 break;
             case MapSpriteId.ElevatorWreckedShip:
                 bool bottom = index < 2;
                 int rowColumn = bottom ? 1 - index : 5 - index;
                 x = (bottom ? -4 : -12) + 8 * rowColumn; y = bottom ? 0 : -8;
-                tile = (bottom ? 0x44 : 0x53) + rowColumn;
+                tile = MenuCompactLetteringDefinitions.Strip(bottom ? "SHIP" : "WRECKED").OrderedCells[rowColumn];
                 break;
             case MapSpriteId.ArrowRight:
             case MapSpriteId.ArrowLeft:
-                x = -4; y = -7 * index; tile = 0x9e; priority = 3;
+                x = -4; y = -7 * index; tile = (int)MapMarkerCell.HorizontalArrowHalf; priority = 3;
                 flipX = id == MapSpriteId.ArrowLeft; flipY = index == 0;
                 break;
             case MapSpriteId.ArrowUp:
             case MapSpriteId.ArrowDown:
-                x = -1 - 7 * index; y = -4; tile = 0x9d; priority = 3;
+                x = -1 - 7 * index; y = -4; tile = (int)MapMarkerCell.VerticalArrowHalf; priority = 3;
                 flipX = index == 0; flipY = id == MapSpriteId.ArrowUp;
                 break;
             case MapSpriteId.MarkerGunship:
-                x = 4 - 8 * index; y = -2; tile = 0x8f; flipX = index == 0;
+                x = 4 - 8 * index; y = -2; tile = (int)MapMarkerCell.GunshipHalf; flipX = index == 0;
                 break;
             case MapSpriteId.MarkerDefeatedBoss:
                 flipX = index < 2; flipY = (index & 1) == 0;
-                x = flipX ? 3 : -4; y = flipY ? 4 : -4; tile = 0x9f;
+                x = flipX ? 3 : -4; y = flipY ? 4 : -4; tile = (int)MapMarkerCell.DefeatedBossCorner;
                 break;
             case MapSpriteId.IndicatorFrame0:
             case MapSpriteId.IndicatorFrame1:
             case MapSpriteId.IndicatorFrame2:
                 int radius = 4 + (id - MapSpriteId.IndicatorFrame0);
                 flipX = (index & 1) == 0; flipY = index < 2;
-                x = flipX ? radius : -radius; y = flipY ? radius : -radius; tile = 0xaf;
+                x = flipX ? radius : -radius; y = flipY ? radius : -radius; tile = (int)MapMarkerCell.IndicatorCorner;
                 break;
             case MapSpriteId.MarkerBoss:
             case MapSpriteId.StationEnergy:
@@ -111,11 +112,11 @@ internal static class MapMarkerGeometry
                 x = 1; y = 0;
                 tile = id switch
                 {
-                    MapSpriteId.MarkerBoss => 0x8a,
-                    MapSpriteId.StationEnergy => 0x8c,
-                    MapSpriteId.StationMissile => 0x8b,
-                    MapSpriteId.StationMap => 0x8e,
-                    MapSpriteId.IndicatorBacking => 0x89,
+                    MapSpriteId.MarkerBoss => (int)MapMarkerCell.Boss,
+                    MapSpriteId.StationEnergy => (int)MapMarkerCell.EnergyStation,
+                    MapSpriteId.StationMissile => (int)MapMarkerCell.MissileStation,
+                    MapSpriteId.StationMap => (int)MapMarkerCell.MapStation,
+                    MapSpriteId.IndicatorBacking => (int)MapMarkerCell.IndicatorBacking,
                     _ => throw new ArgumentOutOfRangeException(nameof(id)),
                 };
                 break;
@@ -127,29 +128,12 @@ internal static class MapMarkerGeometry
             SnesObjAttributeWord.Create(tile, 0, priority, flips), true);
     }
 
-    /// <summary>
-    /// Named glyph selection in the shared menu alphabet. Lower halves are one atlas row below
-    /// upper halves except P, whose top shares D's cell0D and bottom uses38, and T, whose stem
-    /// shares cell11. These are glyph-part aliases established from the original indexed pixels.
-    /// </summary>
+    /// <summary>A title letter's half in the shared large menu font (<see cref="MenuLargeFontCellDefinitions.Letters"/>).</summary>
     private static int TitleGlyphTile(char letter, bool top)
     {
-        if (!top && letter == 'P') return 0x38;
-        if (!top && letter == 'T') return 0x11;
-        int upper = letter switch
-        {
-            'A' => 0x0a,
-            'B' => 0x0b,
-            'E' => 0x0e,
-            'L' => 0x25,
-            'N' => 0x27,
-            'P' => 0x0d,
-            'S' => 0x2b,
-            'T' => 0x2c,
-            'Z' => 0x42,
-            _ => throw new ArgumentOutOfRangeException(nameof(letter)),
-        };
-        return upper + (top ? 0 : 16);
+        MenuLargeFontLetter glyph = MenuLargeFontCellDefinitions.Letters.TryGetValue(letter, out MenuLargeFontLetter found)
+            ? found : throw new ArgumentOutOfRangeException(nameof(letter), letter, "The large menu font has no such letter.");
+        return top ? glyph.Upper : glyph.Lower;
     }
 
     /// <summary>Checks whether editable parts retain the calculated native map-object geometry.</summary>

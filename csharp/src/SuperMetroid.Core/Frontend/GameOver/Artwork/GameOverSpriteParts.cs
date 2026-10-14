@@ -17,11 +17,11 @@ internal sealed class GameOverSpriteParts(string name) : IReadOnlyList<CompiledS
     }
 
     /// <summary>$82:CFF6: selected closed Baby sixteen-pixel tile90; the middle pose occupies the immediately adjacent two-tile-wide atlas region.</summary>
-    private const int ClosedBabyTile = 0x90;
+    private const int ClosedBabyTile = GameOverPresentationDefinitions.ClosedBabyCell;
     /// <summary>$82:D004: selected open Baby sixteen-pixel tile9B.</summary>
-    private const int OpenBabyTile = 0x9b;
+    private const int OpenBabyTile = GameOverPresentationDefinitions.OpenBabyCell;
     /// <summary>$82:CFE0: selected eight-pixel container-cap tile9A, reflected to form all four caps.</summary>
-    private const int ContainerCapTile = 0x9a;
+    private const int ContainerCapTile = GameOverPresentationDefinitions.ContainerCapCell;
     /// <summary>Selects the four-cap container arrangement instead of a single Baby pose.</summary>
     private bool Shell => name == GameOverPresentationDefinitions.EggFrame;
     /// <summary>Selects the authored tile identity for the requested Baby pose or shared cap.</summary>

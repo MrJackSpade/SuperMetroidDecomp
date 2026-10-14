@@ -23,6 +23,9 @@ internal abstract class PolypRockInstructionProgramDefinitions
     /// <summary>EnemyProjSpritemaps_LavaquakeRocks at $8D:9340, selected by $86:BBD7.</summary>
     internal const ushort Spritemap = 0x9340;
 
+    /// <summary>Whether <paramref name="operandAddress"/> is the lava rock's visual operand.</summary>
+    internal static bool IsPresentationWord(ushort operandAddress) => operandAddress == PresentationWord;
+
     /// <summary>Resolves the lone bank-$86 lava-rock visual operand to its bank-$8D spritemap.</summary>
     internal static ushort FrameAt(ushort operandAddress) => operandAddress == PresentationWord
         ? Spritemap

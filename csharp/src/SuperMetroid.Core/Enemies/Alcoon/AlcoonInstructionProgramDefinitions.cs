@@ -95,4 +95,7 @@ internal abstract class AlcoonInstructionProgramDefinitions
         };
         return value != 0;
     }
+
+    /// <summary>A visual operand's byte offset from the first (walking-left) program.</summary>
+    internal static int OperandOffset(ushort operandAddress) => operandAddress - WalkingLeft;
 }

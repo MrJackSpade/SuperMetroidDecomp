@@ -24,4 +24,7 @@ internal abstract class ElevatorInstructionProgramDefinitions
         throw new InvalidDataException(
             $"Elevator instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
+
+    /// <summary>The elevator animation frame a visual operand selects; each frame is a four-byte duration/operand pair after the loop's first word.</summary>
+    internal static int OperandFrame(ushort operandAddress) => (operandAddress - (Loop + 2)) / 4;
 }

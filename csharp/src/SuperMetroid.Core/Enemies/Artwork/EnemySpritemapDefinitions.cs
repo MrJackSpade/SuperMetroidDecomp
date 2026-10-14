@@ -1973,7 +1973,7 @@ internal static class EnemySpritemapDefinitions
         if (!FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress))
             throw new InvalidDataException(
                 $"Fune/Namihe visual operand $A8:{operandAddress:X4} is not compiled.");
-        bool namihe = operandAddress >= FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft;
+        bool namihe = FuneNamiheInstructionProgramDefinitions.IsNamiheOperand(operandAddress);
         int stride = namihe ? 52 : 48;
         int offset = operandAddress - (namihe ? FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft
             : FuneNamiheInstructionProgramDefinitions.FuneIdleLeft);
@@ -1991,7 +1991,7 @@ internal static class EnemySpritemapDefinitions
         if (!VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord(operandAddress))
             throw new InvalidDataException(
                 $"Kamer platform visual operand $A2:{operandAddress:X4} is not compiled.");
-        int frame = (operandAddress - (VerticalShutterInstructionProgramDefinitions.KamerPlatform + 2)) / 4;
+        int frame = VerticalShutterInstructionProgramDefinitions.KamerOperandFrame(operandAddress);
         return (ushort)(0xf468 + 12 * frame);
     }
     /// <summary>Two elevator maps in forward animation order. Each native map
@@ -2001,7 +2001,7 @@ internal static class EnemySpritemapDefinitions
         if (!ElevatorInstructionProgramDefinitions.IsPresentationWord(operandAddress))
             throw new InvalidDataException(
                 $"Elevator visual operand $A3:{operandAddress:X4} is not compiled.");
-        int frame = (operandAddress - (ElevatorInstructionProgramDefinitions.Loop + 2)) / 4;
+        int frame = ElevatorInstructionProgramDefinitions.OperandFrame(operandAddress);
         return (ushort)(0x962f + 22 * frame);
     }
     /// <summary>
@@ -2086,7 +2086,7 @@ internal static class EnemySpritemapDefinitions
     {
         if (AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress))
         {
-            int offset = operandAddress - AlcoonInstructionProgramDefinitions.WalkingLeft;
+            int offset = AlcoonInstructionProgramDefinitions.OperandOffset(operandAddress);
             int local = offset % 112;
             int pose = local switch
             {
@@ -2119,23 +2119,23 @@ internal static class EnemySpritemapDefinitions
     {
         if (BeetomInstructionProgramDefinitions.IsPresentationWord(operandAddress))
         {
-            int stride = BeetomInstructionProgramDefinitions.CrawlingRight - BeetomInstructionProgramDefinitions.CrawlingLeft;
-            int offset = operandAddress - BeetomInstructionProgramDefinitions.CrawlingLeft;
+            int stride = BeetomInstructionProgramDefinitions.FacingProgramsLength;
+            int offset = BeetomInstructionProgramDefinitions.OperandOffset(operandAddress);
             int local = offset % stride;
             int pose;
-            if (local < BeetomInstructionProgramDefinitions.HopLeft - BeetomInstructionProgramDefinitions.CrawlingLeft)
+            if (local < BeetomInstructionProgramDefinitions.HopProgramOffset)
             {
                 int frame = (local - 4) / 4;
                 pose = 2 - Math.Abs(2 - frame);
             }
-            else if (local < BeetomInstructionProgramDefinitions.DrainingLeft - BeetomInstructionProgramDefinitions.CrawlingLeft)
+            else if (local < BeetomInstructionProgramDefinitions.DrainingProgramOffset)
             {
-                int frame = (local - (BeetomInstructionProgramDefinitions.HopLeft - BeetomInstructionProgramDefinitions.CrawlingLeft) - 4) / 4;
+                int frame = (local - BeetomInstructionProgramDefinitions.HopProgramOffset - 4) / 4;
                 pose = frame == 3 ? 0 : 4 - Math.Abs(1 - frame);
             }
             else
             {
-                int drain = local - (BeetomInstructionProgramDefinitions.DrainingLeft - BeetomInstructionProgramDefinitions.CrawlingLeft);
+                int drain = local - BeetomInstructionProgramDefinitions.DrainingProgramOffset;
                 bool loop = drain >= 20;
                 int frame = (drain - (loop ? 20 : 2)) / 4;
                 pose = (loop ? 8 : 5) + 2 - Math.Abs(2 - frame);
@@ -2310,7 +2310,7 @@ internal static class EnemySpritemapDefinitions
     {
         if (BoyonInstructionProgramDefinitions.IsPresentationWord(operandAddress))
         {
-            bool bouncing = operandAddress >= BoyonInstructionProgramDefinitions.Bouncing;
+            bool bouncing = BoyonInstructionProgramDefinitions.IsBouncingOperand(operandAddress);
             int firstOperand = (bouncing ? BoyonInstructionProgramDefinitions.Bouncing : BoyonInstructionProgramDefinitions.Idle) + 6;
             int frame = (operandAddress - firstOperand) / 4;
             int peak = bouncing ? 3 : 2;

@@ -101,4 +101,7 @@ public static class PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
         };
         return value != 0;
     }
+
+    /// <summary>A color operand's byte offset from the first frame's first color, after the frame's leading command word.</summary>
+    internal static int ColorOffset(ushort pointer) => pointer - (FirstFramePointer + Bgr555.ByteCount);
 }

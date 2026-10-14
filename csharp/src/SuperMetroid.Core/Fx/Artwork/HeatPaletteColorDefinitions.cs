@@ -16,6 +16,12 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// review. Custom colors differing from the calculated alias remain explicit overrides.</remarks>
 internal static class HeatPaletteColorDefinitions
 {
+    /// <summary>$8D:E46E: the base heat color supplying <see cref="HeatPaletteEndpoint.Red"/>'s unselected channels.</summary>
+    internal const ushort RedEndpointBase = 0xe46e;
+
+    /// <summary>$8D:E470: the base heat color supplying <see cref="HeatPaletteEndpoint.Mixed"/>'s blue.</summary>
+    internal const ushort MixedEndpointBase = 0xe470;
+
     /// <summary>Maps repeated heat-frame words in any suit to their first equivalent paint row.</summary>
     internal static bool TryCanonicalPointer(ushort pointer, out ushort canonical)
         => TrySuit(pointer, PaletteFxHeatSuit.Power, out canonical) ||

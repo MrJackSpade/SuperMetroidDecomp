@@ -25,66 +25,66 @@ internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
             if (index == 0)
             {
                 // One small cell immediately left of the lower large-sprite band.
-                x = -48 - 8; y = 16; tile = ZebesPlanetBandAtlas.South - 1;
+                x = -48 - 8; y = 16; tile = ZebesPlanetBandCellDefinitions.South - 1;
             }
             else if (index < 4)
             {
                 // Three cells of the northwest two-by-two patch; top-left is empty.
                 int cell = 4 - index;
                 x = -48 + 8 * (cell % 2); y = -64 + 8 * (cell / 2);
-                tile = ZebesPlanetBandAtlas.Northwest + cell % 2 + 16 * (cell / 2);
+                tile = ZebesPlanetBandCellDefinitions.Northwest + cell % 2 + 16 * (cell / 2);
             }
             else if (index == 4)
             {
                 // Lower-left cell adjoining the northern large-sprite band.
-                x = -56 - 8; y = -48 + 8; tile = ZebesPlanetBandAtlas.North - 1 + 16;
+                x = -56 - 8; y = -48 + 8; tile = ZebesPlanetBandCellDefinitions.North - 1 + 16;
             }
             else if (index < 12)
             {
                 int column = 11 - index;
-                x = -40 + 8 * column; y = 32; tile = ZebesPlanetBandAtlas.BottomRim + column;
+                x = -40 + 8 * column; y = 32; tile = ZebesPlanetBandCellDefinitions.BottomRim + column;
             }
             else if (index < 15)
             {
                 int cell = 14 - index;
                 x = 16 + 8 * (cell % 2); y = 16 + 8 * (cell / 2);
-                tile = ZebesPlanetBandAtlas.Southeast + cell % 2 + 16 * (cell / 2);
+                tile = ZebesPlanetBandCellDefinitions.Southeast + cell % 2 + 16 * (cell / 2);
             }
             else if (index < 19)
             {
                 int column = 2 * (18 - index);
                 x = -48 + 8 * column; y = 16;
-                tile = ZebesPlanetBandAtlas.TwoRowStrip(ZebesPlanetBandAtlas.South, column);
+                tile = ZebesPlanetBandCellDefinitions.TwoRowStrip(ZebesPlanetBandCellDefinitions.South, column);
             }
             else if (index < 33)
             {
                 int band = (index - 19) / 7;
                 int column = Math.Min(2 * (6 - (index - 19) % 7), 11);
                 x = -64 + 8 * column; y = -16 * band;
-                tile = (band == 0 ? ZebesPlanetBandAtlas.Lower : ZebesPlanetBandAtlas.Upper) + column;
+                tile = (band == 0 ? ZebesPlanetBandCellDefinitions.Lower : ZebesPlanetBandCellDefinitions.Upper) + column;
             }
             else if (index < 40)
             {
                 int piece = 39 - index;
                 x = -64 + 8 * Math.Min(2 * piece, 11); y = -32;
-                tile = piece == 6 ? ZebesPlanetBandAtlas.UpperRightOverlap
-                    : ZebesPlanetBandAtlas.UpperShoulder + 2 * piece - (piece == 5 ? 1 : 0);
+                tile = piece == 6 ? ZebesPlanetBandCellDefinitions.UpperRightOverlap
+                    : ZebesPlanetBandCellDefinitions.UpperShoulder + 2 * piece - (piece == 5 ? 1 : 0);
             }
             else if (index == 40)
             {
                 // Bottom cell immediately to the right of the three-part top cap.
-                x = 16; y = -64 + 8; tile = ZebesPlanetBandAtlas.TopCap + 6 + 16;
+                x = 16; y = -64 + 8; tile = ZebesPlanetBandCellDefinitions.TopCap + 6 + 16;
             }
             else if (index < 47)
             {
                 int column = Math.Min(2 * (46 - index), 9);
                 x = -56 + 8 * column; y = -48;
-                tile = ZebesPlanetBandAtlas.TwoRowStrip(ZebesPlanetBandAtlas.North, column);
+                tile = ZebesPlanetBandCellDefinitions.TwoRowStrip(ZebesPlanetBandCellDefinitions.North, column);
             }
             else
             {
                 int column = 2 * (49 - index);
-                x = -32 + 8 * column; y = -64; tile = ZebesPlanetBandAtlas.TopCap + column;
+                x = -32 + 8 * column; y = -64; tile = ZebesPlanetBandCellDefinitions.TopCap + column;
             }
             return new(SnesSpritemapXWord.Create(x, large), unchecked((byte)y),
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);

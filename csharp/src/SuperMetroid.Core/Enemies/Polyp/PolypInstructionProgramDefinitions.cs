@@ -16,6 +16,9 @@ internal abstract class PolypInstructionProgramDefinitions
     /// <summary><c>Spritemap_Polyp</c> at $A2:B5FB, selected by the one stationary pose at $B51C.</summary>
     internal const ushort StationaryFrame = 0xb5fb;
 
+    /// <summary>Whether <paramref name="operandAddress"/> is the stationary pose's visual operand.</summary>
+    internal static bool IsPresentationWord(ushort operandAddress) => operandAddress == PresentationWord;
+
     /// <summary>Resolves only the stationary pose's compiled visual operand to its installed frame.</summary>
     internal static ushort FrameAt(ushort operandAddress) =>
         operandAddress == PresentationWord ? StationaryFrame

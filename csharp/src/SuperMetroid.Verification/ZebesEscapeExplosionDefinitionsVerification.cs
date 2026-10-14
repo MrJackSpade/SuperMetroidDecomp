@@ -1,6 +1,7 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.SpriteObjects;
 
 /// <summary>Checks the eight native Zebes escape explosion sprites and sound selectors in production spawning.</summary>
 internal static class ZebesEscapeExplosionDefinitionsVerification

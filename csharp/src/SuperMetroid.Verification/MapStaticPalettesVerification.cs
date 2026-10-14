@@ -1,11 +1,16 @@
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 using static MapPresentationVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks native pause and file-select map colors, visual overrides,
 /// and palette rebinding through live map and pause presentation.</summary>

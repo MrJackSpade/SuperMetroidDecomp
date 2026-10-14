@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidMouthHitboxesVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks Kraid mouth hitbox mappings and reads around the bank-$A7 low-half boundary.</summary>
 internal static class KraidMouthMappingsVerification

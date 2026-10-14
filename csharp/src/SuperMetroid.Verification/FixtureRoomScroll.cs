@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>Room scroll-zone writes a focused enemy fixture records (#633).</summary>
 internal sealed class FixtureRoomScroll(Action<int, RoomScrollState> write) : IRoomScrollZoneAccess

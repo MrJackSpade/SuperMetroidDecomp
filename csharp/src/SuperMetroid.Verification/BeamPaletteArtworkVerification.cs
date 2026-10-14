@@ -1,23 +1,16 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static Program;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BeamTileArtworkVerification;
 using static ProjectileCompositionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks beam palette extraction, live ownership, and editable color changes.</summary>
 internal static class BeamPaletteArtworkVerification

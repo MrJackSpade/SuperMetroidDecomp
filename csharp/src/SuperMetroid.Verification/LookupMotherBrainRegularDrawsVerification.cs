@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Mother Brain's regular room draw lists and their compiled shape descriptors.</summary>
 internal static class LookupMotherBrainRegularDrawsVerification

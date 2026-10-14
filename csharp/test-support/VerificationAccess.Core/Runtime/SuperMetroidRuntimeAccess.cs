@@ -1,8 +1,11 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Areas.Escape.Artwork;
+using SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Verification access to <see cref="SuperMetroidRuntime"/> members production does not use.</summary>
 internal static class SuperMetroidRuntimeAccess

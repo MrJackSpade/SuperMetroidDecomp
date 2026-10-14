@@ -1,7 +1,7 @@
 using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks that bundled station-reveal masks reject missing, corrupt, and structurally invalid authored map data.</summary>
 internal static class MapMaskValidationVerification

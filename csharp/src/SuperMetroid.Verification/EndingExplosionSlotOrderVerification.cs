@@ -1,11 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks ending flyaway OAM priority when the afterglow competes with both starfields.</summary>
 internal static class EndingExplosionSlotOrderVerification

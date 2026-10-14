@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Title.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -15,12 +15,15 @@ internal static class CinematicPresentationContractChecks
         var trees = CinematicClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<cinematic-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
-            using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Game;
-            using SuperMetroid.Core.Frontend;
+            using SuperMetroid.Core.Areas.Ceres;
+            using SuperMetroid.Core.Areas.Ceres.Artwork;
+            using SuperMetroid.Core.Areas.Escape;
+            using SuperMetroid.Core.Areas.Escape.Artwork;
+            using SuperMetroid.Core.Frontend.Intro.Artwork;
+            using SuperMetroid.Core.Frontend.Title;
+            using SuperMetroid.Core.Frontend.Title.Artwork;
             using SuperMetroid.Core.Hardware;
             class CinematicConsumer {
                 void Inspect(TitlePalettePresentation palette, TitleGradientPresentation gradient,
@@ -83,7 +86,7 @@ internal static class CinematicPresentationContractChecks
             "blank timed entries and arbitrary pointers must not be accepted as loaded title compositions");
 
         SyntaxTree externalUse = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Areas.Escape.Artwork;
             class ExternalTimerAnchors {
                 void Change() { EscapeTimerPresentationDefinitions.AnchorNames[0] = "Absent.Anchor"; }
             }

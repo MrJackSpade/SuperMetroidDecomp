@@ -1,9 +1,13 @@
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks reported Kraid head, nail, lint, and body collision behavior.</summary>
 internal static class KraidReportedCollisionsVerification

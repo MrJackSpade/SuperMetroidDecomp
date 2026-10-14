@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Validates typed library background commands against the native bank $8F byte stream.</summary>
 internal static class LibraryBackgroundProgramsVerification

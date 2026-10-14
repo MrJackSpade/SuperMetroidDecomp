@@ -20,8 +20,9 @@ internal static class ConsumerAudit
         var closedProviders = new ClosedPresentationAudit(compilation, exports);
         foreach (SyntaxTree tree in compilation.SyntaxTrees)
         {
-            // Catalog implementation is the provider, not a gameplay consumer.
-            if (tree.FilePath.Contains("/Assets/", StringComparison.Ordinal) || tree.FilePath.StartsWith('<')) continue;
+            // Catalog implementation is the provider, not a gameplay consumer: the shared Assets module and each
+            // domain's Artwork module (#626).
+            if (IsArtworkLayer(tree.FilePath) || tree.FilePath.StartsWith('<')) continue;
             SemanticModel semantic = compilation.GetSemanticModel(tree);
             foreach (ClassDeclarationSyntax declaration in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
                 operands.Inspect(declaration, semantic);
@@ -40,7 +41,7 @@ internal static class ConsumerAudit
 
     /// <summary>A Core program owner's runtime type, or the development type it moved to whole.</summary>
     internal static Type? ProgramOwnerType(string fullName) =>
-        typeof(SuperMetroid.Core.Game.RoomEnemySystem).Assembly.GetType(fullName) ?? typeof(ToolingTypes).Assembly.GetType(fullName);
+        typeof(SuperMetroid.Core.Enemies.RoomEnemySystem).Assembly.GetType(fullName) ?? typeof(ToolingTypes).Assembly.GetType(fullName);
 
     /// <summary>Parses Core and its tooling mirror with SDK implicit usings for semantic source inspection.</summary>
     internal static CSharpCompilation CreateCompilation(string root)
@@ -111,11 +112,17 @@ internal static class ConsumerAudit
         report.Consumers.Add(new(owner, source,             exports.Contains(domain, key) ? "resolved" : "missing"));
     }
 
-    /// <summary>Recognizes asset and room presentation types that may consume installed resources.</summary>
+    /// <summary>Whether a source file belongs to the artwork layer: the shared Assets module or a domain's Artwork module.</summary>
+    internal static bool IsArtworkLayer(string path) =>
+        path.Contains("/Assets/", StringComparison.Ordinal) || path.Contains("/Artwork/", StringComparison.Ordinal);
+
+    /// <summary>Recognizes the artwork-layer and room presentation types that may consume installed resources.</summary>
     private static bool IsResourceType(ITypeSymbol type)
     {
-        string space = type.ContainingNamespace.ToDisplayString();
-        return (space == "SuperMetroid.Core.Assets" || space == "SuperMetroid.Core.Rooms") &&
+        // Arrays, pointers and type parameters have no namespace and are not resource types.
+        return type.ContainingNamespace?.ToDisplayString() is { } space &&
+            (space == "SuperMetroid.Core.Assets" || space == "SuperMetroid.Core.Rooms" || space.StartsWith("SuperMetroid.Core.Rooms.", StringComparison.Ordinal) ||
+             space.EndsWith(".Artwork", StringComparison.Ordinal)) &&
             (type.Name.EndsWith("Catalog", StringComparison.Ordinal) ||
              type.Name.EndsWith("Presentation", StringComparison.Ordinal) ||
              type.Name.EndsWith("ColorSource", StringComparison.Ordinal) ||

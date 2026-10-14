@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Retail oracle checks for both paired Torizo jump-back instruction lists and their selected collision geometry.</summary>
 internal static class TorizoJumpBackDefinitionsVerification

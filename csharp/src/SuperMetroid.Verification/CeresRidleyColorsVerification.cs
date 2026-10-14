@@ -1,12 +1,15 @@
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks Ceres and Norfair Ridley palette installation against native CGRAM rows.</summary>
 internal static class CeresRidleyColorsVerification

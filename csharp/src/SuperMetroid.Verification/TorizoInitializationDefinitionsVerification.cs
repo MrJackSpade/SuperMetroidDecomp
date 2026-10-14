@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks both Torizo wake records and their use by the actual enemy initializer.</summary>
 internal static class TorizoInitializationDefinitionsVerification

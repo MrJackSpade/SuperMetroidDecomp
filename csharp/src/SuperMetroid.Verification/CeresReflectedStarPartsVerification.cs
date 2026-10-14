@@ -1,6 +1,8 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks the reflected vortex stars against source stars and paired artwork edits.</summary>
 internal static class CeresReflectedStarPartsVerification

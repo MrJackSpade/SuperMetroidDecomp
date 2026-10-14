@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks compiled Mother Brain glass PLM operands against independent native field boundaries.</summary>
 internal static class LookupGlassProgramVerification

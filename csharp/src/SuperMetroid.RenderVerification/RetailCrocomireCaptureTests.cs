@@ -1,7 +1,9 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks GPU capture through Crocomire's ordinary fight and full death sequence.</summary>
 internal static class RetailCrocomireCaptureTests

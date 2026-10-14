@@ -1,15 +1,10 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static AssertionsVerification;
 using static SignedSineFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Constructed-cartridge checks for Mother Brain's rainbow-beam Samus movement and full drain attack chain.</summary>
 internal static class MotherBrainRainbowVerification

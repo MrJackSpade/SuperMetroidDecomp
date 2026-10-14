@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The native bank-$A4 and bank-$86 lists the Crocomire ROM oracle (#1282) walks: list entry points, callbacks,

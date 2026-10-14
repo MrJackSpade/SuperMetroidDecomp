@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Checks six Ceres planet, star, and title actor records against native setup metadata.</summary>
 internal static class CeresZebesActorMetadataVerification

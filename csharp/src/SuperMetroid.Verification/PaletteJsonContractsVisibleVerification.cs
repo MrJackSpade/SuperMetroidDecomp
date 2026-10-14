@@ -2,14 +2,18 @@ using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static EnemyAnimationIsolationFixtureVerification;
 using static PaletteJsonContractsFixturesVerification;
 using static PaletteJsonContractsLegacyVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks palette JSON edits change visible color while preserving FX clocks and live state.</summary>
 internal static class PaletteJsonContractsVisibleVerification

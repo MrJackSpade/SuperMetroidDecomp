@@ -1,9 +1,9 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidNailContourMappingsVerification;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks native Kraid body contour selection and nail reflection across wrapped positions.</summary>
 internal static class KraidNailContourVerification

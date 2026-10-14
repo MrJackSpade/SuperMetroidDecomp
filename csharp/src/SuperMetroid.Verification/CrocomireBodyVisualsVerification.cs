@@ -3,12 +3,14 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyExtendedFrameArtworkVerification;
 using static ExtendedBg2ReferenceVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>Retail comparisons for Crocomire's mixed OAM/BG2 body frames and installed editable artwork.</summary>
 internal static class CrocomireBodyVisualsVerification

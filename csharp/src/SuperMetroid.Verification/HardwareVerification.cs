@@ -1,25 +1,22 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using static ControllerInputRecordingVerification;
 using static DmaSourceRoutingVerification;
 using static EscapeTimerFloorVerification;
 using static QueuedVramAssetsVerification;
 using static SuiteTimingVerification;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static AssertionsVerification;
 using static ImportedSpritemapsVerification;
 using static MapSpritesVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Checks hardware math, timing, controller input, memory, DMA, and OAM contracts.</summary>
 internal static class HardwareVerification

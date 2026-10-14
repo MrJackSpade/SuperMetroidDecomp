@@ -1,23 +1,23 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static EnemyDropsVerification;
 using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Focused cartridge-probe comparison for Chainsaw shot admission, collision, lifetime and door interference.</summary>
 internal static class ChainsawFiringVerification

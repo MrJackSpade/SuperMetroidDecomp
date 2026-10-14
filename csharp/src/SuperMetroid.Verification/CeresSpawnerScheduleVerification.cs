@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks the Ceres repeating explosion schedule against native countdown and actor playback.</summary>
 internal static class CeresSpawnerScheduleVerification

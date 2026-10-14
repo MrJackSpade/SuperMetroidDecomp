@@ -1,16 +1,6 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BeamPaletteArtworkVerification;
 using static ProjectileCompositionsVerification;
@@ -18,6 +8,9 @@ using static ProjectileTrailArtworkVerification;
 using static ProjectileTrailDefinitionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks extracted beam PNGs and palettes through the projectile queue and runtime NMI path.</summary>
 internal static class BeamTileArtworkVerification

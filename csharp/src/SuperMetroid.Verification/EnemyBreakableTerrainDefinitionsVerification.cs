@@ -1,9 +1,8 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks enemy spike-block reactions against native PLM headers and bus-free production collision behavior.</summary>
 internal static class EnemyBreakableTerrainDefinitionsVerification

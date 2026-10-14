@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks wall-jump collision expansion against ceiling contact and preserved spin radius.</summary>
 internal static class WallJumpExpansionVerification

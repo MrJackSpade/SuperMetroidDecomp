@@ -1,8 +1,7 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Frontend.Title.Artwork;
 
 /// <summary>Builds title-state fixtures from the supplied cartridge source and its matching extracted artwork.</summary>
 internal static class TitleFixtureVerification

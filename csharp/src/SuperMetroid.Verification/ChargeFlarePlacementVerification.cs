@@ -1,26 +1,22 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ChargeFlareCompositionsVerification;
 using static GraphDigestVerification;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Checks editable charge-flare offsets against native OAM placement and the production rendering paths.</summary>
 internal static class ChargeFlarePlacementVerification

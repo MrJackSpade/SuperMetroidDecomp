@@ -1,10 +1,10 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using static AssertionsVerification;
 using static SamusEaterPlmDefinitionsVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks station PLM draw geometry, collision, and visual words against retail layouts.</summary>
 internal static class LookupStationLayoutsVerification

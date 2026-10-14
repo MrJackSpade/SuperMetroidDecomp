@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>Compares Bull's compiled movement setup with retail acceleration, deceleration, and speed tables.</summary>
 internal static class BullMovementDefinitionsVerification

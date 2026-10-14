@@ -1,8 +1,4 @@
-using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The Kraid and Maridia elevatube visual catalogs a Kraid draw check installs (#633).</summary>
 internal readonly record struct KraidRoomVisualCatalogs

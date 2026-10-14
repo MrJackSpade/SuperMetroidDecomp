@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static IntroMotherBrainExplosionPartsVerification;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks calculated Ceres large-blast geometry against native OAM
 /// while preserving independently edited sprite artwork.</summary>

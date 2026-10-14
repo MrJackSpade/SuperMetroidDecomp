@@ -2,9 +2,8 @@ using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 using static LookupDraygonCannonStockVerification;
+using SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Checks Draygon cannon visual extraction, installation, overrides, and stock integrity.</summary>
 internal static class DraygonCannonVisualsVerification

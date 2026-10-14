@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Compares Ridley's claw geometry, carried Samus placement, and
 /// collision bounds with native offset words across wrapped coordinates.</summary>

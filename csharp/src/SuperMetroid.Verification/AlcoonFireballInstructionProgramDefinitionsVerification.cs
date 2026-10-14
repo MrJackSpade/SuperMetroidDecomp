@@ -1,19 +1,14 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static EnemyVisualSelectorInventoryVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Alcoon;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks Alcoon fireball bytecode and visual selectors against the pinned NTSC cartridge.</summary>
 internal static class AlcoonFireballInstructionProgramDefinitionsVerification

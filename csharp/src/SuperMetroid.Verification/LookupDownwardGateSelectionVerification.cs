@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks the eight admitted downward-gate arguments against three native selection tables.</summary>
 internal static class LookupDownwardGateSelectionVerification

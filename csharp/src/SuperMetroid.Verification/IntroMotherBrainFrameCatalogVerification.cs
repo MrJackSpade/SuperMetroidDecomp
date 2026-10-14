@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks the three intro Mother Brain frame identities against cartridge operands and OAM counts.</summary>
 internal static class IntroMotherBrainFrameCatalogVerification

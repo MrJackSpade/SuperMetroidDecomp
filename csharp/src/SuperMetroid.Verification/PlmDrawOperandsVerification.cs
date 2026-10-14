@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Confirms the previously identified bank-$84 PLM draw operands without expanding the control-word search.</summary>
 internal static class PlmDrawOperandsVerification

@@ -1,6 +1,9 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Maps Mother Brain's native body, brain, neck, and rainbow-sequence WRAM into a loaded encounter.</summary>
 internal static class NativeSnapshotImportMotherBrainVerification

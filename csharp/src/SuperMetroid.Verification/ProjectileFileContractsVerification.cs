@@ -1,22 +1,11 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static Program;
-using static RepositoryInstallation;
 using static SuiteTimingVerification;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using static RoomAssetJsonContractsVerification;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks file selection, provenance, and rejection behavior for installed projectile resources.</summary>
 internal static class ProjectileFileContractsVerification

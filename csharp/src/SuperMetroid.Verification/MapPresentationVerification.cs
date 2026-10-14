@@ -1,21 +1,11 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static CeresRidleyColorsVerification;
 using static CeresRidleyMode7ColorsVerification;
 using static CreditsPresentationVerification;
@@ -71,6 +61,23 @@ using static SamusVisorColorsVerification;
 using static SuiteTimingVerification;
 using static TitleGradientVerification;
 using static WorldMapLabelsVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification
@@ -1399,7 +1406,7 @@ internal static class MapPresentationVerification
         AssertEqual(edited.Get(AreaId.Ceres).GetTile(runtime.Hud.MinimapCenter).CharacterIndex,
             (ushort)(runtime.Hud.Tiles[60] & 0x3ff), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
         var room = runtime.Room.LoadedRoom;
-        var pause = new SuperMetroid.Core.Frontend.PauseMenuState(guard, new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = edited });
+        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(guard, new PauseMenuEntry { Samus = runtime.Player.IntroducedSamus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = edited });
         Position16<MapPixels> scroll = pause.MapScroll;
         pause.BindMapPresentation(original);
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");
@@ -1416,9 +1423,9 @@ internal static class MapPresentationVerification
     {
         var system = new Bank80SystemState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-        var stock = new SuperMetroid.Core.Frontend.FileSelectRoomMapGraphics(bus, system,
+        var stock = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(bus, system,
             AreaId.Crateria, mapPresentation: original);
-        var installed = new SuperMetroid.Core.Frontend.FileSelectRoomMapGraphics(guard, system, AreaId.Crateria,
+        var installed = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(guard, system, AreaId.Crateria,
             mapPresentation: original);
         AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(installed.RenderBackgrounds(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
@@ -1428,11 +1435,11 @@ internal static class MapPresentationVerification
         AssertTrue(!expected.SequenceEqual(unchanged), "override changes a visible file-select cell");
         for (int i = 0; i < expected.Length / 2; i++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(i * 2)),
-                installed.Vram.ReadWord(SuperMetroid.Core.Frontend.MenuVramLayout.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
+                installed.Vram.ReadWord(SuperMetroid.Core.Frontend.Menus.MenuVramLayout.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
         using var snapshot = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, installed);
         snapshot.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.FileSelectRoomMapGraphics>(snapshot);
+        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics>(snapshot);
         restored.BindMapPresentation(original);
         AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(restored.RenderBackgrounds(new(0, 0))),
             "restored file-select graphics accept current stock without stale override pixels");
@@ -1461,14 +1468,14 @@ internal static class MapPresentationVerification
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address =>
                 (address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + CgramPalettes.ByteCount) ||
-                (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette && address < SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette + CgramPalettes.ByteCount) ||
-                (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.PaletteColors && address < MapStaticPalettesRomData.WorldPaletteDataEnd),
+                (address >= SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.EntryPalette && address < SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.EntryPalette + CgramPalettes.ByteCount) ||
+                (address >= SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.PaletteColors && address < MapStaticPalettesRomData.WorldPaletteDataEnd),
             address => $"Live presentation read static map palette ROM at {address:X6}.");
         guard.Forbid(address =>
-                (address >= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTiming &&
-                    address <= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTiming + SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteFrameCount * SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTimingStride) ||
-                (address >= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteColors &&
-                    address < SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteColors + SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2),
+                (address >= SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteTiming &&
+                    address <= SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteTiming + SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteFrameCount * SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteTimingStride) ||
+                (address >= SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteColors &&
+                    address < SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteColors + SuperMetroid.Core.Frontend.Map.MapAnimationRomData.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2),
             address => $"Live presentation read map palette-cycle ROM at {address:X6}.");
         guard.Forbid(address => address is >= HudTileAtlasFormat.SourceAddress and < (HudTileAtlasFormat.SourceAddress + HudTileAtlasFormat.TransferByteCount),
             address => $"Live presentation read HUD atlas ROM at {address:X6}.");

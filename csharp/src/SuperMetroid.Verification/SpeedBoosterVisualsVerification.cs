@@ -1,23 +1,14 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
-using static AssertionsVerification;
 using static BabyMetroidRouteDefinitionsVerification;
 using static SpeedBoosterCollisionBlocksVerification;
 using static SpeedBoosterPlmProgramsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks the bomb-revealed Speed Booster block's editable image independently of its collision behavior.</summary>
 internal static class SpeedBoosterVisualsVerification

@@ -1,22 +1,15 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static PauseHudLocationVerification;
 using static SuiteTimingVerification;
-using System.Reflection;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Spatial;
 using static MapSpritesVerification;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks the pause map's animated current-position marker against retail OAM and pixels.</summary>
 internal static class PauseMapPositionVerification

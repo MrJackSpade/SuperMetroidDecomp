@@ -1,20 +1,15 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static FileMapSnapshotTestsVerification;
 using static FrontendCompletionVerification;
 using static MessageSnapshotTestsVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static RenderPacketCodecTestsVerification;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks retained file-select and options render packets through native menu flows.</summary>
 internal static class FileMenuSnapshotTestsVerification

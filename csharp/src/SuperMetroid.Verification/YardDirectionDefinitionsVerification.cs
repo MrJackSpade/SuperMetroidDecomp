@@ -1,7 +1,10 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Yard;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks Yard direction tables and airborne transitions against the cartridge definitions and guarded runtime paths.</summary>
 internal static class YardDirectionDefinitionsVerification

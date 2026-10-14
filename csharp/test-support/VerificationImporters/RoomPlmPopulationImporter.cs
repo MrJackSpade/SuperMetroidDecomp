@@ -1,7 +1,7 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.AssetExtraction;
 

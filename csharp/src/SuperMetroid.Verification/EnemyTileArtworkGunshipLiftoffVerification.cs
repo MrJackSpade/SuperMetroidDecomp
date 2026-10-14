@@ -1,11 +1,10 @@
-using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks installed gunship takeoff PNGs against five native DMA
 /// transfers and the resulting VRAM image.</summary>

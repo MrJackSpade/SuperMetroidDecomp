@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks the ten intro scientist OAM records against their contiguous retail source chain.</summary>
 internal static class IntroScientistFrameCatalogVerification

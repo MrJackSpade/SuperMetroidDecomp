@@ -1,7 +1,7 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RidleyInertiaVerification;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Ridley's two death-phase callers against the native inertia index and reversal boost.</summary>
 internal static class RidleyDeathAccelerationVerification

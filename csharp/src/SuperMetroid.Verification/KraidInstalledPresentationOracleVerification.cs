@@ -1,8 +1,8 @@
 using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Import-only Kraid BG2 and head-program reference data, kept
 /// separate from the gameplay constructors and installed presentation path.</summary>

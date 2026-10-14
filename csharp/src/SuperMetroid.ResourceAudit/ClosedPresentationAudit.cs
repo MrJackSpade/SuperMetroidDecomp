@@ -1,7 +1,12 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Areas.Escape.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -16,6 +21,11 @@ internal sealed class ClosedPresentationAudit
     private readonly Dictionary<(string Type, string Method), (ClosedPresentationContract Contract, bool Valid)> contracts = [];
     /// <summary>Consumer calls classified against a valid closed presentation contract.</summary>
     private int references;
+    /// <summary>Contracts whose reviewed proof no longer holds, named in failure diagnostics.</summary>
+    private readonly List<string> invalidContracts = [];
+
+    /// <summary>The provider types whose closed contract is currently revoked.</summary>
+    internal IReadOnlyList<string> InvalidContracts => invalidContracts;
 
     /// <summary>Revalidates each provider's source closure and known factory/array escape conditions before registering exports.</summary>
     internal ClosedPresentationAudit(Compilation compilation, ResourceIndex exports)
@@ -57,12 +67,12 @@ internal sealed class ClosedPresentationAudit
                         .Where(name => name.Identifier.ValueText == "FromLayoutsForVerification")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
                             factory.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog).FullName));
-            if (valid && contract.Type == typeof(SuperMetroid.Core.Rooms.XrayOverlayVisualCatalog).FullName)
+            if (valid && contract.Type == typeof(SuperMetroid.Core.Rooms.Xray.XrayOverlayVisualCatalog).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
                         .Where(name => name.Identifier.ValueText == "FromOverlaysForVerification")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
-                            factory.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Rooms.XrayOverlayVisualCatalog).FullName));
+                            factory.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Rooms.Xray.XrayOverlayVisualCatalog).FullName));
             if (valid && contract.Type == typeof(EnemyTileArtworkCatalog).FullName)
             {
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
@@ -73,8 +83,8 @@ internal sealed class ClosedPresentationAudit
                 // Additional partial metadata declarations could mutate the private
                 // native arrays used to derive installation keys and DMA lengths.
                 if (valid)
-                    valid = new[] { typeof(SuperMetroid.Core.Game.RoomEnemyGraphicsSetDefinitions).FullName,
-                        typeof(SuperMetroid.Core.Game.RoomEnemyDefinitionCatalog).FullName, typeof(EnemyTileSourceDefinitions).FullName }
+                    valid = new[] { typeof(SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions).FullName,
+                        typeof(SuperMetroid.Core.Enemies.RoomEnemyDefinitionCatalog).FullName, typeof(EnemyTileSourceDefinitions).FullName }
                         .All(type => compilation.GetTypeByMetadataName((type ?? throw new InvalidOperationException("Verification requires type."))) is { } dependency &&
                             dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                                 source.Path == declaration.SyntaxTree.FilePath)));
@@ -88,20 +98,20 @@ internal sealed class ClosedPresentationAudit
                             field.ContainingType.ToDisplayString() == typeof(EnemyProjectileSpritemapDefinitions).FullName));
                 if (valid)
                     valid = new[] { typeof(EnemyProjectileSpritemapDefinitions).FullName,
-                        typeof(SuperMetroid.Core.Game.EnemyProjectilePresentationFrameDefinitions).FullName,
-                        typeof(SuperMetroid.Core.Game.EnemyProjectileInstructionMechanicsDefinitions).FullName }
+                        typeof(SuperMetroid.Core.Enemies.Projectiles.EnemyProjectilePresentationFrameDefinitions).FullName,
+                        typeof(SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileInstructionMechanicsDefinitions).FullName }
                         .All(type => compilation.GetTypeByMetadataName((type ?? throw new InvalidOperationException("Verification requires type."))) is { } dependency &&
                             dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                                 source.Path == declaration.SyntaxTree.FilePath)));
             }
             if (valid && contract.Methods.Contains("TryGetDisplay", StringComparer.Ordinal) &&
-                contract.Type is "SuperMetroid.Core.Assets.EnemySpritemapCatalog" or "SuperMetroid.Core.Assets.EnemyExtendedFrameCatalog")
+                contract.Type is "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalog" or "SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameCatalog")
             {
                 string[] definitions = contract.Type == typeof(EnemySpritemapCatalog).FullName
                     ? [(typeof(EnemySpritemapDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(EnemySpritemapDefinitions).FullName."))]
                     : [(typeof(EnemyExtendedFrameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(EnemyExtendedFrameDefinitions).FullName.")), (typeof(EnemyExtendedFrameSequence).FullName ?? throw new InvalidOperationException("Verification requires typeof(EnemyExtendedFrameSequence).FullName.")),
                         (typeof(BossOamFrameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(BossOamFrameDefinitions).FullName.")), (typeof(PirateArtworkNameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(PirateArtworkNameDefinitions).FullName.")),
-                        (typeof(SuperMetroid.Core.Game.CommonEnemyEmptyExtendedFrameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(SuperMetroid.Core.Game.CommonEnemyEmptyExtendedFrameDefinitions).FullName."))];
+                        (typeof(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameDefinitions).FullName ?? throw new InvalidOperationException("Verification requires typeof(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameDefinitions).FullName."))];
                 valid = definitions.All(type => compilation.GetTypeByMetadataName(type) is { } dependency &&
                     dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                         source.Path == declaration.SyntaxTree.FilePath)));
@@ -123,7 +133,7 @@ internal sealed class ClosedPresentationAudit
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
                         .Where(name => name.Identifier.ValueText == "TimedRecordPointers")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IPropertySymbol property &&
-                            property.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Game.SamusProjectileRadiusDefinitions).FullName));
+                            property.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Samus.Projectiles.SamusProjectileRadiusDefinitions).FullName));
             if (valid && contract.Type == typeof(SamusArmCannonArtworkCatalog).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
@@ -136,13 +146,14 @@ internal sealed class ClosedPresentationAudit
                                 field.ContainingType.ToDisplayString() == typeof(SamusArmCannonArtworkFormat).FullName));
             foreach (string method in contract.Methods)
                 contracts.Add((contract.Type, method), (contract, valid));
+            if (!valid)
+                invalidContracts.Add(contract.Type);
             if (valid)
                 foreach (string method in contract.Methods)
                     exports.Add("closed-presentation-contract", contract.Type + "." + method);
         }
         NamedPresentationAudit.Install(exports);
     }
-
 
     /// <summary>Classifies a provider call only when its reviewed proof, index domain, and named selection remain valid.</summary>
     internal bool TryInspect(InvocationExpressionSyntax call, SemanticModel semantic, IMethodSymbol method,
@@ -219,10 +230,10 @@ internal sealed class ClosedPresentationAudit
             if (owner is ("SporeSpawnColorCatalog", "ResolveDeath", "frame") &&
                 operation.Arguments.Single(arg => arg.Parameter?.Name == "layer").Value.ConstantValue
                     is { HasValue: true, Value: not null } layer &&
-                (SuperMetroid.Core.Game.SporeSpawnDeathPaletteLayer)Convert.ToInt32(layer.Value) is
-                    SuperMetroid.Core.Game.SporeSpawnDeathPaletteLayer.Level or
-                    SuperMetroid.Core.Game.SporeSpawnDeathPaletteLayer.Background)
-                range = new(0, SuperMetroid.Core.Game.SporeSpawnColorRomData.DeathSceneFrameCount);
+                (SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer)Convert.ToInt32(layer.Value) is
+                    SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level or
+                    SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Background)
+                range = new(0, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnColorRomData.DeathSceneFrameCount);
             if (!range.Value.Contains(number))
                 return $"Constant {owner.Parameter}={number} is outside the reviewed valid domain {range.Value.Description}.";
         }

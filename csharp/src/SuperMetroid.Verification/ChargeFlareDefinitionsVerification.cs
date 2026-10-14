@@ -1,7 +1,7 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled charge-flare cadence words and interpreter advancement against native bank-$90 data.</summary>
 internal static class ChargeFlareDefinitionsVerification

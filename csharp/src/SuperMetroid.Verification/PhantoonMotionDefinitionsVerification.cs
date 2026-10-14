@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Phantoon figure-eight speed constants and phase transitions against the cartridge.</summary>
 internal static class PhantoonMotionDefinitionsVerification

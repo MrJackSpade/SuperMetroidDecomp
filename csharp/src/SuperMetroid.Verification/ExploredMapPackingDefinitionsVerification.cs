@@ -1,18 +1,14 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks occupancy-derived SRAM map packing against native lists and production save/load behavior.</summary>
 internal static class ExploredMapPackingDefinitionsVerification

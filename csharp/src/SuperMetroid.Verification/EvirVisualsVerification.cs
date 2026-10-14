@@ -1,9 +1,11 @@
 using System.Reflection;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EvirInstructionProgramDefinitionsVerification;
 using static ImportedSpritemapsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Evir;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks that Evir instruction selectors resolve to installed frames with cartridge-equivalent OAM.</summary>
 internal static class EvirVisualsVerification

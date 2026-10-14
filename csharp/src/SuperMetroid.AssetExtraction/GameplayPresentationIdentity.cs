@@ -1,6 +1,6 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.AssetExtraction;
 

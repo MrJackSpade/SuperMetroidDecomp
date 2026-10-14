@@ -3,10 +3,13 @@ using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

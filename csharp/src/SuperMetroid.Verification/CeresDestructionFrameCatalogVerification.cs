@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>Checks the Ceres destruction sprite catalog's names, frame
 /// pointers, part counts, ordering, and index bounds against native operands.</summary>

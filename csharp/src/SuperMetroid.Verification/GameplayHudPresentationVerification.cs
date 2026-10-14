@@ -1,9 +1,13 @@
 using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>Checks installed gameplay HUD art, live tile updates, and editable layout overrides.</summary>
 internal static class GameplayHudPresentationVerification

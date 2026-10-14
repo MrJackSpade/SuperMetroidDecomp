@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks seven calculated egg-remnant poses against native OAM and independent artwork edits.</summary>
 internal static class IntroEggRemnantPartsVerification

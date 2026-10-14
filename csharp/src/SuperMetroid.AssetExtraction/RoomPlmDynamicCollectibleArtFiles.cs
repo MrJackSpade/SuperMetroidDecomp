@@ -3,9 +3,8 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.AssetExtraction;
 

@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks file-select map navigation with installed presentation and guarded cartridge reads.</summary>
 internal static class InstalledFileSelectMapVerification

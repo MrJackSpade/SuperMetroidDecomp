@@ -1,18 +1,9 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks when the three Etecoons request their fanfare after an elevator door transition.</summary>
 internal static class EtecoonFanfareVerification

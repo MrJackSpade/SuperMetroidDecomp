@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -15,13 +15,12 @@ internal static class PausePresentationContractChecks
         var trees = PauseClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<pause-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
-            using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Game;
-            using SuperMetroid.Core.Frontend;
+            using SuperMetroid.Core.Frontend.Pause;
+            using SuperMetroid.Core.Frontend.Pause.Artwork;
             using SuperMetroid.Core.Hardware;
+            using SuperMetroid.Core.Rooms;
             class PauseConsumer {
                 void Inspect(PauseEquipmentBasePresentation baseImage, PauseBackdropPresentation backdrop,
                     PauseWireframePresentation wireframe, PauseEquipmentLabelPresentation labels,
@@ -81,7 +80,7 @@ internal static class PausePresentationContractChecks
             after.Findings.Count(item => item.Owner is "PauseSelectorPresentation.Anchor" or "PauseSelectorPresentation.Draw") == 2,
             "Boots and Reserve must not borrow larger categories; only Plasma may extend a beam label to nine words");
 
-        const string labelPath = "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelDefinitions.cs";
+        const string labelPath = "csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseEquipmentLabelDefinitions.cs";
         SyntaxTree labelSource = trees.Single(tree => tree.FilePath == labelPath);
         SyntaxTree changedLabels = CSharpSyntaxTree.ParseText(
             labelSource.GetText().ToString().Replace("\"Beam.Hyper\"", "\"Absent.Key\"", StringComparison.Ordinal),

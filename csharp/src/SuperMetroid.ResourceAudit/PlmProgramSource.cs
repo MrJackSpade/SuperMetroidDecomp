@@ -3,7 +3,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -33,7 +33,7 @@ internal sealed class PlmProgramSource
     {
         this.report = report;
         types = typeof(RoomPlmSystem).Assembly.GetTypes()
-            .Where(type => type.Namespace is "SuperMetroid.Core.Rooms" or "SuperMetroid.Core.Game")
+            .Where(type => type.Namespace?.StartsWith("SuperMetroid.Core.", StringComparison.Ordinal) == true)
             .GroupBy(type => type.Name).Where(group => group.Count() == 1)
             .ToDictionary(group => group.Key, group => group.Single());
         string core = Path.Combine(root, "csharp/src/SuperMetroid.Core");
@@ -46,8 +46,7 @@ internal sealed class PlmProgramSource
                 // The PLM engine and its family owners (doors, collectibles, stations, scrolls, ...).
                 .Where(type => (type.Identifier.Text is "RoomPlmSystem" or "RoomPlmProgramDefinitions" or "PlmPopulationLoader" or "PlmBlockDrawing" ||
                                 type.Identifier.Text.EndsWith("Plms", StringComparison.Ordinal)) &&
-                    type.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString() ==
-                        "SuperMetroid.Core.Rooms")
+                    type.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString().StartsWith("SuperMetroid.Core.", StringComparison.Ordinal) == true)
                 .SelectMany(type => type.Members.OfType<MethodDeclarationSyntax>())).ToArray();
         MethodDeclarationSyntax draw = methods.Single(method => method.Identifier.Text == "DrawPlmInstruction" &&
             method.ParameterList.Parameters.Any(parameter => parameter.Identifier.Text == "headerPointer"));
@@ -171,7 +170,6 @@ internal sealed class PlmProgramSource
             if (!methods.Any(method => method.Identifier.Text + "/" + method.ParameterList.Parameters.Count == key))
                 report.Findings.Add(new("unresolved-source", key, 0, "Guarded production method was removed."));
     }
-
 
     /// <summary>Selects interpreter methods whose record or typed routes must stay in the source contract.</summary>
     private static bool RequiresGuard(MethodDeclarationSyntax method) =>

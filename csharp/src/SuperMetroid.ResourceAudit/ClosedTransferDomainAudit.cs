@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis.Operations;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -23,7 +24,7 @@ internal static class ClosedTransferDomainAudit
             if ((source & 1) != 0) return "Owned scrolling-sky source must be even-addressed.";
             if (Constant("byteCount") is not int skyCount) return null;
             bool page = offset % RoomSkyTilemapFormat.PageByteCount == 0 && skyCount == RoomSkyTilemapFormat.PageByteCount;
-            bool row = skyCount == SuperMetroid.Core.Game.RoomFxRomData.ScrollingSky.TilemapRowByteCount;
+            bool row = skyCount == SuperMetroid.Core.Fx.RoomFxRomData.ScrollingSky.TilemapRowByteCount;
             return (!page && !row) || (long)offset + skyCount > RoomSkyTilemapFormat.TotalByteCount
                 ? "Owned scrolling-sky source/length is neither a complete aligned page nor a complete even-addressed row." : null;
         }

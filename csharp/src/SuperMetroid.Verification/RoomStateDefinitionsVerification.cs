@@ -1,17 +1,8 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 using static LookupRoomStateSettingsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Compares compiled room-state payloads and cartridge-free production selection with the pinned retail ROM.</summary>
 internal static class RoomStateDefinitionsVerification
@@ -26,7 +17,7 @@ internal static class RoomStateDefinitionsVerification
         Suite(nameof(VerifyRoomStateSettings), () => VerifyRoomStateSettings(bus));
 
         ushort ceresPointer = LoadStationDefinitions.Get(
-            SuperMetroid.Core.Game.AreaId.Ceres, 0).RoomPointer;
+            SuperMetroid.Core.Rooms.AreaId.Ceres, 0).RoomPointer;
         ushort ceresStatePointer = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, ceresPointer).State.Pointer;
         CartridgeRoomHeader compiledRoom = CartridgeRoomHeader.LoadUsingCompiledSelection(ceresPointer);
         AssertEqual(RoomStateDefinitions.Get(ceresStatePointer), compiledRoom.State,

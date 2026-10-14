@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks the compiled eye-animation instruction slice against bank-$8C cartridge bytes.</summary>
 internal static class IntroEyeInstructionsVerification

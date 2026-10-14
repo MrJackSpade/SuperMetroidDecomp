@@ -1,25 +1,19 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using static SuiteTimingVerification;
-using System.Reflection;
-using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Runtime;
 using static GraphDigestVerification;
 using static GrappleFiringDefinitionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks editable Grapple flare origins against cartridge offsets and unchanged grapple mechanics.</summary>
 internal static class GrappleFlarePlacementVerification

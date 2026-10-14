@@ -1,25 +1,13 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using System.Runtime.CompilerServices;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
-using static AssertionsVerification;
 using static EnemyInstructionCodePointersVerification;
 using static LookupTreadmillArtworkVerification;
 using static LookupTreadmillMechanicsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks bank-87 animated-tile pointer catalogs and the compiled Wrecked Ship treadmill streams.</summary>
 internal static class AnimatedTileInstructionCodesVerification

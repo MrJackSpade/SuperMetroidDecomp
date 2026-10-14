@@ -1,11 +1,15 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static DraygonNativeListAddresses;
 using static RepositoryInputsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
 /// #1283: Draygon's typed body, eye, tail, arms and projectile programs against the retail cartridge. The typed

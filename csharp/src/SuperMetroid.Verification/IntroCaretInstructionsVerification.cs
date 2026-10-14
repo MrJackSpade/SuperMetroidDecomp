@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks the compiled intro caret program against its retail bank-$8B instruction slice.</summary>
 internal static class IntroCaretInstructionsVerification

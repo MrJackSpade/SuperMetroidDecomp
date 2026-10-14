@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks both axes of Fake Kraid's two spit launches for each facing direction.</summary>
 internal static class FakeKraidSpitVelocitiesVerification

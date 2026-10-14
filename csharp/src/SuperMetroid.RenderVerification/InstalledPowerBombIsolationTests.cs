@@ -1,13 +1,15 @@
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Desktop;
 using System.Text;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// Finite production-owner tests of the source-identified color/lifetime coupling in

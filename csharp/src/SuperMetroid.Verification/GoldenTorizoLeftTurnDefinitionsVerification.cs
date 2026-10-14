@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Checks Golden Torizo left-turn control words and reused facing-screen art against bank $AA.</summary>
 internal static class GoldenTorizoLeftTurnDefinitionsVerification

@@ -1,22 +1,17 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static Program;
-using static RepositoryInstallation;
 using static SuiteTimingVerification;
-using System.Reflection;
-using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FrontendRomFreeVerification;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks Ceres departure saves, menu reload routing, and the transition to Zebes landing.</summary>
 internal static class CeresSaveStartupVerification

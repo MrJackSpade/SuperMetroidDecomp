@@ -1,8 +1,6 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using static AssertionsVerification;
 using static DownwardGateVisualsVerification;
 using static LookupDownwardGateDrawsVerification;
 using static LookupDownwardGateProgramVerification;
@@ -11,6 +9,12 @@ using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Focused room-PLM and bank-$86 actor checks for downward gates and their shot triggers.</summary>
 internal static class DownwardGatePlmsVerification

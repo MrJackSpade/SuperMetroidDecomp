@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static GrappleRopeGeometryVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Checks grapple endpoint tile uploads against native pointer and timer behavior.</summary>
 internal static class GrapplePointAnimationVerification

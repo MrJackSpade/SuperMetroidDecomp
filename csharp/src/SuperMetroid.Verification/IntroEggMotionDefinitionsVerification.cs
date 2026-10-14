@@ -1,6 +1,5 @@
-using System.Reflection;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks compiled intro egg fragment and slime motion against native tables and actual actor updates.</summary>
 internal static class IntroEggMotionDefinitionsVerification

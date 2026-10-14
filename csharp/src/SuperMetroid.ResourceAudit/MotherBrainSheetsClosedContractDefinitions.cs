@@ -6,9 +6,9 @@ internal static class MotherBrainSheetsClosedContractDefinitions
     /// <summary>Admits the complete Mother Brain special-sheet source set to the fixed-page presentation audit.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Assets.MotherBrainSpecialSpriteArtworkCatalog", "mother-brain-special-sheets-complete-pages", ["Get"],
-            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs")]),
+        new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainSpecialSpriteArtworkCatalog", "mother-brain-special-sheets-complete-pages", ["Get"],
+            [new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteArtworkCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteArtworkDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomCharacterAtlas.cs")]),
     ];
 }

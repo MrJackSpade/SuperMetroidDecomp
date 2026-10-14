@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Frontend.Map;
 
 namespace SuperMetroid.Core.Frontend;
 

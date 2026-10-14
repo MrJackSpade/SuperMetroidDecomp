@@ -1,10 +1,8 @@
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 using static LookupBombTorizoHandStockVerification;
+using SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Checks Bomb Torizo hand draw-list extraction, installed overrides,
 /// stock refresh, and rejection of collision bits in visual words.</summary>

@@ -1,8 +1,11 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks Norfair Ridley's situation-dependent attack table and same-frame selection behavior.</summary>
 internal static class RidleyAttackChoicesVerification

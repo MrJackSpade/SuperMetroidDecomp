@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Mother Brain glass PLM visuals through damage and shatter frames.</summary>
 internal static class LookupMotherBrainGlassStockVerification

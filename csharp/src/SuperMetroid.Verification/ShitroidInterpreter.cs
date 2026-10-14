@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>The enemy instruction interpreter the Shitroid program runs through, with no live Samus, room or input (#633).</summary>
 internal readonly record struct ShitroidInterpreter

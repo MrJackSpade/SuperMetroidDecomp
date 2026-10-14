@@ -2,10 +2,12 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>Checks installed Chozo statue and n00b-tube palette bands against native RGB5 data and live CGRAM initialization.</summary>
 internal static class EnemyTileArtworkChozoAndTubeColorsVerification

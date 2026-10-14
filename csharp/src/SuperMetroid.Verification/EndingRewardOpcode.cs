@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
 /// The union of the ending reward gesture and jump instructions, for oracle comparisons that

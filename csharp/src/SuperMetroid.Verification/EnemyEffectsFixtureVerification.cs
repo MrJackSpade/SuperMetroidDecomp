@@ -1,11 +1,15 @@
-using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 using static EnemyAnimationIsolationFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Constructs cartridge-free enemy-effect artwork and Crocomire state fixtures.</summary>
 internal static class EnemyEffectsFixtureVerification

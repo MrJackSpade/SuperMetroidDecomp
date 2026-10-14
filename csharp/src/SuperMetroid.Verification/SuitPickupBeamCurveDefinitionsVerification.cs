@@ -1,18 +1,7 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using static CollectiblesVerification;
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks the compiled suit-pickup beam contour against retail bytes and guarded runtime use.</summary>
 internal static class SuitPickupBeamCurveDefinitionsVerification

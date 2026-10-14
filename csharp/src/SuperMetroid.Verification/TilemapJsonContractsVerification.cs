@@ -1,20 +1,13 @@
 using SuperMetroid.Tooling;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using System.Buffers.Binary;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 using static TilemapJsonContractsEnvironmentVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks JSON tilemap shape through the production room and Kraid asset loaders.</summary>
 internal static class TilemapJsonContractsVerification

@@ -1,13 +1,16 @@
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
-using System.Text.Json;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using static PauseEquipmentRulesVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Checks installed pause equipment base tiles through page transitions and debugger rebinding.</summary>
 internal static class PauseEquipmentBaseAssetsVerification

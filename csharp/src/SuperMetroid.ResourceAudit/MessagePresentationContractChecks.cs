@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -16,11 +16,10 @@ internal static class MessagePresentationContractChecks
         var trees = MessageClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<message-fixture-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
-            using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Game;
+            using SuperMetroid.Core.Hud;
+            using SuperMetroid.Core.Hud.Artwork;
             class MessageConsumer {
                 void Inspect(GameplayMessageTitlePresentation titles, GameplayMessagePanelPresentation panels,
                     GameplayMessageNoticePresentation notices, System.Span<ushort> cells) {

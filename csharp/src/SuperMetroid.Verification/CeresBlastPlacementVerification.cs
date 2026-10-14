@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Compares compiled Ceres explosion offsets and delays with the retail placement tables.</summary>
 internal static class CeresBlastPlacementVerification

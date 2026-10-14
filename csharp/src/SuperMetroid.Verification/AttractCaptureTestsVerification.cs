@@ -1,14 +1,12 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using System.Reflection;
 using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks captured attract-demo frames against legacy rendering, audio, and state transitions.</summary>
 internal static class AttractCaptureTestsVerification

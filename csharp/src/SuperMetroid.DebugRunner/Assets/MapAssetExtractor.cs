@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Exports each area map as its lossless cartridge tilemap and station-reveal mask, plus a

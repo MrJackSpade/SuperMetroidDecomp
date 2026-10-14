@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks Phantoon's death explosion schedule, positions, sounds, and full-pool behavior.</summary>
 internal static class PhantoonDeathExplosionsVerification

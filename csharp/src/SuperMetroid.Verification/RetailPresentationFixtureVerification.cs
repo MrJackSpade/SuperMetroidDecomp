@@ -1,11 +1,7 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Provides installed presentation catalogs for message and pause verification fixtures.</summary>
 internal static class RetailPresentationFixtureVerification

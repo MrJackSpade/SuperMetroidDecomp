@@ -1,19 +1,18 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Rendering;
 using System.Reflection;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Spatial;
 using static KraidReportedCollisionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Checks close-range Super Missile damage and native projectile slot traversal in Kraid's mouth.</summary>
 internal static class KraidSuperMissileDamageVerification
 {

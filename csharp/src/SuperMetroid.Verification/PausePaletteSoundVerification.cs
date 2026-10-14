@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks the pause palette's 54-tick loop queues its map beep and
 /// produces audible SPC output at the authored cadence.</summary>

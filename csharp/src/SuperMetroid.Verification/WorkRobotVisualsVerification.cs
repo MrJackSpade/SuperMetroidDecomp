@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static WorkRobotInstructionProgramDefinitionsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.WorkRobots;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks native Work Robot visual selectors, installed editable
 /// OAM frames, and instruction-driven frame selection.</summary>

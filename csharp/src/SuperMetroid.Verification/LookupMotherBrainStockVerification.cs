@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Mother Brain fake-death PLM visuals against native draw runs and editable catalog rules.</summary>
 internal static class LookupMotherBrainStockVerification

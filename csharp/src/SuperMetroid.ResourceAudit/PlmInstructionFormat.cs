@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.ResourceAudit;
 

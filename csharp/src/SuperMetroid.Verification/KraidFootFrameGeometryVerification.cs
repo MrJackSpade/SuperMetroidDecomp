@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>Checks the 35 Kraid foot OAM frame identities and two-part geometry against cartridge data.</summary>
 internal static class KraidFootFrameGeometryVerification

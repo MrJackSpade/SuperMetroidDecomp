@@ -1,6 +1,7 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Checks Phantoon flame spawn tables through real projectile initialization.</summary>
 internal static class PhantoonFlameSpawnsVerification

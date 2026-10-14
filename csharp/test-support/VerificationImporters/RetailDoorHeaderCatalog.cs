@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Doors;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Physical bank-$83 ranges containing the 597 retail door headers.</summary>

@@ -1,16 +1,7 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using static AssertionsVerification;
 using static CollectiblesVerification;
 using static GrappleDoorsVerification;
 using static LookupTubeProgramVerification;
@@ -18,6 +9,16 @@ using static RoomFxRetailInventoryVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Exercises the Glass Tunnel PLM's two-stage trigger, break sequence, and reload state.</summary>
 internal static class NoobTubePlmVerification

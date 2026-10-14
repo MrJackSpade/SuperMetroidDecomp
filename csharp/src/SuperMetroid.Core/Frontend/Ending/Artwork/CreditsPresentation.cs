@@ -1,0 +1,175 @@
+using System.Security.Cryptography;
+using System.Text.Json;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+
+namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+
+/// <summary>Editable staff-credit text compiled into the cartridge's fixed row cadence.</summary>
+public sealed class CreditsPresentation
+{
+    /// <summary>Validated editable lines rendered on demand at the fixed cartridge cadence.</summary>
+    private readonly CreditsLineDocument[]? lines;
+    /// <summary>Precompiled row overrides supplied by a fixture when the editable line path is unused.</summary>
+    internal readonly ushort[][]? fixtureRows;
+
+    /// <summary>Retains one row source and the identity of its original JSON bytes.</summary>
+    internal CreditsPresentation(CreditsLineDocument[]? lines, ushort[][]? fixtureRows, string contentIdentity)
+    {
+        this.lines = lines;
+        this.fixtureRows = fixtureRows;
+        ContentIdentity = contentIdentity;
+    }
+
+    /// <summary>Gets the uppercase SHA-256 identity of the exact loaded JSON bytes.</summary>
+    public string ContentIdentity { get; }
+
+    /// <summary>Gets the fixed number of 32-word tilemap rows in the compiled staff roll.</summary>
+    public int RowCount => fixtureRows?.Length ?? CreditsPresentationDefinitions.ExpectedCompiledRows;
+
+    /// <summary>Compiles one staff-roll tilemap row, including authored blank-row cadence.</summary>
+    /// <param name="index">Zero-based compiled row index.</param>
+    /// <returns>Thirty-two complete SNES BG tilemap words.</returns>
+    public ReadOnlySpan<ushort> GetRow(int index)
+    {
+        if ((uint)index >= RowCount)
+            throw new IndexOutOfRangeException();
+        if (fixtureRows is not null)
+            return fixtureRows[index];
+        int row = 0;
+        CreditsLineDocument[] authored = lines ??
+            throw new InvalidOperationException("Credits presentation has neither fixture rows nor authored lines.");
+        for (int line = 0; line < authored.Length; line++)
+        {
+            var definition = CreditsPresentationDefinitions.Lines[line];
+            row += definition.BlankRowsBefore;
+            if (index < row)
+                return BlankRow();
+            int height = definition.Style == CreditsLineStyle.Large ? 2 : 1;
+            if (index < row + height)
+                return RenderLine(definition, lines[line], bottom: index != row);
+            row += height;
+        }
+        return BlankRow();
+    }
+    /// <summary>Loads and validates the ordered editable staff-credit lines from JSON.</summary>
+    /// <param name="json">Caller-owned stream containing a credits document.</param>
+    /// <returns>The compiled credits presentation.</returns>
+    public static CreditsPresentation Load(Stream json)
+    {
+        Ensure.NotNull(json);
+        byte[] source;
+        using (var buffer = new MemoryStream())
+        {
+            json.CopyTo(buffer);
+            source = buffer.ToArray();
+        }
+
+        CreditsPresentationDocument document;
+        try
+        {
+            document = JsonAssetDocument.Read<CreditsPresentationDocument>(
+                source, MapPresentationFormat.JsonOptions)
+                ?? throw new InvalidDataException("Credits document is null.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException("Invalid credits JSON.", error);
+        }
+
+        IReadOnlyList<CreditsLineDefinition> definitions =
+            CreditsPresentationDefinitions.Lines;
+        if (document.Version != CreditsPresentationDefinitions.Version ||
+            document.Lines is null || document.Lines.Length != definitions.Count)
+        {
+            throw new InvalidDataException(
+                $"Credits require version {CreditsPresentationDefinitions.Version} and " +
+                $"exactly {definitions.Count} ordered lines.");
+        }
+
+        int compiledRows = 0;
+        for (int index = 0; index < definitions.Count; index++)
+        {
+            CreditsLineDefinition definition = definitions[index];
+            CreditsLineDocument line = document.Lines[index];
+            if (!string.Equals(line.Id, definition.Id, StringComparison.Ordinal))
+            {
+                throw new InvalidDataException(
+                    $"Credits line {index} must retain id '{definition.Id}'.");
+            }
+            if (line.Text is null || line.Text.Length == 0)
+                throw new InvalidDataException($"Credits line '{definition.Id}' cannot be empty.");
+            if ((uint)line.Palette > CreditsPresentationDefinitions.MaximumPalette)
+                throw new InvalidDataException($"Credits line '{definition.Id}' has invalid palette {line.Palette}.");
+            if (line.Column < 0 || line.Column + line.Text.Length >
+                CreditsPresentationDefinitions.TilemapWidth)
+            {
+                throw new InvalidDataException(
+                    $"Credits line '{definition.Id}' exceeds the 32-column tilemap.");
+            }
+
+            compiledRows += definition.BlankRowsBefore + (definition.Style == CreditsLineStyle.Large ? 2 : 1);
+            ValidateLine(definition, line);
+        }
+        compiledRows += CreditsPresentationDefinitions.TrailingBlankRows;
+        if (compiledRows != CreditsPresentationDefinitions.ExpectedCompiledRows)
+        {
+            throw new InvalidDataException(
+                $"Credits compiled to {compiledRows} rows; expected " +
+                $"{CreditsPresentationDefinitions.ExpectedCompiledRows}.");
+        }
+        return new(document.Lines, null, Convert.ToHexString(SHA256.HashData(source)));
+    }
+
+    /// <summary>Validates and writes a credits document as JSON.</summary>
+    /// <param name="output">Destination stream.</param>
+    /// <param name="document">Document to validate and serialize.</param>
+    public static void Write(Stream output, CreditsPresentationDocument document)
+    {
+        Ensure.NotNull(output);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
+            document, MapPresentationFormat.JsonOptions);
+        _ = Load(new MemoryStream(bytes, writable: false));
+        output.Write(bytes);
+    }
+
+    /// <summary>Rejects characters unsupported by the line's small or two-row large font.</summary>
+    private static void ValidateLine(CreditsLineDefinition definition, CreditsLineDocument line)
+    {
+        foreach (char character in line.Text)
+        {
+            try
+            {
+                _ = CreditsPresentationDefinitions.CompileGlyph(character, definition.Style);
+                if (definition.Style == CreditsLineStyle.Large)
+                    _ = CreditsPresentationDefinitions.CompileGlyph(character, definition.Style, bottom: true);
+            }
+            catch (ArgumentOutOfRangeException error)
+            {
+                throw new InvalidDataException(
+                    $"Credits line '{definition.Id}' contains an unsupported glyph.", error);
+            }
+        }
+    }
+
+    /// <summary>Places a line's glyphs and palette bits into one fixed-width BG tilemap row.</summary>
+    private static ushort[] RenderLine(CreditsLineDefinition definition, CreditsLineDocument line, bool bottom)
+    {
+        ushort[] row = BlankRow();
+        ushort attributes = (ushort)(line.Palette << CreditsPresentationDefinitions.PaletteShift);
+        for (int index = 0; index < line.Text.Length; index++)
+            row[line.Column + index] = ApplyAttributes(
+                CreditsPresentationDefinitions.CompileGlyph(line.Text[index], definition.Style, bottom), attributes);
+        return row;
+    }
+    /// <summary>Applies palette attributes to a visible glyph while leaving blank tilemap words untouched.</summary>
+    private static ushort ApplyAttributes(ushort glyph, ushort attributes) =>
+        glyph == CreditsPresentationDefinitions.BlankWord
+            ? glyph
+            : unchecked((ushort)(glyph | attributes));
+
+    /// <summary>Allocates a 32-word row filled with the credits' compiled blank tile.</summary>
+    private static ushort[] BlankRow() =>
+        Enumerable.Repeat(CreditsPresentationDefinitions.BlankWord,
+            CreditsPresentationDefinitions.TilemapWidth).ToArray();
+}

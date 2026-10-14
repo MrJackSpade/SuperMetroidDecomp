@@ -1,18 +1,7 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled projectile-trail coordinates and CPU operand routing against native data and live-memory aliases.</summary>
 internal static class ProjectileTrailCoordinatesVerification

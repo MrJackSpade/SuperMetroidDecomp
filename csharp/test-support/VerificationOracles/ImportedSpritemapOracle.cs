@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>
 /// Import-only packed sprite decoder for cartridge-versus-installed OAM comparisons.

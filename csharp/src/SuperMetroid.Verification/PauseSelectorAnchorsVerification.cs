@@ -1,12 +1,11 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Frontend;
-using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Checks pause selector identities, native anchor geometry, and editable coordinate admission.</summary>
 internal static class PauseSelectorAnchorsVerification

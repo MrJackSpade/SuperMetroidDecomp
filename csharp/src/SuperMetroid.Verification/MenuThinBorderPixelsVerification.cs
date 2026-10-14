@@ -1,6 +1,8 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
 
 /// <summary>Checks calculated thin menu border pixels against native tiles and preserves independent edits.</summary>
 internal static class MenuThinBorderPixelsVerification

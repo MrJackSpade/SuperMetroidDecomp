@@ -1,12 +1,15 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static EndingLogoTablesVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Compares compiled ending-logo actors, sprite relationships, and palette timing with cartridge execution.</summary>
 internal static class EndingLogoVerification

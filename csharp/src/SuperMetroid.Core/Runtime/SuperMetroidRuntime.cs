@@ -1,9 +1,29 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Areas.Maridia;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Frontend.Attract;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -1105,7 +1125,6 @@ public sealed class SuperMetroidRuntime
 
     /// <summary>State-eight tail parked when a PLM opens a message box during a gameplay frame.</summary>
     internal SuspendedGameplayFrameTail? _suspendedFrameTail;
-
 
     /// <summary>Updates live host guards without reconstructing any cartridge-owned state.</summary>
     internal void ApplyHostOptions(SuperMetroidGameOptions options)

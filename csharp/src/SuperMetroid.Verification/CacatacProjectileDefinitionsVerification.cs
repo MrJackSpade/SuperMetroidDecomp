@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>Checks Cacatac spike selector and speed definitions through production spawns.</summary>
 internal static class CacatacProjectileDefinitionsVerification

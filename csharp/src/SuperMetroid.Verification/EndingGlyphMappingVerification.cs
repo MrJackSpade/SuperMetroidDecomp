@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Checks ending text placement and glyph encoding against native tilemaps and text records.</summary>
 internal static class EndingGlyphMappingVerification

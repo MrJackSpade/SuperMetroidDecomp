@@ -1,8 +1,11 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
 /// Issue #347: a morphed Samus bombing on an X-ray-scope-room shutter while rolling off and back.

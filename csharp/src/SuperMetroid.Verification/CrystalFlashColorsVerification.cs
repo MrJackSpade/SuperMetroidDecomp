@@ -1,8 +1,13 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks editable Crystal Flash body and bubble colors against native palette updates.</summary>
 internal static class CrystalFlashColorsVerification

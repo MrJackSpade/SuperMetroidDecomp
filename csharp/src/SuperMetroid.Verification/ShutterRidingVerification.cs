@@ -1,17 +1,13 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Input;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Shutters;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks that Morph Ball rides and rolls off both bomb-raised shutters in the retail room.</summary>
 internal static class ShutterRidingVerification

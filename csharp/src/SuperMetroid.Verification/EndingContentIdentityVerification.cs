@@ -1,17 +1,11 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks ending artwork role mapping and decoded-content identity behavior.</summary>
 internal static class EndingContentIdentityVerification
@@ -36,7 +30,7 @@ internal static class EndingContentIdentityVerification
             (EndingMode7SceneId.PlanetExplosion, 0x8bd87b, 0x8bd615, "planet-explosion"),
         })
         {
-            var sources = SuperMetroid.Core.Frontend.EndingCreditsRomData.Assets.Mode7Sources(native.Item1);
+            var sources = SuperMetroid.Core.Frontend.Ending.EndingCreditsRomData.Assets.Mode7Sources(native.Item1);
             AssertEqual(Source(native.Item2), sources.Characters, "original high-lane character source");
             AssertEqual(Source(native.Item3), sources.PackedMap, "original packed-map source");
             AssertEqual($"ending-{native.Item4}-mode7-characters.png", EndingMode7ArtworkFormat.CharacterFileName(native.Item1), "published character filename");
@@ -82,7 +76,7 @@ internal static class EndingContentIdentityVerification
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[(EndingMode7SceneId)invalid], "ending Mode7 role bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.Core.Frontend.EndingCreditsRomData.Assets.Mode7Sources((EndingMode7SceneId)invalid), "Mode7 source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.Core.Frontend.Ending.EndingCreditsRomData.Assets.Mode7Sources((EndingMode7SceneId)invalid), "Mode7 source bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingMode7ArtworkFormat.CharacterFileName((EndingMode7SceneId)invalid), "Mode7 character filename bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingMode7ArtworkFormat.MapFileName((EndingMode7SceneId)invalid), "Mode7 map filename bounds");
         }

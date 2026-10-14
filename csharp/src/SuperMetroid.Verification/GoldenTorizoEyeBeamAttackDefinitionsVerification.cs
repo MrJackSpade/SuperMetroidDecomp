@@ -1,5 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Checks Golden Torizo eye-beam controls and separate VRAM descriptors against bank $AA.</summary>
 internal static class GoldenTorizoEyeBeamAttackDefinitionsVerification

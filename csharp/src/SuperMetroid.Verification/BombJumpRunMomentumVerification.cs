@@ -1,17 +1,8 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks how a bomb jump carries Samus's existing dash speed into the forward-jump pose.</summary>
 internal static class BombJumpRunMomentumVerification

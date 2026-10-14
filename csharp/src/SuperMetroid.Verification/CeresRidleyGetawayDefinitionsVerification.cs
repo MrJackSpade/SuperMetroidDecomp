@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Checks Ceres Ridley's getaway curve and Mode 7 transfer lists against retail data.</summary>
 internal static class CeresRidleyGetawayDefinitionsVerification

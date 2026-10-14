@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Production capture and legacy composition agree through combined effect updates.</summary>
 internal static class RuntimeOverlayTests

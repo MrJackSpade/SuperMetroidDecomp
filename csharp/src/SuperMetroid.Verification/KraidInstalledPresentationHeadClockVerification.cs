@@ -1,11 +1,14 @@
 using System.Buffers.Binary;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyAnimationIsolationFixtureVerification;
 using static EnemyTileArtworkKraidVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>Checks that replacement Kraid head artwork retains native instruction timing and mouth behavior.</summary>
 internal static class KraidInstalledPresentationHeadClockVerification

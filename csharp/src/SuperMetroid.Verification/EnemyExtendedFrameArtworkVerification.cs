@@ -4,8 +4,6 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static CeresSteamCollisionDefinitionsVerification;
 using static CrocomireTongueCollisionDefinitionsVerification;
@@ -14,6 +12,13 @@ using static EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification;
 using static ImportedSpritemapsVerification;
 using static MaridiaLargeSnailCollisionDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.SpacePirates;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks installed extended enemy OAM compositions, editable frame migration, and guarded visual reads against native data.</summary>
 internal static class EnemyExtendedFrameArtworkVerification

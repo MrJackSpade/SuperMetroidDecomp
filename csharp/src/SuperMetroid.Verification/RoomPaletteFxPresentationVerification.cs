@@ -2,13 +2,19 @@ using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static ColorWordsVerification;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 using static TitleGradientVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Compares extracted room palette-FX colors and installed playback against cartridge output.</summary>
 internal static class RoomPaletteFxPresentationVerification

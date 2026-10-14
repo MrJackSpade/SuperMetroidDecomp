@@ -1,6 +1,9 @@
 using Microsoft.CodeAnalysis.Operations;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies.Animals;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 

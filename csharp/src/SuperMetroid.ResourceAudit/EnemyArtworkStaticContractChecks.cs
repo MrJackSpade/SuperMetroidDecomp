@@ -2,7 +2,8 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -14,13 +15,12 @@ internal static class EnemyArtworkStaticContractChecks
     {
         var trees = EnemyArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<enemy-artwork-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
         CeresEscapeTileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
         CeresEscapeOverlayTilemapDefinition overlay = CeresEscapeOverlayTilemapDefinitions.Emergency;
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Hardware;
             class EnemyArtworkConsumer {
                 void Inspect(EnemyTileArtworkCatalog art, ushort pointer, int source, int length, SnesVram vram, SnesCgram cgram) {
@@ -62,20 +62,21 @@ internal static class EnemyArtworkStaticContractChecks
         Require(before.UnresolvedCount == 15 && before.Consumers.Count == 15, "all identified boundaries are retained before adaptation");
         Require(after.Classifications.Count == 9 && after.UnresolvedCount == 6 && after.MissingCount == 0 && after.Consumers.Count == 15,
             "valid identities/lengths qualify while invalid known selectors remain findings");
-        const string construction = "csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.cs";
+        const string construction = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileArtworkCatalog.cs";
         var stale = trees.Select(tree => tree.FilePath == construction ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace("sheet.Transfer.Length != definition.ByteCount", "false", StringComparison.Ordinal),
                 path: tree.FilePath) : tree);
         Revoked(Inspect(Compile(stale), true), "removed native size admission");
         SyntaxTree bypass = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Enemies.Artwork;
+            using SuperMetroid.Core.Rooms.Artwork;
             class PartialArtworkConsumer {
                 object Build() => EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new System.Collections.Generic.Dictionary<ushort, RoomCharacterAtlas>(), Palettes = new System.Collections.Generic.Dictionary<ushort, EnemyPaletteSheet>() });
             }
             """, path: "fixture-core-partial-artwork.cs");
         Revoked(Inspect(Compile(trees.Append(bypass)), true), "Core use of partial verification construction");
         SyntaxTree extraMetadata = CSharpSyntaxTree.ParseText(
-            "namespace SuperMetroid.Core.Game; public static partial class RoomEnemyGraphicsSetDefinitions { }",
+            "namespace SuperMetroid.Core.Enemies; public static partial class RoomEnemyGraphicsSetDefinitions { }",
             path: "fixture-unreviewed-enemy-metadata.cs");
         Revoked(Inspect(Compile(trees.Append(extraMetadata)), true), "additional metadata declaration");
     }

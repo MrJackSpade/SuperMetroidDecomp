@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Event bits a focused enemy fixture installs (#633). An operation the fixture did not install fails

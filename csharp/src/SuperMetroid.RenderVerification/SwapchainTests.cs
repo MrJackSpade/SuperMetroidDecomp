@@ -4,14 +4,13 @@ using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
 using System.Diagnostics;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Hidden-window checks for D3D11 swapchain presentation, worker recovery and bounded frame publication.</summary>
 internal static partial class SwapchainTests

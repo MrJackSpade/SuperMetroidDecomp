@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Derives Samus arm-cannon and body draw records from native Ridley movie checkpoints.</summary>
 internal static class RidleySamusDrawReferenceVerification

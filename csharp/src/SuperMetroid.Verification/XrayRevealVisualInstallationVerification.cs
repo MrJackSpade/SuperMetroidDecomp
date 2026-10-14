@@ -2,11 +2,13 @@ using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rom;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Rooms.Xray;
 
 /// <summary>Checks installed X-ray block, item, and room overlay visuals against native records and live rendering.</summary>
 internal static class XrayRevealVisualInstallationVerification

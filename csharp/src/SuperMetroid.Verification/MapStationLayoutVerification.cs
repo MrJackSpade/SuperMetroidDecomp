@@ -1,12 +1,13 @@
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks editable station icons against native discovery rules, OAM, and rendered menu pixels.</summary>
 internal static class MapStationLayoutVerification

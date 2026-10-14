@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>Compares the gunship escape event, fade, and ending handoff through captured rendering and audio.</summary>
 internal static class RetailEndingHandoffTests

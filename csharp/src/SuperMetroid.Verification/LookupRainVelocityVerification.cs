@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Compares compiled rain velocities with the four retail words and their full random-selection domain.</summary>
 internal static class LookupRainVelocityVerification

@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
 using static DoorDefinitionsVerification;
 using static LookupTourianArtworkVerification;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks animated room-FX atlas source windows, byte geometry, and standalone-frame roles.</summary>
 internal static class LookupFxAtlasSegmentsVerification

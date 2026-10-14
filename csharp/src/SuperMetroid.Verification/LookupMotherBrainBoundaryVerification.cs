@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Cross-checks Mother Brain fake-death wall and door draw records against bank $84.</summary>
 internal static class LookupMotherBrainBoundaryVerification

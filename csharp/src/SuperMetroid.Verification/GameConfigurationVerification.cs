@@ -1,6 +1,6 @@
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Frontend.Map;
 
 /// <summary>Checks shipped game option defaults, accepted INI values, and configuration error messages.</summary>
 internal static class GameConfigurationVerification

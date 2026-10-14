@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks Kraid foot component coordinates and shared hitboxes against native frames.</summary>
 internal static class KraidFootCoordinateMappingsVerification

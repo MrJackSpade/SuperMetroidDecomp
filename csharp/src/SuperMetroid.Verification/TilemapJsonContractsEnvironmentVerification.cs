@@ -2,8 +2,11 @@ using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Assets;
 using static TilemapJsonContractsVerification;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// Exercises the environmental, intro, and room-metatile JSON compilers with constructed

@@ -1,14 +1,3 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BossDisplayBindingsClippingVerification;
 using static BossDisplayBindingsDocumentsVerification;
@@ -18,6 +7,8 @@ using static EnemyAnimationIsolationFixtureVerification;
 using static MotherBrainBodyPresentationVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks editable boss OAM and BG2 selections against unchanged animation and collision mechanics.</summary>
 internal static class BossDisplayBindingsVerification

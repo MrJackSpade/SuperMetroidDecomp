@@ -1,8 +1,9 @@
 using SuperMetroid.Core;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.AssetExtraction;
 

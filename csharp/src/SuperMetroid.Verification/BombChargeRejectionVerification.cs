@@ -1,11 +1,10 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks native bomb-helper rejection and beam-charge cancellation in morph ball.</summary>
 internal static class BombChargeRejectionVerification

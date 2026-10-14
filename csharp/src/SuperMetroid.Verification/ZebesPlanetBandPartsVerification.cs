@@ -3,6 +3,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static IntroMotherBrainExplosionPartsVerification;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Areas.Escape.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks calculated Zebes planet bands against native sprite parts
 /// while preserving editable Ceres destruction presentation.</summary>

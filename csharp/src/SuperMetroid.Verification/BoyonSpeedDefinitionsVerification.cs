@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>Checks Boyon jump height, speed multiplier, and saturation curve
 /// against native data through production initialization and multiplication.</summary>

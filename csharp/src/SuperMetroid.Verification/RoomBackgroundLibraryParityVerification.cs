@@ -1,12 +1,12 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
-using static AssertionsVerification;
 using static LibraryBackgroundProgramsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Retail and synthetic checks for installed library-background command execution.</summary>
 internal static class RoomBackgroundLibraryParityVerification

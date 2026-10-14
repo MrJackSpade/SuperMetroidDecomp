@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidArmCollisionDefinitionsVerification;
 using static KraidArmPhysicalFrameMappingsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks native callback fields across Kraid's physical arm hitboxes.</summary>
 internal static class KraidArmCallbackMappingsVerification

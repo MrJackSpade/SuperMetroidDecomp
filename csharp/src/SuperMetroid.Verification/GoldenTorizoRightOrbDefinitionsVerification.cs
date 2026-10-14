@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Checks Golden Torizo right-orb instructions and physical frames against retail bank $AA.</summary>
 internal static class GoldenTorizoRightOrbDefinitionsVerification

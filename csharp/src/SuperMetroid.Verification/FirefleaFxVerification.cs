@@ -1,20 +1,16 @@
 using SuperMetroid.Core;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
-using static AssertionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies.Fireflea;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks Fireflea fixed-color flashing, darkness, frozen-time behavior, and X-Ray composition.</summary>
 internal static class FirefleaFxVerification
@@ -35,7 +31,7 @@ internal static class FirefleaFxVerification
         ushort[] flash = [0, 0x100, 0x200, 0x300, 0x400, 0x500, 0x600, 0x500, 0x400, 0x300, 0x200, 0x100];
         ushort[] darkness = [0, 0x600, 0xC00, 0x1200, 0x1800, 0x1900, 0xC208];
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        fx.PaletteBlendColors = SuperMetroid.Core.Assets.RoomFxPaletteBlendCatalog.Load(
+        fx.PaletteBlendColors = SuperMetroid.Core.Fx.Artwork.RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.RoomFxPaletteBlendExtractor.Extract(rom)));
         Suite(nameof(VerifyFirefleaFlashingAlgorithm), () => VerifyFirefleaFlashingAlgorithm(rom));
         Suite(nameof(VerifyFirefleaDarknessAlgorithm), () => VerifyFirefleaDarknessAlgorithm(rom));

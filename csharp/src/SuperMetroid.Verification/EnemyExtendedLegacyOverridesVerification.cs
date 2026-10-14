@@ -1,6 +1,6 @@
 using System.Reflection;
-using SuperMetroid.Core.Assets;
 using static EnemyContentIdentityFixtureVerification;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks migration of historical enemy extended-frame art and display bindings.</summary>
 internal static class EnemyExtendedLegacyOverridesVerification

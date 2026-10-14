@@ -1,21 +1,11 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using static EnemyTileArtworkKraidVerification;
 using static KraidInstalledPresentationHeadClockVerification;
 using static KraidInstalledPresentationOracleVerification;
 using static KraidInstalledPresentationResourcesVerification;
 using static KraidInstalledPresentationTailVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks that extracted Kraid artwork supports the installed room background, head, and HUD presentation paths.</summary>
 internal static class KraidInstalledPresentationVerification

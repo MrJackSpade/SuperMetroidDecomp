@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>Compares Wrecked Ship treadmill artwork source selection with retail direction programs.</summary>
 internal static class LookupTreadmillArtworkVerification

@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>Checks Norfair lava-jumper takeoff velocities and RNG selection against the native four-word table.</summary>
 internal static class NorfairLavaJumpDefinitionsVerification

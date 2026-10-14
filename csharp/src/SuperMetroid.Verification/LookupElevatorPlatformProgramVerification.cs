@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Compares the bounded elevator-platform PLM program with the retail bank-$84 words.</summary>
 internal static class LookupElevatorPlatformProgramVerification

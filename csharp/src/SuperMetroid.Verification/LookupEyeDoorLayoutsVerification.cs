@@ -1,10 +1,11 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using static AssertionsVerification;
 using static SamusEaterPlmDefinitionsVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks eye-door PLM geometry, collision, and visual words against all native draw lists.</summary>
 internal static class LookupEyeDoorLayoutsVerification

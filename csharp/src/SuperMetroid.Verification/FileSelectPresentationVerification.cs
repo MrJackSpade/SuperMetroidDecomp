@@ -1,12 +1,13 @@
 using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks extracted file-select presentation parity, editable overrides, and strict document validation.</summary>
 internal static class FileSelectPresentationVerification

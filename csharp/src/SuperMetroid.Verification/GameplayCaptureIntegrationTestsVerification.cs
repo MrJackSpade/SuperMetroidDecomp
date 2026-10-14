@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -11,6 +10,9 @@ using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Compares captured render packets with legacy frames during Ceres startup and a room pause cycle.</summary>
 internal static class GameplayCaptureIntegrationTestsVerification

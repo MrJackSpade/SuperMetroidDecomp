@@ -1,17 +1,10 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using System.Text.Json;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Fireflea;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks catalog ownership and the WRAM/SRAM cell primitives against the real address-space mapping.</summary>
 internal static class CpuBusBoundaryVerification

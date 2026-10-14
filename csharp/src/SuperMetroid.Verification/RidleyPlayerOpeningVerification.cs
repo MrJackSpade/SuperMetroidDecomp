@@ -1,18 +1,13 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using System.Reflection;
 using System.Globalization;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks the reported first Ridley-room trajectory against a captured player movie segment.</summary>
 internal static class RidleyPlayerOpeningVerification

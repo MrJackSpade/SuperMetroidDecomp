@@ -2,10 +2,13 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 /// <summary>Checks installed Phantoon health, fade, and power-on colors against
 /// native RGB5 data and live palette transitions.</summary>

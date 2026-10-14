@@ -1,20 +1,16 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
 using System.Globalization;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Audits retail room-FX selection, visible liquid layers, animation, and transition behavior across named states and doors.</summary>
 internal static class RoomFxRetailInventoryVerification

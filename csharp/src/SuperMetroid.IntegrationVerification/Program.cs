@@ -1,7 +1,7 @@
 using SuperMetroid.Android;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Input;
 
 /// <summary>
 /// Repository-only integration checks: the gitignored ROM, its shared extracted installation and checked-in fixtures.

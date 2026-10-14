@@ -1,17 +1,8 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
 using static AreaAnimatedTileObjectDefinitionsVerification;
-using static AssertionsVerification;
 using static DoorDefinitionsVerification;
 using static RetailPresentationFixtureVerification;
 using static RoomFxAnimatedTileArtworkVerification;
@@ -22,6 +13,7 @@ using static RoomFxRetailInventoryVerification;
 using static RoomFxSharedRandomVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks typed room-FX records, blend dispatch and renderable BG3 effects against native definitions.</summary>
 internal static class RoomFxRomDataVerification

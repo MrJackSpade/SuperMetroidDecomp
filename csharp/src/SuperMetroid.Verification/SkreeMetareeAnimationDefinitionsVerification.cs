@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Metaree;
+using SuperMetroid.Core.Enemies.Skree;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks the four native animation selectors and live instruction handoffs for both Skree and Metaree.</summary>
 internal static class SkreeMetareeAnimationDefinitionsVerification

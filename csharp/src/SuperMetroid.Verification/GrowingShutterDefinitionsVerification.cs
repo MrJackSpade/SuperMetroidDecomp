@@ -1,7 +1,7 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>Checks bank $A2 growing-shutter selectors and speed records through the actual enemy initializer.</summary>
 internal static class GrowingShutterDefinitionsVerification

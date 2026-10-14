@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>Compares compiled Rio launch words and Norfair's random selector with the retail cartridge.</summary>
 internal static class RioLaunchDefinitionsVerification

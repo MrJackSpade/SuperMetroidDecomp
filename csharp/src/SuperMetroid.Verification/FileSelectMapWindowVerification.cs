@@ -1,24 +1,14 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static FileSelectMapEntryVerification;
 using static FileSelectRoomMapVerification;
 using static MapWindowMotionDefinitionsVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks area-map graphics and the file-select room-map transition window.</summary>
 internal static class FileSelectMapWindowVerification
@@ -26,7 +16,7 @@ internal static class FileSelectMapWindowVerification
     /// <summary>Creates identical editable label anchors for all six selectable areas.</summary>
     private static WorldMapLabelLayout CreateWindowLabelFixture(Position16<OamPixels> label)
     {
-        var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Game.AreaId)area).ToString(),
+        var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Rooms.AreaId)area).ToString(),
             _ => label);
         using var stream = new MemoryStream();
         WorldMapLabelLayout.Write(stream, new() { Version = 1, Areas = points });
@@ -122,8 +112,8 @@ internal static class FileSelectMapWindowVerification
         }
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
             "completed return disables room frame and restores entire area scene");
-        var graphics = new FileSelectRoomMapGraphics(bus, new SuperMetroid.Core.Game.Bank80SystemState(),
-            SuperMetroid.Core.Game.AreaId.Maridia, mapPresentation: RetailPresentationFixture());
+        var graphics = new FileSelectRoomMapGraphics(bus, new SuperMetroid.Core.Progression.Bank80SystemState(),
+            SuperMetroid.Core.Rooms.AreaId.Maridia, mapPresentation: RetailPresentationFixture());
         Rgba32[] frameOnly = graphics.RenderFrameOnly().ToArray();
         graphics.Vram.LoadBytes(0xa000, new byte[] { 0x34, 0x12 });
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");

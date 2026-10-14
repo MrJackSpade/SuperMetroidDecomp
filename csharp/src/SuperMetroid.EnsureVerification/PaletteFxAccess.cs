@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Verification view of palette-FX slot occupancy.</summary>
 internal static class PaletteFxAccess

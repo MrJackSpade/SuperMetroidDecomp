@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks downward gate column and colored trigger draw lists against bank-$84 PLM data.</summary>
 internal static class LookupDownwardGateStockVerification

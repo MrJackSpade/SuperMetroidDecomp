@@ -1,11 +1,13 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static AttractInputFixtureVerification;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Frontend.Attract;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks the retail grapple attract demo's scripted shots, ceiling
 /// connections, aim after release, and final landing.</summary>

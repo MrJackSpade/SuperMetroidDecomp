@@ -1,19 +1,16 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using static SuiteTimingVerification;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.Spike;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks Samus's block collision, grounded physics, reversal, Moonwalk and wall-contact routes.</summary>
 internal static class SamusTerrainMovementVerification

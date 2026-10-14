@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks that invalid bindings, brightness, PLM identities, and unloaded enemy services fail explicitly.</summary>
 internal static class StrictFailuresVerification

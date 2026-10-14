@@ -1,13 +1,13 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 using static EndingLogoSpriteArtworkVerification;
 using static EndingObjectArtworkVerification;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Compares installed post-credits Samus and logo artwork through the native fade, DMA and assembled-logo sequence.</summary>
 internal static class PostCreditsCharacterArtworkVerification

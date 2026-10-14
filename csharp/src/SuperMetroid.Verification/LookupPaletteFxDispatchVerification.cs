@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static RoomPaletteFxDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks palette-FX object identity and dispatch fields against bank $8D.</summary>
 internal static class LookupPaletteFxDispatchVerification

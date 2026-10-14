@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Areas.Escape;
 
 /// <summary>Checks optional escape-time floor behavior for Ceres and Mother Brain countdowns.</summary>
 internal static class EscapeTimerFloorVerification

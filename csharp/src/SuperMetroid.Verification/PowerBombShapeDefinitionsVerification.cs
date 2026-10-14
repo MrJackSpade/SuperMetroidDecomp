@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled Power Bomb width and top-offset curves through scanline rendering.</summary>
 internal static class PowerBombShapeDefinitionsVerification

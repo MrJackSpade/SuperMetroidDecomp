@@ -1,8 +1,10 @@
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Kzan;
+using SuperMetroid.Core.Enemies.Polyp;
 
 namespace SuperMetroid.ResourceAudit;
 

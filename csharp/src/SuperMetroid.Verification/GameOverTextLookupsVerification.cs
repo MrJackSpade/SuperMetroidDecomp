@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>Checks the five compiled game-over text transfers against their native source and destination immediates.</summary>
 internal static class GameOverTextLookupsVerification

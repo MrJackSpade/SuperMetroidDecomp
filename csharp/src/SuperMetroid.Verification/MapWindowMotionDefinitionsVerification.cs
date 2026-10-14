@@ -1,11 +1,10 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks area-specific file-select map window origins, edge velocities, and timers.</summary>
 internal static class MapWindowMotionDefinitionsVerification

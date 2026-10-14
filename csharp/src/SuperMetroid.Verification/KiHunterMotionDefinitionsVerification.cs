@@ -1,6 +1,7 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>Checks Ki Hunter motion constants, detached wing orbit math, and gravity carry.</summary>
 internal static class KiHunterMotionDefinitionsVerification

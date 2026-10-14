@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using System.Buffers.Binary;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Input;
 
 /// <summary>Checks versioned controller recordings preserve replay seeds, raw inputs, content identities, and strict file boundaries.</summary>
 internal static class ControllerInputRecordingVerification

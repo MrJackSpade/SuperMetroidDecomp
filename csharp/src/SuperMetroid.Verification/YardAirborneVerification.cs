@@ -1,8 +1,12 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Yard;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks Yard kick distance publication and airborne fixed-point trajectories.</summary>
 internal static class YardAirborneVerification

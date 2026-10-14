@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks the three elevator platform draw lists against native PLM words and edited catalog behavior.</summary>
 internal static class LookupElevatorPlatformStockVerification

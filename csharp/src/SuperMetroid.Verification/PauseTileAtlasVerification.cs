@@ -1,13 +1,17 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
 using static GraphDigestVerification;
 using static PauseEquipmentRulesVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Checks pause UI tile artwork, page rendering, and PNG override isolation against native output.</summary>
 internal static class PauseTileAtlasVerification

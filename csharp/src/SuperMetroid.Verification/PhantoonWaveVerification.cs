@@ -1,9 +1,10 @@
 using SuperMetroid.Core;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks Phantoon HDMA wave, palette fade, and blending state across display latches.</summary>
 internal static class PhantoonWaveVerification

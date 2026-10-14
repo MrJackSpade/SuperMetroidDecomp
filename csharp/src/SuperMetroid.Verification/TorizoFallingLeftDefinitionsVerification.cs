@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Checks the compiled falling-left Torizo instruction and collision definitions against the pinned cartridge.</summary>
 internal static class TorizoFallingLeftDefinitionsVerification

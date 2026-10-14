@@ -1,18 +1,8 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using System.Reflection;
-using SuperMetroid.Core.Game;
-using static AssertionsVerification;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks how boot SRAM comparison carry affects earthquake sound timer reloads.</summary>
 internal static class MainGameLoopCarryVerification

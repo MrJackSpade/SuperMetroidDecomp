@@ -1,15 +1,18 @@
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using static AssertionsVerification;
 using static CollectiblesVerification;
 using static GameSaveJsonVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks named save-schema translation, legacy precedence, rejection paths, and backup-preserving upgrade.</summary>
 internal static class SaveSchemaTranslationVerification
@@ -117,10 +120,10 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(2, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
         ram.SetGameCompleted(false);
         var native = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var text = SuperMetroid.Core.Assets.EndingTextPresentation.Load(new MemoryStream(
+        var text = SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.EndingTextExtractor.Extract(native), writable: false));
         var ending = new EndingCreditsState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text });
-        ending.BindPaletteFxColors(SuperMetroid.Core.Assets.RoomPaletteFxPresentation.Load(new MemoryStream(
+        ending.BindPaletteFxColors(SuperMetroid.Core.Fx.Artwork.RoomPaletteFxPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(native), writable: false)));
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         ending.Phase = EndingCreditsPhase.ItemPercentageScrollDown;

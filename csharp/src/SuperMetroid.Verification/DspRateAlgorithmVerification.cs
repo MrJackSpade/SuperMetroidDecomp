@@ -1,17 +1,5 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using System.Text.RegularExpressions;
-using SuperMetroid.Core.Audio;
 
 /// <summary>Checks DSP rate periods against the initializer in the pinned upstream emulator source.</summary>
 internal static class DspRateAlgorithmVerification

@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Typed entry to the native extended-hitbox walker for collision tables whose fixtures keep their query as an

@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Verifies the native face-forward pose setup's collision-radius and Y-position writes.</summary>
 internal static class MakeSamusFaceForwardVerification

@@ -1,10 +1,11 @@
 using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidInstalledPresentationHeadClockVerification;
 using static TilemapJsonContractsVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>Checks Kraid live head tilemap DMA and required installed artwork files.</summary>
 internal static class KraidInstalledPresentationResourcesVerification

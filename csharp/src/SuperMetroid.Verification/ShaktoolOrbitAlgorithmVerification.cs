@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>Compares generated Shaktool orbit math with its retail table and signed 8.8 displacement pairs.</summary>
 internal static class ShaktoolOrbitAlgorithmVerification

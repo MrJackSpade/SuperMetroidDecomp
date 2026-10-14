@@ -1,8 +1,11 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled elevator direction masks against native data and guarded departure behavior.</summary>
 internal static class ElevatorInputDefinitionsVerification

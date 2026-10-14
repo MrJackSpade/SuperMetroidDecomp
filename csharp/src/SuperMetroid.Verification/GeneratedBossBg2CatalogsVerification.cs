@@ -1,6 +1,8 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 /// <summary>Checks generated Phantoon and Draygon BG2 frame catalogs against native stream roots.</summary>
 internal static class GeneratedBossBg2CatalogsVerification

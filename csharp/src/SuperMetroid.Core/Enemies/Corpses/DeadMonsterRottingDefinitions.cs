@@ -1,0 +1,151 @@
+using SuperMetroid.Core.Programs;
+
+namespace SuperMetroid.Core.Enemies.Corpses;
+
+/// <summary>Bounded, pinned bank-$A9 corpse-copy geometry and live-WRAM DMA descriptors.</summary>
+/// <remarks>No tile pixels or cartridge byte decoder are stored here.</remarks>
+internal static class DeadMonsterRottingDefinitions
+{
+    /// <summary>CorpseRottingVRAMTransferDefinitions_Sidehopper_Param1_0 at $A9:E0E0; two42-byte variant lists.</summary>
+    internal const ushort SidehopperTransfers = 0xe0e0;
+    /// <summary>CorpseRottingVRAMTransferDefinitions_Zoomer_Param1_0 at $A9:E134; three18-byte variant lists.</summary>
+    internal const ushort ZoomerTransfers = 0xe134;
+    /// <summary>CorpseRottingVRAMTransferDefinitions_Ripper_Param1_0 at $A9:E16A; two18-byte variant lists.</summary>
+    internal const ushort RipperTransfers = 0xe16a;
+    /// <summary>CorpseRottingVRAMTransferDefinitions_Skree_Param1_0 at $A9:E18E; three34-byte variant lists.</summary>
+    internal const ushort SkreeTransfers = 0xe18e;
+    /// <summary>Dead Torizo's seven asymmetric touch rectangles at $A9:D77C..D7B5.</summary>
+    private static readonly DeadCorpseTouchHitbox[] TorizoHitboxRecords =
+    [
+        new(0xffe1, 0x0025, 0xfff5, 0x002b),
+        new(0x0010, 0x0025, 0x0026, 0x002b),
+        new(0xffe8, 0x0012, 0xfff3, 0x0024),
+        new(0x000b, 0x001a, 0x0019, 0x0024),
+        new(0xfff6, 0xffe2, 0x0010, 0x0018),
+        new(0xfff9, 0xffd4, 0x0022, 0xffe1),
+        new(0x0011, 0xffe1, 0x0028, 0xfff9),
+    ];
+
+    /// <summary>Publishes Dead Torizo's seven asymmetric corpse touch rectangles in native order.</summary>
+    internal static ReadOnlySpan<DeadCorpseTouchHitbox> TorizoTouchHitboxes => TorizoHitboxRecords;
+
+    /// <summary>
+    /// Five tile rows copied by CorpseRottingInit_Sidehopper_Param1_0/2 at $A9:DEC1/DF08.
+    /// The native atlas is sixteen tiles wide; each staged silhouette is five tiles wide.
+    /// The second silhouette starts after five staged rows, nine atlas tiles to the right.
+    /// </summary>
+    internal static (int SourceOffset, int DestinationOffset, int Length) SidehopperInitialCopy(ushort variant, int row)
+    {
+        if ((uint)row >= 5) throw new ArgumentOutOfRangeException(nameof(row));
+        int silhouette = variant == 0 ? 0 : 1;
+        int leftClip = row == 0 && silhouette == 0 ? 2 : 0;
+        int width = row == 0 ? (silhouette == 0 ? 3 : 2) : 5;
+        return ((silhouette * 9 + row * 16 + leftClip) * 32,
+            (silhouette * 25 + row * 5 + leftClip) * 32, width * 32);
+    }
+
+    /// <summary>Planes-0/1 tile-column words used by the $A9:E468/E564 Sidehopper pixel movers.</summary>
+    internal static int SidehopperColumnWordOffset(ushort variant, int column)
+    {
+        if ((uint)column >= 5) throw new ArgumentOutOfRangeException(nameof(column));
+        return ((variant == 0 ? 0 : 25) + column) * 16;
+    }
+
+    /// <summary>
+    /// Missing first-row tiles in the two sidehopper silhouettes: first two columns in
+    /// variant zero, last three in the alternate variant. Native movers $A9:E468/E564
+    /// and copiers $A9:E4F5/E5F6 skip these columns until pixel row eight.
+    /// </summary>
+    internal static int SidehopperColumnMinimumY(ushort variant, int column)
+    {
+        if ((uint)column >= 5) throw new ArgumentOutOfRangeException(nameof(column));
+        return (variant == 0 ? column < 2 : column >= 2) ? 8 : 0;
+    }
+
+    /// <summary>Decodes one bank-$A9 corpse row-offset table before calculating its tile-row stride.</summary>
+    internal static ushort RotationOffset(ushort table, ushort yOffset) =>
+        RotationOffset(ClosedNativeWords.Decode<CorpseRotationTable>(table, "compiled corpse rotation table"), yOffset);
+
+    /// <summary>Converts an eight-pixel corpse row offset into its species-specific staged tile byte offset.</summary>
+    internal static ushort RotationOffset(CorpseRotationTable table, ushort yOffset)
+    {
+        (int count, int tiles) = table switch
+        {
+            CorpseRotationTable.Torizo => (13, 10),
+            CorpseRotationTable.Sidehopper => (6, 5),
+            CorpseRotationTable.Zoomer or CorpseRotationTable.Ripper => (3, 3),
+            CorpseRotationTable.Skree => (5, 2),
+            _ => throw new InvalidOperationException($"Undefined CorpseRotationTable {table}."),
+        };
+        int row = yOffset >> 3;
+        if (row >= count) throw new ArgumentOutOfRangeException(nameof(yOffset));
+        return (ushort)(row * tiles * 32);
+    }
+
+    /// <summary>Calculates live-WRAM DMA rows for supported Sidehopper, Zoomer, Ripper, and Skree variant tables.</summary>
+    internal static TransferRows ForTransferTable(ushort table)
+    {
+        int offset = table - SidehopperTransfers;
+        if (offset >= 0 && offset < 84 && offset % 42 == 0)
+        {
+            int variant = offset / 42;
+            return new(5, 0xa0, (ushort)(0x2040 + variant * 0x2e0),
+                (ushort)(0x7000 + variant * 0x90), variant == 0 ? (ushort)0x60 : (ushort)0x40,
+                variant == 0 ? (ushort)0x20 : (ushort)0);
+        }
+        offset = table - ZoomerTransfers;
+        if (offset >= 0 && offset < 54 && offset % 18 == 0)
+        {
+            int variant = offset / 18;
+            return new(2, 0x60, (ushort)(0x2940 + variant * 0xc0), (ushort)(0x7530 + variant * 0x30));
+        }
+        offset = table - RipperTransfers;
+        if (offset >= 0 && offset < 36 && offset % 18 == 0)
+        {
+            int variant = offset / 18;
+            return new(2, 0x60, (ushort)(0x2b80 + variant * 0xc0), (ushort)(0x7500 + variant * 0xc0));
+        }
+        offset = table - SkreeTransfers;
+        if (offset >= 0 && offset < 102 && offset % 34 == 0)
+        {
+            int variant = offset / 34;
+            // The first corpse begins on the next VRAM tile row; later variants occupy row zero.
+            int destination = variant == 0 ? 0x7150 : 0x7000 + variant * 0x70;
+            return new(4, 0x40, (ushort)(0x2640 + variant * 0x100), (ushort)destination);
+        }
+        throw new InvalidDataException($"Corpse transfer table $A9:{table:X4} has no compiled definition.");
+    }
+
+    /// <summary>Consecutive live-WRAM tile rows placed in32-tile VRAM rows; sidehoppers clip their first row.</summary>
+    internal readonly struct TransferRows(int count, ushort stride, ushort source, ushort destination,
+        ushort firstSize = 0, ushort firstDestinationOffset = 0) : IReadOnlyList<DeadMonsterVramTransferDefinition>
+    {
+        /// <summary>Number of live corpse tile rows uploaded by the selected variant.</summary>
+        public int Count => count;
+        /// <summary>Calculates one WRAM-to-VRAM row, including Sidehopper's clipped first-row adjustment.</summary>
+        public DeadMonsterVramTransferDefinition this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                return new(index == 0 && firstSize != 0 ? firstSize : stride, 0x7e00,
+                    (ushort)(source + stride * index - (index == 0 ? 0 : firstDestinationOffset * 2)),
+                    (ushort)(destination + 0x100 * index + (index == 0 ? firstDestinationOffset : 0)));
+            }
+        }
+        /// <summary>Visits calculated row transfers in native descriptor order.</summary>
+        public IEnumerator<DeadMonsterVramTransferDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        /// <summary>Exposes the same native row order to non-generic consumers.</summary>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <summary>$A9:D67C: eight words per sand strip, second strip displaced by$120 staging bytes.</summary>
+    internal static ushort SandDestination(ushort line) => line < 16
+        ? (ushort)((line / 8) * 0x120 + (line % 8) * 2) : throw new ArgumentOutOfRangeException(nameof(line));
+    /// <summary>$A9:D69C: matching eight-word source strips are separated by$200 bytes.</summary>
+    internal static ushort SandSource(ushort line) => line < 16
+        ? (ushort)((line / 8) * 0x200 + (line % 8) * 2) : throw new ArgumentOutOfRangeException(nameof(line));
+}

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks native address ranges for Samus pose, speed, liquid, and slope movement tables.</summary>
 internal static class SamusMovementRomDataVerification

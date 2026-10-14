@@ -3,7 +3,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -41,10 +42,9 @@ internal static class MotherBrainSheetsPresentationContractChecks
         var trees = MotherBrainSheetsClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<mb-sheets-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
             class SheetConsumer {
                 void Inspect(MotherBrainSpecialSpriteArtworkCatalog sheets, int selected) {
                     sheets.Get({{first}});
@@ -72,7 +72,7 @@ internal static class MotherBrainSheetsPresentationContractChecks
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 3 && after.Classifications.Count == 2 && after.UnresolvedCount == 1 &&
             after.MissingCount == 0 && after.Consumers.Count == 3, "complete sheet admission must reject known unowned source keys");
-        const string provider = "csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkCatalog.cs";
+        const string provider = "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainSpecialSpriteArtworkCatalog.cs";
         var changed = trees.Select(tree => tree.FilePath == provider ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace("artwork.Transfer.Length != definition.ByteCount", "false", StringComparison.Ordinal),
                 path: tree.FilePath) : tree);

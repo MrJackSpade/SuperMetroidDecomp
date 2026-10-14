@@ -9,6 +9,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using System.Text.Json;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// Installer acceptance for the source-inventoried presentation domains. Import is

@@ -1,10 +1,11 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hud;
 
 /// <summary>
 /// Checks that a cartridge-backed Golden Torizo can enter its native walking combat

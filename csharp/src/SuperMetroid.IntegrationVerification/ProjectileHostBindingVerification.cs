@@ -1,12 +1,10 @@
 using SuperMetroid.Tooling;
-using System.Reflection;
-using System.Text.Json.Nodes;
 using SuperMetroid.Android;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks Android host binding of installed projectile art across startup, save loads, and edited overrides.</summary>
 internal static class ProjectileHostBindingVerification

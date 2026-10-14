@@ -1,7 +1,9 @@
 using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.WorkRobots;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 

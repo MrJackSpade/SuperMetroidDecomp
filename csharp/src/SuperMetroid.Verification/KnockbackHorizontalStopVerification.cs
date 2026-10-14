@@ -1,6 +1,9 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks that enemy-clipped horizontal knockback clears momentum for the following frame.</summary>
 internal static class KnockbackHorizontalStopVerification

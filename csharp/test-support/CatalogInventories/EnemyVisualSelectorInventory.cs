@@ -1,7 +1,12 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>
 /// Cartridge-backed development inventory, never a production ROM fallback.

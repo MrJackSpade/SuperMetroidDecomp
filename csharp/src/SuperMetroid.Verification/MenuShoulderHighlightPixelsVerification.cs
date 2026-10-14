@@ -1,6 +1,8 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
 
 /// <summary>Checks calculated menu shoulder-highlight pixels and edited atlas uploads.</summary>
 internal static class MenuShoulderHighlightPixelsVerification

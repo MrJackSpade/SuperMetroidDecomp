@@ -1,8 +1,9 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

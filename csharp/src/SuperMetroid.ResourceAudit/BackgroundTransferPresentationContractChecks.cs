@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -17,11 +17,16 @@ internal static class BackgroundTransferPresentationContractChecks
         var trees = contracts.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<bg-transfer-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Game;
+            using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+            using SuperMetroid.Core.Bosses.Draygon.Artwork;
+            using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+            using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+            using SuperMetroid.Core.Enemies.Artwork;
+            using SuperMetroid.Core.Frontend.Ending.Artwork;
+            using SuperMetroid.Core.Fx;
+            using SuperMetroid.Core.Fx.Artwork;
             using SuperMetroid.Core.Hardware;
             class BackgroundConsumer {
                 void Inspect(PhantoonBg2FrameCatalog phantoon, DraygonBg2FrameCatalog draygon,
@@ -52,7 +57,10 @@ internal static class BackgroundTransferPresentationContractChecks
             """, path: "fixture-bg-transfer-consumer.cs");
         if (bg2Only)
             calls = CSharpSyntaxTree.ParseText("""
-                using SuperMetroid.Core.Assets;
+                using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+                using SuperMetroid.Core.Bosses.Draygon.Artwork;
+                using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+                using SuperMetroid.Core.Bosses.Phantoon.Artwork;
                 class BackgroundConsumer {
                     void Inspect(PhantoonBg2FrameCatalog phantoon, DraygonBg2FrameCatalog draygon,
                         CrocomireBg2FrameCatalog crocomire, MotherBrainBodyBg2FrameCatalog motherBrain) {
@@ -92,7 +100,7 @@ internal static class BackgroundTransferPresentationContractChecks
         Require(bg2Only || after.Findings.Any(item => item.Owner == "GunshipLiftoffArtworkCatalog.TryResolve" &&
             item.Message.Contains("requires 1024 bytes", StringComparison.Ordinal)),
             "an owned source with a short length cannot borrow unsupported-source false behavior");
-        const string sharedLoader = "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs";
+        const string sharedLoader = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyBg2FrameCatalog.cs";
         var changed = trees.Select(tree => tree.FilePath == sharedLoader ?
             CSharpSyntaxTree.ParseText(tree.GetText().ToString().Replace("document.Frames.Count != definitions.Length",
                 "false", StringComparison.Ordinal), path: tree.FilePath) : tree);
@@ -100,7 +108,7 @@ internal static class BackgroundTransferPresentationContractChecks
         Require(revoked.Classifications.Count == after.Classifications.Count - 4 && revoked.UnresolvedCount == after.UnresolvedCount + 4 &&
             revoked.Findings.Count(item => item.Message.Contains("stale", StringComparison.Ordinal)) == 4,
             "changed shared frame admission must revoke all four wrapper proofs");
-        const string sequence = "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameDefinitionSequence.cs";
+        const string sequence = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyBg2FrameDefinitionSequence.cs";
         var changedSequence = trees.Select(tree => tree.FilePath == sequence ?
             CSharpSyntaxTree.ParseText(tree.GetText().ToString().Replace("generate(index)",
                 "generate(0)", StringComparison.Ordinal), path: tree.FilePath) : tree);

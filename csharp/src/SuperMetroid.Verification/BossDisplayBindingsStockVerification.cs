@@ -1,17 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BossDisplayBindingsDocumentsVerification;
 using static BossDisplayBindingsFixtureVerification;
@@ -19,6 +9,13 @@ using static BossDisplayBindingsOracleVerification;
 using static BossDisplayBindingsVerification;
 using static EnemyContentIdentityFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 /// <summary>Checks stock boss display roots and installed BG2 bindings against cartridge artwork.</summary>
 internal static class BossDisplayBindingsStockVerification

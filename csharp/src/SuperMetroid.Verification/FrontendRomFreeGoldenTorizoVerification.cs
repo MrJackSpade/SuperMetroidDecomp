@@ -1,21 +1,13 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
-using static Program;
 using static RepositoryInputsVerification;
 using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static FrontendRomFreeVerification;
 using static GoldenTorizoRoomSetupVerification;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Compares Golden Torizo's room sequence on native and cartridge-free frontends.</summary>
 internal static class FrontendRomFreeGoldenTorizoVerification

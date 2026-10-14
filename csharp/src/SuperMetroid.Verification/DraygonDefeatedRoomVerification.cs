@@ -1,18 +1,11 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
-using System.Reflection;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks cannon processing and door exit after Draygon has already been defeated.</summary>
 internal static class DraygonDefeatedRoomVerification
@@ -40,14 +33,14 @@ internal static class DraygonDefeatedRoomVerification
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);
         for (int frame = 0; transition.Phase != DoorTransitionPhase.HandleTransition && frame < 600; frame++)
-            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
         AssertEqual(DoorTransitionPhase.HandleTransition, transition.Phase, "Space Jump exit reaches finalization");
         // $82:E6A2 finalizes the scroll and returns before the E737 actor/fade dispatch, so a
         // destination actor frame can never re-enter scroll finalization (#387).
-        transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
+        transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
         AssertEqual(DoorTransitionPhase.BuildDestinationOam, transition.Phase,
             "scroll finalization returns before the destination actor frame");
-        for (int frame = 0; transition.IsActive && frame < 120; frame++) transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
+        for (int frame = 0; transition.IsActive && frame < 120; frame++) transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
         AssertEqual(DoorTransitionPhase.Complete, transition.Phase, "destination OAM and fade complete after one scroll finalization");
         Console.WriteLine("Space Jump to defeated Draygon: scroll finalization precedes destination OAM and fade.");
     }

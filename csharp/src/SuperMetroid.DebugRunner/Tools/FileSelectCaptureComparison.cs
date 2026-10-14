@@ -1,10 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Saves;
 
 /// <summary>
 /// Local-only diagnostic for a reset-origin journal and Android output WAV. Compares

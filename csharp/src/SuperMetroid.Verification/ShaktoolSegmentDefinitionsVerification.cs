@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>Checks Shaktool's seven compiled segment initializers against the cartridge and production enemy setup.</summary>
 internal static class ShaktoolSegmentDefinitionsVerification

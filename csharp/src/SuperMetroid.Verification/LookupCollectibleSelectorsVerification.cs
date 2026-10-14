@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static CollectibleVisualsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks collectible PLM visual selectors and phase bounds against native draw operands.</summary>
 internal static class LookupCollectibleSelectorsVerification

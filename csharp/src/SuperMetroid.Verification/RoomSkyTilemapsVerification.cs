@@ -1,13 +1,15 @@
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using static LookupSkyChunkPointersVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks installed scrolling-sky pages and Landing Site transfers against native VRAM output.</summary>
 internal static class RoomSkyTilemapsVerification

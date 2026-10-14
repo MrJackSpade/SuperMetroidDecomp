@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>Compares Puyo hop records and initial vertical-curve integration with retail bank-$A2 data.</summary>
 internal static class PuyoHopDefinitionsVerification

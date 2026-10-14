@@ -1,8 +1,10 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks D3D11 output against production rendering during the retail Morph Ball eye-beam sequence.</summary>
 internal static class RetailEyeCaptureTests

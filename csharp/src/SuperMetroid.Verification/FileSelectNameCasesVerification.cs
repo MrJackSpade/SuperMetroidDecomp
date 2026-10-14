@@ -1,7 +1,7 @@
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 /// <summary>Checks file-select presentation names, ordering, and exact JSON schema identity.</summary>
 internal static class FileSelectNameCasesVerification

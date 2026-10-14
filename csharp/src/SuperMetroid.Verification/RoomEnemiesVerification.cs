@@ -1,26 +1,29 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static CeresDoorQuakeDefinitionsVerification;
 using static ProjectileNativeFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static SignedSineFixtureVerification;
 using static SyntheticEnemyCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Areas.Escape.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped
@@ -1487,7 +1490,6 @@ static void WriteTestLong(TestAddressSpace bus, int address, int value)
     WriteTestByte(bus, address + 1, SnesLittleEndian.HighByte(unchecked((ushort)value)));
     WriteTestByte(bus, address + 2, SnesLittleEndian.BankByte(value));
 }
-
 
 /// <summary>
 /// Synthetic cartridge for the Ceres Ridley room entry: Ridley's and the Ceres door's headers,

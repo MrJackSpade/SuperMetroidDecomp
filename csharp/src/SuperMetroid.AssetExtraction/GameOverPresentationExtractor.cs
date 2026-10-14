@@ -1,8 +1,11 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

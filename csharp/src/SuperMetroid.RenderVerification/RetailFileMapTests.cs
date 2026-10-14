@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Compares translated file-map scenes with direct rendering throughout map navigation.</summary>
 internal static class RetailFileMapTests

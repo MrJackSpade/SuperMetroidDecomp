@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static CeresStationPartsVerification;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks Ceres vortex compositions against native OAM and the
 /// shared tip and core cells reused by the calculated layout.</summary>

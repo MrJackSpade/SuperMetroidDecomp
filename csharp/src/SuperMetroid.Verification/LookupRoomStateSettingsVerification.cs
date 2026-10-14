@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Checks every compiled retail room-state field against bank-$8F source records.</summary>
 internal static class LookupRoomStateSettingsVerification

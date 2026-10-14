@@ -2,15 +2,19 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
-using static AssertionsVerification;
 using static LookupEscapeGateStockVerification;
 using static RoomPlmPopulationVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks Mother Brain escape gate visual overrides against PLM collision and install contracts.</summary>
 internal static class EscapeGateVisualsVerification

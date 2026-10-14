@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Checks the bounded dormant Bomb Torizo program against bank $AA source data.</summary>
 internal static class BombTorizoDormantDefinitionsVerification

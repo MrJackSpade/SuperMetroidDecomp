@@ -1,10 +1,4 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Rooms;
-using System.Text;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Captures retail room-FX records into a compiled source file only when no generated file exists.</summary>
 internal static class RoomFxRecordGenerator

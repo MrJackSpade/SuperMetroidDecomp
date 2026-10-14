@@ -1,17 +1,11 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static GoldenTorizoRightOrbDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Boyon;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Checks the selected Boyon and Torizo control words and visual selectors against pinned native data.</summary>
 internal static class EnemyAnimationIsolationStockParityVerification

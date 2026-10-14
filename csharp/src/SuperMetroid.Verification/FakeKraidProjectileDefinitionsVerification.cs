@@ -1,8 +1,8 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FakeKraidSpitVelocitiesVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Fake Kraid spit and spike launch definitions through physical projectile spawning.</summary>
 internal static class FakeKraidProjectileDefinitionsVerification

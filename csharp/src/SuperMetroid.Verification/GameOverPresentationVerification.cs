@@ -1,11 +1,10 @@
 using SuperMetroid.Tooling;
-using System.Text.Json;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static MapPresentationVerification;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks installed game-over artwork and Baby animation against cartridge playback.</summary>
 internal static class GameOverPresentationVerification

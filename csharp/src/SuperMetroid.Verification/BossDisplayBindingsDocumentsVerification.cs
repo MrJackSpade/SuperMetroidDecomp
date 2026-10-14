@@ -1,6 +1,10 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using static EnemyContentIdentityFixtureVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Provides editable boss OAM and BG2 documents for display-binding checks.</summary>
 internal static class BossDisplayBindingsDocumentsVerification

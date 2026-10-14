@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static CeresStationPartsVerification;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks calculated small-asteroid sprite geometry against native
 /// OAM while retaining editable per-part art and group placement.</summary>

@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks calculated intro Mother Brain portrait parts against
 /// native spritemaps while preserving independently edited artwork.</summary>

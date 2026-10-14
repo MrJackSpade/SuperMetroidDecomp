@@ -1,8 +1,10 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.AssetExtraction;
 

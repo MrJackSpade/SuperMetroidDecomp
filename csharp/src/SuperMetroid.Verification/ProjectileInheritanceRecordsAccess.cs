@@ -1,5 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// Verification view of the native projectile-inheritance WRAM block (#629). Production's

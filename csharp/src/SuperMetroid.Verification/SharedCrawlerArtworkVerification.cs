@@ -1,8 +1,9 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedCrawlerInstructionProgramDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>Confirms four crawler species share the same compiled animation
 /// selectors and installed HZoomer spritemap artwork.</summary>

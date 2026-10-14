@@ -1,19 +1,14 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.SpacePirates;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks compiled ninja Space Pirate programs, frame selectors, and attack callbacks.</summary>
 internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification

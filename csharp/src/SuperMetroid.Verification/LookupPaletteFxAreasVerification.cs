@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks native bank-$83 palette-FX list pointers and each area's eight bit-selected definitions.</summary>
 internal static class LookupPaletteFxAreasVerification

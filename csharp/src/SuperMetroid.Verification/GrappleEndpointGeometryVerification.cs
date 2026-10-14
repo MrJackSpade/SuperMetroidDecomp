@@ -1,9 +1,9 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Runtime;
-using System.Reflection;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks grapple endpoint clipping, wrapped subtraction, and OAM across poses and cameras.</summary>
 internal static class GrappleEndpointGeometryVerification

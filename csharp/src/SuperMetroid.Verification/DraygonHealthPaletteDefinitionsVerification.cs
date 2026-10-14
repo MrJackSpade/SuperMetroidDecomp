@@ -1,9 +1,12 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks Draygon's compiled health bands through production palette selection.</summary>
 internal static class DraygonHealthPaletteDefinitionsVerification

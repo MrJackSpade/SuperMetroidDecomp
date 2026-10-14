@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks the compiled intro Mother Brain collision source against its retail ROM words.</summary>
 internal static class IntroMotherBrainCollisionSourceVerification

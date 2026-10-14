@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks falling-pose dash carryover and base-speed recurrence against the retail movement code.</summary>
 internal static class FallingSpeedRecurrenceVerification

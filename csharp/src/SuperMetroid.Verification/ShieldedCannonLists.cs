@@ -1,8 +1,3 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-
 /// <summary>A shielded Draygon cannon's seeded instruction lists, damage instruction and draws (#633).</summary>
 internal readonly record struct ShieldedCannonLists
 {

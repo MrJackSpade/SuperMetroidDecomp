@@ -1,9 +1,6 @@
-using SuperMetroid.Core.Audio;
-using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
@@ -12,6 +9,11 @@ using static GraphDigestVerification;
 using static IntroCinematicArtworkVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks installed Ceres flight Mode 7, sprite, actor, and palette art against retail sources.</summary>
 internal static class CeresFlightArtworkVerification

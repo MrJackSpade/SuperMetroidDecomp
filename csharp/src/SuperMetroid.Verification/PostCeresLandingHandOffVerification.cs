@@ -1,9 +1,12 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static RoomDefinitionIntegrationVerification;
+using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks station-load state and the gunship unlock boundary after the Ceres escape.</summary>
 internal static class PostCeresLandingHandOffVerification

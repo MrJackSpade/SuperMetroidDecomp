@@ -4,10 +4,13 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.AssetExtraction;
 

@@ -1,8 +1,9 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks Fune and Namihe animation selectors against native words and production installs.</summary>
 internal static class FuneNamiheDefinitionsVerification

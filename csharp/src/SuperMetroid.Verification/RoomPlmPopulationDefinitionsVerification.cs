@@ -1,13 +1,15 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
 using static CompiledDynamicCollectibleGraphicsVerification;
 using static CompiledScrollPlmProgramsVerification;
 using static LookupRetailPlmHeadersVerification;
 using static LookupRetailPopulationsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks compiled room PLM populations, header metadata, scroll programs, and collectible uploads against ROM.</summary>
 internal static class RoomPlmPopulationDefinitionsVerification

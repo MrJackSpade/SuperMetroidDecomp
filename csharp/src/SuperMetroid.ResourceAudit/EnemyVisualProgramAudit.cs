@@ -3,8 +3,13 @@ using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Skree;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -32,7 +37,9 @@ internal static class EnemyVisualProgramAudit
         {
             ClassDeclarationSyntax[] parts = declarations.Where(type => type.Identifier.ValueText == owner).ToArray();
             ClassDeclarationSyntax[] adapterParts = declarations.Where(type => type.Identifier.ValueText == owner + "Tooling").ToArray();
-            Type? type = ConsumerAudit.ProgramOwnerType("SuperMetroid.Core.Game." + owner);
+            // Owners live in their domain namespaces (#626); the declaration names its own.
+            string? ownerNamespace = parts.Select(part => part.FirstAncestorOrSelf<BaseNamespaceDeclarationSyntax>()?.Name.ToString()).FirstOrDefault(name => name is not null);
+            Type? type = ownerNamespace is null ? null : ConsumerAudit.ProgramOwnerType(ownerNamespace + "." + owner);
             if (type is null || parts.Length == 0)
             {
                 report.Gap(ResourceDomains.CompiledSelector, owner, "source inventory", "Program has no matched compiled/source owner.");

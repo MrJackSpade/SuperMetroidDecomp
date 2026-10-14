@@ -1,13 +1,18 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using static IntroCinematicArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks installed Ceres destruction and Zebes reveal art against cartridge transfers and live cinematic rendering.</summary>
 internal static class CeresDestructionArtworkVerification

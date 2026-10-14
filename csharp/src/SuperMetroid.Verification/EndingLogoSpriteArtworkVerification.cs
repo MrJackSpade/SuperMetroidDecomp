@@ -1,10 +1,10 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks ending logo OAM and presentation overrides against native spritemaps.</summary>
 internal static class EndingLogoSpriteArtworkVerification

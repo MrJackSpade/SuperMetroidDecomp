@@ -1,10 +1,11 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
-using B = SuperMetroid.Core.Game.MotherBrainBodyCue;
-using H = SuperMetroid.Core.Game.MotherBrainHeadCue;
-using K = SuperMetroid.Core.Game.MotherBrainHeadCueKind;
+using B = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyCue;
+using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadCue;
+using K = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadCueKind;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// The native lists Mother Brain's ROM oracle (#1285) walks: every typed program's entry point, the bank-$A9 opcodes

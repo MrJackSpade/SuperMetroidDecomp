@@ -1,5 +1,5 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks Ridley's Power Bomb tail reaction and the fields it must leave untouched.</summary>
 internal static class RidleyNeutralTailVerification

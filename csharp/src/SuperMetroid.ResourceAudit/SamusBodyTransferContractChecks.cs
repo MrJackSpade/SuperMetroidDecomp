@@ -4,8 +4,12 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -83,10 +87,9 @@ internal static class SamusBodyTransferContractChecks
         var trees = SamusBodyTransferClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path),
                 path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<samus-transfer-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Samus.Artwork;
             class SamusTransferConsumer {
                 void Inspect(SamusBodyArtworkCatalog body, byte pose, ushort frame, bool upper, byte set, byte position, int address) {
                     body.Frame(pose, frame);
@@ -119,7 +122,7 @@ internal static class SamusBodyTransferContractChecks
         Require(before.UnresolvedCount == 8 && before.Consumers.Count == 8, "original unaccounted transfer boundaries");
         Require(after.Classifications.Count == 4 && after.UnresolvedCount == 4 && after.Consumers.Count == 8,
             "valid-domain transfer availability does not suppress known invalid pose, set or address constants");
-        const string layout = "csharp/src/SuperMetroid.Core/Assets/SamusBodyDefinitionLayout.cs";
+        const string layout = "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyDefinitionLayout.cs";
         var stale = trees.Select(tree => tree.FilePath == layout ? CSharpSyntaxTree.ParseText(tree.GetText().ToString()
             .Replace("groups[set].Length != counts[pointers[set]]", "false", StringComparison.Ordinal), path: tree.FilePath) : tree);
         Require(Inspect(Compile(stale), true).UnresolvedCount == 8, "changed admission revokes physical record closure");

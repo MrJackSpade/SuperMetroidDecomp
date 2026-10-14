@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Checks compiled grounded slope multipliers and packed displacement arithmetic against native values.</summary>
 internal static class SlopeSpeedDefinitionsVerification

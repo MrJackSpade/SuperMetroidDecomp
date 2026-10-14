@@ -1,21 +1,13 @@
 using SuperMetroid.Core;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static EndingCloudMotionVerification;
 using static EndingLogoVerification;
 using static EndingPostShotVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Checks post-credits reward actors, graphics uploads, gesture timing, and jump handoffs against bank-$8B source data.</summary>
 internal static class EndingRewardGestureVerification

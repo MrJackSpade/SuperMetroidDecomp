@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks the exported downward gate draw records against their bank $84 originals.</summary>
 internal static class LookupDownwardGateDrawsVerification

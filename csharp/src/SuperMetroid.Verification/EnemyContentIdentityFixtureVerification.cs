@@ -1,7 +1,34 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Animals;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.Magdollite;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.WorkRobots;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Bosses.Botwoon.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Creates controlled installed-enemy artwork variants for content identity checks.</summary>
 internal static class EnemyContentIdentityFixtureVerification

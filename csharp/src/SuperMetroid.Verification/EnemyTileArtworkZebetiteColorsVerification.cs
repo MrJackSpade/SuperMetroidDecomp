@@ -3,9 +3,11 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks Zebetite's eight-frame two-color pulse against native
 /// CGRAM updates while preserving its runtime gates and counter.</summary>

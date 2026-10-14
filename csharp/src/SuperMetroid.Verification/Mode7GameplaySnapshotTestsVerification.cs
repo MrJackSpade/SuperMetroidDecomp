@@ -1,13 +1,13 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static ColorWordsVerification;
 using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Hud;
 
 /// <summary>Checks Mode 7 gameplay packet rendering against the live renderer and a captured Ceres Ridley scene.</summary>
 internal static class Mode7GameplaySnapshotTestsVerification

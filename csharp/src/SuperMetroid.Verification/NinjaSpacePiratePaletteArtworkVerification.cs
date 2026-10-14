@@ -3,9 +3,10 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>Checks Ninja Space Pirate target colors sourced from shared Gold Pirate artwork.</summary>
 internal static class NinjaSpacePiratePaletteArtworkVerification

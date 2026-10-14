@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>Compares file-select cursor movement with the original filtered choice lists and cartridge branch data.</summary>
 internal static class FileSelectNavigationLookupVerification

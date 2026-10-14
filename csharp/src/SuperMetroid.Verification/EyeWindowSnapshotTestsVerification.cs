@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static RenderPacketCodecTestsVerification;
+using SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>Checks morph-ball eye windows through snapshot encoding and software rendering.</summary>
 internal static class EyeWindowSnapshotTestsVerification

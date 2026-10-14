@@ -1,18 +1,13 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
 using System.Reflection;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Desktop;
 using static MotherBrainAscentCaptureVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
 /// <summary>Checks Mother Brain's tank background staging and phase-two BG2 uploads.</summary>
 internal static class MotherBrainTankBackgroundVerification
 {

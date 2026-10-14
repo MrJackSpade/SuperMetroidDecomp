@@ -1,21 +1,18 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using static SuiteTimingVerification;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Constructed cartridge checks for ball movement, bombs, blast reactions, and tight passages.</summary>
 internal static class SamusMorphBallVerification
@@ -1670,7 +1667,6 @@ private static void RunPowerBombToInitialBoundary(
     // is the first `$94:A06A` boundary scan, initially the single center block.
     bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, 0, 0);
 }
-
 
 /// <summary>
 /// Seeds the bank-$93 normal-bomb and power-bomb projectile records and instruction lists

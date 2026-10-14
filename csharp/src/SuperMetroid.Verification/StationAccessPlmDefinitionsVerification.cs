@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static RoomPlmPopulationVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks station-access PLM headers, draw phases, and runtime use of compiled operands.</summary>
 internal static class StationAccessPlmDefinitionsVerification

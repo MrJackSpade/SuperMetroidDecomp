@@ -1,9 +1,10 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
 
 /// <summary>Checks captured and retained gameplay frames across retail room-local publication fixtures.</summary>
 internal static class RetailRoomPublicationTests

@@ -1,22 +1,16 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static Program;
 using static RepositoryInputsVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DmaSourceRoutingVerification;
 using static HardwareVerification;
 using static QueuedVramAssetsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks installed artwork ownership for Kraid background and death-sequence DMA transfers.</summary>
 internal static class DmaArtworkBoundaryVerification

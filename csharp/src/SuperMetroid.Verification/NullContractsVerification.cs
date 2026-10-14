@@ -1,11 +1,13 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Tooling;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks the #623 required-value wrappers and representative lifecycle contracts.</summary>
 internal static class NullContractsVerification

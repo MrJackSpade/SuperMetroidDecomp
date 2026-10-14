@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Compares compiled enemy visual selectors with pinned cartridge operands in exact-bus verifications.</summary>
 internal static class CompiledEnemyVisualSelectorAssertionsVerification

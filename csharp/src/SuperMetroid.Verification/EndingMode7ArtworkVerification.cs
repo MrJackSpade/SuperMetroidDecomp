@@ -1,14 +1,15 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using static EndingRewardIconArtworkVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Compares installed ending Mode-7 scenes with retail art and checks live override rebinding.</summary>
 internal static class EndingMode7ArtworkVerification
@@ -224,7 +225,6 @@ internal static class EndingMode7ArtworkVerification
         Suite(nameof(VerifyEndingRewardIconArtwork), () => VerifyEndingRewardIconArtwork(installation));
         Console.WriteLine("Ending Mode-7 art: three native scenes plus the reward icon, guarded runtime and independent edits pass.");
     }
-
 
     /// <summary>Denies reads of the ending scene, reward-icon, and post-credits art sources while production presentation uses installed assets.</summary>
     internal static MutableCartridgeReadGuard NewEndingMode7SourceReadGuard(ISnesAddressSpace source)

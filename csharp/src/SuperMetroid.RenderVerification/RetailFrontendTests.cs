@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Frontend.Title;
 
 /// <summary>Compares captured title and frontend frames with their retail software renderings and state transitions.</summary>
 internal static class RetailFrontendTests

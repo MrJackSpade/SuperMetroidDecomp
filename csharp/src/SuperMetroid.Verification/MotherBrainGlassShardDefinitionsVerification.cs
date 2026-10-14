@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks compiled Mother Brain glass-shard selection and spawn placement.</summary>
 internal static class MotherBrainGlassShardDefinitionsVerification

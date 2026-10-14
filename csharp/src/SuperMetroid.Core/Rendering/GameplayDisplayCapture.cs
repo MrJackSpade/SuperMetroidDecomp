@@ -1,7 +1,12 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Rendering;
 

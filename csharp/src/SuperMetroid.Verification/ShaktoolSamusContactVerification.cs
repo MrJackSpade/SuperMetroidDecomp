@@ -1,8 +1,10 @@
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Reproduces Shaktool segment contact during the recorded 100% route.</summary>
 internal static class ShaktoolSamusContactVerification

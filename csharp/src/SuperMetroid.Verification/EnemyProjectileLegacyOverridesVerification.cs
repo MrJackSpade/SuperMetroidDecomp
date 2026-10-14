@@ -1,8 +1,10 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyContentIdentityFixtureVerification;
+using SuperMetroid.Core.Enemies.Alcoon;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks historical enemy-projectile visual schemas preserve edited
 /// native and program frames while inheriting newly authored stock artwork.</summary>

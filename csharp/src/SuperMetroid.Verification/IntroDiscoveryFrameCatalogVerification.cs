@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks the twenty intro egg and Baby Metroid frame names, pointers, and part counts.</summary>
 internal static class IntroDiscoveryFrameCatalogVerification

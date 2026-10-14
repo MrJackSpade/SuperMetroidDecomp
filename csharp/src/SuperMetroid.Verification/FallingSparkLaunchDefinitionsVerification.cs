@@ -1,6 +1,7 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.FallingSparks;
 
 /// <summary>Checks compiled falling-spark launch speeds and spawned projectile motion.</summary>
 internal static class FallingSparkLaunchDefinitionsVerification

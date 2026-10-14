@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Verification access to the services of a <see cref="RoomEnemySystem"/> (#633).</summary>
 internal static class RoomEnemyServicesAccess

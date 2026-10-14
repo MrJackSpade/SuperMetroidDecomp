@@ -3,13 +3,13 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using static IntroCinematicArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks installed intro Rinka sprites and flashback pixels against native artwork and palette overrides.</summary>
 internal static class IntroRinkaSpriteArtworkVerification

@@ -2,10 +2,13 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>Checks installed Draygon palette bands against retail colors and edited intro, hurt, flash, and health CGRAM paths.</summary>
 internal static class EnemyTileArtworkDraygonColorsVerification

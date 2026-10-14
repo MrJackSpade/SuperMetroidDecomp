@@ -1,19 +1,8 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using System.Reflection;
-using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using static EnemyContentIdentityFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks canonical identity and compatibility reporting for the selected enemy artwork bundle.</summary>
 internal static class EnemyContentIdentityVerification

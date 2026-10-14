@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Checks conveyor inside-block reactions, standing carry,
 /// Wrecked Ship power gating, and solid-wall clipping.</summary>

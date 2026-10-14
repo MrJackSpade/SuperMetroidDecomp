@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Hardware;
 
@@ -140,7 +140,7 @@ public sealed class OamBuffer
         // A zero entry in the installed pointer table is not an empty picture: the
         // native bank-local dereference lands in the WRAM mirror at $92:0000.
         // Read that mutable state explicitly. No cartridge address is reachable here.
-        foreach (Game.SamusZeroSpritemapEntry entry in Game.SamusOverreadMemory.ZeroPointerSpritemap(memory))
+        foreach (SuperMetroid.Core.Samus.Drawing.SamusZeroSpritemapEntry entry in SuperMetroid.Core.Samus.SamusOverreadMemory.ZeroPointerSpritemap(memory))
             AddSamusSpritePart(entry.EncodedX, entry.EncodedY, entry.Attributes, origin);
     }
 

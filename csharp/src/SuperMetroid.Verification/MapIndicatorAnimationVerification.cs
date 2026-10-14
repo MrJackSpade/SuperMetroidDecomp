@@ -1,10 +1,11 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static MapPresentationVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks pause-map save marker frames and timing against the native animation.</summary>
 internal static class MapIndicatorAnimationVerification

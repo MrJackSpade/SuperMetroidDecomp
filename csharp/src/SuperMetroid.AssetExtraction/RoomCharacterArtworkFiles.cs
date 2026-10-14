@@ -1,10 +1,11 @@
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

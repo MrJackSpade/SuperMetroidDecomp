@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks Phantoon rain placement, eye direction, and shot reaction tables against the ROM.</summary>
 internal static class PhantoonPatternsVerification

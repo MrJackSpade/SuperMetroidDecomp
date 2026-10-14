@@ -1,21 +1,14 @@
 using SuperMetroid.Core;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static PhantoonFlameSoundVerification;
 using static PhantoonInstructionProgramDefinitionsVerification;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Checks Phantoon's opening flame sound and first death-wave display state.</summary>
 internal static class PhantoonReport1196Verification

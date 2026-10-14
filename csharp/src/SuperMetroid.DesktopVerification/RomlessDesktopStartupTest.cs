@@ -1,9 +1,9 @@
-using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Input;
 
 /// <summary>
 /// Exercises the real Windows host with a complete extracted installation but

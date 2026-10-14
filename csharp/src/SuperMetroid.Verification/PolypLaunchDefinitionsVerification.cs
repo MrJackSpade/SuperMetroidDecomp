@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>Checks that compiled Polyp launch selectors preserve the cartridge tables for every possible RNG word.</summary>
 internal static class PolypLaunchDefinitionsVerification

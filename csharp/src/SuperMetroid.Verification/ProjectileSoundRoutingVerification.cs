@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusProjectileRomDataVerification;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled charged and uncharged beam sound selectors against the retail table.</summary>
 internal static class ProjectileSoundRoutingVerification

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Checks Baby Metroid's compiled route records against pinned native words and pointer bounds.</summary>
 internal static class BabyMetroidRouteDefinitionsVerification

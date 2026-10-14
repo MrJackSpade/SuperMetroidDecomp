@@ -6,7 +6,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -55,10 +56,9 @@ internal static class EnemyProjectileArtworkContractChecks
     {
         var trees = EnemyProjectileArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<enemy-projectile-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Enemies.Artwork;
             class ProjectileArtworkConsumer {
                 void Inspect(EnemyProjectileSpritemapCatalog art, ushort pointer) {
                     art.Get({{directId}});
@@ -91,7 +91,7 @@ internal static class EnemyProjectileArtworkContractChecks
         Require(before.MissingCount == 5 && before.UnresolvedCount == 2 && before.Consumers.Count == 7, "original absent adapter boundaries");
         Require(after.MissingCount == 0 && after.UnresolvedCount == 2 && after.Classifications.Count == 5 && after.Consumers.Count == 7,
             "valid direct/program IDs and blank qualify; unknown IDs stay findings");
-        const string provider = "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs";
+        const string provider = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapCatalog.cs";
         var stale = trees.Select(tree => tree.FilePath == provider ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace("document.ProgramFrames.Count != definitions.Length", "false", StringComparison.Ordinal),
                 path: tree.FilePath) : tree);

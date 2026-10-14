@@ -1,11 +1,11 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Core.Game.SamusPaletteRomData;
+using static SuperMetroid.Core.Samus.Palettes.SamusPaletteRomData;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Compares Crystal Flash palette timing and actual body/window contributions in a captured frame.</summary>
 internal static class CrystalFlashVisualsVerification

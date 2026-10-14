@@ -1,5 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Checks Golden Torizo's callable stun controls and separate VRAM transfer descriptors.</summary>
 internal static class GoldenTorizoStunnedDefinitionsVerification

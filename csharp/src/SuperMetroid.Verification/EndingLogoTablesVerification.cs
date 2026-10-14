@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Uses the retail cartridge as an oracle for ending logo palettes and post-shot transfers.</summary>
 internal static class EndingLogoTablesVerification

@@ -1,20 +1,15 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Desktop;
 using static DoorDefinitionsVerification;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks copy-confirmation arrow OAM and palette timing for all six file-slot pairs.</summary>
 internal static class FileCopyArrowVerification

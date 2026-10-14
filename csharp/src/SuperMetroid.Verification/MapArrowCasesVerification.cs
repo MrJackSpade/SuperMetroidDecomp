@@ -1,11 +1,11 @@
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks map arrow direction selection, editable presentation, and native shape mapping.</summary>
 internal static class MapArrowCasesVerification

@@ -1,8 +1,8 @@
-using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks cartridge import validation, extracted-content reuse and repair, and ROM-free Android startup.</summary>
 internal static class AssetImportVerification

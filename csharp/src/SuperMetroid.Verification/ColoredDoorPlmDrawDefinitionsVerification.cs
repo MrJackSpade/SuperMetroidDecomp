@@ -2,16 +2,20 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static LookupColoredCapVerification;
 using static LookupColoredDoorStockVerification;
 using static LookupColoredProgramVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Retail and guarded-runtime checks for colored-door PLM programs, draw lists, and editable cap visuals.</summary>
 internal static class ColoredDoorPlmDrawDefinitionsVerification

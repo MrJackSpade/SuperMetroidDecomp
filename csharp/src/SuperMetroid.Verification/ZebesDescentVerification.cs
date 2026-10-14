@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Checks the Ceres ending planet slide exits once without wrapping onto the lower screen.</summary>
 internal static class ZebesDescentVerification

@@ -3,6 +3,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static IntroMotherBrainExplosionPartsVerification;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Title.Artwork;
 
 /// <summary>Checks calculated Planet Zebes title parts against native OAM and preserves independent art edits.</summary>
 internal static class PlanetZebesTitlePartsVerification

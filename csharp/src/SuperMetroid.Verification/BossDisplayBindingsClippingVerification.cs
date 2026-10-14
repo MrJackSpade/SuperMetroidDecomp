@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BossDisplayBindingsDocumentsVerification;
 using static BossDisplayBindingsFixtureVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks authored BG2-only boss OAM against native coordinate wrap and clipping behavior.</summary>
 internal static class BossDisplayBindingsClippingVerification

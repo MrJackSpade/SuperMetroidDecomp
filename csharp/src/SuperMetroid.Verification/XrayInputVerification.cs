@@ -1,11 +1,6 @@
 using SuperMetroid.Core;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -15,6 +10,10 @@ using SuperMetroid.Core.Rooms;
 using static GraphDigestVerification;
 using static RetailRuntimeFixtureVerification;
 using static XrayWindowGeometryVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks X-Ray activation, beam display, release, and excluded-room input routes.</summary>
 internal static class XrayInputVerification

@@ -1,9 +1,11 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rom;
-using static AssertionsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Uses cartridge spritemaps as a diagnostic oracle for installed enemy artwork.</summary>
 internal static class ImportedSpritemapsVerification

@@ -1,9 +1,12 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Confirms periodic damage is deferred during the suit pickup transformation (#1337).</summary>
 internal static class SuitPickupPeriodicDamageVerification

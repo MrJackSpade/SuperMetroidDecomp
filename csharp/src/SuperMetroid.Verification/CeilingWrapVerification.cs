@@ -1,18 +1,7 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
-using System.Reflection;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Compares ceiling projectile reactions and PLM allocation with a native CPU trace.</summary>
 internal static class CeilingWrapVerification

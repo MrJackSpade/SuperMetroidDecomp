@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Desktop;
 

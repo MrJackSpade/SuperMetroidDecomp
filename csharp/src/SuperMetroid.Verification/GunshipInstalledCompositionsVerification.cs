@@ -1,24 +1,17 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static Program;
 using static RepositoryInputsVerification;
-using static RepositoryInstallation;
-using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static CeresSaveStartupVerification;
 using static FrontendRomFreeVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks extracted gunship sprite compositions, legacy override
 /// inheritance, and the first Landing Site fade-in draw.</summary>

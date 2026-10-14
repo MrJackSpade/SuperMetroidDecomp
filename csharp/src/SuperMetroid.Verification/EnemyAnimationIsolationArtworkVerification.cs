@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyAnimationIsolationFixtureVerification;
 using static EnemyContentIdentityFixtureVerification;
 using static GoldenTorizoRightOrbFramesVerification;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Builds distinct edited enemy visuals and checks their rendered OAM independently of animation state.</summary>
 internal static class EnemyAnimationIsolationArtworkVerification

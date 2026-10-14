@@ -1,10 +1,10 @@
 using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Checks pause selector timing against native bytecode and editable phase durations.</summary>
 internal static class PauseSelectorDurationsVerification

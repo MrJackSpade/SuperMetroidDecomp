@@ -1,7 +1,10 @@
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
 
 /// <summary>
 /// Retail-ROM regression for issue #252. The audit gives the HUD and pause screen the

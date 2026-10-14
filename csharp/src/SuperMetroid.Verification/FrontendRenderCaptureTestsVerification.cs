@@ -1,12 +1,12 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static GraphDigestVerification;
 using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks captured frontend packets against the legacy raster through title and menu handoffs.</summary>
 internal static class FrontendRenderCaptureTestsVerification

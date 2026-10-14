@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks compiled Ceres flight sprite lists against bank-$8B bytes and loop behavior.</summary>
 internal static class CeresFlightProgramsVerification

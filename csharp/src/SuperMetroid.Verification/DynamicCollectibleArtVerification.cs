@@ -3,12 +3,13 @@ using System.Buffers.Binary;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Spatial;
 using static LookupDynamicCollectibleStockVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks extracted collectible art, installed VRAM edits, stock integrity, and override failures.</summary>
 internal static class DynamicCollectibleArtVerification

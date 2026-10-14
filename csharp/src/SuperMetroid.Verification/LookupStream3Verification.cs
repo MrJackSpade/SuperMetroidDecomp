@@ -1,21 +1,8 @@
 using SuperMetroid.Tooling;
-using static Program;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static ColorWordsVerification;
 using static CreditsPresentationVerification;
 using static DoorDefinitionsVerification;
@@ -33,6 +20,38 @@ using static RipperInstructionProgramDefinitionsVerification;
 using static SuiteTimingVerification;
 using static WorkRobotLaserInstructionProgramDefinitionsVerification;
 using static YellowPipeBugInstructionProgramDefinitionsVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Choot;
+using SuperMetroid.Core.Enemies.Fireflea;
+using SuperMetroid.Core.Enemies.Hoppers;
+using SuperMetroid.Core.Enemies.Metroids;
+using SuperMetroid.Core.Enemies.PipeBugs;
+using SuperMetroid.Core.Enemies.Ripper;
+using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.Core.Enemies.Sparks;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
@@ -962,26 +981,26 @@ internal static class LookupStream3Verification
             DoorSetupCode.DoorASM_Scroll_0_1_Green_duplicate,
             DoorSetupCode.DoorASM_Scroll_18_Blue_19_Red,
         ];
-        AssertTrue(expectedDoorCallbacks.SequenceEqual(SuperMetroid.Core.Rooms.DoorScrollPrograms.Pointers),
+        AssertTrue(expectedDoorCallbacks.SequenceEqual(SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.Pointers),
             "stream 3 pure door callback original registration order");
         var expectedCallbacks = expectedDoorCallbacks.ToHashSet();
         foreach (DoorSetupCode pointer in Enum.GetValues<DoorSetupCode>())
             AssertEqual(expectedCallbacks.Contains(pointer),
-                SuperMetroid.Core.Rooms.DoorScrollPrograms.Contains(pointer), "stream 3 exact callback ownership");
+                SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.Contains(pointer), "stream 3 exact callback ownership");
         foreach (ushort undefined in new ushort[] { 0x0001, 0xb972, 0xffff })
             AssertThrows<InvalidOperationException>(
-                () => SuperMetroid.Core.Rooms.DoorScrollPrograms.Contains((DoorSetupCode)undefined),
+                () => SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.Contains((DoorSetupCode)undefined),
                 "stream 3 undefined door setup code");
         foreach (DoorSetupCode pointer in expectedDoorCallbacks)
         {
             byte[] expected = Enumerable.Repeat((byte)0x7f, RoomScrollGrid.StorageByteCount).ToArray();
             var actual = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), expected, new Extent16<RoomScreens>(10, 5));
             ExecuteStream3DoorScroll(rom, (ushort)pointer, expected);
-            AssertTrue(SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(pointer, actual), "stream 3 callback recognized");
+            AssertTrue(SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(pointer, actual), "stream 3 callback recognized");
             AssertTrue(actual.Storage.SequenceEqual(expected), "stream 3 native ordered door writes and all untouched cells");
         }
         var unchangedScroll = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), new byte[50], new Extent16<RoomScreens>(10, 5));
-        AssertTrue(!SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");
+        AssertTrue(!SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");
         for (int pair = 0; pair < 16; pair++)
         {
             int address = 0xadde5f + 2 * pair;
@@ -3499,7 +3518,6 @@ internal static class LookupStream3Verification
         }
         finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
     }
-
 
     /// <summary>Checks all 27 Work Robot frame identities and their native spritemap ordering.</summary>
     internal static void VerifyStream3WorkRobotRegistry()

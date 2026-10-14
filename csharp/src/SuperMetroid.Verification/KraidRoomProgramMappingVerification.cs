@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks the compiled Kraid room PLM instruction domain against the independent native lists.</summary>
 internal static class KraidRoomProgramMappingVerification

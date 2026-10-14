@@ -1,0 +1,14 @@
+﻿namespace SuperMetroid.Core.Frontend.Attract;
+
+/// <summary>The scripted attract-demo input the runtime substitutes for the player, while a demo plays.</summary>
+internal sealed class AttractDemoSession
+{
+    /// <summary>The demo script replacing player input, or null outside a demo.</summary>
+    internal AttractDemoInput? Input { get; set; }
+
+    /// <summary>Restores the player's controller after the demo's scripted input for this frame.</summary>
+    internal IDisposable? InputRestore { get; set; }
+
+    /// <summary>Whether an attract demo is playing.</summary>
+    internal bool IsAttractDemo => Input is not null;
+}

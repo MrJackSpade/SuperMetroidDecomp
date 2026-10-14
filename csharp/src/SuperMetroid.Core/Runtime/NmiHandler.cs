@@ -1,9 +1,12 @@
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Runtime;
 

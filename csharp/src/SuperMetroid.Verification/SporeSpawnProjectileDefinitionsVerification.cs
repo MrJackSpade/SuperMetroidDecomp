@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Spore Spawn stalk, emitter, and spore-motion definitions against native data.</summary>
 internal static class SporeSpawnProjectileDefinitionsVerification

@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyExtendedFrameArtworkVerification;
 using static FrontendRomFreeVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks bank-local shared empty enemy frames across ordinary draw, extended draw, and collision.</summary>
 internal static class EnemyExtendedFrameArtworkCommonEmptyVerification

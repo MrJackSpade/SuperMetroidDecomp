@@ -1,8 +1,8 @@
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>Builds a persistent message fixture with altered title, panel, and notice artwork.</summary>
 internal static class PermanentMessageFixtureVerification

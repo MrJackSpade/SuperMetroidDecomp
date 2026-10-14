@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks compiled Phantoon timer tables and live selector behavior
 /// against native words for RNG and first-round NMI inputs.</summary>

@@ -1,4 +1,7 @@
-﻿using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Runtime;
 

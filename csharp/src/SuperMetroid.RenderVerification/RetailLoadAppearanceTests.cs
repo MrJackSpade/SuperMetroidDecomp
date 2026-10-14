@@ -1,9 +1,8 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Compares legacy and captured rendering through saved-file map, Samus appearance, and control release.</summary>
 internal static class RetailLoadAppearanceTests

@@ -1,8 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled Samus projectile and bomb instruction words against bank 93 execution.</summary>
 internal static class ProjectileInstructionsVerification

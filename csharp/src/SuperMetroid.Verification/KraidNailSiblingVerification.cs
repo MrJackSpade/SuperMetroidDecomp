@@ -1,8 +1,9 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Kraid fingernail launch velocities and sibling-flag selection against native tables.</summary>
 internal static class KraidNailSiblingVerification

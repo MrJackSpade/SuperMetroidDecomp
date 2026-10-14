@@ -1,21 +1,14 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using static SuiteTimingVerification;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction;
 using static GraphDigestVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks that editable swing frames affect display while native grapple body offsets remain physical.</summary>
 internal static class GrappleBodyPlacementVerification

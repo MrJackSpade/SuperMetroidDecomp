@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Areas.Escape.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

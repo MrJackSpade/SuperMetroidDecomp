@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>Checks normal and strong Brinstar pipe-bug animation selectors in production AI.</summary>
 internal static class PipeBugAnimationDefinitionsVerification

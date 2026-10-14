@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>Checks pause-button tilemap spans against the native recolor instructions.</summary>
 internal static class PauseButtonSpansVerification

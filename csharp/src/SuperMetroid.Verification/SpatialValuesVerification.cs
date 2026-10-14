@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Desktop;
+using SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Checks typed Samus 16.16 vectors and positions against native word arithmetic.</summary>
 internal static class SpatialValuesVerification

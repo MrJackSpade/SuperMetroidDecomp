@@ -1,4 +1,5 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Runtime;
 

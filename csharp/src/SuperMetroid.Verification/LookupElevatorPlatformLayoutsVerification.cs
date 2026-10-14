@@ -1,10 +1,11 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using static AssertionsVerification;
 using static SamusEaterPlmDefinitionsVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Compares the three exported elevator platform PLM draw lists with cartridge data and room effects.</summary>
 internal static class LookupElevatorPlatformLayoutsVerification

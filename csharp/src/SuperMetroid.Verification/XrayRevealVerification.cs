@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Checks compiled X-ray block reveals against the native bank $91 lookup tables.</summary>
 internal static class XrayRevealVerification

@@ -1,8 +1,7 @@
-using System.Reflection;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static LookupFxBlendSelectorsVerification;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks weather-specific FX palette channels against native words, installed CGRAM, and editable color ownership.</summary>
 internal static class LookupFxWeatherBlueVerification

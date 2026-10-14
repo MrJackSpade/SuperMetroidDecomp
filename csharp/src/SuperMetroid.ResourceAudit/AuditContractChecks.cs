@@ -3,7 +3,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text.Json;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -14,20 +16,22 @@ internal static class AuditContractChecks
     public static void Run()
     {
         const string text = """
-            namespace SuperMetroid.Core.Assets {
+            namespace SuperMetroid.Core.Enemies.Artwork {
                 public class EnemySpritemapCatalog {
                     public bool TryGetDisplay(byte bank, ushort pointer, out object parts) { parts = null!; return false; }
                 }
                 public class EnemyExtendedFrameCatalog {
                     internal bool TryGetDisplay(byte bank, ushort pointer, out object parts) { parts = null!; return false; }
                 }
+            }
+            namespace SuperMetroid.Core.Assets {
                 public class FutureArtworkCatalog { public object Get(int id) => null!; }
             }
             public class Consumer {
                 const byte ShipBank = 0xA2;
-                public void Draw(SuperMetroid.Core.Assets.EnemySpritemapCatalog art, ushort dynamicId,
+                public void Draw(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalog art, ushort dynamicId,
                     SuperMetroid.Core.Assets.FutureArtworkCatalog future,
-                    SuperMetroid.Core.Assets.EnemyExtendedFrameCatalog extended) {
+                    SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameCatalog extended) {
                     art.TryGetDisplay(pointer: (ushort)0xAD81, bank: ShipBank, parts: out _);
                     extended.TryGetDisplay(ShipBank, 0xAD82, out _);
                     art.TryGetDisplay(ShipBank, dynamicId, out _);
@@ -153,14 +157,14 @@ internal static class AuditContractChecks
         exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(0xa8, empty));
         Require(!exports.Contains(ResourceDomains.EnemySimple, ResourceIndex.Address(0xa8, empty)),
             "a compiled renderer no-op must not imply an installed catalog entry");
-        const string renderer = "class Fixture { void DrawEnemySpritemap(byte bank, ushort pointer) { " +
-            "if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(bank, pointer)) return; } }";
+        const string renderer = "class Fixture { void DrawEnemySpritemap(EnemySpritemapDraw draw) { " +
+            "if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(draw.Bank, draw.Pointer)) return; } }";
         MethodDeclarationSyntax ParseMethod(string text) => CSharpSyntaxTree.ParseText(text)
             .GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>().Single();
         Require(CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer)),
             "the precise reviewed no-op branch must be recognized");
         Require(!CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("return;", "DrawArt();", StringComparison.Ordinal))) &&
-            !CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("bank, pointer", "bank, otherPointer", StringComparison.Ordinal))),
+            !CompiledEnemyDisplayAudit.HasNoOpBranch(ParseMethod(renderer.Replace("draw.Bank, draw.Pointer", "draw.Bank, otherPointer", StringComparison.Ordinal))),
             "changed behavior or identity arguments must invalidate the reviewed classification");
     }
 
@@ -172,9 +176,9 @@ internal static class AuditContractChecks
         // The typed Baby programs (#641) name their three pulse poses directly; each must be installed artwork.
         for (int pose = 0; pose < 3; pose++)
         {
-            ushort spritemap = SuperMetroid.Core.Assets.BabyMetroidVisualDefinitions.Spritemap(pose);
-            Require(SuperMetroid.Core.Assets.EnemySpritemapDefinitions.Frames.Any(frame =>
-                frame.Bank == SuperMetroid.Core.Assets.MotherBrainVisualDefinitions.Bank && frame.Pointer == spritemap),
+            ushort spritemap = SuperMetroid.Core.Bosses.MotherBrain.Artwork.BabyMetroidVisualDefinitions.Spritemap(pose);
+            Require(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinitions.Frames.Any(frame =>
+                frame.Bank == SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainVisualDefinitions.Bank && frame.Pointer == spritemap),
                 "each Baby Metroid pulse pose must be installed, not just named");
         }
 
@@ -194,14 +198,14 @@ internal static class AuditContractChecks
         MotherBrainRoomFlashAudit.RequireOperands([neighboringOperand], "fixture.cs", exports, changed);
         Require(changed.MissingCount == 1, "a changed/unaligned color identity must remain a concrete omission");
 
-        var document = RequiredJson.Deserialize<SuperMetroid.Core.Assets.MotherBrainRoomColorDocument>(
-            MotherBrainRoomFlashAudit.ExtractDeclarationDocument(), SuperMetroid.Core.Assets.MapPresentationFormat.JsonOptions);
+        var document = RequiredJson.Deserialize<SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorDocument>(
+            MotherBrainRoomFlashAudit.ExtractDeclarationDocument(), SuperMetroid.Core.Frontend.Map.Artwork.MapPresentationFormat.JsonOptions);
         bool rejected = false;
         try
         {
-            _ = SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation.Load(new MemoryStream(
+            _ = SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.Load(new MemoryStream(
                 JsonSerializer.SerializeToUtf8Bytes(document with { Flash = document.Flash[..^1] },
-                    SuperMetroid.Core.Assets.MapPresentationFormat.JsonOptions)));
+                    SuperMetroid.Core.Frontend.Map.Artwork.MapPresentationFormat.JsonOptions)));
         }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "a missing installed flash row must fail at the production load boundary");

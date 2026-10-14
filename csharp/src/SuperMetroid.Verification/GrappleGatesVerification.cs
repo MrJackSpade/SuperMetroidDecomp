@@ -1,22 +1,15 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using static DraygonTilemapProductionVerification;
 using static GrappleEnemyDeathVerification;
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
-using static AssertionsVerification;
 using static DownwardGatePlmsVerification;
 using static GrappleDoorsVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Checks that rejected Grapple shots leave both green gate sprites visible.</summary>
 internal static class GrappleGatesVerification

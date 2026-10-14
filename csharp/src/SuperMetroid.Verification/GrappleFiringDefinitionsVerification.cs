@@ -1,15 +1,3 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
-using System.Reflection;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static RetailRuntimeFixtureVerification;
@@ -17,6 +5,11 @@ using static SamusRenderingFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 using static WordSamplesVerification;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks compiled Grapple launch, origin, and movement data through production firing and connection paths.</summary>
 internal static class GrappleFiringDefinitionsVerification

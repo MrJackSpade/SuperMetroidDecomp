@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>Checks crawler orientation tables and their live initialization and surface-switch selection.</summary>
 internal static class CrawlerAnimationDefinitionsVerification

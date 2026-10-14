@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Runtime;
-using static AssertionsVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the Ceres elevator shaft's timed Mode 7 matrix publications against native rotation records.</summary>
 internal static class CeresShaftRotationVerification

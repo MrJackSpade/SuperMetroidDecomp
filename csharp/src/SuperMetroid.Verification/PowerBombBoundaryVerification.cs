@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks Power Bomb boundary traversal in an inert room, including clipping and repeated corner visits.</summary>
 internal static class PowerBombBoundaryVerification

@@ -1,0 +1,58 @@
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+
+namespace SuperMetroid.Core.Frontend.Intro;
+
+/// <summary>
+/// Immutable bank-$8B sprite instructions for the intro Mother Brain actor.
+/// The first list loops four visual frames; the second begins at $CB19 and
+/// redirects control to page two. The egg actor's separate list starts at $CB33.
+/// </summary>
+internal static class IntroMotherBrainInstructionDefinitions
+{
+    /// <summary>$8B:CB05, first normal animation record.</summary>
+    internal const ushort StartPointer = CinematicCodePointers.Lists.IntroMotherBrain;
+    /// <summary>$8B:CB33, exclusive end before the Metroid-egg instruction list.</summary>
+    internal const ushort EndPointer = CinematicCodePointers.Lists.MetroidEgg;
+    /// <summary>$8B:CB1F, first frame record after the page-two handoff callbacks.</summary>
+    internal const ushort PageTwoLoopPointer = 0xcb1f;
+
+    /// <summary>Compiles four sixteen-tick poses, the page-two handoff, and the second pose loop.</summary>
+    private static ushort ProgramWord(int word)
+    {
+        if (word is >= 10 and <= 12)
+            return word switch
+            {
+                10 => CinematicCodePointers.Instruction_StartIntroPage2,
+                11 => (ushort)CinematicSpriteInstruction.SetPreInstruction,
+                _ => CinematicCodePointers.PreInstruction_IntroMotherBrain_CrossFading,
+            };
+        bool pageTwo = word >= 13;
+        int field = pageTwo ? word - 13 : word;
+        if (field < 8)
+        {
+            int phase = field / 2;
+            return (field & 1) == 0 ? (ushort)16
+                : IntroMotherBrainSpriteDefinitions.FramePointer(phase <= 2 ? phase : 4 - phase);
+        }
+        return field == 8 ? (ushort)CinematicSpriteInstruction.Goto
+            : pageTwo ? PageTwoLoopPointer : StartPointer;
+    }
+
+    /// <summary>Reads either byte of a compiled bank-$8B Mother Brain instruction word.</summary>
+    internal static byte ReadByte(ushort pointer)
+    {
+        if (pointer is < StartPointer or >= EndPointer)
+            throw new ArgumentOutOfRangeException(nameof(pointer));
+        int offset = pointer - StartPointer;
+        return (byte)(ProgramWord(offset / 2) >> (8 * (offset & 1)));
+    }
+
+    /// <summary>Reads overlapping little-endian words without crossing into the egg actor's list.</summary>
+    internal static ushort ReadWord(ushort pointer)
+    {
+        if (pointer is < StartPointer or >= (EndPointer - 1))
+            throw new InvalidDataException(
+                $"Intro Mother Brain instruction read $8B:{pointer:X4} leaves its compiled program.");
+        return SnesLittleEndian.Word(ReadByte(pointer), ReadByte((ushort)(pointer + 1)));
+    }
+}

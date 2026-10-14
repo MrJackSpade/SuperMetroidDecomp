@@ -1,8 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Houses typed sparse-bus writers for native Samus pose, physics, palette, and projectile tables.</summary>
 internal static class SyntheticSamusCartridgeVerification

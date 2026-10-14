@@ -1,10 +1,11 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BossDisplayBindingsDocumentsVerification;
 using static BossDisplayBindingsFixtureVerification;
 using static BossDisplayBindingsVerification;
 using static EnemyContentIdentityFixtureVerification;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks boss BG2 resource requirements, display bindings, and legacy document inheritance.</summary>
 internal static class BossDisplayBindingsResourcesVerification

@@ -1,5 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Sparse CPU-bus fixture. Unwritten addresses read as zero, mirroring cleared memory and

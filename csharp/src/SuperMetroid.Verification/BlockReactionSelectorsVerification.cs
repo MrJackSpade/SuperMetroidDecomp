@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static BabyMetroidRouteDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks native block-reaction selectors for bomb shapes, reveals, and their live dispatch paths.</summary>
 internal static class BlockReactionSelectorsVerification

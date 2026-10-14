@@ -1,7 +1,8 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static AnimatedTileInstructionCodesVerification;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Compares the two Wrecked Ship treadmill instruction programs with bank $87 mechanics.</summary>
 internal static class LookupTreadmillMechanicsVerification

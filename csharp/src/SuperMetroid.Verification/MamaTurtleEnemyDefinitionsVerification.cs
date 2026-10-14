@@ -1,19 +1,13 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using static EnemyDefinitionsVerification;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.MamaTurtles;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Checks compiled Mama and Baby Turtle headers in their retail room population.</summary>
 internal static class MamaTurtleEnemyDefinitionsVerification

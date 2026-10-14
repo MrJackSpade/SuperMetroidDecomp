@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Checks Mother Brain neck sine products and five-joint geometry against independent cartridge data.</summary>
 internal static class MotherBrainNeckSineVerification

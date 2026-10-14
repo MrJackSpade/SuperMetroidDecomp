@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Metroids;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Compares Mochtroid selectors and installed OAM compositions with their retail source frames.</summary>
 internal static class MochtroidVisualsVerification

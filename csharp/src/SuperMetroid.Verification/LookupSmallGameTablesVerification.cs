@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks compact native tables for falling tubes, bomb bounce, Crocomire debris, Rinkas, and corpse layouts.</summary>
 internal static class LookupSmallGameTablesVerification
@@ -23,7 +24,6 @@ internal static class LookupSmallGameTablesVerification
         Console.WriteLine("Small game tables: falling-tube bodies, bomb bounce gravity, " +
             "Crocomire bridge dust, Ceres debris columns, Rinka resource tokens and dead Tourian corpse layouts match every native word.");
     }
-
 
     /// <summary>Checks five falling-tube body radius and floor records against bank $A9.</summary>
     private static void VerifyMotherBrainFallingTubeBodies(ISnesAddressSpace rom)

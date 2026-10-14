@@ -2,12 +2,12 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 using static LookupChozoStockVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks extracted Chozo statue draw data, editable visual overrides, and compiled PLM execution.</summary>
 internal static class ChozoStatueVisualsVerification

@@ -2,13 +2,17 @@ using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static DoorDefinitionsVerification;
 using static MapSpriteNamesVerification;
 using static MapSpritesVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
 
 /// <summary>Checks calculated map sprites and independent edits to every authored OAM part.</summary>
 internal static class MapSpriteCasesVerification

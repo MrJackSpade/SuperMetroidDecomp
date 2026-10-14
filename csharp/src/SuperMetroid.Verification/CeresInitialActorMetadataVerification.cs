@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Checks the three Ceres destruction startup actors against their spawn operands and native definitions.</summary>
 internal static class CeresInitialActorMetadataVerification

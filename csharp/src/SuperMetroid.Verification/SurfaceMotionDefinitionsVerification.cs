@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Crawlers;
+using SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>Uses retail words to verify crawler slope scaling and Yard's capped horizontal kick.</summary>
 internal static class SurfaceMotionDefinitionsVerification

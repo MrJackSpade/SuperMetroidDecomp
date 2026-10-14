@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks Kraid's nine growth callback PLM placements against the native bank-$A7 callback table.</summary>
 internal static class KraidGrowthPlmMappingsVerification

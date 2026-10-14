@@ -1,6 +1,8 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks compiled gunship liftoff dust data and real projectile allocation against cartridge table values.</summary>
 internal static class GunshipDustDefinitionsVerification

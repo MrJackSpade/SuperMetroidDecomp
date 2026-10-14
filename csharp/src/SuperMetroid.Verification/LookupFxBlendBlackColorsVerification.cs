@@ -1,8 +1,7 @@
 using System.Reflection;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks calculated black liquid-blend third colors and preservation of supplied overrides.</summary>
 internal static class LookupFxBlendBlackColorsVerification

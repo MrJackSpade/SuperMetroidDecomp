@@ -4,6 +4,15 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.AssetExtraction;
 

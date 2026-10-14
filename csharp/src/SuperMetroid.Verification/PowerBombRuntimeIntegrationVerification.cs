@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks that the shared desktop runtime renderer applies the active Power Bomb window.</summary>
 internal static class PowerBombRuntimeIntegrationVerification

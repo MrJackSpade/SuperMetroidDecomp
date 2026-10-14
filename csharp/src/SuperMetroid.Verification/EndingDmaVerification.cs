@@ -1,16 +1,5 @@
 using SuperMetroid.Core;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static EndingSnapshotTestsVerification;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static EndingCloudPlacementVerification;
@@ -19,6 +8,7 @@ using static EndingRewardGestureVerification;
 using static ObjSubscreenVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Checks ending Mode 7 and reward artwork DMA against retail VRAM lane placement.</summary>
 internal static class EndingDmaVerification

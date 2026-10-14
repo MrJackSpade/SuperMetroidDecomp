@@ -1,15 +1,16 @@
 using System.Text;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Reads the retail room-FX records and renders the generated Core catalog that holds them.</summary>
 internal static class RoomFxRecordCatalogSource
 {
     /// <summary>The checked-in generated catalog the renderer's output must equal.</summary>
     internal static readonly string GeneratedPath = Path.GetFullPath(Path.Combine(
-        "csharp", "src", "SuperMetroid.Core", "Game", "RoomFxRecordDefinitions.Generated.cs"));
+        "csharp", "src", "SuperMetroid.Core", "Fx", "RoomFxRecordDefinitions.Generated.cs"));
 
     /// <summary>Imports all room-state FX lists plus Mother Brain's directly selected records.</summary>
     [CpuBusBoundary("codec: ROM bank-$83 room FX record lists → RoomFxRecordDefinition catalog source")]
@@ -106,7 +107,7 @@ internal static class RoomFxRecordCatalogSource
         source.AppendLine("//     Generated from the pinned cartridge by --generate-room-fx-records. Regenerate instead of editing.");
         source.AppendLine("// </auto-generated>");
         source.AppendLine("#nullable enable");
-        source.AppendLine("namespace SuperMetroid.Core.Game;");
+        source.AppendLine("namespace SuperMetroid.Core.Fx;");
         source.AppendLine();
         source.AppendLine("public static partial class RoomFxRecordDefinitions");
         source.AppendLine("{");

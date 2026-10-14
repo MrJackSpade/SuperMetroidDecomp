@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Compares compiled Ceres backdrop instruction bytes and playback with native bank-$8B lists.</summary>
 internal static class CeresBackdropProgramsVerification

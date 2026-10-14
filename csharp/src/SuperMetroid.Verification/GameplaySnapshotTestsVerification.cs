@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -7,6 +6,7 @@ using static ColorWordsVerification;
 using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Hud;
 
 /// <summary>Checks gameplay render snapshots retain VRAM, CGRAM, OAM, and
 /// per-line scroll independently of later live-memory changes.</summary>

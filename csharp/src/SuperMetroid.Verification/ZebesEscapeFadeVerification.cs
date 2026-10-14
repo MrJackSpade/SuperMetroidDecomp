@@ -1,17 +1,8 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Hud;
 
 /// <summary>Checks the gunship takeoff fade while state $26 continues normal gameplay updates.</summary>
 internal static class ZebesEscapeFadeVerification

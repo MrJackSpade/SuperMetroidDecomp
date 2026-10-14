@@ -1,5 +1,5 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// Supplies a converted movie's evidenced accepted-NMI count for the door music upload of

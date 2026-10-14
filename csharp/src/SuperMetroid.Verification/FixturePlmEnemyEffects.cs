@@ -1,5 +1,6 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Enemy-side effects a PLM fixture observes; an uninstalled effect fails at the dependency (#633).</summary>
 internal sealed class FixturePlmEnemyEffects : IRoomPlmEnemyEffects

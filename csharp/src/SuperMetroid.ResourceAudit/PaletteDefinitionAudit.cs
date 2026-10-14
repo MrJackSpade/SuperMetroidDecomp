@@ -3,10 +3,12 @@ using SuperMetroid.Tooling;
 using System.Collections;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -138,14 +140,15 @@ internal static class PaletteDefinitionAudit
         return value is int count ? count : null;
     }
 
-    /// <summary>Locates a palette catalog in Core or Tooling for audit findings.</summary>
+    /// <summary>Locates a palette catalog's file, named for its type, in its Core or Tooling domain directory.</summary>
     private static string FindSource(string root, string name)
     {
-        string path = Path.Combine(root, "csharp/src/SuperMetroid.Core/Game", name + ".cs");
-        if (File.Exists(path)) return Path.GetRelativePath(root, path).Replace('\\', '/');
-        string moved = Path.Combine(root, "csharp/src/SuperMetroid.Tooling/Core/Game", name + ".cs");
-        if (File.Exists(moved)) return Path.GetRelativePath(root, moved).Replace('\\', '/');
-        return "csharp/src/SuperMetroid.Core/Game/" + name;
+        string[] found = new[] { "csharp/src/SuperMetroid.Core", "csharp/src/SuperMetroid.Tooling/Core" }
+            .SelectMany(directory => Directory.EnumerateFiles(Path.Combine(root, directory), name + ".cs", SearchOption.AllDirectories))
+            .ToArray();
+        return found.Length == 1
+            ? Path.GetRelativePath(root, found[0]).Replace('\\', '/')
+            : throw new FileNotFoundException($"Palette catalog {name} must be declared in exactly one Core or Tooling file; found {found.Length}.", name + ".cs");
     }
 
     /// <summary>Serves zero for every palette-FX bank or title initial-palette byte and records the read order.</summary>

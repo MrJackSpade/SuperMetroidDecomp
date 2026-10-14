@@ -1,18 +1,11 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
 using static DoorDefinitionsVerification;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.Options;
 
 /// <summary>Checks the options cursor's native phase selection and visible OAM transitions.</summary>
 internal static class GameOptionsCursorPhasesVerification

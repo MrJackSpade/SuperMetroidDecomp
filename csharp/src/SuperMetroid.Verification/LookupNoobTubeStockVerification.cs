@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks stock and installed Noob Tube visual words against native PLM draw lists.</summary>
 internal static class LookupNoobTubeStockVerification

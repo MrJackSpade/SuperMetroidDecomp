@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hud.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -17,11 +17,26 @@ internal static class ClosedPresentationContractChecks
             .DistinctBy(source => source.Path)
             .Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, source.Path)), path: source.Path))
             .ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<fixture-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
+            using SuperMetroid.Core.Areas.Tourian.Artwork;
             using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+            using SuperMetroid.Core.Bosses.Draygon.Artwork;
+            using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+            using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+            using SuperMetroid.Core.Bosses.Ridley.Artwork;
+            using SuperMetroid.Core.Bosses.SporeSpawn;
+            using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+            using SuperMetroid.Core.Enemies.Artwork;
+            using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+            using SuperMetroid.Core.Frontend.GameOver;
+            using SuperMetroid.Core.Frontend.GameOver.Artwork;
+            using SuperMetroid.Core.Frontend.Options.Artwork;
+            using SuperMetroid.Core.Frontend.Pause.Artwork;
             using SuperMetroid.Core.Hardware;
+            using SuperMetroid.Core.Hud.Artwork;
+            using SuperMetroid.Core.Samus.Artwork;
             class Consumer {
                 void Inspect(GameplayHudPresentation hud, FileSelectPresentation menu,
                     MotherBrainRoomColorPresentation colors, GameOptionsPresentation options,
@@ -48,8 +63,8 @@ internal static class ClosedPresentationContractChecks
                         ? GameOptionsPresentationDefinitions.IconCancelToggle
                         : GameOptionsPresentationDefinitions.MoonwalkToggle, false);
                     options.CreatePage(dynamicName);
-                    gameOver.DrawBaby(oam, SuperMetroid.Core.Frontend.GameOverBabyFrame.Open);
-                    gameOver.DrawBaby(oam, (SuperMetroid.Core.Frontend.GameOverBabyFrame)99);
+                    gameOver.DrawBaby(oam, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open);
+                    gameOver.DrawBaby(oam, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99);
                     reserve.ApplyLabel(bytes, dynamicIndex > 0 ? "Auto" : "Manual");
                     reserve.ApplyLabel(bytes, dynamicIndex > 0 ? "Auto" : "Missing.Label");
                     reserve.ApplyArrowColors(cgram, true, dynamicIndex, 6, 11);
@@ -61,7 +76,7 @@ internal static class ClosedPresentationContractChecks
                     crocomire.ApplyFightBody(cgram);
                     crocomire.ResolveFightBody(0);
                     spores.ResolveSpore(0);
-                    spores.ResolveDeath(SuperMetroid.Core.Game.SporeSpawnDeathPaletteLayer.Level, 7, 0);
+                    spores.ResolveDeath(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level, 7, 0);
                     draygon.ApplyHealthBand(cgram, 14);
                     draygon.ApplyHealthBand(cgram, 1);
                     draygon.ApplyHurt(cgram, true, 1);
@@ -105,16 +120,20 @@ internal static class ClosedPresentationContractChecks
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         Require(report.Classifications.Count == 26 && report.MissingCount == 2 && report.UnresolvedCount == 21,
-            "only reviewed valid-domain operations and installed constant names qualify; invalid/new/dynamic selections must fail");
+            $"only reviewed valid-domain operations and installed constant names qualify; invalid/new/dynamic selections must fail " +
+            $"(classified {report.Classifications.Count}/26, missing {report.MissingCount}/2, unresolved {report.UnresolvedCount}/21; " +
+            $"revoked: {string.Join(", ", adapter.InvalidContracts)}; unresolved: " +
+            string.Join(" | ", report.Findings.Where(finding => finding.Code != AuditReport.Missing).Select(finding => finding.Owner + " " + finding.Message)) + ")");
         Require(report.Findings.Where(item => item.Code == AuditReport.Missing).Select(item => item.Resource)
             .Order(StringComparer.Ordinal).SequenceEqual(["Missing.Anchor", "Missing.Label"]),
             "a compiler-resolved uninstalled name must remain a concrete missing identity");
-        Require(report.Consumers.Count == 49, "classifications must retain every inventoried call");
+        Require(report.Consumers.Count == 49, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/49; unbound: " +
+            string.Join(" | ", report.Findings.Where(finding => finding.Message.Contains("could not be bound", StringComparison.Ordinal)).Select(finding => finding.Message)) + ")");
 
         InvocationExpressionSyntax hudCall = calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>().First();
 
         var extraUse = CSharpSyntaxTree.ParseText("class Mutator { void Change() { " +
-            "SuperMetroid.Core.Assets.GameplayHudDefinitions.IconNames[0] = \"Other\"; } }", path: "fixture-mutator.cs");
+            "SuperMetroid.Core.Hud.Artwork.GameplayHudDefinitions.IconNames[0] = \"Other\"; } }", path: "fixture-mutator.cs");
         var mutatedCompilation = compilation.AddSyntaxTrees(extraUse);
         var mutatedExports = new ResourceIndex();
         var mutated = new ClosedPresentationAudit(mutatedCompilation, mutatedExports);

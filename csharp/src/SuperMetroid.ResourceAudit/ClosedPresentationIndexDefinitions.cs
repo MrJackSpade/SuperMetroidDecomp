@@ -1,8 +1,27 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Enemies.Animals;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.ResourceAudit;
 

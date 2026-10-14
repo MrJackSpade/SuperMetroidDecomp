@@ -5,7 +5,8 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

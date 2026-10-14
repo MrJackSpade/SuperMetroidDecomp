@@ -1,9 +1,8 @@
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Checks D3D11 rendering of the retail ending across the three completion-time rewards.</summary>
 internal static class RetailEndingTests

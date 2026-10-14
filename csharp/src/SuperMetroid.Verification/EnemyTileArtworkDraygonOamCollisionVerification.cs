@@ -1,9 +1,12 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FrontendRomFreeVerification;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>Checks Draygon's empty OAM collision frames without claiming Spore Spawn's bank $A5 frames.</summary>
 internal static class EnemyTileArtworkDraygonOamCollisionVerification

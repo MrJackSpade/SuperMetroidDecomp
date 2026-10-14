@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks generated Mother Brain body OAM and BG2 frame catalogs.</summary>
 internal static class MotherBrainGeneratedVisualCatalogsVerification

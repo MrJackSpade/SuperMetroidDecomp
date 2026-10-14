@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static DoorDefinitionsVerification;
 using static LookupFxBlendSelectorsVerification;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks Ceres haze HDMA scanline amplitudes and editable tint scaling.</summary>
 internal static class LookupCeresHazeRampVerification

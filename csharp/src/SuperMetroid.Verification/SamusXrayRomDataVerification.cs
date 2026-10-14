@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusMovementRomDataVerification;
+using SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Audits X-ray angle bands and retail data ranges used by Samus presentation.</summary>
 internal static class SamusXrayRomDataVerification

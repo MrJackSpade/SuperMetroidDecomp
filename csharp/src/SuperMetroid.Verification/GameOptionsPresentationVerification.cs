@@ -1,12 +1,12 @@
 using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static GameOptionsCursorPhasesVerification;
 using static MapPresentationVerification;
+using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
 
 /// <summary>Checks installed game-options art against cartridge rendering and editable override behavior.</summary>
 internal static class GameOptionsPresentationVerification

@@ -1,9 +1,7 @@
-using System.Reflection;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static DoorDefinitionsVerification;
 using static LookupFxBlendSelectorsVerification;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks which room-FX blend color components are derived and which remain editable.</summary>
 internal static class LookupFxPairColorsVerification

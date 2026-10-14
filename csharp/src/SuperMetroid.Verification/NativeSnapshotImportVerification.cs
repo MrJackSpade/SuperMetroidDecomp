@@ -1,15 +1,27 @@
 using System.Buffers.Binary;
-using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static NativeSnapshotImportMotherBrainVerification;
 using static NativeSnapshotImportPauseVerification;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.PipeBugs;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
 /// Constructs a replay's initial production state from native WRAM and SRAM while
@@ -182,7 +194,6 @@ internal static class NativeSnapshotImportVerification
         samus.MorphBallBounceState = ClosedNativeWords.Decode<SamusBallBounceState>(
             W(NativeSnapshotMemory.MorphBallBounceState), "Samus morph-ball bounce state");
         samus.BombJumpDirection = W(NativeSnapshotMemory.BombJumpDirection);
-
 
         foreach (var trail in runtime.Projectiles.TrailSlots)
         {

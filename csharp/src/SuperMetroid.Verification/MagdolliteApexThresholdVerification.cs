@@ -1,18 +1,9 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static MagdollitePhaseDefinitionsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Magdollite;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Reproduces Magdollite's slot-indexed apex threshold read from the native overrun table.</summary>
 internal static class MagdolliteApexThresholdVerification

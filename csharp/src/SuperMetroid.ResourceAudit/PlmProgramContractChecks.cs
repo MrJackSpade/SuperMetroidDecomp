@@ -1,5 +1,9 @@
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Animals;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 

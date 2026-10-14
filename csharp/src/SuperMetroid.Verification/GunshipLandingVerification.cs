@@ -1,21 +1,13 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static GunshipMotionDefinitionsVerification;
 using static RoomEnemiesVerification;
 using static SyntheticEnemyCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Post-Ceres gunship descent, landing, entry-sound, and escape-takeoff fixtures.</summary>
 internal static class GunshipLandingVerification

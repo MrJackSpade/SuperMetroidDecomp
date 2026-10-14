@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>Checks compiled Waver animation selectors in both handoff and initialization paths.</summary>
 internal static class WaverAnimationDefinitionsVerification

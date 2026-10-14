@@ -1,17 +1,10 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Reproduces main-loop RNG timing through the ending's initial NMI waits.</summary>
 internal static class EndingSetupNmiWaitsVerification

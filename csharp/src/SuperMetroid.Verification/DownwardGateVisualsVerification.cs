@@ -2,13 +2,12 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
-using static AssertionsVerification;
 using static DownwardGatePlmsVerification;
 using static LookupDownwardGateStockVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks editable downward-gate PLM art without changing column or trigger collision.</summary>
 internal static class DownwardGateVisualsVerification

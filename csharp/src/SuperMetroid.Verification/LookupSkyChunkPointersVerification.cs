@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>Compares compiled land and ocean sky chunk pointers and caller row transfers with native bank-$88 tables.</summary>
 internal static class LookupSkyChunkPointersVerification

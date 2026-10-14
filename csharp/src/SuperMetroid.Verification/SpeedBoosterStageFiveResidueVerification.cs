@@ -1,9 +1,14 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>Confirms running-cadence stage five reads the Mode 7 queue residue the Ceres getaway leaves (#1338).</summary>
 internal static class SpeedBoosterStageFiveResidueVerification

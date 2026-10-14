@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -15,6 +14,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Desktop;
 
@@ -24,7 +24,7 @@ namespace SuperMetroid.Desktop;
 public sealed class PlayableGameControl : UserControl
 {
     /// <summary>Installed map art used for file loading and save-file migration.</summary>
-    private SuperMetroid.Core.Assets.AreaMapPresentationCatalog? mapPresentation;
+    private SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog? mapPresentation;
     /// <summary>Installed projectile display data selected at session restart.</summary>
     private SuperMetroid.AssetExtraction.InstalledProjectilePresentation? projectilePresentation;
     /// <summary>Installed gameplay and frontend artwork rebound after debugger restores.</summary>

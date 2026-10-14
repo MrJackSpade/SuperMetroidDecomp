@@ -1,11 +1,3 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
@@ -13,6 +5,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static EnemyContentIdentityFixtureVerification;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks installed artwork, palette, random state, and cheat-option ownership in attract and selected play.</summary>
 internal static class AttractRuntimeBindingsVerification

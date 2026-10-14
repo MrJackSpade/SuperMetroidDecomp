@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Crawlers;
+using SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>Checks compiled crawler and Yard velocity definitions against
 /// native speed tables and production sign application.</summary>

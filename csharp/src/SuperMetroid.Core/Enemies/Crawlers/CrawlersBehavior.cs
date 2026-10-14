@@ -1,0 +1,627 @@
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
+
+namespace SuperMetroid.Core.Enemies.Crawlers;
+
+/// <summary>The Crawlers species owner: its per-room state, AI routines and the interactions it registers.</summary>
+internal sealed class CrawlersBehavior : IEnemySpecies
+{
+    /// <summary>Performs wall, floor, and slope probes for attached crawlers and falling Zoomers.</summary>
+    private readonly EnemyTerrain _terrain;
+    /// <summary>Signals the Super Missile quake that knocks orange Zoomers from surfaces.</summary>
+    private readonly RoomEarthquake _earthquake;
+
+    /// <summary>Binds common crawler motion and orange-Zoomer pursuit to terrain and quake state.</summary>
+    internal CrawlersBehavior(EnemyTerrain terrain, RoomEarthquake earthquake)
+    {
+        _terrain = terrain;
+        _earthquake = earthquake;
+    }
+
+    /// <summary>Executes the shared crawler family's private animation instruction.</summary>
+    private bool TryProcessSharedCrawlerInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (!IsSharedCrawlerDefinition(slot.EnemyDefinitionPointer) ||
+            !Enum.IsDefined((CrawlerInstruction)word))
+            return false;
+
+        switch ((CrawlerInstruction)word)
+        {
+            case CrawlerInstruction.FunctionInY:
+                RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"Shared crawler does not own instruction ${word:X4}.");
+        }
+    }
+
+    /// <summary>Executes the orange Zoomer's private animation instruction.</summary>
+    private bool TryProcessHZoomerInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.HZoomer ||
+            !Enum.IsDefined((HZoomerInstruction)word))
+            return false;
+
+        switch ((HZoomerInstruction)word)
+        {
+            case HZoomerInstruction.FunctionInY:
+                RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+            default:
+                throw new InvalidOperationException(
+                    $"HZoomer does not own instruction ${word:X4}.");
+        }
+    }
+
+    /// <summary>Per-slot surface orientation, velocity, and falling state for crawler species.</summary>
+    internal readonly CrawlerEnemyState?[] _crawlerStates =
+        new CrawlerEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+
+    /// <summary>
+    /// Ports the species wrappers at $A3:96E3/$993B/$B66F/$E2D4/$E59C/$E669 and their
+    /// shared initializer at $A3:E67A. Each wrapper differs only by its four-list table and
+    /// the species byte offset later consumed by the shared surface-orientation tables.
+    /// </summary>
+    internal void InitializeCrawler(
+        RoomEnemySlot slot,
+        CrawlerAnimationFamily animationFamily,
+        ushort? speciesInstructionOffset = null)
+    {
+        var state = new CrawlerEnemyState(slot);
+        _crawlerStates[slot.SlotIndex] = state;
+
+        if (speciesInstructionOffset is ushort offset)
+            slot.Parameter2 = offset;
+
+        // The population initialization parameter is an orientation index, not an
+        // instruction pointer. Masking to two bits before selector lookup is native.
+        // InitAI_Viola ($A3:B678) alone selects with the property bits instead.
+        var orientation = (CrawlerSurfaceOrientation)((animationFamily == CrawlerAnimationFamily.Viola
+            ? (int)slot.Properties
+            : slot.CurrentInstruction) & 3);
+        slot.CurrentInstruction = CrawlerAnimationDefinitions.InitialInstruction(
+            animationFamily, orientation);
+        slot.SpritemapPointer = 0x804d; // Spritemap_Common_Nothing.
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        state.Function = CrawlerEnemyFunction.InstructionPending;
+
+        ResetCrawlerVelocitiesFromProperties(slot);
+    }
+
+    /// <summary>Shared $A3:E67A velocity reset, also called by Yard after landing.</summary>
+    internal static void ResetCrawlerVelocitiesFromProperties(RoomEnemySlot slot)
+    {
+
+        if (slot.Parameter1 != CrawlerSpeedDefinitions.PreserveVelocity)
+        {
+            if (slot.Parameter1 >= CrawlerSpeedDefinitions.Count)
+            {
+                throw new InvalidDataException(
+                    $"Crawler speed parameter ${slot.Parameter1:X4} exceeds $A3:E5F0.");
+            }
+            ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
+            slot.VariableA = velocity;
+            slot.VariableB = velocity;
+        }
+
+        // The low two population-property bits encode which side of the starting block the
+        // crawler occupies. They are not independent EnemyProperties flags.
+        switch (slot.Properties & 3)
+        {
+            case 0:
+                slot.VariableA = Negate16(slot.VariableA);
+                break;
+            case 2:
+                slot.VariableB = Negate16(slot.VariableB);
+                break;
+        }
+    }
+
+    /// <summary>Recognizes crawler species that use the shared bank-A3 surface routine rather than orange Zoomer's chase AI.</summary>
+    private static bool IsSharedCrawlerDefinition(EnemyDefinitionId definitionPointer) =>
+        definitionPointer is
+            EnemyDefinitionId.Sciser or
+            EnemyDefinitionId.Zero or
+            EnemyDefinitionId.Viola or
+            EnemyDefinitionId.Zeela or
+            EnemyDefinitionId.Sova or
+            EnemyDefinitionId.Zoomer or
+            EnemyDefinitionId.MZoomer;
+
+    /// <summary>Ports the separate orange-Zoomer initializer at $A3:E043.</summary>
+    internal void InitializeHZoomer(RoomEnemySlot slot)
+    {
+        if (slot.Parameter1 >= CrawlerSpeedDefinitions.Count)
+        {
+            throw new InvalidDataException(
+                $"HZoomer speed parameter ${slot.Parameter1:X4} exceeds $A3:E5F0.");
+        }
+
+        var state = new CrawlerEnemyState(slot)
+        {
+            Function = CrawlerEnemyFunction.HZoomerInstructionPending,
+        };
+        _crawlerStates[slot.SlotIndex] = state;
+        var orientation = (CrawlerSurfaceOrientation)(slot.CurrentInstruction & 3);
+        slot.CurrentInstruction = CrawlerAnimationDefinitions.InitialInstruction(
+            CrawlerAnimationFamily.HZoomer, orientation);
+        slot.SpritemapPointer = 0x804d;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
+        state.Velocity = new(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
+        switch (slot.Properties & 3)
+        {
+            case 0:
+                state.Velocity = state.Velocity.ReversedX();
+                break;
+            case 2:
+                state.Velocity = state.Velocity.ReversedY();
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Ports $A3:E08B-$E23B. This is not an alias of common crawler main: while attached,
+    /// orange Zoomer reverses its tangent to pursue Samus and reacts to earthquake $14/$1E.
+    /// </summary>
+    private void RunHZoomerMain(
+        RoomEnemySlot slot,
+        SamusState? samus,
+        RoomLevelData? level)
+    {
+        if (samus is null)
+            throw new InvalidOperationException("HZoomer AI requires the active Samus actor.");
+        if (level is null)
+            throw new InvalidOperationException("HZoomer movement requires room collision data.");
+        CrawlerEnemyState state = RequireCrawlerState(slot);
+        switch (state.Function)
+        {
+            case CrawlerEnemyFunction.HZoomerInstructionPending:
+                return;
+            case CrawlerEnemyFunction.HZoomerCrawlingVertically:
+                RunHZoomerVertical(slot, state, samus, level);
+                return;
+            case CrawlerEnemyFunction.HZoomerCrawlingHorizontally:
+                RunHZoomerHorizontal(slot, state, samus, level);
+                return;
+            case CrawlerEnemyFunction.Falling:
+                RunCrawlerFalling(slot, state, level);
+                return;
+            default:
+                throw new InvalidDataException(
+                    $"HZoomer function $A3:{(ushort)state.Function:X4} is not translated.");
+        }
+    }
+
+    /// <summary>Tracks Samus while attached to a wall, reversing its vertical tangent or falling after lost contact.</summary>
+    private void RunHZoomerVertical(
+        RoomEnemySlot slot,
+        CrawlerEnemyState state,
+        SamusState samus,
+        RoomLevelData level)
+    {
+        TriggerCrawlerEarthquakeFall(state);
+        int wallProbe = Shift8AddMagnitude(state.Velocity.X.RawValue, 1);
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
+        {
+            state.ConsecutiveTurnCounter = 0;
+            EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
+            int tangent = SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
+            if (_terrain.MoveEnemyVertically(level, slot, tangent))
+            {
+                state.Velocity = state.Velocity.ReversedX();
+                SetHZoomerVerticalInstruction(slot, state);
+                return;
+            }
+
+            bool samusBelow = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)) >= 0;
+            bool movingDown = state.Velocity.Y.SignedRawValue >= 0;
+            if (samusBelow != movingDown)
+                state.Velocity = state.Velocity.ReversedY();
+            return;
+        }
+
+        state.ConsecutiveTurnCounter = unchecked((ushort)(state.ConsecutiveTurnCounter + 1));
+        if (unchecked((short)(state.ConsecutiveTurnCounter - 4)) >= 0)
+        {
+            BeginCrawlerFall(state);
+            return;
+        }
+        state.Velocity = state.Velocity.ReversedY();
+        SetHZoomerVerticalInstruction(slot, state);
+    }
+
+    /// <summary>Tracks Samus along a floor or ceiling, accounting for slopes and repeated loss of surface contact.</summary>
+    private void RunHZoomerHorizontal(
+        RoomEnemySlot slot,
+        CrawlerEnemyState state,
+        SamusState samus,
+        RoomLevelData level)
+    {
+        TriggerCrawlerEarthquakeFall(state);
+        int surfaceProbe = Shift8AddMagnitude(state.Velocity.Y.RawValue, 1);
+        if (_terrain.MoveEnemyVertically(level, slot, surfaceProbe))
+        {
+            state.ConsecutiveTurnCounter = 0;
+            int tangent = GetCrawlerSlopeAdjustedHorizontalDisplacement(slot, state, level);
+            if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, tangent))
+            {
+                state.Velocity = state.Velocity.ReversedY();
+                SetHZoomerHorizontalInstruction(slot, state);
+                return;
+            }
+
+            EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
+            bool samusRight = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0;
+            bool movingRight = state.Velocity.X.SignedRawValue >= 0;
+            if (samusRight != movingRight)
+                state.Velocity = state.Velocity.ReversedX();
+            return;
+        }
+
+        state.ConsecutiveTurnCounter = unchecked((ushort)(state.ConsecutiveTurnCounter + 1));
+        if (unchecked((short)(state.ConsecutiveTurnCounter - 4)) >= 0)
+        {
+            BeginCrawlerFall(state);
+            return;
+        }
+        state.Velocity = state.Velocity.ReversedX();
+        SetHZoomerHorizontalInstruction(slot, state);
+    }
+
+    /// <summary>Changes an attached orange Zoomer to falling during the native Super Missile earthquake.</summary>
+    private void TriggerCrawlerEarthquakeFall(CrawlerEnemyState state)
+    {
+        if (_earthquake.EarthquakeTimer.RawValue == SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration &&
+            _earthquake.EarthquakeType == SamusProjectileRomData.NonBeam.SuperMissileEarthquakeType)
+            BeginCrawlerFall(state);
+    }
+
+    /// <summary>Selects orange Zoomer's wall-climbing animation from its vertical velocity sign.</summary>
+    private static void SetHZoomerVerticalInstruction(
+        RoomEnemySlot slot,
+        CrawlerEnemyState state) =>
+        SetHZoomerInstructionList(
+            slot,
+            state.Velocity.Y.SignedRawValue < 0
+                ? CrawlerAnimationDefinitions.InitialInstruction(
+                    CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideDown)
+                : CrawlerAnimationDefinitions.InitialInstruction(
+                    CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideUp));
+
+    /// <summary>Selects orange Zoomer's floor or ceiling animation from its horizontal velocity sign.</summary>
+    private static void SetHZoomerHorizontalInstruction(
+        RoomEnemySlot slot,
+        CrawlerEnemyState state) =>
+        SetHZoomerInstructionList(
+            slot,
+            state.Velocity.X.SignedRawValue < 0
+                ? CrawlerAnimationDefinitions.InitialInstruction(
+                    CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideRight)
+                : CrawlerAnimationDefinitions.InitialInstruction(
+                    CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideLeft));
+
+    /// <summary>Starts the chosen orange-Zoomer list with fresh instruction and loop timers.</summary>
+    private static void SetHZoomerInstructionList(
+        RoomEnemySlot slot,
+        ushort instructionList)
+    {
+        slot.CurrentInstruction = instructionList;
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
+    }
+
+    /// <summary>Ports shared crawler main AI at $A3:E6C2.</summary>
+    private void RunCrawlerMain(RoomEnemySlot slot, RoomLevelData? level)
+    {
+        if (level is null)
+            throw new InvalidOperationException("Crawler movement requires active room collision data.");
+        CrawlerEnemyState state = RequireCrawlerState(slot);
+        switch (state.Function)
+        {
+            case CrawlerEnemyFunction.InstructionPending:
+                return;
+            case CrawlerEnemyFunction.CrawlingVertically:
+                RunCrawlerVertical(slot, state, level);
+                return;
+            case CrawlerEnemyFunction.Falling:
+                RunCrawlerFalling(slot, state, level);
+                return;
+            case CrawlerEnemyFunction.CrawlingHorizontally:
+                RunCrawlerHorizontal(slot, state, level);
+                return;
+            default:
+                throw new InvalidDataException(
+                    $"Crawler function $A3:{(ushort)state.Function:X4} is not translated.");
+        }
+    }
+
+    /// <summary>Ports $A3:E6C8: move while attached to a vertical wall.</summary>
+    private void RunCrawlerVertical(
+        RoomEnemySlot slot,
+        CrawlerEnemyState state,
+        RoomLevelData level)
+    {
+        // Native sets the next function but still executes this attached movement
+        // call. Falling displacement begins on the following AI frame.
+        TriggerCrawlerEarthquakeFall(state);
+        int wallProbe = Shift8AddMagnitude(state.Velocity.X.RawValue, 1);
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
+        {
+            state.ConsecutiveTurnCounter = 0;
+            EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
+            int tangent = SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
+            if (!_terrain.MoveEnemyVertically(level, slot, tangent))
+                return;
+
+            // Inside corner: the wall normal changes from X to Y.
+            state.Velocity = state.Velocity.ReversedX();
+            SetCrawlerVerticalSurfaceInstruction(slot, state);
+            return;
+        }
+
+        state.ConsecutiveTurnCounter = unchecked((ushort)(state.ConsecutiveTurnCounter + 1));
+        if ((short)(state.ConsecutiveTurnCounter - 4) >= 0)
+        {
+            BeginCrawlerFall(state);
+            return;
+        }
+
+        // Outside corner: reverse the tangent for up to three frames while the instruction
+        // list rotates the actor around the exposed block edge.
+        state.Velocity = state.Velocity.ReversedY();
+        SetCrawlerVerticalSurfaceInstruction(slot, state);
+    }
+
+    /// <summary>Ports $A3:E7F2: move while attached to a floor or ceiling.</summary>
+    private void RunCrawlerHorizontal(
+        RoomEnemySlot slot,
+        CrawlerEnemyState state,
+        RoomLevelData level)
+    {
+        TriggerCrawlerEarthquakeFall(state);
+        int surfaceProbe = Shift8AddMagnitude(state.Velocity.Y.RawValue, 1);
+        if (_terrain.MoveEnemyVertically(level, slot, surfaceProbe))
+        {
+            state.ConsecutiveTurnCounter = 0;
+            int tangent = GetCrawlerSlopeAdjustedHorizontalDisplacement(slot, state, level);
+            if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, tangent))
+            {
+                // Inside corner: the surface normal changes from Y to X.
+                state.Velocity = state.Velocity.ReversedY();
+                SetCrawlerHorizontalSurfaceInstruction(slot, state);
+            }
+            else
+            {
+                EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
+            }
+            return;
+        }
+
+        state.ConsecutiveTurnCounter = unchecked((ushort)(state.ConsecutiveTurnCounter + 1));
+        if ((short)(state.ConsecutiveTurnCounter - 4) >= 0)
+        {
+            BeginCrawlerFall(state);
+            return;
+        }
+
+        state.Velocity = state.Velocity.ReversedX();
+        SetCrawlerHorizontalSurfaceInstruction(slot, state);
+    }
+
+    /// <summary>Ports the earthquake/outside-corner falling owner at $A3:E785.</summary>
+    private void RunCrawlerFalling(
+        RoomEnemySlot slot,
+        CrawlerEnemyState state,
+        RoomLevelData level)
+    {
+        int displacement = unchecked(
+            (SnesSixteenSixteen.FromWhole((short)state.FallingYVelocity)) | state.FallingYSubvelocity);
+        if (_terrain.MoveEnemyVertically(level, slot, displacement))
+        {
+            // Parameter $FF is the native "choose default speed after first landing" path.
+            if (slot.Parameter1 == 0x00ff)
+            {
+                state.Velocity = new EightEightVector<RoomPixels>(0x0080, 0x0080);
+            }
+            state.FallingYSubvelocity = 0;
+            state.FallingYVelocity = 0;
+            state.ConsecutiveTurnCounter = 0;
+            state.Function = state.NonFallingFunction;
+            return;
+        }
+
+        if ((short)(state.FallingYVelocity - 4) < 0)
+        {
+            uint velocity = (SnesSixteenSixteen.FromWhole((uint)state.FallingYVelocity)) | state.FallingYSubvelocity;
+            velocity = unchecked(velocity + 0x00008000);
+            state.FallingYVelocity = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
+            state.FallingYSubvelocity = unchecked((ushort)velocity);
+        }
+
+        // The native routine contains this zero-velocity escape even though ordinary falls
+        // immediately gain gravity. Retain it for ROM-modified parameter/state combinations.
+        if (state.FallingYSubvelocity == 0 && state.FallingYVelocity == 0)
+            state.Function = CrawlerEnemyFunction.CrawlingVertically;
+    }
+
+    /// <summary>Remembers the attached surface function before entering gravity-controlled falling.</summary>
+    private static void BeginCrawlerFall(CrawlerEnemyState state)
+    {
+        state.NonFallingFunction = state.Function;
+        state.Function = CrawlerEnemyFunction.Falling;
+    }
+
+    /// <summary>Chooses a shared crawler's wall animation from its vertical tangent direction.</summary>
+    internal static void SetCrawlerVerticalSurfaceInstruction(
+        RoomEnemySlot slot,
+        CrawlerEnemyState state)
+    {
+        CrawlerSurfaceOrientation orientation = state.Velocity.Y.SignedRawValue < 0
+            ? CrawlerSurfaceOrientation.UpsideDown
+            : CrawlerSurfaceOrientation.UpsideUp;
+        SetCrawlerInstructionFromTable(slot, orientation);
+    }
+
+    /// <summary>Chooses a shared crawler's floor or ceiling animation from its horizontal tangent direction.</summary>
+    internal static void SetCrawlerHorizontalSurfaceInstruction(
+        RoomEnemySlot slot,
+        CrawlerEnemyState state)
+    {
+        CrawlerSurfaceOrientation orientation = state.Velocity.X.SignedRawValue < 0
+            ? CrawlerSurfaceOrientation.UpsideRight
+            : CrawlerSurfaceOrientation.UpsideLeft;
+        SetCrawlerInstructionFromTable(slot, orientation);
+    }
+
+    /// <summary>Indexes the species-specific six-word surface table and resets animation timers.</summary>
+    private static void SetCrawlerInstructionFromTable(
+        RoomEnemySlot slot,
+        CrawlerSurfaceOrientation orientation)
+    {
+        // Parameter two is already a byte offset into six-word species tables. Retail
+        // Zoomers use zero; preserving byte addressing is required for the shared families.
+        if ((slot.Parameter2 & 1) != 0 || slot.Parameter2 > 10)
+        {
+            throw new InvalidDataException(
+                $"Crawler instruction-table offset ${slot.Parameter2:X4} is invalid.");
+        }
+        slot.CurrentInstruction = CrawlerAnimationDefinitions.SurfaceInstruction(
+            slot.Parameter2, orientation);
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
+    }
+
+    /// <summary>Converts the current crawler velocity to a horizontal move adjusted for the supporting slope.</summary>
+    private static int GetCrawlerSlopeAdjustedHorizontalDisplacement(
+        RoomEnemySlot slot,
+        CrawlerEnemyState state,
+        RoomLevelData level) =>
+        GetSurfaceSlopeAdjustedHorizontalDisplacement(slot, state.Velocity, level);
+
+    /// <summary>
+    /// Shared geometry from <c>MoveEnemyRightBy_14_12_ProcessSlopes</c>. Both the common
+    /// crawlers and Yard multiply their tangent by the cartridge's non-square-slope factor.
+    /// </summary>
+    internal static int GetSurfaceSlopeAdjustedHorizontalDisplacement(
+        RoomEnemySlot slot,
+        EightEightVector<RoomPixels> velocity,
+        RoomLevelData level)
+    {
+        ushort surfaceY = velocity.Y.SignedRawValue < 0
+            ? unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))
+            : unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
+        int blockX = slot.Position.X.Whole >> 4;
+        int blockY = surfaceY >> 4;
+        if ((uint)blockX < (uint)level.Size.X &&
+            (uint)blockY < (uint)level.Size.Y)
+        {
+            RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+            int slopeShape = block.Bts.SlopeShape;
+            if (block.CollisionType == RoomCollisionType.Slope && slopeShape >= 5)
+            {
+                return CrawlerSlopeDefinitions.Scale(velocity.X.RawValue, slopeShape);
+            }
+        }
+        return SnesSixteenSixteen.FromEightEight(velocity.X.SignedRawValue);
+    }
+
+    /// <summary>Rejects a crawler callback before its physical slot initializes surface state.</summary>
+    private CrawlerEnemyState RequireCrawlerState(RoomEnemySlot slot) =>
+        _crawlerStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} has no initialized crawler state.");
+
+    /// <summary>Adds a whole-pixel probe margin in the direction of a signed eight-eight velocity.</summary>
+    internal static int Shift8AddMagnitude(ushort velocity, int wholePixels)
+    {
+        int signedVelocity = unchecked((short)velocity);
+        int bias = SnesSixteenSixteen.FromWhole(wholePixels);
+        return unchecked((SnesSixteenSixteen.FromEightEight(signedVelocity)) + (signedVelocity < 0 ? -bias : bias));
+    }
+
+    /// <summary>Reverses a native 16-bit velocity word with wraparound semantics.</summary>
+    internal static ushort Negate16(ushort value) => unchecked((ushort)-value);
+
+    /// <summary>Registers shared surface initialization and orange Zoomer's distinct initializer for their species.</summary>
+    internal void RegisterCrawlersInitializationAi(EnemyAiTable table)
+    {
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_Sciser, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser, (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeCrawler(slot, CrawlerAnimationFamily.Sciser, speciesInstructionOffset: 8);
+        });
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_Zero, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zero, (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeCrawler(slot, CrawlerAnimationFamily.Zero, speciesInstructionOffset: 10);
+        });
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_Viola, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Viola, (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeCrawler(slot, CrawlerAnimationFamily.Viola, speciesInstructionOffset: 6);
+        });
+
+        EnemyInitializationAiHandler shared50 = (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeCrawler(slot, CrawlerAnimationFamily.Shared);
+        };
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_Zeela, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zeela, shared50);
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_Sova, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sova, shared50);
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_Zoomer_MZoomer, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer, shared50);
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_HZoomer, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.HZoomer, (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeHZoomer(slot);
+        });
+    }
+
+    /// <summary>Dispatches common crawler motion separately from orange Zoomer's Samus-tracking main AI.</summary>
+    internal void RegisterCrawlersMainAi(EnemyAiTable table)
+    {
+
+        table.RegisterMain(EnemyAiRoutine.MainAI_Crawlers, slot => IsSharedCrawlerDefinition(slot.EnemyDefinitionPointer), (slot, frame, nmiFrameCounter8) =>
+        {
+            RunCrawlerMain(slot, frame.Level);
+        });
+
+        table.RegisterMain(EnemyAiRoutine.MainAI_HZoomer, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.HZoomer, (slot, frame, nmiFrameCounter8) =>
+        {
+            RunHZoomerMain(slot, frame.Samus, frame.Level);
+        });
+    }
+
+    /// <summary>Handles each crawler family's function-change opcode before common animation dispatch.</summary>
+    internal void RegisterCrawlersOwnedInstructions(EnemyAiTable table)
+    {
+        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+        {
+            yieldInterpreter = false;
+            return TryProcessSharedCrawlerInstruction(slot, word, ref cursor);
+        });
+
+        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+        {
+            yieldInterpreter = false;
+            return TryProcessHZoomerInstruction(slot, word, ref cursor);
+        });
+    }
+
+    /// <inheritdoc/>
+    public void ResetForRoomLoad(IRoomEnemyLoad request)
+    {
+        Array.Clear(_crawlerStates);
+    }
+
+    /// <inheritdoc/>
+    public void BeginEnemyFrame(RoomEnemyFrame frame)
+    {
+    }
+}

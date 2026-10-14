@@ -1,20 +1,17 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static AssertionsVerification;
 using static DrainedPoseHistoryVerification;
 using static HyperBeamPaletteFxProgramDefinitionsVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Constructed cartridge checks for Samus draining, solid-enemy probes, and Draygon grab control.</summary>
 internal static class SamusDamageAndGrabVerification
@@ -811,7 +808,6 @@ internal static void VerifySamusGrabbedByDraygon()
 
     Console.WriteLine("  Samus/Draygon: ten poses, owner offsets, transitions, escape, and release agree.");
 }
-
 
 /// <summary>
 /// Seeds the <c>$91:D99E</c> Hyper Beam suit-palette pointer table, its ten bank-$9B

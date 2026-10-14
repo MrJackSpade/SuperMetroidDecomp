@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Checks the six native enemy pickup selectors and five live pickup initializers.</summary>
 internal static class EnemyPickupDefinitionsVerification

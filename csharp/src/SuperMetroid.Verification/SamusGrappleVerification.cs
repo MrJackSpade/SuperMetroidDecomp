@@ -1,21 +1,18 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using static SuiteTimingVerification;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static AssertionsVerification;
 using static SamusRenderingFixtureVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks grapple firing, swing geometry, wall contacts, beam drawing, and release poses.</summary>
 internal static class SamusGrappleVerification
@@ -686,8 +683,8 @@ internal static void VerifySamusGrappleSwingAndRelease()
 
     // Selector provenance is now compiled even without installed artwork. The
     // independent all-angle cartridge comparison covers its exact sector boundaries.
-    int segmentSource = SuperMetroid.Core.Assets.GrappleTileDefinitions.TransferFor(
-        SuperMetroid.Core.Assets.GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle.RawValue)).SourceAddress;
+    int segmentSource = SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.TransferFor(
+        SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle.RawValue)).SourceAddress;
 
     // $94:AFBA recalculates the angle from endpoint minus flare (1,-49).
     // Coarse octant division selects angle zero, giving a (0,-8) segment step.

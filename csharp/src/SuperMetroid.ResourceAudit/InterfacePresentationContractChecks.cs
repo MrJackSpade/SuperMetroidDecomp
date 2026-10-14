@@ -5,6 +5,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -29,10 +31,10 @@ internal static class InterfacePresentationContractChecks
         var trees = InterfacePresentationContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path),
                 path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<interface-presentation-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Frontend.Intro.Artwork;
+            using SuperMetroid.Core.Fx.Artwork;
             using SuperMetroid.Core.Hardware;
             class InterfaceConsumer {
                 void Inspect(IIntroCinematicSpritePresentation sprites, IPaletteFxColorSource colors, ushort pointer, OamBuffer oam) {
@@ -62,18 +64,18 @@ internal static class InterfacePresentationContractChecks
         Require(after.Classifications.Count == 2 && after.UnresolvedCount == 1 && after.Consumers.Count == 3,
             "reviewed interface operations qualify but an unowned cinematic frame remains a finding");
         foreach (string extra in new[] {
-            "class OtherSprite : SuperMetroid.Core.Assets.IIntroCinematicSpritePresentation { public void Draw(ushort pointer, SuperMetroid.Core.Hardware.OamBuffer oam, ushort x, ushort y, ushort paletteBits, bool originIsOnScreen) {} }",
-            "class OtherColors : SuperMetroid.Core.Assets.IPaletteFxColorSource { public bool TryReadColor(ushort pointer, out ushort color) { color = 0; return false; } }" })
+            "class OtherSprite : SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation { public void Draw(ushort pointer, SuperMetroid.Core.Hardware.OamBuffer oam, ushort x, ushort y, ushort paletteBits, bool originIsOnScreen) {} }",
+            "class OtherColors : SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource { public bool TryReadColor(ushort pointer, out ushort color) { color = 0; return false; } }" })
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(extra, path: "fixture-unreviewed-interface-owner.cs"))), true);
             Require(revoked.Classifications.Count == 1 && revoked.UnresolvedCount == 2 && revoked.Consumers.Count == 3,
                 "a new implementation revokes only its interface proof");
         }
-        const string router = "csharp/src/SuperMetroid.Core/Assets/CeresDestructionSpritePresentation.cs";
+        const string router = "csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDestructionSpritePresentation.cs";
         var stale = trees.Select(tree => tree.FilePath == router ? CSharpSyntaxTree.ParseText(tree.GetText().ToString()
             .Replace("? destruction : flight", "? flight : destruction", StringComparison.Ordinal), path: tree.FilePath) : tree);
         Require(Inspect(Compile(stale), true).Classifications.Count == 1, "changed combined-scene routing revokes cinematic closure");
-        const string palette = "csharp/src/SuperMetroid.Core/Assets/RoomPaletteFxPresentation.cs";
+        const string palette = "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomPaletteFxPresentation.cs";
         stale = trees.Select(tree => tree.FilePath == palette ? CSharpSyntaxTree.ParseText(tree.GetText().ToString()
             .Replace("colors.TryGetValue(pointer, out color)", "throw new InvalidDataException()", StringComparison.Ordinal), path: tree.FilePath) : tree);
         Require(Inspect(Compile(stale), true).Classifications.Count == 1, "changed palette query semantics revoke its proof");

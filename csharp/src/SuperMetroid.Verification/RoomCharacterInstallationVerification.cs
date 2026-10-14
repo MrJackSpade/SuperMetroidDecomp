@@ -1,13 +1,4 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
-using static Program;
 using static RepositoryInputsVerification;
 using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -21,6 +12,10 @@ using static RoomArtworkRenderParityVerification;
 using static RoomBackgroundLibraryParityVerification;
 using static RoomVisualLayoutsVerification;
 using static XrayRevealVisualInstallationVerification;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks stock and overridden room characters, palettes, blocks, backgrounds, and sky artwork.</summary>
 internal static class RoomCharacterInstallationVerification

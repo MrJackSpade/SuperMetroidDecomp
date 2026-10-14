@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FakeKraidProjectileInstructionProgramDefinitionsVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks Fake Kraid spit and spike control ownership separately from visual operands.</summary>
 internal static class FakeKraidProjectileProgramMappingsVerification

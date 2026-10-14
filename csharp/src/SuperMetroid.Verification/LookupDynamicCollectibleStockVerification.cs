@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static CompiledDynamicCollectibleGraphicsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks dynamic collectible artwork catalogs against native tiles and palette offsets.</summary>
 internal static class LookupDynamicCollectibleStockVerification

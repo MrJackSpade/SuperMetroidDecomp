@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks the compiled intro Mother Brain input stream against its two bank-$91 source spans.</summary>
 internal static class IntroMotherBrainInputSourceVerification

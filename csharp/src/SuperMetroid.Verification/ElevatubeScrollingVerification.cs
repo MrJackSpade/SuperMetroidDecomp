@@ -1,17 +1,10 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Areas.Maridia;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks Samus and camera movement through the Maridia elevatube from both entrances.</summary>
 internal static class ElevatubeScrollingVerification

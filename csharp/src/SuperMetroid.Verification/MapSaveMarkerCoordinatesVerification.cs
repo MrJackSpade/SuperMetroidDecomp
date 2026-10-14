@@ -1,12 +1,11 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks editable save-marker coordinates against all six native area tables.</summary>
 internal static class MapSaveMarkerCoordinatesVerification

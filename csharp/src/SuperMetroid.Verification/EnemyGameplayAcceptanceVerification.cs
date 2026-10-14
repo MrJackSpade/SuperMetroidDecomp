@@ -1,18 +1,9 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 using static EnemyDefinitionsVerification;
 using static EnemyDropChanceDefinitionsVerification;
 using static EnemyDropsVerification;
@@ -20,6 +11,10 @@ using static EnemyRoomListsVerification;
 using static EnemyVulnerabilityDefinitionsVerification;
 using static EnemyVulnerabilityDispatchVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Confirms the compiled enemy catalog closes its references and keeps editable enemy art outside gameplay state.</summary>
 internal static class EnemyGameplayAcceptanceVerification

@@ -1,8 +1,12 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Desktop;
 

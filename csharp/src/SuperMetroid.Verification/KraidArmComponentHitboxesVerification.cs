@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidArmCollisionDefinitionsVerification;
 using static KraidArmPhysicalFrameMappingsVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks Kraid arm component hitbox selectors in all native physical frames.</summary>
 internal static class KraidArmComponentHitboxesVerification

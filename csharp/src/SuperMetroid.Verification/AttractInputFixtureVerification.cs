@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static FrontendVerification;
+using SuperMetroid.Core.Frontend.Attract;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Provides a cartridge-backed interpreter for comparing compiled attract-demo input playback.</summary>
 internal static class AttractInputFixtureVerification

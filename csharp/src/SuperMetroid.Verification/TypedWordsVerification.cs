@@ -1,13 +1,15 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static AssertionsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Exercises semantic native-word views while checking that unnamed cartridge bits survive typed operations.</summary>
 internal static class TypedWordsVerification

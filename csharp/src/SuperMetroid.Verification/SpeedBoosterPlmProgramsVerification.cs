@@ -1,10 +1,13 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using static AssertionsVerification;
 using static BabyMetroidRouteDefinitionsVerification;
 using static SpeedBoosterCollisionBlocksVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Checks Speed Booster block PLM selection, compiled programs, sound, and physical reveal behavior.</summary>
 internal static class SpeedBoosterPlmProgramsVerification

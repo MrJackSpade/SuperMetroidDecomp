@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks legacy room-FX sheet widths against full stock artwork and stream requirements.</summary>
 internal static class LookupFxLegacySheetsVerification

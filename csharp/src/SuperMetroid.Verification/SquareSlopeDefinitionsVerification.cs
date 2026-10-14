@@ -1,10 +1,9 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled Samus and enemy square-slope quadrants against native byte tables.</summary>
 internal static class SquareSlopeDefinitionsVerification

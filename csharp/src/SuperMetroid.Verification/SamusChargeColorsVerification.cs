@@ -1,12 +1,20 @@
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static ColorWordsVerification;
 using static DoorDefinitionsVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Samus.Death;
 
 /// <summary>Checks extracted Samus charge palettes, editable overrides, native phase selection, and guarded runtime color updates.</summary>
 internal static class SamusChargeColorsVerification

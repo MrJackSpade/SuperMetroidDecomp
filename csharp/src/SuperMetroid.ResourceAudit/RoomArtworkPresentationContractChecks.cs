@@ -2,8 +2,8 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -17,10 +17,9 @@ internal static class RoomArtworkPresentationContractChecks
         var trees = RoomArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<room-art-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         string consumer = """
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Rooms.Artwork;
             class RoomArtConsumer {
                 void Inspect(RoomCharacterAtlasCatalog characters, RoomMetatileCatalog metatiles,
                     RoomStaticPaletteCatalog colors, RoomSkyTilemapCatalog sky, RoomBackgroundTilemapCatalog library) {
@@ -71,7 +70,7 @@ internal static class RoomArtworkPresentationContractChecks
             after.Consumers.Count == 17, "required sources and complete sky page/row/false queries qualify, not optional keys or bad transfers");
         Require(after.Findings.Any(item => item.Owner == "RoomBackgroundTilemapCatalog.Get"),
             "an unowned background source must not borrow required graphics-set source closure");
-        const string catalog = "csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlasCatalog.cs";
+        const string catalog = "csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomCharacterAtlasCatalog.cs";
         var changed = trees.Select(tree => tree.FilePath == catalog ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace("atlas is null", "false", StringComparison.Ordinal), path: tree.FilePath) : tree);
         AuditReport revoked = Inspect(Compile(changed), true);

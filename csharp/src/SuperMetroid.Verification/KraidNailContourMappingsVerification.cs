@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Compares the bounded Kraid nail contour catalog with the original cartridge words.</summary>
 internal static class KraidNailContourMappingsVerification

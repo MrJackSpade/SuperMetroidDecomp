@@ -1,14 +1,15 @@
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text;
-using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks projectile and trail artwork binding in the Mother Brain flashback cinematic.</summary>
 internal static class IntroProjectileArtworkVerification

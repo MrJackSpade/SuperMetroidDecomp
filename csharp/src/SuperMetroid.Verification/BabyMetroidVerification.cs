@@ -1,23 +1,13 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using static SuiteTimingVerification;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static AssertionsVerification;
 using static BabyMetroidFixtureHeadVerification;
 using static BabyMetroidRouteDefinitionsVerification;
 using static RenderingAndRoomsVerification;
 using static SignedSineFixtureVerification;
 using static SyntheticSamusAnimationDelaysVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks Baby Metroid's entrance, first Mother Brain latch, and ensuing balance recovery.</summary>
 internal static class BabyMetroidVerification

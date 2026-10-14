@@ -1,5 +1,8 @@
 using Microsoft.CodeAnalysis;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 

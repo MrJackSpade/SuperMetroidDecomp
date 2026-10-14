@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled Bomb Spread launch words and actual slot initialization against retail source data.</summary>
 internal static class BombSpreadLaunchDefinitionsVerification

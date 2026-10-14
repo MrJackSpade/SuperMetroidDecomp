@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>Checks the Ceres flight sprite catalog against its native instruction operands and OAM records.</summary>
 internal static class CeresFlightFrameCatalogVerification

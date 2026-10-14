@@ -1,21 +1,11 @@
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Input;
-using System.Buffers.Binary;
-using System.IO.Compression;
-using System.Reflection;
 using System.Security.Cryptography;
-using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Spatial;
 using static ImportedSpritemapsVerification;
 using static NativeSnapshotImportVerification;
 using static RetailGameFixtureVerification;
@@ -23,6 +13,24 @@ using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static RidleySamusDrawReferenceVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Focused Ridley fight checks and the full recorded-movie gameplay comparison.</summary>
 internal static class RidleyFullMovieVerification

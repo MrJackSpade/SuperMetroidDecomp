@@ -1,9 +1,11 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ShaktoolOrbitAlgorithmVerification;
 using static SuiteTimingVerification;
 using static WordSamplesVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Bull;
+using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>Checks signed cartridge trigonometry across Bull, Yapping Maw, and Shaktool consumers.</summary>
 internal static class FamilyTrigonometryVerification

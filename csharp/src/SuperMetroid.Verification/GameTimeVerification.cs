@@ -1,4 +1,6 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks 60-frame time rollover, the 99:59:59 saturation limit, and save-snapshot time fields.</summary>
 internal static class GameTimeVerification

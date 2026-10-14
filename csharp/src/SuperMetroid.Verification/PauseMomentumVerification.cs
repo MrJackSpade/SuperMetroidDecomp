@@ -1,5 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Checks Speed Booster state reconciliation when gameplay resumes from pause.</summary>
 internal static class PauseMomentumVerification

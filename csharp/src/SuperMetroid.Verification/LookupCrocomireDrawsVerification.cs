@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Crocomire arena PLM physical draw descriptors against the five native bank-$84 lists.</summary>
 internal static class LookupCrocomireDrawsVerification

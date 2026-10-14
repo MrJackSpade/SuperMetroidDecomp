@@ -1,8 +1,6 @@
-using System.Reflection;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks statue earthquake sound ordering and loop restart against the native bank-$88 list.</summary>
 internal static class LookupQuakeSoundSelectionVerification

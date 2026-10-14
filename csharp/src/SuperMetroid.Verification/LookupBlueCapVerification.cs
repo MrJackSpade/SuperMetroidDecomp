@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks blue-door cap draw geometry, collision, visuals, and four alias pointers.</summary>
 internal static class LookupBlueCapVerification

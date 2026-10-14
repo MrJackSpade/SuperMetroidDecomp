@@ -1,7 +1,10 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks the six Draygon burial Evir spawn and subspeed records.</summary>
 internal static class DraygonBurialEvirDefinitionsVerification

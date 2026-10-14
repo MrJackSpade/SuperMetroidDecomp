@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks compiled Golden Torizo walking and Chozo statue carry motion against native tables.</summary>
 internal static class StatueWalkDefinitionsVerification

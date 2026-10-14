@@ -1,8 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>Checks shared enemy linear-speed windows and direct family initialization against cartridge data.</summary>
 internal static class EnemyLinearSpeedsVerification

@@ -1,19 +1,8 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static Program;
 using static RepositoryInputsVerification;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static ChargeFlareProductionVerification;
@@ -22,6 +11,7 @@ using static GrapplePointAnimationVerification;
 using static GrappleTileArtworkVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Compares editable charge-flare sprite compositions with native OAM output and production rendering.</summary>
 internal static class ChargeFlareCompositionsVerification

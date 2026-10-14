@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ProjectileSoundRoutingVerification;
 using static SamusMovementRomDataVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Audits retail addresses and pointer-table strides for Samus projectile origins, beams, missiles, trails, and slopes.</summary>
 internal static class SamusProjectileRomDataVerification

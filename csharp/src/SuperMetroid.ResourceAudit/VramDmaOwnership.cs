@@ -1,6 +1,17 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Areas.Escape.Artwork;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.ResourceAudit;
 

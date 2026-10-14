@@ -1,7 +1,9 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>Checks Kraid-family visual selector domains and values against native timed frames.</summary>
 internal static class KraidVisualSelectorsVerification

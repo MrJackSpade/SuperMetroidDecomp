@@ -1,18 +1,17 @@
-using System.Reflection;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Desktop;
-using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static InstalledFileSelectMapVerification;
 using static MapPresentationVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks file-select map area order and save-station anchors against native metadata and menu behavior.</summary>
 internal static class MapLoadAnchorsVerification

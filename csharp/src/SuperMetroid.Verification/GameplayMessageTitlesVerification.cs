@@ -1,20 +1,11 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static Program;
 using static RepositoryInputsVerification;
 using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>Checks extracted message-title text against native tilemaps and live presentation rebinding.</summary>
 internal static class GameplayMessageTitlesVerification

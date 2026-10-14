@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// A minimal reader of native bank-$86 enemy projectile lists for the #641 ROM oracles: it steps a list with the

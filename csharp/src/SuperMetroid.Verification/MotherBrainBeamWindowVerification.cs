@@ -3,11 +3,10 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using static AssertionsVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks Mother Brain rainbow beam HDMA windows, palette cycling, and captured render data.</summary>
 internal static class MotherBrainBeamWindowVerification

@@ -2,13 +2,13 @@ using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Saves;
 
 /// <summary>
 /// Replays one explicitly selected journal from an Android export without extracting

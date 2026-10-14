@@ -1,8 +1,9 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static HZoomerInstructionProgramDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>Checks installed HZoomer visual selectors and their compiled instruction-frame mapping.</summary>
 internal static class HZoomerArtworkVerification

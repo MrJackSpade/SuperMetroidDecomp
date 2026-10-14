@@ -1,9 +1,4 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static BossMapMarkersVerification;
 using static PausePaletteSoundVerification;
 using static PauseReserveArrowRebindVerification;
@@ -14,12 +9,14 @@ using static PauseReserveTanksVerification;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static RenderPacketCodecTestsVerification;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks pause-menu render packets through map, equipment, and fade states.</summary>
 internal static class PauseSnapshotTestsVerification

@@ -1,8 +1,11 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Yard;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks Yard's contact-driven kick velocity words against its native vertical-speed table.</summary>
 internal static class YardKickVerification

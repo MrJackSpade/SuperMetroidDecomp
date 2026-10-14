@@ -1,22 +1,17 @@
 using SuperMetroid.Core;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using static AssertionsVerification;
 using static DraygonCannonVisualsVerification;
 using static LookupCannonLayoutsVerification;
 using static LookupCannonProgramVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Draygon cannon PLM controls, visual layouts, and compiled damage programs.</summary>
 internal static class DraygonCannonPlmProgramVerification

@@ -1,5 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Checks compiled Golden Torizo landing control words against their bank-$AA source.</summary>
 internal static class GoldenTorizoJumpLandingDefinitionsVerification

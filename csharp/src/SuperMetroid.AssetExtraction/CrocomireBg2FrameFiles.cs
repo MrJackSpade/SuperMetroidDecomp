@@ -1,5 +1,6 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

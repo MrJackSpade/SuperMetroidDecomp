@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FakeKraidInstructionProgramDefinitionsVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks the separation of Fake Kraid's compiled control words and editable visual operands.</summary>
 internal static class FakeKraidProgramMappingsVerification

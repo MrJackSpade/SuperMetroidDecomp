@@ -1,6 +1,6 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Compares compiled Phantoon figure-eight deltas with retail bytes and real movement.</summary>
 internal static class PhantoonPathVerification

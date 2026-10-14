@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Zoa;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks Zoa animation selectors and live rise-to-shoot list handoffs.</summary>
 internal static class ZoaAnimationDefinitionsVerification

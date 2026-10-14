@@ -1,13 +1,13 @@
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using static EndingMode7ArtworkVerification;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Checks installed and edited reward-icon artwork through native partial VRAM uploads and the ending shot.</summary>
 internal static class EndingRewardIconArtworkVerification

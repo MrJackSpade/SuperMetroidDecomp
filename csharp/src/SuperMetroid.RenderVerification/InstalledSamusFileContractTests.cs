@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// Finite source-inventoried Samus PNG/JSON admission checks. These edit only copied

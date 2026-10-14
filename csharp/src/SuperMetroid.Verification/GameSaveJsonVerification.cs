@@ -1,18 +1,16 @@
 using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static SaveSchemaTranslationVerification;
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks named JSON save persistence against canonical SRAM and legacy migration.</summary>
 internal static class GameSaveJsonVerification

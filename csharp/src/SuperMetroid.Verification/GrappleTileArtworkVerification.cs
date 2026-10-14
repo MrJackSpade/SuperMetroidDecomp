@@ -1,15 +1,5 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static GraphDigestVerification;
@@ -17,6 +7,8 @@ using static GrappleFlarePlacementVerification;
 using static GrappleSpriteArtworkVerification;
 using static GrappleTileBindingVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks installed Grapple PNG transfers and edited tile pixels against native VRAM output.</summary>
 internal static class GrappleTileArtworkVerification

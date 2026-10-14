@@ -1,8 +1,7 @@
-﻿using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rooms;
+﻿using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Runtime;
 

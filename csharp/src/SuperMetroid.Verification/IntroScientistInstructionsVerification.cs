@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks the compiled intro scientist instruction spans against their bank-$8B source bytes.</summary>
 internal static class IntroScientistInstructionsVerification

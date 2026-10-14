@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -15,12 +15,12 @@ internal static class AreaMapPresentationContractChecks
         var trees = AreaMapClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<area-map-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Game;
+            using SuperMetroid.Core.Enemies.Artwork;
+            using SuperMetroid.Core.Frontend.Map.Artwork;
             using SuperMetroid.Core.Hardware;
+            using SuperMetroid.Core.Rooms;
             class MapConsumer {
                 void Inspect(AreaMapPresentationCatalog maps, EnemyTileArtworkCatalog enemies) {
                     maps.Get(AreaId.Crateria);
@@ -58,7 +58,7 @@ internal static class AreaMapPresentationContractChecks
             after.Consumers.Count == 10, "all installed areas and owned transfers qualify, not unknown areas or another provider's IDs");
         Require(after.Findings.Any(item => item.Owner == "EnemyTileArtworkCatalog.LoadPaletteTo"),
             "an enemy catalog without its own reviewed sources must not borrow the atomic map install proof");
-        const string catalog = "csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationCatalog.cs";
+        const string catalog = "csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentationCatalog.cs";
         var changed = trees.Select(tree => tree.FilePath == catalog ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace("foreach (AreaId area in Enum.GetValues<AreaId>())",
                 "foreach (AreaId area in new[] { AreaId.Crateria })", StringComparison.Ordinal), path: tree.FilePath) : tree);

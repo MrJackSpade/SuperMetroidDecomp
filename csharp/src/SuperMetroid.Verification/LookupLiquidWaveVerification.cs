@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks compiled water and heat wave tables through their rendering consumers.</summary>
 internal static class LookupLiquidWaveVerification

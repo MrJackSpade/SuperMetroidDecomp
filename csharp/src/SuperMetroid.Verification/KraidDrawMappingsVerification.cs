@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Kraid room PLM ownership, draw records, native words, and editable visual identities.</summary>
 internal static class KraidDrawMappingsVerification

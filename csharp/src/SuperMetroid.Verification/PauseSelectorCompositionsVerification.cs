@@ -1,11 +1,14 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Frontend;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Checks pause equipment selector OAM against native sprites and editable phase compositions.</summary>
 internal static class PauseSelectorCompositionsVerification

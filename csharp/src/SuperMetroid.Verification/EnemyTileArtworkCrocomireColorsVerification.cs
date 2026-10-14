@@ -2,10 +2,15 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>Checks installed Crocomire palette bands against native RGB5 data
 /// and live boss CGRAM writes under a cartridge-read guard.</summary>

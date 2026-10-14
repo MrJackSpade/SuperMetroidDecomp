@@ -1,12 +1,14 @@
 using System.Reflection;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static GraphDigestVerification;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks Grapple VRAM transfer rebinding across legacy and typed debugger snapshots.</summary>
 internal static class GrappleTileBindingVerification

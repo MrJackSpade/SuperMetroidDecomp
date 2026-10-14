@@ -1,22 +1,15 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using static GrappleDemoTrajectoryVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Spatial;
 using static AttractInputFixtureVerification;
 using static FrontendVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Attract;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks attract-scene setup records and compiled input scripts against native data and playback.</summary>
 internal static class AttractDemoSceneVerification

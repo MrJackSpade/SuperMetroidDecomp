@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Room-shake writes a PLM fixture observes; an uninstalled write fails at the dependency (#633).</summary>
 internal sealed class FixtureRoomEarthquake : IRoomEarthquakeWriter

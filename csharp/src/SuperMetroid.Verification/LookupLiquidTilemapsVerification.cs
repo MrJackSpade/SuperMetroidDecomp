@@ -1,11 +1,9 @@
 using System.Buffers.Binary;
-using System.Reflection;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks calculated liquid layer-3 pages against retail words and uncached stock artwork.</summary>
 internal static class LookupLiquidTilemapsVerification

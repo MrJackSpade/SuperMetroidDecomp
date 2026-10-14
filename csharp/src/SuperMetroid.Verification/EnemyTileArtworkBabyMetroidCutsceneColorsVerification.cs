@@ -2,9 +2,12 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks installed Baby Metroid cutscene colors and fade palettes in live CGRAM.</summary>
 internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification

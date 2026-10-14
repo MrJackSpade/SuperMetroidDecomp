@@ -1,8 +1,7 @@
 using System.Globalization;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks bank-$8F room-main callbacks against every reachable retail room state.</summary>
 internal static class RoomMainCodeCatalogVerification

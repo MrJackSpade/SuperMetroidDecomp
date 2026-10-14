@@ -1,13 +1,12 @@
 using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static MapSpritesVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Checks reserve tank OAM anchors against cartridge coordinates and edited presentation.</summary>
 internal static class PauseReserveAnchorsVerification

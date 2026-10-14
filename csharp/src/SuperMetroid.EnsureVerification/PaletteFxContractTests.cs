@@ -1,10 +1,11 @@
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.EnsureVerification.AnalyzerTests;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.EnsureVerification;
 
@@ -59,8 +60,9 @@ internal static class PaletteFxContractTests
     private static void VerifyPaletteCall(string description, string statement, string? expectedError = null)
     {
         string source = $$"""
-            using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Game;
+            using SuperMetroid.Core.Fx;
+            using SuperMetroid.Core.Fx.Artwork;
+            using SuperMetroid.Core.Fx.PaletteFx;
             using SuperMetroid.Core.Hardware;
             class PaletteCaller
             {

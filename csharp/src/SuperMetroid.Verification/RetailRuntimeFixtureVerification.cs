@@ -1,9 +1,12 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Creates verification fixtures from the repository's installed retail asset catalogs.</summary>
 internal static class RetailRuntimeFixtureVerification
@@ -29,7 +32,6 @@ internal static class RetailRuntimeFixtureVerification
     /// <summary>Binds the shared installation's runtime catalogs to a restored or bare runtime.</summary>
     internal static void BindRetailRuntimeFixture(SuperMetroidRuntime runtime) =>
         RepositoryInstallation.BindRuntime(runtime);
-
 
     /// <summary>The shared installation's stock enemy artwork, loaded once per process.</summary>
     internal static EnemyTileArtworkCatalog FixtureEnemyTileArtwork() => InstalledFixtures.EnemyTiles;

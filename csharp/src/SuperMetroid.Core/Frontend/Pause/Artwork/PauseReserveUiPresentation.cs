@@ -1,0 +1,288 @@
+using System.Buffers.Binary;
+using System.Text.Json;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+
+namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+
+/// <summary>Editable reserve labels, digits and arrow appearance; energy and mode behavior stay compiled.</summary>
+public sealed class PauseReserveUiPresentation
+{
+    /// <summary>Mode, Reserve Tank, Manual, and Auto strips retaining only departures from stock artwork.</summary>
+    private readonly Dictionary<string, ReserveLabel> labels;
+    /// <summary>Byte position of the leftmost reserve-supply digit in the equipment tilemap.</summary>
+    private readonly int digitOffset;
+    /// <summary>Optional authored digit words; null reuses the consecutive stock glyph sequence.</summary>
+    internal readonly byte[][]? digits;
+    /// <summary>Optional authored arrow-cell positions; null uses the native stem and arm layout.</summary>
+    internal readonly int[]? arrowOffsets;
+    /// <summary>BG palette selections used for active and inactive arrow tile cells.</summary>
+    private readonly int enabledPalette, disabledPalette;
+    /// <summary>Two bevel colors shown when AUTO pulse animation is inactive.</summary>
+    private readonly Bgr555 solidColor6, solidColor11;
+    /// <summary>Only pulse starting colors that differ from the reversed solid bevel colors.</summary>
+    private readonly (Bgr555? Color6, Bgr555? Color11) arrowStartEdits;
+    /// <summary>Grey midpoint levels from which each mirrored pulse ramp is calculated.</summary>
+    private readonly (int Color6, int Color11) arrowGreyLevels;
+    /// <summary>Independently edited pulse colors that depart from the mirrored ramp.</summary>
+    internal readonly Dictionary<int, Bgr555> arrowColorEdits = [];
+
+    /// <summary>Compacts stock-equivalent digit/arrow positions and derives sparse label and pulse-color edits.</summary>
+    private PauseReserveUiPresentation(PauseReserveUiParts parts)
+    {
+        this.labels = parts.Labels; this.digitOffset = parts.DigitOffset;
+        bool stockDigits = true;
+        for (int digit = 0; digit < parts.Digits.Length; digit++)
+            stockDigits &= BinaryPrimitives.ReadUInt16LittleEndian(parts.Digits[digit]) == DigitWord(digit);
+        this.digits = stockDigits ? null : parts.Digits;
+        bool stockArrow = true;
+        for (int cell = 0; cell < parts.ArrowOffsets.Length; cell++)
+            stockArrow &= parts.ArrowOffsets[cell] == ArrowOffset(cell);
+        this.arrowOffsets = stockArrow ? null : parts.ArrowOffsets;
+        this.enabledPalette = parts.EnabledPalette;
+        this.disabledPalette = parts.DisabledPalette; this.solidColor6 = parts.SolidColor6;
+        this.solidColor11 = parts.SolidColor11;
+        arrowStartEdits = (parts.ArrowFrames[0].Item1 == parts.SolidColor11 ? null : parts.ArrowFrames[0].Item1,
+            parts.ArrowFrames[0].Item2 == parts.SolidColor6 ? null : parts.ArrowFrames[0].Item2);
+        var middle = parts.ArrowFrames[PauseReserveUiDefinitions.ArrowFrames / 2 - 1];
+        arrowGreyLevels = (middle.Item1.Red, middle.Item2.Red);
+        for (int frame = 0; frame < parts.ArrowFrames.Length; frame++)
+        {
+            if (parts.ArrowFrames[frame].Item1 != CalculateArrowColor(frame, false))
+                arrowColorEdits.Add(frame * 2, parts.ArrowFrames[frame].Item1);
+            if (parts.ArrowFrames[frame].Item2 != CalculateArrowColor(frame, true))
+                arrowColorEdits.Add(frame * 2 + 1, parts.ArrowFrames[frame].Item2);
+        }
+    }
+
+    /// <summary>$82:8F70 selects the ten consecutive digit glyphs starting with native word $0804.</summary>
+    private static ushort DigitWord(int digit) => (ushort)(PauseReserveUiDefinitions.DigitZeroWord + digit);
+
+    /// <summary>
+    /// Native reserve-arrow cells form an eight-cell vertical stem followed by a two-cell
+    /// horizontal arm; each tilemap cell occupies two bytes in the32-column equipment page.
+    /// </summary>
+    private static int ArrowOffset(int cell) => sizeof(ushort) * (cell < PauseReserveUiDefinitions.VerticalCount
+        ? PauseReserveUiDefinitions.VerticalStartCell + cell * PauseReserveUiDefinitions.RowStrideCells
+        : PauseReserveUiDefinitions.HorizontalStartCell + cell - PauseReserveUiDefinitions.VerticalCount);
+    /// <summary>Writes one selected label's native BG words into its authored equipment-page location.</summary>
+    /// <param name="tilemap">Mutable little-endian equipment tilemap bytes, large enough for the entire authored label range.</param>
+    /// <param name="name">Case-sensitive label identity: Mode, ReserveTank, Manual, or Auto.</param>
+    /// <param name="preserveAttributes">When true, preserves each destination word's palette, priority, and flip bits while replacing only its ten-bit character selector; used for MANUAL/AUTO replacement.</param>
+    /// <exception cref="InvalidDataException"><paramref name="name"/> is not an installed label identity.</exception>
+    /// <exception cref="ArgumentException">The destination span does not contain the authored label range.</exception>
+    public void ApplyLabel(Span<byte> tilemap, string name, bool preserveAttributes = false)
+    {
+        if (!labels.TryGetValue(name, out var label)) throw new InvalidDataException($"Unknown reserve label {name}.");
+        if (label.Offset < 0 || label.Offset + label.WordCount * sizeof(ushort) > tilemap.Length)
+            throw new ArgumentException("Reserve label target is shorter than the authored tilemap range.", nameof(tilemap));
+        for (int index = 0; index < label.WordCount * sizeof(ushort); index += sizeof(ushort))
+        {
+            ushort word = label.Word(index / sizeof(ushort));
+            if (preserveAttributes)
+                word = (ushort)((BinaryPrimitives.ReadUInt16LittleEndian(tilemap.Slice(label.Offset + index)) &
+                    PauseReserveUiDefinitions.TileAttributeMask) | (word & ~PauseReserveUiDefinitions.TileAttributeMask));
+            BinaryPrimitives.WriteUInt16LittleEndian(tilemap.Slice(label.Offset + index), word);
+        }
+    }
+
+    /// <summary>Writes one selected decimal glyph into the reserve-supply display without calculating the energy value.</summary>
+    /// <param name="tilemap">Mutable equipment-page bytes containing the authored three-word digit range.</param>
+    /// <param name="position">Zero-based left-to-right digit place, zero through two; callers supply hundreds, tens, and units in that order.</param>
+    /// <param name="value">Decimal glyph identity, zero through nine.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The digit position/value is invalid or the destination lacks the selected two-byte word.</exception>
+    public void ApplyDigit(Span<byte> tilemap, int position, int value)
+    {
+        if ((uint)position >= PauseReserveUiDefinitions.SupplyDigitPlaces || (uint)value >= PauseReserveUiDefinitions.DigitCount)
+            throw new ArgumentOutOfRangeException();
+        ushort word = digits is null ? DigitWord(value) : BinaryPrimitives.ReadUInt16LittleEndian(digits[value]);
+        BinaryPrimitives.WriteUInt16LittleEndian(tilemap.Slice(digitOffset + position * sizeof(ushort)), word);
+    }
+
+    /// <summary>Replaces only the palette selectors of the ten authored arrow cells, preserving their characters, priority, and flips.</summary>
+    /// <param name="tilemap">Mutable little-endian equipment-page bytes containing every authored arrow cell.</param>
+    /// <param name="enabled">Selects the authored enabled palette when true or disabled palette when false; does not change reserve mode or transfer energy.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The destination lacks an authored arrow word.</exception>
+    public void ApplyArrowTilePalettes(Span<byte> tilemap, bool enabled)
+    {
+        int palette = enabled ? enabledPalette : disabledPalette;
+        int cells = PauseReserveUiDefinitions.VerticalCount + PauseReserveUiDefinitions.HorizontalCount;
+        for (int cell = 0; cell < cells; cell++)
+        {
+            int offset = arrowOffsets is null ? ArrowOffset(cell) : arrowOffsets[cell];
+            var word = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(tilemap.Slice(offset)));
+            BinaryPrimitives.WriteUInt16LittleEndian(tilemap.Slice(offset), word.WithPaletteIndex(palette).Raw);
+        }
+    }
+
+    /// <summary>Writes the two selected arrow bevel colors to live CGRAM, using either the pulse frame or the solid appearance.</summary>
+    /// <param name="cgram">Live palette destination, modified at the two supplied color indices.</param>
+    /// <param name="animated">Whether to sample the 32-phase pulse rather than the solid colors; the pause owner decides when AUTO selection should animate.</param>
+    /// <param name="frame">Pulse phase, masked to its low five bits; normally the accepted eight-bit NMI frame counter and ignored for solid colors.</param>
+    /// <param name="color6Index">CGRAM color index 0-255 for arrow palette slot six, not a byte offset.</param>
+    /// <param name="color11Index">CGRAM color index 0-255 for arrow palette slot eleven, not a byte offset.</param>
+    /// <exception cref="ArgumentOutOfRangeException">A supplied CGRAM color index is invalid.</exception>
+    [PpuLayoutBoundary("codec: reserve-arrow colours at their native CGRAM index operands")]
+    public void ApplyArrowColors(SnesCgram cgram, bool animated, int frame, int color6Index, int color11Index)
+    {
+        var colors = animated ? (ArrowColor(frame, false), ArrowColor(frame, true)) : (solidColor6, solidColor11);
+        new CgramPalettes(cgram).All.Write(color6Index, colors.Item1); new CgramPalettes(cgram).All.Write(color11Index, colors.Item2);
+    }
+
+    /// <summary>
+    /// $82:AD5D/AD9D mirror two16-phase RGB ramps around the repeated midpoint.
+    /// Starts share the reversed solid-arrow colors; grey midpoint channels share one level.
+    /// Repeated normalized fade subtraction explains the below-integer blue crossings at5/10.
+    /// The penultimate bright-red/dark-blue channels hold their preceding shade. Endpoint
+    /// colors/levels and this exact two-channel hold are authored bevel-color/pulse content:
+    /// different choices paint a different pulse. Held magnitudes derive from the prior shade;
+    /// independently supplied differences stay sparse.
+    /// </summary>
+    private Bgr555 CalculateArrowColor(int frame, bool second)
+    {
+        int last = PauseReserveUiDefinitions.ArrowFrames - 1;
+        int phase = Math.Min(frame, last - frame);
+        int steps = last / 2;
+        Bgr555 start = second ? arrowStartEdits.Color11 ?? solidColor6 : arrowStartEdits.Color6 ?? solidColor11;
+        int grey = second ? arrowGreyLevels.Color11 : arrowGreyLevels.Color6;
+        if (phase == steps) return new(grey, grey, grey);
+        ColorChannel held = second ? ColorChannel.Blue : ColorChannel.Red;
+        return start.Map((channel, channelStart) =>
+        {
+            int channelPhase = phase == steps - 1 && channel == held ? phase - 1 : phase;
+            float remaining = 1;
+            float step = (float)(1d / steps);
+            for (int tick = 0; tick < channelPhase; tick++)
+                remaining = (float)((double)remaining - step);
+            float amount = (float)(1d - remaining);
+            // Explicit binary32 roundings separate multiplication and addition: an FMA
+            // cannot remove the intermediate rounding or alter the integral crossings.
+            float delta = (float)((double)(grey - channelStart) * amount);
+            return (int)(float)(channelStart + (double)delta);
+        });
+    }
+
+    /// <summary>Uses the supplied independent bevel shade when present; otherwise mirrors the calculated 32-phase ramp.</summary>
+    private Bgr555 ArrowColor(int frame, bool second)
+    {
+        frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
+        return arrowColorEdits.TryGetValue(frame * 2 + (second ? 1 : 0), out Bgr555 supplied)
+            ? supplied : CalculateArrowColor(frame, second);
+    }
+    /// <summary>Compiles editable reserve labels, digit words, arrow placements, and RGB5 pulse colors into a selected presentation.</summary>
+    /// <param name="json">Caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
+    /// <returns>A presentation retaining compiled visual data; reserve capacity, mode selection, transfer, and animation cadence remain in the pause owner.</returns>
+    /// <remarks>Requires four exact label keys, seven-word Mode/ReserveTank labels, four-word Manual/Auto labels, ten digit glyphs, ten distinct arrow locations, and 32 color frames. Anchors must be within the 32-by-32 equipment page; application separately checks the actual target ranges.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">The JSON, schema, resource counts, labels, atlas references, coordinates, palettes, or RGB5 colors are invalid.</exception>
+    public static PauseReserveUiPresentation Load(Stream json)
+    {
+        PauseReserveUiDocument document;
+        try { document = JsonAssetDocument.Read<PauseReserveUiDocument>(json, MapPresentationFormat.JsonOptions)
+            ?? throw new InvalidDataException("Pause reserve UI document is null."); }
+        catch (JsonException error) { throw new InvalidDataException("Invalid pause reserve UI JSON.", error); }
+        if (document.Version != PauseReserveUiDefinitions.Version || document.Labels is null || document.Labels.Count != 4 ||
+            document.Digits is null || document.Digits.Cells is null || document.Digits.Cells.Length != PauseReserveUiDefinitions.DigitCount ||
+            document.Arrow is null || document.Arrow.Cells is null || document.Arrow.Cells.Length != 10 ||
+            document.Arrow.Frames is null || document.Arrow.Frames.Length != PauseReserveUiDefinitions.ArrowFrames ||
+            (uint)document.Arrow.EnabledPalette > 7 || (uint)document.Arrow.DisabledPalette > 7)
+            throw new InvalidDataException("Pause reserve UI requires four labels, ten digits, ten arrow cells, and 32 arrow frames.");
+        var labels = new Dictionary<string, ReserveLabel>();
+        foreach (var expected in new[] { "Mode", "ReserveTank", "Manual", "Auto" })
+        {
+            if (!document.Labels.TryGetValue(expected, out var label) || label is null || label.Cells is null ||
+                label.Cells.Length != (expected is "Manual" or "Auto" ? PauseReserveUiDefinitions.ModeWords : PauseReserveUiDefinitions.LabelWords))
+                throw new InvalidDataException($"Pause reserve UI label {expected} has the wrong shape.");
+            labels.Add(expected, ReserveLabel.Load(expected, Offset(label.Anchor, expected),
+                PauseTileGrid.Compile(label.Cells, $"Reserve.{expected}")));
+        }
+        var digits = document.Digits.Cells.Select((cell, index) => PauseTileGrid.Compile([cell], $"Reserve.Digit{index}")).ToArray();
+        int[] arrowOffsets = document.Arrow.Cells.Select((point, index) => Offset(point, $"Arrow.{index}")).ToArray();
+        if (arrowOffsets.Distinct().Count() != arrowOffsets.Length) throw new InvalidDataException("Reserve arrow cells must be unique.");
+        var frames = document.Arrow.Frames.Select((frame, index) =>
+            (Color(frame?.Color6, $"arrow frame {index} color 6"), Color(frame?.Color11, $"arrow frame {index} color 11"))).ToArray();
+        return new(new PauseReserveUiParts { Labels = labels, DigitOffset = Offset(document.Digits.Anchor, "Digits"), Digits = digits, ArrowOffsets = arrowOffsets, EnabledPalette = document.Arrow.EnabledPalette, DisabledPalette = document.Arrow.DisabledPalette, SolidColor6 = Color(document.Arrow.SolidColor6, "solid color 6"), SolidColor11 = Color(document.Arrow.SolidColor11, "solid color 11"), ArrowFrames = frames });
+
+        // Converts a bounded equipment-page cell coordinate to its little-endian byte offset.
+        static int Offset(PauseGridPoint? point, string name)
+        {
+            if (point is null || (uint)point.Column >= PauseReserveUiDefinitions.TilemapColumns ||
+                (uint)point.Row >= PauseReserveUiDefinitions.TilemapRows)
+                throw new InvalidDataException($"Pause reserve UI {name} anchor is outside the 32x32 tilemap.");
+            return (point.Row * PauseReserveUiDefinitions.TilemapColumns + point.Column) * sizeof(ushort);
+        }
+        // Requires nonnull five-bit RGB components before packing an arrow color.
+        static Bgr555 Color(PaletteRgb5? color, string name)
+        {
+            if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
+                throw new InvalidDataException($"Pause reserve UI {name} requires RGB components from zero through 31.");
+            return color.ToBgr555();
+        }
+    }
+
+    /// <summary>Resolves unchanged reserve-label cells from stock and stores only edited placement or tile words.</summary>
+    private sealed class ReserveLabel(string name, int? offsetEdit, Dictionary<int, ushort> edits)
+    {
+        /// <summary>Uses an authored placement when changed, otherwise the native label anchor.</summary>
+        internal int Offset => offsetEdit ?? PauseReserveUiDefinitions.StockLabelOffset(name);
+        /// <summary>Uses the native strip width for the selected label.</summary>
+        internal int WordCount => PauseReserveUiDefinitions.StockLabelWords(name);
+        /// <summary>Returns an edited tile word or the corresponding stock glyph and attributes.</summary>
+        internal ushort Word(int index) => edits.TryGetValue(index, out ushort selected)
+            ? selected : PauseReserveUiDefinitions.StockLabelWord(name, index);
+
+        /// <summary>Compares every supplied little-endian word and destination with stock, retaining only differences.</summary>
+        internal static ReserveLabel Load(string name, int offset, ReadOnlySpan<byte> bytes)
+        {
+            var edits = new Dictionary<int, ushort>();
+            for (int index = 0; index < bytes.Length / sizeof(ushort); index++)
+            {
+                ushort value = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * sizeof(ushort))..]);
+                if (value != PauseReserveUiDefinitions.StockLabelWord(name, index)) edits.Add(index, value);
+            }
+            int? editedOffset = offset == PauseReserveUiDefinitions.StockLabelOffset(name) ? null : offset;
+            return new(name, editedOffset, edits);
+        }
+    }
+
+    /// <summary>Serializes and validates the complete reserve UI document before writing its UTF-8 bytes to the destination.</summary>
+    /// <param name="output">Caller-owned writable destination stream, written at its current position without being disposed.</param>
+    /// <param name="document">Selected editable visuals satisfying the same schema and field limits as <see cref="Load"/>.</param>
+    /// <exception cref="InvalidDataException">The document is null or fails presentation validation.</exception>
+    public static void Write(Stream output, PauseReserveUiDocument document)
+    {
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+        _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
+    }
+
+    /// <summary>The pause screen's reserve-tank labels, digits and arrow colours (#633).</summary>
+    private sealed record PauseReserveUiParts
+    {
+        /// <summary>The four compiled strips with stock-equivalent cells omitted.</summary>
+        public required Dictionary<string, ReserveLabel> Labels { get; init; }
+
+        /// <summary>Byte anchor of the three-place reserve supply in the equipment tilemap.</summary>
+        public required int DigitOffset { get; init; }
+
+        /// <summary>Ten compiled decimal glyph words before stock-equivalent compression.</summary>
+        public required byte[][] Digits { get; init; }
+
+        /// <summary>Ten distinct arrow-cell byte positions, vertical stem before horizontal arm.</summary>
+        public required int[] ArrowOffsets { get; init; }
+
+        /// <summary>BG palette selector used when the pause owner enables reserve control.</summary>
+        public required int EnabledPalette { get; init; }
+
+        /// <summary>BG palette selector used when reserve control is unavailable.</summary>
+        public required int DisabledPalette { get; init; }
+
+        /// <summary>Static arrow bevel color for palette slot six outside pulse animation.</summary>
+        public required Bgr555 SolidColor6 { get; init; }
+
+        /// <summary>Static arrow bevel color for palette slot eleven outside pulse animation.</summary>
+        public required Bgr555 SolidColor11 { get; init; }
+
+        /// <summary>Two RGB5 bevel colors for each of the 32 mirrored pulse phases.</summary>
+        public required (Bgr555, Bgr555)[] ArrowFrames { get; init; }
+    }
+}

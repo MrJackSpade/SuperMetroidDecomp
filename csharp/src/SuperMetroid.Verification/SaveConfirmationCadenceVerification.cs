@@ -1,16 +1,6 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Hud;
 
 /// <summary>Checks the extra wait between save-confirmation cursor moves and the next controller read.</summary>
 internal static class SaveConfirmationCadenceVerification

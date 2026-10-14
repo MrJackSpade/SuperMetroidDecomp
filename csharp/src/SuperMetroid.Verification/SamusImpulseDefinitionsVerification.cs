@@ -1,8 +1,11 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SharedSlopeHeightsVerification;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks Samus bomb-jump and hurt launch impulses against native medium-dependent values.</summary>
 internal static class SamusImpulseDefinitionsVerification

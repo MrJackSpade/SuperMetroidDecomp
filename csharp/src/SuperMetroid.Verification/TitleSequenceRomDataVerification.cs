@@ -1,14 +1,15 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction;
 using static CeresDestructionVerification;
 using static FrontendVerification;
 using static TitleFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Frontend.Title.Artwork;
 
 /// <summary>Checks the complete title phase chain and its constructed cartridge inputs.</summary>
 internal static class TitleSequenceRomDataVerification

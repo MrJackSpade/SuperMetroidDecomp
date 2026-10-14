@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusMovementRomDataVerification;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>
 /// Audits named Samus palette table spans and their shared destinations against the
@@ -93,7 +94,7 @@ internal static class SamusPaletteRomDataVerification
             "death whiteout shades");
 
         TouchRange(bus, SamusPaletteRomData.CrystalFlash.BeamPalettePointers,
-            SuperMetroid.Core.Assets.BeamTileAtlasDefinitions.SelectionCount * sizeof(ushort),
+            SuperMetroid.Core.Samus.Artwork.BeamTileAtlasDefinitions.SelectionCount * sizeof(ushort),
             "Crystal Flash restored beam palettes");
         TouchRange(bus, SamusPaletteRomData.CrystalFlash.BodyRecords,
             SamusPaletteRomData.CrystalFlash.BodyRecordCount *

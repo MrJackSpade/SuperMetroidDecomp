@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks compiled room-shake vectors and the runtime's alternating background and projectile offsets.</summary>
 internal static class RoomShakeDefinitionsVerification

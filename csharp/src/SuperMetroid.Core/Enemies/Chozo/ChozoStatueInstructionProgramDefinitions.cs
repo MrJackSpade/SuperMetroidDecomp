@@ -1,0 +1,174 @@
+using SuperMetroid.Core.Programs;
+
+namespace SuperMetroid.Core.Enemies.Chozo;
+
+/// <summary>
+/// Compiled engine-control words for the Lower Norfair and Wrecked Ship Chozo-statue
+/// sequences. Interleaved spritemap operands resolve to installed presentation
+/// identities when artwork is bound; diagnostic buses may still supply them.
+/// </summary>
+internal abstract class ChozoStatueInstructionProgramDefinitions
+{
+    /// <summary><c>InstList_Chozo_LowerNorfair_Initial</c> at $AA:E39D.</summary>
+    internal const ushort LowerNorfairInitial = 0xe39d;
+    /// <summary><c>InstList_Chozo_LowerNorfair_Activated_0</c> at $AA:E3A7.</summary>
+    internal const ushort LowerNorfairActivated = 0xe3a7;
+    /// <summary><c>InstList_Chozo_WreckedShip_Initial</c> at $AA:E457.</summary>
+    internal const ushort WreckedShipInitial = 0xe457;
+    /// <summary><c>InstList_Chozo_WreckedShip_Activated_0</c> at $AA:E461.</summary>
+    internal const ushort WreckedShipActivated = 0xe461;
+
+    /// <summary>$AA:E445: Lower Norfair activation pre-instruction.</summary>
+    private const ushort LowerNorfairActivation = 0xe445;
+    /// <summary>$AA:E7AE: Wrecked Ship activation pre-instruction.</summary>
+    private const ushort WreckedShipActivation = 0xe7ae;
+    /// <summary>$AA:E7DA: Wrecked Ship carrying/walking pre-instruction.</summary>
+    private const ushort WreckedShipWalking = 0xe7da;
+
+    /// <summary>Authored acquisition pose durations, retained as animation cadence under #1165.</summary>
+    private static readonly ushort[] AcquisitionHolds = [32, 8, 80];
+    /// <summary>Authored carrying-stride pose durations, distinct from movement geometry.</summary>
+    private static readonly ushort[] StrideHolds = [8, 11, 8, 6];
+    /// <summary>
+    /// Chosen spike-clearing spawn offsets for drawn strides. Their differences from
+    /// support-foot origins -31/-28/-14/-7 are +23/+8/-2/+7, so stride geometry
+    /// does not derive these artwork-linked placements.
+    /// </summary>
+    private static readonly short[] FootstepOffsets = [-8, -20, -16, 0];
+
+    /// <summary>Compiled control words across both Chozo-statue sequences.</summary>
+    public static int MechanicsWordCount => 166;
+    /// <summary>Interleaved spritemap operands resolved by installed art.</summary>
+    public static int PresentationWordCount => 52;
+
+    /// <summary>Selects one control word from the calculated Lower Norfair and Wrecked Ship layouts.</summary>
+    public static InstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        return BuildLayout(index, false).Selected;
+    }
+
+    /// <summary>Selects one spritemap operand address without storing an instruction table.</summary>
+    public static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        return BuildLayout(index, true).Selected.Address;
+    }
+
+    /// <summary>
+    /// $AA:E39D-E428/E457-E57E: shared acquisition, rise, breathing and release
+    /// sequences, with the Wrecked Ship's two-stride carrying loop and final half
+    /// stride. Commands occupy one word plus their declared operand; each pose
+    /// occupies a duration and separate visual word. No instruction table is built.
+    /// </summary>
+    private static Layout BuildLayout(int index, bool presentation)
+    {
+        var layout = new Layout(index, presentation);
+        BuildScene(ref layout, false);
+        BuildScene(ref layout, true);
+        return layout;
+    }
+
+    /// <summary>Emits acquisition, breathing, carrying, and release control for one Chozo-statue scene.</summary>
+    private static void BuildScene(ref Layout layout, bool wreckedShip)
+    {
+        layout.Address = wreckedShip ? WreckedShipInitial : LowerNorfairInitial;
+        layout.Command((ushort)ChozoStatueInstruction.CommonAA_Enemy0FB2_InY,
+            wreckedShip ? WreckedShipActivation : LowerNorfairActivation);
+        layout.Pose(1);
+        layout.Word((ushort)CommonEnemyInstruction.Sleep);
+        layout.Word((ushort)ChozoStatueInstruction.CommonAA3_SetEnemy0FB2ToRTS);
+        int movementBase = wreckedShip ? 0 : 32;
+        for (int pose = 0; pose < 3; pose++)
+        {
+            layout.Command((ushort)ChozoStatueInstruction.Chozo_Movement_IndexInY, (ushort)(movementBase + pose * 2));
+            layout.Pose(!wreckedShip && pose == 2 ? (ushort)48 : AcquisitionHolds[pose]);
+        }
+        layout.Word((ushort)ChozoStatueInstruction.Chozo_PlayChozoGrabsSamusSFX);
+        layout.Command((ushort)ChozoStatueInstruction.Chozo_Movement_IndexInY, (ushort)(movementBase + 6));
+        layout.Pose(wreckedShip ? (ushort)128 : (ushort)64);
+        for (int pose = 0; pose < 4; pose++) layout.Pose((ushort)(6 + pose * 2));
+        layout.Pose(wreckedShip ? (ushort)128 : (ushort)96);
+        if (!wreckedShip) layout.Word((ushort)ChozoStatueInstruction.Chozo_StartLoweringAcid);
+        layout.Command((ushort)CommonEnemyInstruction.SetTimer, wreckedShip ? (ushort)4 : (ushort)5);
+        ushort breathing = layout.Address;
+        for (int pose = 0; pose < 6; pose++)
+            layout.Pose(pose == 0 ? StrideHolds[1] : pose % 2 == 0 ? StrideHolds[3] : StrideHolds[0]);
+        layout.Command((ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate, breathing);
+        if (wreckedShip)
+        {
+            layout.Command((ushort)ChozoStatueInstruction.CommonAA_Enemy0FB2_InY, WreckedShipWalking);
+            layout.Command((ushort)CommonEnemyInstruction.SetTimer, 16);
+            ushort walking = layout.Address;
+            for (int pose = 0; pose < 8; pose++) BuildStridePose(ref layout, pose, true);
+            layout.Command((ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate, walking);
+            for (int pose = 0; pose < 4; pose++) BuildStridePose(ref layout, pose, false);
+        }
+        layout.Word((ushort)ChozoStatueInstruction.CommonAA3_SetEnemy0FB2ToRTS);
+        for (int pose = 0; pose < 4; pose++)
+        {
+            layout.Command((ushort)ChozoStatueInstruction.Chozo_Movement_IndexInY, (ushort)(movementBase + (3 - pose) * 2));
+            layout.Pose(pose == 0 ? (ushort)128 : AcquisitionHolds[3 - pose]);
+        }
+        if (wreckedShip) layout.Word((ushort)ChozoStatueInstruction.Chozo_ReleaseSamus_BlockSlopeAccess);
+        else
+        {
+            layout.Word((ushort)ChozoStatueInstruction.Chozo_UnlockSamus);
+            layout.Word((ushort)ChozoStatueInstruction.Chozo_SetLoweredAcidPosition);
+        }
+        layout.Word((ushort)CommonEnemyInstruction.Sleep);
+    }
+
+    /// <summary>Emits movement, spike-clearing footstep placement, pose hold, and optional sound.</summary>
+    private static void BuildStridePose(ref Layout layout, int pose, bool footsteps)
+    {
+        layout.Command((ushort)ChozoStatueInstruction.Chozo_Movement_IndexInY, (ushort)(pose == 0 ? 22 : 6 + pose * 2));
+        layout.Command((ushort)ChozoStatueInstruction.Chozo_SpawnChozoSpikeClearingFootstepProjectile,
+            unchecked((ushort)FootstepOffsets[pose % 4]));
+        layout.Pose(StrideHolds[pose % 4]);
+        if (footsteps && pose % 4 == 0) layout.Word((ushort)ChozoStatueInstruction.Chozo_PlayChozoFootstepsSFX);
+    }
+
+    /// <summary>Single-pass cursor that selects either a mechanics word or presentation operand.</summary>
+    private struct Layout(int target, bool presentation)
+    {
+        /// <summary>Number of eligible words before the requested entry.</summary>
+        private int remaining = target;
+        /// <summary>Current bank-$AA address while emitting a scene.</summary>
+        internal ushort Address;
+        /// <summary>Requested control word or presentation address.</summary>
+        internal InstructionMechanicsWord Selected;
+
+        /// <summary>Emits a control word and advances the native address.</summary>
+        internal void Word(ushort value)
+        {
+            if (!presentation && remaining-- == 0) Selected = new(Address, value);
+            Address += 2;
+        }
+        /// <summary>Emits an instruction followed by its inline operand.</summary>
+        internal void Command(ushort instruction, ushort operand) { Word(instruction); Word(operand); }
+        /// <summary>Emits a duration word followed by an independently selected visual operand.</summary>
+        internal void Pose(ushort duration)
+        {
+            Word(duration);
+            if (presentation && remaining-- == 0) Selected = new(Address, 0);
+            Address += 2;
+        }
+    }
+
+    /// <summary>Returns fixed Chozo-statue control or rejects pointers outside its lists.</summary>
+    internal static ushort ReadMechanicsWord(ushort address)
+    {
+        int low = 0;
+        int high = MechanicsWordCount - 1;
+        while (low <= high)
+        {
+            int middle = low + ((high - low) >> 1);
+            var candidate = MechanicsWord(middle);
+            if (candidate.Address == address) return candidate.Value;
+            if (candidate.Address < address) low = middle + 1;
+            else high = middle - 1;
+        }
+        throw new InvalidDataException($"Chozo statue instruction mechanics pointer $AA:{address:X4} is not compiled.");
+    }
+}

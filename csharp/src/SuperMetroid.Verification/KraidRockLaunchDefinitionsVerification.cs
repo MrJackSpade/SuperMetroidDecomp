@@ -1,7 +1,8 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Kraid spit-rock launch velocity and production spawn behavior.</summary>
 internal static class KraidRockLaunchDefinitionsVerification

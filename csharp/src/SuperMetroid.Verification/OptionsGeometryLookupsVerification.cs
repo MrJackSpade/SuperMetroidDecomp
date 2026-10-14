@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Options;
 
 /// <summary>Checks options-screen cursor positions and controller label transfer geometry against bank-$82 words.</summary>
 internal static class OptionsGeometryLookupsVerification

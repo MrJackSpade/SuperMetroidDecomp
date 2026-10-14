@@ -1,8 +1,9 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

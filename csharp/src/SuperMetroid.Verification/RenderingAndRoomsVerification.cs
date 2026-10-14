@@ -1,23 +1,26 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using static RoomSkyTilemapsVerification;
 using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Rom;
-using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static MapSpritesVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>Verifies room loading, camera/scroll state and PPU output with focused cartridge and synthetic fixtures.</summary>
 internal static class RenderingAndRoomsVerification
@@ -1275,7 +1278,7 @@ internal static void VerifyPowerBombColorMathWindow()
 
     const ushort centerX = 100;
     const ushort centerY = 100;
-    var explosion = new SamusPowerBombExplosionState { PresentationColors = SuperMetroid.Core.Assets.PowerBombFixedColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.PowerBombFixedColorExtractor.Extract(bus))) };
+    var explosion = new SamusPowerBombExplosionState { PresentationColors = SuperMetroid.Core.Samus.Artwork.PowerBombFixedColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.PowerBombFixedColorExtractor.Extract(bus))) };
     explosion.Arm();
     explosion.Spawn(new(centerX, centerY));
 

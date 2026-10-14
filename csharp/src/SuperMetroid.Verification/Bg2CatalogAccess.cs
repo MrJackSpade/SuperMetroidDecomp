@@ -1,6 +1,4 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>How a generated boss BG2 catalog is queried and re-extracted (#633).</summary>
 internal readonly record struct Bg2CatalogAccess

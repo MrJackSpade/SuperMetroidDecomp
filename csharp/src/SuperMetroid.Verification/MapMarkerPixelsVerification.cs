@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks calculated map-marker tiles against native pixels and independent artwork edits.</summary>
 internal static class MapMarkerPixelsVerification

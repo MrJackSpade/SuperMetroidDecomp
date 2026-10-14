@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks compiled Alcoon and NamiFune fireball launch velocities against native words.</summary>
 internal static class EnemyFireballLaunchDefinitionsVerification

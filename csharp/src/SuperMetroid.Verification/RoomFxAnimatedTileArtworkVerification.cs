@@ -1,9 +1,13 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Retail and override checks for room-FX, treadmill, and Tourian statue animated-tile PNG frames.</summary>
 internal static class RoomFxAnimatedTileArtworkVerification

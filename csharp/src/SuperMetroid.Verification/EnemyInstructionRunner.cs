@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
 
 /// <summary>
 /// Typed entry to the enemy instruction interpreter for fixtures that keep their call as an argument row:

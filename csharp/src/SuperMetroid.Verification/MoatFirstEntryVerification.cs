@@ -1,18 +1,16 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Input;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks first-entry Moat water pixels through both reciprocal doors and pause history.</summary>
 internal static class MoatFirstEntryVerification
@@ -83,7 +81,7 @@ internal static class MoatFirstEntryVerification
             for (int frame = 0; transition.IsActive && frame < 400; frame++)
             {
                 var phase = transition.Phase;
-                transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
+                transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
                 // SuperMetroidGame publishes gameplay immediately after this same
                 // transition step. Capture the IRQ scroll and palette fade too,
                 // not just the already-completed destination used by older probes.

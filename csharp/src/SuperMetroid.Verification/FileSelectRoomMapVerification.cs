@@ -1,22 +1,19 @@
 using SuperMetroid.Tooling;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks file-select room-map rendering, controls, animation, markers, and save loading against native behavior.</summary>
 internal static class FileSelectRoomMapVerification

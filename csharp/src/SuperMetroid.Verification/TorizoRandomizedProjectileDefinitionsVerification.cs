@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Bomb and Golden Torizo projectile tuples and live randomized spawns.</summary>
 internal static class TorizoRandomizedProjectileDefinitionsVerification

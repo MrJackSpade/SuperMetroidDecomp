@@ -1,9 +1,9 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static ColorWordsVerification;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
 
 /// <summary>Checks game-over Baby Metroid palette phases and independently editable RGB5 components.</summary>
 internal static class GameOverBabyColorsVerification

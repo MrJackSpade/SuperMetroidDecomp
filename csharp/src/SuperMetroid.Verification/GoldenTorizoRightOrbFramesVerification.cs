@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Derives the compiled visual identities selected by Golden Torizo's right-orb instruction program.</summary>
 internal static class GoldenTorizoRightOrbFramesVerification
@@ -14,7 +14,7 @@ internal static class GoldenTorizoRightOrbFramesVerification
         for (int index = 0; index < GoldenTorizoRightOrbInstructionProgramDefinitions.PresentationWordCount; index++)
         {
             ushort operand = GoldenTorizoRightOrbInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(SuperMetroid.Core.Assets.CompiledEnemyVisualSelectors.TryGet(
+            AssertTrue(SuperMetroid.Core.Enemies.Artwork.CompiledEnemyVisualSelectors.TryGet(
                     TorizoCollisionDefinitions.Bank, operand, out ushort frame),
                 $"Golden Torizo right-orb selector $AA:{operand:X4} is compiled");
             if (!frames.Contains(frame)) frames.Add(frame);

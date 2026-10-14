@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks speed-booster escape stage lookup fields against native PLM records.</summary>
 internal static class LookupSpeedEscapeStagesVerification

@@ -3,6 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static IntroMotherBrainExplosionPartsVerification;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks compiled Ceres station-blast sprite parts against imported data and OAM.</summary>
 internal static class CeresStationBlastPartsVerification

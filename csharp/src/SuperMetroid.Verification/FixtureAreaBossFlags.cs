@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Area boss bits a focused enemy fixture installs (#633), per <see cref="BossBits"/> kind.</summary>
 internal sealed class FixtureAreaBossFlags : IAreaBossFlags

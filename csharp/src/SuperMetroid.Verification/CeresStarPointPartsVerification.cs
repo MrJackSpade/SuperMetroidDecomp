@@ -1,6 +1,8 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks calculated Ceres star geometry against retail OAM and independent supplied edits.</summary>
 internal static class CeresStarPointPartsVerification

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks the Speed Booster escape PLM's nine compiled control and callback words.</summary>
 internal static class LookupSpeedEscapeProgramVerification

@@ -1,10 +1,11 @@
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Partitions Draygon cannon PLM programs by control, draw, target, callback, and hit-count bytes.</summary>
 internal static class LookupCannonProgramVerification

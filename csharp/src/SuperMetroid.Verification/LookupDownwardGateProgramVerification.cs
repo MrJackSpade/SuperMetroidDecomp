@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks every compiled downward-gate PLM control, draw, operand, and sound address against ROM.</summary>
 internal static class LookupDownwardGateProgramVerification

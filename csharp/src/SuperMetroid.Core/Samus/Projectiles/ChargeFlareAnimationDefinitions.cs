@@ -1,0 +1,54 @@
+namespace SuperMetroid.Core.Samus.Projectiles;
+
+/// <summary>NTSC cartridge charge-flare cadence and loop commands, independent of sprite composition.</summary>
+internal static class ChargeFlareAnimationDefinitions
+{
+    /// <summary>$90:C487 FlareAnimationDelays_MainFlare: thirty delays followed by rewind fourteen.</summary>
+    private const ushort MainFlare = 0xc487;
+    /// <summary>$90:C4A7 FlareAnimationDelays_FlareSlowSparks: six delays followed by restart.</summary>
+    private const ushort SlowSparks = 0xc4a7;
+    /// <summary>$90:C4AE FlareAnimationDelays_FlareFastSparks: six delays followed by restart.</summary>
+    private const ushort FastSparks = 0xc4ae;
+    /// <summary>$9B:C049, HandleGrappleBeamFlare: counter one force-selects main frame sixteen.</summary>
+    internal const ushort GrappleInitialFrame = 16;
+    /// <summary>$9B:C04F, HandleGrappleBeamFlare: counter one seeds three before the ordinary decrement.</summary>
+    internal const ushort GrappleInitialDelay = 3;
+    /// <summary>Compiles the three delay-list pointers and their main, slow-spark, and fast-spark cadence bytes.</summary>
+    internal static byte ReadByte(int address)
+    {
+        int pointerByte = address - SamusProjectileRomData.Beams.ChargeFlareDelayListPointers;
+        if ((uint)pointerByte < 6)
+        {
+            ushort pointer = (pointerByte / 2) switch { 0 => MainFlare, 1 => SlowSparks, _ => FastSparks };
+            return (byte)(pointer >> (pointerByte % 2 * 8));
+        }
+        int delay = address - (SamusProjectileRomData.Banks.Movement | MainFlare);
+        if ((uint)delay >= 46)
+            throw new InvalidDataException($"Charge-flare cadence byte ${address:X6} is outside the compiled definitions.");
+        if (delay < 30) return 3;
+        if (delay == 30) return (byte)ChargeFlareDelayCommand.Rewind;
+        if (delay == 31) return 14;
+
+        // Each spark cycle ramps down for two frames, holds its minimum for
+        // four frames, then restarts. Fast sparks are one frame quicker throughout.
+        int sparkOffset = address - (SamusProjectileRomData.Banks.Movement | SlowSparks);
+        int frame = sparkOffset % 7;
+        int minimum = sparkOffset < 7 ? 3 : 2;
+        return frame == 6 ? (byte)ChargeFlareDelayCommand.Restart : (byte)Math.Max(minimum, minimum + 2 - frame);
+    }
+    /// <summary>Distinguishes a flare delay-stream command byte from an ordinary delay.</summary>
+    internal static bool TryDecodeCommand(byte streamByte, out ChargeFlareDelayCommand command)
+    {
+        if (!Enum.IsDefined((ChargeFlareDelayCommand)streamByte))
+        {
+            command = default;
+            return false;
+        }
+        command = (ChargeFlareDelayCommand)streamByte;
+        return true;
+    }
+
+    /// <summary>Reads two compiled cadence bytes as a word, wrapping the second byte within bank $90.</summary>
+    internal static ushort ReadWord(int address) =>
+        SnesLittleEndian.Word(ReadByte(address), ReadByte(SnesAddressMath.AddWithinBank(address, 1)));
+}

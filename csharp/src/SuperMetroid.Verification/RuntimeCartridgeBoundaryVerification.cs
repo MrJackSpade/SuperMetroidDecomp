@@ -35,10 +35,10 @@ internal static class RuntimeCartridgeBoundaryVerification
             "queued memory DMA requires a compile-time mutable-memory source");
         AssertEqual(typeof(ISnesMutableMemory), MetadataShape.ParameterTypes(typeof(VramWriteQueue), nameof(VramWriteQueue.DrainTo))[1],
             "NMI queue drainage requires a compile-time mutable-memory source");
-        AssertTrue(!MetadataShape.DeclaresMethod(typeof(SuperMetroid.Core.Rooms.LibraryBackgroundLoader), "ExecuteNativeForVerification", BindingFlags.Static | BindingFlags.NonPublic),
+        AssertTrue(!MetadataShape.DeclaresMethod(typeof(SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundLoader), "ExecuteNativeForVerification", BindingFlags.Static | BindingFlags.NonPublic),
             "Core must not contain a native background byte decoder, even behind a diagnostic-only entry point");
-        AssertEqual(typeof(SuperMetroid.Core.Rooms.RoomPlmPopulationDefinition),
-            MetadataShape.ParameterTypes(typeof(SuperMetroid.Core.Rooms.PlmPopulationLoader), "LoadRoomPopulation")[1],
+        AssertEqual(typeof(SuperMetroid.Core.Rooms.Plms.RoomPlmPopulationDefinition),
+            MetadataShape.ParameterTypes(typeof(SuperMetroid.Core.Rooms.Plms.PlmPopulationLoader), "LoadRoomPopulation")[1],
             "the sequential PLM allocator requires typed decoded placements, not a native pointer/read flag");
         foreach (string importOnlyType in new[]
                  { "SuperMetroid.Core.Assets.SmCompression", "SuperMetroid.Core.Rooms.RoomRenderer" })

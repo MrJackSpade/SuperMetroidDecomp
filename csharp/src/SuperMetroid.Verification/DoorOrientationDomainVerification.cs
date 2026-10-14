@@ -1,6 +1,5 @@
-using System.Reflection;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Desktop;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// Confirms that door orientation bytes decode as a closed direction and closing-behavior

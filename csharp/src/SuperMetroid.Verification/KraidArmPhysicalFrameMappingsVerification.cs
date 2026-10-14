@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidArmCollisionDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks Kraid arm physical-frame addresses and ordered collision parts against native records.</summary>
 internal static class KraidArmPhysicalFrameMappingsVerification

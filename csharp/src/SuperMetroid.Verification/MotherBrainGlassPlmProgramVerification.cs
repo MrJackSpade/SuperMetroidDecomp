@@ -1,10 +1,12 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static LookupGlassProgramVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks the complete Mother Brain glass PLM list and its shatter sequence without runtime program reads.</summary>
 internal static class MotherBrainGlassPlmProgramVerification

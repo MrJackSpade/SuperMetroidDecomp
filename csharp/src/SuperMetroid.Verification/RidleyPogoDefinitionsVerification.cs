@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks Ridley's pogo records, speed selection, and RNG sampling in actual enemy setup.</summary>
 internal static class RidleyPogoDefinitionsVerification

@@ -1,6 +1,5 @@
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Checks X-ray reveal traversal through signed extension blocks and terminal block types.</summary>
 internal static class XrayExtensionsVerification

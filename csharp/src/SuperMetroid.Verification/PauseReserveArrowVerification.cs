@@ -1,20 +1,18 @@
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static PauseReserveArrowRebindVerification;
 using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks reserve-tank arrow colors, visibility, and native tilemap palette writes.</summary>
 internal static class PauseReserveArrowVerification

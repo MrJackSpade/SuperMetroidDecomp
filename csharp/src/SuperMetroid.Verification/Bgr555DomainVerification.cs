@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Assets;
-using System.Reflection;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Desktop;
+using SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Checks the SNES color value type across word encoding, channel operations, CGRAM, and a production fade.</summary>
 internal static class Bgr555DomainVerification

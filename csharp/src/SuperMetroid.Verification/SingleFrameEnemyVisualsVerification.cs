@@ -1,13 +1,17 @@
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
-using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static PolypRockInstructionProgramDefinitionsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Kzan;
+using SuperMetroid.Core.Enemies.Polyp;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks installed Kzan, Polyp, and Polyp-rock artwork and older catalog override migration.</summary>
 internal static class SingleFrameEnemyVisualsVerification

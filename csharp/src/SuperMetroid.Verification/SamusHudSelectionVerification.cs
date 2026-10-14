@@ -1,5 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks the bank $90 HUD selection cycle, availability skipping, and cancel-edge handling.</summary>
 internal static class SamusHudSelectionVerification

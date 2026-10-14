@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Verification view of Mother Brain's grey palette-copy WRAM spill (#629). Production's

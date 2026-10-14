@@ -1,10 +1,7 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Hud;
 
 /// <summary>Checks the current-position cell in actual published gameplay HUD pixels.</summary>
 internal static class MinimapBlinkAudit

@@ -1,9 +1,9 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static EndingLogoTablesVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Checks post-shot ending rotation, palette fades, VRAM uploads, and white-flash timing.</summary>
 internal static class EndingPostShotVerification

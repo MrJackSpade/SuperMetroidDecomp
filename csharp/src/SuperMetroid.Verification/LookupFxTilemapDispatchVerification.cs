@@ -1,11 +1,11 @@
 using System.Buffers.Binary;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static LookupFxTilemapSourcesVerification;
 using static TilemapJsonContractsVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks FX layer-3 page dispatch for native sources, editable pages, and unsupported identities.</summary>
 internal static class LookupFxTilemapDispatchVerification

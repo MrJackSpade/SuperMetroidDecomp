@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static LookupAnimatedFramesVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks every authored simple animated-tile frame operand against
 /// the cartridge and rejects non-frame cursors across the ushort domain.</summary>

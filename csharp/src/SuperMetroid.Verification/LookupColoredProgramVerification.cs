@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks colored-door PLM instruction fields against independent bank $84 locations.</summary>
 internal static class LookupColoredProgramVerification

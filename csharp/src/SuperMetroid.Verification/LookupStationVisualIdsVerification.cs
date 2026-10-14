@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks the exact published names and native draw pointers of the twenty station frames.</summary>
 internal static class LookupStationVisualIdsVerification

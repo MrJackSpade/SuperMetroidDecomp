@@ -2,10 +2,13 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks Shitroid's normal palette cycle and three target fades against installed art and native RGB5 data.</summary>
 internal static class EnemyTileArtworkShitroidColorsVerification

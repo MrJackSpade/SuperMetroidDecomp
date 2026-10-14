@@ -1,0 +1,74 @@
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Maridia;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
+
+namespace SuperMetroid.Core.Rooms.Doors;
+
+/// <summary>The collaborators a <see cref="DoorTransitionRunner"/> is constructed with, built once by the owner that creates it (#621).</summary>
+internal sealed record DoorTransitionRunnerDependencies
+{
+    /// <summary>Actor drawing.</summary>
+    public required GameplayActorDrawing ActorDrawing { get; init; }
+
+    /// <summary>Background scroll.</summary>
+    public required BackgroundScrollState BackgroundScroll { get; init; }
+
+    /// <summary>Bomb projectiles.</summary>
+    public required SamusBombProjectileSystem BombProjectiles { get; init; }
+
+    /// <summary>Ceres elevator shaft.</summary>
+    public required CeresElevatorShaftRoomMainState CeresElevatorShaft { get; init; }
+
+    /// <summary>Display.</summary>
+    public required GameplayDisplayState Display { get; init; }
+
+    /// <summary>Enemies.</summary>
+    public required RoomEnemySystem Enemies { get; init; }
+
+    /// <summary>Enemy phase.</summary>
+    public required EnemyFramePhase EnemyPhase { get; init; }
+
+    /// <summary>Hdma phase.</summary>
+    public required HdmaObjectPhase HdmaPhase { get; init; }
+
+    /// <summary>Maridia elevatube.</summary>
+    public required MaridiaElevatubeRoomMainState MaridiaElevatube { get; init; }
+
+    /// <summary>Nmi.</summary>
+    public required NmiClock Nmi { get; init; }
+
+    /// <summary>Nmi handler.</summary>
+    public required NmiHandler NmiHandler { get; init; }
+
+    /// <summary>Oam.</summary>
+    public required OamBuffer Oam { get; init; }
+
+    /// <summary>Player.</summary>
+    public required SamusFrameState Player { get; init; }
+
+    /// <summary>Plms.</summary>
+    public required RoomPlmSystem Plms { get; init; }
+
+    /// <summary>Room.</summary>
+    public required ActiveRoomState Room { get; init; }
+
+    /// <summary>Room layer3 fx.</summary>
+    public required RoomLayer3FxState RoomLayer3Fx { get; init; }
+
+    /// <summary>System.</summary>
+    public required Bank80SystemState System { get; init; }
+
+    /// <summary>Wrecked ship treadmill.</summary>
+    public required WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; init; }
+
+    /// <summary>Address space.</summary>
+    public required ISnesAddressSpace AddressSpace { get; init; }
+}

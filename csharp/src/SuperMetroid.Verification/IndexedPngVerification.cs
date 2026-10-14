@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.IO.Compression;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 
 /// <summary>Checks indexed PNG wire format, palette indexes, filtering, and malformed-resource handling.</summary>
 internal static class IndexedPngVerification

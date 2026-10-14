@@ -6,16 +6,16 @@ internal static class AreaMapClosedContractDefinitions
     /// <summary>Requires every selected area map to come from the atomic seven-area install and its reviewed tile-upload owners.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Assets.AreaMapPresentationCatalog", "map-atomic-seven-areas-and-owned-uploads", ["Get", "Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Game/AreaId.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/AreaMapStockRules.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/HudTileAtlas.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/MapTileAtlas.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Game/KraidBackgroundRomData.cs"),
+        new("SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog", "map-atomic-seven-areas-and-owned-uploads", ["Get", "Resolve"],
+            [new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentationCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/AreaId.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentationAsset.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapStockRules.cs"),
+             new("csharp/src/SuperMetroid.Core/Hud/Artwork/HudTileAtlas.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapTileAtlas.cs"),
+             new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTimerTileAtlas.cs"),
+             new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTimerGlyphDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBackgroundRomData.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs")]),
     ];
 }

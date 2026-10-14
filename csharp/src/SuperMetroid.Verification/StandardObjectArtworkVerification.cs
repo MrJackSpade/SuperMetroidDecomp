@@ -1,12 +1,3 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using static Program;
 using static RepositoryInputsVerification;
 using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
@@ -14,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static FrontendRomFreeVerification;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks installed standard OBJ characters and their override path through gameplay DMA.</summary>
 internal static class StandardObjectArtworkVerification

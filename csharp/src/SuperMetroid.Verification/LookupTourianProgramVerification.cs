@@ -1,8 +1,9 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static LookupTourianArtworkVerification;
 using static LookupTourianDescriptorsVerification;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks Tourian statue animated-tile instruction layouts against original bank-$87 programs.</summary>
 internal static class LookupTourianProgramVerification

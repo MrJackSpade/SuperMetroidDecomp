@@ -1,8 +1,10 @@
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
 
 /// <summary>
 /// Protects the reserve-page arrow palette that pause setup latched across presentation

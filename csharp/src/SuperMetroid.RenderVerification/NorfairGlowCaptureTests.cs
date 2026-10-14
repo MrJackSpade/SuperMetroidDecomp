@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Hud;
 
 /// <summary>Checks D3D11 capture of Norfair's animated foreground glow against production rendering.</summary>
 internal static class NorfairGlowCaptureTests

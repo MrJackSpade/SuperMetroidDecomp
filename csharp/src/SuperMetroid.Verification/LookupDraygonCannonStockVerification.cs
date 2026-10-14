@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Draygon cannon visual catalogs against native draw runs and editable asset constraints.</summary>
 internal static class LookupDraygonCannonStockVerification

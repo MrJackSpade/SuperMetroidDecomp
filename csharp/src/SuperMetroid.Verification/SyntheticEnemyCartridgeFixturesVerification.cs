@@ -1,7 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Writes terminated enemy-population and graphics-set records into synthetic cartridge

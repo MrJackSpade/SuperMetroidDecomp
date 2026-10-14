@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Game;
-using static AssertionsVerification;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks how drained Samus poses advance prior-pose metadata.</summary>
 internal static class DrainedPoseHistoryVerification

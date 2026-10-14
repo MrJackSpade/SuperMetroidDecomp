@@ -1,7 +1,8 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Kraid ceiling-rock X positions and their production spawn cadence against native data.</summary>
 internal static class KraidCeilingRockPositionsVerification

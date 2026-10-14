@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks Mother Brain intro explosion instructions and frame catalog against native records.</summary>
 internal static class IntroMotherBrainExplosionProgramsVerification

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Areas.Maridia;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks the Maridia elevatube PLM's physical draw and short instruction program.</summary>
 internal static class LookupElevatubeVerification

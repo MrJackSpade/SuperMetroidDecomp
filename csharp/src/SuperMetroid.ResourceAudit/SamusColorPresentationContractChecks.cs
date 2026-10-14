@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -15,12 +15,11 @@ internal static class SamusColorPresentationContractChecks
         var trees = SamusColorClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<samus-color-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
-            using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Game;
             using SuperMetroid.Core.Hardware;
+            using SuperMetroid.Core.Samus.Artwork;
+            using SuperMetroid.Core.Samus.Palettes;
             static class FixtureBodyPalette { internal const ushort LastShine = @LAST_SHINE@; }
             class ColorConsumer {
                 void Inspect(SamusFullBodyCycleColorCatalog body, SamusSuitColorCatalog suit,

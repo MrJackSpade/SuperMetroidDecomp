@@ -1,8 +1,7 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Checks Samus's indexed horizontal speed records and restored table-address semantics.</summary>
 internal static class SamusIndexedSpeedsVerification

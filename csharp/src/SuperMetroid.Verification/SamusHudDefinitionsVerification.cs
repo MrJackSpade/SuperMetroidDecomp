@@ -1,9 +1,14 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static GrappleFiringDefinitionsVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Hud;
 
 /// <summary>Checks compiled Samus HUD posture and movement policy against retail definitions and live consumers.</summary>
 internal static class SamusHudDefinitionsVerification

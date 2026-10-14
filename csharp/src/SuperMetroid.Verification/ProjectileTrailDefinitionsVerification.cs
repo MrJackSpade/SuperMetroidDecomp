@@ -1,10 +1,8 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
-using static AssertionsVerification;
 using static ProjectileTrailCoordinatesVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled projectile trail selector words and actual left/right spawn selections.</summary>
 internal static class ProjectileTrailDefinitionsVerification

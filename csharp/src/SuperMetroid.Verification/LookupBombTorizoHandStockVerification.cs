@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks the intact and cleared Bomb Torizo hand draw lists against native PLM words.</summary>
 internal static class LookupBombTorizoHandStockVerification

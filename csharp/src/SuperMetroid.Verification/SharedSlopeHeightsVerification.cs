@@ -1,8 +1,8 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled slope heights and their real Samus, projectile, bomb, and enemy consumers.</summary>
 internal static class SharedSlopeHeightsVerification

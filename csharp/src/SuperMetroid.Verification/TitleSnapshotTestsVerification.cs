@@ -1,9 +1,3 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -13,6 +7,8 @@ using SuperMetroid.AssetExtraction;
 using static RenderPacketCodecTestsVerification;
 using static TitleFixtureVerification;
 using static TitleSequenceRomDataVerification;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Frontend.Title.Artwork;
 
 /// <summary>Compares title-scene render snapshots with the independent live-memory renderer.</summary>
 internal static class TitleSnapshotTestsVerification

@@ -1,4 +1,5 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks cartridge SRAM field spans and slot directories against the declared layout.</summary>
 internal static class SaveRamLayoutVerification

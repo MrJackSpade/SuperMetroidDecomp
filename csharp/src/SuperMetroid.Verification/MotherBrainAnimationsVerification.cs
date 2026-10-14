@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static BabyMetroidVerification;
@@ -11,6 +9,10 @@ using static MotherBrainRainbowVerification;
 using static RepositoryInputsVerification;
 using static SamusDamageAndGrabVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Fx;
 
 /// <summary>
 /// #1285: Mother Brain's typed body, brain, Baby, Shitroid, Zebetite, falling-tube and projectile programs against

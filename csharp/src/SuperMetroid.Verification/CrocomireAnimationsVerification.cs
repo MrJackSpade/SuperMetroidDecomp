@@ -1,10 +1,14 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static CrocomireNativeListAddresses;
 using static RepositoryInputsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>
 /// #1282: Crocomire's typed body, tongue and projectile programs against the retail cartridge. Minimal readers walk

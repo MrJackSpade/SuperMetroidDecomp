@@ -1,13 +1,14 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
 using static DynamicCollectibleArtVerification;
 using static LookupDynamicCollectiblePalettesVerification;
 using static LookupDynamicCollectibleSourcesVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks compiled item graphics through retail room population loading.</summary>
 internal static class CompiledDynamicCollectibleGraphicsVerification

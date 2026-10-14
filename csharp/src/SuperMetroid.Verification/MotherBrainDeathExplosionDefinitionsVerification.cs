@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks the three compiled Mother Brain death-explosion selectors in production spawns.</summary>
 internal static class MotherBrainDeathExplosionDefinitionsVerification

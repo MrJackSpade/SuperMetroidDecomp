@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Compares calculated Ceres haze channels with retail fade flags and imported stock colors.</summary>
 internal static class LookupCeresDefaultTintsVerification

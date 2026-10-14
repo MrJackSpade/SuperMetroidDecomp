@@ -1,0 +1,125 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.Artwork;
+
+namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+
+/// <summary>
+/// Editable character sheets and the waiting-scene BG2 map for the ending and credits.
+/// Actor instructions, palette selection and timing remain code; atmospheric
+/// cloud OAM compositions are a separate editable presentation resource.
+/// </summary>
+public sealed class EndingObjectArtworkCatalog
+{
+    /// <summary>Copied four-fragment sequence ordered by explosion VRAM destination page.</summary>
+    private readonly RoomCharacterAtlas[] fragments;
+
+    /// <summary>Combines already compiled ending artwork and sprite compositions, enforcing the native transfer lengths.</summary>
+    /// <param name="parts">The ending's object character atlases, tilemaps and sprite presentations (#633).</param>
+    /// <remarks>Copies the fragment sequence but retains the supplied atlas and presentation objects. This constructor validates transfer sizes, not stock hashes or manifest provenance; installation loading performs those checks.</remarks>
+    /// <exception cref="ArgumentNullException">An atlas, composition resource, or fragment sequence is null.</exception>
+    /// <exception cref="InvalidDataException">A transfer has an incorrect byte length, or the fragment sequence does not contain exactly four non-null, correctly sized entries.</exception>
+    public EndingObjectArtworkCatalog(EndingObjectArtworkParts parts)
+    {
+        Clouds = Ensure.NotNull(parts.Clouds);
+        Explosion = Ensure.NotNull(parts.Explosion);
+        WaitingSamus = Ensure.NotNull(parts.WaitingSamus);
+        ShootingScreen = Ensure.NotNull(parts.ShootingScreen);
+        SuitlessSamus = Ensure.NotNull(parts.SuitlessSamus);
+        WaitingTilemap = Ensure.NotNull(parts.WaitingTilemap);
+        PostCreditsFragmentA = Ensure.NotNull(parts.PostCreditsFragmentA);
+        PostCreditsFragmentB = Ensure.NotNull(parts.PostCreditsFragmentB);
+        PostShotLogoTiles = Ensure.NotNull(parts.PostShotLogoTiles);
+        PostShotLogoMap = Ensure.NotNull(parts.PostShotLogoMap);
+        CloudSprites = Ensure.NotNull(parts.CloudSprites);
+        ExplosionSprites = Ensure.NotNull(parts.ExplosionSprites);
+        CompletionTextSprites = Ensure.NotNull(parts.CompletionTextSprites);
+        RewardSprites = Ensure.NotNull(parts.RewardSprites);
+        LogoSprites = Ensure.NotNull(parts.LogoSprites);
+        Ensure.NotNull(parts.Fragments);
+        if (!HasNativeLength(Clouds, EndingObjectTransfer.Clouds) ||
+            !HasNativeLength(Explosion, EndingObjectTransfer.Explosion) ||
+            !HasNativeLength(WaitingSamus, EndingObjectTransfer.WaitingSamus) ||
+            !HasNativeLength(ShootingScreen, EndingObjectTransfer.ShootingScreen) ||
+            !HasNativeLength(SuitlessSamus, EndingObjectTransfer.SuitlessSamus) ||
+            !HasNativeLength(WaitingTilemap.Transfer, EndingObjectTransfer.WaitingTilemap) ||
+            !HasNativeLength(PostCreditsFragmentA, EndingObjectTransfer.PostCreditsFragmentA) ||
+            !HasNativeLength(PostCreditsFragmentB, EndingObjectTransfer.PostCreditsFragmentB) ||
+            !HasNativeLength(PostShotLogoTiles, EndingObjectTransfer.PostShotLogoTiles) ||
+            !HasNativeLength(PostShotLogoMap.Transfer, EndingObjectTransfer.PostShotLogoMap) ||
+            parts.Fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
+            parts.Fragments.Any(fragment => fragment is null ||
+                !HasNativeLength(fragment, EndingObjectTransfer.ExplosionFragment)))
+            throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
+        this.fragments = parts.Fragments.ToArray();
+    }
+
+    /// <summary>Checks an atlas transfer against the cartridge's required byte count.</summary>
+    private static bool HasNativeLength(RoomCharacterAtlas atlas, EndingObjectTransfer transfer) =>
+        HasNativeLength(atlas.Transfer, transfer);
+
+    /// <summary>Checks raw transfer bytes against the exact length of their ending-artwork role.</summary>
+    private static bool HasNativeLength(ReadOnlyMemory<byte> bytes, EndingObjectTransfer transfer) =>
+        bytes.Length == EndingObjectArtworkFormat.ByteCount(transfer);
+
+    /// <summary>Compiled 4-bpp atmospheric-cloud OBJ sheet imported from <c>$99:A56F</c> and uploaded at VRAM byte $C000; placement is supplied separately by <see cref="CloudSprites"/>.</summary>
+    public RoomCharacterAtlas Clouds { get; }
+    /// <summary>Six editable atmospheric-cloud OAM compositions.</summary>
+    public EndingCloudSpritePresentation CloudSprites { get; }
+    /// <summary>Sixteen editable Zebes-explosion OAM compositions.</summary>
+    public EndingExplosionSpritePresentation ExplosionSprites { get; }
+    /// <summary>Fifty-six editable completion-message and clear-time OAM compositions.</summary>
+    public EndingCompletionTextSpritePresentation CompletionTextSprites { get; }
+    /// <summary>Thirty-seven editable post-credits Samus reward OAM compositions.</summary>
+    public EndingRewardSpritePresentation RewardSprites { get; }
+    /// <summary>Eight editable OAM compositions for the final assembling logo.</summary>
+    public EndingLogoSpritePresentation LogoSprites { get; }
+    /// <summary>Compiled 4-bpp explosion OBJ sheet imported from <c>$98:8304</c> and uploaded at VRAM byte $8000; separate tilemap fragments occupy $E000-$FFFF.</summary>
+    public RoomCharacterAtlas Explosion { get; }
+    /// <summary>BG2 waiting scene, also reused by both suited reward variants.</summary>
+    public RoomCharacterAtlas WaitingSamus { get; }
+    /// <summary>Post-credits shooting scene OBJ sheet.</summary>
+    public RoomCharacterAtlas ShootingScreen { get; }
+    /// <summary>Under-three-hour suitless reward sheet.</summary>
+    public RoomCharacterAtlas SuitlessSamus { get; }
+    /// <summary>BG2 waiting scene's ordered 32x32 tile and palette references.</summary>
+    public RoomBackgroundTilemapAtlas WaitingTilemap { get; }
+    /// <summary>BG3 transformation characters imported from <c>$99:DA9F</c> and uploaded at VRAM byte $4000; separate from the transformation map.</summary>
+    public RoomCharacterAtlas PostCreditsFragmentA { get; }
+    /// <summary>BG3 transformation tilemap imported from <c>$99:DAB1</c> and uploaded at VRAM byte $4800; its raw words are preserved through PNG atlas transport rather than interpreted as OBJ characters.</summary>
+    public RoomCharacterAtlas PostCreditsFragmentB { get; }
+    /// <summary>Four post-shot logo tile chunks uploaded to BG/OBJ VRAM.</summary>
+    public RoomCharacterAtlas PostShotLogoTiles { get; }
+    /// <summary>Post-shot logo's ordered 32x32 tile and palette references.</summary>
+    public RoomBackgroundTilemapAtlas PostShotLogoMap { get; }
+
+    /// <summary>Identity of every selected ending/credits character, map and ordered OAM composition.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingObjectArtworkCatalog), content =>
+    {
+        content.Append("clouds", Clouds.Transfer.Span);
+        content.Append("explosion", Explosion.Transfer.Span);
+        content.Append("waiting-samus", WaitingSamus.Transfer.Span);
+        content.Append("shooting-screen", ShootingScreen.Transfer.Span);
+        content.Append("suitless-samus", SuitlessSamus.Transfer.Span);
+        content.Append("waiting-map", WaitingTilemap.Transfer.Span);
+        content.Append("post-credits-fragment-a", PostCreditsFragmentA.Transfer.Span);
+        content.Append("post-credits-fragment-b", PostCreditsFragmentB.Transfer.Span);
+        content.Append("logo-characters", PostShotLogoTiles.Transfer.Span);
+        content.Append("logo-map", PostShotLogoMap.Transfer.Span);
+        content.Append("fragment-count", fragments.Length);
+        foreach (RoomCharacterAtlas fragment in fragments)
+            content.Append("fragment", fragment.Transfer.Span);
+        content.Append("cloud-sprites", Convert.FromHexString(CloudSprites.ContentIdentity));
+        content.Append("explosion-sprites", Convert.FromHexString(ExplosionSprites.ContentIdentity));
+        content.Append("completion-text-sprites", Convert.FromHexString(CompletionTextSprites.ContentIdentity));
+        content.Append("reward-sprites", Convert.FromHexString(RewardSprites.ContentIdentity));
+        content.Append("logo-sprites", Convert.FromHexString(LogoSprites.ContentIdentity));
+    });
+
+    /// <summary>Returns one $0800-byte explosion tilemap fragment uploaded within VRAM bytes $E000-$FFFF.</summary>
+    /// <param name="id">Native destination-page identity; the enum's numeric values index the copied fragment sequence.</param>
+    /// <returns>The retained atlas carrying the selected raw tilemap bytes.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is not one of the four defined fragment identities.</exception>
+    public RoomCharacterAtlas Fragment(EndingObjectFragmentId id) =>
+        (uint)id < fragments.Length ? fragments[(int)id] :
+            throw new ArgumentOutOfRangeException(nameof(id));
+}

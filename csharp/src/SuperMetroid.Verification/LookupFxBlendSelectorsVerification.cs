@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static LookupFxPairColorsVerification;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks the eight FX blend selectors, cartridge source addresses, and CGRAM application.</summary>
 internal static class LookupFxBlendSelectorsVerification

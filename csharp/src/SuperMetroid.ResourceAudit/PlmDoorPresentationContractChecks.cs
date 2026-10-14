@@ -2,8 +2,11 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.ResourceAudit.PlmPresentationContractChecks;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -17,10 +20,11 @@ internal static class PlmDoorPresentationContractChecks
         var trees = PlmDoorClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<plm-door-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
-            using SuperMetroid.Core.Rooms;
+            using SuperMetroid.Core.Bosses.MotherBrain;
+            using SuperMetroid.Core.Rooms.Doors;
+            using SuperMetroid.Core.Rooms.Plms;
             static class FixtureDoorFrames {
                 internal const ushort ClosedBlue = @CLOSED_BLUE@;
                 internal const ushort TwoWordEye = @TWO_WORD_EYE@;

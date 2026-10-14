@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>Checks scrolling-sky section boundaries, speeds, and HDMA data slots.</summary>
 internal static class LookupSkySectionsVerification

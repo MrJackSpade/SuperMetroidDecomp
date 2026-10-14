@@ -2,9 +2,19 @@ using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static PaletteJsonContractsVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Constructs valid palette JSON baselines for the shared schema-mutation checks.</summary>
 internal static class PaletteJsonContractsFixturesVerification

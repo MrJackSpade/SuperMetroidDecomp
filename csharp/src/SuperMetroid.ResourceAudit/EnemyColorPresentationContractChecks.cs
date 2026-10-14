@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -15,11 +15,18 @@ internal static class EnemyColorPresentationContractChecks
         var trees = RemainingEnemyColorClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<enemy-color-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
-            using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Game;
+            using SuperMetroid.Core.Bosses.Botwoon;
+            using SuperMetroid.Core.Bosses.Botwoon.Artwork;
+            using SuperMetroid.Core.Bosses.Kraid;
+            using SuperMetroid.Core.Bosses.Kraid.Artwork;
+            using SuperMetroid.Core.Bosses.MotherBrain;
+            using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+            using SuperMetroid.Core.Bosses.Ridley;
+            using SuperMetroid.Core.Bosses.Ridley.Artwork;
+            using SuperMetroid.Core.Enemies.Animals;
+            using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Hardware;
             class EnemyColorConsumer {
                 void Inspect(EnemyAuxiliaryColorCatalog auxiliary, KraidColorCatalog kraid, BotwoonColorCatalog botwoon,

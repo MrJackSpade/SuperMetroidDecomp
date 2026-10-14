@@ -1,10 +1,7 @@
-using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The Bomb Torizo room fixture a grey-door lifecycle check drives (#633).</summary>
 internal readonly record struct TorizoGreyDoorRoom

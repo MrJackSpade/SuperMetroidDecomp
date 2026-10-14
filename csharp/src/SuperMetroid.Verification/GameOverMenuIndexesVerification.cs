@@ -1,7 +1,6 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks game-over menu index timing, audio cancellation, and continue dispatch.</summary>
 internal static class GameOverMenuIndexesVerification

@@ -1,20 +1,13 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FrontendRomFreeVerification;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>Cross-checks compiled Spore Spawn component lists and collision callbacks against cartridge data.</summary>
 internal static class EnemyTileArtworkSporeSpawnCollisionVerification

@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks calculated reserve-indicator pixels and edited map atlas transfers.</summary>
 internal static class ReserveTilePixelsVerification

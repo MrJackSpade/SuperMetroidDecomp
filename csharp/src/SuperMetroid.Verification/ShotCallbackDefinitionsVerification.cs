@@ -1,10 +1,13 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static PowerBombCallbackDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks bank-qualified enemy touch and shot no-op callback identities against pinned cartridge data.</summary>
 internal static class ShotCallbackDefinitionsVerification

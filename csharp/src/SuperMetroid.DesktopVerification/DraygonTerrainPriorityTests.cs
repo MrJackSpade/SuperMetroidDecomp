@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Draygon's native BG2 tilemap words and the visible priority where its body overlaps terrain.</summary>
 internal static class DraygonTerrainPriorityTests

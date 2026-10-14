@@ -1,6 +1,8 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Compares compiled pose collision radii with retail definitions without letting gameplay read the cartridge.</summary>
 internal static class PoseCollisionDefinitionsVerification

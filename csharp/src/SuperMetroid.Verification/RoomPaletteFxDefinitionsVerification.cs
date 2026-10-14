@@ -1,21 +1,12 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static LookupPaletteFxAreasVerification;
 using static LookupPaletteFxDispatchVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled palette-FX definitions, area selection, and production spawn metadata.</summary>
 internal static class RoomPaletteFxDefinitionsVerification
@@ -109,7 +100,7 @@ internal static class RoomPaletteFxDefinitionsVerification
 
         var hyperBeam = new HyperBeamPaletteFxState();
         hyperBeam.Spawn();
-        var hyperColors = SuperMetroid.Core.Assets.HyperBeamFxColorCatalog.Load(
+        var hyperColors = SuperMetroid.Core.Samus.Artwork.HyperBeamFxColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.HyperBeamFxColorExtractor.Extract(rom)));
         hyperBeam.Step(guardedRom, new SnesCgram(), hyperColors);
         AssertEqual(0, hyperBeam.CurrentFrameIndex,

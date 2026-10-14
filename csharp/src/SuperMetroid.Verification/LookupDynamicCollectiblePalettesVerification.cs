@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static CompiledDynamicCollectibleGraphicsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks every collectible's generated palette offsets against native upload programs.</summary>
 internal static class LookupDynamicCollectiblePalettesVerification

@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Ceres steam selector definitions against native words and actual enemy initialization.</summary>
 internal static class CeresSteamDefinitionsVerification

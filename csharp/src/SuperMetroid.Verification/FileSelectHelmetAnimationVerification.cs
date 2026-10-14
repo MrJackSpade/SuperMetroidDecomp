@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>Checks file-select helmet spritemap and timing definitions against the native bank-$81 animation.</summary>
 internal static class FileSelectHelmetAnimationVerification

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
 /// <summary>Supplies native projectile instruction lifetimes and bounded synthetic artwork fixtures.</summary>
@@ -44,7 +43,7 @@ internal static class ProjectileNativeFixtureVerification
             }
         }
         // Complete the installed visual-binding domain before applying synthetic art.
-        foreach (ushort record in SuperMetroid.Core.Game.SamusProjectileRadiusDefinitions.TimedRecordPointers)
+        foreach (ushort record in SuperMetroid.Core.Samus.Projectiles.SamusProjectileRadiusDefinitions.TimedRecordPointers)
             WriteTestWord(bus, 0x930000 | (record + 2), rom.ReadCartridgeWord((0x930000 | (record + 2))));
         foreach (int table in new[] { 0x9383c1, 0x9383d9 })
         for (int beam = 0; beam < 12; beam++)

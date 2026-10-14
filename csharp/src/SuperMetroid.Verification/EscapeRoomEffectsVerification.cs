@@ -1,9 +1,12 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Assets;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Checks escape-room explosion sprites, earthquake offsets, and rescue exit behavior.</summary>
 internal static class EscapeRoomEffectsVerification
@@ -76,7 +79,7 @@ internal static class EscapeRoomEffectsVerification
                 for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
                 AssertTrue(runtime.System.HasEvent(EventNumber.CrittersEscaped), "live rescue room publishes escaped event");
                 var door = runtime.Plms.GreyDoorSnapshots.Single();
-                AssertEqual(SuperMetroid.Core.Rooms.GreyDoorPhase.Flashing, door.Phase, "rescue unlocks exit door");
+                AssertEqual(SuperMetroid.Core.Rooms.Doors.GreyDoorPhase.Flashing, door.Phase, "rescue unlocks exit door");
                 runtime.Plms.ProjectileTriggers.TryNotifyResidentProjectileHit(door.BlockIndex, 1);
                 for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
                 AssertEqual(0, runtime.Plms.GreyDoorSnapshots.Count, "exit door finishes opening");

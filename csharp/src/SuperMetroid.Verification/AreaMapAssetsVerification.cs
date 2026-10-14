@@ -1,7 +1,8 @@
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks area map exports and station reveal masks against cartridge content.</summary>
 internal static class AreaMapAssetsVerification

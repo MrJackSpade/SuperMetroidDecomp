@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Compares generated half-wave tables with the retail ROM's byte and word samples.</summary>
 internal static class HalfWaveAlgorithmsVerification

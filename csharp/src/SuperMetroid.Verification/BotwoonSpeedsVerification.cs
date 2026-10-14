@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Botwoon movement, spit, and body-spacing values against native phase tables.</summary>
 internal static class BotwoonSpeedsVerification

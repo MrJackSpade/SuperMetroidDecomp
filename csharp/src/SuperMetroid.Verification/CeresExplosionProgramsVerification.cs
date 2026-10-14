@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks compiled Ceres explosion streams and their interpreter timing against native programs.</summary>
 internal static class CeresExplosionProgramsVerification

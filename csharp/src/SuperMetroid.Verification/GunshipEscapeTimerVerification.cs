@@ -1,17 +1,12 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
 using System.Reflection;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Desktop;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Poses;
 /// <summary>Checks escape-timer suspension and OAM removal as Samus boards the Landing Site gunship.</summary>
 internal static class GunshipEscapeTimerVerification
 {

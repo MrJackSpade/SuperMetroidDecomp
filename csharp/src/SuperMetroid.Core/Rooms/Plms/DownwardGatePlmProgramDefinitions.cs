@@ -1,0 +1,107 @@
+using SuperMetroid.Core.Enemies;
+
+namespace SuperMetroid.Core.Rooms.Plms;
+
+/// <summary>
+/// Bounded decoder of $84:BC13..BC60 and BCAF..BCDE. Resident control actions
+/// are named cases; four timed closing/opening frames traverse the draw records
+/// in opposite directions, with sixteen-frame holds and a twenty-four-frame final
+/// hold. Eight trigger programs each draw for one frame then delete. Packed sound
+/// bytes change word alignment; only actual instruction/operand boundaries exist.
+/// No word, byte or generated lookup cache is stored.
+/// </summary>
+internal static class DownwardGatePlmProgramDefinitions
+{
+    /// <summary>$84:BC13: open-and-wait list, entered again after opening completes.</summary>
+    internal const ushort OpenStart = 0xbc13;
+    /// <summary>$84:BC2A: first timed closing frame.</summary>
+    private const ushort ClosingFrames = 0xbc2a;
+    /// <summary>$84:BC4D: first timed opening frame.</summary>
+    private const ushort OpeningFrames = 0xbc4d;
+    /// <summary>$84:BC29: packed movement sound after the closing spawn command.</summary>
+    internal const ushort ClosingSoundAddress = 0xbc29;
+    /// <summary>$84:BC4C: packed movement sound after the opening wake command.</summary>
+    internal const ushort OpeningSoundAddress = 0xbc4c;
+    /// <summary>$84:BCDF: adjacent upward-trigger program, outside this decoder.</summary>
+    internal const ushort TriggerEnd = 0xbcdf;
+
+    /// <summary>The two movement-sound operands packed after the spawn and wake commands.</summary>
+    private enum PackedSound
+    {
+        /// <summary>Movement sound byte at $84:BC29 after the closing projectile spawn.</summary>
+        Closing,
+        /// <summary>Movement sound byte at $84:BC4C after the opening wake command.</summary>
+        Opening,
+    }
+
+    /// <summary>The two sound operands are separate byte positions within otherwise word-based programs.</summary>
+    private static readonly PackedSound[] PackedSounds = Enum.GetValues<PackedSound>();
+
+    /// <summary>Locates the closing or opening sound byte after its respective projectile command.</summary>
+    private static ushort AddressOf(PackedSound sound) => sound switch
+    {
+        PackedSound.Closing => ClosingSoundAddress,
+        PackedSound.Opening => OpeningSoundAddress,
+        _ => throw new InvalidOperationException($"Undefined {nameof(PackedSound)} {(int)sound}."),
+    };
+
+    /// <summary>Supplies only the two packed movement-sound operands.</summary>
+    internal static bool TryReadMechanicsByte(ushort address, out byte value)
+    {
+        bool owned = false;
+        foreach (PackedSound sound in PackedSounds)
+            owned |= AddressOf(sound) == address;
+        value = owned ? DownwardGatePlmRomData.MovementSound : (byte)0;
+        return owned;
+    }
+
+    /// <summary>Decodes trigger programs, mirrored gate frames, and resident control words at their native boundaries.</summary>
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    {
+        int triggerOffset = address - RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft;
+        if (triggerOffset >= 0 && address < TriggerEnd && (triggerOffset & 1) == 0)
+        {
+            int trigger = triggerOffset / 6;
+            value = (triggerOffset % 6) switch
+            {
+                0 => 1,
+                2 => (ushort)(0xa5d7 + trigger / 2 * 20 + (trigger % 2) * 12),
+                _ => (ushort)RoomPlmInstruction.Delete,
+            };
+            return true;
+        }
+        int closingOffset = address - ClosingFrames, openingOffset = address - OpeningFrames;
+        bool closing = closingOffset is >= 0 and < 16 && (closingOffset & 1) == 0;
+        bool opening = openingOffset is >= 0 and < 16 && (openingOffset & 1) == 0;
+        if (closing || opening)
+        {
+            int offset = closing ? closingOffset : openingOffset;
+            int frame = offset / 4;
+            value = offset % 4 == 0 ? (ushort)(frame == 3 ? 24 : 16) :
+                (ushort)(closing ? 0xa525 + frame * 14 : 0xa54f - frame * 14);
+            return true;
+        }
+        value = address switch
+        {
+            0xbc13 or 0xbc3a => 1,
+            0xbc15 or 0xbc21 => 0xa517,
+            0xbc1f => 16,
+            0xbc3c => 0xa55d,
+            0xbc17 or 0xbc3e => (ushort)RoomPlmInstruction.ClearDownwardGateTrigger,
+            0xbc19 or 0xbc40 => (ushort)RoomPlmInstruction.InstallPreInstruction,
+            0xbc1b => (ushort)DownwardGatePreInstruction.WakeIfTriggered,
+            0xbc42 => (ushort)DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow,
+            0xbc1d or 0xbc44 => (ushort)RoomPlmInstruction.Sleep,
+            0xbc23 => (ushort)RoomPlmInstruction.SpawnDownwardGateProjectile,
+            0xbc25 => (ushort)RoomEnemyProjectileKind.DownwardGateMoving,
+            0xbc27 or 0xbc4a => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
+            0xbc46 => (ushort)RoomPlmInstruction.WakeDownwardGateProjectile,
+            // Native BBF0 advances over this operand without using its value.
+            0xbc48 => DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep,
+            0xbc5d => (ushort)RoomPlmInstruction.Goto,
+            0xbc5f => OpenStart,
+            _ => 0,
+        };
+        return value != 0;
+    }
+}

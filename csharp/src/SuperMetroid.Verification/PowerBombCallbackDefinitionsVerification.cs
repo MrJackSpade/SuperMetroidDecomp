@@ -1,20 +1,9 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static Program;
 using static ShotCallbackDefinitionsVerification;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Text.RegularExpressions;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Cross-checks bank-qualified Power Bomb no-op callback identities against native enemy headers.</summary>
 internal static class PowerBombCallbackDefinitionsVerification

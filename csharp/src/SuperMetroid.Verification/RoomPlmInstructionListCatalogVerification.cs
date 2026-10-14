@@ -1,7 +1,7 @@
 using SuperMetroid.Tooling;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Checks the bank-$84 PLM list catalog for unique, readable native pointers and

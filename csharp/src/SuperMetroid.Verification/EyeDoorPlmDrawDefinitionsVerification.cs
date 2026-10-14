@@ -2,12 +2,8 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static EyeDoorPlmsVerification;
 using static LookupEyeDoorLayoutsVerification;
 using static LookupEyeDoorProgramVerification;
@@ -15,6 +11,13 @@ using static LookupEyeDoorStockVerification;
 using static LookupEyeDoorVisualIdsVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks eye-door PLM programs, mirrored physical draws, and installed visual edits.</summary>
 internal static class EyeDoorPlmDrawDefinitionsVerification

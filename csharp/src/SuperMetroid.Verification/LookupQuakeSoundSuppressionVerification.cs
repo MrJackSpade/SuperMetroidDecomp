@@ -1,7 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks the complete native room set that suppresses statue earthquake sound.</summary>
 internal static class LookupQuakeSoundSuppressionVerification

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks grey-door PLM control and presentation operands against native byte and overlapping-word views.</summary>
 internal static class LookupGreyProgramVerification

@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks compiled baby-discovery instruction spans against the native bank-$8B source.</summary>
 internal static class IntroBabyDiscoveryInstructionsVerification

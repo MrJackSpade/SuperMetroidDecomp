@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Metroids;
+using SuperMetroid.Core.Rooms.SpriteObjects;
 
 /// <summary>Checks compiled Metroid escape movement and random cry words against retail sources.</summary>
 internal static class MetroidBehaviorDefinitionsVerification

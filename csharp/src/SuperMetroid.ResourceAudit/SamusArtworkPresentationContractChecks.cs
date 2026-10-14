@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -15,10 +15,9 @@ internal static class SamusArtworkPresentationContractChecks
         var trees = SamusArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<samus-art-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Samus.Artwork;
             class SamusArtConsumer {
                 void Inspect(SamusBodyArtworkCatalog body, SamusSpritemapArtworkCatalog sprites,
                     SamusAtmosphericArtworkCatalog atmosphere, SamusArmCannonArtworkCatalog arm) {
@@ -72,8 +71,8 @@ internal static class SamusArtworkPresentationContractChecks
             "offset closure must not imply DMA frame-selector closure");
 
         foreach (string external in new[] {
-            "class ExternalArm { object Make() => SuperMetroid.Core.Assets.SamusArmCannonArtworkCatalog.FromPlacement(null!, null!); }",
-            "class ExternalArm { void Change() { SuperMetroid.Core.Assets.SamusArmCannonArtworkFormat.TileSourcePointers[0] = 0; } }" })
+            "class ExternalArm { object Make() => SuperMetroid.Core.Samus.Artwork.SamusArmCannonArtworkCatalog.FromPlacement(null!, null!); }",
+            "class ExternalArm { void Change() { SuperMetroid.Core.Samus.Artwork.SamusArmCannonArtworkFormat.TileSourcePointers[0] = 0; } }" })
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(external,
                 path: "fixture-external-arm.cs"))), true);

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks Mother Brain escape-door fragment offsets, velocities, and production spawns.</summary>
 internal static class MotherBrainDoorFragmentDefinitionsVerification

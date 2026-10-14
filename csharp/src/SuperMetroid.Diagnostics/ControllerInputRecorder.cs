@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Desktop;
 

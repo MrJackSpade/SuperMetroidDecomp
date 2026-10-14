@@ -3,12 +3,14 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ExtendedBg2ReferenceVerification;
 using static FrontendRomFreeVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 /// <summary>Retail write and collision comparisons for Phantoon's installed BG2 frame artwork.</summary>
 internal static class EnemyTileArtworkPhantoonBg2FramesVerification

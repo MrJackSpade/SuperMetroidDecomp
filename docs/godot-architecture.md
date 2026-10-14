@@ -99,7 +99,7 @@ For Samus, the current runtime prepares terrain interaction, performs alpha work
 runs enemies, then proceeds into beta. Moving platforms can contribute displacement
 between preparation and movement. An entity can encapsulate its part of each
 operation while the dispatcher preserves that interleaving. See
-[`PrepareEnemyFrame` and `RunEnemyMainPhase`](../csharp/src/SuperMetroid.Core/Runtime/EnemyFramePhase.cs).
+[`PrepareEnemyFrame` and `RunEnemyMainPhase`](../csharp/src/SuperMetroid.Core/Enemies/EnemyFramePhase.cs).
 
 When ordering is nested, prefer nested dispatchers or explicit nested schedules.
 The following is only a partial ordinary-gameplay example; conditional branches
@@ -120,8 +120,8 @@ Samus beta
 Preserve collision-before-AI within each enemy's turn. A global pass over all
 collisions followed by a global pass over all AI has a different mutation order.
 Likewise, phase numbers sorted ahead of slot numbers cannot represent every nested
-schedule. See [`RoomEnemySystem.StepFrame`](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs)
-and [`ResolveOrdinaryProjectileHits`](../csharp/src/SuperMetroid.Core/Game/EnemyCollision.cs).
+schedule. See [`RoomEnemySystem.StepFrame`](../csharp/src/SuperMetroid.Core/Enemies/RoomEnemySystem.cs)
+and [`ResolveOrdinaryProjectileHits`](../csharp/src/SuperMetroid.Core/Enemies/EnemyCollision.cs).
 
 ### Immediate effects and retained observations
 
@@ -216,7 +216,7 @@ The current population loader initializes each record before advancing to the
 next. The gunship bottom accesses preceding physical slots during initialization.
 Keep the 32-slot layout, empty slots, adjacency, and native index meanings where
 consumers rely on them. See `LoadPopulation` and `InitializeGunshipBottom` in
-[`RoomEnemySystem`](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs).
+[`RoomEnemySystem`](../csharp/src/SuperMetroid.Core/Enemies/RoomEnemySystem.cs).
 
 When entities spawn or disappear during a pass, specify separately:
 
@@ -227,7 +227,7 @@ When entities spawn or disappear during a pass, specify separately:
 
 Prefer the domain's original rules over a universal end-of-frame mutation queue.
 Preserve capacity and exhaustion behavior: the current
-[`Mother Brain falling-tube spawn`](../csharp/src/SuperMetroid.Core/Game/MotherBrainBehavior.cs)
+[`Mother Brain falling-tube spawn`](../csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainBehavior.cs)
 returns without spawning when the enemy pool is full. Other paths have their own
 failure contracts.
 
@@ -264,7 +264,7 @@ separate instances. Do not infer storage identity from matching names or values.
 Some values that look derivable are independently authored state. For example,
 the bomb counter can be assigned to suppress allocation without creating bombs.
 Preserve it rather than deriving it from the number of registered entities. See
-[`SamusBombProjectileSystem`](../csharp/src/SuperMetroid.Core/Game/SamusBombProjectileSystem.cs).
+[`SamusBombProjectileSystem`](../csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusBombProjectileSystem.cs).
 
 ### Lifetimes and service composition
 
@@ -379,7 +379,7 @@ simulation phases before replacing their graphics output. Samus's draw epilogue
 updates input history, and drawing also participates in palette and other state
 progression. That work must run under its original eligibility rules even when
 the host does not display a picture. See
-[`SamusInputSnapshot`](../csharp/src/SuperMetroid.Core/Game/SamusInputSnapshot.cs)
+[`SamusInputSnapshot`](../csharp/src/SuperMetroid.Core/Samus/SamusInputSnapshot.cs)
 and [`GameplayActorDrawing`](../csharp/src/SuperMetroid.Core/Runtime/GameplayActorDrawing.cs).
 
 When display state is latched before subsequent gameplay changes, publish the
@@ -410,9 +410,9 @@ and animation mechanics. These inspected sources provide starting boundaries:
 
 | Existing source | Migration-relevant information |
 | --- | --- |
-| [SamusBodyArtworkFiles](../csharp/src/SuperMetroid.AssetExtraction/SamusBodyArtworkFiles.cs) and [SamusSpritemapArtworkCatalog](../csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs) | Indexed upper/lower tile atlases, pose/frame graphics selectors, and ordered sprite parts. The atlas chunks are transfer definitions, not finished animation frames. |
+| [SamusBodyArtworkFiles](../csharp/src/SuperMetroid.AssetExtraction/SamusBodyArtworkFiles.cs) and [SamusSpritemapArtworkCatalog](../csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapArtworkCatalog.cs) | Indexed upper/lower tile atlases, pose/frame graphics selectors, and ordered sprite parts. The atlas chunks are transfer definitions, not finished animation frames. |
 | [SpriteComposition](../csharp/src/SuperMetroid.Core/Assets/SpriteComposition.cs) | Ordered visual regions with offsets, size, flips, priority, and explicit or inherited palette selection. |
-| [EnemySpritemapCatalog](../csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs) | Native frame identities and editable display bindings; changing artwork does not replace the AI's frame pointer. |
+| [EnemySpritemapCatalog](../csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCatalog.cs) | Native frame identities and editable display bindings; changing artwork does not replace the AI's frame pointer. |
 | [EnemyExtendedFrameFiles](../csharp/src/SuperMetroid.AssetExtraction/EnemyExtendedFrameFiles.cs) and [EnemyBg2FrameFiles](../csharp/src/SuperMetroid.AssetExtraction/EnemyBg2FrameFiles.cs) | Multipart visual roots, including bodies mixing ordinary sprites with background tilemap drawing. Gameplay hitboxes and callbacks are separate. |
 
 When defining a conversion slice, inventory its artwork selectors, composition
@@ -441,7 +441,7 @@ textures may share storage without merging distinct frame identities or timings.
 
 When composition depends on retained graphics state, make that state part of the
 resolution contract. For example,
-[SamusTileTransferState](../csharp/src/SuperMetroid.Core/Game/SamusTileTransferState.cs)
+[SamusTileTransferState](../csharp/src/SuperMetroid.Core/Samus/Drawing/SamusTileTransferState.cs)
 selects upper and lower transfers, retains the previous lower selection when a
 record specifies no new lower transfer, and applies enabled transfers at NMI.
 A converter keyed only by the current pose/frame can therefore omit a dependency.
@@ -487,7 +487,7 @@ all actors into one flat strip.
 
 When animation advancement affects behavior, keep its timer, instruction cursor,
 branching, and side effects in the original simulation phases. The existing
-[Samus animation path](../csharp/src/SuperMetroid.Core/Game/SamusPresentation.cs)
+[Samus animation path](../csharp/src/SuperMetroid.Core/Samus/Drawing/SamusPresentation.cs)
 depends on liquid state, rising versus falling, running momentum, and special
 handlers that write frame/timer state. Enemy instruction processing likewise
 belongs to the domain dispatcher. These are not all fixed-FPS loops.
@@ -593,12 +593,12 @@ the original boundaries. The existing loader carries elevator and X-ray state
 into destination setup. Godot scene replacement alone does not define those
 semantics. Asynchronous asset preparation must not insert unintended simulation
 steps while a transition waits. See
-[`RoomLoader`](../csharp/src/SuperMetroid.Core/Runtime/RoomLoader.cs).
+[`RoomLoader`](../csharp/src/SuperMetroid.Core/Rooms/RoomLoader.cs).
 
 When a smaller integer width, unusual index, alias, or bounded overread affects
 behavior, preserve the operation's exact interpretation. Wider arithmetic followed
 by one final cast may differ from wrapping at intermediate steps. The current
-[`RoomLevelData`](../csharp/src/SuperMetroid.Core/Rooms/RoomLevelData.cs)
+[`RoomLevelData`](../csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelData.cs)
 models allocation tails for off-room PLM writes and streaming reads. Generic scene
 bounds, clamping, compacting arrays, or standard physics replacement must not
 silently remove those behaviors. Unbounded corruption remains outside AGENTS.md's

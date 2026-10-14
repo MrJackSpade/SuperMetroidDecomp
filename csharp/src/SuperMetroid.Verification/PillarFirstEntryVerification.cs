@@ -1,17 +1,14 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks that both Nuclear Waffles visibly move after normal entry into Pillar Room.</summary>
 internal static class PillarFirstEntryVerification
@@ -58,7 +55,7 @@ internal static class PillarFirstEntryVerification
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);
         for (int frame = 0; transition.IsActive && frame < 400; frame++)
-            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
         AssertTrue(!transition.IsActive, "Pillar Room transition completes");
         AssertEqual(destination, runtime.Room.LoadedRoom.Pointer, "Pillar Room entered through retail door");
         AssertEqual(2, runtime.Enemies.NuclearWaffleStates.Count(state => state is not null),

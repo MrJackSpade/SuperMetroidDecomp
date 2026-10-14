@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Compares every compiled Noob Tube PLM draw against native geometry, collision, and visual words.</summary>
 internal static class LookupTubeDrawsVerification

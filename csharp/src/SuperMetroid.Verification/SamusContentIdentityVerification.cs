@@ -1,17 +1,13 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using static ColorWordsVerification;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Checks that each selected Samus artwork family contributes to the installed content identity.</summary>
 internal static class SamusContentIdentityVerification

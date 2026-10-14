@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Mother Brain fake-death background draw geometry and collision words.</summary>
 internal static class LookupMotherBrainBackgroundVerification

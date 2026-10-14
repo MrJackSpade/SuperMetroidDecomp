@@ -1,6 +1,10 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks upward shinespark collision against nearby solid and frozen enemies.</summary>
 internal static class ShinesparkEnemyStopVerification

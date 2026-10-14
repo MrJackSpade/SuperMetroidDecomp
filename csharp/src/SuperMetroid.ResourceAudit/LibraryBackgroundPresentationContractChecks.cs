@@ -3,8 +3,8 @@ using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -38,10 +38,9 @@ internal static class LibraryBackgroundPresentationContractChecks
         var trees = LibraryBackgroundClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<library-bg-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Rooms.Artwork;
             class BackgroundConsumer {
                 void Inspect(RoomBackgroundTilemapCatalog catalog, int selected) {
                     catalog.Get({{first}});
@@ -69,7 +68,7 @@ internal static class LibraryBackgroundPresentationContractChecks
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 3 && after.Classifications.Count == 2 && after.UnresolvedCount == 1 &&
             after.MissingCount == 0 && after.Consumers.Count == 3, "required-source completeness must not accept a known unowned key");
-        const string provider = "csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapCatalog.cs";
+        const string provider = "csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomBackgroundTilemapCatalog.cs";
         var changed = trees.Select(tree => tree.FilePath == provider ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace("RoomBackgroundTilemapSources.All.Any", "Array.Empty<int>().Any", StringComparison.Ordinal),
                 path: tree.FilePath) : tree);

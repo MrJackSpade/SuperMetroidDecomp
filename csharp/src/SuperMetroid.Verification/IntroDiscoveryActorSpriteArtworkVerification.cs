@@ -3,12 +3,12 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using static IntroCinematicArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks intro discovery actor OAM against native spritemaps and
 /// verifies an edited egg composition reaches the rendered scene.</summary>

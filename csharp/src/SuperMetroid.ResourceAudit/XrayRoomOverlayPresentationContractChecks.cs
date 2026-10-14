@@ -2,7 +2,8 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Rooms.Xray;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -30,10 +31,9 @@ internal static class XrayRoomOverlayPresentationContractChecks
             item.Type == typeof(XrayOverlayVisualCatalog).FullName);
         var trees = contract.Sources.Select(source => CSharpSyntaxTree.ParseText(
             File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<room-overlay-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
-            using SuperMetroid.Core.Rooms;
+            using SuperMetroid.Core.Rooms.Xray;
             class OverlayConsumer {
                 void Inspect(XrayOverlayVisualCatalog overlays, ushort selected) {
                     overlays.RoomTiles({{first}});
@@ -62,7 +62,7 @@ internal static class XrayRoomOverlayPresentationContractChecks
         Require(before.UnresolvedCount == 3 && after.Classifications.Count == 2 && after.UnresolvedCount == 1 &&
             after.MissingCount == 0 && after.Consumers.Count == 3, "overlay completeness must not accept zero as a resource key");
         SyntaxTree bypass = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Rooms;
+            using SuperMetroid.Core.Rooms.Xray;
             class UnsafeOverlayFactory {
                 object Make() => XrayOverlayVisualCatalog.FromOverlaysForVerification(null!, null!);
             }

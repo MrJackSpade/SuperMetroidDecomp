@@ -3,12 +3,16 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 /// <summary>Retail CGRAM and guarded-source checks for editable Tourian entrance statue colors.</summary>
 internal static class EnemyTileArtworkTourianStatueColorsVerification

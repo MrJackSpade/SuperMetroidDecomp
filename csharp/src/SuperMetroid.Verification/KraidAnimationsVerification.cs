@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static KraidArmCollisionDefinitionsVerification;
@@ -7,6 +5,10 @@ using static KraidFootCollisionDefinitionsVerification;
 using static KraidNativeListAddresses;
 using static RepositoryInputsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>
 /// #1284: Kraid's typed foot, arm, lint, fingernail and rock programs against the retail cartridge. The typed part

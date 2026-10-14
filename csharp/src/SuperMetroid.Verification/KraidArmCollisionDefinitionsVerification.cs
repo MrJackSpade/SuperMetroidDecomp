@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidArmCallbackMappingsVerification;
 using static KraidArmComponentHitboxesVerification;
 using static KraidArmPhysicalFrameMappingsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks Kraid's compiled arm frame and collision data against bank-$A7 cartridge records.</summary>
 internal static class KraidArmCollisionDefinitionsVerification

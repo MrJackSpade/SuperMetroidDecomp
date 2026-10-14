@@ -1,21 +1,14 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
-using static AssertionsVerification;
 using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
 using static TourianAccessPlmDefinitionsVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Tourian access crumble and clear PLM programs, draw lists, and physical floor effects.</summary>
 internal static class TourianAccessPlmProgramsVerification

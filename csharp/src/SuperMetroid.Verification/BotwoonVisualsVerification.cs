@@ -1,11 +1,11 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Rom;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Botwoon.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks installed Botwoon head frames and compatibility of older enemy artwork overrides.</summary>
 internal static class BotwoonVisualsVerification

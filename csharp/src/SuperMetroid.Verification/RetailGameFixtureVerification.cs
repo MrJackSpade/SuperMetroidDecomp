@@ -1,9 +1,11 @@
 ﻿using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Constructs installed retail states used by focused frontend and instruction verifications.</summary>
 internal static class RetailGameFixtureVerification

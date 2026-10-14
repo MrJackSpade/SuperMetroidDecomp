@@ -1,12 +1,12 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
 using static ChozoStatueVisualsVerification;
 using static LookupChozoLayoutsVerification;
 using static LookupChozoProgramVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Chozo statue PLM headers, programs, layouts, and installed visuals against cartridge data.</summary>
 internal static class ChozoStatuePlmDefinitionsVerification

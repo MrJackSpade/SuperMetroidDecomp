@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Options.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -16,7 +16,8 @@ internal static class FinitePresentationNameFlowChecks
     {
         const string fixture = """
             using System;
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+            using SuperMetroid.Core.Frontend.Options.Artwork;
             class Names {
                 FileSelectPresentation art = null!;
                 private string finiteField = FileSelectPresentationDefinitions.MainEmptyPage;
@@ -81,15 +82,14 @@ internal static class FinitePresentationNameFlowChecks
             """;
         SyntaxTree calls = CSharpSyntaxTree.ParseText(fixture, path: "fixture-name-flow.cs");
         SyntaxTree provider = CSharpSyntaxTree.ParseText(File.ReadAllText(
-            "csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs"),
-            path: "csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs");
+            "csharp/src/SuperMetroid.Core/Frontend/FileSelect/Artwork/FileSelectPresentation.cs"),
+            path: "csharp/src/SuperMetroid.Core/Frontend/FileSelect/Artwork/FileSelectPresentation.cs");
         SyntaxTree optionsProvider = CSharpSyntaxTree.ParseText(File.ReadAllText(
-            "csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs"),
-            path: "csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs");
+            "csharp/src/SuperMetroid.Core/Frontend/Options/Artwork/GameOptionsPresentation.cs"),
+            path: "csharp/src/SuperMetroid.Core/Frontend/Options/Artwork/GameOptionsPresentation.cs");
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("FiniteNameFixture", [calls, provider, optionsProvider,
-            CSharpSyntaxTree.ParseText("global using System; global using System.IO; global using System.Linq; " +
-                "global using System.Collections.Generic;", path: "<name-flow-usings>")],
+            CoreGlobalUsings.Tree()],
             platforms.Append(typeof(GameOptionsPresentation).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));

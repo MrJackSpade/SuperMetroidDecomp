@@ -1,15 +1,5 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 using static LookupStationLayoutsVerification;
 using static LookupStationVisualIdsVerification;
@@ -17,6 +7,7 @@ using static RoomPlmPopulationVerification;
 using static StationAccessPlmDefinitionsVerification;
 using static StationVisualsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks station animation words, draw lists, access selections, and sparse-bus activation.</summary>
 internal static class StationAnimationProgramDefinitionsVerification

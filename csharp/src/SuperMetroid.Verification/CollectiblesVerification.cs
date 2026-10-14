@@ -1,16 +1,8 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using static AssertionsVerification;
 using static GrappleDoorsVerification;
 using static PermanentMessageFixtureVerification;
 using static RetailPresentationFixtureVerification;
@@ -18,6 +10,23 @@ using static SuitPickupBeamCurveDefinitionsVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Constructed cartridge checks for permanent item PLMs, messages, saves, and suit acquisition.</summary>
 internal static class CollectiblesVerification
@@ -835,7 +844,6 @@ internal static class CollectiblesVerification
             AssertTrue(flashes[i].Green <= flashes[i - 1].Green && flashes[i].Blue <= flashes[i - 1].Blue,
                 "the shrinking beam's color only steps down");
     }
-
 
     /// <summary>Checks pose-history shifts at transformation entry and reveal for both suits and preowned-suit states.</summary>
     private static void VerifySuitPickupHistory(TestAddressSpace bus, SamusSuitColorCatalog suitColors)

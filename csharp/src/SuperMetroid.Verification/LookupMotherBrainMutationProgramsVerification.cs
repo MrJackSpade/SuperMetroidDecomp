@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks all 22 Mother Brain fake-death PLM lists against bank-$84 control and draw words.</summary>
 internal static class LookupMotherBrainMutationProgramsVerification

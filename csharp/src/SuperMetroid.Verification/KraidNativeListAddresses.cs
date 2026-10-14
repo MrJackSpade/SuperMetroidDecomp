@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// The native bank-$A7 and bank-$86 lists the Kraid ROM oracle (#1284) walks: the part and rock list entry points,

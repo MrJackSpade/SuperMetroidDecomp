@@ -1,10 +1,9 @@
 using System.Buffers.Binary;
-using System.Reflection;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks calculated rain and fog tilemap attributes against native pages and editable fields.</summary>
 internal static class LookupAtmosphereTilemapsVerification

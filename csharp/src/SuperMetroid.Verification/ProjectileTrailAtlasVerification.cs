@@ -1,9 +1,10 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks editable projectile trail pixels reach their exact native VRAM bytes.</summary>
 internal static class ProjectileTrailAtlasVerification

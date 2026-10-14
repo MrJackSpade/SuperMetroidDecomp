@@ -1,10 +1,3 @@
-using System.Text;
-using System.Text.Json;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
-
 /// <summary>One palette-FX family's frame and colour counts, colour-pointer function and definitions (#633).</summary>
 internal readonly record struct PaletteFxFamilyShape
 {

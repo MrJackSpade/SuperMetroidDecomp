@@ -1,12 +1,14 @@
 using SuperMetroid.Tooling;
-using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static MapSpritesVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Checks all pause reserve-tank visual roles and their authored OAM parts.</summary>
 internal static class PauseReserveFramesVerification

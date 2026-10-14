@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Areas.Escape.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

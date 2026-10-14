@@ -1,9 +1,4 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
@@ -11,6 +6,10 @@ using static DoorDefinitionsVerification;
 using static LookupCeresHazeRampVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks native Ceres haze ramp control and room-owned blue/red handoff.</summary>
 internal static class CeresHazeVerification
@@ -101,7 +100,7 @@ internal static class CeresHazeVerification
         for (int frame = 0; transition.IsActive && frame < 600; frame++)
         {
             bool fadingIn = transition.Phase == DoorTransitionPhase.FadeInDestinationPalette;
-            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
             if (runtime.Room.LoadedRoom.Pointer == RoomHeaderPointers.CeresRidleyRoom)
                 AssertTrue(!runtime.CeresHaze.IsRed, "source room remains blue through actual door fade");
             if (fadingIn)

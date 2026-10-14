@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Explicit startup import for diagnostics that decode cartridge-compatible SRAM.</summary>
 internal static class SaveMapPresentationFixture

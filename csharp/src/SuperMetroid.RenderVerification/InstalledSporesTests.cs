@@ -1,15 +1,19 @@
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using System.Text;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static class InstalledSporesTests

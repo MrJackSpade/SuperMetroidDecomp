@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Checks sixteen Bomb Torizo statue fragments against native physical tables and real projectile allocation.</summary>
 internal static class BombTorizoStatueFragmentDefinitionsVerification

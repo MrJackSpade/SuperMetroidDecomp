@@ -2,18 +2,21 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static LookupGreyCapVerification;
 using static LookupGreyDoorStockVerification;
 using static LookupGreyProgramVerification;
 using static LookupTorizoDoorProgramVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Retail and guarded runtime checks for ordinary and Bomb Torizo grey-door PLM programs and editable draw blocks.</summary>
 internal static class GreyDoorPlmDrawDefinitionsVerification

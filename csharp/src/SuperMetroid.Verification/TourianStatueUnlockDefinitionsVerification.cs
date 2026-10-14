@@ -1,15 +1,4 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
-using System.Reflection;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
@@ -19,6 +8,13 @@ using static LookupTourianProgramVerification;
 using static LookupTourianSpawnVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks migrated Tourian statue eye positions and animated-tile control against the cartridge.</summary>
 internal static class TourianStatueUnlockDefinitionsVerification

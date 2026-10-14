@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Exports bounded production traces and seeds for native comparison of reported movement cases.</summary>
 internal static class NativeCaptureSeeds

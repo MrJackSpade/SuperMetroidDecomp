@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks the two admitted intro Baby discovery input ranges against retail bank-$91 bytes.</summary>
 internal static class IntroBabyDiscoveryInputVerification

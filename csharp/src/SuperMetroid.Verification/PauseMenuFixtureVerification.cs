@@ -1,13 +1,14 @@
-using SuperMetroid.Core.Frontend;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>Builds a constructed pause presentation from retail source data and isolated fixture visuals.</summary>
 internal static class PauseMenuFixtureVerification

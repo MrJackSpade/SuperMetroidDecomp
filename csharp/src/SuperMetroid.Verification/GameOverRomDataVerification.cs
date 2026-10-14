@@ -1,18 +1,9 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using static AssertionsVerification;
 using static RetailPresentationFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>Compares the game-over Baby instruction stream and cries with
 /// cartridge data, then checks the live menu layout and selection.</summary>

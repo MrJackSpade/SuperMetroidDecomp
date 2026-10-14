@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

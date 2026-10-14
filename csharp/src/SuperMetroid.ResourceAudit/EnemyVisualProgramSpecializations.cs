@@ -1,4 +1,6 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.ResourceAudit;
 

@@ -1,8 +1,8 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static AnimatedTileInstructionCodesVerification;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks typed room-FX animated object headers against the seven native records.</summary>
 internal static class LookupAnimatedHeadersVerification

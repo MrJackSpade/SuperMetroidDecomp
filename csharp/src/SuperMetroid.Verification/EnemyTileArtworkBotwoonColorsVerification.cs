@@ -2,9 +2,12 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 
 /// <summary>Checks installed Botwoon palette art, live health transitions, and override validation.</summary>
 internal static class EnemyTileArtworkBotwoonColorsVerification

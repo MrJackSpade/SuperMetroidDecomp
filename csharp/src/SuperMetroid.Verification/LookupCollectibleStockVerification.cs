@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static CollectibleVisualsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks stock collectible visual words and content identity against the native PLM frame table.</summary>
 internal static class LookupCollectibleStockVerification

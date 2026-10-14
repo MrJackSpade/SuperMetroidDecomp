@@ -2,6 +2,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks calculated Ceres large-asteroid parts against two imported cinematic frames.</summary>
 internal static class CeresLargeAsteroidPartsVerification

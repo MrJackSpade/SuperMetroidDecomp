@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks editable map highlight tiles against native OBJ bytes and exact VRAM edits.</summary>
 internal static class HighlightTilePixelsVerification

@@ -1,7 +1,16 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Areas.Escape.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -93,13 +102,13 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     {
         _vramWrites.RebindBusSource(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount,
             SuperMetroid.Core.Hardware.VramAssetId.StandardHudTiles);
-        for (int quarter = 0; quarter < Game.KraidBackgroundRomData.StandardBg3TransferCount;
+        for (int quarter = 0; quarter < SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferCount;
              quarter++)
             _vramWrites.RebindBusSource(
-                Game.KraidBackgroundRomData.StandardBg3TilesAddress +
-                    quarter * Game.KraidBackgroundRomData.StandardBg3TransferBytes,
-                Game.KraidBackgroundRomData.StandardBg3TransferBytes,
-                Game.KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter));
+                SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TilesAddress +
+                    quarter * SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferBytes,
+                SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferBytes,
+                SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter));
         _vramWrites.RebindBusSource(EscapeTimerTileRomData.FirstSourceAddress,
             EscapeTimerTileAtlasFormat.FirstByteCount,
             SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles);
@@ -279,13 +288,13 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     {
         if (pendingBeamArtwork is not { } beamArtwork || _player.Samus is not { } samus) return;
         // Do not reinterpret invalid combination overreads as a legal replacement.
-        if (new Game.SamusBeamLoadoutWord(samus.EquippedBeams).Combination is Game.SamusBeamCombination selection &&
+        if (new SuperMetroid.Core.Samus.Projectiles.SamusBeamLoadoutWord(samus.EquippedBeams).Combination is SuperMetroid.Core.Samus.Projectiles.SamusBeamCombination selection &&
             selection.IsRetail)
         {
-            new Game.SamusVram(_vram).BeamTiles.Load(beamArtwork.Resolve(BeamTileCatalog.AssetFor(selection)).Span);
+            new SuperMetroid.Core.Samus.Drawing.SamusVram(_vram).BeamTiles.Load(beamArtwork.Resolve(BeamTileCatalog.AssetFor(selection)).Span);
             // An in-flight effect owns these colors across frames. Its own completion
             // restores the selected normal palette; host rebind must not erase its phase.
-            if (samus.CrystalFlash.SpecialPaletteKind != Game.SamusSpecialPaletteType.CrystalFlash &&
+            if (samus.CrystalFlash.SpecialPaletteKind != SuperMetroid.Core.Samus.Abilities.SamusSpecialPaletteType.CrystalFlash &&
                 !samus.Drained.HyperBeamPaletteFx.IsActive)
                 beamArtwork.Palettes?.LoadTo(_cgram, selection);
         }

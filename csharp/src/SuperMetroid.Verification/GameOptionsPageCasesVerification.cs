@@ -1,18 +1,10 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Options.Artwork;
 
 /// <summary>Checks installed game-options pages against five native source selections and page bytes.</summary>
 internal static class GameOptionsPageCasesVerification

@@ -1,18 +1,6 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
-using System.Reflection;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Checks the low-health warning latch and sound-queue threshold edges.</summary>
 internal static class HealthWarningVerification

@@ -2,8 +2,8 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.ResourceAudit;
 

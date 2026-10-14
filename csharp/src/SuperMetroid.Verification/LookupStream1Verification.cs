@@ -1,23 +1,10 @@
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
-using static Program;
 using static SamusAtmosphereArtworkBoundaryVerification;
 using static SamusVisorColorsVerification;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
-using static AssertionsVerification;
 using static BeamSpeedRowsVerification;
 using static ChargeFlareCompositionsVerification;
 using static EscapeDachoraInstructionProgramDefinitionsVerification;
@@ -29,6 +16,33 @@ using static SamusAtmosphericAnimationDefinitionsVerification;
 using static SamusBodyArtworkVerification;
 using static SamusContentIdentityVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Animals;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Bull;
+using SuperMetroid.Core.Enemies.Cacatac;
+using SuperMetroid.Core.Enemies.Crawlers;
+using SuperMetroid.Core.Enemies.Dragon;
+using SuperMetroid.Core.Enemies.FallingSparks;
+using SuperMetroid.Core.Enemies.Hibashi;
+using SuperMetroid.Core.Enemies.Metroids;
+using SuperMetroid.Core.Enemies.Nuclear;
+using SuperMetroid.Core.Enemies.Owtch;
+using SuperMetroid.Core.Enemies.Powamp;
+using SuperMetroid.Core.Enemies.Puyo;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Areas.Escape.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Hud;
 
 /// <summary>Cartridge-oracle checks for the first group of compiled gameplay and presentation catalogs.</summary>
 internal static class LookupStream1Verification
@@ -893,7 +907,6 @@ internal static class LookupStream1Verification
             content.Append("death tiles", Convert.FromHexString(template.DeathTiles.ContentIdentity));
             content.Append("arm cannon", Convert.FromHexString(template.ArmCannon.ContentIdentity));
         });
-
 
     /// <summary>Checks body tile-set allocation roots and independently edited pointer identities.</summary>
     internal static void VerifyLookupStream1BodySetPointers(ISnesAddressSpace rom)
@@ -2368,7 +2381,7 @@ internal static class LookupStream1Verification
     private static void VerifyLookupStream1Sciser(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1SciserRomByte(rom, address), LookupStream1SciserRomByte(rom, address + 1)));
-        var frames = SuperMetroid.Core.Assets.SciserVisualDefinitions.Frames();
+        var frames = SuperMetroid.Core.Enemies.Artwork.SciserVisualDefinitions.Frames();
         AssertEqual(12, frames.Length, "Sciser visual catalog size");
         string[] names = ["right", "left", "down", "up"];
         for (int surface = 0; surface < 4; surface++)
@@ -2600,8 +2613,8 @@ internal static class LookupStream1Verification
         for (ushort argument = 0; argument <= 24; argument += 2)
         {
             ushort pointer = Word(0x84db28 + argument);
-            AssertEqual(pointer, SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolvePreInstruction(argument), "native Metroid quota dispatcher identity");
-            var eventNumber = SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolveEvent(argument);
+            AssertEqual(pointer, SuperMetroid.Core.Rooms.Plms.MetroidsClearedPlmRomData.ResolvePreInstruction(argument), "native Metroid quota dispatcher identity");
+            var eventNumber = SuperMetroid.Core.Rooms.Plms.MetroidsClearedPlmRomData.ResolveEvent(argument);
             if (argument < 18)
             {
                 AssertTrue(eventNumber is null, "nine no-op quota identities have no event");
@@ -2611,8 +2624,8 @@ internal static class LookupStream1Verification
         }
         foreach (ushort invalid in new ushort[] { 1, 17, 25, 26, ushort.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolvePreInstruction(invalid), "quota pointer argument domain");
-            AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolveEvent(invalid), "quota event argument domain");
+            AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.Plms.MetroidsClearedPlmRomData.ResolvePreInstruction(invalid), "quota pointer argument domain");
+            AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.Plms.MetroidsClearedPlmRomData.ResolveEvent(invalid), "quota event argument domain");
         }
         var controls = new HashSet<int>();
         var visuals = new HashSet<int>();

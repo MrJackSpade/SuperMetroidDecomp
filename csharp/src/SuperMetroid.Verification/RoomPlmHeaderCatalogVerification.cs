@@ -1,7 +1,6 @@
 using System.Globalization;
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks named PLM header uniqueness and coverage of retail room-population records.</summary>
 internal static class RoomPlmHeaderCatalogVerification

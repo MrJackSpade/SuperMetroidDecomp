@@ -5,33 +5,33 @@ internal static class PlmActorClosedContractDefinitions
 {
     /// <summary>Shared PLM draw-run shape required by every reviewed room-actor provider.</summary>
     private static readonly ReviewedSource SharedDrawShape = new(
-        "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs");
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmShotBlockDrawDefinitions.cs");
 
     /// <summary>Downward gate, elevator, cannon, statue, and linked-restore
     /// visual domains with their complete source dependencies.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Rooms.RoomPlmDownwardGateVisualCatalog", "plm-downward-gate-complete-draws", ["GetWord"],
+        new("SuperMetroid.Core.Rooms.Plms.RoomPlmDownwardGateVisualCatalog", "plm-downward-gate-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDownwardGateVisualCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/DownwardGatePlmDrawDefinitions.cs")]),
-        new("SuperMetroid.Core.Rooms.RoomPlmElevatorPlatformVisualCatalog", "plm-elevator-platform-complete-draws", ["GetWord"],
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmDownwardGateVisualCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/DownwardGatePlmDrawDefinitions.cs")]),
+        new("SuperMetroid.Core.Rooms.Plms.RoomPlmElevatorPlatformVisualCatalog", "plm-elevator-platform-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmElevatorPlatformVisualCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/ElevatorPlatformPlmDefinitions.cs")]),
-        new("SuperMetroid.Core.Rooms.RoomPlmDraygonCannonVisualCatalog", "plm-draygon-cannon-complete-reachable-draws", ["GetWord"],
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmElevatorPlatformVisualCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorPlatformPlmDefinitions.cs")]),
+        new("SuperMetroid.Core.Rooms.Plms.RoomPlmDraygonCannonVisualCatalog", "plm-draygon-cannon-complete-reachable-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDraygonCannonVisualCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/DraygonCannonPlmDrawDefinitions.cs")]),
-        new("SuperMetroid.Core.Rooms.RoomPlmChozoStatueVisualCatalog", "plm-chozo-statue-complete-draws", ["GetWord"],
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmDraygonCannonVisualCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonPlmDrawDefinitions.cs")]),
+        new("SuperMetroid.Core.Rooms.Plms.RoomPlmChozoStatueVisualCatalog", "plm-chozo-statue-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmChozoStatueVisualCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/ChozoStatuePlmDrawDefinitions.cs")]),
-        new("SuperMetroid.Core.Rooms.RoomPlmLinkedRestoreVisualCatalog", "plm-linked-restore-complete-draws", ["GetWord"],
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmChozoStatueVisualCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatuePlmDrawDefinitions.cs")]),
+        new("SuperMetroid.Core.Rooms.Plms.RoomPlmLinkedRestoreVisualCatalog", "plm-linked-restore-complete-draws", ["GetWord"],
             [SharedDrawShape,
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmLinkedRestoreVisualCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmLinkedRestoreDrawDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmBombBlockRestoreDrawDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmContactCrumbleRestoreDrawDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmLinkedRestoreVisualCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmLinkedRestoreDrawDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmBombBlockRestoreDrawDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmContactCrumbleRestoreDrawDefinitions.cs")]),
     ];
 }

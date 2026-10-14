@@ -1,4 +1,5 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 

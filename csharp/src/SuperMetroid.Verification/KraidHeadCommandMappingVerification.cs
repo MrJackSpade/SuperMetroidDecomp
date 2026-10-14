@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks the compiled Kraid head command stream against independently decoded native records.</summary>
 internal static class KraidHeadCommandMappingVerification

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Address-space overrides for the controlled Crystal Flash contact fixture.</summary>
 internal static class CrystalFlashContactDefinitions

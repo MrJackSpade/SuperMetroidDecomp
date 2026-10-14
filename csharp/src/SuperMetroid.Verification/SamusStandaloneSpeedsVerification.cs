@@ -1,9 +1,7 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static SharedSlopeHeightsVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Checks Samus's standalone speed records and retained mutable low-bank aliases.</summary>
 internal static class SamusStandaloneSpeedsVerification

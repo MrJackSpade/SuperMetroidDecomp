@@ -1,7 +1,11 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Beetom;
+using SuperMetroid.Core.Enemies.Hoppers;
+using SuperMetroid.Core.Enemies.KiHunters;
+using SuperMetroid.Core.Enemies.Polyp;
+using SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>Checks compiled quadratic speed words and their Polyp, Beetom, Hopper, KiHunter, and Maw consumers.</summary>
 internal static class EnemyQuadraticSpeedsVerification

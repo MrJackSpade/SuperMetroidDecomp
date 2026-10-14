@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Compares the intro discovery room's compiled foreground with its retail collision words.</summary>
 internal static class IntroDiscoveryCollisionVerification

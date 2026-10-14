@@ -1,21 +1,19 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static Program;
 using static RepositoryInputsVerification;
 using static SuiteTimingVerification;
 using System.Security.Cryptography;
-using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Areas.Escape.Artwork;
+using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Verifies that installed map and projectile overrides survive import, loading, and host startup.</summary>
 internal static class MapInstallationVerification
@@ -260,8 +258,8 @@ internal static class MapInstallationVerification
             artworkOverrides.Add(path);
         }
         var edited = installation.LoadMaps();
-        AssertEqual(24, edited.Arrows.Get(SuperMetroid.Core.Frontend.MapScrollDirection.Left).Position.X, "full installation consumes arrow override");
-        AssertEqual(104, edited.SaveMarkers.Get(SuperMetroid.Core.Game.AreaId.Maridia, 0).X, "full installation consumes save-marker override");
+        AssertEqual(24, edited.Arrows.Get(SuperMetroid.Core.Frontend.Map.MapScrollDirection.Left).Position.X, "full installation consumes arrow override");
+        AssertEqual(104, edited.SaveMarkers.Get(SuperMetroid.Core.Rooms.AreaId.Maridia, 0).X, "full installation consumes save-marker override");
         AssertEqual(160, edited.Landmarks.Get("Boss.Phantoon").X, "full installation consumes landmark override");
         AssertEqual(80, edited.Stations.Get("Brinstar.Missile.0").X, "full installation consumes station position override");
         AssertTrue(stock.GameOptions.ContentIdentity != edited.GameOptions.ContentIdentity,
@@ -279,8 +277,8 @@ internal static class MapInstallationVerification
                 out ReadOnlyMemory<byte> editedRoomFx) &&
             !stockRoomFx.Span.SequenceEqual(editedRoomFx.Span),
             "full installation consumes room-FX animation artwork override");
-        AssertTrue(!stock.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Game.RoomFxType.Lava).Span.SequenceEqual(
-            edited.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Game.RoomFxType.Lava).Span),
+        AssertTrue(!stock.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Fx.RoomFxType.Lava).Span.SequenceEqual(
+            edited.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Fx.RoomFxType.Lava).Span),
             "full installation consumes room-FX BG3 tilemap override");
         AssertTrue(!stock.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava).SequenceEqual(
             edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)),

@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks compiled intro Mother Brain instructions against the pinned bank-$8B slice.</summary>
 internal static class IntroMotherBrainInstructionsVerification

@@ -1,7 +1,10 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Saves;
 
 /// <summary>#441: real frontend loading from identical in-memory SRAM, with varied file-map waits.</summary>
 internal static class SaveLoadRandomAudit

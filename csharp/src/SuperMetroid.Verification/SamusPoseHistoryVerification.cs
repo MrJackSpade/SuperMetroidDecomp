@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks native pose-history word shifts and the movement-byte gate for wall-jump probing.</summary>
 internal static class SamusPoseHistoryVerification

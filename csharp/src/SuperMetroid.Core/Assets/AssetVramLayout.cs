@@ -1,4 +1,6 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Assets;
 

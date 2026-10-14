@@ -1,7 +1,8 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Audits compiled room FX records, their native field layout, and door-list selection.</summary>
 internal static class LookupRoomFxFieldsVerification

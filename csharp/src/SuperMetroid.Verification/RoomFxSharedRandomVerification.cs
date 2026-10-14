@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static RoomFxRomDataVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the liquid HDMA callback's use of shared RNG across freeze and room reload boundaries.</summary>
 internal static class RoomFxSharedRandomVerification

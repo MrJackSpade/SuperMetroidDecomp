@@ -1,6 +1,5 @@
-using System.Reflection;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks cinematic glyph glow timing, slot reuse, and debugger restoration.</summary>
 internal static class CinematicTextGlowVerification

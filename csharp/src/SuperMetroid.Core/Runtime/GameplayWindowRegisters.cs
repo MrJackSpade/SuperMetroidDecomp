@@ -1,6 +1,8 @@
-﻿using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
+﻿using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Runtime;
 

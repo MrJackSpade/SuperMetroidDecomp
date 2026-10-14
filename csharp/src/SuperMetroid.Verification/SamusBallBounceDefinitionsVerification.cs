@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusImpulseDefinitionsVerification;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks both morph-ball families' landing transitions and compiled rebound speeds against cartridge data.</summary>
 internal static class SamusBallBounceDefinitionsVerification

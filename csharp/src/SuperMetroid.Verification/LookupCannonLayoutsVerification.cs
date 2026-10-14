@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Draygon cannon draw layouts against their native geometry and cell words.</summary>
 internal static class LookupCannonLayoutsVerification

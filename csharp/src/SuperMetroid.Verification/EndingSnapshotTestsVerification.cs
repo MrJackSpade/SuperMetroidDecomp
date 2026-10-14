@@ -1,13 +1,13 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Checks retained render packets across the escape, credits, and timed reward branches.</summary>
 internal static class EndingSnapshotTestsVerification

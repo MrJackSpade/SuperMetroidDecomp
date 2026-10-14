@@ -96,3 +96,27 @@ part. Files declaring no type (entry-point statements, assembly attributes) are 
 
 Because a file now identifies one type, the production magic-number audit keys each reviewed finding on its declaring
 type rather than its path, so moving or renaming a file keeps the finding's reviewed identity.
+
+## Core source layout
+
+Core is organized by gameplay domain first and then by cohesive feature (#626). Each directory is a module whose
+namespace matches its path (`Core/Bosses/Kraid` is `SuperMetroid.Core.Bosses.Kraid`):
+
+| Module | Owns |
+| --- | --- |
+| `Samus` | Samus state, with `Movement`, `Poses`, `Projectiles`, `Grapple`, `Abilities` (X-ray, Crystal Flash, Shinespark, Speed Booster, morph), `Palettes`, `Drawing`, `Death` and `Hud` |
+| `Enemies` | the shared enemy engine, one directory per enemy family, `Projectiles` (the enemy-projectile engine), `Drawing` and `Artwork` |
+| `Bosses/<Boss>` | one boss encounter: its AI, room objects, projectiles and `Artwork` |
+| `Rooms` | room headers, states and loading, with `LevelData`, `Backgrounds`, `Scrolling`, `Plms`, `Doors`, `SpriteObjects`, `Xray` and `Artwork` |
+| `Fx` | room FX, animated tiles and HDMA, with `PaletteFx` |
+| `Areas/<Area>` | scripted sequences that belong to one place (Ceres, the escapes, Tourian, Maridia) |
+| `Frontend/<Screen>` | the frontend session shell, and one module per screen (title, intro, file select, pause, map, options, game over, attract demo, ending) |
+| `Hud`, `Saves`, `Progression`, `Programs` | the gameplay HUD and message boxes; save images; boss and event progression; the shared instruction-program machinery |
+| `Runtime` | the gameplay frame loop: frame requests and results, the NMI clock, display state, host overrides |
+| `Assets` | artwork infrastructure every domain shares: PNG and JSON documents, VRAM layout, tile encoders, base palettes |
+| `Hardware`, `Rendering`, `Audio`, `Spatial`, `Input` | the SNES models, renderers, SPC driver, spatial types and controller input |
+
+A domain's installed-artwork layer (catalogs, presentations, formats and documents of extracted artwork) lives in
+its `Artwork` module, so gameplay code and the artwork it draws stay separable. The resource audit uses that layer
+boundary: files in `Assets` or an `Artwork` module are providers, and code elsewhere consumes them. `Tooling/Core` and
+`test-support/VerificationAccess.Core` mirror the module of the type each file extends.

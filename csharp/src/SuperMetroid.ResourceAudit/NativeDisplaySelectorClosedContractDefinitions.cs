@@ -6,7 +6,7 @@ internal static class NativeDisplaySelectorClosedContractDefinitions
     /// <summary>Requires display-pointer selection to stay a closed identity projection without requesting artwork.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Assets.EnemyExtendedFrameCatalog", "extended-display-id-projection-no-resource-read", ["GetDisplayPointer"],
-            [new("csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs")]),
+        new("SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameCatalog", "extended-display-id-projection-no-resource-read", ["GetDisplayPointer"],
+            [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameCatalog.cs")]),
     ];
 }

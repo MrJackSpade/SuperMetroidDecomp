@@ -1,15 +1,5 @@
 using SuperMetroid.Tooling;
-using static Program;
 using static RepositoryInputsVerification;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using static LookupStream5Verification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
@@ -17,12 +7,19 @@ using System.Text;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyExtendedFrameArtworkVerification;
 using static ImportedSpritemapsVerification;
 using static RoomEnemiesVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks statically identified enemy definition conversions against ROM and installed artwork.</summary>
 internal static class EnemyDefinitionBoundaryVerification

@@ -1,5 +1,5 @@
 using Microsoft.CodeAnalysis.Operations;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 

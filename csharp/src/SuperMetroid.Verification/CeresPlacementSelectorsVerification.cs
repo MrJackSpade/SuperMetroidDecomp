@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Checks compiled Ceres actor placements against immediate operands in bank $8B.</summary>
 internal static class CeresPlacementSelectorsVerification

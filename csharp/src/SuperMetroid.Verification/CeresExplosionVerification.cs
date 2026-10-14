@@ -1,11 +1,10 @@
-using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
 using static PowerBombFixedColorsVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks the Ceres destruction blast against the shared Power Bomb color-math timeline.</summary>
 internal static class CeresExplosionVerification

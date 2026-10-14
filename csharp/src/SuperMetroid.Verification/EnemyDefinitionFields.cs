@@ -1,11 +1,3 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
-
 /// <summary>The enemy definition header fields a synthetic enemy fixture writes (#633).</summary>
 internal readonly record struct EnemyDefinitionFields
 {

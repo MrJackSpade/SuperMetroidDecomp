@@ -1,7 +1,9 @@
-using System.Reflection;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks the closed X-Ray setup-stage order, display rule, and debugger decoding boundary.</summary>
 internal static class XraySetupStageDomainVerification

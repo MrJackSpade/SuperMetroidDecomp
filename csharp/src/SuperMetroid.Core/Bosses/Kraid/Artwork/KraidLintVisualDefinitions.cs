@@ -1,0 +1,21 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
+namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
+
+/// <summary>Kraid's ordinary belly-lint compositions; timing and actor motion remain compiled.</summary>
+internal static class KraidLintVisualDefinitions
+{
+    /// <summary>Native Kraid instruction and artwork bank $A7.</summary>
+    internal const byte Bank = KraidFootVisualDefinitions.Bank;
+    /// <summary>Initial <c>Spritemap_KraidLint_Initial</c> at $A7:A5DF, selected by $A7:8B00.</summary>
+    internal const ushort InitialFrame = 0xa5df;
+    /// <summary>Initial and post-growth ordinary OAM frames at $A7:A5DF and $A7:8C6C.</summary>
+    internal const int FrameCount = 2;
+
+    /// <summary>The spritemaps Kraid's typed lint programs show, in first-shown order.</summary>
+    internal static ushort[] Spritemaps() => [.. KraidAnimations.Spritemaps(KraidPartProgram.LintInitial, KraidPartProgram.LintPostGrowth)];
+
+    /// <summary>Names the initial and post-growth belly-lint compositions.</summary>
+    internal static EnemySpritemapDefinition[] Frames() =>
+        CompiledEnemyCompositionDefinitions.FramesFromSpritemaps(Bank, Spritemaps(), FrameCount, "kraid_lint");
+}

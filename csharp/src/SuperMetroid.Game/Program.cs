@@ -1,6 +1,7 @@
 using SuperMetroid.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Input;
 
 /// <summary>Starts the desktop game, optional deterministic replay, and no-dialog error reporting.</summary>
 internal static class Program

@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>Checks pause inventory category tables, bounds, and copied label widths against native instructions.</summary>
 internal static class PauseCategoryCasesVerification

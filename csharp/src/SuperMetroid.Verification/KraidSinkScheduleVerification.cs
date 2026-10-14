@@ -1,8 +1,9 @@
-using SuperMetroid.Core.Rooms;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Kraid's sinking Y schedule, platform PLM callbacks, and spawned rocks against the native program.</summary>
 internal static class KraidSinkScheduleVerification

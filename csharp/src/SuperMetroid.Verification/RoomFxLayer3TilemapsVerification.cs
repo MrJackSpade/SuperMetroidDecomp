@@ -1,24 +1,17 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
-using static AssertionsVerification;
 using static LookupAtmosphereTilemapsVerification;
 using static LookupFxTilemapDispatchVerification;
 using static LookupFxTilemapSourcesVerification;
 using static LookupLiquidTilemapsVerification;
 using static LookupSporeTilemapVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks six installed room-FX BG3 tilemap pages against native VRAM output under read guards.</summary>
 internal static class RoomFxLayer3TilemapsVerification

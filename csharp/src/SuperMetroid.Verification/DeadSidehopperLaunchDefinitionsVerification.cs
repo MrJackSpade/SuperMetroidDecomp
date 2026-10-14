@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SharedSlopeHeightsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks dead Sidehopper launch words and post-landing timer transitions against native behavior.</summary>
 internal static class DeadSidehopperLaunchDefinitionsVerification

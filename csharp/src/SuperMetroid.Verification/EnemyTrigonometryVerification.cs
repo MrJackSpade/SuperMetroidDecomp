@@ -1,9 +1,7 @@
 using SuperMetroid.AssetExtraction;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Frontend;
 using static AbsoluteTangentDefinitionsVerification;
 using static AlcoonFireballInstructionProgramDefinitionsVerification;
 using static AlcoonInstructionProgramDefinitionsVerification;
@@ -303,6 +301,12 @@ using static ZeroInstructionProgramDefinitionsVerification;
 using static ZoaAnimationDefinitionsVerification;
 using static ZoaInstructionProgramDefinitionsVerification;
 using static ZoaSpeedDefinitionsVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Sbug;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Registers compiled enemy math and instruction checks against pinned cartridge data.</summary>
 internal static class EnemyTrigonometryVerification

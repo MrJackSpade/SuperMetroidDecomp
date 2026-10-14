@@ -1,10 +1,10 @@
 using SuperMetroid.Tooling;
-using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Animals;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Confirms calculated Dachora speed and shine colors match native
 /// palettes and that a single edited cell stays sparse.</summary>

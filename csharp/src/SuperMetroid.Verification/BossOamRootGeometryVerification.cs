@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Artwork;
 
 /// <summary>Checks boss OAM frame root pointers and native component counts.</summary>
 internal static class BossOamRootGeometryVerification

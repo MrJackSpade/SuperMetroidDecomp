@@ -3,10 +3,12 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>Checks installed Norfair Ridley palette rows against native CGRAM writes and reveal cadence.</summary>
 internal static class EnemyTileArtworkNorfairRidleyColorsVerification

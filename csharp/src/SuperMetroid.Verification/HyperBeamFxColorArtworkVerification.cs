@@ -1,13 +1,16 @@
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
-using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static ProjectileCompositionsVerification;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks extracted Hyper Beam palette artwork against native CGRAM frames, reconstruction rules and editable JSON inputs.</summary>
 internal static class HyperBeamFxColorArtworkVerification

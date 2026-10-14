@@ -1,17 +1,6 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static ExtendedFrameSequenceVerification;
-using SuperMetroid.Core.Assets;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Checks published Walking and Wall Pirate artwork keys and their ordering.</summary>
 internal static class PirateArtworkNamesVerification

@@ -1,18 +1,13 @@
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static RetailPresentationFixtureVerification;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
 
 /// <summary>Checks game-options toggle boxes and language highlight palettes against native instructions.</summary>
 internal static class GameOptionsLanguagePalettesVerification

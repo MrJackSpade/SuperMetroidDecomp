@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Checks front and rear Ceres flight actor metadata against the native setup instructions.</summary>
 internal static class CeresFlightActorMetadataVerification

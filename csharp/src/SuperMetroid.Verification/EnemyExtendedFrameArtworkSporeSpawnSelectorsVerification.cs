@@ -1,7 +1,8 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SporeSpawnInstructionProgramDefinitionsVerification;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Compares installed Spore Spawn frame selectors with an independent cartridge instruction trace.</summary>
 internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification

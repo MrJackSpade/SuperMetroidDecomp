@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Dragon;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks Dragon's six facing and phase selectors against retail pointers and live handoffs.</summary>
 internal static class DragonAnimationDefinitionsVerification

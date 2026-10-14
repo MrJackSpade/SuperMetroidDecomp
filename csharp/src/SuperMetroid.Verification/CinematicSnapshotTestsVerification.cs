@@ -1,16 +1,8 @@
 using SuperMetroid.Core;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static EndingSnapshotTestsVerification;
 using static FrontendCompletionVerification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static CeresExplosionVerification;
@@ -20,6 +12,9 @@ using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 using static ZebesDescentVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks rendered cinematic snapshots and packet round trips against live scene rendering.</summary>
 internal static class CinematicSnapshotTestsVerification

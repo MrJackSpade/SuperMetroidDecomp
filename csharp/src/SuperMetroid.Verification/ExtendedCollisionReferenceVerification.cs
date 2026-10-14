@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Independent cartridge walker for extended enemy spritemap collision
 /// used as a reference for compiled overlap geometry.</summary>

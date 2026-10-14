@@ -1,11 +1,13 @@
 using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Room-local upward elevator handoff using the existing Blue Brinstar regression route.</summary>
 internal static class RetailElevatorReturnTests
@@ -53,7 +55,7 @@ internal static class RetailElevatorReturnTests
         while (transition.IsActive && samples < 512)
         {
             if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrolling++;
-            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
             Compare(transition.Phase.ToString());
         }
         if (transition.IsActive || scrolling < 12 ||

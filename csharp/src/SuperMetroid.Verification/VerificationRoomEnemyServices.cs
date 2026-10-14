@@ -1,5 +1,10 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus;
 
 /// <summary>
 /// Room enemy services a verification case drives directly (#633). Each service the case sets wins;

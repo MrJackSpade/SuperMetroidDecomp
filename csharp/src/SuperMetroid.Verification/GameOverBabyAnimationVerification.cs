@@ -1,7 +1,6 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>Checks game-over Baby animation records, cry commands, and pointer domain against native data.</summary>
 internal static class GameOverBabyAnimationVerification

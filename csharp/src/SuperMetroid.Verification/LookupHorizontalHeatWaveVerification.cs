@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks horizontal lava/acid wave samples and their renderer phase arithmetic.</summary>
 internal static class LookupHorizontalHeatWaveVerification

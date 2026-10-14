@@ -2,8 +2,8 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -16,12 +16,11 @@ internal static class ProjectilePresentationContractChecks
         var trees = ProjectileClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<projectile-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         string consumer = """
-            using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Game;
             using SuperMetroid.Core.Hardware;
+            using SuperMetroid.Core.Samus.Artwork;
+            using SuperMetroid.Core.Samus.Projectiles;
             class ProjectileConsumer {
                 void Inspect(BeamTileCatalog beams, ChargeFlarePlacementCatalog placement,
                     ChargeFlareSpriteCatalog flare, ProjectileTrailCatalog trails,
@@ -77,7 +76,7 @@ internal static class ProjectilePresentationContractChecks
             "retained stream starts and next-instruction frame offsets have distinct exact domains");
 
         SyntaxTree partialFactory = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Samus.Artwork;
             class ExternalPartialProjectile {
                 object Make() => ProjectileSpriteCatalog.LoadFrames(null!, new ushort[] { 0 });
             }
@@ -89,7 +88,6 @@ internal static class ProjectilePresentationContractChecks
             "external partial construction revokes ordinary coverage without revoking the private flare wrapper");
 
         SyntaxTree mutablePointers = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Game;
             class ExternalTimedPointers {
                 void Change() { ((ushort[])SamusProjectileRadiusDefinitions.TimedRecordPointers)[0] = 0; }
             }

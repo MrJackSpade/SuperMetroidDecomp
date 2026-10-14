@@ -1,13 +1,14 @@
-using System.Reflection;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks the gameplay minimap marker's colors and position through paused HUD updates.</summary>
 internal static class PauseHudLocationVerification

@@ -1,4 +1,5 @@
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks the original eye-door draw pointer to editable visual-ID
 /// mapping and its mirrored clear alias.</summary>

@@ -1,0 +1,112 @@
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Programs;
+
+namespace SuperMetroid.Core.Bosses.Torizo;
+
+/// <summary>
+/// Compiled control for Bomb and Golden Torizo's Chozo-orb programs at $86:AB15-$AB89.
+/// Their eighteen interleaved spritemap operands use extracted presentation art.
+/// </summary>
+internal abstract class TorizoChozoOrbInstructionProgramDefinitions
+{
+    /// <summary><c>InstList_EnemyProjectile_TorizoChozoOrbs_Left</c> at $86:AB15.</summary>
+    internal const ushort MovingLeft = 0xab15;
+    /// <summary><c>InstList_EnemyProjectile_TorizoChozoOrbs_BreakOnWall</c> at $86:AB25.</summary>
+    internal const ushort WallImpact = 0xab25;
+    /// <summary><c>InstList_EnemyProjectile_TorizoChozoOrbs_BreakOnFloor</c> at $86:AB41.</summary>
+    internal const ushort FloorImpact = 0xab41;
+    /// <summary><c>InstList_EnemyProjectile_Shot_TorizoChozoOrbs</c> at $86:AB68.</summary>
+    internal const ushort Shot = 0xab68;
+
+    /// <summary>Counts control words in movement, wall impact, floor impact, and shot impact lists.</summary>
+    public static int MechanicsWordCount => 40;
+    /// <summary>Counts spritemap operands interleaved with the four Chozo-orb lists.</summary>
+    public static int PresentationWordCount => 18;
+
+    /// <summary>Returns an indexed Chozo-orb timer, property, sound, drop, loop, or delete word.</summary>
+    public static InstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 6)
+        {
+            ushort start = (ushort)(MovingLeft + 8 * (index / 3));
+            return (index % 3) switch
+            {
+                0 => new(start, 85),
+                1 => new((ushort)(start + 4), (ushort)EnemyProjectileInstruction.GotoY),
+                _ => new((ushort)(start + 6), start),
+            };
+        }
+        if (index < 15) return ImpactWord(WallImpact, index - 6, shot: false);
+        if (index < 28)
+        {
+            int local = index - 15;
+            if (local is >= 6 and < 12)
+                return new((ushort)(FloorImpact + 13 + 4 * (local - 6)), (ushort)(local - 2));
+            (int offset, ushort value) = local switch
+            {
+                0 => (0, (ushort)EnemyProjectileInstruction.ClearPreInstruction),
+                1 => (2, (ushort)EnemyProjectileInstruction.Properties_AndY),
+                2 => (4, (ushort)0xdfff),
+                3 => (6, (ushort)EnemyProjectileInstruction.Properties_OrY),
+                4 => (8, (ushort)0x5000),
+                5 => (10, (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib3_Max6),
+                _ => (37, (ushort)EnemyProjectileInstruction.Delete),
+            };
+            return new((ushort)(FloorImpact + offset), value);
+        }
+        return ImpactWord(Shot, index - 28, shot: true);
+    }
+
+    /// <summary>Wall and shot impacts share property setup and five four-tick poses; only shot impact emits drops.</summary>
+    private static InstructionMechanicsWord ImpactWord(ushort start, int index, bool shot)
+    {
+        if (index is >= 3 and < 8)
+            return new((ushort)(start + 6 + 4 * (index - 3)), 4);
+        (int offset, ushort value) = index switch
+        {
+            0 => (0, (ushort)EnemyProjectileInstruction.ClearPreInstruction),
+            1 => (2, (ushort)EnemyProjectileInstruction.Properties_OrY),
+            2 => (4, (ushort)0x5000),
+            8 => (26, shot ? (ushort)EnemyProjectileInstruction.SpawnEnemyDropsWIthYDropChances
+                : (ushort)EnemyProjectileInstruction.Delete),
+            9 => (28, (ushort)EnemyDefinitionId.BombTorizoOrb),
+            10 => (30, (ushort)EnemyDefinitionId.GoldenTorizoOrb),
+            _ => (32, (ushort)EnemyProjectileInstruction.Delete),
+        };
+        return new((ushort)(start + offset), value);
+    }
+
+    /// <summary>Locates an indexed spritemap operand across movement and impact lists.</summary>
+    public static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 2) return (ushort)(MovingLeft + 2 + 8 * index);
+        if (index < 7) return (ushort)(WallImpact + 8 + 4 * (index - 2));
+        if (index < 13) return (ushort)(FloorImpact + 15 + 4 * (index - 7));
+        return (ushort)(Shot + 8 + 4 * (index - 13));
+    }
+    /// <summary>Identifies the Bomb and Golden Torizo orb projectile kinds using these lists.</summary>
+    internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
+        RoomEnemyProjectileKind.BombTorizoChozoOrb or
+        RoomEnemyProjectileKind.GoldenTorizoChozoOrb;
+
+    /// <summary>Binary-searches compiled Chozo-orb controls and rejects presentation addresses.</summary>
+    internal static ushort ReadMechanicsWord(ushort address)
+    {
+        int low = 0;
+        int high = MechanicsWordCount - 1;
+        while (low <= high)
+        {
+            int middle = low + ((high - low) >> 1);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
+            if (candidate.Address == address) return candidate.Value;
+            if (candidate.Address < address) low = middle + 1;
+            else high = middle - 1;
+        }
+
+        throw new InvalidDataException(
+            $"Torizo Chozo-orb mechanics pointer $86:{address:X4} is not compiled.");
+    }
+}

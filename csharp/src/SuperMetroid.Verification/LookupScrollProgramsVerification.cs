@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>Checks all compiled room scroll programs against native bank-$8F byte streams.</summary>
 internal static class LookupScrollProgramsVerification

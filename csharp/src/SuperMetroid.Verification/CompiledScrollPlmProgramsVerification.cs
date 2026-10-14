@@ -1,10 +1,12 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
 using static LookupScrollProgramsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks compiled room-scroll PLM programs through both catalog lookup and retail execution.</summary>
 internal static class CompiledScrollPlmProgramsVerification

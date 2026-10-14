@@ -1,8 +1,10 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks Kraid's second-phase target and think-timer selection against native tables.</summary>
 internal static class KraidMovementChoicesVerification

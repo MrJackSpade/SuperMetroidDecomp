@@ -1,7 +1,7 @@
 using SuperMetroid.Tooling;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Audits named bank-$86 enemy-projectile callback and instruction-list addresses.</summary>
 internal static class EnemyProjectileCodePointersVerification

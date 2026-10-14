@@ -1,8 +1,11 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 

@@ -1,0 +1,48 @@
+using SuperMetroid.Core.Rooms;
+
+namespace SuperMetroid.Core.Frontend.Map.Artwork;
+
+/// <summary>Presentation-only page identities and fixed map-screen geometry; no navigation state.</summary>
+public static class MapScreenDefinitions
+{
+    /// <summary>Required schema revision for the named map-screen tilemap document.</summary>
+    public const int Version = 1;
+    /// <summary>JSON filename containing the world-map and per-area room-frame pages.</summary>
+    public const string FileName = "map-screens.json";
+    /// <summary>Stable page identity for the shared world-map foreground.</summary>
+    public const string WorldForeground = "World.Foreground";
+    /// <summary>Number of columns and rows in each complete SNES tilemap page.</summary>
+    public const int PageColumns = 32, PageRows = 32;
+    /// <summary>Number of tilemap cells in one 32-by-32 page.</summary>
+    public const int PageCells = PageColumns * PageRows;
+    /// <summary>Serialized byte count of one page of 16-bit tilemap words.</summary>
+    public const int PageBytes = PageCells * sizeof(ushort);
+    /// <summary>Number of playable Zebes areas represented by world and room pages.</summary>
+    public const int ZebesAreas = 6;
+    /// <summary>Total required page count: one foreground plus two pages per area.</summary>
+    public const int PageCount = 1 + ZebesAreas * 2;
+
+    /// <summary>Builds the stable world-map background page identity for an area.</summary>
+    /// <param name="area">A playable Zebes area from zero through five.</param>
+    /// <returns>The area's <c>World.*</c> page identity.</returns>
+    public static string WorldBackground(AreaId area) => "World." + AreaName(area);
+    /// <summary>Builds the stable room-map frame page identity for an area.</summary>
+    /// <param name="area">A playable Zebes area from zero through five.</param>
+    /// <returns>The area's <c>Room.*</c> page identity.</returns>
+    public static string RoomFrame(AreaId area) => "Room." + AreaName(area);
+    /// <summary>Converts a playable Zebes area to its stable page suffix and
+    /// rejects menu or other non-area identities.</summary>
+    private static string AreaName(AreaId area) => (uint)area < ZebesAreas
+        ? area.ToString() : throw new ArgumentOutOfRangeException(nameof(area));
+
+    /// <summary>Named pages select one of the authored PNG atlases, never a VRAM address.</summary>
+    public static IEnumerable<(string Id, int TileColumns, int TileCount)> Pages()
+    {
+        yield return (WorldForeground, WorldMapArtworkFormat.TileColumns, WorldMapArtworkFormat.ForegroundTileCount);
+        for (int area = 0; area < ZebesAreas; area++)
+        {
+            yield return (WorldBackground((AreaId)area), WorldMapArtworkFormat.TileColumns, WorldMapArtworkFormat.BackgroundTileCount);
+            yield return (RoomFrame((AreaId)area), MapTileAtlasFormat.TileColumns, MapTileAtlasFormat.ByteCount / 32);
+        }
+    }
+}

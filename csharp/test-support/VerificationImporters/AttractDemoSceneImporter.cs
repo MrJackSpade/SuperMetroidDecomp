@@ -1,8 +1,8 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Frontend.Attract;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.AssetExtraction;
 

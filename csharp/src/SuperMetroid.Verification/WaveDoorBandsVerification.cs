@@ -1,7 +1,7 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rooms;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks Wave beam door reactions at tile, screen, and signed-coordinate Y boundaries.</summary>
 internal static class WaveDoorBandsVerification

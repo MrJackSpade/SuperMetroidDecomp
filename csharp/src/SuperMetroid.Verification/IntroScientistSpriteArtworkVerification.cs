@@ -3,13 +3,13 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using static IntroCinematicArtworkVerification;
 using static IntroRinkaSpriteArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks installed scientist and delivered-Baby sprites in intro scenes against native OAM.</summary>
 internal static class IntroScientistSpriteArtworkVerification

@@ -1,0 +1,100 @@
+using SuperMetroid.Core.Programs;
+
+namespace SuperMetroid.Core.Enemies.Rios;
+
+/// <summary>
+/// Compiled engine-control words for Rio's idle, swooping, and cooldown programs.
+/// Their twenty-four spritemap operands select extracted presentation frames.
+/// </summary>
+internal abstract class RioInstructionProgramDefinitions
+{
+    /// <summary><c>InstList_Rio_Idle</c> at $A2:BB4B.</summary>
+    internal const ushort Idle = 0xbb4b;
+
+    /// <summary><c>InstList_Rio_PostSwoopIdle</c> at $A2:BB53.</summary>
+    internal const ushort PostSwoopIdle = 0xbb53;
+
+    /// <summary><c>InstList_Rio_Swooping_Part1</c> at $A2:BB7F.</summary>
+    internal const ushort SwoopingPart1 = 0xbb7f;
+
+    /// <summary><c>InstList_Rio_Swooping_Part2</c> at $A2:BB97.</summary>
+    internal const ushort SwoopingPart2 = 0xbb97;
+
+    /// <summary><c>InstList_Rio_SwoopCooldown</c> at $A2:BBA3.</summary>
+    internal const ushort SwoopCooldown = 0xbba3;
+
+    /// <summary>$A2:BB4B-BB79: two initial and ten post-swoop idle poses, each four ticks.</summary>
+    private const int IdleFrameCount = 12;
+    /// <summary>$A2:BB7F-BB8F and BBA3-BBB3: five poses before each animation-finished callback.</summary>
+    private const int TransitionFrameCount = 5;
+    /// <summary>$A2:BB97-BB9B: two alternating poses while the swoop continues.</summary>
+    private const int SwoopLoopFrameCount = 2;
+    /// <summary>$A2:BB4B-BB79 idle instruction cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort IdleFrameDuration = 4;
+    /// <summary>$A2:BB7F-BBB3 swoop and recovery instruction cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort SwoopFrameDuration = 3;
+
+    /// <summary>Counts timed frame controls plus two terminal words in each Rio program block.</summary>
+    public static int MechanicsWordCount => PresentationWordCount + 8;
+    /// <summary>Counts idle, swoop, loop, and cooldown visual frame operands.</summary>
+    public static int PresentationWordCount => IdleFrameCount + 2 * TransitionFrameCount + SwoopLoopFrameCount;
+    /// <summary>Returns an indexed Rio timer or terminal control word with its native address.</summary>
+    public static InstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < IdleFrameCount + 2)
+            return BlockWord(Idle, IdleFrameCount, index, IdleFrameDuration, (ushort)CommonEnemyInstruction.Goto, Idle);
+        index -= IdleFrameCount + 2;
+        if (index < TransitionFrameCount + 2)
+            return BlockWord(SwoopingPart1, TransitionFrameCount, index, SwoopFrameDuration,
+                RioInstructionCodes.SetAnimationFinished, (ushort)CommonEnemyInstruction.Sleep);
+        index -= TransitionFrameCount + 2;
+        if (index < SwoopLoopFrameCount + 2)
+            return BlockWord(SwoopingPart2, SwoopLoopFrameCount, index, SwoopFrameDuration,
+                (ushort)CommonEnemyInstruction.Goto, SwoopingPart2);
+        return BlockWord(SwoopCooldown, TransitionFrameCount, index - SwoopLoopFrameCount - 2, SwoopFrameDuration,
+            RioInstructionCodes.SetAnimationFinished, (ushort)CommonEnemyInstruction.Sleep);
+    }
+
+    /// <summary>Calculates frame duration words followed by the block's two terminal operations.</summary>
+    private static InstructionMechanicsWord BlockWord(ushort start, int frames, int index,
+        ushort duration, ushort firstTail, ushort lastTail) => index < frames
+            ? new((ushort)(start + index * 4), duration)
+            : new((ushort)(start + frames * 4 + (index - frames) * 2), index == frames ? firstTail : lastTail);
+
+    /// <summary>Locates an indexed Rio spritemap operand across the four program blocks.</summary>
+    public static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < IdleFrameCount) return (ushort)(Idle + index * 4 + 2);
+        index -= IdleFrameCount;
+        if (index < TransitionFrameCount) return (ushort)(SwoopingPart1 + index * 4 + 2);
+        index -= TransitionFrameCount;
+        return index < SwoopLoopFrameCount ? (ushort)(SwoopingPart2 + index * 4 + 2)
+            : (ushort)(SwoopCooldown + (index - SwoopLoopFrameCount) * 4 + 2);
+    }
+    /// <summary>Checks whether an address is one of Rio's retained visual operands.</summary>
+    internal static bool IsPresentationWord(ushort address)
+    {
+        for (int index = 0; index < PresentationWordCount; index++)
+        {
+            if (PresentationWordAddress(index) == address)
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>Reads a compiled Rio control word and rejects addresses owned by presentation.</summary>
+    internal static ushort ReadMechanicsWord(ushort address)
+    {
+        for (int index = 0; index < MechanicsWordCount; index++)
+        {
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
+        }
+
+        throw new InvalidDataException(
+            $"Rio instruction mechanics pointer $A2:{address:X4} is not compiled.");
+    }
+}

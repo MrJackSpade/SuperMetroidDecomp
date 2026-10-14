@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Checks compiled area-animation selectors against the bank-$83 retail lookup tables.</summary>
 internal static class LookupAnimatedAreasVerification

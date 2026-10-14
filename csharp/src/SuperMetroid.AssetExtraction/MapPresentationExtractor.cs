@@ -1,10 +1,25 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Escape.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -81,9 +96,9 @@ public static class MapPresentationExtractor
             file.Write(paletteBytes);
         hashes.Add(MapStaticPalettesFormat.FileName, Convert.ToHexString(SHA256.HashData(paletteBytes)));
         var labelPoints = new Dictionary<string, Position16<OamPixels>>();
-        for (int area = 0; area < SuperMetroid.Core.Frontend.FileSelectMapRomData.AreaCount; area++)
+        for (int area = 0; area < SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.AreaCount; area++)
         {
-            int address = SuperMetroid.Core.Frontend.FileSelectMapRomData.LabelPositions + area * 4;
+            int address = SuperMetroid.Core.Frontend.FileSelect.FileSelectMapRomData.LabelPositions + area * 4;
             labelPoints.Add(((AreaId)area).ToString(), new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
         }

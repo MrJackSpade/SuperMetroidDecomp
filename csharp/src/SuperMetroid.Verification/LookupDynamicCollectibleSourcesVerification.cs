@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static CompiledDynamicCollectibleGraphicsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks native graphics source pointers and kind identities for dynamically drawn collectibles.</summary>
 internal static class LookupDynamicCollectibleSourcesVerification

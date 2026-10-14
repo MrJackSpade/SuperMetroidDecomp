@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Spatial;
 
 /// <summary>Checks pixel parity and output-buffer reuse across gameplay and cinematic snapshot rendering.</summary>
 internal static class GameplayRenderAllocationVerification
@@ -56,7 +55,7 @@ internal static class GameplayRenderAllocationVerification
         RenderFrameSnapshot[] packets = [
             new(identity, new Mode7ObjRenderSnapshot(memory, new Mode7RenderRegisters(256, 0, 0, 256, new Offset16<Mode7Pixels>(0, 0), new Offset16<Mode7Pixels>(0, 0)), 3, 15)),
             new(identity, new Mode7ObjRenderSnapshot(memory, null, 3, 9,
-                Enumerable.Repeat(new SuperMetroid.Core.Frontend.TitleGradientLine(1, 2, 3, 0xa1), 224).ToArray()), new byte[] { 11 }),
+                Enumerable.Repeat(new SuperMetroid.Core.Frontend.Title.TitleGradientLine(1, 2, 3, 0xa1), 224).ToArray()), new byte[] { 11 }),
             new(identity, new LayeredRenderSnapshot(memory, [], 3, 15)),
             new(identity, new SuperMetroid.Core.Assets.Rgba32(90, 130, 210), new byte[] { 7 })
         ];

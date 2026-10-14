@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static RenderPacketCodecTestsVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks room FX color math capture and packet round-tripping against direct rendering.</summary>
 internal static class RoomFxSnapshotTestsVerification

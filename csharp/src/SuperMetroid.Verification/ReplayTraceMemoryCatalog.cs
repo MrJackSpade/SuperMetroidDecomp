@@ -1,5 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The single source of truth for which native WRAM bytes the SMV replay verifiers read from each

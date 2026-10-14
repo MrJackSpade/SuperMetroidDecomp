@@ -1,21 +1,9 @@
 using System.Globalization;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static Program;
-using System.Buffers.Binary;
-using System.IO.Compression;
-using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using static NativeSnapshotImportVerification;
 using static RetailGameFixtureVerification;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Runs complete converted controller timelines against native checkpoints without importing later gameplay state.</summary>
 internal static class FullMovieReplayVerification
@@ -408,7 +396,7 @@ internal static class FullMovieReplayVerification
             // stores its X in Var1; $86:D8DF copies it on its first run. Until then native X
             // is whatever the aliased RAM held (slot 3's X is CinematicFrameCounter $1A51).
             // The bubble has no contact radius, so that residue only places one drawn frame.
-            bool bubbleXUnwritten = projectile.Kind == SuperMetroid.Core.Game.RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
+            bool bubbleXUnwritten = projectile.Kind == SuperMetroid.Core.Enemies.RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
                 Word(memory, MovieDesyncMemory.EnemyProjectileX + offset) !=
                 Word(memory, MovieDesyncMemory.EnemyProjectileVar1 + offset);
             if (!bubbleXUnwritten)

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks compiled door-header identities and each physical bank-$83 record field.</summary>
 internal static class LookupRetailDoorHeadersVerification

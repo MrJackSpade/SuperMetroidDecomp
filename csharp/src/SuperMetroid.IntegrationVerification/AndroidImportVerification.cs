@@ -1,7 +1,6 @@
 using SuperMetroid.Android;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Saves;
 
 /// <summary>Checks Android state and save imports preserve recovery copies and reject invalid replacements.</summary>
 internal static class AndroidImportVerification

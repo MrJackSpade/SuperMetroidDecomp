@@ -1,7 +1,8 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 /// <summary>Checks Tourian statue animation artwork operands against decoded native instructions.</summary>
 internal static class LookupTourianArtworkVerification

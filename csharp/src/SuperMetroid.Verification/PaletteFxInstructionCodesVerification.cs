@@ -1,17 +1,6 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using System.Runtime.CompilerServices;
 using System.Reflection;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static DoorDefinitionsVerification;
@@ -20,6 +9,9 @@ using static NorfairGlowVerification;
 using static RoomPaletteFxPresentationVerification;
 using static SuiteTimingVerification;
 using static TitleGradientVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks compiled palette-FX instruction vocabularies and program mechanics against retail bank $8D.</summary>
 internal static class PaletteFxInstructionCodesVerification
@@ -3070,7 +3062,6 @@ internal static class PaletteFxInstructionCodesVerification
             return ($"Production read compiled palette-FX mechanic ${address:X6}.", presentationReads);
         }
 
-
         if (source.Bank == 0x8d)
         {
             foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
@@ -3375,7 +3366,6 @@ internal static class PaletteFxInstructionCodesVerification
                     }
                 }
             }
-
 
             for (int frame = 0;
                  frame < WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount;

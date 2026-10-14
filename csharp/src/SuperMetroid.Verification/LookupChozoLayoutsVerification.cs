@@ -1,9 +1,9 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static ChozoStatueVisualsVerification;
 using static SamusEaterPlmDefinitionsVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks three Chozo statue PLM draw layouts against native geometry and block words.</summary>
 internal static class LookupChozoLayoutsVerification

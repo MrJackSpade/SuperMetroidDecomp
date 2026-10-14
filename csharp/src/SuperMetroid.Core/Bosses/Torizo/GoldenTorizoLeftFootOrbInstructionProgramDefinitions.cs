@@ -1,0 +1,52 @@
+using static SuperMetroid.Core.Programs.InstructionItem;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Programs;
+
+namespace SuperMetroid.Core.Bosses.Torizo;
+
+/// <summary>
+/// Golden Torizo's callable left-foot-forward Chozo-orb attack at
+/// $AA:CC57-CC98. Twenty-three control words remain engine-owned while ten
+/// interleaved extended-frame selectors are editable presentation.
+/// </summary>
+internal abstract class GoldenTorizoLeftFootOrbInstructionProgramDefinitions
+{
+    /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_LeftFootFwd_0</c> at $AA:CC57.</summary>
+    internal const ushort Start = 0xcc57;
+    /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_LeftFootFwd_1</c> at $AA:CC77.</summary>
+    private const ushort ShotLoop = 0xcc77;
+    /// <summary><c>Function_GoldenTorizo_Movement_Attacking</c> at $AA:D5ED.</summary>
+    private const ushort AttackingMovement = 0xd5ed;
+    /// <summary><c>Function_GoldenTorizo_Movement_Walking</c> at $AA:D5F1.</summary>
+    private const ushort WalkingMovement = 0xd5f1;
+
+    /// <summary>Native program bank $AA.</summary>
+    internal const byte Bank = 0xaa;
+
+    /// <summary>Left-foot attack callback, ten timed poses, six-shot loop, movement handoff, and return in native order.</summary>
+    internal static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xcc57),
+        Entry(Start),
+        Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, AttackingMovement),
+        Frame(6),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(6),
+        Op((ushort)CommonEnemyInstruction.SetTimer, 0x0006),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_PlayShotTorizoSFX),
+        Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_SpawnChozoOrbs),
+        Op((ushort)CommonEnemyInstruction.WaitFrames, 0x0006),
+        Op((ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate, ShotLoop),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, WalkingMovement),
+        Op((ushort)TorizoInstruction.Instruction_Torizo_Return));
+    /// <summary>Ten extended-frame selectors interleaved with the compiled left-foot orb attack.</summary>
+    public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Finds one bank-$AA visual operand while leaving callbacks and timing engine-owned.</summary>
+    public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
+}

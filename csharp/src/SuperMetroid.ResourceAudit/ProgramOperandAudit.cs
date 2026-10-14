@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.ResourceAudit;
 

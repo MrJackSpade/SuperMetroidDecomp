@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Compares the compiled Space Colony caption columns and tiles with the retail drawing instructions.</summary>
 internal static class SpaceColonyCaptionVerification

@@ -1,18 +1,9 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using static LookupAnimatedAreasVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks compiled area animated-tile selections against retail lists and runtime owners.</summary>
 internal static class AreaAnimatedTileObjectDefinitionsVerification

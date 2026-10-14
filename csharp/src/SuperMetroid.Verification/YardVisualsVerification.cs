@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static YardInstructionProgramDefinitionsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Yard;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks installed Yard animation selectors and editable OAM against retail data.</summary>
 internal static class YardVisualsVerification

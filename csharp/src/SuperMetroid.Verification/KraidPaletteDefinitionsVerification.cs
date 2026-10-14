@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks the native source addresses and extents used by Kraid's installed palettes.</summary>
 internal static class KraidPaletteDefinitionsVerification

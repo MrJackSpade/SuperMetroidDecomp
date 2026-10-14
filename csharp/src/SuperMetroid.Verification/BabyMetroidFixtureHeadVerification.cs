@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Substitutes the articulated brain position for Baby Metroid fixture sequences

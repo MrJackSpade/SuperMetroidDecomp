@@ -1,18 +1,9 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static MochtroidInstructionProgramDefinitionsVerification;
-using static Program;
 using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Metroids;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Holds focused retail-ROM oracles for narration, Mochtroid shake, and phase data.</summary>
 internal static class LookupRomOraclesVerification

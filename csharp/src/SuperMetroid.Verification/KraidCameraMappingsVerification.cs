@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Compares Kraid's pre-growth and grown four-screen scroll mappings with immediate operands in bank $A7.</summary>
 internal static class KraidCameraMappingsVerification

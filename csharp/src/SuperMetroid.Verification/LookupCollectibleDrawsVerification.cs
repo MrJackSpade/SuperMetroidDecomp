@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static CollectibleVisualsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks the 24 exported collectible PLM draw records against native geometry, bits, and names.</summary>
 internal static class LookupCollectibleDrawsVerification

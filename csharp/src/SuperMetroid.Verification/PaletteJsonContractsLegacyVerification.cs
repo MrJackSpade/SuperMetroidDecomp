@@ -1,10 +1,12 @@
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static PaletteJsonContractsFixturesVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks stock-assisted migration of older room, Mother Brain, and rainbow palette JSON.</summary>
 internal static class PaletteJsonContractsLegacyVerification

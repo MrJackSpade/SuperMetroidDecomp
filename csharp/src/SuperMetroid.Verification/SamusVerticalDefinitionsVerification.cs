@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Checks compiled jump, wall-jump, and dry-air launch words against
 /// native vertical physics across equipment and liquid combinations.</summary>

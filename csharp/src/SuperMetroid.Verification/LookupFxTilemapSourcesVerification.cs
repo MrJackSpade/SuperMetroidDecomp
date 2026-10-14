@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks the six ordinary layer-3 FX pages and Tourian statue source against retail pointer tables.</summary>
 internal static class LookupFxTilemapSourcesVerification

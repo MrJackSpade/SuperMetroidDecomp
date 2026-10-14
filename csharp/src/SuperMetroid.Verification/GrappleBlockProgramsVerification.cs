@@ -1,22 +1,13 @@
 using SuperMetroid.Tooling;
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
 using static BabyMetroidRouteDefinitionsVerification;
 using static ShotBlockPlmProgramsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Retail and guarded-runtime checks for respawning/permanent grapple-block PLMs and editable visuals.</summary>
 internal static class GrappleBlockProgramsVerification

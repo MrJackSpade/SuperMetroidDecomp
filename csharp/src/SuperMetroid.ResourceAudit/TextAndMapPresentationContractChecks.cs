@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -15,13 +15,17 @@ internal static class TextAndMapPresentationContractChecks
         var trees = TextAndMapClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<text-map-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
-            using SuperMetroid.Core.Assets;
-            using SuperMetroid.Core.Game;
-            using SuperMetroid.Core.Frontend;
+            using SuperMetroid.Core.Areas.Escape.Artwork;
+            using SuperMetroid.Core.Frontend.Ending.Artwork;
+            using SuperMetroid.Core.Frontend.Intro.Artwork;
+            using SuperMetroid.Core.Frontend.Map;
+            using SuperMetroid.Core.Frontend.Map.Artwork;
+            using SuperMetroid.Core.Frontend.Menus;
+            using SuperMetroid.Core.Frontend.Pause;
             using SuperMetroid.Core.Hardware;
+            using SuperMetroid.Core.Rooms;
             class TextMapConsumer {
                 string UnknownFactory(AreaId area) => "World." + area;
                 void Inspect(EscapeTypewriterPresentation escape, IntroNarrationPresentation intro,
@@ -86,7 +90,7 @@ internal static class TextAndMapPresentationContractChecks
 
         // A source/type lifecycle check, not an execution of the verification factory.
         SyntaxTree verificationUse = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Frontend.Ending.Artwork;
             class AlternateCreditsOwner {
                 object Create() => CreditsPresentation.FromCompiledRowsForVerification(new ushort[32]);
             }
@@ -97,7 +101,7 @@ internal static class TextAndMapPresentationContractChecks
                 .All(item => item.Message.Contains("stale", StringComparison.Ordinal)),
             "a Core reference to the variable-row verification factory must revoke the fixed production row proof");
 
-        const string mapDefinitionsPath = "csharp/src/SuperMetroid.Core/Assets/MapScreenDefinitions.cs";
+        const string mapDefinitionsPath = "csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapScreenDefinitions.cs";
         SyntaxTree original = trees.Single(tree => tree.FilePath == mapDefinitionsPath);
         SyntaxTree changed = CSharpSyntaxTree.ParseText(original.GetText() + "\n// changed factory contract\n", path: mapDefinitionsPath);
         AuditReport stale = Inspect(Compile(trees.Select(tree => tree == original ? changed : tree)), true);

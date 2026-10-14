@@ -1,10 +1,13 @@
 using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Installed and edited Mother Brain room-color checks across entry, flash, phase two, and recovery-light CGRAM writes.</summary>
 internal static class MotherBrainRoomColorsVerification
@@ -317,7 +320,6 @@ internal static class MotherBrainRoomColorsVerification
         enemies.Presentation._vram = new SnesVram();
         return enemies;
     }
-
 
     /// <summary>Seeds every CGRAM word with a distinct bounded color so unintended palette writes remain observable.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]

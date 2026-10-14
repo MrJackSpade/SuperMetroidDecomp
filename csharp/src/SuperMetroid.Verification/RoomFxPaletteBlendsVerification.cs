@@ -1,24 +1,17 @@
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
-using static AssertionsVerification;
 using static LookupCeresDefaultTintsVerification;
 using static LookupFxBlendBlackColorsVerification;
 using static LookupFxBlendSelectorsVerification;
 using static LookupFxPairColorsVerification;
 using static LookupFxWeatherBlueVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and Ceres haze color overrides.</summary>
 internal static class RoomFxPaletteBlendsVerification

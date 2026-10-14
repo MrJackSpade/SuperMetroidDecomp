@@ -1,6 +1,5 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// A minimal reader of native enemy instruction lists for the #641 ROM oracles: it decodes frames, the common

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static DoorDefinitionsVerification;
 using static RoomMainCodeCatalogVerification;
+using SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Checks compiled retail room-door lists and BTS resolution against native room headers.</summary>
 internal static class LookupRetailDoorListsVerification

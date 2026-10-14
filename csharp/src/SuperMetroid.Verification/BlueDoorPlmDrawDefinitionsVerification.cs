@@ -3,14 +3,16 @@ using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Spatial;
 using static LookupBlueCapVerification;
 using static LookupBlueDoorStockVerification;
 using static LookupBlueProgramVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks compiled blue-door PLM programs, physical draws, and editable cap artwork.</summary>
 internal static class BlueDoorPlmDrawDefinitionsVerification

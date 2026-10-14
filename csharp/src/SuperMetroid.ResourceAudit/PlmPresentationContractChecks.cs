@@ -3,7 +3,19 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Maridia;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -19,10 +31,21 @@ internal static class PlmPresentationContractChecks
             .SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<plm-fixture-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
-            using SuperMetroid.Core.Rooms;
+            using SuperMetroid.Core.Areas.Maridia;
+            using SuperMetroid.Core.Areas.Tourian;
+            using SuperMetroid.Core.Bosses.Botwoon;
+            using SuperMetroid.Core.Bosses.Crocomire;
+            using SuperMetroid.Core.Bosses.Draygon;
+            using SuperMetroid.Core.Bosses.Kraid;
+            using SuperMetroid.Core.Bosses.MotherBrain;
+            using SuperMetroid.Core.Bosses.SporeSpawn;
+            using SuperMetroid.Core.Bosses.Torizo;
+            using SuperMetroid.Core.Enemies.Chozo;
+            using SuperMetroid.Core.Enemies.Elevator;
+            using SuperMetroid.Core.Rooms.LevelData;
+            using SuperMetroid.Core.Rooms.Plms;
             static class FixturePlmFrames {
                 internal const ushort ShotSingle = RoomPlmShotBlockDrawDefinitions.SingleFrame0;
             }

@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Compares Kraid health thresholds with the cartridge's shift-and-accumulate setup.</summary>
 internal static class KraidHealthThresholdsVerification

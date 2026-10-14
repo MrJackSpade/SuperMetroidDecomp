@@ -1,9 +1,11 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
 /// Finite acceptance checks for source-identified Samus drawing and upload owners.

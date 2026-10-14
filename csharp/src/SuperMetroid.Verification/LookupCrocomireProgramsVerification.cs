@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks complete ownership and cartridge values of Crocomire arena PLM program words.</summary>
 internal static class LookupCrocomireProgramsVerification

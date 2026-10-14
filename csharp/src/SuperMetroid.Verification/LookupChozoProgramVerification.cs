@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks each Chozo statue PLM program field against its native bank $84 bytes.</summary>
 internal static class LookupChozoProgramVerification

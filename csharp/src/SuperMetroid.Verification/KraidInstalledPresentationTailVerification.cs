@@ -1,9 +1,12 @@
 using System.Buffers.Binary;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using static EnemyContentIdentityFixtureVerification;
 using static EnemyTileArtworkKraidVerification;
 using static TilemapJsonContractsVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks how installed Kraid background pages populate the working tilemap.</summary>
 internal static class KraidInstalledPresentationTailVerification

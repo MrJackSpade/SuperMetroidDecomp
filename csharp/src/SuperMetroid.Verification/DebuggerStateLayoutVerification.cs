@@ -1,18 +1,8 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using System.Text;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Checks debugger graph restoration rejects stale field and type layouts.</summary>
 internal static class DebuggerStateLayoutVerification
@@ -31,7 +21,7 @@ internal static class DebuggerStateLayoutVerification
         // Same-length replacements keep every length prefix valid, so only the identity changes.
         RequireUnsupported(Replace(current, "<PoseChangeAutoFireTimer>k__BackingField", "<PoseChangeAutoFireTamer>k__BackingField"),
             "a renamed field");
-        RequireUnsupported(Replace(current, "SuperMetroid.Core.Game.SamusGrappleState,", "SuperMetroid.Core.Game.SamusGrappleStatf,"),
+        RequireUnsupported(Replace(current, "SuperMetroid.Core.Samus.Grapple.SamusGrappleState,", "SuperMetroid.Core.Samus.Grapple.SamusGrappleStatf,"),
             "a type this build does not have");
         RequireUnsupported(Replace(current, "System.Int32,", "System.Int64,"), "a retyped field value");
         Console.WriteLine("Debugger state layout: current graphs round-trip; renamed fields, missing types and retyped values are rejected.");

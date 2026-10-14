@@ -1,9 +1,8 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Boulder;
+using SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Checks compiled Boulder bounce speeds and their real floor-collision handoff.</summary>
 internal static class BoulderBounceDefinitionsVerification

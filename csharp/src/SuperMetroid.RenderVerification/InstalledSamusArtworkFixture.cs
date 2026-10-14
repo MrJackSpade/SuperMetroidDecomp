@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// Copies only already-extracted Samus presentation into a disposable installation.

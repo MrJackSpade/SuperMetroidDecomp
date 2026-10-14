@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Reflection;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
 /// Test-only field-level snapshot of the complete mutable Samus graph. New gameplay

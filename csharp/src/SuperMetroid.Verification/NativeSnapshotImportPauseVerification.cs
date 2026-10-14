@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>Restores stable pause-map state from a native WRAM snapshot for frame comparison.</summary>
 internal static class NativeSnapshotImportPauseVerification

@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks seven room-FX animation loops against native frame cursors and durations.</summary>
 internal static class LookupAnimatedFramesVerification

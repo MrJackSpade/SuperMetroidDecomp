@@ -3,12 +3,16 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static ColorWordsVerification;
 using static KraidPaletteDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Checks installed and edited Kraid RGB5 rows through the palette consumers that write CGRAM.</summary>
 internal static class EnemyTileArtworkKraidColorsVerification

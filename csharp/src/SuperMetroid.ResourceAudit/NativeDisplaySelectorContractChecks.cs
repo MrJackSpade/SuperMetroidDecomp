@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -14,10 +14,9 @@ internal static class NativeDisplaySelectorContractChecks
     {
         var trees = NativeDisplaySelectorClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<display-selector-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Enemies.Artwork;
             class SelectorConsumer {
                 void Inspect(EnemyExtendedFrameCatalog frames, byte bank, ushort pointer) {
                     frames.GetDisplayPointer(bank, pointer);
@@ -49,7 +48,7 @@ internal static class NativeDisplaySelectorContractChecks
         Require(after.Classifications.Count == 3 && after.UnresolvedCount == 1 &&
             after.MissingCount == 0 && after.Consumers.Count == 4,
             "only the total selector projection qualifies; actual artwork availability must remain unresolved");
-        const string provider = "csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs";
+        const string provider = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyExtendedFrameCatalog.cs";
         var changed = trees.Select(tree => tree.FilePath == provider ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace(": nativePointer;", ": throw new InvalidDataException(\"missing selector\");", StringComparison.Ordinal),
                 path: tree.FilePath) : tree);

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
+using SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Checks Noob Tube PLM program fields and full lookup domains against bank-$84 data.</summary>
 internal static class LookupTubeProgramVerification

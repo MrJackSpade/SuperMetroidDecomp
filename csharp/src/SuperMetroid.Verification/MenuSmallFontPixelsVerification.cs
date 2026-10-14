@@ -2,6 +2,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MenuFontEvidenceVerification;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
 
 /// <summary>Checks small menu glyph silhouettes, reviewed B/K shadow edits,
 /// and faithful native VRAM reconstruction from editable pixels.</summary>

@@ -1,0 +1,128 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Programs;
+
+namespace SuperMetroid.Core.Bosses.Torizo;
+
+/// <summary>
+/// Compiled control for Golden Torizo's egg programs at $86:B104-$B1C0. Their twenty-six
+/// interleaved spritemap operands are extracted presentation data; two packed sound IDs
+/// remain live cartridge audio data. The shot path reuses the compiled Torizo-orb
+/// wall-break list.
+/// </summary>
+internal abstract class GoldenTorizoEggInstructionProgramDefinitions
+{
+    /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_BouncingLeft</c> at $86:B104.</summary>
+    internal const ushort BouncingLeft = 0xb104;
+    /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_BouncingRight</c> at $86:B11C.</summary>
+    internal const ushort BouncingRight = 0xb11c;
+    /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Hatch</c> at $86:B134.</summary>
+    internal const ushort Hatch = 0xb134;
+    /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Hatched_Left_0</c> at $86:B14B.</summary>
+    internal const ushort HatchedLeft = 0xb14b;
+    /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Hatched_Right_0</c> at $86:B166.</summary>
+    internal const ushort HatchedRight = 0xb166;
+    /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Break_FacingLeft</c> at $86:B190.</summary>
+    internal const ushort BreakLeft = 0xb190;
+    /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Break_FacingRight</c> at $86:B1A8.</summary>
+    internal const ushort BreakRight = 0xb1a8;
+
+    /// <summary>Compiled opcodes and hold durations across bounce, hatch, and break lists.</summary>
+    public static int MechanicsWordCount => 53;
+    /// <summary>Interleaved visual operands supplied by extracted egg spritemaps.</summary>
+    public static int PresentationWordCount => 26;
+
+    /// <summary>Calculates an indexed bank-$86 control or duration word without consuming a visual operand.</summary>
+    public static InstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 16)
+        {
+            ushort start = (ushort)(BouncingLeft + 24 * (index / 8));
+            int local = index % 8;
+            if (local is >= 3 and < 6) return new((ushort)(start + 8 + 4 * (local - 3)), 4);
+            return local switch
+            {
+                0 => new(start, 48),
+                1 => new((ushort)(start + 4), (ushort)EnemyProjectileInstruction.Sleep),
+                2 => new((ushort)(start + 6), (ushort)EnemyProjectileInstruction.ClearPreInstruction),
+                6 => new((ushort)(start + 20), (ushort)EnemyProjectileInstruction.GotoY),
+                _ => new((ushort)(start + 22), Hatch),
+            };
+        }
+        if (index < 21)
+        {
+            int local = index - 16;
+            ushort value = local switch
+            {
+                0 => (ushort)EnemyProjectileInstruction.Properties_AndY,
+                1 => 0xdfff,
+                2 => (ushort)EnemyProjectileInstruction.Properties_OrY,
+                3 => 0x8000,
+                _ => (ushort)EnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched,
+            };
+            return new((ushort)(Hatch + 2 * local), value);
+        }
+        if (index < 39)
+        {
+            int offset = index - 21;
+            ushort start = (ushort)(HatchedLeft + 27 * (offset / 9));
+            int local = offset % 9;
+            if (local is >= 3 and < 7) return new((ushort)(start + 7 + 4 * (local - 3)), 6);
+            return local switch
+            {
+                0 => new(start, (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6),
+                1 => new((ushort)(start + 3), (ushort)EnemyProjectileInstruction.PreInstructionInY),
+                2 => new((ushort)(start + 5), (ushort)EnemyProjectilePreInstruction.GoldenTorizoEgg_Hatched),
+                7 => new((ushort)(start + 23), (ushort)EnemyProjectileInstruction.GotoY),
+                _ => new((ushort)(start + 25), (ushort)(start + 7)),
+            };
+        }
+        int breakOffset = index - 39;
+        int facing = breakOffset / 7;
+        ushort breakStart = (ushort)(BreakLeft + 24 * facing);
+        int breakWord = breakOffset % 7;
+        if (breakWord == 0) return new(breakStart, (ushort)EnemyProjectileInstruction.ClearPreInstruction);
+        if (breakWord == 6) return new((ushort)(breakStart + 22), (ushort)EnemyProjectileInstruction.Delete);
+        // Four four-tick shattering poses precede the facing-specific final hold.
+        return new((ushort)(breakStart + 2 + 4 * (breakWord - 1)),
+            breakWord == 5 ? (ushort)(facing == 0 ? 10 : 8) : (ushort)4);
+    }
+
+    /// <summary>Locates one bounce, hatched, or break spritemap operand in the native lists.</summary>
+    public static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 8)
+        {
+            int local = index % 4;
+            return (ushort)(BouncingLeft + 24 * (index / 4) + (local == 0 ? 2 : 10 + 4 * (local - 1)));
+        }
+        if (index < 16)
+        {
+            int offset = index - 8;
+            return (ushort)(HatchedLeft + 27 * (offset / 4) + 9 + 4 * (offset % 4));
+        }
+        int breakOffset = index - 16;
+        return (ushort)(BreakLeft + 24 * (breakOffset / 5) + 4 + 4 * (breakOffset % 5));
+    }
+    /// <summary>Resolves a compiled egg or shared Torizo-orb wall-impact word by native address.</summary>
+    internal static ushort ReadMechanicsWord(ushort address)
+    {
+        if (address is >= TorizoChozoOrbInstructionProgramDefinitions.WallImpact and <= 0xab3f)
+            return TorizoChozoOrbInstructionProgramDefinitions.ReadMechanicsWord(address);
+
+        int low = 0;
+        int high = MechanicsWordCount - 1;
+        while (low <= high)
+        {
+            int middle = low + ((high - low) >> 1);
+            InstructionMechanicsWord candidate = MechanicsWord(middle);
+            if (candidate.Address == address) return candidate.Value;
+            if (candidate.Address < address) low = middle + 1;
+            else high = middle - 1;
+        }
+
+        throw new InvalidDataException(
+            $"Golden Torizo egg mechanics pointer $86:{address:X4} is not compiled.");
+    }
+}

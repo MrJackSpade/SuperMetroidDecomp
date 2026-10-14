@@ -1,7 +1,7 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>Checks compiled Fireflea movement radii and production initialization without ROM table reads.</summary>
 internal static class FirefleaMovementDefinitionsVerification

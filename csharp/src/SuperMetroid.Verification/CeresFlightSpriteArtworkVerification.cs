@@ -1,12 +1,12 @@
-using SuperMetroid.Core.Audio;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static CeresFlightArtworkVerification;
 using static MapSpritesVerification;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks Ceres flight sprites against native OAM and verifies editable composition behavior.</summary>
 internal static class CeresFlightSpriteArtworkVerification

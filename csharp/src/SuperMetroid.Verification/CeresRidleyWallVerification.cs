@@ -1,8 +1,9 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Hud;
 
 /// <summary>Checks the room shake produced by Ceres Ridley's real left-wall lunge collision.</summary>
 internal static class CeresRidleyWallVerification

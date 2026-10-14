@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>Tourian statue progress as a PLM fixture supplies it (#633).</summary>
 internal sealed class FixtureTourianStatue(Func<bool> finished) : ITourianStatueProgress

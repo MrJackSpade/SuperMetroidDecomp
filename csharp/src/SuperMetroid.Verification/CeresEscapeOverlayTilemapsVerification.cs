@@ -2,10 +2,13 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static CeresEscapeTileArtworkVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>Checks installed Ceres emergency title and Japanese subtitle tilemaps against cartridge VRAM.</summary>
 internal static class CeresEscapeOverlayTilemapsVerification

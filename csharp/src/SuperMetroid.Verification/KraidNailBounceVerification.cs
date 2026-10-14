@@ -1,9 +1,8 @@
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
 using static SharedSlopeHeightsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Checks Kraid nail contour and wall reflections across every fractional velocity word.</summary>
 internal static class KraidNailBounceVerification

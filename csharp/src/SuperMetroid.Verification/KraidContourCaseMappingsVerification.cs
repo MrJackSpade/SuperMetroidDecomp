@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidBodyContourVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks Kraid contour and growth-resume selectors against native comparison logic.</summary>
 internal static class KraidContourCaseMappingsVerification

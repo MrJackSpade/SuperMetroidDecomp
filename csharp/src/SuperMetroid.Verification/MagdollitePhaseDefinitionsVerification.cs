@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Magdollite;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks Magdollite's nine rise/fall phases and overlay offsets.</summary>
 internal static class MagdollitePhaseDefinitionsVerification

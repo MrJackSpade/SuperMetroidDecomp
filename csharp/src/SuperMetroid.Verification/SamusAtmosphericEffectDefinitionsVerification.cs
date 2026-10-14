@@ -1,8 +1,12 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Checks compiled Samus splash, running foot-contact, and Crateria weather policies against cartridge tables and live owners.</summary>
 internal static class SamusAtmosphericEffectDefinitionsVerification

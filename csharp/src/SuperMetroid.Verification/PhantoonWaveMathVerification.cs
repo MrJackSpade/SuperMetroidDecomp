@@ -1,8 +1,7 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static WordSamplesVerification;
+using SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Checks Phantoon wave table arithmetic against native signed-sine samples and byte products.</summary>
 internal static class PhantoonWaveMathVerification

@@ -1,15 +1,16 @@
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
-using System.Reflection;
 using System.Text.Json;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
 using static InstalledFileSelectMapVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Checks installed file-select map arrows against native timing and OAM, including editable art and overrides.</summary>
 internal static class MapArrowsVerification

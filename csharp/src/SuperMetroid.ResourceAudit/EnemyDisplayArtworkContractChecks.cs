@@ -4,8 +4,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -49,10 +50,10 @@ internal static class EnemyDisplayArtworkContractChecks
     {
         var trees = EnemyDisplayArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
-        trees.Add(CSharpSyntaxTree.ParseText("global using System; global using System.IO; " +
-            "global using System.Linq; global using System.Collections.Generic;", path: "<enemy-display-usings>"));
+        trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
-            using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Enemies.Artwork;
+            using SuperMetroid.Core.Enemies.Drawing;
             class EnemyDisplayConsumer {
                 void Inspect(EnemySpritemapCatalog simple, EnemyExtendedFrameCatalog extended, byte bank, ushort pointer) {
                     simple.TryGetDisplay({{simple.Bank}}, {{simple.Pointer}}, out _);
@@ -84,7 +85,7 @@ internal static class EnemyDisplayArtworkContractChecks
         Require(before.MissingCount == 5 && before.UnresolvedCount == 2 && before.Consumers.Count == 7, "original absent display adapter boundaries");
         Require(after.MissingCount == 0 && after.UnresolvedCount == 2 && after.Classifications.Count == 5 && after.Consumers.Count == 7,
             "valid pairs and compiled empty fallback qualify; unowned pairs remain findings");
-        const string provider = "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs";
+        const string provider = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCatalog.cs";
         var stale = trees.Select(tree => tree.FilePath == provider ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace("document.DisplayFrames.Count != identities.Count", "false", StringComparison.Ordinal),
                 path: tree.FilePath) : tree);

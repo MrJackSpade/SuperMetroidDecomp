@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Rom;
 using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using static AssertionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>Checks Owtch timer and travel-distance definitions through real initialization.</summary>
 internal static class OwtchMovementDefinitionsVerification

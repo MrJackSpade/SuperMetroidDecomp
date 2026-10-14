@@ -1,6 +1,7 @@
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Checks compiled grapple radial points and swing-release velocity against retail trigonometry.</summary>
 internal static class GrappleCompiledMathVerification

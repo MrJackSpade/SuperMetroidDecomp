@@ -1,8 +1,16 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static WordSamplesVerification;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Flies;
+using SuperMetroid.Core.Enemies.Rios;
+using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Checks compiled projectile trigonometry across production consumers against cartridge samples.</summary>
 internal static class CompiledProjectileMathVerification

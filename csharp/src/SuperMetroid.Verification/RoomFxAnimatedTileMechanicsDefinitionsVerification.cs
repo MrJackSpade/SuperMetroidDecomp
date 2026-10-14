@@ -1,16 +1,5 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
 using static RoomFxAnimatedTileArtworkVerification;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using static LookupAnimatedArtworkSourcesVerification;
 using static LookupAnimatedFramesVerification;
@@ -19,6 +8,7 @@ using static LookupFxAtlasSegmentsVerification;
 using static LookupFxLegacySheetsVerification;
 using static LookupTreadmillArtworkVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks compiled room-FX animation controls and complete loops without live ROM reads.</summary>
 internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification

@@ -1,10 +1,5 @@
 using SuperMetroid.Tooling;
-using static Program;
 using static RepositoryInputsVerification;
-using System.Runtime.InteropServices;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Runtime;
 using System.Buffers.Binary;
 using System.Reflection;
 using System.Text.Json;
@@ -15,7 +10,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using static CeresDestructionArtworkVerification;
 using static CeresFlightArtworkVerification;
 using static EndingFlyawayArtworkVerification;
@@ -39,6 +33,12 @@ using static RetailPresentationFixtureVerification;
 using static SamusAnimationDelayDefinitionsVerification;
 using static SamusBodyArtworkVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Checks installed opening and Ceres cinematic artwork, resource validation, and ROM-read guards.</summary>
 internal static class IntroCinematicArtworkVerification

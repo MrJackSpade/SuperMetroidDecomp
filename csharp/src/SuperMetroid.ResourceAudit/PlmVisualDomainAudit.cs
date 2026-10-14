@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
 using Microsoft.CodeAnalysis.Operations;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.ResourceAudit;
 

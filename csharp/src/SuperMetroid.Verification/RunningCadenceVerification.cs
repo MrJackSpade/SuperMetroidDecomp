@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Checks compiled Samus running-animation cadence and speed-booster stage selection against native bytes.</summary>
 internal static class RunningCadenceVerification

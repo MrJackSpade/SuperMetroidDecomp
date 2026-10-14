@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Checks X-Ray reveal tilemap copying, extension blocks, screen wrapping, and area-specific overlays.</summary>
 internal static class XrayTilemapVerification

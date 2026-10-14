@@ -1,4 +1,5 @@
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Checks each ending cloud's activation threshold and subsequent native motion.</summary>
 internal static class EndingCloudMotionVerification

@@ -1,8 +1,9 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static AnimatedTileInstructionCodesVerification;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Compares the four Tourian statue animated-tile descriptors and their mechanics aliases with bank $87.</summary>
 internal static class LookupTourianDescriptorsVerification

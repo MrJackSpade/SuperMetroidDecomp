@@ -1,10 +1,12 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using System.Reflection;
 using static EnemyInstructionCodePointersVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Title;
 
 /// <summary>Checks opening-cinematic ROM resource bounds, palette spans, and actor sound identities.</summary>
 internal static class IntroCinematicRomDataVerification

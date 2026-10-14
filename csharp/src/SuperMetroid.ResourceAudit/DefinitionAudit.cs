@@ -1,6 +1,15 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies.Alcoon;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Beetom;
+using SuperMetroid.Core.Enemies.Boulder;
+using SuperMetroid.Core.Enemies.FaceBlocks;
+using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Enemies.Platforms;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Shutters;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 
@@ -92,9 +101,9 @@ internal static class DefinitionAudit
             : FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "FuneNamiheFrameAt"
             : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "BeetomFrameAt" : "AtomicFrameAt";
         string relative = calculated
-            ? faceBlock ? "csharp/src/SuperMetroid.Core/Assets/BlueBrinstarFaceBlockVisualDefinitions.cs" : platform ? "csharp/src/SuperMetroid.Core/Assets/TripperKamerVisualDefinitions.cs" : shutter ? "csharp/src/SuperMetroid.Core/Assets/ShutterVisualDefinitions.cs" : bank == 0x86 ? "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs" : kraidFamily ? "csharp/src/SuperMetroid.Core/Assets/KraidVisualDefinitions.cs"
-                : "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs"
-            : $"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.Generated.cs";
+            ? faceBlock ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/BlueBrinstarFaceBlockVisualDefinitions.cs" : platform ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/TripperKamerVisualDefinitions.cs" : shutter ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/ShutterVisualDefinitions.cs" : bank == 0x86 ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapDefinitions.cs" : kraidFamily ? "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidVisualDefinitions.cs"
+                : "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapDefinitions.cs"
+            : $"csharp/src/SuperMetroid.Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.Generated.cs";
         int line = 0;
         foreach (string text in File.ReadLines(Path.Combine(root, relative)))
         {

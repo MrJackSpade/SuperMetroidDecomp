@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Checks Crocomire BG2 frame pointers and pose-relative vertical scroll against native data.</summary>
 internal static class CrocomireBg2ScrollVerification

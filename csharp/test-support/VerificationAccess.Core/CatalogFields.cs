@@ -15,9 +15,18 @@ internal static class CatalogFields
         [.. SuperMetroid.Tooling.ToolingTypes.WithAdapter(catalog).SelectMany(type => type.GetFields(flags)),
          .. Companion(catalog)?.GetFields(flags) ?? []];
 
-    /// <summary>Finds the test-support constants companion in this assembly, if the catalog has one.</summary>
+    /// <summary>
+    /// Finds the test-support constants companion in this assembly, if the catalog has one. The companion mirrors the
+    /// catalog's module, so it shares the namespace of the catalog's outermost type (#626).
+    /// </summary>
     private static Type? Companion(Type catalog) =>
-        typeof(CatalogFields).Assembly.GetType(FlatName(catalog) + "Constants");
+        typeof(CatalogFields).Assembly.GetType(Qualified(Outermost(catalog).Namespace, FlatName(catalog) + "Constants"));
+
+    /// <summary>The top-level type that declares <paramref name="type"/>.</summary>
+    private static Type Outermost(Type type) => type.DeclaringType is { } outer ? Outermost(outer) : type;
+
+    /// <summary>A type name qualified by its namespace, if it has one.</summary>
+    private static string Qualified(string? ns, string name) => ns is null ? name : ns + "." + name;
 
     /// <summary>Flattens a nested catalog's declaring-type chain to the companion naming convention.</summary>
     private static string FlatName(Type type) =>

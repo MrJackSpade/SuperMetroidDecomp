@@ -317,8 +317,12 @@ using static ZoaAnimationDefinitionsVerification;
 using static ZoaInstructionProgramDefinitionsVerification;
 using static ZoaSpeedDefinitionsVerification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
 /// Dependency-free assertions shared by every verifier source file.
@@ -3482,7 +3486,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyCompiledBotwoonWallPlms), () => VerifyCompiledBotwoonWallPlms());
         Suite(nameof(VerifyBotwoonWallStockMapping), () => VerifyBotwoonWallStockMapping(oracle));
         Suite(nameof(VerifyBotwoonWallVisualIdMapping), () => VerifyBotwoonWallVisualIdMapping());
-        Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(new SuperMetroid.Core.Rooms.RoomPlmBotwoonWallVisualCatalog(
+        Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(new SuperMetroid.Core.Rooms.Plms.RoomPlmBotwoonWallVisualCatalog(
             [new("clear-wall", [0xff,0xff,0xff,0x58,0xff,0xff,0xff,0xff,0xff])])));
         return 0;
     }

@@ -1,15 +1,3 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Runtime;
-using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static GoldenTorizoEyeBeamAttackDefinitionsVerification;
 using static GoldenTorizoJumpLandingDefinitionsVerification;
@@ -24,6 +12,10 @@ using static GoldenTorizoWalkingDefinitionsVerification;
 using static SuiteTimingVerification;
 using static TorizoFallingLeftDefinitionsVerification;
 using static TorizoJumpBackDefinitionsVerification;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Checks Golden Torizo's initial and awakening control words, selected frames, and collision layout against ROM.</summary>
 internal static class GoldenTorizoInitialDefinitionsVerification

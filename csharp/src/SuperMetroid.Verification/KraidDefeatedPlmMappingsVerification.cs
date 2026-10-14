@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Checks both defeated-room PLM requests against Kraid's inline native arguments.</summary>
 internal static class KraidDefeatedPlmMappingsVerification

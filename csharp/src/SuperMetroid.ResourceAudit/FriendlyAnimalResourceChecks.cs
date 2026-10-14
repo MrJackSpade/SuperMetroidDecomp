@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.ResourceAudit;
 

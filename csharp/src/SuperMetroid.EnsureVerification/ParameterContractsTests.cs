@@ -51,10 +51,16 @@ internal static class ParameterContractsTests
     private static void VerifyContract(string description, string statement, string? expectedError = null)
     {
         string source = $$"""
-            using SuperMetroid.Core.Game;
+            using SuperMetroid.Core.Bosses.Draygon;
+            using SuperMetroid.Core.Bosses.MotherBrain;
+            using SuperMetroid.Core.Enemies;
+            using SuperMetroid.Core.Enemies.Chozo;
             using SuperMetroid.Core.Hardware;
             using SuperMetroid.Core.Input;
+            using SuperMetroid.Core.Progression;
             using SuperMetroid.Core.Rooms;
+            using SuperMetroid.Core.Rooms.Doors;
+            using SuperMetroid.Core.Rooms.Plms;
             using SuperMetroid.Core.Runtime;
             class ContractCaller
             {

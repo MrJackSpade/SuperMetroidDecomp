@@ -1,9 +1,9 @@
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
+using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Android;
 
@@ -21,7 +21,7 @@ internal sealed class AndroidSessionData : IDisposable
     /// <summary>Installed audio catalog retained across debugger state loads.</summary>
     private readonly ExtractedAudioAssetCatalog assets;
     /// <summary>Installed map presentation used for save migration and persistence.</summary>
-    private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog maps;
+    private readonly SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog maps;
     /// <summary>Installed projectile art contributing to the session content identity.</summary>
     private readonly SuperMetroid.AssetExtraction.InstalledProjectilePresentation projectiles;
     /// <summary>Installed visual catalog rebound to a game loaded from debugger state.</summary>

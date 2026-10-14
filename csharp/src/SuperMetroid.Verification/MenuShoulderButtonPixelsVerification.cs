@@ -1,6 +1,8 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
 
 /// <summary>Checks reconstructed menu shoulder-button tiles and propagation of PNG edits into VRAM.</summary>
 internal static class MenuShoulderButtonPixelsVerification

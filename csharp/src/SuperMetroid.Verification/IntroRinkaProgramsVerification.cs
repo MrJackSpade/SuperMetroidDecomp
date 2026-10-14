@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Checks compiled intro Rinka instruction bytes and frame catalog against native records.</summary>
 internal static class IntroRinkaProgramsVerification

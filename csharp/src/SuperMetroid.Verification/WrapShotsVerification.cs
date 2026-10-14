@@ -1,11 +1,3 @@
-using System.Buffers.Binary;
-using System.Runtime.InteropServices;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Runtime;
 using static BeamCallbackTablesVerification;
 using static BeamSpeedRowsVerification;
 using static BombChargeRejectionVerification;
@@ -20,12 +12,14 @@ using static SamusMorphBallVerification;
 using static SuiteTimingVerification;
 using static WrapShotEnemiesVerification;
 using static WrapShotWidthsVerification;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks projectile wrapping at both room edges against a preserved native trace.</summary>
 internal static class WrapShotsVerification

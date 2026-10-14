@@ -1,0 +1,25 @@
+namespace SuperMetroid.Core.Samus.Projectiles;
+
+/// <summary>$90:C157 fuse transition, independent of which projectile array half owns the slot.</summary>
+public static class SamusPowerBombFuse
+{
+    /// <summary>
+    /// Computes the native timer/list writes and requests the caller's existing explosion
+    /// or deletion operation. Collision consumes the expiration sentinel after this call;
+    /// it must not be folded into the fuse, because other callbacks can reach this routine.
+    /// </summary>
+    public static PowerBombFuseStep Step(ushort timer, ushort instructionPointer, ushort explosionFlag)
+    {
+        if (timer == 0)
+            return new(timer, instructionPointer, SpawnExplosion: false, DeleteProjectile: explosionFlag == 0);
+
+        NativeWordCounterStep fuse = NativeWordCounter.Decrement(timer);
+        timer = fuse.Value;
+        if (fuse.IsZero)
+            return new(SamusPowerBombFuseData.ExplosionStartedSentinel, instructionPointer,
+                SpawnExplosion: true, DeleteProjectile: false);
+        if (timer == SamusPowerBombFuseData.FastAnimationTimer)
+            instructionPointer = unchecked((ushort)(instructionPointer + SamusPowerBombFuseData.FastAnimationOffset));
+        return new(timer, instructionPointer, SpawnExplosion: false, DeleteProjectile: false);
+    }
+}

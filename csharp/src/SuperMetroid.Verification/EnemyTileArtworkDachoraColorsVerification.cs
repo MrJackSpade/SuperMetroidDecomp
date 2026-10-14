@@ -2,12 +2,13 @@ using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Animals;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Checks Dachora's default, speed, and shine palette frames against installed art and native selectors.</summary>
 internal static class EnemyTileArtworkDachoraColorsVerification

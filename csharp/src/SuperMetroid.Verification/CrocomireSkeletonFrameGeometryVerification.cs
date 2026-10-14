@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>Checks Crocomire skeleton root identities, OAM record geometry, and exact bank-$A4 membership.</summary>
 internal static class CrocomireSkeletonFrameGeometryVerification

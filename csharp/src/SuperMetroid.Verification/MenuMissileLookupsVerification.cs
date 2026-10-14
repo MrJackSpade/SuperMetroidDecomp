@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
+using SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>Checks the file-menu missile animation's compiled spritemap selectors and frame duration against retail data.</summary>
 internal static class MenuMissileLookupsVerification

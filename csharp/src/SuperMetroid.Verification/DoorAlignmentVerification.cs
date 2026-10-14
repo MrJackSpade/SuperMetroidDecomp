@@ -1,14 +1,13 @@
 using System.Globalization;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Checks native door-camera alignment steps and the complete retail transition handoff.</summary>
 internal static class DoorAlignmentVerification
@@ -153,7 +152,7 @@ internal static class DoorAlignmentVerification
             DoorTransitionPhase phaseBeforeStep = transition.Phase;
             if (transition.Phase == DoorTransitionPhase.AlignSourceCamera)
                 alignmentCalls++;
-            transition.Step(runtime, audio, heldLeftRight, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
+            transition.Step(runtime, audio, heldLeftRight, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
             if (phaseBeforeStep == DoorTransitionPhase.BuildDestinationOam &&
                 transition.Phase == DoorTransitionPhase.FadeInDestinationPalette)
             {

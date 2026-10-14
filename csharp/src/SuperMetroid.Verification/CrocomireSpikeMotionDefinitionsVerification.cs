@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Compares compiled spike motion limits for all eighteen physical slots with bank-$86 retail data.</summary>
 internal static class CrocomireSpikeMotionDefinitionsVerification

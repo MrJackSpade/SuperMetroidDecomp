@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Areas.Tourian;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Tooling;
 using System.Reflection;
@@ -105,10 +107,11 @@ internal static class EnemyRomTablePointersVerification
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.TourianStatue.InstructionListWords + parameter)),
-                TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(parameter),
+                NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
+                    TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
                 $"Tourian entrance statue initial selector {parameter}");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(1),
+            () => TourianEntranceStatueAnimationDefinitions.InitialProgram(1),
             "Tourian statue selector rejects odd byte offsets");
 
         var guarded = NewEnemyInstructionSelectionReadGuard(rom);
@@ -121,9 +124,8 @@ internal static class EnemyRomTablePointersVerification
             var slot = new RoomEnemySlot(0) { Parameter1 = parameter };
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
-                TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(
-                    parameter),
-                slot.CurrentInstruction,
+                AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
+                system.TourianEntranceStatueBehavior._statuePrograms[slot.SlotIndex],
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
         }
 

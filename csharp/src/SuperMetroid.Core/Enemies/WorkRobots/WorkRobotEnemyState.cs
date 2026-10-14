@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class WorkRobotEnemyState
 
     /// <summary>Projects the bank-$A8 Work Robot aliases over its current native enemy slot.</summary>
     internal WorkRobotEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<WorkRobotProgram> Program { get; set; }
 
     /// <summary>
     /// True only when definition $E8FF saw the area's boss bit during initialization.

@@ -5740,6 +5740,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Tourian.Artwork.TourianEntranceStatueFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/TourianEntranceStatueFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueAnimatedTileArtworkDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -5999,6 +6012,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueAnimationDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueAnimationDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueBehavior",
       "kind": "class",
       "scope": "product",
@@ -6012,62 +6051,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueFrame.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueInstructionProgramDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
+      "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueProgram",
+      "kind": "enum",
+      "scope": "product",
       "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
+        "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsConstants.cs"
+        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueProgram.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueInstructionProgramDefinitionsConstants.extension(SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueInstructionProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianPlms",
@@ -36838,6 +36845,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.Artwork.WorkRobotFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/Artwork/WorkRobotFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotBehavior",
       "kind": "class",
       "scope": "product",
@@ -36849,6 +36882,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotEnemyState",
@@ -36864,6 +36923,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotInitializationDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -36875,71 +36947,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotInstruction",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotInstruction.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotInstructionProgramDefinitions.LaserAim",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotInstructionProgramDefinitions.WordSelector",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotLaser",
@@ -37050,6 +37057,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotProgram",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotProgram.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.Artwork.WreckedShipGhostFrameDefinitions",
@@ -87655,6 +87675,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Areas.Tourian.TourianEntranceStatueAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianEntranceStatueAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Areas.Tourian.TourianEntranceStatueInstructionProgramDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -87666,6 +87699,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Areas.Tourian.TourianEntranceStatueNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianEntranceStatueNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Areas.Tourian.TourianStatueDescentRoundingVerification",
@@ -96807,6 +96853,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotInitialSelectionVerification",
       "kind": "static class",
       "scope": "test",
@@ -96844,6 +96903,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotPaletteTimingDefinitionsVerification",

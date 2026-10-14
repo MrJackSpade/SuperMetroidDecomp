@@ -1,10 +1,8 @@
-using SuperMetroid.Core.Enemies.WorkRobots;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The 27 ordinary OAM compositions shared by powered and unpowered Work Robots.
-/// Their 227 presentation operands are selected by compiled native bytecode;
+/// The 27 ordinary OAM compositions shared by powered and unpowered Work Robots, shown by their typed programs;
 /// walking, wall checks, laser events, and sound timing remain game mechanics.
 /// </summary>
 internal static class WorkRobotVisualDefinitions
@@ -36,16 +34,5 @@ internal static class WorkRobotVisualDefinitions
         yield return new(Bank, UnpoweredLeft + UnpoweredRecordBytes, "work_robot_unpowered_neutral");
         yield return new(Bank, UnpoweredLeft, "work_robot_unpowered_left");
         yield return new(Bank, UnpoweredLeft + 2 * UnpoweredRecordBytes, "work_robot_unpowered_right");
-    }
-    /// <summary>Resolves only the 227 authored Work Robot presentation operands.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        if (WorkRobotInstructionProgramDefinitions.IsPresentationWordAddress(
-                operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Work Robot visual operand $A8:{operandAddress:X4} is not compiled.");
     }
 }

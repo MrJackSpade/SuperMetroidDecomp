@@ -3,7 +3,6 @@
 #   dotnet run --project csharp/src/SuperMetroid.CartridgeEncodingAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write
 # path<TAB>rule<TAB>count
 csharp/src/SuperMetroid.Core/Areas/Tourian/TourianAccessPlmProgramDefinitions.cs	SME6341	2
-csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueSequence.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueSequence.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Areas/Tourian/TourianUnlockBehavior.cs	SME6340	3
@@ -148,7 +147,6 @@ csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeBehavior.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeProjectileInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/Waver/WaverBehavior.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotBehavior.cs	SME6340	12
-csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitions.cs	SME6341	8
 csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotLaserInstructionProgramDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipAtticPlmRomData.cs	SME6341	6
 csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostBehavior.cs	SME6340	6
@@ -425,7 +423,6 @@ csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaDomainGeometry.cs	SME6340	4
 csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaOwnership.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/AssetExtraction/Cartridge/CartridgeImportAddressSpaceTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/AssetExtraction/Rooms/CartridgeRoomStateImporter.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Areas/Tourian/TourianStatueProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Kraid/FakeKraidInstructionProgramDefinitionsTooling.cs	SME6340	5
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Kraid/FakeKraidInstructionProgramDefinitionsTooling.cs	SME6341	2
@@ -465,8 +462,6 @@ csharp/src/SuperMetroid.Tooling/Core/Enemies/SpacePirates/NinjaSpacePirateInstru
 csharp/src/SuperMetroid.Tooling/Core/Enemies/SpacePirates/SpacePirateProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/SpacePirates/WalkingSpacePirateInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Stoke/StokeProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitionsTooling.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Enemies/WorkRobots/WorkRobotLaserInstructionProgramDefinitionsTooling.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Enemies/YappingMaws/YappingMawBodyProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Fx/RoomFxRomDataBanksTooling.cs	SME6340	1
@@ -526,7 +521,7 @@ csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianAccessPlmProgramsVerif
 csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianAccessPlmProgramsVerification.cs	SME6341	4
 csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianAccessPlmProgramsVerification.cs	SME6342	5
 csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianAccessVisualsVerification.cs	SME6340	27
-csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsVerification.cs	SME6340	2
+csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianStatueDescentRoundingVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianStatueProjectileInstructionProgramDefinitionsVerification.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianStatueUnlockDefinitionsVerification.cs	SME6340	11
@@ -1055,11 +1050,10 @@ csharp/src/SuperMetroid.Verification/Enemies/Stoke/StokeProjectileInstructionPro
 csharp/src/SuperMetroid.Verification/Enemies/Stoke/StokeProjectileInstructionProgramDefinitionsVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Enemies/VerticalOffScreenDeletionVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Enemies/Waver/WaverAnimationDefinitionsVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitionsVerification.cs	SME6340	11
+csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitionsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotLaserInstructionProgramDefinitionsVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotLaserInstructionProgramDefinitionsVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotPaletteTimingDefinitionsVerification.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotVisualsVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Enemies/YappingMaws/YappingMawBodyProjectileInstructionProgramDefinitionsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/YappingMaws/YappingMawGrappleReleaseVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Enemies/YappingMaws/YappingMawInstructionProgramDefinitionsVerification.cs	SME6340	4

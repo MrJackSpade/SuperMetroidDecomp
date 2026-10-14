@@ -11,6 +11,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
@@ -56,7 +57,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"Tourian statue entry parameter {parameter} preserves full native CGRAM");
             AssertEqual(ReadReferenceWord(0xaad810 + parameter),
-                installed.SlotTable.Slots[0].CurrentInstruction,
+                NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
+                    (installed.TourianEntranceStatueBehavior._statuePrograms[0] ?? throw new InvalidOperationException("The statue has no animation.")).Program),
                 $"Tourian statue entry parameter {parameter} keeps instruction selection");
             AssertEqual(parameter == 0 ? 3 : 0,
                 installed.Projectiles.EnemyProjectiles.Count(x => x.IsActive),

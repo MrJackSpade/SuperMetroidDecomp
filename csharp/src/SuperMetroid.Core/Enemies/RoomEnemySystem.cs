@@ -1399,7 +1399,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CrocomireBehavior.RegisterCrocomireTypedAnimations(table);
         WallSpacePirateBehavior.RegisterWallSpacePirateOwnedInstructions(table);
         NinjaSpacePirateBehavior.RegisterNinjaSpacePirateOwnedInstructions(table);
-        WorkRobotBehavior.RegisterWorkRobotOwnedInstructions(table);
+        WorkRobotBehavior.RegisterWorkRobotTypedAnimations(table);
         BeetomBehavior.RegisterBeetomTypedAnimations(table);
         YappingMawBehavior.RegisterYappingMawTypedAnimations(table);
         CacatacBehavior.RegisterCacatacTypedAnimations(table);
@@ -1439,6 +1439,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        WorkRobotBehavior.RegisterWorkRobotTypedAnimations(table);
+        TourianEntranceStatueBehavior.RegisterTourianEntranceStatueTypedAnimations(table);
         HibashiBehavior.RegisterHibashiTypedAnimations(table);
         EtecoonBehavior.RegisterEtecoonTypedAnimations(table);
         DachoraBehavior.RegisterDachoraTypedAnimations(table);

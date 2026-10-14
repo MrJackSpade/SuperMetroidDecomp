@@ -23,33 +23,33 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 31029,
-    "PointerDispatch": 585,
+    "RawHexLiteral": 31017,
+    "PointerDispatch": 572,
     "OpaqueWordArray": 1041,
-    "CatalogHexLiteral": 97644,
+    "CatalogHexLiteral": 97674,
     "JustifiedHexLiteral": 148,
     "RawWidthOperation": 44,
     "OwnedWidthOperation": 72,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 19,
-    "class:NumericQuantity": 54628,
-    "class:DomainIdentity": 7820,
+    "class:NumericQuantity": 54631,
+    "class:DomainIdentity": 7847,
     "class:ComposableBits": 1452,
     "class:StructuredInstruction": 42949,
-    "class:CartridgeAddress": 22894,
+    "class:CartridgeAddress": 22869,
     "class:Unknown": 845,
-    "storageWidthMembers": 1537
+    "storageWidthMembers": 1535
   },
   "subsystems": [
     {
       "name": "Asset catalogs and decoders",
       "totals": {
-        "CatalogHexLiteral": 10011,
+        "CatalogHexLiteral": 10040,
         "JustifiedHexLiteral": 5,
         "OwnedWidthOperation": 2,
-        "class:NumericQuantity": 516,
-        "class:DomainIdentity": 1032,
+        "class:NumericQuantity": 518,
+        "class:DomainIdentity": 1059,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 8380,
         "class:Unknown": 69,
@@ -57,6 +57,14 @@
       },
       "addressInterpretingTypes": [],
       "files": [
+        {
+          "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/TourianEntranceStatueFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 1,
+            "class:NumericQuantity": 1
+          }
+        },
         {
           "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/TourianStatueAnimatedTileArtworkDefinitions.cs",
           "project": "SuperMetroid.Core",
@@ -1026,6 +1034,15 @@
             "CatalogHexLiteral": 11,
             "class:NumericQuantity": 1,
             "class:DomainIdentity": 10
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/Artwork/WorkRobotFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 28,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 27
           }
         },
         {
@@ -4192,20 +4209,19 @@
       "name": "Cinematics and scripted sequences",
       "totals": {
         "RawHexLiteral": 4,
-        "PointerDispatch": 6,
-        "CatalogHexLiteral": 1910,
+        "PointerDispatch": 5,
+        "CatalogHexLiteral": 1907,
         "JustifiedHexLiteral": 6,
-        "class:NumericQuantity": 909,
+        "class:NumericQuantity": 906,
         "class:DomainIdentity": 588,
         "class:ComposableBits": 184,
-        "class:CartridgeAddress": 224,
+        "class:CartridgeAddress": 223,
         "class:Unknown": 21,
         "storageWidthMembers": 87
       },
       "addressInterpretingTypes": [
         "EndingGunshipPaletteColorDefinitions",
         "TourianAccessPlmProgramDefinitions",
-        "TourianEntranceStatueInstructionProgramDefinitions",
         "TourianStatueSequence",
         "TourianUnlockBehavior"
       ],
@@ -4514,16 +4530,6 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "storageWidthMembers": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 1,
-            "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 1
           }
         },
         {
@@ -5632,19 +5638,19 @@
       "name": "Enemies: regular AI and instruction programs",
       "totals": {
         "RawHexLiteral": 660,
-        "PointerDispatch": 134,
+        "PointerDispatch": 126,
         "OpaqueWordArray": 5,
-        "CatalogHexLiteral": 20948,
+        "CatalogHexLiteral": 20906,
         "JustifiedHexLiteral": 1,
         "OwnedWidthOperation": 12,
         "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 17451,
+        "class:NumericQuantity": 17428,
         "class:DomainIdentity": 84,
         "class:ComposableBits": 209,
         "class:StructuredInstruction": 488,
-        "class:CartridgeAddress": 3487,
+        "class:CartridgeAddress": 3460,
         "class:Unknown": 47,
-        "storageWidthMembers": 478
+        "storageWidthMembers": 476
       },
       "addressInterpretingTypes": [
         "AlcoonFireballInstructionProgramDefinitions",
@@ -5669,7 +5675,6 @@
         "ShaktoolProjectileInstructionProgramDefinitions",
         "SkreeMetareeParticleInstructionProgramDefinitions",
         "StokeProjectileInstructionProgramDefinitions",
-        "WorkRobotInstructionProgramDefinitions",
         "WorkRobotLaserInstructionProgramDefinitions",
         "WreckedShipAtticPlmRomData",
         "YappingMawBodyProjectileInstructionProgramDefinitions"
@@ -8448,32 +8453,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotInitializationDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 18,
-            "class:CartridgeAddress": 18
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 8,
-            "CatalogHexLiteral": 23,
-            "class:NumericQuantity": 22,
-            "class:CartridgeAddress": 9
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotLaser.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -8495,7 +8474,7 @@
           "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotMoveStep.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "storageWidthMembers": 4
+            "storageWidthMembers": 2
           }
         },
         {
@@ -8919,19 +8898,19 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 29401,
-        "PointerDispatch": 205,
+        "RawHexLiteral": 29389,
+        "PointerDispatch": 201,
         "OpaqueWordArray": 910,
-        "CatalogHexLiteral": 2107,
+        "CatalogHexLiteral": 2153,
         "RawWidthOperation": 44,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 11038,
+        "class:NumericQuantity": 11065,
         "class:DomainIdentity": 566,
         "class:ComposableBits": 535,
         "class:StructuredInstruction": 12831,
-        "class:CartridgeAddress": 7212,
+        "class:CartridgeAddress": 7215,
         "class:Unknown": 500,
         "storageWidthMembers": 84
       },
@@ -9016,10 +8995,8 @@
         "TourianStatueProjectileInstructionProgramDefinitionsTooling",
         "VramDmaOwnership",
         "Walker",
-        "WorkRobotInstructionProgramDefinitionsTooling",
         "WorkRobotLaserInstructionProgramDefinitionsTooling",
         "WorkRobotLaserInstructionProgramDefinitionsVerification",
-        "WorkRobotVisualsVerification",
         "WrapShotEnemiesVerification",
         "XrayRevealVerification",
         "YappingMawBodyProjectileInstructionProgramDefinitionsTooling"
@@ -9669,14 +9646,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Areas/Tourian/TourianStatueProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
@@ -9953,15 +9922,6 @@
           "totals": {
             "PointerDispatch": 1,
             "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 3,
-            "class:CartridgeAddress": 4
           }
         },
         {
@@ -10487,9 +10447,16 @@
           "path": "csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 1
+            "RawHexLiteral": 1,
+            "class:NumericQuantity": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianEntranceStatueNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 4,
+            "class:NumericQuantity": 4
           }
         },
         {
@@ -15071,9 +15038,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 11,
-            "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 8
+            "RawHexLiteral": 2,
+            "class:NumericQuantity": 2
           }
         },
         {
@@ -15087,18 +15053,19 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 43,
+            "class:NumericQuantity": 25,
+            "class:CartridgeAddress": 18
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotPaletteTimingDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotVisualsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "PointerDispatch": 1,
             "class:CartridgeAddress": 1
           }
         },
@@ -20756,14 +20723,6 @@
           "totals": {
             "PointerDispatch": 2,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
           }
         },
         {

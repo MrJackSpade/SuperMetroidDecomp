@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 
@@ -11,7 +10,6 @@ internal static class EnemyVisualProgramSpecializations
     private static readonly HashSet<string> ControlOnly =
     [
         nameof(CommonEnemyProjectileInstructionProgramDefinitions),
-        nameof(TourianEntranceStatueInstructionProgramDefinitions),
     ];
 
     /// <summary>Identifies reviewed instruction owners with no presentation operands.</summary>

@@ -361,15 +361,6 @@ internal sealed class EnemyInstructionInterpreter
                 address);
         }
 
-        if (WorkRobotBehavior.IsWorkRobotDefinition(slot.EnemyDefinitionPointer))
-            return WorkRobotInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue)
-        {
-            return TourianEntranceStatueInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
         if (slot.EnemyDefinitionPointer is
             EnemyDefinitionId.MamaTurtle or
             EnemyDefinitionId.BabyTurtle)

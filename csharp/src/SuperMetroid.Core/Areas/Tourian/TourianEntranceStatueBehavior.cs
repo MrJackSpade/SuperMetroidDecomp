@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 
@@ -44,7 +46,11 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         TourianEntranceStatueVerticalOffset = 0;
     }
 
-    /// <summary>Installs one of three native instruction lists and lets only the first statue record spawn the fixed decorative actors.</summary>
+    /// <summary>Each statue record's typed animation (#641), indexed by enemy slot; every one deletes its record at once.</summary>
+    internal readonly AnimationProgramCursor<TourianEntranceStatueProgram>?[] _statuePrograms =
+        new AnimationProgramCursor<TourianEntranceStatueProgram>?[RoomEnemySystem.MaximumEnemyCount];
+
+    /// <summary>Installs one of three animations and lets only the first statue record spawn the fixed decorative actors.</summary>
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
     {
         if (statue.Parameter1 is not (0 or 2 or 4))
@@ -57,9 +63,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         statue.PaletteIndex = 0;
         statue.InstructionTimer = NativeCountdown.Start(1);
         statue.Timer = NativeCountdown.Start(0);
-        statue.CurrentInstruction =
-            TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(
-                statue.Parameter1);
+        _statuePrograms[statue.SlotIndex] = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
+            TourianEntranceStatueAnimationDefinitions.InitialProgram(statue.Parameter1));
 
         // Only the first of the three enemy records creates the fixed screen actors. The
         // native allocator searches from slot $22 down, so this exact call order gives the
@@ -128,6 +133,18 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess, EnemyProjectilePreInstruction.TourianStatue_Ridley_Phantoon_BaseDecor);
     }
 
+    /// <summary>Runs the statue records' animations as typed programs (#641).</summary>
+    internal void RegisterTourianEntranceStatueTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            AnimationProgramCursor<TourianEntranceStatueProgram> cursor = _statuePrograms[slot.SlotIndex] ??
+                throw new InvalidOperationException($"Tourian entrance statue slot {slot.SlotIndex} has no animation.");
+            EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.Spritemap);
+            _statuePrograms[slot.SlotIndex] = cursor;
+        });
+
     /// <summary>Registers statue initialization only for the Tourian entrance enemy definition.</summary>
     internal void RegisterTourianEntranceStatueInitializationAi(EnemyAiTable table)
     {
@@ -141,6 +158,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
+        Array.Clear(_statuePrograms);
         ResetTourianEntranceStatueRoomState();
     }
 

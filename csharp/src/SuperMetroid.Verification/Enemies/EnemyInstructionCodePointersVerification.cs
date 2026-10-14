@@ -68,7 +68,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(MamaTurtleInstruction),
             typeof(ShaktoolInstruction),
             typeof(SpacePirateInstruction),
-            typeof(WorkRobotInstruction),
             typeof(YardInstruction),
         ];
         Type[] codeCatalogs =
@@ -82,7 +81,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(MotherBrainInstructionCodes),
             typeof(ShaktoolInstruction),
             typeof(SpacePirateInstruction),
-            typeof(WorkRobotInstruction),
             typeof(YardInstruction),
         ];
         foreach (Type catalog in codeCatalogs)

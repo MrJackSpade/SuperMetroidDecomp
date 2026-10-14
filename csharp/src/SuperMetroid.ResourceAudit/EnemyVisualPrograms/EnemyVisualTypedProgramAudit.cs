@@ -1,3 +1,7 @@
+using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
+using SuperMetroid.Core.Enemies.WorkRobots;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies.Hibashi.Artwork;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
@@ -279,6 +283,10 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(EtecoonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonAnimations.cs");
         RequireTypedFrames(HibashiAnimations.Programs, HibashiFrameDefinitions.Spritemap, HibashiFrameDefinitions.Bank,
             nameof(HibashiAnimations), "csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiAnimations.cs");
+        RequireTypedFrames(TourianEntranceStatueAnimations.Programs, TourianEntranceStatueFrameDefinitions.Spritemap, TourianEntranceStatueFrameDefinitions.Bank,
+            nameof(TourianEntranceStatueAnimations), "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueAnimations.cs");
+        RequireTypedFrames(WorkRobotAnimations.Programs, WorkRobotFrameDefinitions.Spritemap, WorkRobotFrameDefinitions.Bank,
+            nameof(WorkRobotAnimations), "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

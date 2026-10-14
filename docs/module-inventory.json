@@ -104,7 +104,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Areas",
       "role": "production",
-      "files": 139,
+      "files": 143,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -165,7 +165,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
-      "files": 968,
+      "files": 972,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -690,7 +690,7 @@
     {
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
-      "files": 129,
+      "files": 127,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -715,7 +715,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 1484,
+      "files": 1488,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -890,7 +890,7 @@
     {
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
-      "files": 492,
+      "files": 491,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -5264,6 +5264,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/TourianEntranceStatueFrameDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Areas",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Areas.Tourian.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/Artwork/TourianStatueAnimatedTileArtworkDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Areas",
       "role": "production",
@@ -5427,6 +5437,30 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueAnimationDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Areas",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Areas.Tourian",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueAnimations.cs",
+      "module": "csharp/src/SuperMetroid.Core/Areas",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Areas.Tourian",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Programs"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueBehavior.cs",
       "module": "csharp/src/SuperMetroid.Core/Areas",
       "role": "production",
@@ -5437,23 +5471,30 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Core/Spatial"
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueFrame.cs",
       "module": "csharp/src/SuperMetroid.Core/Areas",
       "role": "production",
       "namespace": "SuperMetroid.Core.Areas.Tourian",
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Programs"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueProgram.cs",
+      "module": "csharp/src/SuperMetroid.Core/Areas",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Areas.Tourian",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -20056,7 +20097,6 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Rooms",
@@ -26149,6 +26189,29 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/Artwork/WorkRobotFrameDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.WorkRobots.Artwork",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotAnimations.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotBehavior.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
@@ -26159,11 +26222,32 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Samus",
         "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotCue.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotCueKind.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -26176,8 +26260,19 @@
         "SuperMetroid.Core"
       ],
       "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Spatial"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotFrame.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
       ]
     },
     {
@@ -26188,29 +26283,6 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotInstruction.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitions.cs",
-      "module": "csharp/src/SuperMetroid.Core/Enemies",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Programs"
       ]
     },
     {
@@ -26255,6 +26327,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotPaletteTimingDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Enemies",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotProgram.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
@@ -56371,7 +56453,6 @@
         "SuperMetroid.ResourceAudit"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
@@ -57108,21 +57189,6 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsTooling.cs",
-      "module": "csharp/src/SuperMetroid.Tooling",
-      "role": "tooling",
-      "namespace": "SuperMetroid.Core.Areas.Tourian",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Areas",
-        "csharp/src/SuperMetroid.Core/Hardware",
-        "csharp/src/SuperMetroid.Core/Programs"
-      ]
-    },
-    {
       "path": "csharp/src/SuperMetroid.Tooling/Core/Areas/Tourian/TourianStatueProjectileInstructionProgramDefinitionsTooling.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
@@ -57828,21 +57894,6 @@
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Enemies.Stoke",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Hardware",
-        "csharp/src/SuperMetroid.Core/Programs"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/WorkRobots/WorkRobotInstructionProgramDefinitionsTooling.cs",
-      "module": "csharp/src/SuperMetroid.Tooling",
-      "role": "tooling",
-      "namespace": "SuperMetroid.Core.Enemies.WorkRobots",
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Tooling"
@@ -59443,6 +59494,20 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianEntranceStatueAnimationsVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Areas.Tourian",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Areas",
+        "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -59454,14 +59519,25 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
-        "csharp/src/SuperMetroid.Core/Programs",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Tooling",
-        "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/RepositoryInstallation.Verification",
         "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianEntranceStatueNativeListAddresses.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Areas.Tourian",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Areas"
       ]
     },
     {
@@ -65638,6 +65714,7 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Hud",
         "csharp/src/SuperMetroid.Core/Progression",
@@ -70826,6 +70903,20 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotAnimationsVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Enemies.WorkRobots",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotInitialSelectionVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
@@ -70836,6 +70927,7 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/test-support/VerificationAccess.Core"
       ]
@@ -70849,13 +70941,12 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/src/SuperMetroid.Tooling",
-        "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -70877,6 +70968,18 @@
         "csharp/src/SuperMetroid.Tooling",
         "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotNativeListAddresses.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Enemies.WorkRobots",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies"
       ]
     },
     {
@@ -70907,12 +71010,9 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Spatial",
-        "csharp/src/SuperMetroid.Tooling",
-        "csharp/test-support/CpuBusTestDoubles",
         "csharp/test-support/VerificationAccess.Core"
       ]
     },
@@ -84913,22 +85013,6 @@
     },
     {
       "path": "csharp/test-support/VerificationAccess.Core/Areas/Tourian/TourianAccessPlmProgramDefinitionsAccess.cs",
-      "module": "csharp/test-support/VerificationAccess.Core",
-      "role": "verification-support",
-      "namespace": "SuperMetroid.Core.Areas.Tourian",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Areas"
-      ]
-    },
-    {
-      "path": "csharp/test-support/VerificationAccess.Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Areas.Tourian",

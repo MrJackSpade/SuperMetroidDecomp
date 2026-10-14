@@ -1767,9 +1767,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.CorpseSidehopper => 0,
             EnemyDefinitionId.Mochtroid => 0,
             EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile => 0,
-            EnemyDefinitionId.Robot or
-                EnemyDefinitionId.RobotNoPower =>
-                WorkRobotVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower => 0,
             EnemyDefinitionId.Yard =>
                 YardVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable or EnemyDefinitionId.ShutterHorizShootable => 0,
@@ -1852,8 +1850,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.CeresDoor or
             EnemyDefinitionId.Shaktool or
             EnemyDefinitionId.Chozo or
-            EnemyDefinitionId.Robot or
-            EnemyDefinitionId.RobotNoPower or
             EnemyDefinitionId.Yard or
             EnemyDefinitionId.Botwoon or
             EnemyDefinitionId.KihunterGreen or

@@ -40,6 +40,8 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEscapeTextA
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainSpecialSpriteArtworkVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePiratePaletteArtworkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
+using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.Artwork.TorizoInstructionVramArtworkVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
@@ -85,6 +87,100 @@ internal static class EnemyTileArtworkVerification
         return expected;
     }
 
+    /// <summary>
+    /// Stock enemy artwork freshly extracted from the retail cartridge into a private directory,
+    /// which each enemy artwork suite may edit, so the suites run independently.
+    /// </summary>
+    private sealed class EnemyTileFixture : IDisposable
+    {
+        /// <summary>Retail cartridge oracle for native comparisons.</summary>
+        private readonly CartridgeImportAddressSpace bus =
+            CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        /// <summary>Private extraction directory deleted on disposal.</summary>
+        private readonly string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
+            "enemy-tiles-" + Guid.NewGuid().ToString("N"));
+        /// <summary>Stock catalog loaded from the extraction.</summary>
+        private readonly EnemyTileArtworkCatalog stock;
+
+        /// <summary>Extracts and loads the stock enemy artwork.</summary>
+        internal EnemyTileFixture()
+        {
+            EnemyTileArtworkFiles.Extract(bus, directory, SupportedCartridge.Sha256);
+            stock = EnemyTileArtworkFiles.Load(directory, null);
+        }
+
+        /// <summary>Supplies the cartridge, extraction directory and stock catalog.</summary>
+        internal void Deconstruct(out CartridgeImportAddressSpace bus, out string directory, out EnemyTileArtworkCatalog stock)
+        {
+            bus = this.bus;
+            directory = this.directory;
+            stock = this.stock;
+        }
+
+        /// <summary>Deletes the private extraction.</summary>
+        public void Dispose()
+        {
+            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    /// <summary>Checks installed Torizo, Ceres escape, Mother Brain, corpse, Ninja Pirate, Zebetite and Norfair Ridley artwork against retail.</summary>
+    private static void VerifyBossEnemyArtwork()
+    {
+        using var fixture = new EnemyTileFixture();
+        var (bus, directory, stock) = fixture;
+        Suite(nameof(VerifyTorizoInstructionVramArtwork), () => VerifyTorizoInstructionVramArtwork(bus, directory, stock));
+        Suite(nameof(VerifyCeresEscapeTileArtwork), () => VerifyCeresEscapeTileArtwork(bus, directory, stock));
+        Suite(nameof(VerifyCeresEscapeOverlayTilemaps), () => VerifyCeresEscapeOverlayTilemaps(bus, directory, stock));
+        Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(directory, stock));
+        Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(directory, stock));
+        Suite(nameof(VerifyInstalledMotherBrainSpecialSpriteArtwork), () => VerifyInstalledMotherBrainSpecialSpriteArtwork(directory, stock));
+        Suite(nameof(VerifyInstalledDeadTorizoArtwork), () => VerifyInstalledDeadTorizoArtwork(directory, stock));
+        Suite(nameof(VerifyInstalledDeadTourianCorpseArtwork), () => VerifyInstalledDeadTourianCorpseArtwork(directory, stock));
+        Suite(nameof(VerifyInstalledNinjaSpacePiratePalette), () => VerifyInstalledNinjaSpacePiratePalette(bus, directory, stock));
+        Suite(nameof(VerifyInstalledZebetiteColors), () => VerifyInstalledZebetiteColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledNorfairRidleyColors), () => VerifyInstalledNorfairRidleyColors(bus, directory, stock));
+    }
+
+    /// <summary>Checks installed enemy and boss color, palette-cycle and Crocomire skeleton artwork against retail.</summary>
+    private static void VerifyEnemyColorArtwork()
+    {
+        using var fixture = new EnemyTileFixture();
+        var (bus, directory, stock) = fixture;
+        Suite(nameof(VerifyInstalledTourianStatueColors), () => VerifyInstalledTourianStatueColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledMagdollitePaletteCycle), () => VerifyInstalledMagdollitePaletteCycle(bus, directory, stock));
+        Suite(nameof(VerifyInstalledWorkRobotPaletteCycle), () => VerifyInstalledWorkRobotPaletteCycle(bus, directory, stock));
+        Suite(nameof(VerifyInstalledCrocomireColors), () => VerifyInstalledCrocomireColors(bus, directory, stock));
+        Suite(nameof(VerifyCrocomireBg2ScrollDefinitions), () => VerifyCrocomireBg2ScrollDefinitions(bus));
+        Suite(nameof(VerifyCrocomireSkeletonArtwork), () => VerifyCrocomireSkeletonArtwork(bus, directory, stock));
+        Suite(nameof(VerifyInstalledDraygonColors), () => VerifyInstalledDraygonColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledPhantoonColors), () => VerifyInstalledPhantoonColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledChozoAndTubeColors), () => VerifyInstalledChozoAndTubeColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledSporeSpawnColors), () => VerifyInstalledSporeSpawnColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledDachoraColors), () => VerifyInstalledDachoraColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledShitroidColors), () => VerifyInstalledShitroidColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledBabyMetroidCutsceneColors), () => VerifyInstalledBabyMetroidCutsceneColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledBotwoonColors), () => VerifyInstalledBotwoonColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledMotherBrainDeathColors), () => VerifyInstalledMotherBrainDeathColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledCeresDoorVisuals), () => VerifyInstalledCeresDoorVisuals(bus, directory, stock));
+    }
+
+    /// <summary>Checks installed enemy spritemaps, extended frames, Kraid, BG2 frame and gunship artwork against retail.</summary>
+    private static void VerifyEnemyFrameArtwork()
+    {
+        using var fixture = new EnemyTileFixture();
+        var (bus, directory, stock) = fixture;
+        Suite(nameof(VerifyInstalledEnemyProjectileSpritemaps), () => VerifyInstalledEnemyProjectileSpritemaps(bus, directory, stock));
+        Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(bus, directory, stock));
+        Suite(nameof(VerifyInstalledKraidColors), () => VerifyInstalledKraidColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledEnemySpritemaps), () => VerifyInstalledEnemySpritemaps(bus, directory, stock));
+        Suite(nameof(VerifyInstalledEnemyExtendedFrames), () => VerifyInstalledEnemyExtendedFrames(bus, directory, stock));
+        Suite(nameof(VerifyInstalledCrocomireBodyVisuals), () => VerifyInstalledCrocomireBodyVisuals(bus, directory, stock));
+        Suite(nameof(VerifyInstalledPhantoonBg2Frames), () => VerifyInstalledPhantoonBg2Frames(bus, directory, stock));
+        Suite(nameof(VerifyInstalledDraygonBg2Frames), () => VerifyInstalledDraygonBg2Frames(bus, directory, stock));
+        Suite(nameof(VerifyInstalledGunshipLiftoffArtwork), () => VerifyInstalledGunshipLiftoffArtwork(bus, directory, stock));
+    }
+
     /// <summary>Extracts stock enemy art and runs tile, palette, BG, spritemap and live override checks for the supported retail revision.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyEnemyTileArtwork()
@@ -102,42 +198,6 @@ internal static class EnemyTileArtworkVerification
         {
             EnemyTileArtworkFiles.Extract(bus, directory, SupportedCartridge.Sha256);
             EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, null);
-            Suite(nameof(VerifyTorizoInstructionVramArtwork), () => VerifyTorizoInstructionVramArtwork(bus, directory, stock));
-            Suite(nameof(VerifyCeresEscapeTileArtwork), () => VerifyCeresEscapeTileArtwork(bus, directory, stock));
-            Suite(nameof(VerifyCeresEscapeOverlayTilemaps), () => VerifyCeresEscapeOverlayTilemaps(bus, directory, stock));
-            Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(directory, stock));
-            Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(directory, stock));
-            Suite(nameof(VerifyInstalledMotherBrainSpecialSpriteArtwork), () => VerifyInstalledMotherBrainSpecialSpriteArtwork(directory, stock));
-            Suite(nameof(VerifyInstalledDeadTorizoArtwork), () => VerifyInstalledDeadTorizoArtwork(directory, stock));
-            Suite(nameof(VerifyInstalledDeadTourianCorpseArtwork), () => VerifyInstalledDeadTourianCorpseArtwork(directory, stock));
-            Suite(nameof(VerifyInstalledNinjaSpacePiratePalette), () => VerifyInstalledNinjaSpacePiratePalette(bus, directory, stock));
-            Suite(nameof(VerifyInstalledZebetiteColors), () => VerifyInstalledZebetiteColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledNorfairRidleyColors), () => VerifyInstalledNorfairRidleyColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledTourianStatueColors), () => VerifyInstalledTourianStatueColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledMagdollitePaletteCycle), () => VerifyInstalledMagdollitePaletteCycle(bus, directory, stock));
-            Suite(nameof(VerifyInstalledWorkRobotPaletteCycle), () => VerifyInstalledWorkRobotPaletteCycle(bus, directory, stock));
-            Suite(nameof(VerifyInstalledCrocomireColors), () => VerifyInstalledCrocomireColors(bus, directory, stock));
-            Suite(nameof(VerifyCrocomireBg2ScrollDefinitions), () => VerifyCrocomireBg2ScrollDefinitions(bus));
-            Suite(nameof(VerifyCrocomireSkeletonArtwork), () => VerifyCrocomireSkeletonArtwork(bus, directory, stock));
-            Suite(nameof(VerifyInstalledDraygonColors), () => VerifyInstalledDraygonColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledPhantoonColors), () => VerifyInstalledPhantoonColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledChozoAndTubeColors), () => VerifyInstalledChozoAndTubeColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledSporeSpawnColors), () => VerifyInstalledSporeSpawnColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledDachoraColors), () => VerifyInstalledDachoraColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledShitroidColors), () => VerifyInstalledShitroidColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledBabyMetroidCutsceneColors), () => VerifyInstalledBabyMetroidCutsceneColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledBotwoonColors), () => VerifyInstalledBotwoonColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledMotherBrainDeathColors), () => VerifyInstalledMotherBrainDeathColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledCeresDoorVisuals), () => VerifyInstalledCeresDoorVisuals(bus, directory, stock));
-            Suite(nameof(VerifyInstalledEnemyProjectileSpritemaps), () => VerifyInstalledEnemyProjectileSpritemaps(bus, directory, stock));
-            Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(bus, directory, stock));
-            Suite(nameof(VerifyInstalledKraidColors), () => VerifyInstalledKraidColors(bus, directory, stock));
-            Suite(nameof(VerifyInstalledEnemySpritemaps), () => VerifyInstalledEnemySpritemaps(bus, directory, stock));
-            Suite(nameof(VerifyInstalledEnemyExtendedFrames), () => VerifyInstalledEnemyExtendedFrames(bus, directory, stock));
-            Suite(nameof(VerifyInstalledCrocomireBodyVisuals), () => VerifyInstalledCrocomireBodyVisuals(bus, directory, stock));
-            Suite(nameof(VerifyInstalledPhantoonBg2Frames), () => VerifyInstalledPhantoonBg2Frames(bus, directory, stock));
-            Suite(nameof(VerifyInstalledDraygonBg2Frames), () => VerifyInstalledDraygonBg2Frames(bus, directory, stock));
-            Suite(nameof(VerifyInstalledGunshipLiftoffArtwork), () => VerifyInstalledGunshipLiftoffArtwork(bus, directory, stock));
             string[] files = Directory.GetFiles(directory, "enemy-????-tiles.png");
             AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,
                 "one indexed PNG per distinct retail enemy graphics definition");
@@ -345,11 +405,23 @@ internal static class EnemyTileArtworkVerification
             Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, Tripper/Kamer, Dragon, Multiviola, Norfair lava-jumper, Chozo statue, Viola, and Rinka OAM frames: cartridge parity, installed draws, and legacy composition overrides pass.");
     }
 
+    /// <summary>
+    /// The installed enemy artwork family. Each suite extracts its own stock artwork, so the full
+    /// run schedules them independently.
+    /// </summary>
+    internal static RegisteredSuite[] EnemyTileArtworkSuites() =>
+    [
+        new(nameof(VerifyEnemyTileArtwork), () => VerifyEnemyTileArtwork()),
+        new(nameof(VerifyBossEnemyArtwork), () => VerifyBossEnemyArtwork()),
+        new(nameof(VerifyEnemyColorArtwork), () => VerifyEnemyColorArtwork()),
+        new(nameof(VerifyEnemyFrameArtwork), () => VerifyEnemyFrameArtwork()),
+    ];
+
     /// <summary>Runs artwork comparisons alongside mapped source routing and room-enemy loading checks.</summary>
     [VerificationCommand("--enemy-tile-artwork")]
     internal static int EnemyTileArtworkCommand()
     {
-        Suite(nameof(VerifyEnemyTileArtwork), () => VerifyEnemyTileArtwork());
+        RunSuitesSerially(EnemyTileArtworkSuites());
         Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
         Suite(nameof(VerifyRoomEnemyLoading), () => VerifyRoomEnemyLoading());
         return 0;

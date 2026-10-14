@@ -58,6 +58,8 @@ using static SuperMetroid.Verification.Samus.Palettes.SamusHyperBeamColorsVerifi
 using static SuperMetroid.Verification.Samus.Palettes.SamusSuitColorsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
+using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleGradientVerification;
 using static SuperMetroid.Verification.Frontend.Map.WorldMapLabelsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -163,7 +165,6 @@ internal static class MapPresentationVerification
                 }
             }
             Console.WriteLine("Map presentation: all 14,336 retail cell words round-trip exactly.");
-            VerifyMapPresentationCatalog(bus);
         }
         else Console.WriteLine("Map presentation: retail round-trip skipped; source ROM unavailable.");
         Console.WriteLine("Map presentation: JSON edits reach minimap/shared projection; independent exploration and strict validation pass.");
@@ -255,19 +256,64 @@ internal static class MapPresentationVerification
         }
     }
 
-    /// <summary>Checks map catalog reload, override precedence and identity, stock replacement, and live runtime rebinding.</summary>
-    private static void VerifyMapPresentationCatalog(ISnesAddressSpace bus)
+    /// <summary>
+    /// The repository installation's map catalog on a private copy, with its stock and override
+    /// directories and the installed room fixtures the presentation checks bind. Each map
+    /// presentation suite edits, corrupts and repairs its own copy, so the suites run independently.
+    /// </summary>
+    private sealed class MapCatalogFixture : IDisposable
     {
-        using var temporaryDirectory = new TestScratchDirectory("map-catalog");
-        string root = temporaryDirectory.Root;
-        string stock = Path.Combine(root, "game", "maps"), repaired = Path.Combine(root, "replacement-stock"), overrides = Path.Combine(root, "overrides", "maps");
+        /// <summary>Private installation copy the suite may edit.</summary>
+        private readonly PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+
+        /// <summary>Loads the stock catalog and fixtures from the copy and creates its empty map override directory.</summary>
+        internal MapCatalogFixture()
+        {
+            Bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            SuperMetroid.AssetExtraction.Installation.GameInstallation installation = copy.Installation;
+            Stock = installation.MapDirectory;
+            Overrides = installation.MapOverrideDirectory;
+            Original = installation.LoadMaps();
+            FixtureAssets = new MapPresentationInstalledRoomAssets(installation);
+            Directory.CreateDirectory(Overrides);
+        }
+
+        /// <summary>Retail cartridge oracle for native comparisons.</summary>
+        internal SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace Bus { get; }
+        /// <summary>Installed stock map presentation directory.</summary>
+        internal string Stock { get; }
+        /// <summary>Map override directory the color checks share.</summary>
+        internal string Overrides { get; }
+        /// <summary>Stock map catalog loaded before any edit.</summary>
+        internal AreaMapPresentationCatalog Original { get; }
+        /// <summary>Installed room fixtures bound by real-room checks.</summary>
+        internal MapPresentationInstalledRoomAssets FixtureAssets { get; }
+
+        /// <summary>Supplies the catalog checks' shared arguments.</summary>
+        internal void Deconstruct(out SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, out string root,
+            out string stock, out string overrides, out AreaMapPresentationCatalog original,
+            out MapPresentationInstalledRoomAssets fixtureAssets, out GameplayBasePaletteCatalog initialPalettes)
+        {
+            bus = Bus;
+            root = copy.Root;
+            stock = Stock;
+            overrides = Overrides;
+            original = Original;
+            fixtureAssets = FixtureAssets;
+            initialPalettes = FixtureAssets.InitialPalettes;
+        }
+
+        /// <summary>Deletes the private installation copy.</summary>
+        public void Dispose() => copy.Dispose();
+    }
+
+    /// <summary>Checks map catalog reload, override precedence and identity, stock replacement, and live runtime rebinding.</summary>
+    private static void VerifyMapPresentationCatalog()
+    {
+        using var fixture = new MapCatalogFixture();
+        var (bus, root, stock, overrides, original, fixtureAssets, initialPalettes) = fixture;
+        string repaired = Path.Combine(root, "replacement-stock");
         var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area));
-        SuperMetroid.AssetExtraction.Installation.GameInstallation installation =
-            SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(
-                Path.GetFullPath("Super Metroid.smc"), root);
-        var original = installation.LoadMaps();
-        var fixtureAssets = new MapPresentationInstalledRoomAssets(installation);
-        GameplayBasePaletteCatalog initialPalettes = fixtureAssets.InitialPalettes;
         var reopened = AreaMapPresentationCatalog.Load(stock, overrides);
         foreach (AreaId area in Enum.GetValues<AreaId>())
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
@@ -280,31 +326,6 @@ internal static class MapPresentationVerification
             AssertEqual(rules[area].RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), actual.RevealsCellAbove(new(checked((ushort)x), checked((ushort)y))), "ROM-free stock slope parity");
         }
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
-        Directory.CreateDirectory(overrides);
-        Suite(nameof(VerifyTitleGraphicsOverride), () => VerifyTitleGraphicsOverride(bus, stock, overrides, original));
-        Suite(nameof(VerifyTitleSpriteCompositionOverride), () => VerifyTitleSpriteCompositionOverride(bus, stock, overrides, original));
-        Suite(nameof(VerifyTitlePaletteOverride), () => VerifyTitlePaletteOverride(bus, stock, overrides, original));
-        Suite(nameof(VerifyTitleGradientOverride), () => VerifyTitleGradientOverride(bus, stock, overrides, original));
-        Suite(nameof(VerifyRoomPaletteFxOverride), () => VerifyRoomPaletteFxOverride(bus, stock, overrides, original, initialPalettes));
-        Suite(nameof(VerifyRoomFxAnimatedTileArtworkOverride), () => VerifyRoomFxAnimatedTileArtworkOverride(bus, stock, overrides, original, initialPalettes));
-        Suite(nameof(VerifyRoomFxLayer3TilemapOverride), () => VerifyRoomFxLayer3TilemapOverride(stock, overrides, original));
-        Suite(nameof(VerifyRoomFxPaletteBlendOverride), () => VerifyRoomFxPaletteBlendOverride(stock, overrides, original));
-        Suite(nameof(VerifyPowerBombFixedColorOverride), () => VerifyPowerBombFixedColorOverride(stock, overrides, original));
-        Suite(nameof(VerifySamusVisorColorOverride), () => VerifySamusVisorColorOverride(stock, overrides, original, bus,
-            initialPalettes, fixtureAssets));
-        Suite(nameof(VerifySamusHurtColorOverride), () => VerifySamusHurtColorOverride(stock, overrides, original, bus));
-        Suite(nameof(VerifySamusSuitColorOverride), () => VerifySamusSuitColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets));
-        Suite(nameof(VerifySamusFullBodyCycleColorOverride), () => VerifySamusFullBodyCycleColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets));
-        Suite(nameof(VerifyCrystalFlashColorOverride), () => VerifyCrystalFlashColorOverride(stock, overrides, original, bus));
-        Suite(nameof(VerifySamusChargeColorOverride), () => VerifySamusChargeColorOverride(stock, overrides, original, bus));
-        Suite(nameof(VerifyCeresRidleyColorOverride), () => VerifyCeresRidleyColorOverride(stock, overrides, original, bus, initialPalettes,
-            fixtureAssets));
-        Suite(nameof(VerifyCeresRidleyMode7ColorOverride), () => VerifyCeresRidleyMode7ColorOverride(stock, overrides, original, bus, initialPalettes));
-        Suite(nameof(VerifySamusHyperBeamColorOverride), () => VerifySamusHyperBeamColorOverride(stock, overrides, original, bus, initialPalettes,
-            fixtureAssets));
-        Suite(nameof(VerifyMotherBrainHealthPaletteOverride), () => VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original, initialPalettes));
-        Suite(nameof(VerifyMotherBrainRainbowPaletteOverride), () => VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original, initialPalettes));
-        Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, stock, overrides, original, initialPalettes));
         string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options);
@@ -342,6 +363,52 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyMapLandmarks), () => VerifyMapLandmarks(bus, stock, Path.Combine(root, "landmark-overrides"), original));
         Suite(nameof(VerifyMapSaveMarkers), () => VerifyMapSaveMarkers(bus, stock, Path.Combine(root, "save-marker-overrides"), original));
         Suite(nameof(VerifyMapArrows), () => VerifyMapArrows(bus, stock, Path.Combine(root, "arrow-overrides"), original));
+        AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
+        File.WriteAllText(replacement, "{ broken JSON");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt override fails instead of selecting stock");
+        AssertEqual("{ broken JSON", File.ReadAllText(replacement), "invalid override retained for user repair");
+        File.WriteAllBytes(replacement, editedBytes);
+        File.WriteAllText(Path.Combine(stock, name), "corrupt stock");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "stock integrity failure remains visible with override present");
+        Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
+    }
+
+    /// <summary>Checks title, room FX, Samus, Ceres Ridley and Mother Brain color overrides against native output; they share one override directory in order.</summary>
+    private static void VerifyMapPresentationColorOverrides()
+    {
+        using var fixture = new MapCatalogFixture();
+        var (bus, _, stock, overrides, original, fixtureAssets, initialPalettes) = fixture;
+        Suite(nameof(VerifyTitleGraphicsOverride), () => VerifyTitleGraphicsOverride(bus, stock, overrides, original));
+        Suite(nameof(VerifyTitleSpriteCompositionOverride), () => VerifyTitleSpriteCompositionOverride(bus, stock, overrides, original));
+        Suite(nameof(VerifyTitlePaletteOverride), () => VerifyTitlePaletteOverride(bus, stock, overrides, original));
+        Suite(nameof(VerifyTitleGradientOverride), () => VerifyTitleGradientOverride(bus, stock, overrides, original));
+        Suite(nameof(VerifyRoomPaletteFxOverride), () => VerifyRoomPaletteFxOverride(bus, stock, overrides, original, initialPalettes));
+        Suite(nameof(VerifyRoomFxAnimatedTileArtworkOverride), () => VerifyRoomFxAnimatedTileArtworkOverride(bus, stock, overrides, original, initialPalettes));
+        Suite(nameof(VerifyRoomFxLayer3TilemapOverride), () => VerifyRoomFxLayer3TilemapOverride(stock, overrides, original));
+        Suite(nameof(VerifyRoomFxPaletteBlendOverride), () => VerifyRoomFxPaletteBlendOverride(stock, overrides, original));
+        Suite(nameof(VerifyPowerBombFixedColorOverride), () => VerifyPowerBombFixedColorOverride(stock, overrides, original));
+        Suite(nameof(VerifySamusVisorColorOverride), () => VerifySamusVisorColorOverride(stock, overrides, original, bus,
+            initialPalettes, fixtureAssets));
+        Suite(nameof(VerifySamusHurtColorOverride), () => VerifySamusHurtColorOverride(stock, overrides, original, bus));
+        Suite(nameof(VerifySamusSuitColorOverride), () => VerifySamusSuitColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets));
+        Suite(nameof(VerifySamusFullBodyCycleColorOverride), () => VerifySamusFullBodyCycleColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets));
+        Suite(nameof(VerifyCrystalFlashColorOverride), () => VerifyCrystalFlashColorOverride(stock, overrides, original, bus));
+        Suite(nameof(VerifySamusChargeColorOverride), () => VerifySamusChargeColorOverride(stock, overrides, original, bus));
+        Suite(nameof(VerifyCeresRidleyColorOverride), () => VerifyCeresRidleyColorOverride(stock, overrides, original, bus, initialPalettes,
+            fixtureAssets));
+        Suite(nameof(VerifyCeresRidleyMode7ColorOverride), () => VerifyCeresRidleyMode7ColorOverride(stock, overrides, original, bus, initialPalettes));
+        Suite(nameof(VerifySamusHyperBeamColorOverride), () => VerifySamusHyperBeamColorOverride(stock, overrides, original, bus, initialPalettes,
+            fixtureAssets));
+        Suite(nameof(VerifyMotherBrainHealthPaletteOverride), () => VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original, initialPalettes));
+        Suite(nameof(VerifyMotherBrainRainbowPaletteOverride), () => VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original, initialPalettes));
+        Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, stock, overrides, original, initialPalettes));
+    }
+
+    /// <summary>Checks installed pause-screen map, sprite, backdrop, wireframe, selector, reserve and equipment assets.</summary>
+    private static void VerifyPausePresentationAssets()
+    {
+        using var fixture = new MapCatalogFixture();
+        var (bus, root, stock, _, original, _, _) = fixture;
         Suite(nameof(VerifyMapScreens), () => VerifyMapScreens(bus, stock, Path.Combine(root, "screen-overrides"), original));
         Suite(nameof(VerifyMapSprites), () => VerifyMapSprites(bus, stock, Path.Combine(root, "sprite-overrides"), original));
         Suite(nameof(VerifyPauseTileAtlas), () => VerifyPauseTileAtlas(bus, stock, Path.Combine(root, "pause-art-overrides"), original));
@@ -353,6 +420,13 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyPauseReserveUiAssets), () => VerifyPauseReserveUiAssets(bus, stock, Path.Combine(root, "pause-reserve-ui-overrides"), original));
         Suite(nameof(VerifyPauseEquipmentBaseAssets), () => VerifyPauseEquipmentBaseAssets(bus, stock, Path.Combine(root, "pause-equipment-base-overrides"), original));
         Suite(nameof(VerifyPauseEquipmentLabelAssets), () => VerifyPauseEquipmentLabelAssets(bus, stock, Path.Combine(root, "pause-equipment-label-overrides"), original));
+    }
+
+    /// <summary>Checks installed HUD, menu, message, typewriter, narration, ending, credits and file-select presentation assets.</summary>
+    private static void VerifyFrontendPresentationAssets()
+    {
+        using var fixture = new MapCatalogFixture();
+        var (bus, root, stock, _, original, _, initialPalettes) = fixture;
         Suite(nameof(VerifyEscapeTimerPresentationAssets), () => VerifyEscapeTimerPresentationAssets(bus, stock,
             Path.Combine(root, "escape-timer-overrides"), original, initialPalettes));
         Suite(nameof(VerifyGameplayHudPresentationAssets), () => VerifyGameplayHudPresentationAssets(bus, stock,
@@ -374,14 +448,6 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, NewForbiddenMapBus(), original, original, verifyCapturedRendering: true));
         Suite(nameof(VerifyMapLoadAnchors), () => VerifyMapLoadAnchors(bus, original));
         Suite(nameof(VerifyCompiledMapScrollControls), () => VerifyCompiledMapScrollControls(bus, original));
-        AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
-        File.WriteAllText(replacement, "{ broken JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt override fails instead of selecting stock");
-        AssertEqual("{ broken JSON", File.ReadAllText(replacement), "invalid override retained for user repair");
-        File.WriteAllBytes(replacement, editedBytes);
-        File.WriteAllText(Path.Combine(stock, name), "corrupt stock");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "stock integrity failure remains visible with override present");
-        Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
     }
 
     /// <summary>Checks Mother Brain rainbow, beam, drain, and fake-death palette overrides against native CGRAM output.</summary>
@@ -1500,11 +1566,24 @@ internal static class MapPresentationVerification
         return guard;
     }
 
-    /// <summary>Runs the editable map presentation and installed-content verification suite.</summary>
+    /// <summary>
+    /// The editable map and installed presentation family. Every catalog suite edits its own private
+    /// installation copy, so the full run schedules them independently.
+    /// </summary>
+    internal static RegisteredSuite[] MapPresentationSuites() =>
+    [
+        new(nameof(VerifyMapPresentation), () => VerifyMapPresentation()),
+        new(nameof(VerifyMapPresentationCatalog), () => VerifyMapPresentationCatalog()),
+        new(nameof(VerifyMapPresentationColorOverrides), () => VerifyMapPresentationColorOverrides()),
+        new(nameof(VerifyPausePresentationAssets), () => VerifyPausePresentationAssets()),
+        new(nameof(VerifyFrontendPresentationAssets), () => VerifyFrontendPresentationAssets()),
+    ];
+
+    /// <summary>Runs every suite of the editable map presentation and installed-content family in this process.</summary>
     [VerificationCommand("--map-presentation")]
     internal static int MapPresentationCommand()
     {
-        Suite(nameof(VerifyMapPresentation), () => VerifyMapPresentation());
+        RunSuitesSerially(MapPresentationSuites());
         return 0;
     }
 }

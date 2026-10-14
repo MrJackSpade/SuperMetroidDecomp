@@ -66,6 +66,7 @@ internal static class EndingFlyawayArtworkVerification
                 ArtworkJson.Options)
                 ?? throw new InvalidDataException("Stock Ceres flight map is empty.");
         edited.FrontTiles[0] = unchecked((byte)(edited.FrontTiles[0] + 1));
+        Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         using (var output = File.Create(overridePath))
             CeresFlightArtworkCatalog.WriteMap(output, edited);
         CeresFlightArtworkCatalog overrideArt = installation.LoadIntroCinematicArt().CeresFlight;

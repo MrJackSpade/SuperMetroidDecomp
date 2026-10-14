@@ -15,29 +15,36 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks installed intro and ending artwork after the frontend parity setup phase.</summary>
 internal static class IntroArtworkPostSlicesVerification
 {
-    /// <summary>
-    /// Runs the artwork checks after intro frontend parity without replaying its thousands
-    /// of setup frames. This keeps typed-DMA guard regressions quick to isolate.
-    /// </summary>
+    /// <summary>Runs the Ceres cinematic and ending artwork checks.</summary>
     internal static void VerifyIntroArtworkPostSlices(string sourceRom)
     {
-        using var rootScratch = new TestScratchDirectory("intro-post-slices");
-        string root = rootScratch.Root;
-        try
-        {
-            GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
-            CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-            VerifyCeresFlightArtwork(installation, bus);
-            VerifyCeresDestructionArtwork(installation, bus);
-            VerifyEndingFlyawayArtwork(installation);
-            VerifyEndingMode7Artwork(installation);
-            VerifyEndingObjectArtwork(installation);
-            VerifyEndingPaletteArtwork(installation);
-        }
-        finally
-        {
-            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
-        }
+        VerifyCeresCinematicArtwork(sourceRom);
+        VerifyEndingArtwork();
+    }
+
+    /// <summary>
+    /// Runs the Ceres flight and destruction artwork checks, which edit, corrupt and repair their
+    /// artwork, on a private copy of the repository installation; ROM import itself is covered by
+    /// the asset-import verification.
+    /// </summary>
+    internal static void VerifyCeresCinematicArtwork(string sourceRom)
+    {
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        GameInstallation installation = copy.Installation;
+        CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        Suite(nameof(VerifyCeresFlightArtwork), () => VerifyCeresFlightArtwork(installation, bus));
+        Suite(nameof(VerifyCeresDestructionArtwork), () => VerifyCeresDestructionArtwork(installation, bus));
+    }
+
+    /// <summary>Runs the ending flyaway, Mode 7, object and palette artwork checks on a private installation copy.</summary>
+    internal static void VerifyEndingArtwork()
+    {
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        GameInstallation installation = copy.Installation;
+        Suite(nameof(VerifyEndingFlyawayArtwork), () => VerifyEndingFlyawayArtwork(installation));
+        Suite(nameof(VerifyEndingMode7Artwork), () => VerifyEndingMode7Artwork(installation));
+        Suite(nameof(VerifyEndingObjectArtwork), () => VerifyEndingObjectArtwork(installation));
+        Suite(nameof(VerifyEndingPaletteArtwork), () => VerifyEndingPaletteArtwork(installation));
     }
 
     /// <summary>Runs focused flight, destruction, flyaway, Mode 7, object, and palette artwork checks.</summary>

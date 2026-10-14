@@ -1,3 +1,7 @@
+using static SuperMetroid.Verification.Frontend.Intro.IntroArtworkPostSlicesVerification;
+using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
+using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Frontend.Intro.CinematicSpriteAnimationsVerification;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -9,12 +13,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionArtworkVerification;
-using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightArtworkVerification;
-using static SuperMetroid.Verification.Frontend.Ending.EndingFlyawayArtworkVerification;
-using static SuperMetroid.Verification.Frontend.Ending.EndingMode7ArtworkVerification;
-using static SuperMetroid.Verification.Frontend.Ending.EndingObjectArtworkVerification;
-using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingPaletteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoCartridgeFallbackVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
@@ -51,7 +49,7 @@ internal static class IntroCinematicArtworkVerification
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro cinematic characters, tilemaps and palette")]
-    internal static void VerifyIntroCinematicArtwork(string sourceRom, bool samusBodyOnly = false, bool presentationOnly = false)
+    internal static void VerifyIntroCinematicArtwork(string sourceRom)
     {
         // Edits, corruption and repairs run on a private copy of the repository installation;
         // ROM import itself is covered by the asset-import verification.
@@ -60,23 +58,8 @@ internal static class IntroCinematicArtworkVerification
         {
             GameInstallation installation = copy.Installation;
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-            if (samusBodyOnly)
-            {
-                Suite(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtwork(bus, installation));
-                return;
-            }
             Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus, sourceRom));
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
-            // The body-art override verifier intentionally edits this installation's
-            // pose-$09 PNG. Compare the guarded frontend with retail *before* those
-            // visual-only overrides are selected; otherwise movement correctly shows
-            // the edit and falsely fails stock pixel parity.
-            if (!presentationOnly)
-            {
-                Suite(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(installation, sourceRom));
-                Suite(nameof(VerifyGoldenTorizoCartridgeCombatFallback), () => VerifyGoldenTorizoCartridgeCombatFallback(sourceRom, installation));
-                Suite(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtwork(bus, installation));
-            }
             AssertTrue(stock.BackgroundCharacters.Transfer.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
@@ -348,12 +331,6 @@ internal static class IntroCinematicArtworkVerification
             File.Delete(dividerOverridePath);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening divider never rereads its cartridge source");
-            Suite(nameof(VerifyCeresFlightArtwork), () => VerifyCeresFlightArtwork(installation, bus));
-            Suite(nameof(VerifyCeresDestructionArtwork), () => VerifyCeresDestructionArtwork(installation, bus));
-            Suite(nameof(VerifyEndingFlyawayArtwork), () => VerifyEndingFlyawayArtwork(installation));
-            Suite(nameof(VerifyEndingMode7Artwork), () => VerifyEndingMode7Artwork(installation));
-            Suite(nameof(VerifyEndingObjectArtwork), () => VerifyEndingObjectArtwork(installation));
-            Suite(nameof(VerifyEndingPaletteArtwork), () => VerifyEndingPaletteArtwork(installation));
 
             string[] names =
             [
@@ -1208,29 +1185,42 @@ internal static class IntroCinematicArtworkVerification
         CeresDestructionSprites = 1 << 6,
     }
 
-    /// <summary>Runs focused presentation component checks using the retail artwork installation.</summary>
-    [VerificationCommand("--intro-artwork-components-fixture")]
-    internal static int IntroArtworkComponentsFixtureCommand()
+    /// <summary>
+    /// The installed intro, Ceres and ending artwork family. Each suite that edits artwork runs on
+    /// its own private installation copy, so the full run schedules them independently; the two
+    /// read-only suites share the repository installation.
+    /// </summary>
+    internal static RegisteredSuite[] IntroCinematicArtworkSuites() =>
+    [
+        new(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(RepositoryInstallation.Installation, RepositoryRomPath)),
+        new(nameof(VerifyGoldenTorizoCartridgeCombatFallback), () => VerifyGoldenTorizoCartridgeCombatFallback(RepositoryRomPath, RepositoryInstallation.Installation)),
+        new(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtworkOnPrivateCopy()),
+        new(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(RepositoryRomPath)),
+        new(nameof(VerifyCeresCinematicArtwork), () => VerifyCeresCinematicArtwork(RepositoryRomPath)),
+        new(nameof(VerifyEndingArtwork), () => VerifyEndingArtwork()),
+    ];
+
+    /// <summary>Runs the Samus body artwork checks, which edit pose artwork, on a private installation copy.</summary>
+    private static void VerifySamusBodyArtworkOnPrivateCopy()
     {
-        Suite(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(Path.GetFullPath("Super Metroid.smc"), presentationOnly: true));
-        return 0;
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
+        VerifySamusBodyArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath),
+            copy.Installation);
     }
 
-    /// <summary>Runs the complete installed intro cinematic artwork verification.</summary>
+    /// <summary>Runs every suite of the installed intro, Ceres and ending artwork family in this process.</summary>
     [VerificationCommand("--intro-cinematic-artwork")]
     internal static int IntroCinematicArtworkCommand()
     {
-        string introBackgroundRom = RepositoryRomPath;
-        Suite(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(introBackgroundRom));
+        RunSuitesSerially(IntroCinematicArtworkSuites());
         return 0;
     }
 
-    /// <summary>Runs the Samus body artwork subset of the intro installation checks.</summary>
+    /// <summary>Runs the Samus body artwork checks.</summary>
     [VerificationCommand("--samus-body-artwork")]
     internal static int SamusBodyArtworkCommand()
     {
-        string samusBodyRom = RepositoryRomPath;
-        Suite(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(samusBodyRom, samusBodyOnly: true));
+        Suite(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtworkOnPrivateCopy());
         return 0;
     }
 }

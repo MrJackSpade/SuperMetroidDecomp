@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
-/// <summary>Compiled initial and shared surface animation selectors for crawler enemies.</summary>
+/// <summary>Initial and shared surface animation selectors for crawler enemies.</summary>
 internal static class CrawlerAnimationDefinitions
 {
     /// <summary>
@@ -10,39 +10,39 @@ internal static class CrawlerAnimationDefinitions
     private static CrawlerAnimationDefinition Family(CrawlerAnimationFamily family) => family switch
     {
         CrawlerAnimationFamily.Shared => new(
-            SharedCrawlerInstructionProgramDefinitions.UpsideRight,
-            SharedCrawlerInstructionProgramDefinitions.UpsideLeft,
-            SharedCrawlerInstructionProgramDefinitions.UpsideDown,
-            SharedCrawlerInstructionProgramDefinitions.UpsideUp),
+            CrawlerProgram.SharedUpsideRight,
+            CrawlerProgram.SharedUpsideLeft,
+            CrawlerProgram.SharedUpsideDown,
+            CrawlerProgram.SharedUpsideUp),
         CrawlerAnimationFamily.Viola => new(
-            ViolaInstructionProgramDefinitions.UpsideRight,
-            ViolaInstructionProgramDefinitions.UpsideLeft,
-            ViolaInstructionProgramDefinitions.UpsideDown,
-            ViolaInstructionProgramDefinitions.UpsideUp),
+            CrawlerProgram.ViolaUpsideRight,
+            CrawlerProgram.ViolaUpsideLeft,
+            CrawlerProgram.ViolaUpsideDown,
+            CrawlerProgram.ViolaUpsideUp),
         CrawlerAnimationFamily.Sciser => new(
-            SciserInstructionProgramDefinitions.UpsideRight,
-            SciserInstructionProgramDefinitions.UpsideLeft,
-            SciserInstructionProgramDefinitions.UpsideDown,
-            SciserInstructionProgramDefinitions.UpsideUp),
+            CrawlerProgram.SciserUpsideRight,
+            CrawlerProgram.SciserUpsideLeft,
+            CrawlerProgram.SciserUpsideDown,
+            CrawlerProgram.SciserUpsideUp),
         CrawlerAnimationFamily.Zero => new(
-            ZeroInstructionProgramDefinitions.UpsideRight,
-            ZeroInstructionProgramDefinitions.UpsideLeft,
-            ZeroInstructionProgramDefinitions.UpsideDown,
-            ZeroInstructionProgramDefinitions.UpsideUp),
+            CrawlerProgram.ZeroUpsideRight,
+            CrawlerProgram.ZeroUpsideLeft,
+            CrawlerProgram.ZeroUpsideDown,
+            CrawlerProgram.ZeroUpsideUp),
         CrawlerAnimationFamily.HZoomer => new(
-            HZoomerInstructionProgramDefinitions.UpsideRight,
-            HZoomerInstructionProgramDefinitions.UpsideLeft,
-            HZoomerInstructionProgramDefinitions.UpsideDown,
-            HZoomerInstructionProgramDefinitions.UpsideUp),
+            CrawlerProgram.HZoomerUpsideRight,
+            CrawlerProgram.HZoomerUpsideLeft,
+            CrawlerProgram.HZoomerUpsideDown,
+            CrawlerProgram.HZoomerUpsideUp),
         _ => throw new InvalidDataException(
             $"Crawler animation family {(int)family} exceeds five authored tables."),
     };
-    /// <summary>Returns one family-specific initial instruction list.</summary>
-    internal static ushort InitialInstruction(
+    /// <summary>Returns one family-specific initial animation.</summary>
+    internal static CrawlerProgram InitialProgram(
         CrawlerAnimationFamily family,
         CrawlerSurfaceOrientation orientation) => Family(family).ForOrientation(orientation);
-    /// <summary>Returns one shared surface list using the native even species offset.</summary>
-    internal static ushort SurfaceInstruction(
+    /// <summary>Returns one shared surface animation using the native even species offset.</summary>
+    internal static CrawlerProgram SurfaceProgram(
         ushort speciesByteOffset,
         CrawlerSurfaceOrientation orientation)
     {

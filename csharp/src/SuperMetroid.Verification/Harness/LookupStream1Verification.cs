@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
@@ -2214,7 +2215,7 @@ internal static class LookupStream1Verification
             AssertThrows<ArgumentOutOfRangeException>(() => HibashiDefinitions.ActivityFrame(invalid), "Hibashi native frame rejection");
         for (ushort selector = 0; selector < 6; selector++)
         {
-            AssertEqual(Word(0xa2e5ef + selector * 2), DragonAnimationDefinitions.InstructionList((DragonAnimationSelector)selector), "Dragon native phase/facing program");
+            AssertEqual(Word(0xa2e5ef + selector * 2), NativeEnemyProgramOracle.EntryOf(DragonNativeListAddresses.Entries, DragonAnimationDefinitions.Program((DragonAnimationSelector)selector)), "Dragon native phase/facing program");
             var role = EscapeEtecoonDefinitions.Initialization(selector);
             int offset = selector & ~1;
             AssertEqual(Word(0xb3e718 + offset), role.Position.X, "Etecoon native role X");
@@ -2225,7 +2226,7 @@ internal static class LookupStream1Verification
         }
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => DragonAnimationDefinitions.InstructionList((DragonAnimationSelector)invalid), "Dragon invalid selector rejection");
+            AssertThrows<InvalidDataException>(() => DragonAnimationDefinitions.Program((DragonAnimationSelector)invalid), "Dragon invalid selector rejection");
             AssertThrows<ArgumentOutOfRangeException>(() => EscapeEtecoonDefinitions.Initialization(invalid), "Etecoon invalid role rejection");
         }
     }
@@ -2362,37 +2363,6 @@ internal static class LookupStream1Verification
             AssertEqual($"sciser_upside_{names[surface]}_{frame}", actual.Name, "Sciser stable editable name");
             AssertEqual((ushort)4, Word(0xa30000 | pointer), "native Sciser four-object record size");
         }
-        var controls = new HashSet<ushort>();
-        var visuals = new HashSet<ushort>();
-        for (int surface = 0; surface < 4; surface++)
-        {
-            int start = 0x967b + surface * 24;
-            foreach (int offset in new[] { 0, 2, 4, 8, 12, 16, 20, 22 }) controls.Add((ushort)(start + offset));
-            for (int frame = 0; frame < 4; frame++) visuals.Add((ushort)(start + 6 + frame * 4));
-        }
-        int controlIndex = 0, visualIndex = 0;
-        for (int pointer = 0x967a; pointer <= 0x96dc; pointer++)
-        {
-            AssertEqual(visuals.Contains((ushort)pointer), SciserInstructionProgramDefinitions.IsPresentationWord((ushort)pointer),
-                "Sciser exact presentation domain");
-            AssertEqual(controls.Contains((ushort)pointer) || controls.Contains((ushort)(pointer - 1)),
-                SciserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | pointer), "Sciser exact byte guard domain");
-            if (controls.Contains((ushort)pointer))
-            {
-                var actual = SciserInstructionProgramDefinitionsTooling.MechanicsWord(controlIndex++);
-                AssertEqual((ushort)pointer, actual.Address, "Sciser native control order");
-                AssertEqual(Word(0xa30000 | pointer), actual.Value, "Sciser native control value");
-            }
-            else AssertThrows<InvalidDataException>(() => SciserInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer),
-                "Sciser rejects every noncontrol address");
-            if (visuals.Contains((ushort)pointer))
-                AssertEqual((ushort)pointer, SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(visualIndex++),
-                    "Sciser native visual order");
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Sciser control index domain");
-        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Sciser visual index domain");
     }
 
     /// <summary>Reads native Sciser directional frames and spritemap pointers.</summary>

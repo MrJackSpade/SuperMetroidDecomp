@@ -401,9 +401,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Skree)
             return SkreeMetareeInstructionProgramDefinitions.ReadSkreeMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon)
-            return DragonInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite)
             return MagdolliteInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -436,24 +433,6 @@ internal sealed class EnemyInstructionInterpreter
 
         if (PlatformsBehavior.IsPlatformDefinition(slot.EnemyDefinitionPointer))
             return PlatformInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.HZoomer)
-            return HZoomerInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser)
-            return SciserInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Zero)
-            return ZeroInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Viola)
-            return ViolaInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer is
-            EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer)
-        {
-            return SharedCrawlerInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Dachora)
             return DachoraInstructionProgramDefinitions.ReadMechanicsWord(address);

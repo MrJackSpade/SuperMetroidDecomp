@@ -1,11 +1,8 @@
-using SuperMetroid.Core.Enemies.Dragon;
-
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The twelve distinct body and wing OAM compositions selected by Dragon's six
-/// compiled bank-$A2 programs. Animation timing and attack callbacks stay in
-/// <see cref="DragonInstructionProgramDefinitions"/>.
+/// The twelve distinct body and wing OAM compositions shown by Dragon's six
+/// bank-$A2 programs. Animation timing and attack callbacks stay in its typed programs.
 /// </summary>
 internal static class DragonVisualDefinitions
 {
@@ -29,19 +26,5 @@ internal static class DragonVisualDefinitions
                 result[6 + side * 3 + frame] = new(Bank, (ushort)(body + (frame + 1) * 42), $"dragon_body_attack_{facing}_{frame}");
         }
         return result;
-    }
-    /// <summary>Resolves one of Dragon's sixteen compiled presentation operands.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        for (int index = 0;
-             index < DragonInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-            if (DragonInstructionProgramDefinitions.PresentationWordAddress(index) ==
-                    operandAddress &&
-                CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress,
-                    out ushort frame))
-                return frame;
-        throw new InvalidDataException(
-            $"Dragon visual operand $A2:{operandAddress:X4} is not compiled.");
     }
 }

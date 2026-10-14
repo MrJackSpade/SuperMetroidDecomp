@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies.Crawlers;
+using SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Enemies.Cacatac;
 using SuperMetroid.Verification.Enemies.Stoke;
 using SuperMetroid.Verification.Enemies.Owtch;
@@ -66,7 +68,6 @@ using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireTongueCollision
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.DownwardGatePlmsVerification;
 using static SuperMetroid.Verification.Enemies.Dragon.DragonFireballInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Dragon.DragonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonHealthPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonIntroDanceDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonAnimationsVerification;
@@ -272,7 +273,6 @@ using static SuperMetroid.Verification.Samus.SamusIndexedSpeedsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusShinesparkVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialStatesVerification;
 using static SuperMetroid.Verification.Saves.SaveRamLayoutVerification;
-using static SuperMetroid.Verification.Enemies.Crawlers.SciserInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.ScrollPlmsVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolOrbitAlgorithmVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolSegmentDefinitionsVerification;
@@ -1563,7 +1563,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 1 oracle revision");
-        Suite(nameof(VerifySciserInstructionProgramDefinitions), () => VerifySciserInstructionProgramDefinitions());
+        Suite(nameof(CrawlerBehaviorVerification.VerifyCrawlerBehavior), () => CrawlerBehaviorVerification.VerifyCrawlerBehavior(rom));
         Suite(nameof(VerifySamusDeathSequence), () => VerifySamusDeathSequence());
         Suite(nameof(VerifyNuclearWaffleProjectileInstructionProgramDefinitions), () => VerifyNuclearWaffleProjectileInstructionProgramDefinitions());
         Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(rom));
@@ -1587,7 +1587,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyMetroidBehaviorDefinitions), () => VerifyMetroidBehaviorDefinitions(rom));
         Suite(nameof(VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions), () => VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(rom));
         Suite(nameof(VerifyDragonFireballInstructionProgramDefinitions), () => VerifyDragonFireballInstructionProgramDefinitions());
-        Suite(nameof(VerifyDragonInstructionProgramDefinitions), () => VerifyDragonInstructionProgramDefinitions());
+        Suite(nameof(DragonBehaviorVerification.VerifyDragonBehavior), () => DragonBehaviorVerification.VerifyDragonBehavior(rom));
         Suite(nameof(CacatacBehaviorVerification.VerifyCacatacBehavior), () => CacatacBehaviorVerification.VerifyCacatacBehavior(rom));
         Suite(nameof(BullBehaviorVerification.VerifyBullBehavior), () => BullBehaviorVerification.VerifyBullBehavior(rom));
         Suite(nameof(BullAnimationsVerification.VerifyBullAnimations), () => BullAnimationsVerification.VerifyBullAnimations(rom));

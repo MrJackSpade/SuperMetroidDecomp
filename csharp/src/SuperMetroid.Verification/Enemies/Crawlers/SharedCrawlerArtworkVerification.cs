@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Enemies.Crawlers.SharedCrawlerInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -11,41 +10,14 @@ namespace SuperMetroid.Verification.Enemies.Crawlers;
 /// selectors and installed HZoomer spritemap artwork.</summary>
 internal static class SharedCrawlerArtworkVerification
 {
-    /// <summary>Compares every presentation operand with the cartridge and
-    /// installed catalog, then rejects adjacent non-program selector data.</summary>
-    internal static void VerifyInstalledSharedCrawlerFrames(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+    /// <summary>Confirms every pose the shared crawler loops show has installed artwork.</summary>
+    internal static void VerifyInstalledSharedCrawlerFrames(EnemyTileArtworkCatalog stock)
     {
-        EnemyDefinitionId[] definitions =
-        [
-            EnemyDefinitionId.Zeela,
-            EnemyDefinitionId.Sova,
-            EnemyDefinitionId.Zoomer,
-            EnemyDefinitionId.MZoomer,
-        ];
-        for (int index = 0;
-             index < SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = SharedCrawlerInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            ushort compiled = EnemySpritemapDefinitions.SharedCrawlerFrameAt(operand);
-            AssertEqual(ReadSharedCrawlerInstructionWord(rom, operand), compiled,
-                $"Shared crawler selector $A3:{operand:X4} matches the pinned cartridge");
+        // Zeela, Sova, Zoomer and Stone Zoomer share the orange Zoomer's installed compositions.
+        foreach (ushort pose in CrawlerAnimations.Spritemaps(CrawlerProgram.SharedUpsideRightLoop, CrawlerProgram.SharedUpsideLeftLoop,
+                     CrawlerProgram.SharedUpsideDownLoop, CrawlerProgram.SharedUpsideUpLoop))
             AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGet(
-                    EnemySpritemapDefinitions.HZoomerBank, compiled, out _),
-                $"Shared crawler $A3:{operand:X4} uses installed HZoomer artwork");
-            foreach (EnemyDefinitionId definition in definitions)
-            {
-                AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                        definition, operand, out ushort selected) && selected == compiled,
-                    $"Shared crawler ${(int)definition:X4} compiles visual operand $A3:{operand:X4}");
-            }
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.SharedCrawlerFrameAt(
-                SharedCrawlerInstructionProgramDefinitions.AdjacentInitialSelectorTable),
-            "Shared crawler rejects adjacent pointer data as a visual selector");
-        Suite(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(rom, stock));
+                    EnemySpritemapDefinitions.HZoomerBank, pose, out _),
+                $"Shared crawler pose ${pose:X4} uses installed HZoomer artwork");
     }
 }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies.Crawlers.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -20,41 +21,16 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         _earthquake = earthquake;
     }
 
-    /// <summary>Executes the shared crawler family's private animation instruction.</summary>
-    private bool TryProcessSharedCrawlerInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out a crawler animation's cue: each surface's first step installs the movement function main AI runs.</summary>
+    private static CrawlerProgram? ApplyCrawlerCue(CrawlerEnemyState state, CrawlerCue cue)
     {
-        if (!IsSharedCrawlerDefinition(slot.EnemyDefinitionPointer) ||
-            !Enum.IsDefined((CrawlerInstruction)word))
-            return false;
-
-        switch ((CrawlerInstruction)word)
+        switch (cue.Kind)
         {
-            case CrawlerInstruction.FunctionInY:
-                RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
+            case CrawlerCueKind.SetFunction:
+                state.Function = cue.Function;
+                return null;
             default:
-                throw new InvalidOperationException(
-                    $"Shared crawler does not own instruction ${word:X4}.");
-        }
-    }
-
-    /// <summary>Executes the orange Zoomer's private animation instruction.</summary>
-    private bool TryProcessHZoomerInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
-    {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.HZoomer ||
-            !Enum.IsDefined((HZoomerInstruction)word))
-            return false;
-
-        switch ((HZoomerInstruction)word)
-        {
-            case HZoomerInstruction.FunctionInY:
-                RequireCrawlerState(slot).Function = (CrawlerEnemyFunction)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            default:
-                throw new InvalidOperationException(
-                    $"HZoomer does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(CrawlerCueKind)} {cue.Kind}.");
         }
     }
 
@@ -84,8 +60,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         var orientation = (CrawlerSurfaceOrientation)((animationFamily == CrawlerAnimationFamily.Viola
             ? (int)slot.Properties
             : slot.CurrentInstruction) & 3);
-        slot.CurrentInstruction = CrawlerAnimationDefinitions.InitialInstruction(
-            animationFamily, orientation);
+        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
+            animationFamily, orientation));
         slot.SpritemapPointer = 0x804d; // Spritemap_Common_Nothing.
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
@@ -148,8 +124,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         };
         _crawlerStates[slot.SlotIndex] = state;
         var orientation = (CrawlerSurfaceOrientation)(slot.CurrentInstruction & 3);
-        slot.CurrentInstruction = CrawlerAnimationDefinitions.InitialInstruction(
-            CrawlerAnimationFamily.HZoomer, orientation);
+        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
+            CrawlerAnimationFamily.HZoomer, orientation));
         slot.SpritemapPointer = 0x804d;
         slot.InstructionTimer = NativeCountdown.Start(1);
         ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
@@ -286,32 +262,35 @@ internal sealed class CrawlersBehavior : IEnemySpecies
     private static void SetHZoomerVerticalInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state) =>
-        SetHZoomerInstructionList(
+        SetHZoomerProgram(
             slot,
+            state,
             state.Velocity.Y.SignedRawValue < 0
-                ? CrawlerAnimationDefinitions.InitialInstruction(
+                ? CrawlerAnimationDefinitions.InitialProgram(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideDown)
-                : CrawlerAnimationDefinitions.InitialInstruction(
+                : CrawlerAnimationDefinitions.InitialProgram(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideUp));
 
     /// <summary>Selects orange Zoomer's floor or ceiling animation from its horizontal velocity sign.</summary>
     private static void SetHZoomerHorizontalInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state) =>
-        SetHZoomerInstructionList(
+        SetHZoomerProgram(
             slot,
+            state,
             state.Velocity.X.SignedRawValue < 0
-                ? CrawlerAnimationDefinitions.InitialInstruction(
+                ? CrawlerAnimationDefinitions.InitialProgram(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideRight)
-                : CrawlerAnimationDefinitions.InitialInstruction(
+                : CrawlerAnimationDefinitions.InitialProgram(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideLeft));
 
-    /// <summary>Starts the chosen orange-Zoomer list with fresh instruction and loop timers.</summary>
-    private static void SetHZoomerInstructionList(
+    /// <summary>Starts the chosen orange-Zoomer animation with fresh instruction and loop timers.</summary>
+    private static void SetHZoomerProgram(
         RoomEnemySlot slot,
-        ushort instructionList)
+        CrawlerEnemyState state,
+        CrawlerProgram program)
     {
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -465,7 +444,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         CrawlerSurfaceOrientation orientation = state.Velocity.Y.SignedRawValue < 0
             ? CrawlerSurfaceOrientation.UpsideDown
             : CrawlerSurfaceOrientation.UpsideUp;
-        SetCrawlerInstructionFromTable(slot, orientation);
+        SetCrawlerProgramFromTable(slot, state, orientation);
     }
 
     /// <summary>Chooses a shared crawler's floor or ceiling animation from its horizontal tangent direction.</summary>
@@ -476,12 +455,13 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         CrawlerSurfaceOrientation orientation = state.Velocity.X.SignedRawValue < 0
             ? CrawlerSurfaceOrientation.UpsideRight
             : CrawlerSurfaceOrientation.UpsideLeft;
-        SetCrawlerInstructionFromTable(slot, orientation);
+        SetCrawlerProgramFromTable(slot, state, orientation);
     }
 
     /// <summary>Indexes the species-specific six-word surface table and resets animation timers.</summary>
-    private static void SetCrawlerInstructionFromTable(
+    private static void SetCrawlerProgramFromTable(
         RoomEnemySlot slot,
+        CrawlerEnemyState state,
         CrawlerSurfaceOrientation orientation)
     {
         // Parameter two is already a byte offset into six-word species tables. Retail
@@ -491,8 +471,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies
             throw new InvalidDataException(
                 $"Crawler instruction-table offset ${slot.Parameter2:X4} is invalid.");
         }
-        slot.CurrentInstruction = CrawlerAnimationDefinitions.SurfaceInstruction(
-            slot.Parameter2, orientation);
+        state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
+            slot.Parameter2, orientation));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -598,21 +578,19 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Handles each crawler family's function-change opcode before common animation dispatch.</summary>
-    internal void RegisterCrawlersOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the crawlers' surface animations as typed programs (#641).</summary>
+    internal void RegisterCrawlerTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => IsSharedCrawlerDefinition(slot.EnemyDefinitionPointer) || slot.EnemyDefinitionPointer == EnemyDefinitionId.HZoomer, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessSharedCrawlerInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireCrawlerState(slot);
+            AnimationProgramCursor<CrawlerProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, CrawlerAnimations.Programs, ref cursor, CrawlerFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyCrawlerCue(state, cue));
+            state.Program = cursor;
         });
 
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
-        {
-            yieldInterpreter = false;
-            return TryProcessHZoomerInstruction(slot, word, ref cursor);
-        });
-    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

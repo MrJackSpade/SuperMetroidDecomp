@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Enemies.FaceBlocks;
 using SuperMetroid.Verification.Enemies.Cacatac;
 using SuperMetroid.Verification.Enemies.Stoke;
@@ -78,7 +79,6 @@ using static SuperMetroid.Verification.Rooms.Plms.DownwardGatePlmsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.DownwardGateProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Dragon.DragonAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Dragon.DragonFireballInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Dragon.DragonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonBurialEvirDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonHealthPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonAnimationsVerification;
@@ -130,7 +130,6 @@ using static SuperMetroid.Verification.Enemies.Gunship.GunshipDustDefinitionsVer
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipDustAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipMotionDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Crawlers.HZoomerInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.HalfWaveAlgorithmsVerification;
 using static SuperMetroid.Verification.Enemies.Hibashi.HibashiDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationDefinitionsVerification;
@@ -244,11 +243,9 @@ using static SuperMetroid.Verification.Samus.Movement.SamusVerticalDefinitionsVe
 using static SuperMetroid.Verification.Rooms.Plms.SaveStationAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SaveStationElectricityInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Sbug.SbugMovementDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Crawlers.SciserInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolInstructionDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolSegmentDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Crawlers.SharedCrawlerInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using static SuperMetroid.Verification.Enemies.ShotCallbackDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Skree.SkreeMetareeAnimationDefinitionsVerification;
@@ -275,7 +272,6 @@ using static SuperMetroid.Verification.Areas.Tourian.TourianAccessPlmDefinitions
 using static SuperMetroid.Verification.Areas.Tourian.TourianEntranceStatueInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueUnlockDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Crawlers.ViolaInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.WalkingSpacePirateInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.WallSpacePirateInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Waver.WaverAnimationDefinitionsVerification;
@@ -289,7 +285,6 @@ using static SuperMetroid.Verification.Enemies.Yard.YardInstructionProgramDefini
 using static SuperMetroid.Verification.Enemies.Yard.YardTurnDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeExplosionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.ZebetiteDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Crawlers.ZeroInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaSpeedDefinitionsVerification;
@@ -437,11 +432,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(HopperAnimationsVerification.VerifyHopperAnimations), () => HopperAnimationsVerification.VerifyHopperAnimations(LoadRepositoryRom())),
         new(nameof(VerifyChootPatternDefinitions), () => VerifyChootPatternDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCrawlerAnimationDefinitions), () => VerifyCrawlerAnimationDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyHZoomerInstructionProgramDefinitions), () => VerifyHZoomerInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifySciserInstructionProgramDefinitions), () => VerifySciserInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyZeroInstructionProgramDefinitions), () => VerifyZeroInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyViolaInstructionProgramDefinitions), () => VerifyViolaInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(CrawlerAnimationsVerification.VerifyCrawlerAnimations), () => CrawlerAnimationsVerification.VerifyCrawlerAnimations(LoadRepositoryRom())),
+        new(nameof(CrawlerBehaviorVerification.VerifyCrawlerBehavior), () => CrawlerBehaviorVerification.VerifyCrawlerBehavior(LoadRepositoryRom())),
         new(nameof(VerifyDachoraInstructionProgramDefinitions), () => VerifyDachoraInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(FirefleaAnimationsVerification.VerifyFirefleaAnimations), () => FirefleaAnimationsVerification.VerifyFirefleaAnimations(LoadRepositoryRom())),
         new(nameof(FirefleaBehaviorVerification.VerifyFirefleaBehavior), () => FirefleaBehaviorVerification.VerifyFirefleaBehavior(LoadRepositoryRom())),
@@ -508,7 +500,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyZoaAnimationDefinitions), () => VerifyZoaAnimationDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyZoaAnimations), () => VerifyZoaAnimations(LoadRepositoryRom())),
         new(nameof(VerifyDragonAnimationDefinitions), () => VerifyDragonAnimationDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyDragonInstructionProgramDefinitions), () => VerifyDragonInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(DragonAnimationsVerification.VerifyDragonAnimations), () => DragonAnimationsVerification.VerifyDragonAnimations(LoadRepositoryRom())),
+        new(nameof(DragonBehaviorVerification.VerifyDragonBehavior), () => DragonBehaviorVerification.VerifyDragonBehavior(LoadRepositoryRom())),
         new(nameof(VerifyEnemyPickupDefinitions), () => VerifyEnemyPickupDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEnemyDropChanceDefinitions), () => VerifyEnemyDropChanceDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEnemyVulnerabilityDefinitions), () => VerifyEnemyVulnerabilityDefinitions(LoadRepositoryRom())),

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -19,7 +20,7 @@ internal static class DragonAnimationDefinitionsVerification
         {
             var selector = (DragonAnimationSelector)index;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2e5ef + index * 2)),
-                DragonAnimationDefinitions.InstructionList(selector),
+                NativeEnemyProgramOracle.EntryOf(DragonNativeListAddresses.Entries, DragonAnimationDefinitions.Program(selector)),
                 $"Dragon animation selector {selector}");
             AssertEqual((DragonAnimationSelector)(index & ~1),
                 DragonAnimationDefinitions.WithFacing(selector, facingLeft: true),
@@ -40,7 +41,7 @@ internal static class DragonAnimationDefinitionsVerification
         Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(rom, facingLeft: true));
 
         AssertThrows<InvalidDataException>(
-            () => DragonAnimationDefinitions.InstructionList(
+            () => DragonAnimationDefinitions.Program(
                 DragonAnimationSelector.ForceReinstall),
             "Dragon reinstall sentinel cannot select a list");
         AssertThrows<InvalidDataException>(
@@ -130,7 +131,6 @@ internal static class DragonAnimationDefinitionsVerification
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>
     private static RoomEnemySlot NewDragonAnimationSlot(int index) => new(index)
     {
-        CurrentInstruction = 0x7777,
         InstructionTimer = NativeCountdown.Start(0x2222),
         Timer = NativeCountdown.Start(0x3333),
     };
@@ -153,9 +153,9 @@ internal static class DragonAnimationDefinitionsVerification
             $"{context} requested selector");
         AssertEqual(expected, state.InstalledInstructionListIndex,
             $"{context} installed selector");
-        AssertEqual(DragonAnimationDefinitions.InstructionList(expected),
-            slot.CurrentInstruction,
-            $"{context} instruction");
+        AssertEqual(AnimationProgramCursor<DragonProgram>.Start(DragonAnimationDefinitions.Program(expected)),
+            state.Program,
+            $"{context} animation");
         AssertEqual(expectedInstructionTimer, slot.InstructionTimer.RawValue,
             $"{context} instruction timer");
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");

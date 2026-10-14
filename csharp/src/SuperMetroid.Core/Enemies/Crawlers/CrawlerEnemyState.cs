@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class CrawlerEnemyState
 
     /// <summary>Binds the crawler view to its existing enemy slot.</summary>
     internal CrawlerEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<CrawlerProgram> Program { get; set; }
 
     /// <summary>
     /// Signed two's-complement 8.8 motion words. On horizontal surfaces X is the tangent and Y

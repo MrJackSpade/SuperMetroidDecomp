@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
-/// <summary>Four surface-oriented instruction lists for one crawler family or species.</summary>
+/// <summary>Four surface-oriented animations for one crawler family or species.</summary>
 internal readonly record struct CrawlerAnimationDefinition(
-    ushort UpsideRight,
-    ushort UpsideLeft,
-    ushort UpsideDown,
-    ushort UpsideUp)
+    CrawlerProgram UpsideRight,
+    CrawlerProgram UpsideLeft,
+    CrawlerProgram UpsideDown,
+    CrawlerProgram UpsideUp)
 {
-    /// <summary>Selects a native instruction-list pointer by one of the four physical surface orientations.</summary>
-    internal ushort ForOrientation(CrawlerSurfaceOrientation orientation) => orientation switch
+    /// <summary>Selects an animation by one of the four physical surface orientations.</summary>
+    internal CrawlerProgram ForOrientation(CrawlerSurfaceOrientation orientation) => orientation switch
     {
         CrawlerSurfaceOrientation.UpsideRight => UpsideRight,
         CrawlerSurfaceOrientation.UpsideLeft => UpsideLeft,

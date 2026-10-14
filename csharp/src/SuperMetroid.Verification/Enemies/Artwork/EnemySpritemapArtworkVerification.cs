@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Owtch;
@@ -20,7 +21,6 @@ using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonVisualsVerification
 using static SuperMetroid.Verification.Enemies.Corpses.DeadTorizoArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Evir.EvirVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.HZoomerArtworkVerification;
-using static SuperMetroid.Verification.Enemies.Crawlers.HZoomerInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.LowerNorfairRioInstructionProgramDefinitionsVerification;
@@ -32,9 +32,7 @@ using static SuperMetroid.Verification.Enemies.Rios.NorfairRioInstructionProgram
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleySupplementalArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Rios.RioInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Crawlers.SciserInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.SharedCrawlerArtworkVerification;
-using static SuperMetroid.Verification.Enemies.Crawlers.SharedCrawlerInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Yard.YardVisualsVerification;
@@ -631,20 +629,7 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyInstalledHopperInstructionFrames), () => VerifyInstalledHopperInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledChootInstructionFrames), () => VerifyInstalledChootInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledHZoomerInstructionFrames), () => VerifyInstalledHZoomerInstructionFrames(rom, stock));
-        Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(rom, stock));
-        for (int index = 0; index < SciserInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Sciser, operand, out ushort selected),
-                $"Sciser visual operand $A3:{operand:X4} is compiled");
-            AssertEqual(ReadSciserInstructionWord(rom, operand), selected,
-                $"Sciser selector $A3:{operand:X4} matches the pinned cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => SciserVisualDefinitions.FrameAt(SciserInstructionProgramDefinitions.UpsideUp),
-            "Sciser rejects adjacent mechanics as a visual selector");
+        Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(stock));
         for (int index = 0;
              index < MorphBallEyeInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -745,28 +730,8 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(12, dragonFrames.Count,
             "Dragon has twelve distinct installed body and wing frames");
-        for (int index = 0;
-             index < DragonInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = DragonInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa2, operand);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Dragon, operand, out ushort selected),
-                $"Dragon visual selector $A2:{operand:X4} is installed");
-            AssertEqual(native, selected,
-                $"Dragon visual selector $A2:{operand:X4} matches the cartridge");
-            AssertTrue(dragonFrames.Remove(selected) ||
-                DragonVisualDefinitions.Frames().Any(frame => frame.Pointer == selected),
-                $"Dragon visual target $A2:{selected:X4} has installed art");
-        }
-        AssertEqual(0, dragonFrames.Count,
-            "every installed Dragon body and wing frame is selected");
-        AssertThrows<InvalidDataException>(
-            () => DragonVisualDefinitions.FrameAt(
-                (ushort)DragonInstruction.AttackFinishedCallback),
-            "Dragon visual selector rejects neighboring attack callback");
+        AssertTrue(dragonFrames.SetEquals(DragonAnimations.Spritemaps(Enum.GetValues<DragonProgram>())),
+            "every installed Dragon body and wing frame is a pose its programs show");
         HashSet<ushort> multiviolaFrames = MultiviolaVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(MultiviolaVisualDefinitions.FrameCount, multiviolaFrames.Count,
@@ -814,26 +779,8 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(ViolaVisualDefinitions.FrameCount, violaFrames.Count,
             "Viola's fourteen-frame loop selects eight distinct OAM frames");
-        var selectedViolaFrames = new HashSet<ushort>();
-        for (int index = 0; index < ViolaInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = ViolaInstructionProgramDefinitions.PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa3, operand);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Viola, operand, out ushort selected),
-                $"Viola visual selector $A3:{operand:X4} is installed");
-            AssertEqual(native, selected,
-                $"Viola visual selector $A3:{operand:X4} matches the cartridge");
-            AssertTrue(violaFrames.Contains(selected),
-                $"Viola visual target $A3:{selected:X4} has installed art");
-            selectedViolaFrames.Add(selected);
-        }
-        AssertTrue(selectedViolaFrames.SetEquals(violaFrames),
-            "every installed Viola composition is selected by its native loop");
-        AssertThrows<InvalidDataException>(
-            () => ViolaVisualDefinitions.FrameAt(ViolaInstructionProgramDefinitions.NormalLoop),
-            "Viola visual selector rejects neighboring mechanics data");
+        AssertTrue(CrawlerAnimations.Spritemaps(CrawlerProgram.ViolaNormal).ToHashSet().SetEquals(violaFrames),
+            "every installed Viola composition is shown by its normal loop");
         HashSet<ushort> rinkaFrames = RinkaVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(RinkaVisualDefinitions.FrameCount, rinkaFrames.Count,
@@ -1654,12 +1601,10 @@ internal static class EnemySpritemapArtworkVerification
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         OamBuffer stockDragon = DrawEnemy(stock, NewFrameReadGuard(rom),
-            DragonVisualDefinitions.FrameAt(
-                DragonInstructionProgramDefinitions.PresentationWordAddress(0)),
+            DragonAnimations.Spritemaps(DragonProgram.IdleFacingLeft).Single(),
             EnemyDefinitionId.Dragon);
         OamBuffer editedDragon = DrawEnemy(edited, NewFrameReadGuard(rom),
-            DragonVisualDefinitions.FrameAt(
-                DragonInstructionProgramDefinitions.PresentationWordAddress(0)),
+            DragonAnimations.Spritemaps(DragonProgram.IdleFacingLeft).Single(),
             EnemyDefinitionId.Dragon);
         AssertEqual(unchecked((byte)(stockDragon.LowTable[0] + 1)),
             editedDragon.LowTable[0],
@@ -1694,12 +1639,10 @@ internal static class EnemySpritemapArtworkVerification
             editedChozo.LowTable[0],
             "Chozo authored body offset changes installed room OAM");
         OamBuffer stockViola = DrawEnemy(stock, NewFrameReadGuard(rom),
-            ViolaVisualDefinitions.FrameAt(
-                ViolaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            CrawlerAnimations.Spritemaps(CrawlerProgram.ViolaNormal).First(),
             EnemyDefinitionId.Viola);
         OamBuffer editedViola = DrawEnemy(edited, NewFrameReadGuard(rom),
-            ViolaVisualDefinitions.FrameAt(
-                ViolaInstructionProgramDefinitions.PresentationWordAddress(0)),
+            CrawlerAnimations.Spritemaps(CrawlerProgram.ViolaNormal).First(),
             EnemyDefinitionId.Viola);
         AssertEqual(unchecked((byte)(stockViola.LowTable[0] + 1)),
             editedViola.LowTable[0],
@@ -1716,12 +1659,10 @@ internal static class EnemySpritemapArtworkVerification
             editedRinka.LowTable[0],
             "Rinka authored body offset changes installed room OAM");
         OamBuffer stockSciser = DrawEnemy(stock, NewFrameReadGuard(rom),
-            SciserVisualDefinitions.FrameAt(
-                SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(12)),
+            CrawlerAnimations.Spritemaps(CrawlerProgram.SciserUpsideUpLoop).First(),
             EnemyDefinitionId.Sciser);
         OamBuffer editedSciser = DrawEnemy(edited, NewFrameReadGuard(rom),
-            SciserVisualDefinitions.FrameAt(
-                SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(12)),
+            CrawlerAnimations.Spritemaps(CrawlerProgram.SciserUpsideUpLoop).First(),
             EnemyDefinitionId.Sciser);
         AssertEqual(unchecked((byte)(stockSciser.LowTable[0] + 1)),
             editedSciser.LowTable[0],
@@ -2181,8 +2122,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Choot Y offset changes installed room OAM");
         AssertEqual(stockChoot.LowTable[0], editedChoot.LowTable[0],
             "Choot visual edit leaves physical X unchanged");
-        ushort hzoomerPointer = EnemySpritemapDefinitions.HZoomerFrameAt(
-            HZoomerInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
+        ushort hzoomerPointer = CrawlerAnimations.Spritemaps(CrawlerProgram.HZoomerUpsideRightLoop).First();
         OamBuffer stockHZoomer = DrawEnemy(stock, NewFrameReadGuard(rom),
             hzoomerPointer, EnemyDefinitionId.HZoomer);
         OamBuffer editedHZoomer = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -2206,7 +2146,7 @@ internal static class EnemySpritemapArtworkVerification
             AssertEqual(stockSbug.LowTable[0], editedSbug.LowTable[0],
                 $"Sbug visual edit leaves enemy ${(int)definition:X4} physical X unchanged");
         }
-        Suite(nameof(VerifyHZoomerInstructionProgramDefinitions), () => VerifyHZoomerInstructionProgramDefinitions(rom, edited));
+        Suite(nameof(CrawlerBehaviorVerification.VerifyCrawlerBehavior), () => CrawlerBehaviorVerification.VerifyCrawlerBehavior(rom, edited));
         foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
                  {
                      EnemyDefinitionId.Zeela,
@@ -2225,7 +2165,6 @@ internal static class EnemySpritemapArtworkVerification
             AssertEqual(stockCrawler.LowTable[0], editedCrawler.LowTable[0],
                 $"shared crawler ${(int)definition:X4} retains physical X");
         }
-        Suite(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(rom, edited));
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .Spritemaps.")).TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");

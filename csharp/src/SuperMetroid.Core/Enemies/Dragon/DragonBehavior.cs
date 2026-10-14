@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Dragon.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Dragon;
 
@@ -20,22 +22,16 @@ internal sealed class DragonBehavior : IEnemySpecies
         _collision = collision;
     }
 
-    /// <summary>Executes Dragon's private animation instruction.</summary>
-    private bool TryProcessDragonInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out Dragon's animation cue: the attack body marks its animation complete for main AI.</summary>
+    private DragonProgram? ApplyDragonCue(RoomEnemySlot slot, DragonCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Dragon ||
-            !Enum.IsDefined((DragonInstruction)word))
-            return false;
-
-        switch ((DragonInstruction)word)
+        switch (cue.Kind)
         {
-            case DragonInstruction.AttackFinishedCallback:
+            case DragonCueKind.FinishAttack:
                 FinishDragonAttackAnimation(slot);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return null;
             default:
-                throw new InvalidOperationException(
-                    $"Dragon does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(DragonCueKind)} {cue.Kind}.");
         }
     }
 
@@ -84,8 +80,8 @@ internal sealed class DragonBehavior : IEnemySpecies
             // Property $0400 keeps the cosmetic record out of touch/shot collision passes.
             state.RequestedInstructionListIndex = DragonAnimationSelector.WingsFacingLeft;
             state.InstalledInstructionListIndex = DragonAnimationSelector.WingsFacingLeft;
-            slot.CurrentInstruction = DragonAnimationDefinitions.InstructionList(
-                DragonAnimationSelector.WingsFacingLeft);
+            state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonAnimationDefinitions.Program(
+                DragonAnimationSelector.WingsFacingLeft));
             slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
             state.Function = DragonEnemyFunction.WingNoOp;
             return;
@@ -93,8 +89,8 @@ internal sealed class DragonBehavior : IEnemySpecies
 
         state.RequestedInstructionListIndex = DragonAnimationSelector.IdleFacingLeft;
         state.InstalledInstructionListIndex = DragonAnimationSelector.IdleFacingLeft;
-        slot.CurrentInstruction = DragonAnimationDefinitions.InstructionList(
-            DragonAnimationSelector.IdleFacingLeft);
+        state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonAnimationDefinitions.Program(
+            DragonAnimationSelector.IdleFacingLeft));
         state.Function = DragonEnemyFunction.WaitToRise;
     }
 
@@ -291,8 +287,8 @@ internal sealed class DragonBehavior : IEnemySpecies
         if (state.RequestedInstructionListIndex == state.InstalledInstructionListIndex)
             return;
         state.InstalledInstructionListIndex = state.RequestedInstructionListIndex;
-        slot.CurrentInstruction = DragonAnimationDefinitions.InstructionList(
-            state.RequestedInstructionListIndex);
+        state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonAnimationDefinitions.Program(
+            state.RequestedInstructionListIndex));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -369,15 +365,19 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Handles Dragon's private attack-finished opcode before common instruction dispatch.</summary>
-    internal void RegisterDragonOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Dragon's body and wing animations as typed programs (#641).</summary>
+    internal void RegisterDragonTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessDragonInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireDragonState(slot);
+            AnimationProgramCursor<DragonProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, DragonAnimations.Programs, ref cursor, DragonFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyDragonCue(slot, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
     internal void RegisterDragonPowerBombReactions(EnemyAiTable table)

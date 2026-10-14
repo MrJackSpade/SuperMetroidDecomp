@@ -1744,8 +1744,8 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle =>
                 MamaTurtleVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Boyon => BoyonFrameAt(operandAddress),
-            EnemyDefinitionId.Sciser => SciserVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.Zero => ZeroVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Sciser => 0,
+            EnemyDefinitionId.Zero => 0,
             EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or
             EnemyDefinitionId.Menu => 0,
             EnemyDefinitionId.Kago => 0,
@@ -1758,14 +1758,12 @@ internal static class EnemySpritemapDefinitions
                 ShaktoolVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 =>
                 TripperKamerVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.Dragon =>
-                DragonVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Dragon => 0,
             EnemyDefinitionId.Multiviola => 0,
             EnemyDefinitionId.Squeept => 0,
             EnemyDefinitionId.Chozo =>
                 ChozoStatueVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.Viola =>
-                ViolaVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Viola => 0,
             EnemyDefinitionId.Rinka =>
                 RinkaVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.CorpseTorizo => 0,
@@ -1791,7 +1789,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Beetom => BeetomFrameAt(operandAddress),
             EnemyDefinitionId.Sidehopper or EnemyDefinitionId.Dessgeega or EnemyDefinitionId.SidehopperLarge or EnemyDefinitionId.SidehopperTourian or EnemyDefinitionId.DessgeegaLarge => 0,
             EnemyDefinitionId.Choot => 0,
-            EnemyDefinitionId.HZoomer => HZoomerFrameAt(operandAddress),
+            EnemyDefinitionId.HZoomer => 0,
             EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2 => 0,
             EnemyDefinitionId.Fune or
                 EnemyDefinitionId.Namihe =>
@@ -1807,11 +1805,7 @@ internal static class EnemySpritemapDefinitions
                 EnemyDefinitionId.KihunterRed or
                 EnemyDefinitionId.KihunterRedWings =>
                 KiHunterVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.Zeela or
-                EnemyDefinitionId.Sova or
-                EnemyDefinitionId.Zoomer or
-                EnemyDefinitionId.MZoomer =>
-                SharedCrawlerFrameAt(operandAddress),
+            EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer => 0,
             EnemyDefinitionId.Cacatac => 0,
             EnemyDefinitionId.Fireflea => 0,
             EnemyDefinitionId.Magdollite => MagdolliteFrameAt(operandAddress),
@@ -1867,15 +1861,11 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle or
             EnemyDefinitionId.CeresDoor or
             EnemyDefinitionId.Boyon or
-            EnemyDefinitionId.Sciser or
-            EnemyDefinitionId.Zero or
             EnemyDefinitionId.Eye or
             EnemyDefinitionId.Metroid or
             EnemyDefinitionId.Shaktool or
             EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or
-            EnemyDefinitionId.Dragon or
             EnemyDefinitionId.Chozo or
-            EnemyDefinitionId.Viola or
             EnemyDefinitionId.Rinka or
             EnemyDefinitionId.Mochtroid or
             EnemyDefinitionId.Evir or
@@ -1890,7 +1880,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Puyo or
             EnemyDefinitionId.Alcoon or
             EnemyDefinitionId.Beetom or
-            EnemyDefinitionId.HZoomer or
             EnemyDefinitionId.Fune or
             EnemyDefinitionId.Namihe or
             EnemyDefinitionId.YappingMaw or
@@ -1900,10 +1889,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.KihunterYellowWings or
             EnemyDefinitionId.KihunterRed or
             EnemyDefinitionId.KihunterRedWings or
-            EnemyDefinitionId.Zeela or
-            EnemyDefinitionId.Sova or
-            EnemyDefinitionId.Zoomer or
-            EnemyDefinitionId.MZoomer or
             EnemyDefinitionId.Magdollite or EnemyDefinitionId.Skultera or
             EnemyDefinitionId.Metaree or EnemyDefinitionId.Skree or
             EnemyDefinitionId.MiniKraid or
@@ -2056,34 +2041,6 @@ internal static class EnemySpritemapDefinitions
         }
         throw new InvalidDataException(
             $"Beetom visual operand $A8:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
-    /// The twenty <c>$A3:DFD1-E035</c> HZoomer visual operands select
-    /// installed five-frame compositions for each of four surface orientations.
-    /// </summary>
-    internal static ushort HZoomerFrameAt(ushort operandAddress)
-    {
-        if (HZoomerInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(HZoomerBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"HZoomer visual operand $A3:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
-    /// The twenty <c>$A3:E262-E2C6</c> shared-crawler visual operands select
-    /// the same bank-$A3 compositions as HZoomer's four surface loops.
-    /// </summary>
-    internal static ushort SharedCrawlerFrameAt(ushort operandAddress)
-    {
-        if (SharedCrawlerInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(HZoomerBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Shared-crawler visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>Compiled Skree and Metaree visual operands; attack phases remain code.</summary>

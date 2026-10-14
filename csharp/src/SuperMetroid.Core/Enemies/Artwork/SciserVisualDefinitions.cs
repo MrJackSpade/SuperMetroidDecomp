@@ -1,11 +1,8 @@
-using SuperMetroid.Core.Enemies.Crawlers;
-
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// Sciser's twelve distinct bank-$A3 OAM compositions. The native four-surface
-/// instruction programs choose these frames; their timing and movement remain
-/// compiled enemy behavior.
+/// Sciser's twelve distinct bank-$A3 OAM compositions. The four-surface typed
+/// programs show these frames; their timing and movement remain enemy behavior.
 /// </summary>
 internal static class SciserVisualDefinitions
 {
@@ -29,14 +26,5 @@ internal static class SciserVisualDefinitions
                     $"sciser_upside_{name}_{frame}");
         }
         return result;
-    }
-    /// <summary>Only the sixteen visual operands in Sciser's four native loops.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        if (SciserInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress, out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Sciser visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Dragon.Artwork;
+using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
@@ -191,6 +193,10 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(CacatacAnimations), "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacAnimations.cs");
         RequireTypedFrames(BlueBrinstarFaceBlockAnimations.Programs, BlueBrinstarFaceBlockFrameDefinitions.Spritemap, BlueBrinstarFaceBlockFrameDefinitions.Bank,
             nameof(BlueBrinstarFaceBlockAnimations), "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockAnimations.cs");
+        RequireTypedFrames(DragonAnimations.Programs, DragonFrameDefinitions.Spritemap, DragonFrameDefinitions.Bank,
+            nameof(DragonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonAnimations.cs");
+        RequireTypedFrames(CrawlerAnimations.Programs, CrawlerFrameDefinitions.Spritemap, CrawlerFrameDefinitions.Bank,
+            nameof(CrawlerAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/CrawlerAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

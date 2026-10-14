@@ -23,21 +23,21 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 31884,
-    "PointerDispatch": 727,
+    "RawHexLiteral": 31838,
+    "PointerDispatch": 708,
     "OpaqueWordArray": 1055,
-    "CatalogHexLiteral": 97166,
+    "CatalogHexLiteral": 97249,
     "JustifiedHexLiteral": 148,
     "RawWidthOperation": 44,
     "OwnedWidthOperation": 72,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 19,
-    "class:NumericQuantity": 54625,
-    "class:DomainIdentity": 7407,
-    "class:ComposableBits": 1461,
+    "class:NumericQuantity": 54623,
+    "class:DomainIdentity": 7475,
+    "class:ComposableBits": 1460,
     "class:StructuredInstruction": 43494,
-    "class:CartridgeAddress": 23279,
+    "class:CartridgeAddress": 23232,
     "class:Unknown": 855,
     "storageWidthMembers": 1543
   },
@@ -45,11 +45,11 @@
     {
       "name": "Asset catalogs and decoders",
       "totals": {
-        "CatalogHexLiteral": 9577,
+        "CatalogHexLiteral": 9647,
         "JustifiedHexLiteral": 5,
         "OwnedWidthOperation": 2,
-        "class:NumericQuantity": 495,
-        "class:DomainIdentity": 615,
+        "class:NumericQuantity": 497,
+        "class:DomainIdentity": 683,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 8380,
         "class:Unknown": 73,
@@ -653,12 +653,30 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/Artwork/CrawlerFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 57,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 56
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/Artwork/MultiviolaFrameDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 9,
             "class:NumericQuantity": 1,
             "class:DomainIdentity": 8
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Dragon/Artwork/DragonFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 13,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 12
           }
         },
         {
@@ -5428,17 +5446,17 @@
       "name": "Enemies: regular AI and instruction programs",
       "totals": {
         "RawHexLiteral": 660,
-        "PointerDispatch": 223,
+        "PointerDispatch": 211,
         "OpaqueWordArray": 5,
-        "CatalogHexLiteral": 21234,
+        "CatalogHexLiteral": 21204,
         "JustifiedHexLiteral": 1,
         "OwnedWidthOperation": 12,
         "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 17641,
+        "class:NumericQuantity": 17614,
         "class:DomainIdentity": 85,
         "class:ComposableBits": 209,
         "class:StructuredInstruction": 488,
-        "class:CartridgeAddress": 3671,
+        "class:CartridgeAddress": 3656,
         "class:Unknown": 47,
         "storageWidthMembers": 484
       },
@@ -5457,7 +5475,6 @@
         "FallingSparkInstructionProgramDefinitions",
         "FuneNamiheFireballInstructionProgramDefinitions",
         "FuneNamiheInstructionProgramDefinitions",
-        "HZoomerInstructionProgramDefinitions",
         "HibashiInstructionLayout",
         "HibashiInstructionProgramDefinitions",
         "KagoBugProjectileInstructionProgramDefinitions",
@@ -5480,16 +5497,13 @@
         "PuyoInstructionProgramDefinitions",
         "RioBehavior",
         "RioInstructionProgramDefinitions",
-        "SciserInstructionProgramDefinitions",
         "ShaktoolBehavior",
         "ShaktoolInstructionDefinitions",
         "ShaktoolInstructionProgramDefinitions",
         "ShaktoolProjectileInstructionProgramDefinitions",
-        "SharedCrawlerInstructionProgramDefinitions",
         "SkreeMetareeParticleInstructionProgramDefinitions",
         "SparkInstructionProgramDefinitions",
         "StokeProjectileInstructionProgramDefinitions",
-        "ViolaInstructionProgramDefinitions",
         "WorkRobotInstructionProgramDefinitions",
         "WorkRobotLaserInstructionProgramDefinitions",
         "WreckedShipAtticPlmRomData",
@@ -6255,14 +6269,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/CrawlerInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/CrawlerSlopeDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -6289,68 +6295,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/HZoomerInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/HZoomerInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 2,
-            "CatalogHexLiteral": 4,
-            "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 6,
             "class:NumericQuantity": 4,
             "class:ComposableBits": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/SciserInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 3,
-            "CatalogHexLiteral": 4,
-            "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/SharedCrawlerInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 3,
-            "CatalogHexLiteral": 4,
-            "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/ViolaInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 4,
-            "CatalogHexLiteral": 5,
-            "class:NumericQuantity": 5,
-            "class:CartridgeAddress": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Crawlers/ZeroInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 4,
-            "class:NumericQuantity": 4
           }
         },
         {
@@ -6394,22 +6344,6 @@
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 4,
             "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 6,
-            "class:NumericQuantity": 6
           }
         },
         {
@@ -9203,19 +9137,19 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 30256,
-        "PointerDispatch": 255,
+        "RawHexLiteral": 30210,
+        "PointerDispatch": 248,
         "OpaqueWordArray": 924,
-        "CatalogHexLiteral": 1771,
+        "CatalogHexLiteral": 1814,
         "RawWidthOperation": 44,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 10864,
+        "class:NumericQuantity": 10887,
         "class:DomainIdentity": 569,
-        "class:ComposableBits": 544,
+        "class:ComposableBits": 543,
         "class:StructuredInstruction": 13376,
-        "class:CartridgeAddress": 7406,
+        "class:CartridgeAddress": 7374,
         "class:Unknown": 506,
         "storageWidthMembers": 84
       },
@@ -9262,7 +9196,6 @@
         "FrozenGateGlitchVerification",
         "FuneNamiheFireballInstructionProgramDefinitionsTooling",
         "GunshipDustDefinitionsVerification",
-        "HZoomerInstructionProgramDefinitionsTooling",
         "HibashiInstructionProgramDefinitionsTooling",
         "HyperBeamPaletteFxProgramDefinitionsVerification",
         "KagoBugProjectileInstructionProgramDefinitionsTooling",
@@ -9298,10 +9231,8 @@
         "RoomPlmPopulationVerification",
         "SamusProjectilesVerification",
         "SaveStationElectricityInstructionProgramDefinitionsTooling",
-        "SciserInstructionProgramDefinitionsTooling",
         "ShaktoolInstructionProgramDefinitionsTooling",
         "ShaktoolProjectileInstructionProgramDefinitionsTooling",
-        "SharedCrawlerInstructionProgramDefinitionsTooling",
         "SkreeMetareeParticleInstructionProgramDefinitionsTooling",
         "SkreeMetareeParticleInstructionProgramDefinitionsVerification",
         "SpacePirateProjectileInstructionProgramDefinitionsTooling",
@@ -10117,63 +10048,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Crawlers/HZoomerInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Crawlers/SciserInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 3,
-            "class:CartridgeAddress": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Crawlers/SharedCrawlerInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 2,
-            "PointerDispatch": 3,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Crawlers/ViolaInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Crawlers/ZeroInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Dragon/DragonFireballInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
             "PointerDispatch": 2,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Dragon/DragonInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
           }
         },
         {
@@ -13453,10 +13332,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 196,
+            "RawHexLiteral": 194,
             "PointerDispatch": 1,
             "OpaqueWordArray": 2,
-            "class:NumericQuantity": 93,
+            "class:NumericQuantity": 91,
             "class:DomainIdentity": 1,
             "class:StructuredInstruction": 15,
             "class:CartridgeAddress": 90
@@ -14042,6 +13921,15 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/CrawlerNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 40,
+            "class:NumericQuantity": 38,
+            "class:CartridgeAddress": 2
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/CrawlerSpeedsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
@@ -14051,47 +13939,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/HZoomerInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/MultiviolaNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 2,
             "class:NumericQuantity": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/SciserInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/SharedCrawlerInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/ViolaInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 2
           }
         },
         {
@@ -14104,20 +13956,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Crawlers/ZeroInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 5,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 3
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Dragon/DragonAnimationDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 12,
-            "class:NumericQuantity": 7,
+            "RawHexLiteral": 11,
+            "class:NumericQuantity": 6,
             "class:CartridgeAddress": 3,
             "class:Unknown": 2
           }
@@ -14132,12 +13975,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Dragon/DragonInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Dragon/DragonNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 12,
-            "class:NumericQuantity": 8,
-            "class:CartridgeAddress": 4
+            "CatalogHexLiteral": 8,
+            "class:NumericQuantity": 7,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -17941,14 +17784,14 @@
           "path": "csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 907,
+            "RawHexLiteral": 902,
             "PointerDispatch": 2,
             "OpaqueWordArray": 20,
-            "class:NumericQuantity": 186,
+            "class:NumericQuantity": 185,
             "class:DomainIdentity": 23,
             "class:ComposableBits": 31,
             "class:StructuredInstruction": 162,
-            "class:CartridgeAddress": 503,
+            "class:CartridgeAddress": 499,
             "class:Unknown": 24
           }
         },
@@ -21585,46 +21428,6 @@
           "totals": {
             "CatalogHexLiteral": 2,
             "class:NumericQuantity": 2
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Crawlers/HZoomerInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Crawlers/SciserInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Crawlers/SharedCrawlerInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Crawlers/ViolaInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Crawlers/ZeroInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
           }
         },
         {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
@@ -28,6 +29,9 @@ public sealed class DragonEnemyState
         _installedInstructionLists = installedInstructionLists;
         _animationFinishedFlags = animationFinishedFlags;
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<DragonProgram> Program { get; set; }
 
     /// <summary>Population parameter one: zero is a body; nonzero is its cosmetic wing.</summary>
     public bool IsWing => _slot.Parameter1 != 0;

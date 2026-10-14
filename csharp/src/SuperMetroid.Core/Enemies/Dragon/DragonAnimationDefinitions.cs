@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 internal static class DragonAnimationDefinitions
 {
     /// <summary>$A2:E5EF InstListPointers_Dragon: idle, wing and attacking body dispatch by facing.</summary>
-    internal static ushort InstructionList(DragonAnimationSelector selector) => selector switch
+    internal static DragonProgram Program(DragonAnimationSelector selector) => selector switch
     {
-        DragonAnimationSelector.IdleFacingLeft => DragonInstructionProgramDefinitions.IdleFacingLeft,
-        DragonAnimationSelector.IdleFacingRight => DragonInstructionProgramDefinitions.IdleFacingRight,
-        DragonAnimationSelector.WingsFacingLeft => DragonInstructionProgramDefinitions.WingsFacingLeft,
-        DragonAnimationSelector.WingsFacingRight => DragonInstructionProgramDefinitions.WingsFacingRight,
-        DragonAnimationSelector.AttackingFacingLeft => DragonInstructionProgramDefinitions.AttackingFacingLeft,
-        DragonAnimationSelector.AttackingFacingRight => DragonInstructionProgramDefinitions.AttackingFacingRight,
+        DragonAnimationSelector.IdleFacingLeft => DragonProgram.IdleFacingLeft,
+        DragonAnimationSelector.IdleFacingRight => DragonProgram.IdleFacingRight,
+        DragonAnimationSelector.WingsFacingLeft => DragonProgram.WingsFacingLeft,
+        DragonAnimationSelector.WingsFacingRight => DragonProgram.WingsFacingRight,
+        DragonAnimationSelector.AttackingFacingLeft => DragonProgram.AttackingFacingLeft,
+        DragonAnimationSelector.AttackingFacingRight => DragonProgram.AttackingFacingRight,
         _ => throw new InvalidDataException($"Dragon animation selector ${(int)selector:X4} exceeds its six-entry domain."),
     };
     /// <summary>Preserves the phase pair while selecting its left or right member.</summary>

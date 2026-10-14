@@ -277,6 +277,11 @@ constraint, not a side concern.
   slow step multiplied by every commit is how ticket turnaround grew by hours.
 - At handoff, report what was run and how long it took, so growing turnaround is visible
   before it costs hours.
+- The `post-commit` hook runs `tools/agent-time-report.py --head`, which measures how much of
+  the agent's time since the previous commit was spent waiting on tools. Above 20% it warns;
+  above 50% it demands the waste be found and fixed. Treat either warning as an instruction:
+  before continuing, name the commands that caused the waiting and stop the pattern. Run
+  `python tools/agent-time-report.py --hours N` for the per-commit history.
 
 ### Build once, fix everything once
 

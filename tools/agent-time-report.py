@@ -13,7 +13,8 @@ times. Every gap between consecutive transcript records is classified:
 "Waiting" is tool + idle. Tool and idle time are also broken down by what was running (verify-all, build, focused
 checks, audit, and so on), taken from the command text of the in-flight foreground call or the running background job.
 
-Usage: python tools/agent-time-report.py [--hours 24] [--transcripts DIR]
+Usage: python tools/agent-time-report.py [--hours 24]
+       python tools/agent-time-report.py --head   (post-commit check of the latest commit)
 """
 
 import argparse
@@ -47,10 +48,25 @@ def classify_command(name, tool_input):
     return name + " (other)"
 
 
-def load_records(transcript_dir, start):
+def transcript_directories():
+    """The session-transcript folders for this repository: its main checkout and any worktrees inside it."""
+    common = subprocess.run(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"],
+                            check=True, capture_output=True, text=True).stdout.strip()
+    checkout = os.path.dirname(os.path.normpath(common))
+    # Session folders are named after the working directory with every ':', '\', '/', ' ' and '.' replaced by '-'.
+    prefix = re.sub(r"[:\\/ .]", "-", checkout)
+    root = os.path.expanduser(os.path.join("~", ".claude", "projects"))
+    if not os.path.isdir(root):
+        return []
+    return [os.path.join(root, name) for name in os.listdir(root)
+            if name.lower() == prefix.lower() or name.lower().startswith(prefix.lower() + "-")]
+
+
+def load_records(transcript_dirs, start):
     """All transcript records from the start time on, in time order, across every session file."""
     records = []
-    for path in glob.glob(os.path.join(transcript_dir, "*.jsonl")):
+    paths = [path for directory in transcript_dirs for path in glob.glob(os.path.join(directory, "*.jsonl"))]
+    for path in paths:
         with open(path, encoding="utf-8") as handle:
             for line in handle:
                 record = json.loads(line)
@@ -152,17 +168,90 @@ def overlap(a_start, a_end, b_start, b_end):
     return max(0.0, (min(a_end, b_end) - max(a_start, b_start)).total_seconds())
 
 
+def split_interval(gaps, previous, when):
+    """Seconds of each kind, and of waiting by cause, between two commit times."""
+    kinds = collections.Counter()
+    waits = collections.Counter()
+    for start, end, kind, label in gaps:
+        seconds = overlap(start, end, previous, when)
+        if seconds:
+            kinds[kind] += seconds
+            if kind in ("tool", "idle"):
+                waits[label] += seconds
+    return kinds, waits
+
+
+def waiting_share(kinds):
+    """Waiting as a percentage of agent time (working + waiting), or None when the agent did nothing."""
+    counted = kinds["working"] + kinds["tool"] + kinds["idle"]
+    return 100 * (kinds["tool"] + kinds["idle"]) / counted if counted else None
+
+
+WARN_PERCENT = 20
+AGGRESSIVE_PERCENT = 50
+
+
+def head_check(revision):
+    """Checks the interval from a commit's first parent to the commit and warns when the agent spent too much of it waiting."""
+    parents = subprocess.run(["git", "log", "-1", "--format=%P", revision], check=True, capture_output=True, text=True).stdout.split()
+    if not parents:
+        return
+    when = parse_time(subprocess.run(["git", "log", "-1", "--format=%cI", revision], check=True, capture_output=True,
+                                     text=True).stdout.strip())
+    previous = parse_time(subprocess.run(["git", "log", "-1", "--format=%cI", parents[0]], check=True,
+                                         capture_output=True, text=True).stdout.strip())
+    directories = transcript_directories()
+    if not directories:
+        print("agent time check: no agent session transcripts for this repository on this machine.", file=sys.stderr)
+        return
+    records = load_records(directories, previous)
+    kinds, waits = split_interval(list(classify_gaps(records, background_jobs(records))), previous, when)
+    share = waiting_share(kinds)
+    if share is None:
+        print("agent time check: no agent activity since the previous commit.", file=sys.stderr)
+        return
+    causes = ", ".join(f"{label} {seconds / 60:.1f} min" for label, seconds in waits.most_common(5)) or "none"
+    summary = (f"agent time since the previous commit: working {kinds['working'] / 60:.1f} min, waiting "
+               f"{(kinds['tool'] + kinds['idle']) / 60:.1f} min ({share:.0f}% waiting). Waiting by cause: {causes}.")
+    if share > AGGRESSIVE_PERCENT:
+        bar = "!" * 100
+        print(f"""
+{bar}
+STOP. {share:.0f}% OF YOUR TIME SINCE THE LAST COMMIT WAS SPENT WAITING ON TOOLS, NOT WORKING.
+{summary}
+This is over {AGGRESSIVE_PERCENT}%. You are wasting the user's time. Before doing ANY more work, identify exactly which
+commands caused this waiting and why you ran them, tell the user, and resolve the waste: stop running slow steps you
+were not asked for, build once instead of repeatedly, run only the checks that cover the change, and never sit idle on
+background work. Do not continue the previous pattern. See "Agent turnaround time" in AGENTS.md.
+{bar}
+""", file=sys.stderr)
+    elif share > WARN_PERCENT:
+        print(f"""
+WARNING: {share:.0f}% of your time since the last commit was spent waiting on tools (limit {WARN_PERCENT}%).
+{summary}
+That is too high. Cut the waiting before the next commit; see "Agent turnaround time" in AGENTS.md.
+""", file=sys.stderr)
+    else:
+        print(summary, file=sys.stderr)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--hours", type=float, default=24)
-    parser.add_argument("--transcripts", default=os.path.expanduser(
-        r"~\.claude\projects\C--Users-Service-Account-SuperMetroidDecomp"))
+    parser.add_argument("--head", nargs="?", const="HEAD", metavar="COMMIT",
+                        help="check only the interval since the previous commit (default HEAD) and warn when waiting "
+                             "is too high; the post-commit hook runs this")
     args = parser.parse_args()
+    if args.head:
+        head_check(args.head)
+        return
 
     edges = commits(args.hours)
-    records = load_records(args.transcripts, edges[0][0])
-    jobs = background_jobs(records)
-    gaps = list(classify_gaps(records, jobs))
+    directories = transcript_directories()
+    if not directories:
+        raise SystemExit("No agent session transcripts for this repository on this machine.")
+    records = load_records(directories, edges[0][0])
+    gaps = list(classify_gaps(records, background_jobs(records)))
 
     def minutes(seconds):
         return f"{seconds / 60:6.1f}"
@@ -173,29 +262,20 @@ def main():
     totals = collections.Counter()
     wait_totals = collections.Counter()
     for (previous, _, _), (when, short, subject) in zip(edges, edges[1:]):
-        kinds = collections.Counter()
-        waits = collections.Counter()
-        for start, end, kind, label in gaps:
-            seconds = overlap(start, end, previous, when)
-            if seconds:
-                kinds[kind] += seconds
-                if kind in ("tool", "idle"):
-                    waits[label] += seconds
+        kinds, waits = split_interval(gaps, previous, when)
         totals.update(kinds)
         wait_totals.update(waits)
-        counted = kinds["working"] + kinds["tool"] + kinds["idle"]
-        share = 100 * (kinds["tool"] + kinds["idle"]) / counted if counted else 0
+        share = waiting_share(kinds) or 0
         top = ", ".join(f"{label} {seconds / 60:.1f}" for label, seconds in waits.most_common(3))
         span = (when - previous).total_seconds()
         print(f"{short:9} {subject[:46]:46} {minutes(span)} {minutes(kinds['working'])} {minutes(kinds['tool'])} "
               f"{minutes(kinds['idle'])} {minutes(kinds['user'])} {share:5.0f}%  {top}")
 
-    counted = totals["working"] + totals["tool"] + totals["idle"]
     print("-" * len(header))
     print(f"Totals over {len(edges) - 1} commits: working {totals['working'] / 60:.0f} min, "
           f"waiting {(totals['tool'] + totals['idle']) / 60:.0f} min "
           f"(foreground tools {totals['tool'] / 60:.0f}, idle on background or timers {totals['idle'] / 60:.0f}); "
-          f"waiting is {100 * (totals['tool'] + totals['idle']) / counted:.0f}% of agent time. "
+          f"waiting is {waiting_share(totals) or 0:.0f}% of agent time. "
           f"Excluded: user {totals['user'] / 60:.0f} min, system {totals['system'] / 60:.0f} min.")
     print("Waiting by cause (min): " + ", ".join(f"{label} {seconds / 60:.0f}" for label, seconds in wait_totals.most_common()))
 

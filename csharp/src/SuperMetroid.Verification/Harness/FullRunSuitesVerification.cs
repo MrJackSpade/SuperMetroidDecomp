@@ -176,7 +176,6 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomPlmsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LoadStationDefinitionsVerification;
-using static SuperMetroid.Verification.Frontend.Intro.LowPercentIntroTimelineVerification;
 using static SuperMetroid.Verification.Enemies.Magdollite.MagdolliteApexThresholdVerification;
 using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using static SuperMetroid.Verification.Runtime.MainGameLoopCarryVerification;
@@ -786,7 +785,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCrateriaMainstreetEscapePassage), () => VerifyCrateriaMainstreetEscapePassage()),
         new(nameof(VerifyZebesEscapeFade), () => VerifyZebesEscapeFade()),
         new(nameof(VerifyEndingSetupNmiWaits), () => VerifyEndingSetupNmiWaits()),
-        new(nameof(VerifyLowPercentIntroTimeline), () => VerifyLowPercentIntroTimeline()),
         new(nameof(VerifyBeamImpactSound), () => VerifyBeamImpactSound()),
         new(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollision()),
         new(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius()),

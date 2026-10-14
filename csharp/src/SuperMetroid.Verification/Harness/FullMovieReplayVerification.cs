@@ -7,11 +7,16 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Verification.Frontend.Intro;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Runs complete converted controller timelines against native checkpoints without importing later gameplay state.</summary>
 internal static class FullMovieReplayVerification
 {
+    /// <summary>One movie's own checks of the port after checkpointed update <paramref name="update"/>.</summary>
+    /// <returns>Each mismatch, reported with the shared comparison's.</returns>
+    internal delegate IEnumerable<string> MovieUpdateChecks(SuperMetroidGame game, int update);
+
     /// <summary>Repository fixture for the 100% Snes9x playthrough.</summary>
     internal const string FullPlaythroughMoviePath = "csharp/test-fixtures/full-100-percent/Super Metroid 100%.smv";
     /// <summary>Expected digest of the immutable 100% movie fixture.</summary>
@@ -35,11 +40,14 @@ internal static class FullMovieReplayVerification
             ReplayMovie.Load("100%", FullPlaythroughMoviePath, FullPlaythroughMovieSha256),
             traceDirectory, traceFromUpdate);
 
-    /// <summary>The 13% Speed Booster lsnes TAS, captured on bsnes v085.</summary>
+    /// <summary>
+    /// The 13% Speed Booster lsnes TAS, captured on bsnes v085. Its intro updates also check the
+    /// phase handoffs and Samus milestones of <see cref="LowPercentIntroReplayChecks"/>.
+    /// </summary>
     internal static void VerifyLowPercentPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
         VerifyPlaythroughMovie(
             ReplayMovie.Load("13%", LowPercentPlaythroughMoviePath, LowPercentPlaythroughMovieSha256),
-            traceDirectory, traceFromUpdate);
+            traceDirectory, traceFromUpdate, new LowPercentIntroReplayChecks().Compare);
 
     /// <summary>The #1275 "Samus drunk" Snes9x 1.60 power-on playthrough.</summary>
     internal static void VerifyDrunkPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
@@ -65,10 +73,12 @@ internal static class FullMovieReplayVerification
     /// Diagnostic only: from this update on, print port and native Samus kinematics so a
     /// divergence can be read field by field. Comparison and failure are unchanged.
     /// </param>
-    private static void VerifyPlaythroughMovie(ReplayMovie movie, string traceDirectory, int? traceFromUpdate)
+    /// <param name="movieChecks">This movie's own comparisons after each checkpointed update, reported with the shared ones.</param>
+    private static void VerifyPlaythroughMovie(ReplayMovie movie, string traceDirectory, int? traceFromUpdate,
+        MovieUpdateChecks? movieChecks = null)
     {
         using var checkpoints = NativeMovieCheckpoints.Open(traceDirectory, movie.Bytes);
-        int uncheckpointedUpdates = ReplayConvertedMovie(movie, checkpoints, traceFromUpdate, checkpoints.Updates.Count).UncheckpointedUpdates;
+        int uncheckpointedUpdates = ReplayConvertedMovie(movie, checkpoints, traceFromUpdate, checkpoints.Updates.Count, movieChecks).UncheckpointedUpdates;
         checkpoints.AssertExhausted();
         Console.WriteLine($"{movie.Name} movie replay: {checkpoints.Updates.Count} updates across all {checkpoints.SourceFrameCount} source frames match" +
             (uncheckpointedUpdates == 0 ? "." : $"; {uncheckpointedUpdates} boot-entering dispatches have no native checkpoint of their own."));
@@ -80,7 +90,8 @@ internal static class FullMovieReplayVerification
     /// </summary>
     /// <returns>The game and the native WRAM after <paramref name="lastUpdate"/>, which must have a checkpoint.</returns>
     internal static (SuperMetroidGame Game, NativeCheckpointMemory Memory, int UncheckpointedUpdates) ReplayConvertedMovie(
-        ReplayMovie movie, NativeMovieCheckpoints checkpoints, int? traceFromUpdate, int lastUpdate)
+        ReplayMovie movie, NativeMovieCheckpoints checkpoints, int? traceFromUpdate, int lastUpdate,
+        MovieUpdateChecks? movieChecks = null)
     {
         var updates = checkpoints.Updates;
 
@@ -202,6 +213,8 @@ internal static class FullMovieReplayVerification
             if (update >= traceFromUpdate)
                 TraceMovieSamus(game, memory, update, step);
             List<string> mismatches = CompareMovieDesyncState(game, memory);
+            if (movieChecks is not null)
+                mismatches.AddRange(movieChecks(game, update));
             if (mismatches.Count != 0)
             {
                 Console.Error.WriteLine("Recent converted inputs: " + string.Join(", ", recentInputs));

@@ -1184,7 +1184,7 @@ csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroRinkaProgramsVerificati
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroRinkaSpriteArtworkVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroScientistFrameCatalogVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroScientistSpriteArtworkVerification.cs	SME6340	4
-csharp/src/SuperMetroid.Verification/Frontend/Intro/LowPercentIntroTimelineVerification.cs	SME6340	24
+csharp/src/SuperMetroid.Verification/Frontend/Intro/LowPercentIntroReplayChecks.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Frontend/Map/AreaMapAssetVerificationDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Frontend/Map/MapArrowCasesVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Frontend/Map/MapArrowDurationsVerification.cs	SME6340	5

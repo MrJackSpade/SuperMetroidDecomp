@@ -4,13 +4,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 internal static class HibashiDefinitions
 {
 
-    /// <summary>$A6:8D1B, instruction list for Hibashi's visible graphics part.</summary>
-    internal const ushort GraphicsInstructionList =
-        HibashiInstructionProgramDefinitions.GraphicsProgram;
 
-    /// <summary>$A6:8DA9, instruction list for Hibashi's invisible collision part.</summary>
-    internal const ushort HitboxInstructionList =
-        HibashiInstructionProgramDefinitions.HitboxProgram;
 
     /// <summary>Sound effect $61 in library two, queued when an eruption begins.</summary>
     internal const ushort EruptionSoundEffect = 0x0061;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class DachoraEnemyState
 
     /// <summary>Projects Dachora's six native words from its occupied enemy slot.</summary>
     internal DachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<DachoraProgram> Program { get; set; }
 
     /// <summary>Variable A while running, falling or shinesparking: whole speed.</summary>
     public ushort Speed

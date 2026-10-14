@@ -14,7 +14,7 @@ internal static class OrdinaryEnemyResourceChecks
         // Typed families (#641) name their spritemaps; the rest still resolve compiled operands.
         (string Name, byte Bank, ushort[]? Operands, ushort[]? Spritemaps, int Count)[] families =
         [
-            ("Hibashi", HibashiVisualDefinitions.Bank, HibashiVisualDefinitions.Operands(), null, HibashiVisualDefinitions.FrameCount),
+            ("Hibashi", HibashiVisualDefinitions.Bank, null, [.. HibashiVisualDefinitions.Spritemaps()], HibashiVisualDefinitions.FrameCount),
             ("Zebetite", ZebetiteVisualDefinitions.Bank, null, ZebetiteVisualDefinitions.Spritemaps(), ZebetiteVisualDefinitions.FrameCount),
             ("WreckedShipGhost", WreckedShipGhostVisualDefinitions.Bank, null, WreckedShipGhostVisualDefinitions.Spritemaps(), WreckedShipGhostVisualDefinitions.FrameCount),
             ("Powamp", PowampVisualDefinitions.Bank, null, [.. PowampVisualDefinitions.Frames().Select(frame => frame.Pointer)], PowampVisualDefinitions.FrameCount),

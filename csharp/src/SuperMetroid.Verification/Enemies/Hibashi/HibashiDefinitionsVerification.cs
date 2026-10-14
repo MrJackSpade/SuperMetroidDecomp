@@ -1,9 +1,11 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -63,22 +65,9 @@ internal static class HibashiDefinitionsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => applyFrame(graphics, 22),
             "Hibashi production activity index beyond authored table");
 
-        for (int index = 0;
-             index < HibashiInstructionProgramDefinitionsTooling.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                HibashiInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | definition.Address)),
-                $"Hibashi instruction mechanics word $A6:{definition.Address:X4}");
-        }
-
-        var executedOperands = new HashSet<ushort>();
-        var programGuard = NewHibashiProgramGuard(rom);
+        var shownSpritemaps = new HashSet<ushort>();
         var programSystem = new RoomEnemySystem();
-        programSystem.BindFixtureBus(programGuard);
+        programSystem.BindFixtureBus(rom);
         Action<RoomEnemySlot> initializeProgram = programSystem.HibashiBehavior.InitializeHibashi;
 
         RoomEnemySlot programGraphics = programSystem.SlotTable.Slots[0];
@@ -100,38 +89,17 @@ internal static class HibashiDefinitionsVerification
         object?[] hitboxArguments =
             [programHitbox, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
-        // The visible stream needs 59 actor frames through its final callback. The margin
-        // proves both actors remain parked on their terminal sleep commands afterward.
+        // The visible stream needs 59 actor frames through its final cue; the margin proves both actors stay asleep.
         for (int frame = 0; frame < 70; frame++)
         {
-            ushort previousGraphicsSprite = programGraphics.SpritemapPointer;
             EnemyInstructionRunner.Process(programSystem, graphicsArguments);
-            if (programGraphics.CurrentInstruction == 0x8da7)
-                AssertEqual(previousGraphicsSprite, programGraphics.SpritemapPointer,
-                    "Hibashi terminal callback retains the last graphics sprite");
-            else
-                VerifyExecutedEnemySelector(rom, programGraphics, executedOperands);
+            shownSpritemaps.Add(programGraphics.SpritemapPointer);
             EnemyInstructionRunner.Process(programSystem, hitboxArguments);
-            VerifyExecutedEnemySelector(rom, programHitbox, executedOperands);
+            shownSpritemaps.Add(programHitbox.SpritemapPointer);
         }
-
-        AssertEqual(
-            HibashiInstructionProgramDefinitions.PresentationWordCount,
-            executedOperands.Count,
-            "all Hibashi selectors execute and match cartridge operands");
-        for (int index = 0;
-             index < HibashiInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                HibashiInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(executedOperands.Contains(address),
-                $"production execution covers Hibashi presentation word $A6:{address:X4}");
-        }
-        AssertEqual(0, programGuard.ObservedWords.Count,
-            "compiled presentation selectors require no runtime ROM reads");
-        AssertEqual(0, programGuard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Hibashi mechanics byte");
+        AssertTrue(shownSpritemaps.SetEquals(HibashiVisualDefinitions.Spritemaps()), "the Hibashi shows every authored pose");
+        AssertEqual(HibashiAnimations.Spritemaps(HibashiProgram.Graphics).Last(), programGraphics.SpritemapPointer,
+            "Hibashi finish retains the last graphics sprite");
         AssertEqual(HibashiDefinitions.EruptionSoundEffect,
             (programSystem.HibashiBehavior.LastHibashiSoundEffect ?? throw new InvalidOperationException("Verification requires programSystem.HibashiBehavior.LastHibashiSoundEffect.")),
             "Hibashi graphics program queues eruption sound");
@@ -147,55 +115,26 @@ internal static class HibashiDefinitionsVerification
             "Hibashi finished program hides graphics actor");
         AssertTrue(programHitbox.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
             "Hibashi finished program disables collision actor");
-        AssertEqual((ushort)0x8da7, programGraphics.CurrentInstruction,
-            "Hibashi graphics program sleeps at terminal command");
-        AssertEqual((ushort)0x8dad, programHitbox.CurrentInstruction,
-            "Hibashi hitbox program sleeps at terminal command");
-
-        AssertThrows<InvalidDataException>(
-            () => HibashiInstructionProgramDefinitions.ReadMechanicsWord(0x8d1f),
-            "interleaved Hibashi spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => HibashiInstructionProgramDefinitions.ReadMechanicsWord(0x8e13),
-            "Hibashi callback code is rejected as instruction-stream mechanics");
-
-        _ = ProbeHibashiInstructionMechanicsAllocation();
-        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeHibashiInstructionMechanicsAllocation();
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
-        AssertTrue(checksum != 0, "Hibashi allocation probe consumes live data");
-        AssertEqual(0L, allocated,
-            "warmed Hibashi mechanics lookups allocate no per-frame storage");
+        HibashiEnemyState graphicsState = programSystem.HibashiStates[0] ?? throw new InvalidOperationException("The Hibashi graphics part has no state.");
+        HibashiEnemyState hitboxState = programSystem.HibashiStates[1] ?? throw new InvalidOperationException("The Hibashi hitbox part has no state.");
+        (AnimationProgramCursor<HibashiProgram> graphicsAsleep, AnimationProgramCursor<HibashiProgram> hitboxAsleep) = (graphicsState.Program, hitboxState.Program);
+        EnemyInstructionRunner.Process(programSystem, graphicsArguments);
+        EnemyInstructionRunner.Process(programSystem, hitboxArguments);
+        AssertEqual(graphicsAsleep, graphicsState.Program, "Hibashi graphics program sleeps after finishing");
+        AssertEqual(hitboxAsleep, hitboxState.Program, "Hibashi hitbox program sleeps on its one pose");
+        AssertEqual(HibashiProgram.Graphics, graphicsState.Program.Program, "Hibashi graphics part runs the eruption");
+        AssertEqual(HibashiProgram.Hitbox, hitboxState.Program.Program, "Hibashi hitbox part runs the collision-part animation");
+        Suite(nameof(HibashiAnimationsVerification.VerifyHibashiAnimations), () => HibashiAnimationsVerification.VerifyHibashiAnimations(rom));
 
         Console.WriteLine(
-            "Hibashi definitions: 44 physical words, all 22 real activity-frame " +
-            "hitboxes, 50 compiled instruction words, and both production programs " +
-            "pass with runtime ROM reads forbidden; 24 executed selectors match the cartridge.");
-    }
-
-    /// <summary>Repeatedly reads a compiled graphics instruction word so the warmed allocation check consumes live data.</summary>
-    private static int ProbeHibashiInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += HibashiInstructionProgramDefinitions.ReadMechanicsWord(
-                HibashiInstructionProgramDefinitions.GraphicsProgram);
-        }
-        return checksum;
+            "Hibashi definitions: 44 physical words, all 22 real activity-frame hitboxes, and both typed programs' " +
+            "eruption, cues and sleeps pass.");
     }
 
     /// <summary>Rejects fallback reads from the cartridge hitbox tables after their values have been compiled.</summary>
     private static CartridgeReadGuard NewHibashiDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0xa68dbb, 0xa68e13 - 0xa68dbb,
             address => $"Hibashi attempted migrated hitbox read ${address:X6}.");
-
-    /// <summary>Forbids migrated mechanics bytes while observing the presentation selectors still read by the instruction runner.</summary>
-    private static CartridgeReadGuard NewHibashiProgramGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(HibashiInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled Hibashi mechanics byte ${address:X6}.")
-            .ObserveWords(0xa60000, HibashiInstructionProgramDefinitions.PresentationWordCount, HibashiInstructionProgramDefinitions.PresentationWordAddress);
 
     /// <summary>Runs the Hibashi migration check against the local retail cartridge image.</summary>
     [VerificationCommand("--hibashi-instruction-mechanics")]

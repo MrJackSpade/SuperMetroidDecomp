@@ -23,21 +23,21 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 31069,
-    "PointerDispatch": 592,
+    "RawHexLiteral": 31029,
+    "PointerDispatch": 585,
     "OpaqueWordArray": 1041,
-    "CatalogHexLiteral": 97563,
+    "CatalogHexLiteral": 97644,
     "JustifiedHexLiteral": 148,
     "RawWidthOperation": 44,
     "OwnedWidthOperation": 72,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 19,
-    "class:NumericQuantity": 54629,
-    "class:DomainIdentity": 7737,
+    "class:NumericQuantity": 54628,
+    "class:DomainIdentity": 7820,
     "class:ComposableBits": 1452,
     "class:StructuredInstruction": 42949,
-    "class:CartridgeAddress": 22942,
+    "class:CartridgeAddress": 22894,
     "class:Unknown": 845,
     "storageWidthMembers": 1537
   },
@@ -45,11 +45,11 @@
     {
       "name": "Asset catalogs and decoders",
       "totals": {
-        "CatalogHexLiteral": 9925,
+        "CatalogHexLiteral": 10011,
         "JustifiedHexLiteral": 5,
         "OwnedWidthOperation": 2,
-        "class:NumericQuantity": 513,
-        "class:DomainIdentity": 949,
+        "class:NumericQuantity": 516,
+        "class:DomainIdentity": 1032,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 8380,
         "class:Unknown": 69,
@@ -172,6 +172,24 @@
             "CatalogHexLiteral": 19,
             "class:NumericQuantity": 1,
             "class:DomainIdentity": 18
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Animals/Artwork/DachoraFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 30,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 29
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Animals/Artwork/EtecoonFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 32,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 31
           }
         },
         {
@@ -765,6 +783,15 @@
             "CatalogHexLiteral": 23,
             "class:NumericQuantity": 1,
             "class:DomainIdentity": 22
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Hibashi/Artwork/HibashiFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 24,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 23
           }
         },
         {
@@ -5605,17 +5632,17 @@
       "name": "Enemies: regular AI and instruction programs",
       "totals": {
         "RawHexLiteral": 660,
-        "PointerDispatch": 138,
+        "PointerDispatch": 134,
         "OpaqueWordArray": 5,
-        "CatalogHexLiteral": 21015,
+        "CatalogHexLiteral": 20948,
         "JustifiedHexLiteral": 1,
         "OwnedWidthOperation": 12,
         "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 17492,
+        "class:NumericQuantity": 17451,
         "class:DomainIdentity": 84,
         "class:ComposableBits": 209,
         "class:StructuredInstruction": 488,
-        "class:CartridgeAddress": 3517,
+        "class:CartridgeAddress": 3487,
         "class:Unknown": 47,
         "storageWidthMembers": 478
       },
@@ -5628,8 +5655,6 @@
         "EnemyDeathInstructionProgramDefinitions",
         "FallingSparkInstructionProgramDefinitions",
         "FuneNamiheFireballInstructionProgramDefinitions",
-        "HibashiInstructionLayout",
-        "HibashiInstructionProgramDefinitions",
         "KagoBugProjectileInstructionProgramDefinitions",
         "KiHunterAcidSpitInstructionProgramDefinitions",
         "MagdolliteLavaInstructionProgramDefinitions",
@@ -5717,15 +5742,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 17,
-            "class:NumericQuantity": 16,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeAnimalDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -5798,15 +5814,6 @@
             "class:NumericQuantity": 19,
             "class:ComposableBits": 1,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 23,
-            "class:NumericQuantity": 22,
-            "class:CartridgeAddress": 1
           }
         },
         {
@@ -7099,34 +7106,6 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "storageWidthMembers": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 24,
-            "class:CartridgeAddress": 24
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiInstructionLayout.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 1,
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 3,
-            "CatalogHexLiteral": 2,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 3
           }
         },
         {
@@ -8940,19 +8919,19 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 29441,
-        "PointerDispatch": 208,
+        "RawHexLiteral": 29401,
+        "PointerDispatch": 205,
         "OpaqueWordArray": 910,
-        "CatalogHexLiteral": 2045,
+        "CatalogHexLiteral": 2107,
         "RawWidthOperation": 44,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 11001,
+        "class:NumericQuantity": 11038,
         "class:DomainIdentity": 566,
         "class:ComposableBits": 535,
         "class:StructuredInstruction": 12831,
-        "class:CartridgeAddress": 7230,
+        "class:CartridgeAddress": 7212,
         "class:Unknown": 500,
         "storageWidthMembers": 84
       },
@@ -8981,7 +8960,6 @@
         "EnemyProjectileInstructionMechanicsDefinitionsTooling",
         "EnemyTileArtworkGunshipLiftoffVerification",
         "EnemyTileArtworkProjectileSpritemapsVerification",
-        "EtecoonInstructionProgramDefinitionsVerification",
         "EyeDoorPlmDrawDefinitionsVerification",
         "EyeDoorProjectileInstructionProgramDefinitionsTooling",
         "EyeDoorProjectileInstructionProgramDefinitionsVerification",
@@ -8994,7 +8972,6 @@
         "FrozenGateGlitchVerification",
         "FuneNamiheFireballInstructionProgramDefinitionsTooling",
         "GunshipDustDefinitionsVerification",
-        "HibashiInstructionProgramDefinitionsTooling",
         "HyperBeamPaletteFxProgramDefinitionsVerification",
         "KagoBugProjectileInstructionProgramDefinitionsTooling",
         "KiHunterAcidSpitInstructionProgramDefinitionsTooling",
@@ -9848,15 +9825,6 @@
           "totals": {
             "PointerDispatch": 3,
             "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Hibashi/HibashiInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 2
           }
         },
         {
@@ -12870,9 +12838,17 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Animals/DachoraInstructionProgramDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 10,
-            "class:NumericQuantity": 6,
-            "class:CartridgeAddress": 4
+            "RawHexLiteral": 6,
+            "class:NumericQuantity": 5,
+            "class:CartridgeAddress": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Animals/DachoraNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 16,
+            "class:NumericQuantity": 16
           }
         },
         {
@@ -12924,10 +12900,17 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Animals/EtecoonInstructionProgramDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 23,
-            "PointerDispatch": 1,
+            "RawHexLiteral": 2,
             "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 23
+            "class:CartridgeAddress": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Animals/EtecoonNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 21,
+            "class:NumericQuantity": 21
           }
         },
         {
@@ -14184,9 +14167,18 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Hibashi/HibashiDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 18,
+            "RawHexLiteral": 11,
             "class:NumericQuantity": 6,
-            "class:CartridgeAddress": 12
+            "class:CartridgeAddress": 5
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Hibashi/HibashiNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 27,
+            "class:NumericQuantity": 3,
+            "class:CartridgeAddress": 24
           }
         },
         {
@@ -17514,14 +17506,14 @@
           "path": "csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 881,
+            "RawHexLiteral": 874,
             "PointerDispatch": 1,
             "OpaqueWordArray": 19,
             "class:NumericQuantity": 179,
             "class:DomainIdentity": 26,
             "class:ComposableBits": 30,
             "class:StructuredInstruction": 158,
-            "class:CartridgeAddress": 484,
+            "class:CartridgeAddress": 477,
             "class:Unknown": 24
           }
         },
@@ -21118,30 +21110,6 @@
           "totals": {
             "CatalogHexLiteral": 2,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Animals/DachoraInstructionProgramDefinitionsAccess.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Animals/DachoraInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Animals/EtecoonInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
           }
         },
         {

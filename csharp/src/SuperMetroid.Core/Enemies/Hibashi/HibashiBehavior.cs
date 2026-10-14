@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Enemies.Hibashi;
+﻿using SuperMetroid.Core.Enemies.Hibashi.Artwork;
+using SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>The Hibashi species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class HibashiBehavior : IEnemySpecies
@@ -12,54 +14,25 @@ internal sealed class HibashiBehavior : IEnemySpecies
         _slotTable = slotTable;
     }
 
-    /// <summary>Executes Hibashi's private animation instructions.</summary>
-    private bool TryProcessHibashiInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of the Hibashi's eruption: its sound, an eruption frame's hitbox, or finishing.</summary>
+    private HibashiProgram? ApplyHibashiCue(RoomEnemySlot slot, HibashiCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Hibashi ||
-            !Enum.IsDefined((HibashiInstruction)word))
-            return false;
-
-        switch ((HibashiInstruction)word)
+        switch (cue.Kind)
         {
-            case HibashiInstruction.PlaySFX:
+            case HibashiCueKind.PlayEruptionSound:
                 PlayHibashiEruptionSound();
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case HibashiInstruction.ActivityFrame0:
-            case HibashiInstruction.ActivityFrame1:
-            case HibashiInstruction.ActivityFrame2:
-            case HibashiInstruction.ActivityFrame3:
-            case HibashiInstruction.ActivityFrame4:
-            case HibashiInstruction.ActivityFrame5:
-            case HibashiInstruction.ActivityFrame6:
-            case HibashiInstruction.ActivityFrame7:
-            case HibashiInstruction.ActivityFrame8:
-            case HibashiInstruction.ActivityFrame9:
-            case HibashiInstruction.ActivityFrameA:
-            case HibashiInstruction.ActivityFrameB:
-            case HibashiInstruction.ActivityFrameC:
-            case HibashiInstruction.ActivityFrameD:
-            case HibashiInstruction.ActivityFrameE:
-            case HibashiInstruction.ActivityFrameF:
-            case HibashiInstruction.ActivityFrame10:
-            case HibashiInstruction.ActivityFrame11:
-            case HibashiInstruction.ActivityFrame12:
-            case HibashiInstruction.ActivityFrame13:
-            case HibashiInstruction.ActivityFrame14:
-            case HibashiInstruction.ActivityFrame15:
-                // These 22 bank-$A6 routines each select the correspondingly indexed
-                // Y-offset/radius pair, derived from the executed routine address.
-                ApplyHibashiActivityFrame(slot, HibashiInstructionLayout.ActivityFrameIndex((HibashiInstruction)word));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case HibashiInstruction.FinishActivity:
+                break;
+            case HibashiCueKind.ActivityFrame:
+                // Each of the 22 bank-$A6 routines selects the correspondingly indexed Y-offset/radius pair.
+                ApplyHibashiActivityFrame(slot, cue.Value);
+                break;
+            case HibashiCueKind.FinishActivity:
                 FinishHibashiActivity(slot);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Hibashi does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(HibashiCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Per-slot geyser timing and shape state cleared at room load.</summary>
@@ -73,14 +46,14 @@ internal sealed class HibashiBehavior : IEnemySpecies
         _hibashiStates[slot.SlotIndex] = state;
 
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
-        // the instruction-driven eruption list and initializes the state-machine words below.
-        slot.CurrentInstruction = HibashiDefinitions.HitboxInstructionList;
+        // the eruption animation and initializes the state-machine words below.
+        state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Hitbox);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         if (state.Part != 0)
             return;
 
-        slot.CurrentInstruction = HibashiDefinitions.GraphicsInstructionList;
+        state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Graphics);
         state.Function = HibashiEnemyFunction.Inactive;
         state.SpawnYPosition = slot.Position.Y.Whole;
 
@@ -125,7 +98,7 @@ internal sealed class HibashiBehavior : IEnemySpecies
         state.FinishedActivityFlag = 0;
         graphics.InstructionTimer = NativeCountdown.Start(1);
         graphics.Timer = NativeCountdown.Start(0);
-        graphics.CurrentInstruction = HibashiDefinitions.GraphicsInstructionList;
+        state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Graphics);
 
         // Property $0100 controls rendering only. Property $0400 controls admission to
         // Samus/projectile/grapple collision. The bottom remains visually invisible for the
@@ -221,15 +194,19 @@ internal sealed class HibashiBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers sound, 22 shape updates, and finish-activity instructions owned by Hibashi.</summary>
-    internal void RegisterHibashiOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Hibashi's eruption and collision-part animations as typed programs (#641).</summary>
+    internal void RegisterHibashiTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessHibashiInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireHibashiState(slot);
+            AnimationProgramCursor<HibashiProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, HibashiAnimations.Programs, ref cursor, HibashiFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyHibashiCue(slot, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Last library-two Hibashi eruption sound this enemy pass, using the Max6 queue entry; cleared at the next enemy-frame boundary.</summary>
     public ushort? LastHibashiSoundEffect { get; private set; }

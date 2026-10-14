@@ -3,8 +3,7 @@ using SuperMetroid.Core.Enemies.Animals;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// Program-selected ordinary OAM compositions for the friendly animals and their
-/// escape variants. Their route, jumps, echoes and escape timing remain mechanics.
+/// Ordinary OAM compositions the friendly animals' and their escape variants' typed programs show. Their route, jumps, echoes and escape timing remain mechanics.
 /// </summary>
 internal static class FriendlyAnimalVisualDefinitions
 {
@@ -21,23 +20,14 @@ internal static class FriendlyAnimalVisualDefinitions
     /// <summary>Twelve selected rescue Dachora compositions at $B3:EB1B..ED3E.</summary>
     internal const int EscapeDachoraFrameCount = 12;
 
-    /// <summary>Collects the Etecoon pose operands selected by its ordinary animation program.</summary>
-    internal static ushort[] EtecoonOperands() => Enumerable.Range(0,
-        EtecoonInstructionProgramDefinitions.PresentationWordCount)
-        .Select(EtecoonInstructionProgramDefinitions.PresentationWordAddress).ToArray();
-    /// <summary>Collects Dachora's body and echo pose operands from its ordinary program.</summary>
-    internal static ushort[] DachoraOperands() => Enumerable.Range(0,
-        DachoraInstructionProgramDefinitions.PresentationWordCount)
-        .Select(DachoraInstructionProgramDefinitions.PresentationWordAddress).ToArray();
-
     /// <summary>Compiles the four animal frame groups with their respective native sprite banks.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
-        .. CompiledEnemyCompositionDefinitions.Frames(NormalBank, EtecoonOperands(),
-            EtecoonFrameCount, "etecoon"),
-        .. CompiledEnemyCompositionDefinitions.Frames(NormalBank, DachoraOperands(),
-            DachoraFrameCount, "dachora"),
-        // The rescue-sequence animals are typed programs (#641): their poses in first-shown order.
+        // Every animal is a typed program (#641): its poses in first-shown order.
+        .. CompiledEnemyCompositionDefinitions.FramesFromSpritemaps(NormalBank,
+            EtecoonAnimations.Spritemaps(Enum.GetValues<EtecoonProgram>()), EtecoonFrameCount, "etecoon"),
+        .. CompiledEnemyCompositionDefinitions.FramesFromSpritemaps(NormalBank,
+            DachoraAnimations.Spritemaps(Enum.GetValues<DachoraProgram>()), DachoraFrameCount, "dachora"),
         .. CompiledEnemyCompositionDefinitions.FramesFromSpritemaps(EscapeBank,
             EscapeEtecoonAnimations.Spritemaps(Enum.GetValues<EscapeEtecoonProgram>()), EscapeEtecoonFrameCount, "escape_etecoon"),
         .. CompiledEnemyCompositionDefinitions.FramesFromSpritemaps(EscapeBank,

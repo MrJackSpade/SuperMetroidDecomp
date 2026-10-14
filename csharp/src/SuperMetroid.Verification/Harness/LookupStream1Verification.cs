@@ -2266,11 +2266,10 @@ internal static class LookupStream1Verification
     /// <summary>Reads empty extended enemy frame headers across supported banks.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 common frames")]
     private static byte LookupStream1CommonFramesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    /// <summary>Checks Hibashi and Dragon fireball instruction mechanics and visual operand layouts.</summary>
+    /// <summary>Checks Dragon fireball instruction mechanics and visual operand layouts.</summary>
     private static void VerifyLookupStream1HibashiDragonFireball(ISnesAddressSpace rom)
     {
         Check(0x860000, 0xb4bf, 0xb4ef, 16, 8, new CompiledProgramSplit(Mechanics: i => { var w = DragonFireballInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); }, Presentation: DragonFireballInstructionProgramDefinitions.PresentationWordAddress, Read: DragonFireballInstructionProgramDefinitions.ReadMechanicsWord, Owns: DragonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: address => (address - 0xb4bf) % 12 is 2 or 6));
-        Check(0xa60000, 0x8d1b, 0x8daf, 50, 24, new CompiledProgramSplit(Mechanics: i => { var w = HibashiInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); }, Presentation: HibashiInstructionProgramDefinitions.PresentationWordAddress, Read: HibashiInstructionProgramDefinitions.ReadMechanicsWord, Owns: HibashiInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: address => address == 0x8dab || address >= 0x8d1f && address <= 0x8da3 && (address - 0x8d1f) % 6 == 0));
         void Check(int bank, int first, int end, int count, int visualCount, CompiledProgramSplit split)
         {
             int m = 0, p = 0;

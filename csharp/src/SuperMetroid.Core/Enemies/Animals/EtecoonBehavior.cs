@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Elevator;
+﻿using SuperMetroid.Core.Enemies.Animals.Artwork;
+using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -90,7 +91,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.SpritemapPointer = 0x804d;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.Initial;
+        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Initial);
         state.Function = EtecoonAiFunction.WaitingForSamus;
         state.FunctionTimer = NativeCountdown.Start(0xffff);
     }
@@ -197,7 +198,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         {
             if (DecrementEtecoonTimerAndTestExpired(state))
             {
-                InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
+                InstallEtecoonInstruction(slot, state, EtecoonProgram.HoppingFacingLeft);
                 state.Function = EtecoonAiFunction.PreJumpCountdown;
                 state.FunctionTimer = NativeCountdown.Start(11);
             }
@@ -209,7 +210,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
 
         if ((slot.Parameter2 & 3) == 0)
             LastEtecoonSoundEffect = EtecoonWakeSound;
-        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.Flexing);
+        InstallEtecoonInstruction(slot, state, EtecoonProgram.Flexing);
         state.FunctionTimer = NativeCountdown.Start(256);
     }
 
@@ -223,7 +224,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             return;
 
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
-        slot.CurrentInstruction = unchecked((ushort)(slot.CurrentInstruction + 2));
+        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = EtecoonAiFunction.InitialJump;
         if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
@@ -248,12 +249,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies
                 ushort direction = DetermineEtecoonDirectionToSamus(slot, samus);
                 if (unchecked((short)(direction - 5)) < 0)
                 {
-                    InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.LookRightAtSamusAndRunLeft);
+                    InstallEtecoonInstruction(slot, state, EtecoonProgram.LookRightAtSamusAndRunLeft);
                     slot.Parameter1 = 0;
                 }
                 else
                 {
-                    InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.LookLeftAtSamusAndRunRight);
+                    InstallEtecoonInstruction(slot, state, EtecoonProgram.LookLeftAtSamusAndRunRight);
                     slot.Parameter1 = 1;
                 }
                 state.FunctionTimer = NativeCountdown.Start(32);
@@ -263,14 +264,14 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             {
                 state.FunctionTimer = NativeCountdown.Start(11);
                 state.Function = EtecoonAiFunction.PreJumpCountdown;
-                InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
+                InstallEtecoonInstruction(slot, state, EtecoonProgram.HoppingFacingLeft);
             }
             return;
         }
 
         SetEtecoonVerticalVelocity(state, 0, 0);
         slot.InstructionTimer = NativeCountdown.Start(3);
-        slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.HitCeiling;
+        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.HitCeiling);
     }
 
     /// <summary>Waits 32 calls before choosing a left or right wall run from the stored facing bit.</summary>
@@ -281,7 +282,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        slot.CurrentInstruction = unchecked((ushort)(slot.CurrentInstruction + 2));
+        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
         slot.InstructionTimer = NativeCountdown.Start(1);
         if (slot.Parameter1 != 0)
         {
@@ -307,7 +308,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
 
         SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
         state.Function = EtecoonAiFunction.RunRightToWall;
-        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.RunningRight);
+        InstallEtecoonInstruction(slot, state, EtecoonProgram.RunningRight);
         slot.Parameter1 = 1;
     }
 
@@ -322,7 +323,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
                 slot,
                 EtecoonRightWallProbe))
         {
-            InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
+            InstallEtecoonInstruction(slot, state, EtecoonProgram.JumpingRight);
             state.Function = EtecoonAiFunction.Airborne;
             return;
         }
@@ -342,12 +343,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         {
             if (slot.Parameter1 != 0)
             {
-                InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.WallJumpLeftEligible);
+                InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpLeftEligible);
                 slot.Parameter1 = 0;
             }
             else
             {
-                InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.WallJumpRightEligible);
+                InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpRightEligible);
                 slot.Parameter1 = 1;
             }
             state.Function = EtecoonAiFunction.WallPause;
@@ -362,9 +363,10 @@ internal sealed class EtecoonBehavior : IEnemySpecies
 
         InstallEtecoonInstruction(
             slot,
+            state,
             slot.Parameter1 != 0
-                ? EtecoonInstructionProgramDefinitions.HoppingFacingLeft
-                : EtecoonInstructionProgramDefinitions.HoppingFacingRight);
+                ? EtecoonProgram.HoppingFacingLeft
+                : EtecoonProgram.HoppingFacingRight);
         state.FunctionTimer = NativeCountdown.Start(11);
         state.Function = EtecoonAiFunction.RouteAfterLanding;
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
@@ -379,12 +381,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies
 
         if (slot.Parameter1 != 0)
         {
-            InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.WallJumpRight);
+            InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpRight);
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
         }
         else
         {
-            InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.WallJumpLeft);
+            InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpLeft);
             SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity, EtecoonLeftSubvelocity);
         }
         state.Function = EtecoonAiFunction.Airborne;
@@ -404,17 +406,17 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         {
             case 0:
                 state.Function = EtecoonAiFunction.MoveLeftToTeachingStart;
-                slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.RunningLeft;
+                state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningLeft);
                 SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity, EtecoonLeftSubvelocity);
                 break;
             case 1:
                 state.Function = EtecoonAiFunction.MoveRightToTeachingStart;
-                slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.RunningRight;
+                state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningRight);
                 SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
                 break;
             case 2:
                 state.Function = EtecoonAiFunction.TeachingJump;
-                slot.CurrentInstruction = unchecked((ushort)(slot.CurrentInstruction + 2));
+                state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
                 SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
                 break;
             default:
@@ -436,7 +438,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
 
         state.FunctionTimer = NativeCountdown.Start(11);
         state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
-        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
+        InstallEtecoonInstruction(slot, state, EtecoonProgram.HoppingFacingLeft);
     }
 
     /// <summary>Runs to the right teaching marker before starting an idle hopping interval.</summary>
@@ -451,7 +453,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
 
         state.FunctionTimer = NativeCountdown.Start(11);
         state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
-        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
+        InstallEtecoonInstruction(slot, state, EtecoonProgram.HoppingFacingLeft);
     }
 
     /// <summary>Runs to X=600 and launches the stronger rightward demonstration jump.</summary>
@@ -466,7 +468,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
 
         state.Function = EtecoonAiFunction.LongJump;
         SetEtecoonVerticalVelocity(state, EtecoonLongJumpYVelocity, EtecoonLongJumpYSubvelocity);
-        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
+        InstallEtecoonInstruction(slot, state, EtecoonProgram.JumpingRight);
     }
 
     /// <summary>Advances the long jump on both axes and returns to running art at X=680.</summary>
@@ -481,7 +483,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         if (unchecked((short)(slot.Position.X.Whole - EtecoonLongJumpMidpointX)) < 0)
             return;
 
-        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.RunningRight);
+        InstallEtecoonInstruction(slot, state, EtecoonProgram.RunningRight);
         state.Function = EtecoonAiFunction.RunRightAfterLongJump;
     }
 
@@ -495,7 +497,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         if (unchecked((short)(slot.Position.X.Whole - EtecoonLongJumpEndX)) < 0)
             return;
 
-        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
+        InstallEtecoonInstruction(slot, state, EtecoonProgram.JumpingRight);
         state.Function = EtecoonAiFunction.LongJumpLanding;
         SetEtecoonVerticalVelocity(state, 0xffff, EtecoonLongJumpYSubvelocity);
     }
@@ -512,7 +514,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             return;
 
         state.FunctionTimer = NativeCountdown.Start(11);
-        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
+        InstallEtecoonInstruction(slot, state, EtecoonProgram.HoppingFacingLeft);
         state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
     }
 
@@ -530,7 +532,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         if (state.Velocity.Y.WholePixels >= 0)
         {
             state.FunctionTimer = NativeCountdown.Start(11);
-            InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
+            InstallEtecoonInstruction(slot, state, EtecoonProgram.HoppingFacingLeft);
             state.Function = (slot.Parameter2 & 2) != 0 &&
                 unchecked((short)(slot.Position.X.Whole - EtecoonLongRunMaximumX)) < 0
                     ? EtecoonAiFunction.WaitForSamusBeforeLongRun
@@ -540,7 +542,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
 
         SetEtecoonVerticalVelocity(state, 0, 0);
         slot.InstructionTimer = NativeCountdown.Start(3);
-        slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.HitCeiling;
+        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.HitCeiling);
     }
 
     /// <summary>Counts teaching hops in parameter one's high byte and takes the return run after four on nonlooping routes.</summary>
@@ -567,12 +569,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         if (fewerThanFourTeachingJumps || (slot.Parameter2 & 2) != 0)
         {
             state.Function = EtecoonAiFunction.TeachingJump;
-            slot.CurrentInstruction = unchecked((ushort)(slot.CurrentInstruction + 2));
+            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
         }
         else
         {
             state.Function = EtecoonAiFunction.RunRightToReturnJump;
-            slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.RunningRight;
+            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningRight);
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity, EtecoonRightSubvelocity);
         }
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
@@ -594,13 +596,13 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         if (EtecoonIsWithinY(slot, samus, EtecoonNearbyDistance) &&
             EtecoonIsWithinX(slot, samus, EtecoonLongRunTriggerDistance))
         {
-            slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.RunningRight;
+            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.RunningRight);
             state.Function = EtecoonAiFunction.RunRightToLongJump;
         }
         else
         {
             SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
-            slot.CurrentInstruction = unchecked((ushort)(slot.CurrentInstruction + 2));
+            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
             state.Function = EtecoonAiFunction.TeachingJump;
             if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
                 LastEtecoonSoundEffect = EtecoonJumpSound;
@@ -619,7 +621,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             return;
 
         state.Function = EtecoonAiFunction.ReturnJump;
-        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
+        InstallEtecoonInstruction(slot, state, EtecoonProgram.JumpingRight);
     }
 
     /// <summary>Completes the return jump and restores leftward wall-running speed on landing.</summary>
@@ -636,7 +638,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         SetEtecoonHorizontalVelocity(state, EtecoonLeftVelocity, EtecoonLeftSubvelocity);
         state.Function = EtecoonAiFunction.RunLeftToWall;
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
-        InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.RunningLeft);
+        InstallEtecoonInstruction(slot, state, EtecoonProgram.RunningLeft);
     }
 
     /// <summary>Ports <c>Etecoon_Func_1</c>'s quake-owned parameter and timer writes.</summary>
@@ -744,12 +746,13 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         return deltaY < 0 ? (ushort)1 : (ushort)3;
     }
 
-    /// <summary>Restarts an authored Etecoon animation list at timer one.</summary>
+    /// <summary>Restarts an authored Etecoon animation at timer one.</summary>
     private static void InstallEtecoonInstruction(
         RoomEnemySlot slot,
-        ushort instructionPointer)
+        EtecoonEnemyState state,
+        EtecoonProgram program)
     {
-        slot.CurrentInstruction = instructionPointer;
+        state.Program = AnimationProgramCursor<EtecoonProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -757,6 +760,18 @@ internal sealed class EtecoonBehavior : IEnemySpecies
     private EtecoonEnemyState RequireEtecoonState(RoomEnemySlot slot) =>
         _etecoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Etecoon state.");
+
+    /// <summary>Runs the Etecoon's animations as typed programs (#641).</summary>
+    internal void RegisterEtecoonTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireEtecoonState(slot);
+            AnimationProgramCursor<EtecoonProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, EtecoonAnimations.Programs, ref cursor, EtecoonFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Registers the bank-$A7 Etecoon initializer for its enemy definition.</summary>
     internal void RegisterEtecoonInitializationAi(EnemyAiTable table)

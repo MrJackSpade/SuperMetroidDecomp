@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class EtecoonEnemyState
 
     /// <summary>Creates a typed view over the existing Etecoon slot without copying its variables.</summary>
     internal EtecoonEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<EtecoonProgram> Program { get; set; }
 
     /// <summary>
     /// Signed 16.16 velocity: the vertical whole and fraction words in variables A and B, the

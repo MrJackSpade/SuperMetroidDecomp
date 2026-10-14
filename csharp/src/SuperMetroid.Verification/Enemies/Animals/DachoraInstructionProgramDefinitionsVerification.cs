@@ -1,185 +1,110 @@
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Animals.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks Dachora body and echo animation programs, facing selection, and running speed tiers.</summary>
+/// <summary>Checks the Dachora's and its echoes' typed animations.</summary>
 internal static class DachoraInstructionProgramDefinitionsVerification
 {
-    /// <summary>Loads the retail cartridge for Dachora instruction comparison.</summary>
+    /// <summary>Loads the retail cartridge for the Dachora animation checks.</summary>
     internal static void VerifyDachoraInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDachoraInstructionProgramDefinitions), () => VerifyDachoraInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Runs all fifteen compiled programs and checks their native mechanics and visual operand coverage.</summary>
-    internal static void VerifyDachoraInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+    /// <summary>
+    /// The real initializer picks idle or echo by facing; every looping program runs on time; each speed-up keeps the
+    /// pose in the next-faster run; the launch steps the charge into the right echo; the programs show exactly the
+    /// installed Dachora frames; the program oracle matches bank $A7.
+    /// </summary>
+    internal static void VerifyDachoraInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags =
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
-
-        AssertEqual(110, DachoraInstructionProgramDefinitionsTooling.MechanicsWordCount,
-            "Dachora compiled mechanics word count");
-        AssertEqual(81, DachoraInstructionProgramDefinitions.PresentationWordCount,
-            "Dachora live presentation word count");
-        for (int index = 0;
-             index < DachoraInstructionProgramDefinitionsTooling.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                DachoraInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa70000 | definition.Address),
-                $"Dachora mechanics word $A7:{definition.Address:X4}");
-        }
-
-        var executedOperands = new HashSet<ushort>();
-        var guard = NewDachoraInstructionReadGuard(rom);
-        (ushort Parameter, ushort Expected)[] initializerCases =
+        (ushort Parameter, DachoraProgram Expected)[] initializerCases =
         [
-            (0, DachoraInstructionProgramDefinitions.IdleLeft),
-            (1, DachoraInstructionProgramDefinitions.IdleRight),
-            (0xfffe, DachoraInstructionProgramDefinitions.EchoLeft),
-            (0xffff, DachoraInstructionProgramDefinitions.EchoRight),
+            (0, DachoraProgram.IdleLeft),
+            (1, DachoraProgram.IdleRight),
+            (0xfffe, DachoraProgram.EchoLeft),
+            (0xffff, DachoraProgram.EchoRight),
         ];
-        foreach ((ushort parameter, ushort expected) in initializerCases)
+        foreach ((ushort parameter, DachoraProgram expected) in initializerCases)
         {
-            var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guard);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Dachora;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
-            slot.Parameter1 = parameter;
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(rom, parameter);
             enemies.DachoraBehavior.InitializeDachora(slot);
-            AssertEqual(expected, slot.CurrentInstruction,
+            AssertEqual(AnimationProgramCursor<DachoraProgram>.Start(expected), enemies.DachoraBehavior._dachoraStates[0]?.Program,
                 $"Dachora initializer parameter ${parameter:X4}");
         }
 
-        for (int index = 0;
-             index < DachoraInstructionProgramDefinitions.ProgramCount;
-             index++)
+        foreach (DachoraProgram program in Enum.GetValues<DachoraProgram>())
         {
-            DachoraInstructionProgram program =
-                DachoraInstructionProgramDefinitions.Program(index);
-            var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guard);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Dachora;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
-            slot.CurrentInstruction = program.Entry;
-            ExecuteDachoraProgram(rom, executedOperands,
-                enemies,
-                slot,
-                program.FrameCount + 1);
-            AssertEqual(unchecked((ushort)(program.Entry + 4)), slot.CurrentInstruction,
-                program.Loops
-                    ? $"Dachora program $A7:{program.Entry:X4} loops through every frame"
-                    : $"Dachora program $A7:{program.Entry:X4} reaches terminal sleep");
+            if (DachoraAnimations.Programs.Steps(program)[^1] is not { Kind: AnimationProgramStepKind.GoTo } last || last.Target != program)
+                continue;
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(rom, 0);
+            enemies.DachoraBehavior.InitializeDachora(slot);
+            DachoraEnemyState state = enemies.DachoraBehavior._dachoraStates[0] ?? throw new InvalidOperationException("The Dachora has no state.");
+            state.Program = AnimationProgramCursor<DachoraProgram>.Start(program);
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Programs, program, DachoraFrameDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Programs, program)),
+                $"Dachora {program} loop");
         }
 
-        AssertEqual(unchecked((ushort)(DachoraInstructionProgramDefinitions.RunningLeft + 0x1c)),
-            DachoraInstructionProgramDefinitions.RunningLeftFast,
-            "Dachora left speed-up preserves native in-place cursor offset");
-        AssertEqual(unchecked((ushort)(DachoraInstructionProgramDefinitions.RunningLeftFast + 0x1c)),
-            DachoraInstructionProgramDefinitions.RunningLeftVeryFast,
-            "Dachora left second speed-up preserves native in-place cursor offset");
-        AssertEqual(unchecked((ushort)(DachoraInstructionProgramDefinitions.RunningRight + 0x1c)),
-            DachoraInstructionProgramDefinitions.RunningRightFast,
-            "Dachora right speed-up preserves native in-place cursor offset");
-        AssertEqual(unchecked((ushort)(DachoraInstructionProgramDefinitions.RunningRightFast + 0x1c)),
-            DachoraInstructionProgramDefinitions.RunningRightVeryFast,
-            "Dachora right second speed-up preserves native in-place cursor offset");
-
-        AssertEqual(DachoraInstructionProgramDefinitions.PresentationWordCount,
-            executedOperands.Count,
-            "all executed visual selectors match the cartridge");
-        for (int index = 0;
-             index < DachoraInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach ((DachoraProgram slow, DachoraProgram fast, DachoraProgram fastest) in new[]
+                 {
+                     (DachoraProgram.RunningLeft, DachoraProgram.RunningLeftFast, DachoraProgram.RunningLeftVeryFast),
+                     (DachoraProgram.RunningRight, DachoraProgram.RunningRightFast, DachoraProgram.RunningRightVeryFast),
+                 })
         {
-            ushort address =
-                DachoraInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(executedOperands.Contains(address),
-                $"production execution covers Dachora presentation word $A7:{address:X4}");
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(rom, 0);
+            enemies.DachoraBehavior.InitializeDachora(slot);
+            DachoraEnemyState state = enemies.DachoraBehavior._dachoraStates[0] ?? throw new InvalidOperationException("The Dachora has no state.");
+            var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
+            // One $1000 subspeed step from just below each threshold lands exactly on whole speeds four and eight.
+            state.Program = new AnimationProgramCursor<DachoraProgram>(slow, 3);
+            state.Speed = 3;
+            state.Subspeed = 0xf000;
+            enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
+            AssertEqual(new AnimationProgramCursor<DachoraProgram>(fast, 3), state.Program, $"Dachora {slow} speeds up at the same pose");
+            state.Speed = 7;
+            state.Subspeed = 0xf000;
+            enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
+            AssertEqual(new AnimationProgramCursor<DachoraProgram>(fastest, 3), state.Program, $"Dachora {fast} speeds up at the same pose");
         }
-        AssertEqual(0, guard.ObservedWords.Count,
-            "compiled visual selectors require no runtime cartridge reads");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Dachora mechanics byte");
 
-        AssertThrows<InvalidDataException>(
-            () => DachoraInstructionProgramDefinitions.ReadMechanicsWord(
-                DachoraInstructionProgramDefinitions.PresentationWordAddress(0)),
-            "Dachora spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => DachoraInstructionProgramDefinitions.ReadMechanicsWord(
-                DachoraInstructionProgramDefinitions.UnusedChargeLeft),
-            "retail-unused left charge program is outside production mechanics");
-
-        _ = ProbeDachoraInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeDachoraInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "Dachora allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed Dachora mechanics lookups allocate no per-frame storage");
+        AssertEqual(DachoraProgram.EchoRight, DachoraAnimations.AfterSleep(DachoraProgram.ChargeRight),
+            "the shinespark launch steps the charge into the right-facing echo");
+        AssertTrue(DachoraAnimations.Spritemaps(Enum.GetValues<DachoraProgram>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(
+                EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("dachora_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
+            "the Dachora's programs show exactly its installed frames");
+        Suite(nameof(DachoraAnimationsVerification.VerifyDachoraAnimations), () => DachoraAnimationsVerification.VerifyDachoraAnimations(rom));
 
         Console.WriteLine(
-            "Dachora instruction mechanics: 110 compiled words, all fifteen body/echo " +
-            "programs and speed tiers, and 81 executed selectors match cartridge data with runtime " +
-            "ROM reads forbidden.");
+            "Dachora: the initializer's idle and echo choices, every loop, both speed-ups at the same pose and the " +
+            "launch into the echo pass.");
     }
 
-    /// <summary>Forces timed instruction calls while recording each installed sprite selector used.</summary>
-    private static void ExecuteDachoraProgram(
-        ISnesAddressSpace rom,
-        HashSet<ushort> executedOperands,
-        RoomEnemySystem enemies,
-        RoomEnemySlot slot,
-        int callCount)
+    /// <summary>A Dachora with spawn parameter <paramref name="parameter"/> in the first enemy slot.</summary>
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot) NewDachora(ISnesAddressSpace bus, ushort parameter)
     {
-        object?[] arguments =
-            [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        for (int call = 0; call < callCount; call++)
-        {
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, arguments);
-            VerifyExecutedEnemySelector(rom, slot, executedOperands);
-        }
+        var enemies = new RoomEnemySystem();
+        enemies.BindFixtureBus(bus);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Dachora;
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
+        slot.Parameter1 = parameter;
+        return (enemies, slot);
     }
 
-    /// <summary>Alternates running and falling words to detect allocation on warmed lookups.</summary>
-    private static int ProbeDachoraInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += DachoraInstructionProgramDefinitions.ReadMechanicsWord(
-                (index & 1) == 0
-                    ? DachoraInstructionProgramDefinitions.RunningLeft
-                    : DachoraInstructionProgramDefinitions.FallingRight);
-        }
-        return checksum;
-    }
-
-    /// <summary>Rejects live mechanics reads and observes any cartridge sprite operand accesses.</summary>
-    private static CartridgeReadGuard NewDachoraInstructionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(DachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled Dachora mechanics byte ${address:X6}.")
-            .ObserveWords(0xa70000, DachoraInstructionProgramDefinitions.PresentationWordCount,
-                DachoraInstructionProgramDefinitions.PresentationWordAddress);
-
-    /// <summary>Runs the Dachora program check from the command dispatcher.</summary>
+    /// <summary>Runs the Dachora animation verification.</summary>
     [VerificationCommand("--dachora-instruction-program-definitions")]
     internal static int DachoraInstructionProgramDefinitionsCommand()
     {

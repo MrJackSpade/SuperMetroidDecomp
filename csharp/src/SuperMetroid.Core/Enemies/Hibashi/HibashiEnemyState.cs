@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class HibashiEnemyState
 
     /// <summary>Projects Hibashi's per-part variables from its occupied enemy slot.</summary>
     internal HibashiEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<HibashiProgram> Program { get; set; }
 
     /// <summary>Graphics part's same-bank function word in common variable A, initialized to inactive; nonzero population parts do not dispatch this state machine.</summary>
     public HibashiEnemyFunction Function

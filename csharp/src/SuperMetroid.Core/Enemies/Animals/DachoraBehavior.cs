@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Enemies.Animals.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Animals;
@@ -87,16 +89,16 @@ internal sealed class DachoraBehavior : IEnemySpecies
         {
             // A negative direction identifies an echo. Its low bit selects the same facing
             // convention as the body, while variable D later becomes its eight-frame life.
-            slot.CurrentInstruction = (direction & 1) != 0
-                ? DachoraInstructionProgramDefinitions.EchoRight
-                : DachoraInstructionProgramDefinitions.EchoLeft;
+            state.Program = AnimationProgramCursor<DachoraProgram>.Start((direction & 1) != 0
+                ? DachoraProgram.EchoRight
+                : DachoraProgram.EchoLeft);
             state.Function = DachoraAiFunction.Echo;
             return;
         }
 
-        slot.CurrentInstruction = direction != 0
-            ? DachoraInstructionProgramDefinitions.IdleRight
-            : DachoraInstructionProgramDefinitions.IdleLeft;
+        state.Program = AnimationProgramCursor<DachoraProgram>.Start(direction != 0
+            ? DachoraProgram.IdleRight
+            : DachoraProgram.IdleLeft);
         state.Function = DachoraAiFunction.WaitingForSamus;
     }
 
@@ -166,9 +168,10 @@ internal sealed class DachoraBehavior : IEnemySpecies
 
         InstallDachoraInstruction(
             slot,
+            state,
             slot.Parameter1 != 0
-                ? DachoraInstructionProgramDefinitions.BlinkRight
-                : DachoraInstructionProgramDefinitions.BlinkLeft);
+                ? DachoraProgram.BlinkRight
+                : DachoraProgram.BlinkLeft);
         state.Function = DachoraAiFunction.BlinkingBeforeRun;
         state.PhaseTimer = NativeCountdown.Start(DachoraBlinkDuration);
         LastDachoraSoundEffect = DachoraActivationSound;
@@ -183,9 +186,10 @@ internal sealed class DachoraBehavior : IEnemySpecies
 
         InstallDachoraInstruction(
             slot,
+            state,
             slot.Parameter1 != 0
-                ? DachoraInstructionProgramDefinitions.RunningRight
-                : DachoraInstructionProgramDefinitions.RunningLeft);
+                ? DachoraProgram.RunningRight
+                : DachoraProgram.RunningLeft);
         state.Function = slot.Parameter1 != 0
             ? DachoraAiFunction.RunningRight
             : DachoraAiFunction.RunningLeft;
@@ -209,7 +213,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         if (!hitWall && unchecked((short)(slot.Position.X.Whole - DachoraLeftTurnX)) >= 0)
             return;
 
-        InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.RunningRight);
+        InstallDachoraInstruction(slot, state, DachoraProgram.RunningRight);
         state.Function = DachoraAiFunction.RunningRight;
         state.PaletteAnimationTimer = 1;
         slot.Parameter1 = 1;
@@ -228,7 +232,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
             LastDachoraSoundEffect = DachoraWallImpactSound;
-            InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.RunningLeft);
+            InstallDachoraInstruction(slot, state, DachoraProgram.RunningLeft);
             state.Function = DachoraAiFunction.RunningLeft;
             slot.Parameter1 = 0;
             state.Speed = 0;
@@ -242,7 +246,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         if (unchecked((short)(slot.Position.X.Whole - DachoraShinesparkX)) < 0)
             return;
 
-        InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.ChargeRight);
+        InstallDachoraInstruction(slot, state, DachoraProgram.ChargeRight);
         state.Function = DachoraAiFunction.ChargingShinespark;
         state.PhaseTimer = NativeCountdown.Start(DachoraChargeDuration);
         state.Subspeed = 0;
@@ -297,10 +301,10 @@ internal sealed class DachoraBehavior : IEnemySpecies
                 DachoraAccelerationWhole,
                 DachoraAccelerationFraction);
 
-            // Each 28-byte jump lands at the matching frame in the faster clone of the
-            // current six-frame run list. The instruction interpreter owns phase/timing.
+            // Native's 28-byte cursor jump lands at the matching pose in the faster clone of the
+            // current six-pose run loop. The animation keeps its phase and timing.
             if ((state.Speed is 4 or 8) && state.Subspeed == 0)
-                slot.CurrentInstruction = unchecked((ushort)(slot.CurrentInstruction + 28));
+                state.Program = state.Program with { Program = FasterDachoraRun(state.Program.Program) };
         }
         else
         {
@@ -319,9 +323,9 @@ internal sealed class DachoraBehavior : IEnemySpecies
         if (!state.PhaseTimer.IsZero)
             return;
 
-        // The body list is asleep at $F4B7. Adding two enters the same right-facing echo
-        // list used by the four trails, exactly as the cartridge does on launch.
-        slot.CurrentInstruction = unchecked((ushort)(slot.CurrentInstruction + 2));
+        // The charge animation is asleep at $F4B7. Stepping past the sleep enters the same
+        // right-facing echo animation used by the four trails, exactly as the cartridge does on launch.
+        state.Program = AnimationProgramCursor<DachoraProgram>.Start(DachoraAnimations.AfterSleep(state.Program.Program));
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = DachoraAiFunction.Shinesparking;
 
@@ -334,11 +338,11 @@ internal sealed class DachoraBehavior : IEnemySpecies
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 8)));
         LastDachoraSoundEffect = DachoraLaunchSound;
 
-        ushort echoList = slot.Parameter1 != 0
-            ? DachoraInstructionProgramDefinitions.EchoRight
-            : DachoraInstructionProgramDefinitions.EchoLeft;
+        DachoraProgram echoList = slot.Parameter1 != 0
+            ? DachoraProgram.EchoRight
+            : DachoraProgram.EchoLeft;
         foreach (RoomEnemySlot echo in echoes)
-            InstallDachoraInstruction(echo, echoList);
+            InstallDachoraInstruction(echo, RequireDachoraState(echo), echoList);
     }
 
     /// <summary>Ports upward acceleration, trail placement, and ceiling collision at $A7:F806.</summary>
@@ -373,12 +377,12 @@ internal sealed class DachoraBehavior : IEnemySpecies
         // Ceiling impact reverses the facing bit before the fall, a visible retail quirk.
         if (slot.Parameter1 == 0)
         {
-            InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.FallingRight);
+            InstallDachoraInstruction(slot, state, DachoraProgram.FallingRight);
             slot.Parameter1 = 1;
         }
         else
         {
-            InstallDachoraInstruction(slot, DachoraInstructionProgramDefinitions.FallingLeft);
+            InstallDachoraInstruction(slot, state, DachoraProgram.FallingLeft);
             slot.Parameter1 = 0;
         }
         state.Function = DachoraAiFunction.Falling;
@@ -417,9 +421,10 @@ internal sealed class DachoraBehavior : IEnemySpecies
 
         InstallDachoraInstruction(
             slot,
+            state,
             slot.Parameter1 != 0
-                ? DachoraInstructionProgramDefinitions.RunningRight
-                : DachoraInstructionProgramDefinitions.RunningLeft);
+                ? DachoraProgram.RunningRight
+                : DachoraProgram.RunningLeft);
         state.Function = slot.Parameter1 != 0
             ? DachoraAiFunction.RunningRight
             : DachoraAiFunction.RunningLeft;
@@ -528,12 +533,22 @@ internal sealed class DachoraBehavior : IEnemySpecies
         _dachoraStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Dachora slot {slot.SlotIndex} has no initialized native state.");
 
-    /// <summary>Starts an authored Dachora animation list at its first interpreter tick.</summary>
-    private static void InstallDachoraInstruction(RoomEnemySlot slot, ushort instructionList)
+    /// <summary>Starts an authored Dachora animation at its first tick.</summary>
+    private static void InstallDachoraInstruction(RoomEnemySlot slot, DachoraEnemyState state, DachoraProgram program)
     {
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<DachoraProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
+
+    /// <summary>The faster clone of a run loop, where native's 28-byte speed-up jump lands at the same pose.</summary>
+    private static DachoraProgram FasterDachoraRun(DachoraProgram program) => program switch
+    {
+        DachoraProgram.RunningLeft => DachoraProgram.RunningLeftFast,
+        DachoraProgram.RunningLeftFast => DachoraProgram.RunningLeftVeryFast,
+        DachoraProgram.RunningRight => DachoraProgram.RunningRightFast,
+        DachoraProgram.RunningRightFast => DachoraProgram.RunningRightVeryFast,
+        _ => throw new InvalidOperationException($"Dachora speed-up from {program}, which has no faster run."),
+    };
 
     /// <summary>Uses wrapped signed positions and a strict native proximity threshold on one axis.</summary>
     private static bool DachoraWithinAxis(ushort actor, ushort samus, int distance) =>
@@ -555,6 +570,18 @@ internal sealed class DachoraBehavior : IEnemySpecies
         value = unchecked(value + increment);
         return (SnesFixedPosition.WholeOf(unchecked((int)value)), unchecked((ushort)value));
     }
+
+    /// <summary>Runs the Dachora's and its echoes' animations as typed programs (#641).</summary>
+    internal void RegisterDachoraTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Dachora, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireDachoraState(slot);
+            AnimationProgramCursor<DachoraProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, DachoraAnimations.Programs, ref cursor, DachoraFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Registers Dachora's initialization callback for body and echo records.</summary>
     internal void RegisterDachoraInitializationAi(EnemyAiTable table)

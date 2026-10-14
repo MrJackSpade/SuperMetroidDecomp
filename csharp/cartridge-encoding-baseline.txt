@@ -90,8 +90,6 @@ csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheBehavior.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheFireballInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipBehavior.cs	SME6340	15
 csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipBehavior.cs	SME6349	3
-csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiInstructionLayout.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Enemies/Hoppers/HoppersBehavior.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Enemies/Kago/KagoBehavior.cs	SME6340	9
 csharp/src/SuperMetroid.Core/Enemies/Kago/KagoBehavior.cs	SME6349	1
@@ -448,8 +446,6 @@ csharp/src/SuperMetroid.Tooling/Core/Enemies/EnemyDeathInstructionProgramDefinit
 csharp/src/SuperMetroid.Tooling/Core/Enemies/EnemyPickupInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/FallingSparks/FallingSparkInstructionProgramDefinitionsTooling.cs	SME6341	6
 csharp/src/SuperMetroid.Tooling/Core/Enemies/FuneNamihe/FuneNamiheFireballInstructionProgramDefinitionsTooling.cs	SME6341	3
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Hibashi/HibashiInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Hibashi/HibashiInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Kago/KagoBugProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/KiHunters/KiHunterAcidSpitInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Magdollite/MagdolliteLavaInstructionProgramDefinitionsTooling.cs	SME6341	1
@@ -832,12 +828,11 @@ csharp/src/SuperMetroid.Verification/Bosses/Torizo/TorizoRandomizedProjectileDef
 csharp/src/SuperMetroid.Verification/Enemies/Alcoon/AlcoonFireballInstructionProgramDefinitionsVerification.cs	SME6340	40
 csharp/src/SuperMetroid.Verification/Enemies/Alcoon/AlcoonFireballInstructionProgramDefinitionsVerification.cs	SME6342	4
 csharp/src/SuperMetroid.Verification/Enemies/Alcoon/AlcoonInstructionProgramDefinitionsVerification.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Enemies/Animals/DachoraInstructionProgramDefinitionsVerification.cs	SME6340	10
+csharp/src/SuperMetroid.Verification/Enemies/Animals/DachoraInstructionProgramDefinitionsVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Enemies/Animals/EscapeAnimalBlocksVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Enemies/Animals/EscapeEtecoonDefinitionsVerification.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Enemies/Animals/EtecoonFanfareVerification.cs	SME6340	13
-csharp/src/SuperMetroid.Verification/Enemies/Animals/EtecoonInstructionProgramDefinitionsVerification.cs	SME6340	23
-csharp/src/SuperMetroid.Verification/Enemies/Animals/EtecoonInstructionProgramDefinitionsVerification.cs	SME6341	1
+csharp/src/SuperMetroid.Verification/Enemies/Animals/EtecoonInstructionProgramDefinitionsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EmptyExtendedFrameShotsVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkCommonEmptyVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification.cs	SME6340	22
@@ -980,7 +975,7 @@ csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipDustDefinitionsVerif
 csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipEscapeTimerVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipLandingVerification.cs	SME6340	57
 csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipMotionDefinitionsVerification.cs	SME6340	21
-csharp/src/SuperMetroid.Verification/Enemies/Hibashi/HibashiDefinitionsVerification.cs	SME6340	18
+csharp/src/SuperMetroid.Verification/Enemies/Hibashi/HibashiDefinitionsVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperAnimationDefinitionsVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperAnimationDefinitionsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Enemies/Kago/KagoBugProjectileInstructionProgramDefinitionsVerification.cs	SME6340	10
@@ -1379,7 +1374,7 @@ csharp/src/SuperMetroid.Verification/Harness/FixtureRoomHeaders.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Harness/FullMovieReplayVerification.cs	SME6340	63
 csharp/src/SuperMetroid.Verification/Harness/LookupRomOraclesVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Harness/LookupRomOraclesVerification.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6340	881
+csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6340	874
 csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6342	19
 csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME6340	210
@@ -1824,7 +1819,6 @@ csharp/test-support/VerificationAccess.Core/Bosses/SporeSpawn/SporeSpawnCeilingP
 csharp/test-support/VerificationAccess.Core/Bosses/Torizo/TorizoCollisionDefinitionsAccess.cs	SME6340	49
 csharp/test-support/VerificationAccess.Core/Bosses/Torizo/TorizoCollisionDefinitionsAccess.cs	SME6342	1
 csharp/test-support/VerificationAccess.Core/CoreAccess.cs	SME6340	2
-csharp/test-support/VerificationAccess.Core/Enemies/Animals/DachoraInstructionProgramDefinitionsAccess.cs	SME6341	1
 csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersChozoStatue.cs	SME6340	3
 csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersCommon.cs	SME6340	2
 csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersCrocomire.cs	SME6340	2

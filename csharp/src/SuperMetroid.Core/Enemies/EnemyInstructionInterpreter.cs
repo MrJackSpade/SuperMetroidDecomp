@@ -377,20 +377,11 @@ internal sealed class EnemyInstructionInterpreter
             return MamaTurtleInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi)
-            return HibashiInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite)
             return MagdolliteInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (KiHunterBehavior.IsKiHunterDefinition(slot.EnemyDefinitionPointer))
             return KiHunterInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon)
-            return EtecoonInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Dachora)
-            return DachoraInstructionProgramDefinitions.ReadMechanicsWord(address);
 
 
         throw new InvalidDataException(

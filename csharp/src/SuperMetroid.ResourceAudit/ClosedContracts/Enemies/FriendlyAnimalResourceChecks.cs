@@ -6,7 +6,7 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 /// <summary>Confirms each specifically identified friendly-animal artwork omission.</summary>
 internal static class FriendlyAnimalResourceChecks
 {
-    /// <summary>Selects each friendly-animal family's bank, poses, and appended schema range for composition checks.</summary>
+    /// <summary>Selects each friendly-animal family's bank, the poses its typed programs show (#641), and appended schema range for composition checks.</summary>
     public static void Run(string family)
     {
         int previousCount = EnemySpritemapDefinitions.PreFriendlyAnimalFrameCount;
@@ -15,15 +15,16 @@ internal static class FriendlyAnimalResourceChecks
         switch (family)
         {
             case "Etecoon":
-                EnemyCompositionResourceChecks.Run(family, FriendlyAnimalVisualDefinitions.NormalBank, FriendlyAnimalVisualDefinitions.EtecoonOperands(),
+                EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.NormalBank,
+                    EtecoonAnimations.Spritemaps(Enum.GetValues<EtecoonProgram>()),
                     FriendlyAnimalVisualDefinitions.EtecoonFrameCount, previousVersion, previousCount, previousCount);
                 return;
             case "Dachora":
-                EnemyCompositionResourceChecks.Run(family, FriendlyAnimalVisualDefinitions.NormalBank, FriendlyAnimalVisualDefinitions.DachoraOperands(),
+                EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.NormalBank,
+                    DachoraAnimations.Spritemaps(Enum.GetValues<DachoraProgram>()),
                     FriendlyAnimalVisualDefinitions.DachoraFrameCount, previousVersion, previousCount,
                     previousCount + FriendlyAnimalVisualDefinitions.EtecoonFrameCount);
                 return;
-            // The rescue-sequence animals are typed programs (#641); their poses come from the programs.
             case "EscapeEtecoon":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.EscapeBank,
                     EscapeEtecoonAnimations.Spritemaps(Enum.GetValues<EscapeEtecoonProgram>()),

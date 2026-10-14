@@ -1,181 +1,79 @@
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Animals.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks compiled Etecoon instruction programs and visual selectors against ROM through the production interpreter.</summary>
+/// <summary>Checks the Etecoon's typed animations.</summary>
 internal static class EtecoonInstructionProgramDefinitionsVerification
 {
-    /// <summary>Loads the retail ROM and runs the Etecoon instruction program suite.</summary>
+    /// <summary>Loads the retail cartridge for the Etecoon animation checks.</summary>
     internal static void VerifyEtecoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEtecoonInstructionProgramDefinitions), () => VerifyEtecoonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Compares compiled words with ROM and executes every authored entry with mechanics reads forbidden.</summary>
-    internal static void VerifyEtecoonInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+    /// <summary>
+    /// The real initializer starts the initial loop; every looping program runs on time; the four flex cycles count
+    /// down; the programs show exactly the installed Etecoon frames; the program oracle matches bank $A7.
+    /// </summary>
+    internal static void VerifyEtecoonInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        for (int index = 0;
-             index < EtecoonInstructionProgramDefinitionsTooling.MechanicsWordCount;
-             index++)
+        foreach (EtecoonProgram program in Enum.GetValues<EtecoonProgram>())
         {
-            InstructionMechanicsWord definition =
-                EtecoonInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa70000 | definition.Address),
-                $"Etecoon mechanics word $A7:{definition.Address:X4}");
+            (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon(rom);
+            AssertEqual(AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Initial), state.Program, "real Etecoon initializer");
+            if (EtecoonAnimations.Programs.Steps(program)[^1] is not { Kind: AnimationProgramStepKind.GoTo } last || last.Target != program)
+                continue;
+            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(program);
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EtecoonAnimations.Programs, program, EtecoonFrameDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Programs, program)),
+                $"Etecoon {program} loop");
         }
 
-        (ushort Program, int Calls, ushort Terminal, string Name)[] programs =
-        [
-            (EtecoonInstructionProgramDefinitions.LookRightAtSamusAndRunLeft, 2, 0xe822,
-                "look right"),
-            (EtecoonInstructionProgramDefinitions.BeginRunningLeft, 1, 0xe828,
-                "begin running left"),
-            (EtecoonInstructionProgramDefinitions.RunningLeft, 5, 0xe82c,
-                "running left"),
-            (EtecoonInstructionProgramDefinitions.WallJumpLeft, 6, 0xe844,
-                "wall jump left"),
-            (EtecoonInstructionProgramDefinitions.WallJumpLeftLoop, 5, 0xe844,
-                "wall jump left loop"),
-            (EtecoonInstructionProgramDefinitions.HoppingFacingLeft, 2, 0xe858,
-                "left hop wait"),
-            (EtecoonInstructionProgramDefinitions.ContinueHoppingFacingLeft, 6, 0xe86e,
-                "left hop continuation"),
-            (EtecoonInstructionProgramDefinitions.HitCeiling, 4, 0xe86e,
-                "ceiling hit"),
-            (EtecoonInstructionProgramDefinitions.WallJumpLeftEligible, 2, 0xe874,
-                "left wall-jump eligible"),
-            (EtecoonInstructionProgramDefinitions.LookLeftAtSamusAndRunRight, 2, 0xe87a,
-                "look left"),
-            (EtecoonInstructionProgramDefinitions.BeginRunningRight, 1, 0xe880,
-                "begin running right"),
-            (EtecoonInstructionProgramDefinitions.RunningRight, 5, 0xe884,
-                "running right"),
-            (EtecoonInstructionProgramDefinitions.WallJumpRight, 6, 0xe89c,
-                "wall jump right"),
-            (EtecoonInstructionProgramDefinitions.JumpingRight, 5, 0xe89c,
-                "jumping right"),
-            (EtecoonInstructionProgramDefinitions.HoppingFacingRight, 2, 0xe8b0,
-                "right hop wait"),
-            (EtecoonInstructionProgramDefinitions.ContinueHoppingFacingRight, 6, 0xe8c6,
-                "right hop continuation"),
-            (EtecoonInstructionProgramDefinitions.WallJumpRightEligible, 2, 0xe8cc,
-                "right wall-jump eligible"),
-            (EtecoonInstructionProgramDefinitions.Initial, 2, 0xe8d2,
-                "initial loop"),
-            (EtecoonInstructionProgramDefinitions.Flexing, 27, 0xe8fe,
-                "four-cycle flex"),
-        ];
-
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var executedOperands = new HashSet<ushort>();
-        var guard = new CartridgeReadGuard(rom)
-            .Forbid(EtecoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled Etecoon mechanics byte ${address:X6}.")
-            .ObserveWords(0xa70000,
-                EtecoonInstructionProgramDefinitions.PresentationWordCount,
-                EtecoonInstructionProgramDefinitions.PresentationWordAddress);
-        foreach (var program in programs)
         {
-            var enemies = new RoomEnemySystem();
-            Type type = typeof(RoomEnemySystem);
-            enemies.BindFixtureBus(guard);
-            var initialize = new Action<RoomEnemySlot>(enemies.EtecoonBehavior.InitializeEtecoon);
-            RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
-            etecoon.EnemyDefinitionPointer = EnemyDefinitionId.Etecoon;
-            etecoon.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
-            initialize(etecoon);
-            AssertEqual(EtecoonInstructionProgramDefinitions.Initial,
-                etecoon.CurrentInstruction,
-                $"real Etecoon initializer before {program.Name}");
-
-            ExecuteEtecoonProgram(rom, executedOperands,
-                enemies, etecoon, program.Program, program.Calls);
-            AssertEqual(program.Terminal, etecoon.CurrentInstruction,
-                $"Etecoon {program.Name} terminal instruction");
-            if (program.Program == EtecoonInstructionProgramDefinitions.Flexing)
-                AssertEqual((ushort)0, etecoon.Timer.RawValue, "Etecoon flex loop count expires");
+            // Four six-pose flex cycles, then two held poses: 4 x 6 x 8 + 2 x 32 updates reach the final sleep.
+            (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon(rom);
+            state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Flexing);
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            _ = EnemyInstructionRunner.ShownFrames(enemies, slot, 4 * 6 * 8 + 2 * 32);
+            AnimationProgramCursor<EtecoonProgram> held = state.Program;
+            _ = EnemyInstructionRunner.ShownFrames(enemies, slot, 8);
+            AssertEqual(held, state.Program, "Etecoon flex ends asleep");
+            AssertEqual(EtecoonAnimations.Spritemaps(EtecoonProgram.FlexingLoop).Last(), slot.SpritemapPointer, "Etecoon flex ends on its last pose");
+            AssertEqual((ushort)0, slot.Timer.RawValue, "Etecoon flex loop count expires");
         }
 
-        AssertEqual(EtecoonInstructionProgramDefinitions.PresentationWordCount,
-            executedOperands.Count,
-            "all executed visual selectors match the cartridge");
-        for (int operandIndex = 0; operandIndex < EtecoonInstructionProgramDefinitions.PresentationWordCount; operandIndex++)
-            AssertTrue(executedOperands.Contains(EtecoonInstructionProgramDefinitions.PresentationWordAddress(operandIndex)),
-                "execution covers each authored presentation operand");
-        AssertEqual(0, guard.ObservedWords.Count,
-            "compiled visual selectors require no runtime cartridge reads");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Etecoon mechanics byte");
-        AssertThrows<InvalidDataException>(
-            () => EtecoonInstructionProgramDefinitions.ReadMechanicsWord(
-                EtecoonInstructionProgramDefinitions.PresentationWordAddress(0)),
-            "Etecoon spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => EtecoonInstructionProgramDefinitions.ReadMechanicsWord(
-                EtecoonInstructionProgramDefinitions.FirstAdjacentMechanicsData),
-            "adjacent Etecoon movement data is rejected as instruction mechanics");
+        AssertTrue(EtecoonAnimations.Spritemaps(Enum.GetValues<EtecoonProgram>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(
+                EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("etecoon_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
+            "the Etecoon's programs show exactly its installed frames");
+        Suite(nameof(EtecoonAnimationsVerification.VerifyEtecoonAnimations), () => EtecoonAnimationsVerification.VerifyEtecoonAnimations(rom));
 
-        _ = ProbeEtecoonInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeEtecoonInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "Etecoon allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed Etecoon mechanics lookups allocate no per-frame storage");
-
-        Console.WriteLine(
-            $"Etecoon instruction mechanics: " +
-            $"{EtecoonInstructionProgramDefinitionsTooling.MechanicsWordCount} compiled words, " +
-            "all overlapping entries and the four-cycle flex program, and forty-five executed " +
-            "spritemap selectors match cartridge data with runtime reads forbidden.");
+        Console.WriteLine("Etecoon: the real initializer, every loop and the four-cycle flex pass.");
     }
 
-    /// <summary>Starts a selected Etecoon program and records each visual operand reached across the requested interpreter calls.</summary>
-    private static void ExecuteEtecoonProgram(
-        ISnesAddressSpace rom,
-        HashSet<ushort> executedOperands,
-        RoomEnemySystem enemies,
-        RoomEnemySlot etecoon,
-        ushort program,
-        int callCount)
+    /// <summary>An initialized Etecoon in the first enemy slot.</summary>
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, EtecoonEnemyState State) NewEtecoon(ISnesAddressSpace bus)
     {
-        etecoon.CurrentInstruction = program;
-        object?[] arguments =
-            [etecoon, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        for (int call = 0; call < callCount; call++)
-        {
-            etecoon.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, arguments);
-            VerifyExecutedEnemySelector(rom, etecoon, executedOperands);
-        }
+        var enemies = new RoomEnemySystem();
+        enemies.BindFixtureBus(bus);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Etecoon;
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
+        enemies.EtecoonBehavior.InitializeEtecoon(slot);
+        return (enemies, slot, enemies.EtecoonStates[0] ?? throw new InvalidOperationException("The Etecoon has no state."));
     }
 
-    /// <summary>Consumes repeated compiled mechanics lookups for the warmed allocation measurement.</summary>
-    private static int ProbeEtecoonInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += EtecoonInstructionProgramDefinitions.ReadMechanicsWord(
-                (index & 1) == 0
-                    ? EtecoonInstructionProgramDefinitions.Initial
-                    : (ushort)0xe8fe);
-        }
-        return checksum;
-    }
-
-    /// <summary>Runs the Etecoon instruction suite through the verification command dispatcher.</summary>
+    /// <summary>Runs the Etecoon animation verification.</summary>
     [VerificationCommand("--etecoon-instruction-program-definitions")]
     internal static int EtecoonInstructionProgramDefinitionsCommand()
     {

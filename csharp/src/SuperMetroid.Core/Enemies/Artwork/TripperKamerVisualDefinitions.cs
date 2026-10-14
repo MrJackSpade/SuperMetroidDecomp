@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// Eighteen bank-$A3 OAM compositions used by the shared Tripper/Kamer platform
-/// dispatcher. The native programs and movement state own direction and timing;
+/// dispatcher. The typed programs and movement state own direction and timing;
 /// the two frozen Tripper compositions are selected directly by its shot AI.
 /// </summary>
 internal static class TripperKamerVisualDefinitions
@@ -47,25 +47,6 @@ internal static class TripperKamerVisualDefinitions
         new(Bank, KamerFrame(3), "tripper_kamer_platform_3"),
     ];
 
-    /// <summary>Resolves the four forward Kamer frames or Tripper's alternating
-    /// neutral/first/neutral/second poses from native sprite-record sizes.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        if (!PlatformInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-            throw new InvalidDataException(
-                $"Tripper/Kamer visual operand $A3:{operandAddress:X4} is not compiled.");
-        int offset = PlatformInstructionProgramDefinitions.KamerOperandOffset(operandAddress);
-        int program = offset / 22;
-        int frame = (offset % 22 - 4) / 4;
-        // Kamer maps have two OAM entries: 2 + 2*5 bytes each.
-        if (program < 4) return KamerFrame(frame);
-        int pose = (frame & 1) == 0 ? 0 : (frame + 1) / 2;
-        int facing = program & 1;
-        // Moving Tripper maps each have three entries, 17 bytes per map.
-        if (program < 6) return MovingTripperFrame(facing, pose);
-        // Still maps have four, three, four entries: 22/17/22 bytes.
-        return StillTripperFrame(facing, pose);
-    }
     /// <summary>Locates one Kamer pose in the contiguous two-entry OAM records.</summary>
     private static ushort KamerFrame(int frame) => (ushort)(0xa021 + 12 * frame);
     /// <summary>Locates a three-entry moving Tripper pose; each facing has three records.</summary>

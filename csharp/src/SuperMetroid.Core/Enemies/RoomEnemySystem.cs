@@ -1405,7 +1405,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CacatacBehavior.RegisterCacatacTypedAnimations(table);
         OwtchBehavior.RegisterOwtchTypedAnimations(table);
         FuneNamiheBehavior.RegisterFuneNamiheOwnedInstructions(table);
-        EvirBehavior.RegisterEvirOwnedInstructions(table);
+        EvirBehavior.RegisterEvirTypedAnimations(table);
         YardBehavior.RegisterYardOwnedInstructions(table);
         HoppersBehavior.RegisterHopperTypedAnimations(table);
         ZoaBehavior.RegisterZoaTypedAnimations(table);
@@ -1415,7 +1415,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         WaverBehavior.RegisterWaverTypedAnimations(table);
         MetareeBehavior.RegisterMetareeTypedAnimations(table);
         SkulteraBehavior.RegisterSkulteraTypedAnimations(table);
-        PlatformsBehavior.RegisterPlatformsOwnedInstructions(table);
+        PlatformsBehavior.RegisterPlatformTypedAnimations(table);
         AlcoonBehavior.RegisterAlcoonOwnedInstructions(table);
         KiHunterBehavior.RegisterKiHunterOwnedInstructions(table);
         SparkBehavior.RegisterSparkTypedAnimations(table);
@@ -1439,6 +1439,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        EvirBehavior.RegisterEvirTypedAnimations(table);
+        PlatformsBehavior.RegisterPlatformTypedAnimations(table);
         RinkaBehavior.RegisterRinkaTypedAnimations(table);
         PuyoBehavior.RegisterPuyoTypedAnimations(table);
         MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailTypedAnimations(table);

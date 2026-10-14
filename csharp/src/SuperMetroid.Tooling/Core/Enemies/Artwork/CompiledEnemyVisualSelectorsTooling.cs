@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class CompiledEnemyVisualSelectorsTooling
 {
     /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
-    internal static int CalculatedCount => BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount +
+    internal static int CalculatedCount => BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount +
         FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
         FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
@@ -62,12 +62,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
             return new(0x860000 | operand, EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operand));
         }
         index -= FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount;
-        if (index < PlatformInstructionProgramDefinitionsTooling.PresentationWordCount)
-        {
-            ushort operand = PlatformInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa30000 | operand, TripperKamerVisualDefinitions.FrameAt(operand));
-        }
-        index -= PlatformInstructionProgramDefinitionsTooling.PresentationWordCount;
         if (index < FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount)
         {
             ushort operand = FakeKraidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);

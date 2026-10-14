@@ -1754,8 +1754,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Metroid => 0,
             EnemyDefinitionId.Shaktool =>
                 ShaktoolVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 =>
-                TripperKamerVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 => 0,
             EnemyDefinitionId.Dragon => 0,
             EnemyDefinitionId.Multiviola => 0,
             EnemyDefinitionId.Squeept => 0,
@@ -1767,8 +1766,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree => 0,
             EnemyDefinitionId.CorpseSidehopper => 0,
             EnemyDefinitionId.Mochtroid => 0,
-            EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile =>
-                EvirVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile => 0,
             EnemyDefinitionId.Robot or
                 EnemyDefinitionId.RobotNoPower =>
                 WorkRobotVisualDefinitions.FrameAt(operandAddress),
@@ -1857,10 +1855,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle or
             EnemyDefinitionId.CeresDoor or
             EnemyDefinitionId.Shaktool or
-            EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or
             EnemyDefinitionId.Chozo or
-            EnemyDefinitionId.Evir or
-            EnemyDefinitionId.EvirProjectile or
             EnemyDefinitionId.Robot or
             EnemyDefinitionId.RobotNoPower or
             EnemyDefinitionId.Yard or

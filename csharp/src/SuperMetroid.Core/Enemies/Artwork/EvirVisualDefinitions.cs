@@ -3,9 +3,8 @@ using SuperMetroid.Core.Enemies.Evir;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// Evir body, arms, and projectile compositions selected by six compiled
-/// bank-$A8 programs. The three-slot movement, attack, and regeneration logic
-/// remains owned by <see cref="EvirInstructionProgramDefinitions"/>.
+/// Evir body, arms, and projectile compositions shown by the Evir's typed programs (<see cref="EvirAnimations"/>).
+/// The three-slot movement, attack, and regeneration logic stays in <see cref="EvirBehavior"/>.
 /// </summary>
 internal static class EvirVisualDefinitions
 {
@@ -40,21 +39,4 @@ internal static class EvirVisualDefinitions
         new(Bank, 0x8d7a, "evir_projectile_flight"),
         new(Bank, 0x8d64, "evir_projectile_regenerating"),
     ];
-
-    /// <summary>Resolves only Evir's 49 presentation operands, not adjacent AI words.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        for (int index = 0;
-             index < EvirInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            if (EvirInstructionProgramDefinitions.PresentationWordAddress(index) ==
-                    operandAddress &&
-                CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress,
-                    out ushort frame))
-                return frame;
-        }
-        throw new InvalidDataException(
-            $"Evir visual operand $A8:{operandAddress:X4} is not compiled.");
-    }
 }

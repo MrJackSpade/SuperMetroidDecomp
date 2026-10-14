@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>
@@ -46,10 +47,12 @@ public sealed class EvirEnemyState
     // 64-byte RoomEnemySlot abstraction with one family's aliases.
     /// <summary>Body bobbing direction: zero selects upward velocity and one downward velocity; toggled when the movement countdown underflows. Native extended offset $00.</summary>
     public ushort MovementDirection { get; internal set; }
-    /// <summary>Bank-$A8 base pointer of the last installed animation list, not its advancing instruction cursor; zero forces installation of the requested list. Native extended offset $02.</summary>
-    public ushort InstalledInstructionList { get; internal set; }
-    /// <summary>Bank-$A8 animation list requested by the actor's current facing or projectile phase; a changed request restarts the instruction timer at one. Native extended offset $04.</summary>
-    public ushort RequestedInstructionList { get; internal set; }
+    /// <summary>The last installed animation, not its advancing cursor; none forces installation of the requested one. Native extended offset $02.</summary>
+    internal EvirProgram? InstalledProgram { get; set; }
+    /// <summary>The animation requested by the actor's current facing or projectile phase; a changed request restarts the instruction timer at one. Native extended offset $04.</summary>
+    internal EvirProgram RequestedProgram { get; set; }
+    /// <summary>Where this actor is in its animation.</summary>
+    internal AnimationProgramCursor<EvirProgram>? Program { get; set; }
     /// <summary>Signed whole-pixel component of the body's downward Y velocity per AI update, paired with <see cref="DownSubvelocity"/> as signed 16.16. Native extended offset $08.</summary>
     public short DownVelocity { get; internal set; }
     /// <summary>Unsigned fractional component of the body's downward Y velocity, in 1/65536 pixel per AI update. Native extended offset $06.</summary>

@@ -401,14 +401,8 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon)
             return EtecoonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (PlatformsBehavior.IsPlatformDefinition(slot.EnemyDefinitionPointer))
-            return PlatformInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Dachora)
             return DachoraInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer is EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile)
-            return EvirInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw)
             return YappingMawInstructionProgramDefinitions.ReadMechanicsWord(address);

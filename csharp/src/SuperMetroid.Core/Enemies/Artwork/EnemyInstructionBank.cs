@@ -10,8 +10,6 @@ internal enum EnemyInstructionBank : byte
     Bank86 = 0x86,
 
 
-    /// <summary>Bank $A3: enemy AI bank (elevator, platforms and others).</summary>
-    BankA3 = 0xa3,
 
     /// <summary>Bank $A6: enemy AI bank (Boulder, Mini-Kraid and others).</summary>
     BankA6 = 0xa6,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
@@ -41,6 +42,9 @@ public sealed class PlatformEnemyState
         _previousYMovementFunctions = tables.PreviousYMovementFunctions;
         _suspensorPlatformFlags = tables.SuspensorPlatformFlags;
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<PlatformProgram> Program { get; set; }
 
     /// <summary>One pixel below the population Y position, written by common init.</summary>
     public ushort TargetYPosition

@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Platforms.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -16,31 +18,23 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         _terrain = terrain;
     }
 
-    /// <summary>Executes the Tripper/Kamer platform family's private animation instructions.</summary>
-    private bool TryProcessPlatformInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of the platforms' animations: each publishes the horizontal direction main AI moves in.</summary>
+    private PlatformProgram? ApplyPlatformCue(RoomEnemySlot slot, PlatformCue cue)
     {
-        if (!IsPlatformDefinition(slot.EnemyDefinitionPointer) ||
-            !Enum.IsDefined((PlatformInstruction)word))
-            return false;
-
-        switch ((PlatformInstruction)word)
+        switch (cue.Kind)
         {
-            case PlatformInstruction.SetMovingLeftXMovement:
-            case PlatformInstruction.SetMovingLeftXMovementDuplicate:
-                // The "ordinary" and duplicate commands are byte-for-byte equivalent:
-                // both publish horizontal dispatcher index zero before the next frame.
+            case PlatformCueKind.MoveLeft:
+                // The ordinary and duplicate native commands are byte-for-byte equivalent: both publish horizontal
+                // dispatcher index zero before the next frame.
                 SetPlatformHorizontalMovementFromInstruction(slot, PlatformHorizontalMovement.Left);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case PlatformInstruction.SetMovingRightXMovement:
-            case PlatformInstruction.SetMovingRightXMovementDuplicate:
+                break;
+            case PlatformCueKind.MoveRight:
                 SetPlatformHorizontalMovementFromInstruction(slot, PlatformHorizontalMovement.Right);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Tripper/Kamer platform does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(PlatformCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Native horizontal and vertical dispatch indices retained for each enemy slot.</summary>
@@ -78,8 +72,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         // typed dispatcher reject it instead of silently normalizing it to index one.
         state.XMovement = (PlatformHorizontalMovement)slot.Parameter1;
 
-        slot.CurrentInstruction = PlatformInstructionProgramDefinitions.SelectProgram(
-            isKamer, verticallyMoving: false, state.XMovement);
+        state.Program = AnimationProgramCursor<PlatformProgram>.Start(PlatformAnimationDefinitions.SelectProgram(
+            isKamer, verticallyMoving: false, state.XMovement));
 
         // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
         // native byte offset across {right whole/fraction, left whole/fraction}.
@@ -309,9 +303,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         RoomEnemySlot slot,
         PlatformEnemyState state)
     {
-        ushort instruction = PlatformInstructionProgramDefinitions.SelectProgram(
-            state.IsSuspensorPlatform, verticallyMoving: true, state.XMovement);
-        InstallPlatformInstruction(slot, instruction);
+        InstallPlatformProgram(slot, state, PlatformAnimationDefinitions.SelectProgram(
+            state.IsSuspensorPlatform, verticallyMoving: true, state.XMovement));
     }
 
     /// <summary>Selects the stationary list from suspensor identity and current horizontal dispatcher.</summary>
@@ -319,15 +312,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         RoomEnemySlot slot,
         PlatformEnemyState state)
     {
-        ushort instruction = PlatformInstructionProgramDefinitions.SelectProgram(
-            state.IsSuspensorPlatform, verticallyMoving: false, state.XMovement);
-        InstallPlatformInstruction(slot, instruction);
+        InstallPlatformProgram(slot, state, PlatformAnimationDefinitions.SelectProgram(
+            state.IsSuspensorPlatform, verticallyMoving: false, state.XMovement));
     }
 
-    /// <summary>Starts the selected animation program with a one-tick instruction timer.</summary>
-    private static void InstallPlatformInstruction(RoomEnemySlot slot, ushort instruction)
+    /// <summary>Starts the selected animation with a one-tick instruction timer.</summary>
+    private static void InstallPlatformProgram(RoomEnemySlot slot, PlatformEnemyState state, PlatformProgram program)
     {
-        slot.CurrentInstruction = instruction;
+        state.Program = AnimationProgramCursor<PlatformProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -383,15 +375,19 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Routes the four horizontal-dispatcher animation commands to platform state.</summary>
-    internal void RegisterPlatformsOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Tripper and Kamer platform loops as typed programs (#641).</summary>
+    internal void RegisterPlatformTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => IsPlatformDefinition(slot.EnemyDefinitionPointer), (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessPlatformInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequirePlatformState(slot);
+            AnimationProgramCursor<PlatformProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, PlatformAnimations.Programs, ref cursor, PlatformFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyPlatformCue(slot, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Applies Tripper's direction-specific frozen map after a successful common shot freeze.</summary>
     internal void RegisterPlatformsShotReactions(EnemyAiTable table)

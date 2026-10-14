@@ -93,12 +93,11 @@ internal static class DefinitionAudit
     {
         bool calculated = CompiledEnemyVisualSelectors.IsCalculatedSelector(address);
         bool kraidFamily = calculated && bank is 0xa6 or 0xa7;
-        bool platform = calculated && bank == 0xa3 && PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address);
-        string calculatedMethod = platform ? "FrameAt" : bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
+        string calculatedMethod = bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : "FuneNamiheFireballFrameAt" : kraidFamily ? "FrameAt"
             : FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "FuneNamiheFrameAt"
             : AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFrameAt" : "BeetomFrameAt";
         string relative = calculated
-            ? platform ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/TripperKamerVisualDefinitions.cs" : bank == 0x86 ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapDefinitions.cs" : kraidFamily ? "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidVisualDefinitions.cs"
+            ? bank == 0x86 ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapDefinitions.cs" : kraidFamily ? "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidVisualDefinitions.cs"
                 : "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapDefinitions.cs"
             : $"csharp/src/SuperMetroid.Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.Generated.cs";
         int line = 0;

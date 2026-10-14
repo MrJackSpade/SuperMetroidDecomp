@@ -623,40 +623,15 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(18, platformFramePointers.Count,
             "Tripper/Kamer visual frame identities are distinct");
-        var selectedPlatformFrames = new HashSet<ushort>();
-        for (int index = 0;
-             index < PlatformInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = PlatformInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa3, operand);
-            foreach (EnemyDefinitionId definition in new[]
-                     { EnemyDefinitionId.Tripper, EnemyDefinitionId.Kamer2 })
-            {
-                AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                        definition, operand, out ushort selected),
-                    $"platform ${(int)definition:X4} visual operand $A3:{operand:X4} is compiled");
-                AssertEqual(native, selected,
-                    $"platform ${(int)definition:X4} selector $A3:{operand:X4} matches cartridge");
-            }
-            AssertTrue(platformFramePointers.Contains(native),
-                $"platform selector $A3:{operand:X4} has installed art");
-            selectedPlatformFrames.Add(native);
-        }
-        AssertEqual(16, selectedPlatformFrames.Count,
-            "platform programs select sixteen distinct animated compositions");
-        AssertTrue(platformFramePointers.Except(selectedPlatformFrames).ToHashSet()
+        HashSet<ushort> shownPlatformFrames = PlatformAnimations.Spritemaps(Enum.GetValues<PlatformProgram>()).ToHashSet();
+        AssertEqual(16, shownPlatformFrames.Count, "platform programs show sixteen distinct animated compositions");
+        AssertTrue(platformFramePointers.Except(shownPlatformFrames).ToHashSet()
                 .SetEquals(new[]
                 {
                     TripperKamerVisualDefinitions.FrozenMovingLeft,
                     TripperKamerVisualDefinitions.FrozenMovingRight,
                 }),
-            "only Tripper's two direct shot-AI frozen compositions lack animation selectors");
-        AssertThrows<InvalidDataException>(
-            () => TripperKamerVisualDefinitions.FrameAt(
-                PlatformInstructionProgramDefinitions.FirstAdjacentCallback),
-            "platform visual selector rejects neighboring movement callback");
+            "only Tripper's two direct shot-AI frozen compositions are not shown by a platform program");
         HashSet<ushort> dragonFrames = DragonVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(12, dragonFrames.Count,

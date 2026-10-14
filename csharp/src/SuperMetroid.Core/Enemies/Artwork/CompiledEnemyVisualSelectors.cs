@@ -6,7 +6,6 @@ using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.FuneNamihe;
-using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
@@ -43,7 +42,6 @@ internal static partial class CompiledEnemyVisualSelectors
         (EnemyInstructionBank)SnesAddressMath.BankNumber(address) switch
     {
         EnemyInstructionBank.Bank86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        EnemyInstructionBank.BankA3 => PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         EnemyInstructionBank.BankA6 => FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         EnemyInstructionBank.BankA8 => BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${SnesAddressMath.BankNumber(address):X2}."),
@@ -64,7 +62,6 @@ internal static partial class CompiledEnemyVisualSelectors
                 EnemyInstructionBank.Bank86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(operandAddress)
                     : EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operandAddress),
-                EnemyInstructionBank.BankA3 => TripperKamerVisualDefinitions.FrameAt(operandAddress),
                 EnemyInstructionBank.BankA6 => KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operandAddress),
                 EnemyInstructionBank.BankA8 => FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)

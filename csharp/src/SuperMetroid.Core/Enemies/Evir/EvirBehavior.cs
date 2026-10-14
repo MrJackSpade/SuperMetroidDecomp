@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Samus;
+﻿using SuperMetroid.Core.Enemies.Evir.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Evir;
 
@@ -17,35 +19,27 @@ internal sealed class EvirBehavior : IEnemySpecies
         _collision = collision;
     }
 
-    /// <summary>Executes the Evir projectile's private animation instructions.</summary>
-    private bool TryProcessEvirProjectileInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of the Evir projectile's animations: the spit sound and the regeneration steps.</summary>
+    private EvirProgram? ApplyEvirCue(RoomEnemySlot slot, EvirEnemyState state, EvirCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.EvirProjectile ||
-            !Enum.IsDefined((EvirInstruction)word))
-            return false;
-
-        switch ((EvirInstruction)word)
+        switch (cue.Kind)
         {
-            case EvirInstruction.PlaySpitSFX:
+            case EvirCueKind.PlaySpitSound:
                 QueueEvirSpitSound();
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case EvirInstruction.SetInitialRegenerationXOffset:
-                SetInitialEvirRegenerationOffset(slot, RequireEvirState(slot));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case EvirInstruction.AdvanceRegenerationXOffset:
-                AdvanceEvirRegenerationOffset(slot, RequireEvirState(slot));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case EvirInstruction.FinishRegeneration:
-                FinishEvirRegeneration(RequireEvirState(slot));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                break;
+            case EvirCueKind.SetInitialRegenerationOffset:
+                SetInitialEvirRegenerationOffset(slot, state);
+                break;
+            case EvirCueKind.AdvanceRegenerationOffset:
+                AdvanceEvirRegenerationOffset(slot, state);
+                break;
+            case EvirCueKind.FinishRegeneration:
+                FinishEvirRegeneration(state);
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Evir projectile does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(EvirCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Library-two sound emitted by the spit instruction.</summary>
@@ -99,7 +93,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         }
 
         state.MovementDirection = 0;
-        state.InstalledInstructionList = 0;
+        state.InstalledProgram = null;
         state.Function = EvirAiFunction.HandleBodyOrArms;
     }
 
@@ -120,8 +114,8 @@ internal sealed class EvirBehavior : IEnemySpecies
     {
         var state = new EvirEnemyState(slot)
         {
-            RequestedInstructionList = EvirInstructionProgramDefinitions.ProjectileNormal,
-            InstalledInstructionList = 0,
+            RequestedProgram = EvirProgram.ProjectileNormal,
+            InstalledProgram = null,
             RegenerationFlag = 0,
             MovingFlag = 0,
             Function = EvirAiFunction.ProjectileIdle,
@@ -139,7 +133,7 @@ internal sealed class EvirBehavior : IEnemySpecies
 
         // Native clears installed-list after having installed the normal list. That oddity
         // forces the first main-AI request to refresh the bytecode timer exactly once.
-        state.InstalledInstructionList = 0;
+        state.InstalledProgram = null;
     }
 
     /// <summary>Tracks Samus while the spit is present and alternates the body's timed vertical travel.</summary>
@@ -198,14 +192,14 @@ internal sealed class EvirBehavior : IEnemySpecies
                 RequestEvirInstruction(
                     slot,
                     state,
-                    EvirInstructionProgramDefinitions.ProjectileNormal);
+                    EvirProgram.ProjectileNormal);
             }
             else if (state.RegenerationFlag != 0)
             {
                 RequestEvirInstruction(
                     slot,
                     state,
-                    EvirInstructionProgramDefinitions.ProjectileRegenerating);
+                    EvirProgram.ProjectileRegenerating);
             }
             else
             {
@@ -245,8 +239,8 @@ internal sealed class EvirBehavior : IEnemySpecies
             body,
             state,
             state.FacingDirection == 0
-                ? EvirInstructionProgramDefinitions.BodyFacingLeft
-                : EvirInstructionProgramDefinitions.BodyFacingRight);
+                ? EvirProgram.BodyFacingLeft
+                : EvirProgram.BodyFacingRight);
     }
 
     /// <summary>Places the arms at a facing-dependent offset from the preceding body record.</summary>
@@ -261,8 +255,8 @@ internal sealed class EvirBehavior : IEnemySpecies
             arms,
             state,
             state.FacingDirection == 0
-                ? EvirInstructionProgramDefinitions.ArmsFacingLeft
-                : EvirInstructionProgramDefinitions.ArmsFacingRight);
+                ? EvirProgram.ArmsFacingLeft
+                : EvirProgram.ArmsFacingRight);
     }
 
     /// <summary>Reattaches idle spit beneath the body at the current facing offset.</summary>
@@ -317,7 +311,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         RequestEvirInstruction(
             projectile,
             state,
-            EvirInstructionProgramDefinitions.ProjectileNormal);
+            EvirProgram.ProjectileNormal);
         state.MovingFlag = 1;
         state.Function = EvirAiFunction.ProjectileMoving;
     }
@@ -360,7 +354,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         RequestEvirInstruction(
             projectile,
             state,
-            EvirInstructionProgramDefinitions.ProjectileRegenerating);
+            EvirProgram.ProjectileRegenerating);
     }
 
     /// <summary>Returns the spit toward its body and waits for the animation's completion flag.</summary>
@@ -379,7 +373,7 @@ internal sealed class EvirBehavior : IEnemySpecies
             RequestEvirInstruction(
                 projectile,
                 state,
-                EvirInstructionProgramDefinitions.ProjectileNormal);
+                EvirProgram.ProjectileNormal);
             state.MovingFlag = 0;
             state.Function = EvirAiFunction.ProjectileIdle;
             return;
@@ -412,7 +406,7 @@ internal sealed class EvirBehavior : IEnemySpecies
     {
         EvirEnemyState body = _evirStates[projectile.SlotIndex - 2] ?? throw new InvalidDataException(
             $"Evir projectile slot {projectile.SlotIndex} has no body two slots before it.");
-        return body.InstalledInstructionList == EvirInstructionProgramDefinitions.BodyFacingRight;
+        return body.InstalledProgram == EvirProgram.BodyFacingRight;
     }
 
     /// <summary>Instruction $A8:87CB.</summary>
@@ -431,19 +425,19 @@ internal sealed class EvirBehavior : IEnemySpecies
     private static void RequestEvirInstruction(
         RoomEnemySlot slot,
         EvirEnemyState state,
-        ushort instructionList)
+        EvirProgram program)
     {
-        state.RequestedInstructionList = instructionList;
+        state.RequestedProgram = program;
         InstallEvirInstruction(slot, state);
     }
 
     /// <summary>Resets the instruction timer once per list change, preserving held animations.</summary>
     private static void InstallEvirInstruction(RoomEnemySlot slot, EvirEnemyState state)
     {
-        if (state.RequestedInstructionList == state.InstalledInstructionList)
+        if (state.RequestedProgram == state.InstalledProgram)
             return;
-        slot.CurrentInstruction = state.RequestedInstructionList;
-        state.InstalledInstructionList = state.RequestedInstructionList;
+        state.Program = AnimationProgramCursor<EvirProgram>.Start(state.RequestedProgram);
+        state.InstalledProgram = state.RequestedProgram;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -559,15 +553,19 @@ internal sealed class EvirBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims Evir spit sound and regeneration opcodes in the enemy interpreter.</summary>
-    internal void RegisterEvirOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Evir body's, arms' and projectile's animations as typed programs (#641).</summary>
+    internal void RegisterEvirTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessEvirProjectileInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireEvirState(slot);
+            AnimationProgramCursor<EvirProgram> cursor = state.Program ??
+                throw new InvalidOperationException($"Evir slot {slot.SlotIndex} has no installed animation.");
+            EnemyProgramAnimation.Run(slot, EvirAnimations.Programs, ref cursor, EvirFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyEvirCue(slot, state, cue));
+            state.Program = cursor;
         });
-    }
 
     /// <summary>Preserves power-bomb callbacks on both body and arms, including native relative aliases.</summary>
     internal void RegisterEvirPowerBombReactions(EnemyAiTable table)

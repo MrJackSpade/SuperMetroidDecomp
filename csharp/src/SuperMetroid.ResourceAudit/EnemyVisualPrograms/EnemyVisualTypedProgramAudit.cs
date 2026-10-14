@@ -1,3 +1,7 @@
+using SuperMetroid.Core.Enemies.Evir.Artwork;
+using SuperMetroid.Core.Enemies.Evir;
+using SuperMetroid.Core.Enemies.Platforms.Artwork;
+using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Enemies.Puyo.Artwork;
 using SuperMetroid.Core.Enemies.Puyo;
 using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
@@ -237,6 +241,10 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(PuyoAnimations), "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoAnimations.cs");
         RequireTypedFrames(RinkaAnimations.Programs, RinkaFrameDefinitions.Spritemap, RinkaFrameDefinitions.Bank,
             nameof(RinkaAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaAnimations.cs");
+        RequireTypedFrames(PlatformAnimations.Programs, PlatformFrameDefinitions.Spritemap, PlatformFrameDefinitions.Bank,
+            nameof(PlatformAnimations), "csharp/src/SuperMetroid.Core/Enemies/Platforms/PlatformAnimations.cs");
+        RequireTypedFrames(EvirAnimations.Programs, EvirFrameDefinitions.Spritemap, EvirFrameDefinitions.Bank,
+            nameof(EvirAnimations), "csharp/src/SuperMetroid.Core/Enemies/Evir/EvirAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

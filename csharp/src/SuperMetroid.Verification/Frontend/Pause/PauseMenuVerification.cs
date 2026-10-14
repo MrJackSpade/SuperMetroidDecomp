@@ -18,6 +18,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 
@@ -197,7 +198,7 @@ internal static class PauseMenuVerification
         // Keep the fixture's distinctive Wave sheet and palette through the real
         // installed transfer queue; no synthetic native DMA fallback is involved.
         var beamFiles = SuperMetroid.AssetExtraction.Samus.BeamTileExtractor.Extract(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         byte[] wavePlanar = Enumerable.Range(0, 256).Select(index => unchecked((byte)(0x40 + index))).ToArray();
         byte[] wavePixels = SnesGraphics.DecodePlanarTiles(wavePlanar, 4,
             BeamTileAtlasDefinitions.Width / 8, out Extent16<ImagePixels> waveSize);

@@ -9,6 +9,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +19,7 @@ internal static class IntroBabyActorDefinitionsVerification
     /// <summary>Checks compiled actor placement and instruction sources against the cartridge, then advances guarded discovery and scientist scenes.</summary>
     internal static void VerifyIntroBabyActorDefinitions()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroBabyDiscoveryInstructions), () => VerifyIntroBabyDiscoveryInstructions(retail));
         Suite(nameof(VerifyIntroScientistInstructions), () => VerifyIntroScientistInstructions(retail));
         Suite(nameof(VerifyIntroBabyDiscoveryInput), () => VerifyIntroBabyDiscoveryInput(retail));
@@ -89,7 +90,7 @@ internal static class IntroBabyActorDefinitionsVerification
         byte[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
         var discovery = new IntroBabyDiscoveryState(guarded,
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()));
-        var referenceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var referenceBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var reference = new IntroBabyDiscoveryState(referenceBus,
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()),

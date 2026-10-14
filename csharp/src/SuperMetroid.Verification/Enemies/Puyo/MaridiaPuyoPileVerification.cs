@@ -14,8 +14,8 @@ internal static class MaridiaPuyoPileVerification
     /// <summary>Loads retail room $D27E and confirms each Puyo stays grounded until its full-word cooldown underflows.</summary>
     internal static void VerifyMaridiaPuyoPile()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd27e);
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xd27e);
         var assets = LoadFixtureRoomAssets(bus, room);
         var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
         var random = new Bank80SystemState();

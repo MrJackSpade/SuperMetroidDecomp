@@ -1,6 +1,4 @@
-using System.Reflection;
-
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>
 /// The debugger-state boundary for closed domains (#627): saved enum values are validated

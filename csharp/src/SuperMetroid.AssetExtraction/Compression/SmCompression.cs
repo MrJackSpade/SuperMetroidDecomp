@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Hardware;
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>
 /// Import-only decoder for Super Metroid's command-stream compression format.

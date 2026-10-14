@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.ReachabilityAudit;
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
+using SuperMetroid.TestSupport.WindowsConsole;
 
 namespace SuperMetroid.ArchitectureAudit;
 

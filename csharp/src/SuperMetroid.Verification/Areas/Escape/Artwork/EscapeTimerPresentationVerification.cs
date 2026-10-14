@@ -10,6 +10,10 @@ using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Harness;
 
@@ -262,7 +266,7 @@ internal static class EscapeTimerPresentationVerification
     {
         string timerRom = RepositoryRomPath;
         Suite(nameof(VerifyEscapeTimerPointerDefinitions), () => VerifyEscapeTimerPointerDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(timerRom))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(timerRom))));
         return 0;
     }
 }

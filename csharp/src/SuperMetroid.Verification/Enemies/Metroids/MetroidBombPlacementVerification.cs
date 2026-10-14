@@ -22,8 +22,8 @@ internal static class MetroidBombPlacementVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Metroid post-bomb escape jitter table")]
     internal static void VerifyMetroidBombPlacement()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xdae1);
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xdae1);
         Suite(nameof(VerifyMetroidBombRuntime), () => VerifyMetroidBombRuntime(bus, room));
         var assets = LoadFixtureRoomAssets(bus, room);
         var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };

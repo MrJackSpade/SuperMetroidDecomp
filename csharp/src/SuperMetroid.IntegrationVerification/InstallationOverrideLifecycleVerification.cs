@@ -12,6 +12,8 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
+namespace SuperMetroid.IntegrationVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
 /// Installer acceptance for the source-inventoried presentation domains. Import is
@@ -47,7 +49,7 @@ internal static class InstallationOverrideLifecycleVerification
             Assert(GameAssetInstaller.OpenOrRepair(installation.Root) is not null,
                 "complete overridden installation opens with source and installed ROM unavailable");
             VerifySelected(installation, edits, selected, overrideFiles, "ROM-unavailable startup");
-            using (var session = new SuperMetroid.Android.AndroidSessionData(installation.Root))
+            using (var session = new SuperMetroid.Diagnostics.Android.AndroidSessionData(installation.Root))
             {
                 Assert(session.ContentIdentity.MapContentSha256 == selected[nameof(GameInstallation.LoadMaps)] &&
                     session.ContentIdentity.AudioContentSha256 == selected[nameof(GameInstallation.LoadAudio)],

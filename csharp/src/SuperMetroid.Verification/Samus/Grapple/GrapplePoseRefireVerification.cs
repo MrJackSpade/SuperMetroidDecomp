@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Desktop;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Diagnostics;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 /// <summary>Checks grapple restart after Samus changes aim while the beam is firing.</summary>
@@ -14,7 +14,7 @@ internal static class GrapplePoseRefireVerification
     /// <summary>Confirms early pose changes refire with a reset endpoint and stop/start sounds, while frame ten cancels and debugger saves retain the remaining window.</summary>
     internal static void VerifyGrapplePoseRefire()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
         foreach (bool left in new[] { false, true })
         foreach (int changeFrame in Enumerable.Range(1, 10))

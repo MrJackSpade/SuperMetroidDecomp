@@ -21,6 +21,9 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RoomHeaderImport;
+using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
 
@@ -951,32 +954,32 @@ internal static void VerifyCartridgeRoomStateSelection()
     // All five state headers may remain zero-filled: State.Pointer alone proves which
     // branch won, and TestAddressSpace returns zero for every unwritten payload byte.
     AssertEqual(defaultStatePointer,
-        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer).State.Pointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer).State.Pointer,
         "room selector default inline state");
 
     var eventBytes = new byte[Bank80SystemState.EventByteCount];
     eventBytes[0] = 1;
     AssertEqual((ushort)0x9100,
-        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(eventBytes, BossBits.None, false, false)).State.Pointer,
         "room selector event branch");
     AssertEqual((ushort)0x9120,
-        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.AreaTorizo, false, false)).State.Pointer,
         "room selector boss branch");
     AssertEqual((ushort)0x9140,
-        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, true, false)).State.Pointer,
         "room selector Morph Ball and missiles branch");
     AssertEqual((ushort)0x9160,
-        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, false, true)).State.Pointer,
         "room selector power-bomb branch");
 
     // The interpreter must return at the first successful command; later facts do not
     // override the event-selected pointer merely because they are also true.
     AssertEqual((ushort)0x9100,
-        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(eventBytes, BossBits.AreaTorizo, true, true)).State.Pointer,
         "room selector preserves cartridge priority");
 
@@ -986,7 +989,7 @@ internal static void VerifyCartridgeRoomStateSelection()
     SeedRoomStateSelectorWords(bus, roomPointer,
         (ushort)RoomStateSelectorCode.MainAreaBossIsDead, 0x9180, (ushort)RoomStateSelectorCode.Finish);
     AssertEqual((ushort)0x9180,
-        SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
+        SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer,
             new RoomStateSelectionContext(
                 Array.Empty<byte>(),
                 RoomStateSelectorOperands.MainAreaBoss,
@@ -999,11 +1002,11 @@ internal static void VerifyCartridgeRoomStateSelection()
     // through to a fabricated default state.
     SeedRoomStateSelectorWords(bus, roomPointer, (ushort)RoomStateSelectorCode.UnusedDoor);
     AssertThrows<NotSupportedException>(
-        () => SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
+        () => SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
         "known unused room selector fails loudly");
     SeedRoomStateSelectorWords(bus, roomPointer, 0xdead);
     AssertThrows<InvalidDataException>(
-        () => SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
+        () => SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer),
         "unknown room selector fails loudly");
 
     Console.WriteLine(
@@ -1321,7 +1324,7 @@ internal static void VerifyPowerBombColorMathWindow()
     // the explosion Y coordinate; it is not indexed by adding a screen-space midpoint.
     while (explosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)
         explosion.StepFrame(bus);
-    var shapeReference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    var shapeReference = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     explosion.StepFrame(bus);
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");

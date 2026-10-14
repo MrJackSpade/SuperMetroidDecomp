@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Reflection;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.HardwareVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -14,6 +13,9 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 

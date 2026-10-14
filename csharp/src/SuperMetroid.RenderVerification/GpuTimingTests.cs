@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
 
 /// <summary>Checks bounded GPU timestamp capture and the rolling render timing window.</summary>
 internal static class GpuTimingTests

@@ -10,6 +10,9 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +22,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
     /// <summary>Loads the retail cartridge oracle for Noob Tube projectile instruction verification.</summary>
     internal static void VerifyNoobTubeProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyNoobTubeProjectileInstructionProgramDefinitions), () => VerifyNoobTubeProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Compares 207 mechanics words and 90 visual operands, then exercises all burst parameters with runtime cartridge reads guarded.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Noob Tube projectile instruction program definitions")]

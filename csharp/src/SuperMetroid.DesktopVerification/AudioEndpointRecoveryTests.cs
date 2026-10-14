@@ -1,6 +1,8 @@
 using SuperMetroid.Desktop;
 
-using static DesktopVerificationSupport;
+using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Checks device-loss retirement, bounded reopen attempts, and current-frame audio delivery.</summary>
 internal static class AudioEndpointRecoveryTests

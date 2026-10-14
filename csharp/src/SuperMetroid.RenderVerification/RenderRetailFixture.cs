@@ -4,6 +4,8 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Render fixtures bound to the repository installation shared with every other suite.</summary>
 internal static class RenderRetailFixture

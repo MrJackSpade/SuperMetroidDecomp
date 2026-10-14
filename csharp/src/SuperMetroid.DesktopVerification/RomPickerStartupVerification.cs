@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using System.Reflection;
 using System.Runtime.InteropServices;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Opens and cancels the real setup button's native dialog on the player's entry apartment.</summary>
 internal static partial class RomPickerStartupVerification

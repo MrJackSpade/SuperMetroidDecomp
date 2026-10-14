@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>Lossless decoder for one Super Metroid compressed-stream command header.</summary>
 public readonly record struct SmCompressionHeader

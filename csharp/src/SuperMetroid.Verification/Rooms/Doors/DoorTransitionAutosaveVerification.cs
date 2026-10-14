@@ -1,8 +1,6 @@
 using System.Reflection;
 using System.IO.Compression;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -13,6 +11,11 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.Diagnostics;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
 
@@ -66,7 +69,7 @@ internal static class DoorTransitionAutosaveVerification
             AssertEqual((ushort)0x91f8, (game.GameplayActiveRoomPointer ?? throw new InvalidOperationException("Verification requires game.GameplayActiveRoomPointer.")), "autosave destination is Landing Site");
             byte[] first = File.ReadAllBytes(autoPath);
             string bundle = Path.Combine(directory, "auto-diagnostics.zip");
-            SuperMetroid.Android.AndroidDiagnosticBundle.Create(directory, bundle, DebuggerStateFormat.AutomaticSlot);
+            SuperMetroid.Diagnostics.Android.AndroidDiagnosticBundle.Create(directory, bundle, DebuggerStateFormat.AutomaticSlot);
             using (var zip = ZipFile.OpenRead(bundle))
             {
                 AssertTrue(zip.GetEntry("debug-states/SuperMetroid-debug-slot-auto.smstate") is not null,
@@ -74,7 +77,7 @@ internal static class DoorTransitionAutosaveVerification
                 AssertTrue(!zip.Entries.Any(entry => entry.FullName.Contains("debug-slot-0.smstate", StringComparison.Ordinal)),
                     "auto export does not include unrelated manual states");
             }
-            AssertTrue(SuperMetroid.Android.AndroidFileImport.ImportState(directory, "unused", DebuggerStateFormat.AutomaticSlot)
+            AssertTrue(SuperMetroid.Diagnostics.Android.AndroidFileImport.ImportState(directory, "unused", DebuggerStateFormat.AutomaticSlot)
                 .Contains("reserved", StringComparison.Ordinal), "manual import cannot replace automatic recovery");
             var loaded = store.Load(DebuggerStateFormat.AutomaticSlot);
             AssertEqual(SuperMetroidGameState.MainGameplay, loaded.Game.GameState, "auto resumes after destination fade");

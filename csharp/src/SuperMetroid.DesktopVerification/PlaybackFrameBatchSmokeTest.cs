@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Desktop;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Reproduces a short pad press inside a slow host catch-up batch.</summary>
 public static class PlaybackFrameBatchSmokeTest

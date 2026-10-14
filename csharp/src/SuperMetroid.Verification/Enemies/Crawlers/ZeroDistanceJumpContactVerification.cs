@@ -13,7 +13,7 @@ internal static class ZeroDistanceJumpContactVerification
     /// <summary>Confirms tangency clears Y subposition without fabricating movement, then checks crouch-to-hurt radius timing.</summary>
     internal static void VerifyZeroDistanceJumpContact()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         foreach (bool left in new[] { false, true })
         foreach (bool frozen in new[] { false, true })

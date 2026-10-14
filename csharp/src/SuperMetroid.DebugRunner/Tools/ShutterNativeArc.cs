@@ -2,6 +2,9 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Poses;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.ScenarioFixtures;
 
 /// <summary>Development commands for exporting and tracing the reproduced
 /// shutter bomb arc against native WRAM and trajectory evidence.</summary>

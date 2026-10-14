@@ -5,6 +5,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Atomic;
 using SuperMetroid.Verification.Harness;
 
@@ -237,7 +239,7 @@ internal static class AtomicMovementDefinitionsVerification
     internal static int AtomicInstructionMechanicsCommand()
     {
         Suite(nameof(VerifyAtomicMovementDefinitions), () => VerifyAtomicMovementDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
 }

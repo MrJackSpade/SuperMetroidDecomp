@@ -10,6 +10,9 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Enemies.Corpses;
 
@@ -25,8 +28,8 @@ internal static class DeadTourianCorpseArtworkVerification
         // copy layouts. The installed path forbids reads from the visual source bank.
         foreach (ushort parameter in new ushort[] { 0, 2 })
         {
-            var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-            var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+            var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+            var installedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
             ReferenceDeadTourianCorpseGraphics(nativeBus, EnemyDefinitionId.CorpseSidehopper, parameter / 2);
             InitializeDeadSidehopperArtwork(installedBus, stock, parameter);
             for (int offset = 0; offset < 0x1000; offset++)
@@ -44,8 +47,8 @@ internal static class DeadTourianCorpseArtworkVerification
         {
             for (int variant = 0; variant < variantCount; variant++)
             {
-                var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-                var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+                var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+                var installedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
                 ReferenceDeadTourianCorpseGraphics(nativeBus, definition, variant);
                 InitializeDeadTourianCorpseArtwork(installedBus, stock, definition, variant);
                 for (int offset = 0; offset < 0x1000; offset++)
@@ -57,7 +60,7 @@ internal static class DeadTourianCorpseArtworkVerification
 
         var missing = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
         AssertThrows<InvalidDataException>(() => InitializeDeadSidehopperArtwork(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), missing, 0),
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), missing, 0),
             "bound dead-sidehopper art cannot silently fall back to ROM");
 
         string fileName = EnemyTileArtworkFormat.FileName(EnemyDefinitionId.CorpseSidehopper);
@@ -73,8 +76,8 @@ internal static class DeadTourianCorpseArtworkVerification
         Directory.CreateDirectory(overrideDirectory);
         using (var output = File.Create(Path.Combine(overrideDirectory, fileName)))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
-        var stockBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var editedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var stockBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var editedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InitializeDeadSidehopperArtwork(stockBus, stock, 0);
         InitializeDeadSidehopperArtwork(editedBus,
             EnemyTileArtworkFiles.Load(directory, overrideDirectory), 0);
@@ -89,7 +92,7 @@ internal static class DeadTourianCorpseArtworkVerification
                 new EnemyScratchMemory(editedBus).CorpseTiles[offset],
                 "dead-sidehopper PNG edit leaves other corpse bytes unchanged");
         }
-        var reloadedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var reloadedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         InitializeDeadSidehopperArtwork(reloadedBus,
             EnemyTileArtworkFiles.Load(directory, overrideDirectory), 0);
         AssertEqual(new EnemyScratchMemory(editedBus).CorpseTiles[0x40], new EnemyScratchMemory(reloadedBus).CorpseTiles[0x40],
@@ -104,7 +107,7 @@ internal static class DeadTourianCorpseArtworkVerification
     private static void VerifyDeadTourianCorpseVisuals(
         EnemyTileArtworkCatalog stock)
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual(DeadTourianCorpseVisualDefinitions.CorpseFrameCount,
             DeadTourianCorpseInstructionProgramDefinitions.ProgramCount,
             "every dead Tourian corpse program has an editable composition");

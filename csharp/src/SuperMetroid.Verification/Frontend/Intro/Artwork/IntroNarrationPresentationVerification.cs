@@ -10,6 +10,8 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 using SuperMetroid.Verification.Harness;
 
@@ -21,7 +23,7 @@ internal static class IntroNarrationPresentationVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the decompressed opening-font planar bytes")]
     internal static void VerifyIntroNarrationPresentation(string romPath)
     {
-        ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationExtractor.Extract(nativeBus);
         IntroNarrationPresentation presentation = IntroNarrationPresentation.Load(
             new MemoryStream(extracted, writable: false));
@@ -101,9 +103,9 @@ internal static class IntroNarrationPresentationVerification
         saved.StartEnglishPageSix();
         saved.Step(0);
         using var snapshot = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
         snapshot.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer
             .Deserialize<IntroCinematicObjectSystem>(snapshot);
         AssertThrows<InvalidOperationException>(() => restored.Step(0),
             "restored opening narration fails loudly until host content is rebound");

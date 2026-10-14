@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.TestSupport.FrameCapture;
 
 /// <summary>Checks captured frames in order on a persistent GPU renderer, including first-use transitions.</summary>
 internal static class SnapshotSequenceComparison

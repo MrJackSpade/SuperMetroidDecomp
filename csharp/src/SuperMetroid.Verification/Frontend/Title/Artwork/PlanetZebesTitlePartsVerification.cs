@@ -6,6 +6,7 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Verification.Frontend.Title.Artwork;
 

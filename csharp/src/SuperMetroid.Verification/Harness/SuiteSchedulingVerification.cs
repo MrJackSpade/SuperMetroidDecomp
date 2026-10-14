@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text.Json;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 
 namespace SuperMetroid.Verification.Harness;
 

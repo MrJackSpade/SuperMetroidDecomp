@@ -18,7 +18,7 @@ internal static class InvalidBeamSelectionVerification
     /// <summary>Drives all Boots entries into Plasma selection and compares beam bits and native VRAM footprints.</summary>
     internal static void VerifyInvalidBeamSelection()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int boot = 0; boot < 3; boot++)
         {
             var navigationSamus = new SamusState { CollectedItems = ushort.MaxValue, CollectedBeams = 0x100f,

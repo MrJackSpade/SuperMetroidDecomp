@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 

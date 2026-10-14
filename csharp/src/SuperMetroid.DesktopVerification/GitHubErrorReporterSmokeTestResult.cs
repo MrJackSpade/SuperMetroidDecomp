@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Fingerprint and fake-client operation counts after the reporter queue has been drained.</summary>
 /// <param name="Fingerprint">Stable identifier of the repeated fixture exception.</param>

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Verification.Harness;
 
@@ -17,7 +18,7 @@ internal static class BotwoonWallPlmsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Botwoon wall PLMs")]
     internal static void VerifyCompiledBotwoonWallPlms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] addresses = [0xab31,0xab34,0xab36,0xab39,0xab3b,0xab3d,0xab3f,0xab41,0xab43,
             0xab45,0xab47,0xab49,0xab4b,0xab4d,0xab4f,0xab67,0xab69,0xab6b];

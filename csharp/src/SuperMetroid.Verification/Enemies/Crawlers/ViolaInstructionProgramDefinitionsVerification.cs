@@ -6,6 +6,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Harness;
 
@@ -16,7 +18,7 @@ internal static class ViolaInstructionProgramDefinitionsVerification
     internal static void VerifyViolaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyViolaInstructionProgramDefinitions), () => VerifyViolaInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     /// <summary>Checks Viola control words, four surface initializers, shared loop playback, and ROM isolation.</summary>

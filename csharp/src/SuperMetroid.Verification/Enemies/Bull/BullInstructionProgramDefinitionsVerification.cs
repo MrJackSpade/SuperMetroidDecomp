@@ -5,6 +5,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Bull;
 using SuperMetroid.Verification.Harness;
 
@@ -15,7 +17,7 @@ internal static class BullInstructionProgramDefinitionsVerification
     internal static void VerifyBullInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBullInstructionProgramDefinitions), () => VerifyBullInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     /// <summary>Compares 16 native words and executes the normal and five-cycle shot loops without source reads.</summary>

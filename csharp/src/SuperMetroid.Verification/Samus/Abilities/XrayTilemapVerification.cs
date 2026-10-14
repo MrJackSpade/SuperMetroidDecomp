@@ -11,7 +11,7 @@ internal static class XrayTilemapVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXrayTilemap()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var vram = new SnesVram();
         vram.ExecuteWordTransfer(Enumerable.Range(0, XrayTilemapLayout.BufferWords)
             .Select(i => (ushort)(0x4000 + i)).ToArray(), GameplayVramLayout.Bg1TilemapWord, 1);

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 

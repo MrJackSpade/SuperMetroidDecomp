@@ -7,6 +7,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -17,7 +19,7 @@ internal static class ProjectileCooldownsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile cooldowns")]
     internal static void VerifyProjectileCooldowns()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var bus = NewProjectileCooldownReadGuard(retail);
         for (int address = 0x90c254; address < 0x90c28f; address++)
             AssertEqual(retail.ReadCartridgeByte(address), SamusProjectileCooldownDefinitions.ReadByte(address),

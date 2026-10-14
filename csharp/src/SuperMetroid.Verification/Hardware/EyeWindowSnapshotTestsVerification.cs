@@ -26,7 +26,7 @@ internal static class EyeWindowSnapshotTestsVerification
                 AssertEqual((long)expected[^1], right, "integer window floor endpoint");
             }
         }
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         VerifyReportedEyeNativeEndpoints(bus);
         var cgram = new SnesCgram(); cgram.SetColor(0, Bgr555.FromWord(0x392a));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();

@@ -4,8 +4,9 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>
 /// Replays one deterministic controller journal with native SPC acknowledgements but no GUI.
@@ -33,7 +34,7 @@ public static class AudioInputReplaySmokeTest
         if (!CryptographicOperations.FixedTimeEquals(actualRomDigest, recording.RomSha256))
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioAssets());
@@ -152,7 +153,7 @@ public static class AudioInputReplaySmokeTest
         if (!CryptographicOperations.FixedTimeEquals(actualRomDigest, recording.RomSha256))
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioAssets());
@@ -194,7 +195,7 @@ public static class AudioInputReplaySmokeTest
         if (!CryptographicOperations.FixedTimeEquals(actualRomDigest, recording.RomSha256))
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
         game.BindAudio(DesktopAccess.LoadAudioAssets());

@@ -6,6 +6,8 @@ using System.Reflection;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Drawing;
 
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>
 /// Test-only field-level snapshot of the complete mutable Samus graph. New gameplay
 /// fields automatically participate instead of escaping a manually maintained shortlist.

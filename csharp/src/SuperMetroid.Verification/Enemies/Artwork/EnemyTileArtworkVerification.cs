@@ -50,6 +50,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 
@@ -96,7 +97,7 @@ internal static class EnemyTileArtworkVerification
             Console.WriteLine("  Enemy tile artwork: private ROM absent; retail extraction skipped.");
             return;
         }
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         Suite(nameof(VerifyBombTorizoDormantDefinitions), () => VerifyBombTorizoDormantDefinitions(bus));
         Suite(nameof(VerifyGoldenTorizoInitialDefinitions), () => VerifyGoldenTorizoInitialDefinitions(bus));
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),

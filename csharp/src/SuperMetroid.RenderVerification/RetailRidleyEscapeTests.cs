@@ -5,6 +5,10 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Hud;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Native AI-driven escape after staging either retail termination condition at hover.</summary>
 internal static class RetailRidleyEscapeTests
@@ -14,7 +18,7 @@ internal static class RetailRidleyEscapeTests
     {
         foreach (bool hitThreshold in new[] { false, true })
         {
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
             runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();

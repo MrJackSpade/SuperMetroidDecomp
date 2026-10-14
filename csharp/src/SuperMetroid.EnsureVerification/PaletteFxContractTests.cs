@@ -6,6 +6,7 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.EnsureVerification;
 

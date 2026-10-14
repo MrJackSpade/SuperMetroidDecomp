@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -209,16 +210,16 @@ internal static class ProjectileTrailArtworkVerification
             TrailArtwork = null,
         });
         using var without = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(without, game);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(without, game);
         game.BindArtwork(game.Artwork with
         {
             TrailArtwork = stock,
         });
         using var with = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(with, game);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(with, game);
         AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Trail catalogs are excluded from both frontend and runtime snapshots");
         with.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.TrailArtwork is null, "Restored trail catalog requires host rebind");
         BindRetailRuntimeFixture(restoredRuntime);
@@ -282,7 +283,7 @@ internal static class ProjectileTrailArtworkVerification
     internal static int ProjectileTrailArtworkFixtureCommand()
     {
         Suite(nameof(VerifyProjectileTrailArtwork), () => VerifyProjectileTrailArtwork(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
 

@@ -7,6 +7,8 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Assets;
 using SuperMetroid.Verification.Harness;
 
@@ -22,7 +24,7 @@ internal static class StandardObjectArtworkVerification
         string directory = directoryScratch.Root;
         string stock = Path.Combine(directory, "stock");
         string overrides = Path.Combine(directory, "overrides");
-        var native = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         try
         {
             StandardObjectArtworkFiles.Extract(native, stock, SupportedCartridge.Sha256);
@@ -35,7 +37,7 @@ internal static class StandardObjectArtworkVerification
                     baseline.Transfer.Span[offset], $"standard OBJ native byte {offset:X4}");
 
             var guard = NewFrontendCartridgeReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
             var runtime = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: palettes)
                 { Artwork = { StandardObjectArt = baseline } };
             runtime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,

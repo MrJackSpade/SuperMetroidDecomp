@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Verification.Enemies.Metroids;
 

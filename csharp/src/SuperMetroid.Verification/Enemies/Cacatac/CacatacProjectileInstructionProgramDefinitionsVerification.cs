@@ -6,6 +6,8 @@ using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Cacatac;
 using SuperMetroid.Verification.Harness;
 
@@ -16,7 +18,7 @@ internal static class CacatacProjectileInstructionProgramDefinitionsVerification
     internal static void VerifyCacatacProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCacatacProjectileInstructionProgramDefinitions), () => VerifyCacatacProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     /// <summary>Checks all ten directional programs through spawn, frame install, terminal sleep, and read guards.</summary>

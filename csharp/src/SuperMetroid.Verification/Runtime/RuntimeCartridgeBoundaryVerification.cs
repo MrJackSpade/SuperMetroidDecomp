@@ -1,5 +1,6 @@
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Verification.Runtime;
 
@@ -43,7 +44,7 @@ internal static class RuntimeCartridgeBoundaryVerification
             MetadataShape.ParameterTypes(typeof(SuperMetroid.Core.Rooms.Plms.PlmPopulationLoader), "LoadRoomPopulation")[1],
             "the sequential PLM allocator requires typed decoded placements, not a native pointer/read flag");
         foreach (string importOnlyType in new[]
-                 { "SuperMetroid.Core.Assets.SmCompression", "SuperMetroid.Core.Rooms.RoomRenderer" })
+                 { "SuperMetroid.AssetExtraction.Compression.SmCompression", "SuperMetroid.AssetExtraction.ReferenceRendering.RoomRenderer" })
             AssertTrue(runtimeBus.Assembly.GetType(importOnlyType) is null,
                 $"Core must not compile the import-only {importOnlyType} type");
     }

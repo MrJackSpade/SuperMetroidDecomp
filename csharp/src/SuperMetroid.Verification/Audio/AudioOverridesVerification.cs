@@ -1,8 +1,10 @@
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using static SuperMetroid.Verification.Audio.AudioInstrumentsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
 

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 

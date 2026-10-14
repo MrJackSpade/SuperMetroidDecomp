@@ -1,3 +1,5 @@
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
+
 namespace SuperMetroid.ReachabilityAudit;
 
 /// <summary>

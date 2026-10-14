@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
 
 /// <summary>Compares D3D11 and software windowed-scene rendering across native PPU geometry and brightness cases.</summary>
 internal static class WindowSceneSmokeTests

@@ -706,8 +706,8 @@ csharp/src/SuperMetroid.ResourceAudit/Resources/ProgramOperandAudit.cs	SME6340	2
 csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaContractChecks.cs	SME6340	2
 csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaDomainGeometry.cs	SME6340	4
 csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaOwnership.cs	SME6341	1
-csharp/src/SuperMetroid.Tooling/AssetExtraction/CartridgeImportAddressSpaceTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/AssetExtraction/CartridgeRoomStateImporter.cs	SME6340	1
+csharp/src/SuperMetroid.Tooling/AssetExtraction/Cartridge/CartridgeImportAddressSpaceTooling.cs	SME6340	1
+csharp/src/SuperMetroid.Tooling/AssetExtraction/Rooms/CartridgeRoomStateImporter.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/CeresBabyInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/CeresDoorInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/CeresFallingDebrisInstructionProgramDefinitionsTooling.cs	SME6341	1

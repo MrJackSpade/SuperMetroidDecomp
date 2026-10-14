@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CatalogInventories;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 
@@ -12,7 +13,7 @@ internal static class EnemyVisualSelectorInventoryVerification
     /// <summary>Collects bank-resolved selector addresses and reports any differences from the generated catalog.</summary>
     internal static void InspectEnemyVisualSelectors()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var (keyed, unresolved, owners) = EnemyVisualSelectorInventory.Collect(rom);
         Console.WriteLine($"Enemy visual selectors: {keyed.Count} unique bank-resolved addresses.");
@@ -50,7 +51,7 @@ internal static class EnemyVisualSelectorInventoryVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy visual selectors")]
     internal static void VerifyCompiledEnemyVisualSelectors()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(4315, CompiledEnemyVisualSelectorsTooling.Count,
             "generated fixed visual-selector count");

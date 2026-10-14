@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace SuperMetroid.EnsureAnalyzer;
+namespace SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
 
 /// <summary>One occurrence: its rule, proposed class, the basis for that class, and where it is.</summary>
 internal readonly record struct CartridgeEncodingOccurrence(

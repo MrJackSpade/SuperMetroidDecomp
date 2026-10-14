@@ -2,6 +2,9 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Frontend.Intro;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.FrameCapture;
 
 /// <summary>Compares translated intro snapshots with direct retail-frame rendering on a D3D device.</summary>
 internal static class RetailCinematicTests

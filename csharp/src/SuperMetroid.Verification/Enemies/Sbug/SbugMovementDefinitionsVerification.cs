@@ -8,6 +8,8 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Sbug;
 using SuperMetroid.Verification.Harness;
 
@@ -197,7 +199,7 @@ internal static class SbugMovementDefinitionsVerification
     internal static int SbugInstructionMechanicsCommand()
     {
         Suite(nameof(VerifySbugMovementDefinitions), () => VerifySbugMovementDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
 }

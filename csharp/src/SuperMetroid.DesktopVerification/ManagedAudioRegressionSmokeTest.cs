@@ -1,8 +1,10 @@
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core;
+using SuperMetroid.Desktop;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>
 /// Permanent, ROM-free regression corpus captured only after every byte matched the pinned

@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerific
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

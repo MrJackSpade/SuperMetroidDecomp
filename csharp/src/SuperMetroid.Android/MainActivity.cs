@@ -6,8 +6,9 @@ using Android.Content;
 using Android.Hardware.Input;
 using Android.Media;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Desktop;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Diagnostics;
+using SuperMetroid.Diagnostics.Android;
 
 namespace SuperMetroid.Android;
 

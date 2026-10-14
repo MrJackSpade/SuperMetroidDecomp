@@ -20,7 +20,7 @@ internal static class IniEditingVerification
         AssertEqual("Secret", SuperMetroidGameOptionsIni.Parse(added).MapReveal.ToString(), "missing section added");
         AssertThrows<System.IO.InvalidDataException>(() => SuperMetroidGameOptionsIni.WithValue(original, "Audio", "MasterVolumePercent", "101"), "invalid value rejected before write");
         AssertThrows<ArgumentException>(() => SuperMetroidGameOptionsIni.WithValue(original, "Game", "Invincibility", "true\nInfiniteAmmo=true"), "multiline injection rejected");
-        foreach (var definition in SuperMetroid.Android.AndroidSettingDefinitions.All)
+        foreach (var definition in SuperMetroid.Diagnostics.Android.AndroidSettingDefinitions.All)
         {
             foreach (string value in definition.Values)
             {

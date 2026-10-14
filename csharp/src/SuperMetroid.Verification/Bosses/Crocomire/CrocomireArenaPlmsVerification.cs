@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Bosses.Crocomire.LookupCrocomireDrawsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.LookupCrocomireProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -8,6 +7,8 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 
@@ -17,7 +18,7 @@ internal static class CrocomireArenaPlmsVerification
     /// <summary>Compares five native programs and checks their room mutations without rereading source ROM.</summary>
     internal static void VerifyCompiledCrocomireArenaPlms()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Crocomire native oracle revision");

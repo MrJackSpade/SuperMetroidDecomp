@@ -1,5 +1,7 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.TestSupport.ScenarioFixtures;
 namespace SuperMetroid.Verification.Enemies.Shutters;
 using SuperMetroid.Verification.Harness;
 /// <summary>Compares the reported morph-only bomb approach to a native-checked shutter trajectory.</summary>
@@ -11,7 +13,7 @@ internal static class ShutterMorphApproachesVerification
     /// </summary>
     internal static void VerifyShutterMorphBombArc()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         string[] nativeArc = File.ReadAllLines(Path.Combine(ShutterBombArcScenario.FixtureDirectory, "bomb-arc.csv"));
         AssertEqual(ShutterBombArcScenario.FrameCount - ShutterBombArcScenario.FirstArcFrame, nativeArc.Length,
             "native-checked shutter trajectory covers frames 117..259");

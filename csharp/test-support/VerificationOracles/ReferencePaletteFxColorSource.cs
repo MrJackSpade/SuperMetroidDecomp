@@ -3,6 +3,8 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+namespace SuperMetroid.TestSupport.VerificationOracles;
+
 /// <summary>
 /// Explicit diagnostic-only color oracle for existing constructed/reference fixtures.
 /// This file is linked only into verification/debug tools, never gameplay Core.

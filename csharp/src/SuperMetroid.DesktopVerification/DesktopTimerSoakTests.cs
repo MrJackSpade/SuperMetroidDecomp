@@ -4,11 +4,14 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
-using SuperMetroid.Game;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 
-using static DesktopVerificationSupport;
+using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+namespace SuperMetroid.DesktopVerification;
+using SuperMetroid.Core;
+using SuperMetroid.Diagnostics;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Measures bounded desktop timer and GPU telemetry in gameplay and paused scenes.</summary>
 internal static class DesktopTimerSoakTests

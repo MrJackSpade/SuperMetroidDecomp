@@ -2,6 +2,8 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Inspect the production host control tree without showing a window or touching player saves.</summary>
 internal static class HostToolbarControlsTest

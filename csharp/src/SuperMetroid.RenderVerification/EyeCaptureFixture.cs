@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Camera origin placing the retail Morph Ball eye in the capture view.</summary>
 internal static class EyeCaptureFixture
 {

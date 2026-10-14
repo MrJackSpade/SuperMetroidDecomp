@@ -75,7 +75,7 @@ internal static class ZoaSpeedDefinitionsVerification
     [VerificationCommand("--zoa-speeds")]
     internal static int ZoaSpeedsCommand()
     {
-        VerifyCompiledZoaSpeeds(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        VerifyCompiledZoaSpeeds(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc")));
         return 0;
     }

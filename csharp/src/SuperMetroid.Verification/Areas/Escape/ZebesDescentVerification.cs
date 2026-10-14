@@ -15,7 +15,7 @@ internal static class ZebesDescentVerification
     internal static void VerifyZebesDoesNotWrapDuringDescent()
     {
         Suite(nameof(VerifyOffScreenCinematicOam), () => VerifyOffScreenCinematicOam());
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var scene = CreateRetailDestructionFixture(bus);
         int previousBottom = FrontendFrame.Height;
         int visibleFrames = 0, slideFrames = 0;

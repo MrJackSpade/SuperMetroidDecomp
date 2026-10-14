@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Cartridge values of <see cref="RoomAssetRomData.LibraryBackground.TourianStatueGhost"/> that only verification reads.</summary>
 internal static class RoomAssetRomDataLibraryBackgroundTourianStatueGhostConstants

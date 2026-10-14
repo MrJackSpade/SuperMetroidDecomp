@@ -1,6 +1,7 @@
 using System.Reflection;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

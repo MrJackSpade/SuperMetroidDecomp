@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
+namespace SuperMetroid.IntegrationVerification;
+
 /// <summary>Checks pixel parity and output-buffer reuse across gameplay and cinematic snapshot rendering.</summary>
 internal static class GameplayRenderAllocationVerification
 {

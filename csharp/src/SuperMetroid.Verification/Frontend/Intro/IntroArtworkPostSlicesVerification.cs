@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Areas.Ceres.CeresDestructionArtworkVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresFlightArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingFlyawayArtworkVerification;
@@ -9,6 +8,7 @@ using static SuperMetroid.Verification.Frontend.Ending.EndingObjectArtworkVerifi
 using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingPaletteArtworkVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 

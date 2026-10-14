@@ -16,7 +16,7 @@ internal static class CreditsPresentationVerification
     /// <summary>Compares every native credit row and exercises runtime scrolling and strict JSON validation.</summary>
     internal static void VerifyCreditsPresentation(string romPath)
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus);
         byte[] repeated = SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(repeated),

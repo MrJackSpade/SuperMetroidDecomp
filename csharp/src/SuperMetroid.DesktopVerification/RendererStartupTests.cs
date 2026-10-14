@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 
-using static DesktopVerificationSupport;
+using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+namespace SuperMetroid.DesktopVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Checks desktop behavior after an asynchronous D3D11 renderer startup failure.</summary>
 internal static class RendererStartupTests

@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Compression;
 
 namespace SuperMetroid.AssetExtraction.Cartridge;
 

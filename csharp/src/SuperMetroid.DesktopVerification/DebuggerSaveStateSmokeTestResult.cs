@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Measurements and rejection outcomes from the headless debugger-state compatibility and deterministic-continuation check.</summary>
 /// <param name="SavedFrame">Sixteen-bit frontend frame number stored in the saved state.</param>

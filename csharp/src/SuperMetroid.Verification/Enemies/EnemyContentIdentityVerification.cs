@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerifi
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 

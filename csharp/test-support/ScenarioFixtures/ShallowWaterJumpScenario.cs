@@ -6,6 +6,8 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 
+namespace SuperMetroid.TestSupport.ScenarioFixtures;
+
 /// <summary>
 /// Issue #1258: an unequipped Samus standing in shallow water holds jump for 60 frames.
 /// The verifier compares every frame with the checked-in native trace; the debug runner exports

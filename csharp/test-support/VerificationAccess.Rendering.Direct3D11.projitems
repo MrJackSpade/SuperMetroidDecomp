@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess.Rendering.Direct3D11/**/*.cs" LinkBase="TestSupport/VerificationAccess.Rendering.Direct3D11" />
+  </ItemGroup>
+</Project>

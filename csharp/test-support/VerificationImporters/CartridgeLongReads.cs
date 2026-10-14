@@ -1,6 +1,8 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>
 /// The linear 24-bit cartridge read (#223) that only verification oracles need: a long pointer whose bank

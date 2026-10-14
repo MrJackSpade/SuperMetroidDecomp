@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Cartridge;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Reads one native twelve-byte bank-$83 door record during import.</summary>
 [CpuBusBoundary("codec: ROM bank-$83 twelve-byte door record → CartridgeDoorHeader")]

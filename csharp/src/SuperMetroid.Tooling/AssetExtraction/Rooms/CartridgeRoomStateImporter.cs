@@ -3,7 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Reads one native 26-byte bank-$8F room-state payload during import.</summary>
 [CpuBusBoundary("codec: ROM bank-$8F 26-byte room-state payload → CartridgeRoomState")]

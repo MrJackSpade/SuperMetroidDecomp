@@ -78,6 +78,11 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 
@@ -116,7 +121,7 @@ internal static class MapPresentationVerification
             // HUD initialization now requires installed presentation. The import-only
             // cartridge reader supplies its stock fixture; minimap updates below use
             // the ROM-free bus and still exercise the production HUD owner.
-            var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+            var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
             var hudArt = GameplayHudPresentation.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(source)));
             var hud = new HudState();
@@ -138,7 +143,7 @@ internal static class MapPresentationVerification
         AssertThrows<InvalidDataException>(() => Load(Json(document).Replace("\"version\":1", "\"version\":1,\"revealEverything\":true")), "reject editable gameplay commands");
         if (File.Exists("Super Metroid.smc"))
         {
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+            var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
             foreach (AreaId area in Enum.GetValues<AreaId>())
             {
                 var stock = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
@@ -1382,16 +1387,16 @@ internal static class MapPresentationVerification
     {
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus);
         using var withoutContent = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(withoutContent, game);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(withoutContent, game);
         game.BindArtwork(game.Artwork with
         {
             MapPresentation = original,
         });
         using var withContent = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(withContent, game);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(withContent, game);
         AssertTrue(withoutContent.WrittenBytes().SequenceEqual(withContent.WrittenBytes()), "map resources do not enter debugger graph");
         withContent.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(withContent);
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(withContent);
         AssertTrue(restored.MapPresentationIdentity is null, "restored graph requires host content rebind");
         restored.BindArtwork(restored.Artwork with
         {
@@ -1439,9 +1444,9 @@ internal static class MapPresentationVerification
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(i * 2)),
                 installed.Vram.ReadWord(SuperMetroid.Core.Frontend.Menus.MenuVramLayout.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
         using var snapshot = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, installed);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(snapshot, installed);
         snapshot.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics>(snapshot);
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics>(snapshot);
         restored.BindMapPresentation(original);
         AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(restored.RenderBackgrounds(new(0, 0))),
             "restored file-select graphics accept current stock without stale override pixels");

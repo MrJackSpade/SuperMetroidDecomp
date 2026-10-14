@@ -5,6 +5,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Polyp;
 using SuperMetroid.Verification.Harness;
 
@@ -15,7 +17,7 @@ internal static class PolypInstructionProgramDefinitionsVerification
     internal static void VerifyPolypInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPolypInstructionProgramDefinitions), () => VerifyPolypInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     /// <summary>Checks native words, real initializer and interpreter behavior, forbidden reads, and allocation.</summary>

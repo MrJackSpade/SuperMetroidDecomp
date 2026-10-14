@@ -8,7 +8,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 
-using static DesktopVerificationSupport;
+using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+namespace SuperMetroid.DesktopVerification;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Measures paced hidden-window gameplay and pause rendering with real audio output.</summary>
 internal static class HiddenSoakTests
@@ -20,7 +23,7 @@ internal static class HiddenSoakTests
         var results = new List<object>();
         foreach (bool paused in new[] { false, true })
         {
-            var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
+            var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
                 new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
             game.BindAudio(DesktopAccess.LoadAudioAssets());
             var audio = new short[CartridgeAudioSession.PcmSamplesPerFrame];

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 
@@ -20,7 +22,7 @@ internal static class SandAnimatedTilesVerification
         var queue = new VramWriteQueue();
         var sand = new RoomSandAnimatedTilesState();
         const ushort sandFxRecord = 0x9e44;
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual((byte)0x0c, rom.ReadCartridgeByte(0x830000 | (sandFxRecord + 14)),
             "selected retail FX record enables ceiling and falling sand");
         ushort[] definitions = [(ushort)AnimatedTileObject.MaridiaSandCeiling, (ushort)AnimatedTileObject.MaridiaSandFalling];

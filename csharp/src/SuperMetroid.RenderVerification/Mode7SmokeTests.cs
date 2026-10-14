@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
 
 /// <summary>Checks D3D11 Mode 7 rendering against software output over native PPU geometry.</summary>
 internal static class Mode7SmokeTests

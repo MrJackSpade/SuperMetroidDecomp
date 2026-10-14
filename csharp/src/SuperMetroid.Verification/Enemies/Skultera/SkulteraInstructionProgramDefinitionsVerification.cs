@@ -5,6 +5,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Skultera;
 using SuperMetroid.Verification.Harness;
 
@@ -15,7 +17,7 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
     internal static void VerifySkulteraInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkulteraInstructionProgramDefinitions), () => VerifySkulteraInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     /// <summary>Checks both swim directions, both turns, layer callbacks, presentation frames, and read isolation.</summary>

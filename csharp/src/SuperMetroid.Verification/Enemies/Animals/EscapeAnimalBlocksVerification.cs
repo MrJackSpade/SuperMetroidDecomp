@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Areas.Escape.EscapeRoomEffectsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleDoorsVerification;
@@ -10,6 +9,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +19,7 @@ internal static class EscapeAnimalBlocksVerification
     /// <summary>Checks the escape-room rescue wall against imported PLM behavior: grapple leaves it intact, while a beam shot runs the opening animation and raises the critters event.</summary>
     internal static void VerifyEscapeAnimalBlocks(string romPath)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         ushort[] words = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new byte[8192]);
         var streamer = new BackgroundTilemapStreamer(16, words, new ushort[256], new byte[8192]);

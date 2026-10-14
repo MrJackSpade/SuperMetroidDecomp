@@ -17,7 +17,7 @@ internal static class EscapeTypewriterPresentationVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyEscapeTypewriterPresentation(string romPath)
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus);
         EscapeTypewriterPresentation presentation = EscapeTypewriterPresentation.Load(
             new MemoryStream(extracted, writable: false));
@@ -70,9 +70,9 @@ internal static class EscapeTypewriterPresentationVerification
         var savedVram = new SnesVram();
         saved.Step(savedVram);
         using var snapshot = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
         snapshot.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer
             .Deserialize<EscapeTypewriterState>(snapshot);
         AssertEqual(EscapeTypewriterProgramId.Zebes, restored.ProgramId,
             "debugger state retains compiled escape program identity");

@@ -12,6 +12,8 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
 
@@ -215,7 +217,7 @@ internal static class EndingPaletteArtworkVerification
         Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
         EndingPaletteCatalog stock = installation.LoadEndingPalettes();
         AreaMapPresentationCatalog maps = installation.LoadMaps();
-        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
         {
             byte[] native = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus, id,
@@ -226,7 +228,7 @@ internal static class EndingPaletteArtworkVerification
 
         bool rejectAllCartridgeReads = false;
         var guardedBus = NewEndingPaletteSourceReadGuard(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
             maps.RoomPaletteFx, () => rejectAllCartridgeReads);
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();

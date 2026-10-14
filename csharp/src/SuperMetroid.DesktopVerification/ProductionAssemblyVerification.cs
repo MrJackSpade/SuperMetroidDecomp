@@ -1,6 +1,8 @@
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 
+namespace SuperMetroid.DesktopVerification;
+
 /// <summary>Checks the actual published binaries without loading a second copy of their dependencies.</summary>
 internal static class ProductionAssemblyVerification
 {

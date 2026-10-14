@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 
@@ -13,7 +14,7 @@ internal static class IntroRinkaDefinitionsVerification
     /// <summary>Compares native definitions, animation, four spawns, and explosion cleanup without source rereads.</summary>
     internal static void VerifyIntroRinkaDefinitions()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroRinkaPrograms), () => VerifyIntroRinkaPrograms(retail));
         // Native six-byte definitions $8B:CF21 (Rinka) and $8B:CF27 (spawner). Their first
         // word, the initialization callback, has no port counterpart.

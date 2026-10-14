@@ -1,3 +1,6 @@
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
+using SuperMetroid.TestSupport.WindowsConsole;
+
 namespace SuperMetroid.ReachabilityAudit;
 
 /// <summary>

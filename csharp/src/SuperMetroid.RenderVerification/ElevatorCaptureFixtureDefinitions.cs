@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Native Samus-to-carrier offset used to stage the downward elevator capture.</summary>
 internal static class ElevatorCaptureFixtureDefinitions
 {

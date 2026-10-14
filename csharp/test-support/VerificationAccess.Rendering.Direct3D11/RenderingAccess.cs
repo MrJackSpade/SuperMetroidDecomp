@@ -1,4 +1,4 @@
-using SuperMetroid.Rendering.Direct3D11;
+namespace SuperMetroid.Rendering.Direct3D11;
 
 /// <summary>Verification views of private Direct3D 11 worker state.</summary>
 internal static class RenderingAccess

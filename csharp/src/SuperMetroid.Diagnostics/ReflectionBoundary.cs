@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>
 /// Reflection members whose framework annotations are nullable only for shapes debugger state never serializes

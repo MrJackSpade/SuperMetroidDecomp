@@ -23,7 +23,7 @@ internal static class GoldenTorizoCartridgeFallbackVerification
     internal static void VerifyGoldenTorizoCartridgeCombatFallback(
         string sourceRom, GameInstallation installation)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.Enemies.TileArtwork = installation.LoadEnemyTiles();
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

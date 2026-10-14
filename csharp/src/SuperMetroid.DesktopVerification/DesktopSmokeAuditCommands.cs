@@ -1,4 +1,4 @@
-using SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Developer-only smoke commands formerly hosted by the player executable.</summary>
 internal static class DesktopSmokeAuditCommands

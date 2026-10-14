@@ -6,6 +6,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
 /// Finite source-inventoried Samus PNG/JSON admission checks. These edit only copied

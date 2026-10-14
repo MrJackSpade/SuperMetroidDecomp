@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Diagnostics;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 /// <summary>Checks the closed X-Ray setup-stage order, display rule, and debugger decoding boundary.</summary>
@@ -43,7 +43,7 @@ internal static class XraySetupStageDomainVerification
         AssertThrows<ArgumentOutOfRangeException>(() => ((XraySetupStage)0xff).ShowsBlendedRoom(), "undefined stage has no display rule");
 
         // Production stepping walks the same order.
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);

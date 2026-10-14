@@ -16,6 +16,7 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Diagnostics;
 
 namespace SuperMetroid.Desktop;
 

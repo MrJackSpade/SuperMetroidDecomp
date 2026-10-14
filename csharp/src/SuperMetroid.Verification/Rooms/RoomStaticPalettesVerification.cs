@@ -8,6 +8,8 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 
@@ -26,7 +28,7 @@ internal static class RoomStaticPalettesVerification
             return;
         }
 
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         IReadOnlyDictionary<string, byte[]> files = RoomStaticPaletteExtractor.Extract(bus);
         var compiled = new Dictionary<int, RoomStaticPalette>();
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
@@ -50,7 +52,7 @@ internal static class RoomStaticPalettesVerification
         var catalog = new RoomStaticPaletteCatalog(compiled);
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
-            CartridgeRoomHeader header = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
+            CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             int source = RoomTilesetDefinitions.Get(header.State.GraphicsSet).PaletteAddress;
             CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, header);
             CartridgeRoomAssets installed = LoadFixtureRoomAssets(
@@ -63,7 +65,7 @@ internal static class RoomStaticPalettesVerification
                 $"room $8F:{roomPointer:X4} loads installed palette without source reads");
         }
 
-        CartridgeRoomHeader landing = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
+        CartridgeRoomHeader landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
         int selectedSource = RoomTilesetDefinitions.Get(landing.State.GraphicsSet).PaletteAddress;
         string selectedName = RoomStaticPaletteFormat.SourceFileName(selectedSource);
         JsonNode edited = JsonNode.Parse(files[selectedName])

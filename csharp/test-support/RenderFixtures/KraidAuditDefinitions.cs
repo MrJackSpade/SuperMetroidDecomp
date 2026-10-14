@@ -1,3 +1,5 @@
+namespace SuperMetroid.TestSupport.RenderFixtures;
+
 /// <summary>
 /// Retail room and door identities used by the Kraid end-to-end audit. These are kept
 /// separate from the audit behavior so call sites state which cartridge object they use

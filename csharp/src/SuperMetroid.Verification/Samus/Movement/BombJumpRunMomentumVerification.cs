@@ -16,7 +16,7 @@ internal static class BombJumpRunMomentumVerification
     /// </summary>
     internal static void VerifyBombJumpRunMomentum()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const int width = 8, height = 8;
         var floorBlocks = new ushort[width * height];
         for (int x = 0; x < width; x++)

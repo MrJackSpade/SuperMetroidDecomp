@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.FullMovieReplayVerification;
 using static SuperMetroid.Verification.Harness.NativeSnapshotImportVerification;
+using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Audio;
 

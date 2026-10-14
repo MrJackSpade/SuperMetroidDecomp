@@ -8,6 +8,10 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Enemies.MamaTurtles;
 using SuperMetroid.Verification.Harness;
 
@@ -20,7 +24,7 @@ internal static class MamaTurtleEnemyDefinitionsVerification
     /// </summary>
     internal static void VerifyMamaTurtleEnemyDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guard = NewMamaTurtleDefinitionGuard(rom);
         foreach (EnemyDefinitionId pointer in new EnemyDefinitionId[]
                  {
@@ -34,7 +38,7 @@ internal static class MamaTurtleEnemyDefinitionsVerification
             AssertEqual(expected, actual, $"compiled enemy header $A0:{(int)pointer:X4}");
         }
 
-        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(rom, 0xd055);
+        CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, 0xd055);
         var installation = RepositoryInstallation.Installation;
         CartridgeRoomAssets assets = LoadFixtureRoomAssets(rom, room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());

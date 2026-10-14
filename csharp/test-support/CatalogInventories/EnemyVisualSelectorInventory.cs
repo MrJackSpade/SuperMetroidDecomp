@@ -8,6 +8,8 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+namespace SuperMetroid.TestSupport.CatalogInventories;
+
 /// <summary>
 /// Cartridge-backed development inventory, never a production ROM fallback.
 /// Flags plausible five-byte OAM records, not a rendering proof: an extended

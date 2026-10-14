@@ -8,6 +8,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 
@@ -105,7 +107,7 @@ internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
     /// <summary>Loads the retail cartridge and runs the drool instruction suite.</summary>
     internal static void VerifyBombTorizoDroolInstructionProgramDefinitions() =>
         Suite(nameof(VerifyBombTorizoDroolInstructionProgramDefinitions), () => VerifyBombTorizoDroolInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Exercises initial and low-health spawns through delay, falling, wall, and floor programs.</summary>
     internal static void VerifyBombTorizoDroolInstructionProgramDefinitions(

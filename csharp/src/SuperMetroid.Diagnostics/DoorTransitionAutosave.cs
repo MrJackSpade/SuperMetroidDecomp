@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>Host recovery snapshots taken after the destination fade and that frame's audio have completed.</summary>
 internal static class DoorTransitionAutosave

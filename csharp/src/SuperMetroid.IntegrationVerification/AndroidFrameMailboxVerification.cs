@@ -1,5 +1,6 @@
-using SuperMetroid.Android;
 using SuperMetroid.Core.Assets;
+namespace SuperMetroid.IntegrationVerification;
+using SuperMetroid.Diagnostics.Android;
 
 /// <summary>Checks Android frame mailbox ownership, replacement, concurrency, allocation, and handoff trace ordering.</summary>
 internal static class AndroidFrameMailboxVerification

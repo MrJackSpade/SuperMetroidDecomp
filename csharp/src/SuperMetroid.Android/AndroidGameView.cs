@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using System.Diagnostics;
+using SuperMetroid.Diagnostics.Android;
 
 namespace SuperMetroid.Android;
 

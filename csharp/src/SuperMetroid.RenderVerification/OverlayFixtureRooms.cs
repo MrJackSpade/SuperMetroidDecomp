@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Identifies a retail room used to compose several runtime overlays.</summary>
 internal static class OverlayFixtureRooms
 {

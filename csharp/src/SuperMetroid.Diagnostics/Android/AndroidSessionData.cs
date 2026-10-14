@@ -2,10 +2,9 @@ using System.Text.Json;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Saves;
 
-namespace SuperMetroid.Android;
+namespace SuperMetroid.Diagnostics.Android;
 
 /// <summary>
 /// Worker-owned game and diagnostic state. No Activity/View references are persisted.

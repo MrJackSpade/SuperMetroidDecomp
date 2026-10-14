@@ -1,3 +1,5 @@
+namespace SuperMetroid.Core.Spatial;
+
 /// <summary>Fixture codec for constructing native 16.16 positions from WRAM words.</summary>
 internal static class FixedPositionAccess
 {

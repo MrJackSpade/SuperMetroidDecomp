@@ -7,6 +7,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Verification.Areas.Ceres;
 
 /// <summary>Checks station-load state and the gunship unlock boundary after the Ceres escape.</summary>
@@ -20,7 +21,7 @@ internal static class PostCeresLandingHandOffVerification
     internal static void VerifyPostCeresLandingHandOff()
     {
         var runtime = CreateRetailRuntimeFixture(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc")));
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

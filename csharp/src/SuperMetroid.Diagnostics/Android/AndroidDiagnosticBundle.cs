@@ -1,8 +1,7 @@
 using System.IO.Compression;
 using System.Text.Json;
-using SuperMetroid.Desktop;
 
-namespace SuperMetroid.Android;
+namespace SuperMetroid.Diagnostics.Android;
 
 /// <summary>
 /// Local, portable diagnostic package. Includes an explicit allowlist rather than the

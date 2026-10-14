@@ -12,6 +12,9 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 
@@ -21,7 +24,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
     /// <summary>Loads the pinned cartridge and runs the eye-beam mechanics suite.</summary>
     internal static void VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions), () => VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Checks compiled control words, both firing facings, exact impact timing and damage transitions, visual selectors, and ROM-read ownership.</summary>
     internal static void VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(

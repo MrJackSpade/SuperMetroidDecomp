@@ -9,6 +9,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +21,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
     /// <summary>Loads the retail ROM and runs the generic enemy-death instruction suite.</summary>
     internal static void VerifyEnemyDeathInstructionProgramDefinitions() =>
         Suite(nameof(VerifyEnemyDeathInstructionProgramDefinitions), () => VerifyEnemyDeathInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Checks native mechanics words and all five death variants through their shared respawn/delete tail.</summary>
     internal static void VerifyEnemyDeathInstructionProgramDefinitions(

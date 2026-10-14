@@ -7,6 +7,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 
@@ -21,7 +23,7 @@ internal static class GameplayBasePalettesVerification
         string directory = directoryScratch.Root;
         string stock = Path.Combine(directory, "stock");
         string overrides = Path.Combine(directory, "overrides");
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         try
         {
             GameplayBasePaletteFiles.Extract(bus, stock, SupportedCartridge.Sha256);
@@ -34,7 +36,7 @@ internal static class GameplayBasePalettesVerification
                     baseline.CommonSprites[color], $"installed shared OBJ color {color}");
 
             var guarded = NewFrontendCartridgeReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
             var runtime = new SuperMetroidRuntime(guarded, HostGameplayOverrides.None, initialPaletteArt: baseline);
             AssertTrue(runtime.Cgram.Colors.SequenceEqual(baseline.Initial.ToArray()),
                 "runtime construction consumes installed starting colors without cartridge reads");

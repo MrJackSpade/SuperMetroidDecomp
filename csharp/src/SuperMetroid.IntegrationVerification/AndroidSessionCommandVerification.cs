@@ -1,4 +1,5 @@
-using SuperMetroid.Android;
+namespace SuperMetroid.IntegrationVerification;
+using SuperMetroid.Diagnostics.Android;
 
 /// <summary>Checks Android command mailbox completion under normal use and worker shutdown.</summary>
 internal static class AndroidSessionCommandVerification

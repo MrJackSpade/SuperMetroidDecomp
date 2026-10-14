@@ -415,7 +415,7 @@ internal static class EnemyDropsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the respawn enemy definition copied into the synthetic pickup cartridge")]
     private static void SeedEnemyPickupRom(TestAddressSpace bus)
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] placeholder = new byte[64];
         for (int i = 0; i < placeholder.Length; i++)
             placeholder[i] = retail.ReadCartridgeByte(0xa00000 + (ushort)EnemyDefinitionId.Respawn + i);

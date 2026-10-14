@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Retail room headers shared by slow-consumer audio and pause-capture checks.</summary>
 internal static class SlowConsumerFixture
 {

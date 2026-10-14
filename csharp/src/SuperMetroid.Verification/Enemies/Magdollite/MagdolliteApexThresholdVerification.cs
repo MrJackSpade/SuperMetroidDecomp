@@ -4,6 +4,8 @@ using static SuperMetroid.Verification.Enemies.Magdollite.MagdollitePhaseDefinit
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +20,7 @@ internal static class MagdolliteApexThresholdVerification
     /// </summary>
     internal static void VerifyMagdolliteApexThreshold()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         VerifyMagdollitePhaseDefinitions(rom);
         for (int slot = 0; slot < MagdollitePhaseDefinitions.ApexThresholdSlotCount; slot++)
         {

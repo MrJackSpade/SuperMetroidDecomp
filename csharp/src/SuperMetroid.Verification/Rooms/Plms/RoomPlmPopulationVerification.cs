@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -34,6 +33,8 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 
@@ -528,7 +529,7 @@ internal static class RoomPlmPopulationVerification
         SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.WreckedShipAttic + 2)),
             RoomPlmInstructionLists.WreckedShipAttic);
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
-            ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
+            ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
             : null;
         for (int index = 0; index < 3; index++)
         {
@@ -994,7 +995,7 @@ internal static class RoomPlmPopulationVerification
             "Metroids-cleared instruction owner excludes adjacent PLM header");
         if (File.Exists("Super Metroid.smc"))
         {
-            SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 "Super Metroid.smc");
             int source = 0x840000 | RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired;
             ushort nativeInstruction = ReadRetailPlmProgramWord(rom, source);
@@ -1072,7 +1073,7 @@ internal static class RoomPlmPopulationVerification
     {
         var bus = new TestAddressSpace();
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
-            ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
+            ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
             : null;
         for (int index = 0; index < 3; index++)
         {
@@ -1564,7 +1565,7 @@ internal static class RoomPlmPopulationVerification
     internal static int DoorClosingDefinitionsCommand()
     {
         Suite(nameof(VerifyDoorClosingPlmDefinitions), () => VerifyDoorClosingPlmDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
 }

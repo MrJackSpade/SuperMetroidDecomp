@@ -1,6 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Installation;
-
-namespace SuperMetroid.AssetExtraction;
+﻿namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Development-tool members of <see cref="GameAssetInstaller"/>; never linked by player hosts.</summary>
 internal static class GameAssetInstallerTooling

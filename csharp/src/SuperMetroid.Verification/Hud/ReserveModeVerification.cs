@@ -16,7 +16,7 @@ internal static class ReserveModeVerification
     /// <summary>Compares the original CPU trace with ordinary and reserve X-Ray cleanup, Crystal Flash, and crouch storage.</summary>
     internal static void VerifyReserveMode(string nativeTracePath)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[][] native = File.ReadLines(nativeTracePath).Skip(1)
             .Select(line => line.Split(',')
                 .Select(value => Convert.ToInt32(value, 16))

@@ -16,7 +16,7 @@ internal static class ElevatorStandUpContactVerification
     /// </summary>
     internal static void VerifyElevatorStandUpContact()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const int Width = 4, Height = 6, DoorRow = 4;
         var blocks = new ushort[Width * Height];
         var behaviors = new byte[Width * Height];

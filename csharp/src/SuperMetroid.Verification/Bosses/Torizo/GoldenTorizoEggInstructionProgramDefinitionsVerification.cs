@@ -10,6 +10,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +21,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
     /// <summary>Loads retail data for the Golden Torizo egg instruction check.</summary>
     internal static void VerifyGoldenTorizoEggInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoEggInstructionProgramDefinitions), () => VerifyGoldenTorizoEggInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Runs both egg facings through bounce, hatch, flight, floor break, and shot break with fixed RNG inputs.</summary>
     internal static void VerifyGoldenTorizoEggInstructionProgramDefinitions(

@@ -19,7 +19,7 @@ internal static class XrayWindowGeometryVerification
     /// <summary>Checks standing and crouching poses in both facings through beam widening and aim sweeps.</summary>
     internal static void VerifyXrayWindowGeometry()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
             SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose })
         {

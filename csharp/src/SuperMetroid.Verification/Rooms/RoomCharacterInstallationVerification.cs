@@ -2,7 +2,6 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -18,6 +17,10 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 
@@ -51,7 +54,7 @@ internal static class RoomCharacterInstallationVerification
             _ = installed.LoadEnemyTiles();
             RoomCharacterAtlasCatalog stock = installed.LoadRoomCharacters();
             CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-            CartridgeRoomHeader landing = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
+            CartridgeRoomHeader landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
             VerifyRoomVisualLayouts(installed, bus, landing);
             VerifyXrayRevealVisualInstallation(installed);
             CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, landing);
@@ -94,7 +97,7 @@ internal static class RoomCharacterInstallationVerification
             AssertEqual(RoomAssetRomData.LibraryBackground.TourianStatueGhost.VramDestinationWord,
                 (ghostTransfer.VramDestination ?? throw new InvalidOperationException("Verification requires ghostTransfer.VramDestination.")), "statue-ghost library VRAM destination");
             var nativeGhostVram = new SnesVram();
-            SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeGhostVram,
+            SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeGhostVram,
                 ghostTransfer.ListPointer, activeDoorPointer: 0);
             var installedGhostVram = new SnesVram();
             LibraryBackgroundLoader.Execute(bus, installedGhostVram, ghostTransfer.ListPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), CharacterArt = stock });
@@ -219,14 +222,14 @@ internal static class RoomCharacterInstallationVerification
                 }
             }
             finally { File.WriteAllBytes(backgroundManifestPath, originalBackgroundManifest); }
-            CartridgeRoomHeader ceres = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xdf8d);
+            CartridgeRoomHeader ceres = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xdf8d);
             int backgroundSource = LibraryBackgroundSourceInventory.Scan(bus)
                 .Single(source => source.ListPointer == ceres.State.BackgroundDataPointer &&
                     source.Command == LibraryBackgroundCommand.DecompressToWorkRam).SourceAddress;
             string backgroundName = RoomBackgroundTilemapFormat.SourceFileName(backgroundSource);
             var nativeBackgroundVram = new SnesVram();
             var stockBackgroundVram = new SnesVram();
-            SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeBackgroundVram,
+            SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeBackgroundVram,
                 ceres.State.BackgroundDataPointer, activeDoorPointer: 0);
             LibraryBackgroundLoader.Execute(bus, stockBackgroundVram, ceres.State.BackgroundDataPointer, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = stockBackgrounds });
             AssertTrue(nativeBackgroundVram.ImageEquals(stockBackgroundVram),

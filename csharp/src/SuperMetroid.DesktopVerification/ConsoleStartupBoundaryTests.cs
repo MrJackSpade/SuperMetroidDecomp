@@ -1,5 +1,7 @@
 using System.Diagnostics;
 
+namespace SuperMetroid.DesktopVerification;
+
 /// <summary>
 /// Runs this executable's failing child fixture and confirms the console boundary reports it: a
 /// nonzero exit with the exception on standard error, after verifying dialogs are disabled.

@@ -1,5 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
+namespace SuperMetroid.TestSupport.WindowsConsole.Verification;
+
 /// <summary>Verifier-side check of the process error policy; tools only install it.</summary>
 internal static partial class NativeConsoleErrorPolicyCheck
 {

@@ -1,11 +1,11 @@
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandStockVerification;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
@@ -17,7 +17,7 @@ internal static class BombTorizoHandVisualsVerification
     /// confirms one edited block survives loading and stock replacement.</summary>
     internal static void VerifyBombTorizoHandVisualInstallation()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         using var testRootScratch = new TestScratchDirectory("bomb-torizo-hand-visual");
         string testRoot = testRootScratch.Root;

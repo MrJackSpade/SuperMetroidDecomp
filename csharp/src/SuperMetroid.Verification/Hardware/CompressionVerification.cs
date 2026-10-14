@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.AssetExtraction.Compression;
 
 namespace SuperMetroid.Verification.Hardware;
 

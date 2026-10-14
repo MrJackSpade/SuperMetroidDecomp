@@ -14,14 +14,14 @@ internal static class ElevatubeScrollingVerification
     /// <summary>Verifies native room-main displacement, prior-frame scroll checkpoints, and viewport carriage in both directions.</summary>
     internal static void VerifyElevatubeScrolling()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool fromNorth in new[] { true, false })
         {
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            var door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, fromNorth
+            var door = SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, fromNorth
                 ? DoorPointers.MaridiaElevatubeFromNorth : DoorPointers.MaridiaElevatubeFromSouth);
             // Clear the constructor's Ceres arrival fixture before applying the real
             // incoming tube callback; no Ceres carrier belongs in this room.

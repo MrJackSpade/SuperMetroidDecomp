@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeVisualsVerification;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Areas.Maridia.LookupElevatubeVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -8,6 +7,8 @@ using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Areas.Maridia;
 using SuperMetroid.Verification.Harness;
 
@@ -17,7 +18,7 @@ internal static class MaridiaElevatubePlmVerification
     /// <summary>Requires the physical block on the first pass and sound after sixteen frames.</summary>
     internal static void VerifyMaridiaElevatubePlm()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevatube oracle revision");

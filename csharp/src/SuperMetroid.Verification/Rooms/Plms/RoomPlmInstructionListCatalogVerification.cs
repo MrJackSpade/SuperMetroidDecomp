@@ -3,6 +3,7 @@ using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 
@@ -44,7 +45,7 @@ internal static class RoomPlmInstructionListCatalogVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach ((FieldInfo field, ushort pointer) in fields.Zip(pointers))
         {
             // Read a complete first word. We intentionally do not interpret it here: an

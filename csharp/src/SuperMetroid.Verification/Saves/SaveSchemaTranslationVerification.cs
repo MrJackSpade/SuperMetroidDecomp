@@ -13,6 +13,8 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Saves;
 using SuperMetroid.Verification.Harness;
 
@@ -121,7 +123,7 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(4, new SuperMetroidGame(bus).AvailableDemoSetCount(), "completed save exposes fourth demo set");
         AssertEqual(2, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
         ram.SetGameCompleted(false);
-        var native = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var text = SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native), writable: false));
         var ending = new EndingCreditsState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text });
@@ -148,7 +150,7 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(1, exposed.System.LoadedItemCount, "exposed item setup increments saved counter");
         AssertEqual(1, shot.System.LoadedItemCount, "collected shot-block setup increments saved counter");
         shot.System.LoadedItemCount = ushort.MaxValue;
-        shot.Plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(fixtureBus, shot.Level, shot.Streamer, new SnesVram(), shot.System, AreaId.Crateria), SuperMetroid.AssetExtraction.RoomPlmPopulationImporter.Read(fixtureBus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => shot.Samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        shot.Plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(fixtureBus, shot.Level, shot.Streamer, new SnesVram(), shot.System, AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(fixtureBus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => shot.Samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, shot.System.LoadedItemCount, "saved item-load counter wraps as a native word");
         ram.SelectSlot(0);
     }

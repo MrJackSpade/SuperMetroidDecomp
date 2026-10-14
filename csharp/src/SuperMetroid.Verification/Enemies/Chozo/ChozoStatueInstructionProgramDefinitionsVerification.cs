@@ -13,7 +13,7 @@ internal static class ChozoStatueInstructionProgramDefinitionsVerification
     internal static void VerifyChozoStatueInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyChozoStatueInstructionProgramDefinitions), () => VerifyChozoStatueInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     /// <summary>Compares 166 control words with ROM, rejects visual operands, and checks warmed lookup allocations.</summary>

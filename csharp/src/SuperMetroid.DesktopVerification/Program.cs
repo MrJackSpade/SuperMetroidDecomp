@@ -1,16 +1,15 @@
-using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Desktop;
-using SuperMetroid.Rendering.Direct3D11;
-using static AsyncLoadBoundaryTests;
-using static AudioEndpointRecoveryTests;
-using static AudioQueueHealthTests;
-using static CloseDuringLoadTests;
-using static DesktopTimerSoakTests;
-using static FormCloseTests;
-using static HiddenSoakTests;
-using static RendererCaptureTests;
-using static RendererStartupTests;
+using static SuperMetroid.DesktopVerification.AudioEndpointRecoveryTests;
+using static SuperMetroid.DesktopVerification.AudioQueueHealthTests;
+using static SuperMetroid.DesktopVerification.CloseDuringLoadTests;
+using static SuperMetroid.DesktopVerification.DesktopTimerSoakTests;
+using static SuperMetroid.DesktopVerification.FormCloseTests;
+using static SuperMetroid.DesktopVerification.HiddenSoakTests;
+using static SuperMetroid.DesktopVerification.RendererCaptureTests;
+using static SuperMetroid.DesktopVerification.RendererStartupTests;
+namespace SuperMetroid.DesktopVerification;
+using SuperMetroid.TestSupport.WindowsConsole.Verification;
+using SuperMetroid.TestSupport.WindowsConsole;
 
 /// <summary>Hidden-HWND integration checks: no visible window, native dialog, or player save mutation.</summary>
 internal static class Program

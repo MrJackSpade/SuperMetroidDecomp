@@ -4,6 +4,8 @@ using static SuperMetroid.Verification.Areas.Ceres.CeresFlightProgramsVerificati
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 
@@ -13,7 +15,7 @@ internal static class CeresFlightActorDefinitionsVerification
     /// <summary>Compares source words then runs the complete approach with definition reads forbidden.</summary>
     internal static void VerifyCeresFlightActorDefinitions()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyCeresFlightActorMetadata), () => VerifyCeresFlightActorMetadata(retail));
 
         AssertThrows<InvalidDataException>(() =>

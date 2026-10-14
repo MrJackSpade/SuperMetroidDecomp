@@ -3,6 +3,8 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 
+namespace SuperMetroid.IntegrationVerification;
+
 /// <summary>Constructs a bounded source-room boundary; subsequent frames use the frontend door owner.</summary>
 internal static class MaridiaPipeIncomingDoorSeed
 {

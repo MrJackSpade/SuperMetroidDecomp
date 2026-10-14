@@ -7,6 +7,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Sparks;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Sparks;
 using SuperMetroid.Verification.Harness;
 
@@ -186,7 +188,7 @@ internal static class SparkMovementDefinitionsVerification
     internal static int SparkInstructionMechanicsCommand()
     {
         Suite(nameof(VerifySparkMovementDefinitions), () => VerifySparkMovementDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
 }

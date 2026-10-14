@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Aggregate corpus counts and verified PCM/acknowledgement digests for the installed managed-audio regression scenarios.</summary>
 /// <param name="Scenarios">Completed music, sound-effect, and lifecycle scenarios.</param>

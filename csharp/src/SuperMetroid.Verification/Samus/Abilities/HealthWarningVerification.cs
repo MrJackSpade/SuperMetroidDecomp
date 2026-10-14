@@ -1,6 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Diagnostics;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 

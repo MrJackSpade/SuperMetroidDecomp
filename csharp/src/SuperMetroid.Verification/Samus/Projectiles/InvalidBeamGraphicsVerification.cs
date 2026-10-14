@@ -4,6 +4,10 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -15,7 +19,7 @@ internal static class InvalidBeamGraphicsVerification
     [CpuBusBoundary("exact bus test: LDA [dp],Y operand reads of the glitched Chainsaw/SpaceTime palette pointers, open bus and compiled instruction bytes")]
     internal static void VerifyInvalidBeamGraphics()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(0x9090, SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x7ffe, 0),
             "both expansion bytes retain the fetched pointer bank");
         AssertEqual(0x0890, SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x7fff, 0,
@@ -65,9 +69,9 @@ internal static class InvalidBeamGraphicsVerification
                 SamusProjectileSystem.QueueBeamTilesAndLoadPalette(gameplayBus, writes, cgram, 0x000d, artwork);
                 AssertEqual(1, writes.Entries.Count, "Chainsaw queues one native graphics transfer");
                 using var saved = new MemoryStream();
-                SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, writes);
+                SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(saved, writes);
                 saved.Position = 0;
-                var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(saved);
+                var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(saved);
                 restored.DrainTo(vram, ReferenceMutableMemory.From(bus), artwork);
             }
             else SamusProjectileSystem.LoadBeamTilesAndPalette(gameplayBus, vram, cgram, 0x000d, artwork);

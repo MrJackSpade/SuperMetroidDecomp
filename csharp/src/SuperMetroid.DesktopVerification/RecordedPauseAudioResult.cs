@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>PCM measurements for one complete pause found in a recorded player session.</summary>
 /// <param name="EntryFrame">Recorded update that entered the pause transition.</param>

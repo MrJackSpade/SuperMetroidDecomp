@@ -17,7 +17,7 @@ internal static class BeamCallbackTablesVerification
     /// <summary>Compares charged and uncharged callback tables with the cartridge, then checks beam initialization or firing.</summary>
     internal static void VerifyBeamCallbackTables(bool initializeOnly = false)
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool charged in new[] { false, true })
         {
             int table = charged

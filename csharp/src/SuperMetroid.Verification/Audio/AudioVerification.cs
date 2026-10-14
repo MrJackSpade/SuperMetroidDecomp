@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Audio.SoundQueueReturnVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +19,7 @@ internal static class AudioVerification
     internal static void VerifyCartridgeAudioQueues()
     {
         Suite(nameof(VerifyDoorSoundDisableGuard), () => VerifyDoorSoundDisableGuard());
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyAudioUploadCatalog), () => VerifyAudioUploadCatalog(retail));
         Suite(nameof(SpcCommandPortsVerification.VerifySpcCommandPortsMatchEmulatedDriver),

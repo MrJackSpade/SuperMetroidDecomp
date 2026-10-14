@@ -9,6 +9,7 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +20,7 @@ internal static class EndingTextPresentationVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending font characters")]
     internal static void VerifyEndingTextPresentation(string romPath)
     {
-        ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(nativeBus);
         EndingTextPresentation presentation = EndingTextPresentation.Load(
             new MemoryStream(extracted, writable: false));
@@ -87,9 +88,9 @@ internal static class EndingTextPresentationVerification
                 EndingCreditsRomData.Rendering.TilemapWords).ToArray(), InstructionPointer = EndingCreditsRomData.Instructions.SeeYouNextMissionText, Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
         saved.Step(new SnesVram());
         using var snapshot = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
         snapshot.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer
             .Deserialize<EndingBackgroundTextState>(snapshot);
         AssertThrows<InvalidOperationException>(() => restored.Step(new SnesVram()),
             "restored ending text fails loudly until host content is rebound");

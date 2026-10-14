@@ -21,7 +21,7 @@ internal static class LowerNorfairHandVerification
     /// <summary>Drives retail hand collision and the full statue sequence with PLM data reads blocked.</summary>
     internal static void VerifyLowerNorfairHand()
     {
-        var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var bus = NewChozoProgramAndDrawReadGuard(source);
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);

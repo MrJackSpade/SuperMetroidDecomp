@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyVisualSelectorInventoryVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon;
@@ -9,6 +8,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +19,7 @@ internal static class AlcoonFireballInstructionProgramDefinitionsVerification
     /// <summary>Checks the retail cartridge hash before running the fireball instruction comparison.</summary>
     internal static void VerifyAlcoonFireballInstructionProgramDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),
             "Alcoon-fireball oracle is NTSC J/U v1.0");

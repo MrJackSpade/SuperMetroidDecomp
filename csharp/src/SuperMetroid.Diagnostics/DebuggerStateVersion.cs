@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>
 /// The on-disk debugger-state schema, stored as a 32-bit header word. A build reads only its own

@@ -6,8 +6,9 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Desktop;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Deterministic audit of stable fingerprints and both deduplication layers.</summary>
 public static class GitHubErrorReporterSmokeTest

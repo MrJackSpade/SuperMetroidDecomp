@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Hardware;
 
+namespace SuperMetroid.Core.Rendering;
+
 /// <summary>Whole-image comparisons of PPU state that only verification performs (#630).</summary>
 internal static class PpuImageAccess
 {

@@ -17,7 +17,7 @@ internal static class ShutterEmbeddingVerification
     /// <summary>Runs the existing approach-sequence diagnostic for both shutters; negative gaps require native rounding comparison before interpretation.</summary>
     internal static void VerifyShutterEmbedding()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int activatedCases = 0;
         int carriedCases = 0;
         int minimumGap = 0;

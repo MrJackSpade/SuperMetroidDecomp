@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
 
@@ -83,7 +84,7 @@ internal static class GrappleEnemyDeathVerification
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture copying retail banks $86 and $8D for grapple enemy death")]
     private static void SeedGrappleEnemyDeathRetailBanks(TestAddressSpace bus)
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (int bank in new[] { 0x860000, 0x8d0000 })
         {
             var data = new byte[0x8000];
@@ -95,7 +96,7 @@ internal static class GrappleEnemyDeathVerification
     /// <summary>Checks grapple release and movement cleanup for the reported standing, aiming, and jumping poses.</summary>
     private static void VerifyGrappleDeathCleanupOrdinaryPoses()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (SamusPoseId pose in new[] { SamusPoseId.StandingAimDiagonalDownRightPose,
             SamusPoseId.NormalJumpForwardRightPose, SamusPoseId.FacingRightNormalPose })
         {

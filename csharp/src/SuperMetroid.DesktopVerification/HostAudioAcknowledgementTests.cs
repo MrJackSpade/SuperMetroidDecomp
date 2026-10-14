@@ -2,8 +2,10 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Desktop;
-using static DesktopVerificationSupport;
+using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+namespace SuperMetroid.DesktopVerification;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
 /// The desktop host with audio disabled advances the SFX handshake exactly as a plain Core

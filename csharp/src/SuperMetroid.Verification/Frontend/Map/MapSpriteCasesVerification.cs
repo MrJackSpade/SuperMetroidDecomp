@@ -13,6 +13,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 

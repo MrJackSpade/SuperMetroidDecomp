@@ -6,6 +6,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 
@@ -30,7 +32,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             return;
         }
 
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>> populations =
             ReadRetailEnemyPopulationRecords(rom);
         EnemyDefinitionId[] definitions = ReadNamedRetailEnemyDefinitions();

@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Fx;
 
+namespace SuperMetroid.EnsureVerification;
+
 /// <summary>Verification view of palette-FX slot occupancy.</summary>
 internal static class PaletteFxAccess
 {

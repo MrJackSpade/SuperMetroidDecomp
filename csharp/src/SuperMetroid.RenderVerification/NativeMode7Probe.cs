@@ -2,6 +2,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Diagnostic translation of upstream-sm/src/snes/ppu.c's reference Mode-7 sampling.</summary>
 internal static class NativeMode7Probe
 {

@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Fixture position that places the gunship top hull near its escape completion threshold.</summary>
 internal static class EndingHandoffFixtureDefinitions
 {

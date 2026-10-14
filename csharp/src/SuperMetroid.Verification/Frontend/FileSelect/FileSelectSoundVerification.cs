@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 
@@ -14,7 +15,7 @@ internal static class FileSelectSoundVerification
     /// <summary>Checks the driver's delayed acknowledgement and audible output, then both save and accept routes.</summary>
     internal static void VerifyFileSelectSound()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
         var menu = new FileSelectMenuState(bus, audio, RetailPresentationFixture());
         var renderer = new CartridgeAudioRenderer(ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory));
@@ -47,7 +48,7 @@ internal static class FileSelectSoundVerification
     /// <summary>Compares captured PCM with the swoosh suppressed for one save state and accept button.</summary>
     private static void VerifyFullFrontendFileSelectSound(bool existingSave, SnesButton accept)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         if (existingSave)
             new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
         var game = CreateRetailGameFixture(bus);

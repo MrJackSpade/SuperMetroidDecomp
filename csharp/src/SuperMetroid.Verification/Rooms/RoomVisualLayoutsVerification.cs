@@ -11,6 +11,9 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Rooms;
 
@@ -192,7 +195,7 @@ internal static class RoomVisualLayoutsVerification
         // an extra physical row beyond its camera. Both must survive the installed-stream path.
         foreach (ushort pointer in new ushort[] { 0xdf8d, 0xc98e })
         {
-            CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, pointer);
+            CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, pointer);
             CartridgeRoomAssets nativeOther = LoadFixtureRoomAssets(bus, room);
             CartridgeRoomAssets installedOther = LoadFixtureRoomAssets(
                 NewRoomLevelStreamReadGuard(bus, room.State.CompressedLevelDataAddress), room,

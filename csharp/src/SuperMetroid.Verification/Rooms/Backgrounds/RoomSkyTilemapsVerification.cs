@@ -1,6 +1,5 @@
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LookupSkyChunkPointersVerification;
@@ -11,6 +10,11 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 
@@ -21,7 +25,7 @@ internal static class RoomSkyTilemapsVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomSkyTilemaps()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyLandSkyChunkPointers), () => VerifyLandSkyChunkPointers(bus));
         Suite(nameof(VerifyOceanSkyChunkPointers), () => VerifyOceanSkyChunkPointers(bus));
@@ -117,7 +121,7 @@ internal static class RoomSkyTilemapsVerification
 
         var nativeDoorVram = new SnesVram();
         var installedDoorVram = new SnesVram();
-        SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeDoorVram,
+        SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeDoorVram,
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
             LandingSiteRomData.LandingCutsceneDoorPointer);
         LibraryBackgroundLoader.Execute(NewSkyPageReadGuard(bus, blockLandingList: true), installedDoorVram, unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress), LandingSiteRomData.LandingCutsceneDoorPointer, new LibraryBackgroundArtwork { SkyArt = stock });

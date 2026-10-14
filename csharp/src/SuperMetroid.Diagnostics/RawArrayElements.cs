@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>
 /// Array element types written as their raw little-endian bytes: every primitive, plus the

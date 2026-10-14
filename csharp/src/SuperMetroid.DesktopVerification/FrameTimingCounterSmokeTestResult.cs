@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Deterministic result from the host timing counter regression.</summary>
 /// <param name="EmulatedFramesPerSecond">Published update rate under the 1,000-tick clock.</param>

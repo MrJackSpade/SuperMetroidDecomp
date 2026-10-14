@@ -5,6 +5,8 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
+namespace SuperMetroid.TestSupport.RenderFixtures;
+using SuperMetroid.Core;
 
 /// <summary>
 /// Retail-ROM regression for issue #252. The audit gives the HUD and pause screen the
@@ -16,16 +18,16 @@ internal static class MapCrossViewAudit
     /// <summary>Checks HUD cells and pause marker positions with and without each area's downloaded map.</summary>
     public static int Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         int comparisonCount = 0;
         foreach (ushort roomPointer in MapCrossViewAuditDefinitions.RepresentativeRooms)
         {
-            CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
+            CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             comparisonCount += VerifyRoom(bus, room, hasAreaMap: false);
             comparisonCount += VerifyRoom(bus, room, hasAreaMap: true);
         }
 
-        CartridgeRoomHeader reportedRoom = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
+        CartridgeRoomHeader reportedRoom = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(
             bus,
             MapCrossViewAuditDefinitions.WaterRoom);
         if (reportedRoom.Identity != new RoomIdentity(AreaId.Brinstar, 0x27) ||

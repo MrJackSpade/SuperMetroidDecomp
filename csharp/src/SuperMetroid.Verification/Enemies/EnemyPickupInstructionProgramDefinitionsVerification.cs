@@ -9,6 +9,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +21,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
     /// <summary>Loads the retail cartridge and starts the enemy-pickup instruction suite.</summary>
     internal static void VerifyEnemyPickupInstructionProgramDefinitions() =>
         Suite(nameof(VerifyEnemyPickupInstructionProgramDefinitions), () => VerifyEnemyPickupInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Compares mechanics words, executes each pickup loop and converted death actor, and guards against runtime ROM reads.</summary>
     internal static void VerifyEnemyPickupInstructionProgramDefinitions(

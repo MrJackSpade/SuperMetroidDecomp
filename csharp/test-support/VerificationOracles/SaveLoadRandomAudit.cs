@@ -1,11 +1,15 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Verification.Harness;
+namespace SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core;
+using SuperMetroid.Diagnostics;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.SaveMapFixtures;
 
 /// <summary>#441: real frontend loading from identical in-memory SRAM, with varied file-map waits.</summary>
 internal static class SaveLoadRandomAudit
@@ -15,7 +19,7 @@ internal static class SaveLoadRandomAudit
     {
         foreach (int wait in new[] { 0, 1, 2 })
         {
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
             var save = new SuperMetroidSaveSnapshot
             {
                 Area = (ushort)AreaId.Tourian, SaveStation = 0,

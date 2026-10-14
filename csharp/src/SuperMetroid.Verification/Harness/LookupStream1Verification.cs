@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Samus.SamusAtmosphereArtworkBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerification;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerification;
@@ -46,6 +45,10 @@ using SuperMetroid.Core.Samus.Hud;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
 

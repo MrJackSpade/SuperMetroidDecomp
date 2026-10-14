@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Frontend.Attract;
 using SuperMetroid.Verification.Harness;
 

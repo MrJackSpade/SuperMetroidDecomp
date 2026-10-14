@@ -10,6 +10,8 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -20,7 +22,7 @@ internal static class EndingMode7ArtworkVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending Mode-7 scene artwork")]
     internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
-        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         EndingMode7ArtworkCatalog stock = installation.LoadEndingMode7Art();
         foreach (EndingMode7SceneId id in Enum.GetValues<EndingMode7SceneId>())
         {
@@ -39,7 +41,7 @@ internal static class EndingMode7ArtworkVerification
         }
 
         var guardedBus = NewEndingMode7SourceReadGuard(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var native = CreateRetailEndingFixture(nativeBus, nativeAudio, 0, 0);
@@ -89,7 +91,7 @@ internal static class EndingMode7ArtworkVerification
                 _ => throw new ArgumentOutOfRangeException(nameof(id)),
             };
             var sceneBus = NewEndingMode7SourceReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
             var audio = new CartridgeAudioState();
             var state = CreateRetailEndingFixture(sceneBus, audio, 0, 0);
             state.BindMode7Artwork(stock);
@@ -133,7 +135,7 @@ internal static class EndingMode7ArtworkVerification
             if (id == EndingMode7SceneId.PlanetExplosion)
             {
                 var partialBus = NewEndingMode7SourceReadGuard(
-                    SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
+                    SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
                 var partialAudio = new CartridgeAudioState();
                 var partial = CreateRetailEndingFixture(partialBus, partialAudio, 0, 0);
                 partial.BindMode7Artwork(stock);

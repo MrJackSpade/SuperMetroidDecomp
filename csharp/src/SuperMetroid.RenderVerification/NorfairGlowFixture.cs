@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Cathedral room and CGRAM destinations used to isolate Norfair's animated foreground glow.</summary>
 internal static class NorfairGlowFixture
 {

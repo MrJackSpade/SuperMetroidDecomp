@@ -1,5 +1,5 @@
 using System.Text.Json;
-using SuperMetroid.EnsureAnalyzer;
+using SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
 
 namespace SuperMetroid.CartridgeEncodingAudit;
 

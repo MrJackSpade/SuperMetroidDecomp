@@ -8,6 +8,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 
+namespace SuperMetroid.TestSupport.ScenarioFixtures;
+
 /// <summary>
 /// Issue #415: earning a charged bomb spread by morphing in the air, either while turning around
 /// (the aerial route) or out of a charged walljump (the wall route). Only room clearing, equipment

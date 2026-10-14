@@ -11,6 +11,10 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -64,9 +68,9 @@ internal static class BeamTileArtworkVerification
             AssertEqual(nativeQueue.Entries[0].EncodedVramDestination, queue.Entries[0].EncodedVramDestination, "Queued beam retains destination");
             AssertTrue(new CgramPalettes(actualPalette).ImageEquals(new CgramPalettes(expectedPalette)), "PNG selection leaves beam palette behavior unchanged");
             using var state = new MemoryStream();
-            SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(state, queue);
+            SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(state, queue);
             state.Position = 0;
-            var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(state);
+            var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(state);
             var stockVram = new SnesVram();
             queue.DrainTo(stockVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), catalog);
             AssertTrue(stockVram.ImageEquals(native), "Queued PNG publishes native pixels only at drain");
@@ -150,9 +154,9 @@ internal static class BeamTileArtworkVerification
         runtime.SamusPhases.QueueGameplayBeamTilesAndLoadPalette(1);
         AssertEqual(BeamTileCatalog.AssetFor(SamusBeamCombination.Wave), runtime.VramWrites.Entries[0].AssetId, "Runtime equipment upload uses typed beam selection");
         using var saved = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
         saved.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
         AssertTrue(restored.Artwork.BeamArtwork is null, "Beam artwork is not embedded in runtime state");
         BindRetailRuntimeFixture(restored);
         restored.Player.IntroducedSamus.EquippedBeams = 1;
@@ -168,7 +172,7 @@ internal static class BeamTileArtworkVerification
     internal static int BeamTileArtworkFixtureCommand()
     {
         Suite(nameof(VerifyBeamTileArtwork), () => VerifyBeamTileArtwork(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
 }

@@ -1,4 +1,6 @@
-namespace SuperMetroid.Desktop;
+using SuperMetroid.Desktop;
+
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>
 /// Reproduces the one-column WinForms layout used by <see cref="PlayableGameControl"/>

@@ -38,7 +38,7 @@ internal static class RoomPlmHeaderCatalogVerification
             .Select(ParseRoomPlmPopulationPointer)
             .Distinct()
             .ToArray();
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var retailHeaders = new List<ushort>();
         foreach (ushort populationPointer in populationPointers)
         {

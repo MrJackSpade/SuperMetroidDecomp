@@ -14,7 +14,7 @@ internal static class DraygonGoopDropsVerification
     /// <summary>Confirms the drop spawns after both eight-frame burst images at the destroyed goop position, before parent deletion in the descending slot pool.</summary>
     internal static void VerifyDraygonGoopDrops()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

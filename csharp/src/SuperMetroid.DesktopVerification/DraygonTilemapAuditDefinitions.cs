@@ -1,3 +1,5 @@
+namespace SuperMetroid.DesktopVerification;
+
 /// <summary>Native sentinels and WRAM destination used by Draygon's extended BG2 tilemap commands.</summary>
 internal static class DraygonTilemapAuditDefinitions
 {

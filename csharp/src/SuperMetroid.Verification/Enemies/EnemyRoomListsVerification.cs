@@ -14,7 +14,7 @@ internal static class EnemyRoomListsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy room lists")]
     internal static void VerifyCompiledEnemyRoomLists()
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] populationPointers = RoomStateDefinitions.All
             .Select(state => state.EnemyPopulationPointer).Distinct().Order().ToArray();

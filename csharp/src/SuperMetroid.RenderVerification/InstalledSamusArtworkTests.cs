@@ -6,6 +6,9 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core;
 
 /// <summary>
 /// Finite acceptance checks for source-identified Samus drawing and upload owners.

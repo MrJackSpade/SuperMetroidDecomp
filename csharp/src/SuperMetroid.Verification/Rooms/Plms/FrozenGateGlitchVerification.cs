@@ -64,7 +64,7 @@ internal static class FrozenGateGlitchVerification
     /// <summary>Replays one native case in the retail Caterpillar room through collision and gate PLM updates.</summary>
     private static void VerifyFrozenEnemyGateRecord(FrozenGateNativeRecord expected)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

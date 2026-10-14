@@ -15,7 +15,7 @@ internal static class MotherBrainContactHitboxesVerification
     /// </summary>
     internal static void VerifyMotherBrainContactHitboxes()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         MotherBrainContactPart[] parts =
         [
             MotherBrainContactPart.Body,

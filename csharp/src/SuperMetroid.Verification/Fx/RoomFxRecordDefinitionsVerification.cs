@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Fx.LookupRoomFxFieldsVerification;
@@ -9,6 +8,10 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CatalogInventories;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +21,7 @@ internal static class RoomFxRecordDefinitionsVerification
     /// <summary>Checks the complete generated catalog and every source field against the ROM.</summary>
     internal static void VerifyRoomFxRecordDefinitions(string romPath)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "FX oracle revision");
         SortedDictionary<ushort, RoomFxRecordDefinition> records = RoomFxRecordCatalogSource.CaptureRetailRoomFxRecords(bus);
         Suite(nameof(VerifyRoomFxFields), () => VerifyRoomFxFields(bus, records));
@@ -35,7 +38,7 @@ internal static class RoomFxRecordDefinitionsVerification
     private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
     {
         LoadStationEntry station = LoadStationDefinitions.Get(AreaId.Ceres, 0);
-        CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
+        CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
         var guarded = NewRoomFxRecordReadGuard(bus);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();

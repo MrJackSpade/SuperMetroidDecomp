@@ -15,6 +15,9 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -226,16 +229,16 @@ internal static class ProjectileCompositionsVerification
             ProjectileCompositions = null,
         });
         using var without = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(without, game);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(without, game);
         game.BindArtwork(game.Artwork with
         {
             ProjectileCompositions = stock,
         });
         using var with = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(with, game);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(with, game);
         AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Projectile content excluded from frontend and runtime state graph");
         with.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ProjectileCompositions is null, "Restored runtime requires external composition rebind");
         roomAssets.Bind(restoredRuntime);
@@ -256,9 +259,9 @@ internal static class ProjectileCompositionsVerification
         SuperMetroid.Core.Frontend.SuperMetroidGame CloneGame()
         {
             using var snapshot = new MemoryStream();
-            SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, game);
+            SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(snapshot, game);
             snapshot.Position = 0;
-            var clone = SuperMetroid.Desktop.DebuggerObjectGraphSerializer
+            var clone = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer
                 .Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(snapshot);
             var cloneRuntime = clone.GameplayRuntime;
             roomAssets.Bind(cloneRuntime);
@@ -519,7 +522,7 @@ internal static class ProjectileCompositionsVerification
     internal static int ProjectileCompositionsFixtureCommand()
     {
         Suite(nameof(VerifyProjectileCompositions), () => VerifyProjectileCompositions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
 }

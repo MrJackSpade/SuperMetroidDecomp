@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Frontend;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>Capture timestamp, frame and room identity of one debugger slot.</summary>
 internal readonly record struct DebuggerSaveStateMetadata(

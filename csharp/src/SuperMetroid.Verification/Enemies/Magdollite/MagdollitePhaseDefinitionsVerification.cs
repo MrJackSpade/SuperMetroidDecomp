@@ -4,6 +4,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Harness;
 

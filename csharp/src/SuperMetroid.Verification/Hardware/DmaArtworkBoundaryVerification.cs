@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Reflection;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.DmaSourceRoutingVerification;
 using static SuperMetroid.Verification.Hardware.HardwareVerification;
@@ -12,6 +11,11 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 

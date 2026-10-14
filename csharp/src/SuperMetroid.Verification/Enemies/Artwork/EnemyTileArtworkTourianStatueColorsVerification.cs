@@ -13,6 +13,9 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -116,10 +119,10 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var installedRoom = CreateGreyRoom(
             NewTourianStatueColorGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), stock);
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), stock);
         var editedRoom = CreateGreyRoom(
             NewTourianStatueColorGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), editedGrey);
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), editedGrey);
         // Use the room's pre-step palette as the unchanged background, then apply
         // only the native grey instruction writes read from the four retail programs.
         var nativeGreyCgram = new SnesCgram();

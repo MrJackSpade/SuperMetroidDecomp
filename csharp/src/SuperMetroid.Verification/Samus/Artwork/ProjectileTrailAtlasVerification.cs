@@ -82,9 +82,9 @@ internal static class ProjectileTrailAtlasVerification
         Check(runtime);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         using var saved = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
         saved.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
         AssertTrue(restored.Artwork.TrailArtwork is null, "State does not embed selected trail PNGs");
         BindRetailRuntimeFixture(restored);
         restored.Artwork.TrailArtwork = catalog;

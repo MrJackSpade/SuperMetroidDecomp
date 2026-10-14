@@ -12,7 +12,7 @@ internal static class CeresRidleyWallVerification
     /// <summary>Confirms the lunge clips at X=40, publishes a BG2-only first-frame displacement, and lasts twelve displayed frames.</summary>
     internal static void VerifyCeresRidleyWallImpact()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

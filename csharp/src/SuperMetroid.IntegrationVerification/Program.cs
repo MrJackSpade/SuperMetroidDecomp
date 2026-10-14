@@ -1,7 +1,11 @@
-using SuperMetroid.Android;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Input;
+namespace SuperMetroid.IntegrationVerification;
+using SuperMetroid.Diagnostics.Android;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.WindowsConsole;
 
 /// <summary>
 /// Repository-only integration checks: the gitignored ROM, its shared extracted installation and checked-in fixtures.

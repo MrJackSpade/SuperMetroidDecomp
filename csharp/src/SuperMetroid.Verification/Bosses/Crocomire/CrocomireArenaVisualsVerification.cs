@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireArenaPlmsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.LookupCrocomireStockVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -11,6 +10,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
 
@@ -20,7 +20,7 @@ internal static class CrocomireArenaVisualsVerification
     /// <summary>Checks stock mapping, visible edits, physical block isolation, override persistence, and asset rejection.</summary>
     internal static void VerifyCrocomireArenaVisuals()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Crocomire stock oracle revision");

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Rooms.LevelData;
 using SuperMetroid.Verification.Harness;
 
@@ -25,7 +26,7 @@ internal static class RoomMetatilesVerification
             return;
         }
 
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         IReadOnlyDictionary<string, byte[]> files = RoomMetatileExtractor.Extract(bus);
         var sources = new Dictionary<string, int>
         {
@@ -61,7 +62,7 @@ internal static class RoomMetatilesVerification
         var stockCatalog = new RoomMetatileCatalog(stockCre, bySource);
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
-            CartridgeRoomHeader header = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
+            CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             int areaSource = RoomTilesetDefinitions.Get(header.State.GraphicsSet).BlockDefinitionsAddress;
             CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, header);
             CartridgeRoomAssets installed = LoadFixtureRoomAssets(
@@ -97,7 +98,7 @@ internal static class RoomMetatilesVerification
             before.BottomLeft == after.BottomLeft && before.BottomRight == after.BottomRight,
             "edited JSON changes only the intended 8x8 visual child of a solid block");
         RoomMetatileCatalog editedCatalog = new(modified, bySource);
-        CartridgeRoomHeader landing = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
+        CartridgeRoomHeader landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
         CartridgeRoomAssets nativeLanding = LoadFixtureRoomAssets(bus, landing);
         CartridgeRoomAssets editedLanding = LoadFixtureRoomAssets(
             NewRoomMetatileSourceReadGuard(bus,

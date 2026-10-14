@@ -1,6 +1,8 @@
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 
+namespace SuperMetroid.DebugRunner.Tools;
+
 /// <summary>
 /// Read-only inventory check for linker experiments. Does not load or execute either
 /// assembly; checks nonpublic members too because debugger graphs depend on them.

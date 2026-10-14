@@ -50,7 +50,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
 
         // Poses $FD-$FF intentionally overread the first delay bytes as $0302.
         // The resulting low-bank source is live WRAM, not immutable ROM data.
-        var mutableBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        var mutableBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         mutableBus.WriteByte(0x7E0302, 0x5A);
         AssertEqual((byte)0x5A,
             SamusAnimationDelayDefinitions.ReadAnimationByte(mutableBus,
@@ -77,7 +77,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
     internal static int MutableAnimationAliasesCommand()
     {
         string sourceRom = Path.GetFullPath("Super Metroid.smc");
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus, sourceRom));
         Suite(nameof(VerifyRunningCadence), () => VerifyRunningCadence(bus));
         return 0;

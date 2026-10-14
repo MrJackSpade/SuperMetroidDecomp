@@ -1,9 +1,8 @@
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Installation;
 
-namespace SuperMetroid.Game;
+namespace SuperMetroid.Desktop;
 
 /// <summary>The normal reset-to-gameplay desktop shell for the translated game.</summary>
 internal sealed class GameForm : Form

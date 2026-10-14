@@ -9,6 +9,10 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Installation;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
 /// Finite, source-selected production-owner fixtures for #541. These compare stock

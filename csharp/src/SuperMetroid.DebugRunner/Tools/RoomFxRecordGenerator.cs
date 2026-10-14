@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Fx;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.TestSupport.CatalogInventories;
 
 /// <summary>Captures retail room-FX records into a compiled source file only when no generated file exists.</summary>
 internal static class RoomFxRecordGenerator

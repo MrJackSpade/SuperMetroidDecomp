@@ -1,5 +1,7 @@
 using SuperMetroid.Rendering.Direct3D11;
 
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Ordered retail qualification inventory; aggregate execution reuses one GPU renderer.</summary>
 internal static class RetailSceneTests
 {

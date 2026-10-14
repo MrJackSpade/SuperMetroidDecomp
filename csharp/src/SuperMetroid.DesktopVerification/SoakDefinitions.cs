@@ -1,3 +1,5 @@
+namespace SuperMetroid.DesktopVerification;
+
 /// <summary>Fixed acceptance lengths for the long-running timer and audio soaks.</summary>
 internal static class SoakDefinitions
 {

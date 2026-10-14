@@ -1,3 +1,5 @@
+namespace SuperMetroid.DebugRunner.Tools;
+
 /// <summary>Compares captured .smframe sequences in software and on both Direct3D 11 devices.</summary>
 internal static class RenderTools
 {

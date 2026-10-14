@@ -7,8 +7,10 @@ using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.SaveMapFixtures;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Headless saved-game pause/resume regression covering PCM continuity, sound-library cancellation order, and preservation of the resident SPC upload.</summary>
 public static class PauseAudioSmokeTest
@@ -18,7 +20,7 @@ public static class PauseAudioSmokeTest
     /// <returns>PCM continuity and command counts after all pause assertions pass; mismatches throw.</returns>
     public static PauseAudioSmokeTestResult Run(string romPath)
     {
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         SeedCrateriaSave(bus);
         var game = new SuperMetroidGame(
             bus,

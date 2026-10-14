@@ -7,6 +7,10 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Compares the gunship escape event, fade, and ending handoff through captured rendering and audio.</summary>
 internal static class RetailEndingHandoffTests

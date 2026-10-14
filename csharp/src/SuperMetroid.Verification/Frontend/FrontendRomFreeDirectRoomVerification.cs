@@ -7,6 +7,8 @@ using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
 
@@ -31,7 +33,7 @@ internal static class FrontendRomFreeDirectRoomVerification
     private static void VerifyFrontendRomFreeDirectRoom(ushort roomPointer, int frameCount, ushort heldInput)
     {
         GameInstallation installation = RepositoryInstallation.Installation;
-        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath);
+        var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath);
         var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         AssertEqual(false, MetadataShape.DeclaresProperty(installedMemory.GetType(), "Rom"),
             "direct-room fixture has no installed cartridge allocation");

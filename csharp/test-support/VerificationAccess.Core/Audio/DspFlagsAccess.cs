@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+namespace SuperMetroid.Core.Audio;
 
 /// <summary>Verification views of FLG's two meanings: the control bits and the noise rate (#631 alias proof).</summary>
 internal static class DspFlagsAccess

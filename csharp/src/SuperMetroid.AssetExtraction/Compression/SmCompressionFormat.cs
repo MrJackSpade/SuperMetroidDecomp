@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>Bit layout and bounds shared by every command in the cartridge format.</summary>
 public static class SmCompressionFormat

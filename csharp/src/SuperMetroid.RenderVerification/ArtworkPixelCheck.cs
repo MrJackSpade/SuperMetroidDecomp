@@ -2,6 +2,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
 
 /// <summary>Exact indexed-pixel oracle plus backend comparison for disk-authored replacements.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]

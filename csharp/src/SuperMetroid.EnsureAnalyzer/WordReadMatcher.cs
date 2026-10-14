@@ -16,7 +16,7 @@ public static class WordReadMatcher
 
     /// <summary>The canonical implementations, which compose the bytes themselves.</summary>
     public static readonly string[] CanonicalTypes =
-        ["SuperMetroid.Core.Hardware.SnesWordReads", "SuperMetroid.AssetExtraction.Cartridge.CartridgeWordReads", "SuperMetroid.Core.Hardware.CartridgeLongReads"];
+        ["SuperMetroid.Core.Hardware.SnesWordReads", "SuperMetroid.AssetExtraction.Cartridge.CartridgeWordReads", "SuperMetroid.TestSupport.VerificationImporters.CartridgeLongReads"];
 
     /// <summary>Matches the top of an OR (or plus) chain that rebuilds a word.</summary>
     public static WordReadMatch? Match(BinaryExpressionSyntax root, SemanticModel model)

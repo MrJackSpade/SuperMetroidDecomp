@@ -1,8 +1,9 @@
 using System.Diagnostics;
-using SuperMetroid.Android;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.Diagnostics.Android;
 
 /// <summary>Reaches a measured autonomous host frame without changing the demo sequence.</summary>
 internal static class AutonomousPerformanceStateFixture

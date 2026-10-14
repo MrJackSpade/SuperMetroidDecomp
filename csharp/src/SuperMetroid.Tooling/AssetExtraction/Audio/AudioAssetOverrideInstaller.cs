@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Installation;
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// Seeds the persistent editable-audio directory from a validated stock installation.

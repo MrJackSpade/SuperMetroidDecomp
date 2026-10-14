@@ -7,6 +7,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Hibashi;
 using SuperMetroid.Verification.Harness;
 
@@ -200,7 +202,7 @@ internal static class HibashiDefinitionsVerification
     internal static int HibashiInstructionMechanicsCommand()
     {
         Suite(nameof(VerifyHibashiDefinitions), () => VerifyHibashiDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
 }

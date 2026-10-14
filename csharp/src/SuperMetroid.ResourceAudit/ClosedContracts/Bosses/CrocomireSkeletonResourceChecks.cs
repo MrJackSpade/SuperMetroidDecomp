@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 

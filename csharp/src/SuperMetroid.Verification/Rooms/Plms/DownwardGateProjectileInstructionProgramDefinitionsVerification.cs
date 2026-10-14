@@ -10,6 +10,9 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +22,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
     /// <summary>Loads the retail cartridge for the gate projectile mechanics comparison.</summary>
     internal static void VerifyDownwardGateProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyDownwardGateProjectileInstructionProgramDefinitions), () => VerifyDownwardGateProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Checks native words, guarded four-stage motion, executed sprite operands, shared deletion, and allocation-free reads.</summary>
     internal static void VerifyDownwardGateProjectileInstructionProgramDefinitions(

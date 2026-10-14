@@ -15,7 +15,7 @@ internal static class BotwoonPositionHistoryVerification
     /// <remarks>#1269: <c>Initialise_Enemies</c> zeroes $7E:9000-$93FF; seeding body history with head position moved initial segments. Native $0400 ignores Samus collision, unlike $8000.</remarks>
     internal static void VerifyBotwoonPositionHistory()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

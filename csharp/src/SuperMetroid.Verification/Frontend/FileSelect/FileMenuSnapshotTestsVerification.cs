@@ -19,7 +19,7 @@ internal static class FileMenuSnapshotTestsVerification
     /// <summary>Compares live rendering and snapshots across copy, clear, controller, special-setting, and fade phases.</summary>
     internal static void VerifyFileMenuRenderSnapshots()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
         int comparisons = 0;

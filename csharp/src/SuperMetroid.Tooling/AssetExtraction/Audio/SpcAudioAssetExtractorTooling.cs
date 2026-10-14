@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Audio;
-using SuperMetroid.AssetExtraction.Audio;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>Development-tool members of <see cref="SpcAudioAssetExtractor"/>; never linked by player hosts.</summary>
 internal static class SpcAudioAssetExtractorTooling

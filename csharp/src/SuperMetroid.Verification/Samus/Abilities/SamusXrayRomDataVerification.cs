@@ -45,7 +45,7 @@ internal static class SamusXrayRomDataVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         TouchRange(bus, SamusXrayRomData.Palette.VisorWords,
             SamusXrayRomData.Palette.FullCycleEndWordOffset,
             "X-ray visor palette words");

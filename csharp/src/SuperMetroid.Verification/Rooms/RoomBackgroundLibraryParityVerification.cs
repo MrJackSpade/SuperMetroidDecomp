@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundProgramsVerification;
@@ -8,6 +7,8 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 
@@ -34,7 +35,7 @@ internal static class RoomBackgroundLibraryParityVerification
     internal static void VerifyLibraryBackgroundInstalledParity(
         string sourceRom, GameInstallation installed)
     {
-        SuperMetroidAddressSpace inventoryBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        SuperMetroidAddressSpace inventoryBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         Suite(nameof(VerifyCompiledLibraryBackgroundPrograms), () => VerifyCompiledLibraryBackgroundPrograms(inventoryBus));
         IReadOnlyList<LibraryBackgroundSource> sources =
             LibraryBackgroundSourceInventory.Scan(inventoryBus);
@@ -53,13 +54,13 @@ internal static class RoomBackgroundLibraryParityVerification
             foreach (ushort door in list.Where(source => source.DoorPointer.HasValue)
                 .Select(source => (source.DoorPointer ?? throw new InvalidOperationException("Verification requires source.DoorPointer."))).Append((ushort)0).Distinct())
             {
-                SuperMetroidAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+                SuperMetroidAddressSpace nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
                 var nativeVram = new SnesVram();
                 LibraryBackgroundExecutionResult native =
                     LibraryBackgroundProgramImporter.ExecuteReference(
                         nativeBus, nativeVram, program.Pointer, door);
 
-                SuperMetroidAddressSpace selectedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+                SuperMetroidAddressSpace selectedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
                 var guarded = NewLibraryBackgroundVisualReadGuard(selectedBus, sources);
                 var selectedVram = new SnesVram();
                 LibraryBackgroundExecutionResult selected = LibraryBackgroundLoader.Execute(guarded, selectedVram, program.Pointer, door, new LibraryBackgroundArtwork { TilemapArt = backgrounds, SkyArt = skies, HudArt = hud, CharacterArt = characters });

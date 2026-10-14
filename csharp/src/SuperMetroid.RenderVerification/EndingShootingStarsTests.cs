@@ -1,13 +1,15 @@
 using SuperMetroid.Core;
 using System.Reflection;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Cartridge;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.Diagnostics;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Checks post-credits shooting-star motion, OAM, phase masks, and CPU/GPU rendering.</summary>
 internal static class EndingShootingStarsTests

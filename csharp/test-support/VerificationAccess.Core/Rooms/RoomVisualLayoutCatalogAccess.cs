@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Verification access to <see cref="RoomVisualLayoutCatalog"/> members production does not use.</summary>
 internal static class RoomVisualLayoutCatalogAccess

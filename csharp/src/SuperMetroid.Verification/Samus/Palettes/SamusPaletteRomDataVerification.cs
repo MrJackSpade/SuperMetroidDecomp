@@ -43,7 +43,7 @@ internal static class SamusPaletteRomDataVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         TouchRange(bus, SamusPaletteRomData.Common.NormalSuitPointers,
             3 * sizeof(ushort), "normal suit palette pointers");
         TouchRange(bus, SamusPaletteRomData.HurtFlash.Colors,

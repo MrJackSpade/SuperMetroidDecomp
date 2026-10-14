@@ -1,3 +1,5 @@
+namespace SuperMetroid.IntegrationVerification;
+
 /// <summary>Cartridge identities used by the bounded #391 diagnostic.</summary>
 internal static class MaridiaPipeFixtureDefinitions
 {

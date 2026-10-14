@@ -9,6 +9,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

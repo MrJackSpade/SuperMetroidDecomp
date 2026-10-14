@@ -1,10 +1,10 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
-using SuperMetroid.Core.Spatial;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
 
 /// <summary>Checks the D3D11 display scaler, GPU timing boundaries, and compute reuse after display.</summary>
 internal static class DisplayPassTests

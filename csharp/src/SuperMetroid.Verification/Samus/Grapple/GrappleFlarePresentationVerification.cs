@@ -15,6 +15,8 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 /// <summary>Checks Grapple flare timing, OAM, editable offsets, and restored actor binding against native presentation.</summary>
@@ -134,7 +136,7 @@ internal static class GrappleFlarePresentationVerification
         static SamusState Clone(SamusState source)
         {
             using var stream = new MemoryStream(SerializeGraph(source));
-            return SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SamusState>(stream);
+            return SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SamusState>(stream);
         }
     }
 
@@ -176,7 +178,7 @@ internal static class GrappleFlarePresentationVerification
         });
         AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real Grapple actor consumes current composition override");
         using var stream = new MemoryStream(SerializeGraph(game));
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
         var restoredRuntime = restored.GameplayRuntime;
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;

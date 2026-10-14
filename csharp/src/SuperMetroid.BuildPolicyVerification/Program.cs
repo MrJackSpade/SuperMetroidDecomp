@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using SuperMetroid.TestSupport.WindowsConsole;
 
 namespace SuperMetroid.BuildPolicyVerification;
 

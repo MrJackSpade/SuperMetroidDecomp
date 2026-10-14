@@ -8,6 +8,8 @@ using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +21,7 @@ internal static class EndingRewardGestureVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon graphics and upload tables")]
     internal static void VerifyEndingRewardGesture()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         Suite(nameof(VerifyEndingRewardActorDefinitions), () => VerifyEndingRewardActorDefinitions(bus));
         Suite(nameof(VerifyEndingPostShot), () => VerifyEndingPostShot(bus));
         Suite(nameof(VerifyEndingLogo), () => VerifyEndingLogo(bus));

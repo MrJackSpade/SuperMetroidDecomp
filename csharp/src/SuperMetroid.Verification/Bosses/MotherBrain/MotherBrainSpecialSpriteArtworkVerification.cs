@@ -11,6 +11,8 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 
@@ -57,7 +59,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         MotherBrainSpecialSpriteArtworkCatalog installed =
             stock.MotherBrainSpecialSprites ?? throw new InvalidDataException(
                 "Extracted Mother Brain special sprite PNGs were not bound.");
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
                  MotherBrainSpecialSpriteArtworkDefinitions.All)
         {
@@ -67,9 +69,9 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 $"installed {sheet.FileName} preserves native characters");
             SnesVram installedVram = TransferMotherBrainSpecialPages(stock,
                 NewMotherBrainSpecialArtworkReadGuard(
-                    SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), sheet), sheet);
+                    SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), sheet), sheet);
             SnesVram cartridgeVram = ReferenceMotherBrainSpecialPages(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), sheet);
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), sheet);
             for (int page = 0; page < sheet.PageCount; page++)
             {
                 int sourceOffset = page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount;
@@ -100,7 +102,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
             SnesVram editedVram = TransferMotherBrainSpecialPages(edited,
                 NewMotherBrainSpecialArtworkReadGuard(
-                    SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), sheet), sheet);
+                    SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), sheet), sheet);
             int firstDestination = sheet.FirstDestinationWord * 2;
             AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
                 editedVram.ReadByte(firstDestination),
@@ -169,7 +171,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         var vram = new SnesVram();
         enemies.BindFixtureBus(NewMotherBrainLegTransferReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
         enemies.Presentation._vram = vram;
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
 
@@ -229,7 +231,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var enemies = new RoomEnemySystem
         {
             TileArtwork = stock,

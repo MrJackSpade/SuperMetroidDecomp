@@ -20,6 +20,9 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -33,7 +36,7 @@ internal static class SpacetimeBeamVerification
     /// </summary>
     internal static void VerifySpacetimeBeam()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         VerifySpacetimeCopySourceAgainstRetailRom(bus);
         AssertThrows<InvalidOperationException>(() => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(0x009130),
@@ -240,7 +243,7 @@ internal static class SpacetimeBeamVerification
 
         SuperMetroidGame CreateGame(bool skipOpening)
         {
-            var restartBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            var restartBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
             var restartSaves = new SuperMetroidSaveRam(restartBus, RetailPresentationFixture());
             restartSaves.SaveSlot(0, CreateResetSnapshot());
@@ -317,7 +320,7 @@ internal static class SpacetimeBeamVerification
     [CpuBusBoundary("exact bus test: the SpaceTime palette pointer $90:19FF reads live enemy-projectile WRAM at $7E:19FF")]
     private static void VerifySpacetimeBeamGraphics()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var gameplayBus = NewSpacetimeMutableOnlyBus(bus);
         var artwork = InstalledFixtures.Projectiles.BeamTiles;
         byte[] nativeTiles = ReadRetailSpacetimeGraphicsOracle(bus);

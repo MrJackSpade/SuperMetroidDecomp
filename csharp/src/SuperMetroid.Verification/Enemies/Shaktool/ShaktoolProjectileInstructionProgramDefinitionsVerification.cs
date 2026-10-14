@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Harness;
 
@@ -13,7 +14,7 @@ internal static class ShaktoolProjectileInstructionProgramDefinitionsVerificatio
     /// <summary>Loads the retail cartridge for the focused Shaktool attack-circle program comparison.</summary>
     internal static void VerifyShaktoolProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyShaktoolProjectileInstructionProgramDefinitions), () => VerifyShaktoolProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Checks every compiled mechanics word against its exact native bank-$86 address.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool projectile instruction program definitions")]

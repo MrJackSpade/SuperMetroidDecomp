@@ -9,6 +9,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 

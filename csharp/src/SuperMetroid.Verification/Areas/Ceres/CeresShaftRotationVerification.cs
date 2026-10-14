@@ -12,7 +12,7 @@ internal static class CeresShaftRotationVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres shaft compiled rotation")]
     internal static void VerifyCeresShaftCompiledRotation()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // Numeric coefficients/phases were proven by the #1165 research; this check covers
         // actual per-frame publication only.
         var state = new CeresElevatorShaftRoomMainState();

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>
 /// Resolves a bank-local pointer read from cartridge data against the bank of a cataloged

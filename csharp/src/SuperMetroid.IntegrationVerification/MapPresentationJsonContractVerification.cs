@@ -1,9 +1,10 @@
 using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
+namespace SuperMetroid.IntegrationVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
 /// Exercises the source-inventoried map/menu/title file boundary using an already

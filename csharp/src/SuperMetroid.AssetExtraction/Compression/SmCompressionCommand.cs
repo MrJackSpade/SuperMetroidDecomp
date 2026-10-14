@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>
 /// Three-bit command field from the native Super Metroid compressed-stream format, normalized

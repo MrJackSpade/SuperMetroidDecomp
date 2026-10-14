@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>One retail door and the destination room its transition reaches (#633).</summary>
 internal readonly record struct RetailDoorCase
 {

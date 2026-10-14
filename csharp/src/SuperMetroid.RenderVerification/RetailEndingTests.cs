@@ -3,6 +3,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Checks D3D11 rendering of the retail ending across the three completion-time rewards.</summary>
 internal static class RetailEndingTests

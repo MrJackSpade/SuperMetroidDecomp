@@ -14,6 +14,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 
@@ -32,7 +33,7 @@ internal static class FileSelectRoomMapVerification
         Suite(nameof(VerifyFileSelectMapIcons), () => VerifyFileSelectMapIcons());
         Suite(nameof(VerifyFileSelectMapAnimations), () => VerifyFileSelectMapAnimations());
         Suite(nameof(VerifyMapCancelPresentation), () => VerifyMapCancelPresentation());
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int areaIndex = 0; areaIndex < FileSelectMapRomData.AreaCount; areaIndex++)
         foreach (bool downloaded in new[] { false, true })
         {
@@ -100,7 +101,7 @@ internal static class FileSelectRoomMapVerification
     /// <summary>Checks the retained room frame and native center-window exposure during cancellation back to the area map.</summary>
     internal static void VerifyMapCancelPresentation()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
         snapshot.MapStationBytes[4] = 1;
@@ -171,7 +172,7 @@ internal static class FileSelectRoomMapVerification
         MapPaletteCycle.Write(paletteJson, new() { Version = 1, Frames = paletteFrames });
         paletteJson.Position = 0;
         animations.BindPalette(MapPaletteCycle.Load(paletteJson));
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(retail);
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
@@ -227,7 +228,7 @@ internal static class FileSelectRoomMapVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyFileSelectMapIcons()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var system = new Bank80SystemState();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
@@ -301,15 +302,15 @@ internal static class FileSelectRoomMapVerification
     /// <summary>Drives a saved slot through frontend map confirmation or the Ceres direct-load path.</summary>
     private static void VerifySavedGameMapFrontend(ushort savedArea)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99,
             LoadingGameState = savedArea == 6 ? SaveLoadingGameStates.CeresElevatorArrival : SaveLoadingGameStates.MainGame };
         snapshot.UsedSaveStationBytes[savedArea * 2] = 1;
         if (savedArea < 6)
         {
-            var station = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
-            var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
+            var station = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
+            var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
             var cell = room.MapPosition + new Offset16<MapTiles>(checked((short)(SnesLittleEndian.HighByte(station.SamusPosition.X))), checked((short)((SnesLittleEndian.HighByte(station.SamusPosition.Y)) + 1)));
             snapshot.ExploredMapBytes[savedArea * 256 + AreaMapLayout.GetBitByteIndex(cell)] |= AreaMapLayout.GetBitMask(cell.X);
         }
@@ -366,7 +367,7 @@ internal static class FileSelectRoomMapVerification
         Until(() => frame.Phase == "Room", 80);
         frame = game.Step(0x1000);
         Until(() => game.RuntimeForVerification is not null, 100);
-        AssertEqual(SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, AreaId.Maridia, 0).RoomPointer,
+        AssertEqual(SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, AreaId.Maridia, 0).RoomPointer,
             game.GameplayRuntimeForVerification.Room.LoadedRoom.Pointer, "second map confirmation loads selected SRAM station");
         void Until(Func<bool> predicate, int limit)
         {
@@ -382,7 +383,7 @@ internal static class FileSelectRoomMapVerification
     /// <summary>Checks area and room confirmation edges, cancel precedence, and the animated return boundary.</summary>
     private static void VerifyFileSelectMapNavigation()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ushort confirm in new ushort[] { 0x1000, 0x0080 })
         {
             var navigation = new FileSelectMapNavigation(bus, 4, confirm);
@@ -433,7 +434,7 @@ internal static class FileSelectRoomMapVerification
     /// <summary>Checks native map centering, eight-frame arrow pulses, input precedence, and scroll limits.</summary>
     private static void VerifyFileSelectMapScroll()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AreaMapCartridgeData map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria);
         var system = new Bank80SystemState();
         system.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
@@ -477,7 +478,7 @@ internal static class FileSelectRoomMapVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyFileSelectStationMarker()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var positions = RequiredJson.Deserialize<MapSaveMarkerDocument>(
             SuperMetroid.AssetExtraction.Frontend.Map.MapSaveMarkerExtractor.Extract(bus), options);

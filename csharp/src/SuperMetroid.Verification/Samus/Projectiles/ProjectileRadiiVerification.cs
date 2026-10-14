@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -178,7 +179,7 @@ internal static class ProjectileRadiiVerification
     [VerificationCommand("--projectile-radius-instruction-fixtures")]
     internal static int ProjectileRadiusInstructionFixturesCommand()
     {
-        var projectileFixtureRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var projectileFixtureRom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyProjectileRadii), () => VerifyProjectileRadii(projectileFixtureRom));
         Suite(nameof(VerifyProjectileInstructions), () => VerifyProjectileInstructions(projectileFixtureRom));

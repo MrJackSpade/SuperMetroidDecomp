@@ -1,3 +1,5 @@
+namespace SuperMetroid.DebugRunner.Tools;
+
 /// <summary>
 /// Developer tools that export cartridge source evidence and generate checked-in definition
 /// catalogs. They run from the repository root against the repository ROM; their outputs go to

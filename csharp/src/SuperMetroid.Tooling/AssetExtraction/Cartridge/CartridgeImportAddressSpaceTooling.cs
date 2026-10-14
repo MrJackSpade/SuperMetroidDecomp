@@ -1,6 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Cartridge;
-
-namespace SuperMetroid.AssetExtraction;
+﻿namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>Development-tool members of <see cref="CartridgeImportAddressSpace"/>; never linked by player hosts.</summary>
 internal static class CartridgeImportAddressSpaceTooling

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Result of the non-GUI cartridge audio diagnostic.</summary>
 public readonly record struct CartridgeAudioSmokeTestResult(

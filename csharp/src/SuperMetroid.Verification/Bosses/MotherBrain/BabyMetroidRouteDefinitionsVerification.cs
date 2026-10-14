@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks Baby Metroid's compiled route records against pinned native words and pointer bounds.</summary>
@@ -13,7 +14,7 @@ internal static class BabyMetroidRouteDefinitionsVerification
     /// </summary>
     internal static void VerifyBabyMetroidRouteDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0; index < BabyMetroidRouteDefinitions.RecordCount; index++)
         {
             ushort pointer = unchecked((ushort)(

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Verification.Assets;
 

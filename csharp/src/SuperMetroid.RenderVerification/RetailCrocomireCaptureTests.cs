@@ -4,6 +4,10 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Poses;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Checks GPU capture through Crocomire's ordinary fight and full death sequence.</summary>
 internal static class RetailCrocomireCaptureTests
@@ -11,7 +15,7 @@ internal static class RetailCrocomireCaptureTests
     /// <summary>Compares rendered frames across native death phases and checks when melting HDMA becomes active.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();

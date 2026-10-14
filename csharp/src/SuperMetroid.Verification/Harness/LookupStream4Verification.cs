@@ -3,7 +3,6 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeExplosionDefinitionsVerification;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -68,6 +67,9 @@ using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>

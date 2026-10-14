@@ -18,7 +18,7 @@ internal static class MamaTurtleShellContourVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mama Turtle shell contour definitions")]
     internal static void VerifyMamaTurtleShellContourDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0; index < MamaTurtleShellContourDefinitions.EntryCount; index++)
         {
             int address = MamaTurtleShellContourDefinitions.SourceAddress + index * 2;

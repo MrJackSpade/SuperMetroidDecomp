@@ -14,6 +14,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Verification.Assets;
 

@@ -9,6 +9,9 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +21,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
     /// <summary>Loads the retail source for the Phantoon flame instruction check.</summary>
     internal static void VerifyPhantoonProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyPhantoonProjectileInstructionProgramDefinitions), () => VerifyPhantoonProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Executes starting, falling, impact, orbit, and shot flames through loops and deletion with compiled reads forbidden.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon projectile instruction program definitions")]

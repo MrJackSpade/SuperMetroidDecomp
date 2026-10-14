@@ -1,3 +1,5 @@
+namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+
 /// <summary>
 /// One test's uniquely named scratch directory inside ignored <c>csharp/test-temp/scratch</c>, deleted when disposed.
 /// Tests own their scratch: they create it with <c>using</c>, so it is removed whether the test passes or

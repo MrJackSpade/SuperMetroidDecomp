@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Retail room and actor positions that trigger and complete Crocomire's death sequence.</summary>
 internal static class CrocomireCaptureFixture
 {

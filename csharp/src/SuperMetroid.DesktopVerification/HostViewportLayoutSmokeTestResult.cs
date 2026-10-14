@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Result of changing status text above a fixed gameplay viewport.</summary>
 public readonly record struct HostViewportLayoutSmokeTestResult(

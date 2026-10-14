@@ -1,5 +1,4 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
@@ -54,6 +53,10 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -3289,7 +3292,7 @@ internal static class LookupStream3Verification
         try
         {
             string source = Path.GetFullPath("Super Metroid.smc");
-            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
+            var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.FirstNarrationTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
@@ -3426,7 +3429,7 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the opening font")]
     internal static void VerifyStream3IntroFont()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
             IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         var stock = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
@@ -3477,7 +3480,7 @@ internal static class LookupStream3Verification
         try
         {
             string source = Path.GetFullPath("Super Metroid.smc");
-            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
+            var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.BackgroundPageTilemaps, maximumOutputBytes: 8192);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
@@ -3526,7 +3529,7 @@ internal static class LookupStream3Verification
     /// <summary>Checks all 27 Work Robot frame identities and their native spritemap ordering.</summary>
     internal static void VerifyStream3WorkRobotRegistry()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         EnemySpritemapDefinition[] frames = WorkRobotVisualDefinitions.Frames().ToArray();
         AssertEqual(27, frames.Length, "all Work Robot registration identities");
         string identities = string.Concat(frames.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.Name}\n"));
@@ -3555,7 +3558,7 @@ internal static class LookupStream3Verification
     /// <summary>Checks all 15 Shaktool frame identities and their native spritemap ordering.</summary>
     internal static void VerifyStream3ShaktoolRegistry()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         EnemySpritemapDefinition[] frames = ShaktoolVisualDefinitions.Frames().ToArray();
         AssertEqual(15, frames.Length, "all Shaktool registration identities");
         string identities = string.Concat(frames.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.Name}\n"));
@@ -3577,7 +3580,7 @@ internal static class LookupStream3Verification
     /// <summary>Checks both Nintendo logo fade entries and their native mechanics/color operand positions.</summary>
     internal static void VerifyStream3NintendoFadeEntries()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var entries = NintendoLogoFadePaletteFxProgramMechanicsDefinitionsTooling.All;
         AssertEqual(2, entries.Count, "both semantic Nintendo fade entries");
         foreach (var entry in new[]
@@ -3624,7 +3627,7 @@ internal static class LookupStream3Verification
         try
         {
             string source = Path.GetFullPath("Super Metroid.smc");
-            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
+            var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
             byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.SamusHeadTilemap, maximumOutputBytes: 2048);
             var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);

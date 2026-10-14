@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Diagnostics;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Runs the real title music path without opening an audio device or game window.</summary>
 public static class CartridgeAudioSmokeTest
@@ -13,7 +13,7 @@ public static class CartridgeAudioSmokeTest
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frames);
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var queue = new CartridgeAudioState();
         queue.QueueMusicDelayed8(MusicCommand.LoadData(0x03));
         queue.QueueMusicDelayed8(MusicCommand.SelectTrack(5));

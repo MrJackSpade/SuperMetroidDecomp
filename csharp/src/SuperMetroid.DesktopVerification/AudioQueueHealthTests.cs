@@ -1,6 +1,8 @@
 using SuperMetroid.Desktop;
 
-using static DesktopVerificationSupport;
+using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Checks real waveOut backpressure and occupancy counters around startup or reset.</summary>
 internal static class AudioQueueHealthTests

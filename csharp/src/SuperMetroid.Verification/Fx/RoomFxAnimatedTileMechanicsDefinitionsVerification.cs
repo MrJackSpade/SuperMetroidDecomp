@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Fx.LookupAnimatedArtworkSourcesVerification;
 using static SuperMetroid.Verification.Fx.LookupAnimatedFramesVerification;
 using static SuperMetroid.Verification.Fx.LookupAnimatedHeadersVerification;
@@ -9,6 +8,8 @@ using static SuperMetroid.Verification.Fx.LookupFxLegacySheetsVerification;
 using static SuperMetroid.Verification.Fx.LookupTreadmillArtworkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 
@@ -22,7 +23,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
     internal static void VerifyRoomFxAnimatedTileMechanicsDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Animation frame oracle revision");
         Suite(nameof(VerifySimpleAnimationObjectDomain), () => VerifySimpleAnimationObjectDomain());

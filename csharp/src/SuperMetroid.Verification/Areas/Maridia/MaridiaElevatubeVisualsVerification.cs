@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Areas.Maridia.LookupElevatubeStockVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubePlmVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -12,6 +11,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Maridia;
 using SuperMetroid.Verification.Harness;
 
@@ -21,7 +21,7 @@ internal static class MaridiaElevatubeVisualsVerification
     /// <summary>Confirms an art override reaches immediate and streamed tiles without changing collision, sound timing, or PLM deletion.</summary>
     internal static void VerifyMaridiaElevatubeVisuals()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevatube stock oracle revision");

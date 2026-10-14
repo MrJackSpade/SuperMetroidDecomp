@@ -1,4 +1,5 @@
-using SuperMetroid.Core.Assets;
+namespace SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>Cartridge values of <see cref="SmCompressionFormat"/> that only verification reads.</summary>
 internal static class SmCompressionFormatConstants

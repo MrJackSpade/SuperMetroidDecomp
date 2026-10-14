@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Areas.Ceres.CeresZebesActorMetadataVerifi
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 
@@ -16,7 +17,7 @@ internal static class CeresDestructionActorDefinitionsVerification
     /// <summary>Compares native metadata and list bytes, then runs scene actors with compiled reads blocked.</summary>
     internal static void VerifyCeresDestructionActorDefinitions()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
         Suite(nameof(VerifyCeresInitialActorMetadata), () => VerifyCeresInitialActorMetadata(retail));
 

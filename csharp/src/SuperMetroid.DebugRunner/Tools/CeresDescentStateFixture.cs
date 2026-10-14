@@ -1,6 +1,7 @@
-using SuperMetroid.Android;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Areas.Ceres;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.Diagnostics.Android;
 
 /// <summary>Creates a private, portable cinematic seed without changing any player's saves.</summary>
 internal static class CeresDescentStateFixture

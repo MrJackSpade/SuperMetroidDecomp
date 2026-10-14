@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
-using SuperMetroid.Game;
 using SuperMetroid.Rendering.Direct3D11;
 
-using static DesktopVerificationSupport;
+using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+namespace SuperMetroid.DesktopVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Checks GameForm shutdown ordering around the GPU render worker and canvas handle.</summary>
 internal static class FormCloseTests

@@ -6,6 +6,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Harness;
 
@@ -16,7 +18,7 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
     internal static void VerifyMochtroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     /// <summary>Compares mechanics words, runs both live animation loops with ROM reads forbidden, and checks allocation.</summary>

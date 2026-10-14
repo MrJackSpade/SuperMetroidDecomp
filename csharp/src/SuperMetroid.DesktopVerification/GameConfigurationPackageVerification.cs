@@ -1,6 +1,8 @@
 using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
+namespace SuperMetroid.DesktopVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Exercises the published host's real INI loader without opening a window or touching player data.</summary>
 internal static class GameConfigurationPackageVerification

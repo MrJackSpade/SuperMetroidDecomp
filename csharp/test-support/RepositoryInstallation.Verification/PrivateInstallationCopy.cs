@@ -1,5 +1,7 @@
 using SuperMetroid.AssetExtraction.Installation;
 
+namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+
 /// <summary>A disposable copy of an installation root in a test scratch directory.</summary>
 internal sealed class PrivateInstallationCopy : IDisposable
 {

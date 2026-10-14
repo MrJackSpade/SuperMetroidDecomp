@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Retail room identities and liquid-surface data used by frame publication checks.</summary>
 internal static class RoomPublicationFixtureDefinitions
 {

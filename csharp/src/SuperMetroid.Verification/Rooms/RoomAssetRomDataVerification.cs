@@ -8,6 +8,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 
@@ -40,7 +43,7 @@ internal static class RoomAssetRomDataVerification
             return;
         }
 
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
 
         ushort[] roomPointers = File.ReadLines(symbolPath)
             .Select(TryParseRoomHeaderPointer)
@@ -53,7 +56,7 @@ internal static class RoomAssetRomDataVerification
         {
             foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
             {
-                graphicsSets.Add(SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State.GraphicsSet);
+                graphicsSets.Add(SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State.GraphicsSet);
             }
         }
 
@@ -118,7 +121,7 @@ internal static class RoomAssetRomDataVerification
         var guardedBus = NewTilesetDefinitionReadGuard(bus);
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
-            CartridgeRoomHeader header = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
+            CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, header, characters, palettes, metatiles, layouts);
             CartridgeRoomAssets guarded = LoadFixtureRoomAssets(guardedBus, header, characters, palettes, metatiles, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
@@ -156,7 +159,7 @@ internal static class RoomAssetRomDataVerification
             return;
         }
 
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         IReadOnlyDictionary<string, byte[]> files = RoomCharacterAtlasExtractor.Extract(bus);
         var sources = new Dictionary<string, int>
         {
@@ -193,7 +196,7 @@ internal static class RoomAssetRomDataVerification
         var catalog = new RoomCharacterAtlasCatalog((compiledCre ?? throw new InvalidOperationException("Verification requires compiledCre.")), compiledBySource);
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
-            CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
+            CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, room);
             int areaSource = native.Tileset.CharacterAddress;
             var guardedBus = NewRoomCharacterReadGuard(bus, areaSource);
@@ -212,7 +215,7 @@ internal static class RoomAssetRomDataVerification
                 $"room $8F:{roomPointer:X4} retains exact compiled-art VRAM/CGRAM output");
         }
 
-        CartridgeRoomHeader landing = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
+        CartridgeRoomHeader landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
         int landingSource = RoomTilesetDefinitions.Get(landing.State.GraphicsSet).CharacterAddress;
         byte[] landingNative = RomDataReader.Decompress(bus, landingSource);
         int landingTiles = landingNative.Length / RoomCharacterAtlasFormat.BytesPerTile;

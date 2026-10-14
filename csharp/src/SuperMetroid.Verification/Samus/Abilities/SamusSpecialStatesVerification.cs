@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 
@@ -26,7 +27,7 @@ internal static class SamusSpecialStatesVerification
 [CpuBusBoundary("exact bus test: retail ROM oracle for the Crystal Flash fixed-color row")]
 static int ReadRetailCrystalFlashStockFadeSteps()
 {
-    var nativeColors = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+    var nativeColors = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
     return Enumerable.Range(0, 3).Max(component =>
         nativeColors.ReadCartridgeByte(0x888d85 + 3 * 3 + component));

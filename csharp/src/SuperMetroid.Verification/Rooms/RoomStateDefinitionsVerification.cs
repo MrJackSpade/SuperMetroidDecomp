@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.LookupRoomStateSettingsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 
@@ -12,7 +12,7 @@ internal static class RoomStateDefinitionsVerification
     /// <summary>Checks all 323 room-state identities and fifteen settings fields, then confirms Ceres loads the compiled selection without a cartridge reader.</summary>
     internal static void VerifyCompiledRoomStateDefinitions()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Room-state oracle revision");
@@ -20,7 +20,7 @@ internal static class RoomStateDefinitionsVerification
 
         ushort ceresPointer = LoadStationDefinitions.Get(
             SuperMetroid.Core.Rooms.AreaId.Ceres, 0).RoomPointer;
-        ushort ceresStatePointer = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, ceresPointer).State.Pointer;
+        ushort ceresStatePointer = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, ceresPointer).State.Pointer;
         CartridgeRoomHeader compiledRoom = CartridgeRoomHeader.LoadUsingCompiledSelection(ceresPointer);
         AssertEqual(RoomStateDefinitions.Get(ceresStatePointer), compiledRoom.State,
             "production Ceres header construction uses its compiled room-state settings without a cartridge capability");

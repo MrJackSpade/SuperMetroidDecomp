@@ -10,6 +10,9 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.SporeSpawn;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +22,7 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitionsVerificat
     /// <summary>Loads the pinned cartridge and runs the Spore Spawn projectile comparison.</summary>
     internal static void VerifySporeSpawnProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifySporeSpawnProjectileInstructionProgramDefinitions), () => VerifySporeSpawnProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Checks live spawn, release, loop, shot/drop, and selector paths with compiled ROM bytes guarded.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn projectile instruction program definitions")]

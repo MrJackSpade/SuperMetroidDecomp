@@ -1,3 +1,5 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
+
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Gives verifier suites the repository's pinned retail cartridge input.</summary>
@@ -11,5 +13,5 @@ internal static class RepositoryInputsVerification
 
     /// <summary>A fresh retail address space over <see cref="RepositoryRomPath"/>, owned by one suite.</summary>
     internal static SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace LoadRepositoryRom() =>
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath);
 }

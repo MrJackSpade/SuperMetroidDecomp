@@ -1,7 +1,7 @@
 {
   "cells": [
     {
-      "owner": "SuperMetroid.AssetExtraction.EndingCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.EndingCartridgeTables",
       "name": "LogoPaletteBank",
       "region": "Cartridge",
       "address": "$8C:8000",
@@ -9,11 +9,11 @@
       "encoding": "BGR555 palette rows (u16 little-endian)",
       "aliasOf": null,
       "consumers": [
-        "csharp/src/SuperMetroid.AssetExtraction/EndingPaletteArtworkFiles.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/EndingPaletteArtworkFiles.cs"
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.EnemyCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.EnemyCartridgeTables",
       "name": "ProjectileInstructionBank",
       "region": "Cartridge",
       "address": "$86:8000",
@@ -21,11 +21,11 @@
       "encoding": "enemy-projectile instruction lists (u16 bank-local operands)",
       "aliasOf": null,
       "consumers": [
-        "csharp/src/SuperMetroid.AssetExtraction/EnemyProjectileSpritemapFiles.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyProjectileSpritemapFiles.cs"
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.EnemyCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.EnemyCartridgeTables",
       "name": "RidleyBank",
       "region": "Cartridge",
       "address": "$A6:8000",
@@ -33,11 +33,11 @@
       "encoding": "Ridley BGR555 color rows (u16 little-endian)",
       "aliasOf": null,
       "consumers": [
-        "csharp/src/SuperMetroid.AssetExtraction/NorfairRidleyColorExtractor.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/Ridley/NorfairRidleyColorExtractor.cs"
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.PauseMenuCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.PauseMenuCartridgeTables",
       "name": "MenuBank",
       "region": "Cartridge",
       "address": "$82:8000",
@@ -45,12 +45,12 @@
       "encoding": "pause tilemap words (u16 bank-local pointers)",
       "aliasOf": null,
       "consumers": [
-        "csharp/src/SuperMetroid.AssetExtraction/PauseEquipmentLabelExtractor.cs",
-        "csharp/src/SuperMetroid.AssetExtraction/PauseReserveUiExtractor.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Pause/PauseEquipmentLabelExtractor.cs",
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Pause/PauseReserveUiExtractor.cs"
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.RoomPlmCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.RoomPlmCartridgeTables",
       "name": "ItemGraphicsBank",
       "region": "Cartridge",
       "address": "$89:8000",
@@ -58,11 +58,11 @@
       "encoding": "item PLM 4-bpp tiles (u8[])",
       "aliasOf": null,
       "consumers": [
-        "csharp/src/SuperMetroid.AssetExtraction/RoomPlmDynamicCollectibleArtFiles.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomPlmDynamicCollectibleArtFiles.cs"
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.RoomPlmCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.RoomPlmCartridgeTables",
       "name": "PlmBank",
       "region": "Cartridge",
       "address": "$84:8000",
@@ -70,17 +70,17 @@
       "encoding": "PLM headers, instruction lists and draw lists (u16 bank-local pointers)",
       "aliasOf": null,
       "consumers": [
-        "csharp/src/SuperMetroid.AssetExtraction/RoomPlmCollectibleVisualFiles.cs",
-        "csharp/src/SuperMetroid.AssetExtraction/RoomPlmDoorVisualFileCodec.cs",
-        "csharp/src/SuperMetroid.AssetExtraction/RoomPlmDownwardGateVisualFiles.cs",
-        "csharp/src/SuperMetroid.AssetExtraction/RoomPlmElevatorPlatformVisualFiles.cs",
-        "csharp/src/SuperMetroid.AssetExtraction/RoomPlmGrappleBlockVisualFiles.cs",
-        "csharp/src/SuperMetroid.AssetExtraction/RoomPlmShotBlockVisualFiles.cs",
-        "csharp/src/SuperMetroid.AssetExtraction/RoomPlmStationVisualFiles.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomPlmCollectibleVisualFiles.cs",
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomPlmDoorVisualFileCodec.cs",
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomPlmDownwardGateVisualFiles.cs",
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomPlmElevatorPlatformVisualFiles.cs",
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomPlmGrappleBlockVisualFiles.cs",
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomPlmShotBlockVisualFiles.cs",
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomPlmStationVisualFiles.cs"
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.SamusCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.SamusCartridgeTables",
       "name": "AnimationBank",
       "region": "Cartridge",
       "address": "$92:8000",
@@ -88,11 +88,11 @@
       "encoding": "body DMA definitions (7-byte records) and spritemaps (u16 count + 5-byte parts)",
       "aliasOf": null,
       "consumers": [
-        "csharp/src/SuperMetroid.AssetExtraction/SamusBodyArtworkFiles.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyArtworkFiles.cs"
       ]
     },
     {
-      "owner": "SuperMetroid.AssetExtraction.SamusCartridgeTables",
+      "owner": "SuperMetroid.AssetExtraction.CartridgeTables.SamusCartridgeTables",
       "name": "ProjectileBank",
       "region": "Cartridge",
       "address": "$93:8000",
@@ -100,7 +100,7 @@
       "encoding": "projectile spritemaps (u16 count + 5-byte parts)",
       "aliasOf": null,
       "consumers": [
-        "csharp/src/SuperMetroid.AssetExtraction/ProjectileSpriteExtractor.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/ProjectileSpriteExtractor.cs"
       ]
     },
     {
@@ -126,7 +126,7 @@
       "aliasOf": null,
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainPaletteMemoryDefinitions.cs",
-        "csharp/src/SuperMetroid.Verification/MotherBrainPaletteSpillAccess.cs"
+        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainPaletteSpillAccess.cs"
       ]
     },
     {
@@ -381,7 +381,7 @@
       "aliasOf": null,
       "consumers": [
         "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileInheritanceMemory.cs",
-        "csharp/src/SuperMetroid.Verification/ProjectileInheritanceRecordsAccess.cs",
+        "csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileInheritanceRecordsAccess.cs",
         "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/ProjectileInheritanceInspection.cs"
       ]
     },
@@ -443,7 +443,7 @@
       "aliasOf": null,
       "consumers": [
         "csharp/src/SuperMetroid.Core/Saves/SaveMirrorMemory.cs",
-        "csharp/src/SuperMetroid.Verification/CpuBusBoundaryVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs"
       ]
     },
     {
@@ -456,7 +456,7 @@
       "aliasOf": null,
       "consumers": [
         "csharp/src/SuperMetroid.Core/Saves/SaveMirrorMemory.cs",
-        "csharp/src/SuperMetroid.Verification/CpuBusBoundaryVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs"
       ]
     },
     {

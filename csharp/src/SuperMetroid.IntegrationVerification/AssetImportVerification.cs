@@ -4,6 +4,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
+namespace SuperMetroid.IntegrationVerification;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Checks cartridge import validation, extracted-content reuse and repair, and ROM-free Android startup.</summary>
 internal static class AssetImportVerification
@@ -65,7 +68,7 @@ try
             romFreeMemory.WorkRam.Length == SuperMetroidAddressSpace.WorkRamByteCount &&
             romFreeMemory.SaveRam.Length == SuperMetroidAddressSpace.SaveRamByteCount,
             "installed runtime starts with mutable memory but no cartridge allocation");
-        using (var romFreeSession = new SuperMetroid.Android.AndroidSessionData(root))
+        using (var romFreeSession = new SuperMetroid.Diagnostics.Android.AndroidSessionData(root))
         {
             Check(!MetadataShape.DeclaresProperty(romFreeSession.Bus.GetType(), "Rom"),
                 "installed Android host boots from extracted assets with no ROM copy");
@@ -171,7 +174,7 @@ try
     Check(GameAssetInstaller.EnsureInstalled(root) is not null && File.Exists(installed.RomPath),
         "startup recovers interruption between directory publication steps");
 
-    using (var session = new SuperMetroid.Android.AndroidSessionData(root))
+    using (var session = new SuperMetroid.Diagnostics.Android.AndroidSessionData(root))
     {
         for (int frame = 0; frame < 90; frame++)
             session.Game.StepCaptured(0, frame + 1, session.Generation);

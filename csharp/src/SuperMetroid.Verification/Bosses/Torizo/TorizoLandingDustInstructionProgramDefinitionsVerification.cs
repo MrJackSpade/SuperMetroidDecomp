@@ -9,6 +9,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +21,7 @@ internal static class TorizoLandingDustInstructionProgramDefinitionsVerification
     /// <summary>Loads the pinned cartridge and runs the landing-dust program comparison.</summary>
     internal static void VerifyTorizoLandingDustInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoLandingDustInstructionProgramDefinitions), () => VerifyTorizoLandingDustInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Checks foot spawns, four rising poses, deletion, visual selectors, and guarded mechanics reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo landing dust instruction program definitions")]

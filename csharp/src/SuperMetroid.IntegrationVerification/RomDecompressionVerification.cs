@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
+namespace SuperMetroid.IntegrationVerification;
+using SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>Checks typed cartridge reads and compressed-stream framing across a LoROM bank edge.</summary>
 internal static class RomDecompressionVerification

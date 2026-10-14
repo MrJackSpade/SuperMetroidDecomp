@@ -1,5 +1,4 @@
 using System.Reflection;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -7,6 +6,8 @@ using static SuperMetroid.Verification.Bosses.Torizo.TorizoLandingLifetimeVerifi
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 
@@ -72,9 +73,9 @@ internal static class TorizoPaletteShakeVerification
         AssertEqual((ushort)0x7bde, cgram.Colors[145], "First denominator-12 step toward native normal color 56BA");
         // Save mid-fade: target and numerator must survive, not restart from white.
         using var saved = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, state);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(saved, state);
         saved.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<TorizoEnemyState>(saved);
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<TorizoEnemyState>(saved);
         var restoredColors = new SnesCgram();
         for (int i = 0; i < 256; i++) restoredColors.SetColor(i, cgram.Colors[i]);
         for (int call = 2; call < 14; call++)

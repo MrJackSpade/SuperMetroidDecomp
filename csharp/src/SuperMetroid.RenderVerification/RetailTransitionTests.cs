@@ -6,6 +6,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Frontend.GameOver;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
 
 /// <summary>Checks D3D11 rendering across Ceres destruction, Zebes transition, and game-over menu outcomes.</summary>
 internal static class RetailTransitionTests
@@ -13,7 +15,7 @@ internal static class RetailTransitionTests
     /// <summary>Compares live and retained cinematic packets across Mode 1 and Mode 7, then checks Yes and No game-over paths.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var destruction = RenderRetailFixture.CreateDestruction(bus);
         var phases = new HashSet<CeresDestructionPhase>();
         bool mode1 = false, mode7 = false;

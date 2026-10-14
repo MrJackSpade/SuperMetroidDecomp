@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
@@ -16,7 +17,7 @@ internal static class CeresExplosionVerification
     /// <summary>Compares blast windows, RGB colors, phase coverage, and cleanup through the scene timeline, including installed-color ROM isolation.</summary>
     internal static void VerifyCeresExplosionTimeline(PowerBombFixedColorCatalog? colors = null)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = NewForbiddenPowerBombColorBus(bus);
         using var artDirectoryScratch = new TestScratchDirectory("ceres-explosion");
         string artDirectory = artDirectoryScratch.Root;

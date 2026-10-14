@@ -11,6 +11,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Saves;
 using SuperMetroid.Verification.Harness;
 
@@ -26,7 +28,7 @@ internal static class GameSaveJsonVerification
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
             throw new FileNotFoundException("JSON save verification requires the private retail ROM.", romPath);
-        SuperMetroidAddressSpace source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var saveRam = new SuperMetroidSaveRam(source, RetailPresentationFixture());
         var samus = new SamusState
         {
@@ -85,7 +87,7 @@ internal static class GameSaveJsonVerification
         AssertEqual(json, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Deserialize(json)),
             "JSON save formatting and property order are deterministic");
 
-        SuperMetroidAddressSpace restored = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace restored = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored, RetailPresentationFixture());
         AssertTrue(expectedSram.SequenceEqual(restored.SaveRam),
             "JSON save round trip rebuilds canonical SRAM from named state");
@@ -124,7 +126,7 @@ internal static class GameSaveJsonVerification
             string legacyPath = Path.Combine(temporaryDirectory, "game.srm");
             string jsonPath = Path.Combine(temporaryDirectory, "game.save.json");
             File.WriteAllBytes(legacyPath, expectedSram);
-            SuperMetroidAddressSpace migrated = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+            SuperMetroidAddressSpace migrated = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
             GameSaveLoadResult firstLoad = GameSaveFileStore.LoadOrMigrate(
                 migrated,
                 jsonPath,
@@ -136,7 +138,7 @@ internal static class GameSaveJsonVerification
             AssertTrue(expectedSram.SequenceEqual(migrated.SaveRam),
                 "legacy migration retains the exact SRAM image");
 
-            SuperMetroidAddressSpace jsonReload = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+            SuperMetroidAddressSpace jsonReload = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
             GameSaveLoadResult secondLoad = GameSaveFileStore.LoadOrMigrate(
                 jsonReload,
                 jsonPath,
@@ -206,7 +208,7 @@ internal static class GameSaveJsonVerification
         // Every consumer only reads the selected-slot pair, so one imported image is
         // rewritten per case.
         SuperMetroidAddressSpace addressSpace =
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach ((ushort slot, ushort complement, int expected) in cases)
         {
             string label = $"selected slot ${slot:X4} complement ${complement:X4}";

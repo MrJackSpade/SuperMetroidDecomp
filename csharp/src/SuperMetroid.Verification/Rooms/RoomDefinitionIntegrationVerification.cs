@@ -13,6 +13,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 
@@ -26,13 +27,13 @@ internal static class RoomDefinitionIntegrationVerification
     internal static void VerifyCompiledRoomDefinitionIntegration()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        SuperMetroidAddressSpace oracleBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace oracleBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         HashSet<int> forbidden = BuildCompiledRoomDefinitionAddressSet(oracleBus);
         var guard = NewCompiledRoomDefinitionReadGuard(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden);
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden);
 
         var expected = CreateRetailRuntimeFixture(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));
         var actual = CreateRetailRuntimeFixture(guard);
         InitialViewportResult expectedViewport = InitializePostCeresLanding(expected);
         InitialViewportResult actualViewport = InitializePostCeresLanding(actual);
@@ -149,7 +150,7 @@ internal static class RoomDefinitionIntegrationVerification
         {
             foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
             {
-                statePointers.Add(SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
+                statePointers.Add(SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(
                     tracingBus, roomPointer, context).State.Pointer);
             }
 

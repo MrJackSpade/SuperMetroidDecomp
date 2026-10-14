@@ -4,7 +4,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeCensusVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRoomSetupVerification;
@@ -23,6 +22,10 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core;
+using SuperMetroid.Diagnostics;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
@@ -38,7 +41,7 @@ internal static class FrontendRomFreeVerification
     internal static void VerifyFrontendRomFreeStartup(GameInstallation installation,
         string sourceRom, bool roomCensus = false)
     {
-        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         // Installed gameplay gets real WRAM/SRAM but no ROM allocation at all.
         // The native reference remains available only to the development probe
         // that identifies the exact BG2 source ranges to forbid.

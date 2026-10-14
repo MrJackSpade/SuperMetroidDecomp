@@ -18,8 +18,8 @@ internal static class GrappleDemoTrajectoryVerification
     /// checks six ordered attachments to the room's real ceiling anchors.</summary>
     internal static void VerifyGrappleDemoTrajectory()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var scene = SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 4);
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var scene = SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 4);
         AssertEqual(AttractDemoRomDataInputObjects.GrappleBeam, (scene ?? throw new InvalidOperationException("Verification requires scene.")).InputObject,
             "retail basic grapple demo identity");
         var runtime = CreateRetailRuntimeFixture(bus);

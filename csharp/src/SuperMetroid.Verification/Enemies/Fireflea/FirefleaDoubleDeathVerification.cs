@@ -13,7 +13,7 @@ internal static class FirefleaDoubleDeathVerification
     /// <summary>Confirms $A3:8E6B's unconditional second death uses the cleared slot, spawning a small explosion at (0,0) and counting another kill.</summary>
     internal static void VerifyFirefleaDoubleDeath()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

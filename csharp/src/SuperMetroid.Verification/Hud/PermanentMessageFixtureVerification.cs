@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 
 namespace SuperMetroid.Verification.Hud;
 

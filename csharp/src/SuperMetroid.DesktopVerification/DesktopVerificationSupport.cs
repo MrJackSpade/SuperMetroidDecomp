@@ -1,5 +1,6 @@
-using System.Reflection;
 using SuperMetroid.Rendering.Direct3D11;
+
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Shared waits, assertions and host-handler access for the desktop verification checks.</summary>
 internal static class DesktopVerificationSupport

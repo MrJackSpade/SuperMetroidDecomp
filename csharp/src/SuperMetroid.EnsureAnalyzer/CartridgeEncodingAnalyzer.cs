@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
 
 namespace SuperMetroid.EnsureAnalyzer;
 

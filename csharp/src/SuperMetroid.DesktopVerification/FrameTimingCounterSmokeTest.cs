@@ -1,4 +1,6 @@
-namespace SuperMetroid.Desktop;
+using SuperMetroid.Desktop;
+
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>
 /// Exercises timing accumulation with an artificial one-kilohertz clock. No ROM, window,

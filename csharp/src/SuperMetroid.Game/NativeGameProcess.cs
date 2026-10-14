@@ -1,5 +1,7 @@
 using System.Runtime.InteropServices;
 
+namespace SuperMetroid.Game;
+
 /// <summary>Named Win32 process-error policy for the playable executable.</summary>
 static partial class NativeGameProcess
 {

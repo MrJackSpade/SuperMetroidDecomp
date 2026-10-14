@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRoomSetupVerifi
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
@@ -30,7 +31,7 @@ internal static class FrontendRomFreeGoldenTorizoVerification
         try
         {
             GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);
-            var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+            var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             var installedMemory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             AssertEqual(false, MetadataShape.DeclaresProperty(installedMemory.GetType(), "Rom"),
                 "focused Golden Torizo fixture has no installed cartridge allocation");

@@ -11,6 +11,9 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 
@@ -20,7 +23,7 @@ internal static class TorizoSonicBoomInstructionProgramDefinitionsVerification
     /// <summary>Loads the retail cartridge oracle for both Torizo sonic-boom producers.</summary>
     internal static void VerifyTorizoSonicBoomInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoSonicBoomInstructionProgramDefinitions), () => VerifyTorizoSonicBoomInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Exercises four facing-dependent launches and five impact cycles, including visual operands and exact RNG consumption.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo sonic boom instruction program definitions")]

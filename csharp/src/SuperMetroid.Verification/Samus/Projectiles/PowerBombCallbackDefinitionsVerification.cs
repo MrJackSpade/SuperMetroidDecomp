@@ -63,7 +63,7 @@ internal static class PowerBombCallbackDefinitionsVerification
     [VerificationCommand("--enemy-callback-definitions")]
     internal static int EnemyCallbackDefinitionsCommand()
     {
-        var callbackRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var callbackRom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyPowerBombCallbackDefinitions), () => VerifyPowerBombCallbackDefinitions(callbackRom));
         Suite(nameof(VerifyShotCallbackDefinitions), () => VerifyShotCallbackDefinitions(callbackRom));

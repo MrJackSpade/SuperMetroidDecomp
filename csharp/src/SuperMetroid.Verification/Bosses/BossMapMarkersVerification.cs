@@ -21,7 +21,7 @@ internal static class BossMapMarkersVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause-map boss marker coordinate lists")]
     internal static void VerifyPauseBossMarkers()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int markers = 0;
         for (int area = 0; area < 6; area++)
         {
@@ -61,11 +61,11 @@ internal static class BossMapMarkersVerification
 
                 // Exercise the production snapshot, SRAM checksum/slot codec, JSON
                 // format and restore path, entirely in disposable memory.
-                var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+                var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 new SuperMetroidSaveRam(source, RetailPresentationFixture()).SaveSlot(0,
                     SuperMetroidSaveSnapshot.Capture(new SamusState(), system, new SaveSnapshotContext { Area = (ushort)area, SaveStation = 0 }));
                 string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source, RetailPresentationFixture()));
-                var restored = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+                var restored = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored, RetailPresentationFixture());
                 var slot = new SuperMetroidSaveRam(restored, RetailPresentationFixture()).ReadSlot(0) ??
                     throw new InvalidDataException("Boss-marker fixture lost its save slot.");
@@ -90,7 +90,7 @@ internal static class BossMapMarkersVerification
                 runtime.RoomLoader.InitializeStartingCeresRoom();
                 runtime.RoomLoader.InitializeCeresStartSamus();
                 slot.ApplyTo(runtime.Player.IntroducedSamus, runtime.System);
-                ushort room = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(restored, (AreaId)area, 0).RoomPointer;
+                ushort room = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(restored, (AreaId)area, 0).RoomPointer;
                 for (int entry = 0; entry < 2; entry++)
                 {
                     runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Result of the headless host-key routing regression.</summary>
 public readonly record struct HostKeyboardInputSmokeTestResult(

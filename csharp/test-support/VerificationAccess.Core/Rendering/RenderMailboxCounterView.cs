@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Hardware;
 
+namespace SuperMetroid.Core.Rendering;
+
 /// <summary>One consistent read of a render mailbox's private publication counters.</summary>
 [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
 internal readonly record struct RenderMailboxCounterView(

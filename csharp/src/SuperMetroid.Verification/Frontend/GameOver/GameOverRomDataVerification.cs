@@ -24,7 +24,7 @@ internal static class GameOverRomDataVerification
             "game-over tilemap row stride");
 
         var bus = new TestAddressSpace();
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
         var menu = new GameOverMenuState(bus, audio, RetailPresentationFixture());

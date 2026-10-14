@@ -13,7 +13,7 @@ internal static class MamaTurtleInstructionProgramDefinitionsVerification
     internal static void VerifyMamaTurtleInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMamaTurtleInstructionProgramDefinitions), () => VerifyMamaTurtleInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     /// <summary>Compares ordered control words, byte ownership, visual exclusions, and allocation-free lookup.</summary>

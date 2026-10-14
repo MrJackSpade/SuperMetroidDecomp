@@ -7,6 +7,10 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Saves;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.SaveMapFixtures;
 
 /// <summary>Compares translated file-map scenes with direct rendering throughout map navigation.</summary>
 internal static class RetailFileMapTests
@@ -14,7 +18,7 @@ internal static class RetailFileMapTests
     /// <summary>Covers all areas, backdrop and scroll variants, then both load and cancel routes.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         int samples = 0;
         void Compare(Rgba32[] expected, LayeredRenderSnapshot scene, string context)
         {

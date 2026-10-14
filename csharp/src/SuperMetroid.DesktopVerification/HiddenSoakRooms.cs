@@ -1,3 +1,5 @@
+namespace SuperMetroid.DesktopVerification;
+
 /// <summary>Retail room identities used for active and paused hidden-window samples.</summary>
 internal static class HiddenSoakRooms
 {

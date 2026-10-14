@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 
@@ -15,7 +16,7 @@ internal static class CeresExplosionDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres explosion definitions")]
     internal static void VerifyCeresExplosionDefinitions()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
         Suite(nameof(VerifyActor), () => VerifyActor(retail, 0xcebb, CeresExplosionDefinitions.InitialActor, "initial explosion"));
         Suite(nameof(VerifyActor), () => VerifyActor(retail, 0xcec1, CeresExplosionDefinitions.RepeatingActor, "repeating explosion"));

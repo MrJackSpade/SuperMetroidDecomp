@@ -27,6 +27,8 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 
+namespace SuperMetroid.Core;
+
 /// <summary>
 /// Verification views of private Core state. Each member reads exactly the private state its
 /// test observes; production types expose nothing for tests.

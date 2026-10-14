@@ -14,7 +14,7 @@ internal static class ShutterRepeatedBombsVerification
     /// <summary>Records the worst vertical gap across specified bomb intervals, offsets, and unmorph times.</summary>
     internal static void AuditRepeatedShutterBombs()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int cases = 0, worstGap = 0;
         foreach (int slotIndex in new[] { 0, 1 })
         foreach (int offset in new[] { -3, 0, 3 })

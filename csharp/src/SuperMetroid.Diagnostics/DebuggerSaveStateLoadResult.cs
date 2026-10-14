@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>Restored runtime owners, file metadata and any compatible build-identity warnings.</summary>
 internal readonly record struct DebuggerSaveStateLoadResult(

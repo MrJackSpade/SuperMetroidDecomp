@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
 
 /// <summary>Compares software and Direct3D OBJ rendering across sprite sizes, counts, priorities, and overlap.</summary>
 internal static class ObjectSmokeTests

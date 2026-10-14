@@ -17,7 +17,7 @@ internal static class GameplayMessageNoticesVerification
     /// <summary>Compares notice tilemaps with the cartridge and checks selection redraw, live rebinding, and glyph rejection.</summary>
     internal static void VerifyGameplayMessageNotices(string romPath)
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayMessageNoticeExtractor.Extract(bus);
         GameplayMessageNoticePresentation stock = GameplayMessageNoticePresentation.Load(
             new MemoryStream(extracted, writable: false));

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>Shared on-disk debugger-state header identities and compatibility versions.</summary>
 internal static class DebuggerStateFormat

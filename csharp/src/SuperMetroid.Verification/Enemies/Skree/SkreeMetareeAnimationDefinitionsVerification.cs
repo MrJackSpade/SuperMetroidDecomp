@@ -5,6 +5,8 @@ using SuperMetroid.Core.Enemies.Metaree;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Enemies.Skree;
 

@@ -1,10 +1,10 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Desktop;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Diagnostics;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 

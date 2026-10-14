@@ -348,7 +348,7 @@ internal static class BotwoonAnimationsVerification
     internal static int BotwoonInstructionDefinitionsCommand()
     {
         Suite(nameof(VerifyBotwoonAnimationSelection), () => VerifyBotwoonAnimationSelection(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
 }

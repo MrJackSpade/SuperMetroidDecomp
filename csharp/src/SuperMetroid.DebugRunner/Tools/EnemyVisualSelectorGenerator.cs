@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using System.Text;
 using SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.TestSupport.CatalogInventories;
 
 /// <summary>Development command for rebuilding literal enemy visual-selector source
 /// from the pinned cartridge inventory.</summary>

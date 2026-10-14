@@ -1,7 +1,7 @@
 using SuperMetroid.Core;
 using System.Reflection;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>Shared stable method identities for debugger delegates, independent of compiler token order.</summary>
 internal static class DebuggerDelegateIdentity

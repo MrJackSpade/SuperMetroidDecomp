@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Desktop;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Exercises the exact parent-preview message path without opening a window.</summary>
 public static class HostKeyboardInputSmokeTest

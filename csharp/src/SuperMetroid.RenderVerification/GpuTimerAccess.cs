@@ -1,5 +1,7 @@
 using SuperMetroid.Rendering.Direct3D11;
 
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Verification view of the private GPU timer query ring.</summary>
 internal static class GpuTimerAccess
 {

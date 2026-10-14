@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -20,6 +19,9 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 
@@ -164,9 +166,9 @@ internal static class NoobTubePlmVerification
             "existing input-lock serialized identity remains unchanged");
         using (var saved = new MemoryStream())
         {
-            SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, samus);
+            SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(saved, samus);
             saved.Position = 0;
-            var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SamusState>(saved);
+            var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SamusState>(saved);
             AssertTrue(restored.InputLocked && restored.ScriptLocks.StationaryScriptControlLocked,
                 "mid-script state retains input and animation ownership");
             restored.InputLocked = false;
@@ -227,7 +229,7 @@ internal static class NoobTubePlmVerification
     /// <summary>Checks the pinned cartridge revision before comparing tube controls, draw lists, callbacks, events, and sound.</summary>
     private static void VerifyNoobTubeProgramDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tube oracle revision");

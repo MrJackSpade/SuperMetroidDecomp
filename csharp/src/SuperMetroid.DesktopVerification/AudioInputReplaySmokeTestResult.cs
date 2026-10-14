@@ -1,4 +1,4 @@
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Observable milestones from replaying a desktop journal through the real SPC.</summary>
 /// <param name="FramesExecuted">Journal and neutral-tail updates consumed before the first door completed.</param>

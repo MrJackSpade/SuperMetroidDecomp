@@ -3,6 +3,7 @@ using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 
@@ -39,7 +40,7 @@ internal static class EnemyProjectileCodePointersVerification
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         SuperMetroidAddressSpace? bus = File.Exists(romPath)
-            ? SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath)
+            ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath)
             : null;
         foreach ((string name, ushort pointer) in callbacks.Concat(
             lists.Select(field => (field.Name, field.RequiredConstant<ushort>()))))

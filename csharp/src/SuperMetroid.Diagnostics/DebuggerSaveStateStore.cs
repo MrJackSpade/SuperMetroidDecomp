@@ -6,7 +6,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>Host-independent debugger states with ten manual slots and one automatic slot with warning-only build identity checks.</summary>
 internal sealed class DebuggerSaveStateStore

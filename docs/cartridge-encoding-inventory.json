@@ -12137,7 +12137,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Tooling/AssetExtraction/CartridgeImportAddressSpaceTooling.cs",
+          "path": "csharp/src/SuperMetroid.Tooling/AssetExtraction/Cartridge/CartridgeImportAddressSpaceTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
             "RawHexLiteral": 1,
@@ -12145,7 +12145,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Tooling/AssetExtraction/CartridgeRoomStateImporter.cs",
+          "path": "csharp/src/SuperMetroid.Tooling/AssetExtraction/Rooms/CartridgeRoomStateImporter.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
             "RawHexLiteral": 1,

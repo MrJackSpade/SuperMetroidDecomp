@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Holds the two native Ceres Ridley hover-exit thresholds exercised by the fixture.</summary>
 internal static class RidleyEscapeFixtureDefinitions
 {

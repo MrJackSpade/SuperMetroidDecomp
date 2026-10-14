@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 

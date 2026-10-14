@@ -31,7 +31,7 @@ internal static class CrystalFlashCleanupVerification
     /// <summary>Steps a controlled Landing Site route from Power Bomb placement through activation or rejection and post-flash movement.</summary>
     private static void VerifyCrystalFlashRuntimeRoute(ushort capacity, bool refill)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

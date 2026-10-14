@@ -8,6 +8,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
@@ -23,7 +26,7 @@ internal static class RidleyInstructionProgramDefinitionsVerification
     {
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         EnemyDefinitionId ceresRidleyDefinition = EnemyDefinitionId.RidleyCeres;
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0;
              index < RidleyInstructionProgramDefinitionsTooling.MechanicsWordCount;

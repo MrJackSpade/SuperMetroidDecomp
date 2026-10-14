@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Holds the Ridley departure state that activates Ceres door earthquake producers.</summary>
 internal static class CeresQuakeFixture
 {

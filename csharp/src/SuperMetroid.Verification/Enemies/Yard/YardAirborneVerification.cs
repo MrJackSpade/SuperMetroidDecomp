@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Verification.Enemies.Yard;
 
 /// <summary>Checks Yard kick distance publication and airborne fixed-point trajectories.</summary>
@@ -15,7 +16,7 @@ internal static class YardAirborneVerification
     /// <summary>Confirms the per-frame Samus distance includes native pixel bias and fractional camera movement.</summary>
     internal static void VerifyYardRuntimeDistancePublication()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.NmiHandler.RunNmi(0, true);

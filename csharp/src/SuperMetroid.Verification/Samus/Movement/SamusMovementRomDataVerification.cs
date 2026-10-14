@@ -22,7 +22,7 @@ internal static class SamusMovementRomDataVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         int poseCount = Enum.GetValues<SamusPoseId>()
             .Max(pose => (byte)pose) + 1;
 

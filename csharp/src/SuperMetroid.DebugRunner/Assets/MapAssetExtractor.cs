@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Rooms;
 
+namespace SuperMetroid.DebugRunner.Assets;
+
 /// <summary>
 /// Exports each area map as its lossless cartridge tilemap and station-reveal mask, plus a
 /// coverage PNG with blue for station-visible cells and magenta for discoverable secret-only cells.
@@ -15,7 +17,7 @@ internal static class MapAssetExtractor
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
         ArgumentException.ThrowIfNullOrWhiteSpace(outputDirectory);
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         string areasDirectory = Path.Combine(outputDirectory, "areas");
         Directory.CreateDirectory(areasDirectory);
         int areas = 0;

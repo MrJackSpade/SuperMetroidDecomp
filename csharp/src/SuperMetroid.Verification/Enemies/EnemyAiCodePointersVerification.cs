@@ -1,6 +1,7 @@
 using SuperMetroid.Tooling;
 using System.Reflection;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Verification.Enemies;
 

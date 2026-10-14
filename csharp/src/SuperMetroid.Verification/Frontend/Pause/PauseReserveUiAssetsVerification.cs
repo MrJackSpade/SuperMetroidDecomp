@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Frontend.Pause;
 
@@ -73,8 +74,8 @@ internal static class PauseReserveUiAssetsVerification
 
         var cursorBeforeRestore = (editedPause.SelectedCategory, editedPause.SelectedItem);
         using var captured = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
         restored.BindMapPresentation(original);
         AssertEqual(cursorBeforeRestore, (restored.SelectedCategory, restored.SelectedItem),
             "reserve UI content rebind preserves the live equipment cursor");

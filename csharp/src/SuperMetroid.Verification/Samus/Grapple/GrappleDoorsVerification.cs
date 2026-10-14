@@ -17,7 +17,7 @@ internal static class GrappleDoorsVerification
     /// <summary>Exercises four orientations and all cap cells through extension collision and PLM animation.</summary>
     internal static void VerifyGrappleBlueDoors()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         for (int hitOffset = 0; hitOffset < 4; hitOffset++)
         {

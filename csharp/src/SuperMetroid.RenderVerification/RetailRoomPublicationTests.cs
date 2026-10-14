@@ -5,6 +5,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Checks captured and retained gameplay frames across retail room-local publication fixtures.</summary>
 internal static class RetailRoomPublicationTests
@@ -26,7 +30,7 @@ internal static class RetailRoomPublicationTests
         long sequence = 0;
         foreach ((ushort room, PublishedFx fx) in rooms)
         {
-            var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+            var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.NmiHandler.RunNmi(0, true);
             runtime.RoomLoader.InitializeStartingCeresRoom();

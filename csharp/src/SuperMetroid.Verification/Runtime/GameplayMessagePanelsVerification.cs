@@ -17,7 +17,7 @@ internal static class GameplayMessagePanelsVerification
     /// <summary>Checks all installed panels without ROM reads, then edits and restores an active message.</summary>
     internal static void VerifyGameplayMessagePanels(string romPath)
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayMessagePanelExtractor.Extract(bus);
         GameplayMessagePanelPresentation stock = GameplayMessagePanelPresentation.Load(
             new MemoryStream(extracted, writable: false));

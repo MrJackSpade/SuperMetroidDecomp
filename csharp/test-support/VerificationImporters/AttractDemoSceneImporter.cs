@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.Attract;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Reads native title-demo scene records for import and reference diagnostics.</summary>
 [CpuBusBoundary("codec: ROM attract-demo room, equipment and Samus-setup set tables → AttractDemoScene")]

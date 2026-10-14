@@ -65,7 +65,7 @@ internal static class MochtroidBotwoonClipVerification
     /// <summary>Replays one 120-frame retail hallway sequence with a frozen Mochtroid and compares pose, collision, and height checkpoints.</summary>
     private static void VerifyMochtroidClipRecord(MochtroidClipNativeRecord expected)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

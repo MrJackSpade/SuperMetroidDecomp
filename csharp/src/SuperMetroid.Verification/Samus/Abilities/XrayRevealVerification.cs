@@ -11,7 +11,7 @@ internal static class XrayRevealVerification
     /// <summary>Compares all collision types and BTS bytes, including wildcard and explicit entries.</summary>
     internal static void VerifyXrayRevealTable()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int matches = 0;
         var commands = new HashSet<XrayRevealCommand>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())

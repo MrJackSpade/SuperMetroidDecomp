@@ -20,8 +20,8 @@ internal static class YardTrajectoriesVerification
     /// <summary>Runs focused Yard movement checks and records each of five retail actors' largest frame step.</summary>
     internal static void VerifyYardTrajectories()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd5a7);
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xd5a7);
         var assets = LoadFixtureRoomAssets(bus, room);
         Suite(nameof(VerifyYardLanding), () => VerifyYardLanding(bus, room));
         Suite(nameof(VerifyYardRuntimeDistancePublication), () => VerifyYardRuntimeDistancePublication());

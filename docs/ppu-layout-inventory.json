@@ -10,8 +10,8 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresVram.cs",
-        "csharp/src/SuperMetroid.Verification/CeresDestructionVerification.cs",
-        "csharp/src/SuperMetroid.Verification/CeresFlightArtworkVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresDestructionVerification.cs",
+        "csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresFlightArtworkVerification.cs"
       ]
     },
     {
@@ -1139,7 +1139,7 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingVram.cs",
-        "csharp/src/SuperMetroid.Verification/EndingObjectArtworkVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Frontend/Ending/EndingObjectArtworkVerification.cs"
       ]
     },
     {
@@ -1200,7 +1200,7 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingVram.cs",
-        "csharp/src/SuperMetroid.Verification/PostCreditsCharacterArtworkVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Frontend/Ending/PostCreditsCharacterArtworkVerification.cs"
       ]
     },
     {
@@ -1213,7 +1213,7 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingVram.cs",
-        "csharp/src/SuperMetroid.Verification/PostCreditsCharacterArtworkVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Frontend/Ending/PostCreditsCharacterArtworkVerification.cs"
       ]
     },
     {
@@ -1455,7 +1455,7 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroVram.cs",
-        "csharp/src/SuperMetroid.Verification/IntroCinematicArtworkVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicArtworkVerification.cs"
       ]
     },
     {
@@ -1468,8 +1468,8 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroVram.cs",
-        "csharp/src/SuperMetroid.Verification/IntroCinematicArtworkVerification.cs",
-        "csharp/src/SuperMetroid.Verification/LookupStream3Verification.cs"
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicArtworkVerification.cs",
+        "csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs"
       ]
     },
     {
@@ -1482,8 +1482,8 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroVram.cs",
-        "csharp/src/SuperMetroid.Verification/IntroCinematicArtworkVerification.cs",
-        "csharp/src/SuperMetroid.Verification/IntroCinematicRomDataVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicArtworkVerification.cs",
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicRomDataVerification.cs"
       ]
     },
     {
@@ -1496,8 +1496,8 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroVram.cs",
-        "csharp/src/SuperMetroid.Verification/IntroNarrationPresentationVerification.cs",
-        "csharp/src/SuperMetroid.Verification/LookupStream3Verification.cs"
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/Artwork/IntroNarrationPresentationVerification.cs",
+        "csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs"
       ]
     },
     {
@@ -1510,7 +1510,7 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroVram.cs",
-        "csharp/src/SuperMetroid.Verification/IntroCinematicArtworkVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicArtworkVerification.cs"
       ]
     },
     {
@@ -1535,8 +1535,8 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroVram.cs",
-        "csharp/src/SuperMetroid.Verification/IntroCinematicArtworkVerification.cs",
-        "csharp/src/SuperMetroid.Verification/LookupStream3Verification.cs"
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicArtworkVerification.cs",
+        "csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs"
       ]
     },
     {
@@ -1549,8 +1549,8 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroVram.cs",
-        "csharp/src/SuperMetroid.Verification/IntroCinematicArtworkVerification.cs",
-        "csharp/src/SuperMetroid.Verification/LookupStream3Verification.cs"
+        "csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicArtworkVerification.cs",
+        "csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs"
       ]
     },
     {
@@ -1854,7 +1854,7 @@
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
-        "csharp/src/SuperMetroid.Verification/PpuLayoutBoundaryVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]
     },
     {
@@ -1868,7 +1868,7 @@
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
-        "csharp/src/SuperMetroid.Verification/PpuLayoutBoundaryVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]
     },
     {
@@ -1909,7 +1909,7 @@
         "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Fx/RoomFxVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
-        "csharp/src/SuperMetroid.Verification/PpuLayoutBoundaryVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]
     },
     {
@@ -1973,7 +1973,7 @@
       "aliasOf": "GameplayWindowRegisterLayout.MainScreen",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs",
-        "csharp/src/SuperMetroid.Verification/PpuLayoutBoundaryVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]
     },
     {
@@ -1986,7 +1986,7 @@
       "aliasOf": null,
       "consumers": [
         "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs",
-        "csharp/src/SuperMetroid.Verification/PpuLayoutBoundaryVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]
     },
     {
@@ -2120,7 +2120,7 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Hardware/Mode7Vram.cs",
-        "csharp/src/SuperMetroid.Verification/PpuLayoutBoundaryVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]
     },
     {
@@ -2225,7 +2225,7 @@
       "aliasOf": null,
       "consumers": [
         "csharp/src/SuperMetroid.Core/Hardware/CgramPalettes.cs",
-        "csharp/src/SuperMetroid.Verification/PpuLayoutBoundaryVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]
     },
     {
@@ -2261,7 +2261,7 @@
       "encoding": "Bgr555 4-bpp palette row",
       "aliasOf": "PpuMemoryLayout.ObjectPalettes",
       "consumers": [
-        "csharp/src/SuperMetroid.Verification/PpuLayoutBoundaryVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]
     },
     {
@@ -2333,7 +2333,7 @@
       "encoding": "Bgr555 4-bpp palette row",
       "aliasOf": "PpuMemoryLayout.ObjectPalettes",
       "consumers": [
-        "csharp/src/SuperMetroid.Verification/PpuLayoutBoundaryVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]
     },
     {
@@ -2407,7 +2407,7 @@
       "consumers": [
         "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsVram.cs",
         "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs",
-        "csharp/src/SuperMetroid.Verification/RoomArtworkRenderParityVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Rooms/RoomArtworkRenderParityVerification.cs"
       ]
     },
     {

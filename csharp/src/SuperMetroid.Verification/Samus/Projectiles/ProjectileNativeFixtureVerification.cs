@@ -30,7 +30,7 @@ internal static class ProjectileNativeFixtureVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile fixture")]
     internal static SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         void Art(int entry, ushort map)
         {
             var seen = new HashSet<int>();

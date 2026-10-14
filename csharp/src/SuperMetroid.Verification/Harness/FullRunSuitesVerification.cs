@@ -379,6 +379,8 @@ using static SuperMetroid.Verification.Samus.Abilities.XrayWindowGeometryVerific
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawGrappleReleaseVerification;
 using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeFadeVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.ZeroDistanceJumpContactVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.VerificationOracles;
 
 namespace SuperMetroid.Verification.Harness;
 /// <summary>Registers the portable render-contract checks and the independent suites of the full verifier run.</summary>
@@ -656,11 +658,11 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyRoomPlmInstructionListCatalog), () => VerifyRoomPlmInstructionListCatalog()),
         new(nameof(VerifySequentialRoomPlmPopulationLoader), () => VerifySequentialRoomPlmPopulationLoader()),
         new(nameof(VerifyMotherBrainEscapeGateCompiledDefinitions), () => VerifyMotherBrainEscapeGateCompiledDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyEscapeGateVisuals), () => VerifyEscapeGateVisuals(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyCompiledRoomPlmPopulationDefinitions), () => VerifyCompiledRoomPlmPopulationDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyNoobTubePlm), () => VerifyNoobTubePlm()),
         new(nameof(VerifyDownwardGatePlms), () => VerifyDownwardGatePlms()),
         new(nameof(VerifyEyeDoorPlms), () => VerifyEyeDoorPlms()),
@@ -851,11 +853,11 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBotwoonPlmIdentity), () => VerifyBotwoonPlmIdentity()),
         .. CompiledEnemyTrigonometrySuites(),
         new(nameof(VerifyRidleyExplosionDefinitions), () => VerifyRidleyExplosionDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyCrocomireMeltingDefinitions), () => VerifyCrocomireMeltingDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyDraygonIntroDanceDefinitions), () => VerifyDraygonIntroDanceDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyEnemyProjectileCollisionLifecycle), () => VerifyEnemyProjectileCollisionLifecycle()),
         new(nameof(VerifyRipperEnemy), () => VerifyRipperEnemy()),
         new(nameof(VerifyRipperEnemy), () => VerifyRipperEnemy(verifyXrayTimers: true)),
@@ -864,7 +866,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCeresDoorBossBranch), () => VerifyCeresDoorBossBranch()),
         new(nameof(VerifyCeresRidleyRoomEntry), () => VerifyCeresRidleyRoomEntry()),
         new(nameof(VerifyCeresEscapeVramTransferDefinitions), () => VerifyCeresEscapeVramTransferDefinitions(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyCeresEscapeHandoff), () => VerifyCeresEscapeHandoff()),
         new(nameof(VerifyCeresDestructionCinematic), () => VerifyCeresDestructionCinematic()),
     ];

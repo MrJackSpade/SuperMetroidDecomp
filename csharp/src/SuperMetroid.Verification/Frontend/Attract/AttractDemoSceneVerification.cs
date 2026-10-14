@@ -44,11 +44,11 @@ internal static class AttractDemoSceneVerification
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var expected = new AttractDemoScene(0x91f8, 0x8000, new(0x100, 0x200), new(-46, 0x40),
             0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, 0x3105, 10, 5, 2, 399, 0x100f, 0x100b, 0x9000);
-        if (SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
+        if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
             throw new InvalidDataException("Demo room/equipment/setup tables did not join at the same scene index.");
         if (expected.SamusPosition != new Position16<RoomPixels>(338, 576))
             throw new InvalidDataException("Demo offsets lost their native X-center/Y-top interpretation.");
-        if (SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 1) is not null)
+        if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 1) is not null)
             throw new InvalidDataException("Demo room sentinel did not terminate the set.");
         var input = new ReferenceAttractInput(bus, expected);
         input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
@@ -86,20 +86,20 @@ internal static class AttractDemoSceneVerification
     /// <summary>Matches all four compiled demo sets and their sentinels to retail scene records.</summary>
     internal static void VerifyStockAttractScenes()
     {
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[] counts = [6, 6, 6, 5];
         int total = 0;
         for (int set = 0; set < counts.Length; set++)
         {
             for (int scene = 0; scene < counts[set]; scene++)
             {
-                AssertEqual(SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(retail, set, scene), StockAttractDemoScenes.Get(set, scene),
+                AssertEqual(SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(retail, set, scene), StockAttractDemoScenes.Get(set, scene),
                     $"compiled scene {set}/{scene} matches every cartridge setup field");
                 total++;
                 VerifyCompiledAttractInput(retail, (StockAttractDemoScenes.Get(set, scene) ?? throw new InvalidOperationException("Verification requires StockAttractDemoScenes.Get(set, scene).")));
             }
             AssertTrue(StockAttractDemoScenes.Get(set, counts[set]) is null &&
-                SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(retail, set, counts[set]) is null, "stock set sentinel");
+                SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(retail, set, counts[set]) is null, "stock set sentinel");
             AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(set, counts[set] + 1),
                 "reject scene beyond compiled set");
         }

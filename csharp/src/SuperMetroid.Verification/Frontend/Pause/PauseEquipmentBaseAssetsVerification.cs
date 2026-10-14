@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks installed pause equipment base tiles through page transitions and debugger rebinding.</summary>
@@ -80,8 +81,8 @@ internal static class PauseEquipmentBaseAssetsVerification
             "base rebind refreshes ordinary authored cells");
 
         using var captured = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;
-        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
+        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;
+        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
         restored.BindMapPresentation(original);
         var stockSnapshot = stockPause.CaptureRenderSnapshot();
         var restoredSnapshot = restored.CaptureRenderSnapshot();

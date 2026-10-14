@@ -143,7 +143,7 @@ internal static class BombBlockProgramsVerification
     /// <summary>Runs every bomb-block producer and BTS timeline with compiled source bytes blocked, then checks editable art isolation.</summary>
     internal static void VerifyBombBlockPrograms()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyBombBlockControlMapping), () => VerifyBombBlockControlMapping(rom));
         Suite(nameof(VerifyBombBlockDrawMapping), () => VerifyBombBlockDrawMapping(rom));

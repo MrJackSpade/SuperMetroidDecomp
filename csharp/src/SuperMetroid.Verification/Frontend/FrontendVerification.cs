@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -17,6 +16,10 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
 
@@ -178,7 +181,7 @@ internal static void VerifyBgPriorityPlaneRendering()
 /// <summary>Checks the fresh-save file-select tilemap and its surrounding labels against installed cartridge art.</summary>
 internal static void VerifyFileSelectFreshSaveTilemap()
 {
-    var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling
+    var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling
         .LoadRetailRom(Path.GetFullPath("Super Metroid.smc")).Rom.ToArray();
 
     // FileSelectMenuState also loads the labels surrounding NO DATA. Empty streams are
@@ -445,7 +448,7 @@ internal static void VerifySavedGameLoadAppearance()
         return;
     }
 
-    var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+    var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
     var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
     saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
     {

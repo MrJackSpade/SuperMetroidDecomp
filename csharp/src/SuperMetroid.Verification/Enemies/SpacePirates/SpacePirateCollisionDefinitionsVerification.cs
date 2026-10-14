@@ -6,6 +6,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
 
@@ -16,7 +18,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Space Pirate collision definitions")]
     internal static void VerifySpacePirateCollisionDefinitions()
     {
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var walkingFramePointers = EnemyExtendedFrameDefinitions.Frames
             .Where(frame => frame.Name.StartsWith("walking_pirate_",

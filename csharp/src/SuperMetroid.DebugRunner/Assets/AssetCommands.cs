@@ -1,10 +1,11 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
+namespace SuperMetroid.DebugRunner.Assets;
+using SuperMetroid.AssetExtraction.Compression;
+using SuperMetroid.AssetExtraction.ReferenceRendering;
 
 /// <summary>Debug-runner commands for installing, extracting, previewing and replacing cartridge-derived assets.</summary>
 internal static class AssetCommands

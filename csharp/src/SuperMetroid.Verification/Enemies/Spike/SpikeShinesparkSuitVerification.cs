@@ -17,7 +17,7 @@ internal static class SpikeShinesparkSuitVerification
     /// <summary>Compares adjacent dry launch frames and the underwater Reserve timing window.</summary>
     internal static void VerifySpikeShinesparkSuit()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
         // The ordinary spike method has a one-frame retained-suit window. Jump one
         // frame early installs the real Shinespark mover; Jump one frame late misses

@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Retail room headers used by the unpaced simulation baseline.</summary>
 internal static class SimulationProfileRooms
 {

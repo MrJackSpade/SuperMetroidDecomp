@@ -3,6 +3,8 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.AssetExtraction.Installation;
 
+namespace SuperMetroid.TestSupport.RepositoryInstallation;
+
 /// <summary>
 /// The repository ROM's extracted installation in the ignored <see cref="CacheRoot"/>, shared by the
 /// verifier and the developer tools. Each process loads its catalogs once; every fixture built

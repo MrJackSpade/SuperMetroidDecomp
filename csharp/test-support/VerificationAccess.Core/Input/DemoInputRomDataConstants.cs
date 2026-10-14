@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Input;
+namespace SuperMetroid.Core.Input;
 
 /// <summary>Cartridge values of <see cref="DemoInputRomData"/> that only verification reads.</summary>
 internal static class DemoInputRomDataConstants

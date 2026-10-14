@@ -1,10 +1,10 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
+
+namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Verification access to <see cref="SnesGameplayFrameRenderer"/> members production does not use.</summary>
 internal static class SnesGameplayFrameRendererAccess

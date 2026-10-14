@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
-using SuperMetroid.Game;
-using SuperMetroid.Rendering.Direct3D11;
 
-using static DesktopVerificationSupport;
+using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+namespace SuperMetroid.DesktopVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Checks desktop shutdown while debugger restore or restart waits on GPU presentation.</summary>
 internal static class CloseDuringLoadTests

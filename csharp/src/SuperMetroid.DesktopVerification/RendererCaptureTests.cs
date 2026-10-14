@@ -2,10 +2,11 @@ using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
-using static AsyncLoadBoundaryTests;
-using static DesktopVerificationSupport;
+using static SuperMetroid.DesktopVerification.AsyncLoadBoundaryTests;
+using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+namespace SuperMetroid.DesktopVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Hidden-HWND renderer capture: retained display across debugger load, restart and resize.</summary>
 internal static class RendererCaptureTests

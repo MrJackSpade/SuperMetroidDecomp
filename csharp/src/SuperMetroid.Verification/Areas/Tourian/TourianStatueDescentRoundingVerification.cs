@@ -12,7 +12,7 @@ internal static class TourianStatueDescentRoundingVerification
     /// <summary>Confirms $88:DC69 floors each negative quarter-pixel step, so the first step reads -1 and $88:DC90 unlocks at whole word $FF10.</summary>
     internal static void VerifyTourianStatueDescentRounding()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

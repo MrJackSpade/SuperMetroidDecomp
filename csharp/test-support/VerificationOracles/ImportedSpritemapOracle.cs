@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+namespace SuperMetroid.TestSupport.VerificationOracles;
+
 /// <summary>
 /// Import-only packed sprite decoder for cartridge-versus-installed OAM comparisons.
 /// Linked into diagnostic executables, never the gameplay Core or shipped hosts.

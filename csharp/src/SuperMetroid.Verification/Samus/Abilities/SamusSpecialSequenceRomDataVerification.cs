@@ -45,7 +45,7 @@ internal static class SamusSpecialSequenceRomDataVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach (SamusDeathTileSegment segment in deathSegments)
         {
             TouchRange(bus, segment.SourceAddress,

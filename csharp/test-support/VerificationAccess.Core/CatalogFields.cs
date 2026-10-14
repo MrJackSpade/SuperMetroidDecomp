@@ -1,5 +1,6 @@
-using SuperMetroid.Core;
 using System.Reflection;
+
+namespace SuperMetroid.Core;
 
 /// <summary>
 /// Reflection over a cartridge catalog for coverage checks. Catalog values production never reads

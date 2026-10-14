@@ -1,6 +1,7 @@
 using System.Diagnostics;
+using SuperMetroid.Desktop;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>
 /// Exercises Windows PCM ownership independently of the ROM and translated SPC program.

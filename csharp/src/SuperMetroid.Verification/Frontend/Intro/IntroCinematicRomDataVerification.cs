@@ -123,7 +123,7 @@ internal static class IntroCinematicRomDataVerification
         if (!File.Exists(romPath))
             return;
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach (ushort pointer in bank8BCodePointers.Concat(bank8BLists))
             _ = CinematicCodePointerCatalogRomByte(bus, IntroCinematicRomData.Banks.CinematicCode | pointer);
         foreach (ushort pointer in bank8CLists)

@@ -8,6 +8,9 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 
@@ -17,7 +20,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
     /// <summary>Loads the retail cartridge for ceiling-tube instruction checks.</summary>
     internal static void VerifyMotherBrainTopTubeInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainTopTubeInstructionProgramDefinitions), () => VerifyMotherBrainTopTubeInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Compares native words and executes four producers through display and terminal sleep.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain top Tube instruction program definitions")]

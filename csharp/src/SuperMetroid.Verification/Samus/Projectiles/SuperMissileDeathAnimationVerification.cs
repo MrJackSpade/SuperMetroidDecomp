@@ -30,7 +30,7 @@ internal static class SuperMissileDeathAnimationVerification
     /// <summary>Kills the selected retail enemy with a Super Missile and returns the spawned explosion's program.</summary>
     private static ushort SuperMissileKillProgram(EnemyDefinitionId enemyDefinition)
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

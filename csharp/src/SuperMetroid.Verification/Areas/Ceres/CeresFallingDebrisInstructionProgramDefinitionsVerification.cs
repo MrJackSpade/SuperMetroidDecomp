@@ -10,6 +10,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +22,7 @@ internal static class CeresFallingDebrisInstructionProgramDefinitionsVerificatio
     /// <summary>Loads the retail cartridge used to compare Ceres debris mechanics and sprite selectors.</summary>
     internal static void VerifyCeresFallingDebrisInstructionProgramDefinitions() =>
         Suite(nameof(VerifyCeresFallingDebrisInstructionProgramDefinitions), () => VerifyCeresFallingDebrisInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Runs light and dark debris through pose, sleep, and shared deletion with mechanics reads guarded.</summary>
     internal static void VerifyCeresFallingDebrisInstructionProgramDefinitions(

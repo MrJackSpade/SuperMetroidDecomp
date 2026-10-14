@@ -8,6 +8,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Kzan;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Kzan;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +20,7 @@ internal static class KzanInstructionProgramDefinitionsVerification
     internal static void VerifyKzanInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKzanInstructionProgramDefinitions), () => VerifyKzanInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     /// <summary>Compares mechanics words and executes initialization through terminal sleep with source reads blocked.</summary>

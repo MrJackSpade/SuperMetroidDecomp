@@ -29,7 +29,7 @@ internal static class SamusGrappleRomDataVerification
             return;
         }
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach (int directionTable in new[]
         {
             SamusGrappleRomData.Firing.XVelocities,

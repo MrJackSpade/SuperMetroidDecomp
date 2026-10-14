@@ -19,7 +19,7 @@ internal static class PauseReserveLabelsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve label tilemaps")]
     internal static void VerifyPauseReserveLabels()
     {
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ushort capacity in new ushort[] { 0, 100 })
         foreach (ushort mode in new ushort[] { 0, 1, 2 })
         {

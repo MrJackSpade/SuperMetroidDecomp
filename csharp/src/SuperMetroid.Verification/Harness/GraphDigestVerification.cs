@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
 using System.Security.Cryptography;
-using SuperMetroid.Desktop;
+using SuperMetroid.Diagnostics;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Provides streamed debugger-graph hashes and temporary render rasters for focused state comparisons.</summary>
@@ -97,7 +97,7 @@ internal static class GraphDigestVerification
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using (var stream = new HashingStream(hash))
-            SuperMetroid.Core.Rendering.RenderFrameSnapshotWriter.Serialize(frame, stream);
+            SuperMetroid.TestSupport.RepositoryInstallation.Verification.RenderFrameSnapshotWriter.Serialize(frame, stream);
         return hash.GetHashAndReset();
     }
 }

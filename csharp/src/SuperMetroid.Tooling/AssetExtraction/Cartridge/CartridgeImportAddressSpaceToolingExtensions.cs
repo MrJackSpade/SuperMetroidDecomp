@@ -1,6 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Cartridge;
-
-namespace SuperMetroid.AssetExtraction;
+﻿namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>Development-tool instance members of <see cref="CartridgeImportAddressSpace"/>.</summary>
 internal static class CartridgeImportAddressSpaceToolingExtensions

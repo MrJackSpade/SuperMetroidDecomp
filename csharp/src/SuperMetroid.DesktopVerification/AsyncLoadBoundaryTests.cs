@@ -1,9 +1,8 @@
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
-using SuperMetroid.Rendering.Direct3D11;
 
-using static DesktopVerificationSupport;
+using static SuperMetroid.DesktopVerification.DesktopVerificationSupport;
+
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Exercises a load or restart while presentation holds the host's frame publication gate.</summary>
 internal static class AsyncLoadBoundaryTests

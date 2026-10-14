@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Reserve capacity and mode used to exercise the native automatic recovery path.</summary>
 internal static class ReserveCaptureFixtureDefinitions
 {

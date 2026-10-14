@@ -9,6 +9,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -72,7 +73,7 @@ internal static class EndingRewardSpriteArtworkVerification
             var scene = CreateRetailEndingFixture(guard, audio, 2, 0);
             scene.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
                 CreditsPresentationExtractor.Extract(
-                    SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")))));
+                    SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")))));
             scene.BindObjectArtwork(stock);
             scene.BindMode7Artwork(installation.LoadEndingMode7Art());
             AssertTrue(FindVisibleEdit(EndingCreditsPhase.PostCreditsReward, 60000, 150),

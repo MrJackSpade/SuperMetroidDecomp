@@ -11,25 +11,25 @@ internal static class AndroidHostVerification
     internal static void VerifyAndroidHostPolicies()
     {
         Suite(nameof(VerifyQueuedPcmSink), () => VerifyQueuedPcmSink());
-        AssertTrue(SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, false, true, true), "foreground audio owner runs");
-        AssertTrue(!SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, false, true, false), "audio interruption gates simulation even with window focus");
-        AssertTrue(SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, false, false, false), "muted host does not require audio focus");
+        AssertTrue(SuperMetroid.Diagnostics.Android.AndroidRunPolicy.CanRun(true, true, false, false, true, true), "foreground audio owner runs");
+        AssertTrue(!SuperMetroid.Diagnostics.Android.AndroidRunPolicy.CanRun(true, true, false, false, true, false), "audio interruption gates simulation even with window focus");
+        AssertTrue(SuperMetroid.Diagnostics.Android.AndroidRunPolicy.CanRun(true, true, false, false, false, false), "muted host does not require audio focus");
         foreach (bool audioFocus in new[] { false, true })
         {
-            AssertTrue(!SuperMetroid.Android.AndroidRunPolicy.CanRun(false, true, false, false, true, audioFocus), "audio gain cannot resume background activity");
-            AssertTrue(!SuperMetroid.Android.AndroidRunPolicy.CanRun(true, false, false, false, true, audioFocus), "audio gain cannot bypass window focus");
-            AssertTrue(!SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, true, false, true, audioFocus), "audio gain cannot bypass testing menu");
-            AssertTrue(!SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, true, true, audioFocus), "late audio gain cannot restart destroyed activity");
+            AssertTrue(!SuperMetroid.Diagnostics.Android.AndroidRunPolicy.CanRun(false, true, false, false, true, audioFocus), "audio gain cannot resume background activity");
+            AssertTrue(!SuperMetroid.Diagnostics.Android.AndroidRunPolicy.CanRun(true, false, false, false, true, audioFocus), "audio gain cannot bypass window focus");
+            AssertTrue(!SuperMetroid.Diagnostics.Android.AndroidRunPolicy.CanRun(true, true, true, false, true, audioFocus), "audio gain cannot bypass testing menu");
+            AssertTrue(!SuperMetroid.Diagnostics.Android.AndroidRunPolicy.CanRun(true, true, false, true, true, audioFocus), "late audio gain cannot restart destroyed activity");
         }
-        var defaults = new SuperMetroid.Android.AndroidControllerPreferences();
+        var defaults = new SuperMetroid.Diagnostics.Android.AndroidControllerPreferences();
         AssertEqual(SnesButton.A, defaults.Resolve("ButtonA", SnesButton.A), "absent override preserves Retroid default");
         var changed = defaults.WithBinding("ButtonA", SnesButton.B).WithBinding("ButtonX", SnesButton.None);
-        var restored = SuperMetroid.Android.AndroidControllerPreferences.Parse(changed.Serialize());
+        var restored = SuperMetroid.Diagnostics.Android.AndroidControllerPreferences.Parse(changed.Serialize());
         AssertEqual(SnesButton.B, restored.Resolve("ButtonA", SnesButton.A), "remapped button survives JSON roundtrip");
         AssertEqual(SnesButton.None, restored.Resolve("ButtonX", SnesButton.X), "explicit unbound does not fall back to default");
         AssertEqual(SnesButton.A, defaults.Resolve("ButtonA", SnesButton.A), "editing preferences does not mutate active mapping before persistence");
         AssertThrows<System.IO.InvalidDataException>(() => changed.WithBinding("ButtonA", SnesButton.A | SnesButton.B), "combined gameplay bindings rejected");
-        AssertThrows<System.IO.InvalidDataException>(() => SuperMetroid.Android.AndroidControllerPreferences.Parse("{\"ButtonA\":\"bogus\"}"), "bad persisted binding fails visibly");
+        AssertThrows<System.IO.InvalidDataException>(() => SuperMetroid.Diagnostics.Android.AndroidControllerPreferences.Parse("{\"ButtonA\":\"bogus\"}"), "bad persisted binding fails visibly");
         var stalled = HostFrameDeadline.AfterFrame(0, 0.060);
         AssertTrue(stalled.Rebased, "60ms audio stall must not retain catch-up debt indefinitely");
         AssertTrue(stalled.WaitSeconds > 0, "rebase must not immediately publish another catch-up frame");

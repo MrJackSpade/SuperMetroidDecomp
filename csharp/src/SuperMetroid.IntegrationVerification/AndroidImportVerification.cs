@@ -1,7 +1,8 @@
-using SuperMetroid.Android;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.AssetExtraction.Cartridge;
+namespace SuperMetroid.IntegrationVerification;
+using SuperMetroid.Diagnostics.Android;
 
 /// <summary>Checks Android state and save imports preserve recovery copies and reject invalid replacements.</summary>
 internal static class AndroidImportVerification
@@ -33,7 +34,7 @@ internal static class AndroidImportVerification
             throw new InvalidDataException("Empty-slot import claimed or created a nonexistent previous-state backup.");
 
         var saveMaps = new SuperMetroid.AssetExtraction.Installation.GameInstallation(root).LoadMaps();
-        var importedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
+        var importedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
         new SuperMetroidSaveRam(importedBus, saveMaps).SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 17 });
         string json = Path.Combine(root, "import-source.json");
         File.WriteAllText(json, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(importedBus, saveMaps)));

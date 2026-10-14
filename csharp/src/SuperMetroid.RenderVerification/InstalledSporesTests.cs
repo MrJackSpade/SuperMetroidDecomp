@@ -3,7 +3,6 @@ using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
@@ -14,6 +13,10 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.Diagnostics;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static class InstalledSporesTests
@@ -179,7 +182,7 @@ internal static class InstalledSporesTests
         byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, new(image.Size.X, image.Size.Y), 2);
         // Appending spores must not shift any earlier strip: every segment of the installed sheet,
         // frames and shared treadmill/statue strips alike, equals its native cartridge bytes.
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         int segmentOffset = 0;
         foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
         {

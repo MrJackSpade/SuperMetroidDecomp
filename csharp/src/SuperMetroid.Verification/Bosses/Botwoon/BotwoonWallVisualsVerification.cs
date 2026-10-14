@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Verification.Harness;
 
@@ -67,7 +68,7 @@ internal static class BotwoonWallVisualsVerification
     /// <summary>Checks extraction, installed overrides, stock repair, and rejection of physical-bit edits.</summary>
     internal static void VerifyBotwoonWallVisuals()
     {
-        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         using var testRootScratch = new TestScratchDirectory("botwoon-wall-visual");
         string testRoot = testRootScratch.Root;

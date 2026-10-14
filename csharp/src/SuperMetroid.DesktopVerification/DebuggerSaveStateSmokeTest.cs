@@ -1,11 +1,13 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core;
+using SuperMetroid.Diagnostics;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Headless save/advance/load deterministic-continuation audit.</summary>
 public static class DebuggerSaveStateSmokeTest

@@ -2,7 +2,7 @@ using SuperMetroid.Core;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>
 /// Shared layout-checked binary serializer for the managed emulator graph used by debugger states.

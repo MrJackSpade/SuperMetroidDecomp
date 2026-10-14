@@ -1,7 +1,8 @@
 using System.Diagnostics;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Desktop;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.DesktopVerification;
 
 /// <summary>Read-only live WinMM observations, not an injected controller test.</summary>
 internal static class LiveGamepadProbe

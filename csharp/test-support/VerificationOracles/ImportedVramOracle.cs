@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 
+namespace SuperMetroid.TestSupport.VerificationOracles;
+
 /// <summary>
 /// Import-only reference DMA for comparisons with installed artwork. Linked into
 /// diagnostic executables, never Core or the shipped gameplay hosts.

@@ -11,7 +11,7 @@ internal static class RoomCallbackDefinitionsVerification
     /// <summary>Traverses selectable room states and checks callback round trips and unknown-pointer rejection.</summary>
     internal static void VerifyCompiledRoomCallbackDefinitions()
     {
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         string symbolPath = Path.GetFullPath(
             Path.Combine("upstream-sm", "assets", "names.txt"));

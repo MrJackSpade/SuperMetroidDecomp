@@ -3,6 +3,8 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.DebugRunner.Assets;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +21,7 @@ internal static class AreaMapAssetsVerification
         string root = scratch.Root;
         string romPath = Path.GetFullPath("Super Metroid.smc");
         AssertEqual(AreaIds.RetailCount, MapAssetExtractor.Extract(romPath, root), "exported area-map count");
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             int index = AreaIds.ToIndex(area);

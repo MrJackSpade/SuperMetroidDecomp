@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

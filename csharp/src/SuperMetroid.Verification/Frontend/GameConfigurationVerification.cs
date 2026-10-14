@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Frontend;
 
 /// <summary>Checks shipped game option defaults, accepted INI values, and configuration error messages.</summary>

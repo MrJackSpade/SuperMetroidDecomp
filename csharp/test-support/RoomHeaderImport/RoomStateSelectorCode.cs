@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Rooms;
+﻿namespace SuperMetroid.TestSupport.RoomHeaderImport;
 
 /// <summary>Native bank-$8F callbacks accepted by a room header's inline state program.</summary>
 /// <remarks>

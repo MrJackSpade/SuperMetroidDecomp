@@ -1,9 +1,8 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 
-namespace SuperMetroid.Android;
+namespace SuperMetroid.Diagnostics.Android;
 
 /// <summary>Validated local file imports; replacement always preserves a unique recovery copy.</summary>
 internal static class AndroidFileImport

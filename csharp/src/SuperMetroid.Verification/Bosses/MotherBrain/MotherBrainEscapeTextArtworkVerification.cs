@@ -8,6 +8,8 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -22,7 +24,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
     {
         RoomCharacterAtlas artwork = stock.MotherBrainEscapeText ??
             throw new InvalidDataException("Extracted Mother Brain escape-text PNG was not bound.");
-        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] native = RomDataReader.ReadFixedBank(rom,
             MotherBrainEscapeTextArtworkDefinitions.SourceAddress,
             MotherBrainEscapeTextArtworkDefinitions.ByteCount);
@@ -31,7 +33,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
 
         SnesVram installedVram = TransferMotherBrainEscapeTextPages(stock,
             NewMotherBrainEscapeTextReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
         // The oracle owns cartridge bytes; production has no uninstalled-ROM fallback.
         var cartridgeVram = new SnesVram();
         for (int page = 0; page < 5; page++)
@@ -73,7 +75,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited,
             NewMotherBrainEscapeTextReadGuard(
-                SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
         int firstDestination = MotherBrainEscapeTextArtworkDefinitions.PageDestination(0) * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
             editedVram.ReadByte(firstDestination),

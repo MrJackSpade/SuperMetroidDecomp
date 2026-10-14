@@ -10,6 +10,9 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +22,7 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
     /// <summary>Loads the retail cartridge to compare electricity instruction mechanics and frames.</summary>
     internal static void VerifySaveStationElectricityInstructionProgramDefinitions() =>
         Suite(nameof(VerifySaveStationElectricityInstructionProgramDefinitions), () => VerifySaveStationElectricityInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Exercises all 160 displayed frames, the terminal and shot deletion paths, and compiled sprite selectors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for save station electricity instruction program definitions")]

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.Backgrounds;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>One source operand in a native library-background list, not a synthesized image.</summary>
 internal sealed record LibraryBackgroundSource(

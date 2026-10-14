@@ -1,4 +1,6 @@
 using SuperMetroid.Core;
+
+namespace SuperMetroid.DesktopVerification;
 /// <summary>Locates the user's private cartridge image without requiring debug arguments.</summary>
 static class PrivateRomPath
 {

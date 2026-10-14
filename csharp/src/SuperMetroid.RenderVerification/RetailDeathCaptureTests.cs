@@ -3,6 +3,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Compares captured death and reserve-recovery frames with the legacy raster and audio path.</summary>
 internal static class RetailDeathCaptureTests

@@ -7,6 +7,8 @@ using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Skree;
 using SuperMetroid.Verification.Harness;
 
@@ -17,7 +19,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
     internal static void VerifySkreeMetareeParticleInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkreeMetareeParticleInstructionProgramDefinitions), () => VerifySkreeMetareeParticleInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     /// <summary>Checks compiled words and executes all eight directional burst particles with runtime mechanics reads forbidden.</summary>

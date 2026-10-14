@@ -1,5 +1,5 @@
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Diagnostics;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 

@@ -5,6 +5,8 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
 
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Conspicuous, valid disk edits used only by the paired Samus isolation fixtures.</summary>
 internal static class SamusIsolationArtworkEdits
 {

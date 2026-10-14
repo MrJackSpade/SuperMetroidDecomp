@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Retail door and staged missile identities used by the Kraid capture sequence.</summary>
 internal static class KraidCaptureDefinitions
 {

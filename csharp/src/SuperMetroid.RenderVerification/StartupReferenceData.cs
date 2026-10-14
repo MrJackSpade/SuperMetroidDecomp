@@ -1,3 +1,5 @@
+namespace SuperMetroid.RenderVerification;
+
 /// <summary>Independent Snes9x pixel digests used by the startup renderer checks.</summary>
 internal static class StartupReferenceData
 {

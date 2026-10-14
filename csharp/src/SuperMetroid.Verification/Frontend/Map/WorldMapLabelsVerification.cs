@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Frontend.Map.MapWindowMotionDefinitionsVe
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 

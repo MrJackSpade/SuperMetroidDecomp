@@ -7,6 +7,8 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 
+namespace SuperMetroid.TestSupport.ScenarioFixtures;
+
 /// <summary>
 /// Issue #347: a morphed Samus bombing on an X-ray-scope-room shutter while rolling off and back.
 /// The verifier checks the reproduced case against its native trajectory; the debug runner

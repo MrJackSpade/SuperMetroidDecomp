@@ -2188,40 +2188,6 @@ internal static class LookupStream3Verification
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => ChootPatternDefinitions.ForIndex(invalid),
                 "stream 3 Choot rejects alias and invalid patterns");
-        ushort[] mechanics = [0xd82c, 0xd82e, 0xd832, 0xd834, 0xd836, 0xd83a, 0xd83e, 0xd840, 0xd842, 0xd846, 0xd84a];
-        ushort[] presentation = [0xd830, 0xd838, 0xd83c, 0xd844, 0xd848];
-        AssertEqual(mechanics.Length, ChootInstructionProgramDefinitionsTooling.MechanicsWordCount, "stream 3 Choot mechanics count");
-        AssertEqual(presentation.Length, ChootInstructionProgramDefinitionsTooling.PresentationWordCount, "stream 3 Choot visual count");
-        for (int index = 0; index < mechanics.Length; index++)
-        {
-            ushort address = mechanics[index];
-            ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | address));
-            AssertEqual(new InstructionMechanicsWord(address, value), ChootInstructionProgramDefinitionsTooling.MechanicsWord(index),
-                "stream 3 Choot native control instruction");
-            AssertEqual(value, ChootInstructionProgramDefinitions.ReadMechanicsWord(address), "stream 3 Choot control dispatch");
-        }
-        for (int index = 0; index < presentation.Length; index++)
-        {
-            ushort address = presentation[index];
-            AssertEqual(address, ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "stream 3 Choot visual operand");
-            AssertThrows<InvalidDataException>(() => ChootInstructionProgramDefinitions.ReadMechanicsWord(address),
-                "stream 3 Choot visual operand remains excluded");
-        }
-        var bytes = mechanics.SelectMany(address => new[] { (int)address, address + 1 }).ToHashSet();
-        var visualWords = presentation.ToHashSet();
-        for (int address = 0; address <= ushort.MaxValue; address++)
-        {
-            AssertEqual(bytes.Contains(address), ChootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | address),
-                "stream 3 Choot byte ownership");
-            AssertEqual(visualWords.Contains((ushort)address), ChootInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-                "stream 3 Choot presentation ownership");
-        }
-        foreach (int invalid in new[] { -1, 11, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => ChootInstructionProgramDefinitionsTooling.MechanicsWord(invalid),
-                "stream 3 Choot mechanics bounds");
-        foreach (int invalid in new[] { -1, 5, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),
-                "stream 3 Choot visual bounds");
     }
 
     /// <summary>Checks pickup and death animation dispatch plus Fireflea instruction words against native tables.</summary>
@@ -2291,43 +2257,12 @@ internal static class LookupStream3Verification
         AssertTrue(!EnemyPickupInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa3ed8d),
             "stream 3 pickup excludes other bank");
 
-        AssertEqual(54, FirefleaInstructionProgramDefinitionsTooling.MechanicsWordCount, "stream 3 Fireflea mechanic count");
-        AssertEqual(52, FirefleaInstructionProgramDefinitionsTooling.PresentationWordCount, "stream 3 Fireflea visual count");
-        var fireBytes = new HashSet<int>();
-        for (int index = 0; index < 54; index++)
-        {
-            ushort address = (ushort)(index < 52 ? 0x8c2f + index * 4 : 0x8cff + (index - 52) * 2);
-            ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | address));
-            AssertEqual(new InstructionMechanicsWord(address, value), FirefleaInstructionProgramDefinitionsTooling.MechanicsWord(index),
-                "stream 3 native Fireflea mechanic");
-            AssertEqual(value, FirefleaInstructionProgramDefinitions.ReadMechanicsWord(address),
-                "stream 3 Fireflea mechanic dispatch");
-            fireBytes.Add(address);
-            fireBytes.Add(address + 1);
-            if (index < 52)
-            {
-                ushort visual = (ushort)(address + 2);
-                AssertEqual(visual, FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
-                    "stream 3 Fireflea visual operand");
-                AssertThrows<InvalidDataException>(() => FirefleaInstructionProgramDefinitions.ReadMechanicsWord(visual),
-                    "stream 3 Fireflea visual remains excluded");
-            }
-        }
-        for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(fireBytes.Contains(address), FirefleaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address),
-                "stream 3 Fireflea byte ownership domain");
         foreach (int invalid in new[] { -1, 30, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => EnemyPickupInstructionProgramDefinitionsTooling.MechanicsWord(invalid),
                 "stream 3 pickup mechanic bounds");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => EnemyPickupInstructionProgramDefinitions.PresentationWordAddress(invalid),
                 "stream 3 pickup visual bounds");
-        foreach (int invalid in new[] { -1, 54, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => FirefleaInstructionProgramDefinitionsTooling.MechanicsWord(invalid),
-                "stream 3 Fireflea mechanic bounds");
-        foreach (int invalid in new[] { -1, 52, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),
-                "stream 3 Fireflea visual bounds");
     }
 
     /// <summary>Checks six four-color Work Robot palette frames against ROM and edited RGB5 source colors.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
@@ -39,6 +40,9 @@ public sealed class BullEnemyState
         _shotReactionDisableTimers = tables.ShotReactionDisableTimers;
         _previousHealth = tables.PreviousHealth;
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<BullProgram> Program { get; set; }
 
     /// <summary>Native variable A ($0FA8 plus slot byte index): the current bank-$A8 delay, target, acceleration, or deceleration dispatcher pointer.</summary>
     public BullEnemyFunction Function

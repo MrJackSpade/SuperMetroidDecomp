@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Bull;
@@ -30,7 +31,7 @@ internal static class BullMovementDefinitionsVerification
             AssertEqual(16, state.ActivationTimer.RawValue, "Bull native activation delay");
             AssertEqual(1, slot.InstructionTimer.RawValue, "Bull instruction timer");
             AssertEqual(0, slot.Timer.RawValue, "Bull loop timer");
-            AssertEqual(0xd841, slot.CurrentInstruction, "Bull native initial instruction");
+            AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal), state.Program, "Bull initial animation");
         }
         AssertThrows<InvalidDataException>(() => BullMovementDefinitions.MaximumSpeed(8), "Bull unknown speed selector");
         AssertThrows<InvalidDataException>(() => BullMovementDefinitions.Intervals(13), "Bull unknown interval selector");

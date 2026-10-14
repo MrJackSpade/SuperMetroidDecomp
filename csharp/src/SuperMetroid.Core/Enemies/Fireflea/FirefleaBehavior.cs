@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Samus;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Fireflea.Artwork;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
@@ -42,7 +44,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies
             _firefleaMaximumYPositions,
             _firefleaSpeedTableIndexes);
         _firefleaStates[slot.SlotIndex] = state;
-        slot.CurrentInstruction = OrdinaryEnemyInstructionLists.FirefleaInitial;
+        state.Program = AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop);
 
         // Parameter one is native `init0`: bit one selects circle versus vertical motion,
         // bit zero selects the sign half of the speed table, and its high byte is the initial
@@ -166,6 +168,18 @@ internal sealed class FirefleaBehavior : IEnemySpecies
             },
         });
     }
+
+    /// <summary>Runs Fireflea's glow loop as a typed program (#641).</summary>
+    internal void RegisterFirefleaTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireFirefleaState(slot);
+            AnimationProgramCursor<FirefleaProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, FirefleaAnimations.Programs, ref cursor, FirefleaFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Routes Fireflea definition slots to their parameter-decoding initializer.</summary>
     internal void RegisterFirefleaInitializationAi(EnemyAiTable table)

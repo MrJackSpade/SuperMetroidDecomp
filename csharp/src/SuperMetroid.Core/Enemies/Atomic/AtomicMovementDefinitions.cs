@@ -4,16 +4,15 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 internal static class AtomicMovementDefinitions
 {
     /// <summary>
-    /// $A8:E380, InstructionListPointers_Atomic: four instruction-list pointers
-    /// selected by the enemy population's first parameter. Named direction cases
-    /// select the independently calculated control programs.
+    /// $A8:E380, InstructionListPointers_Atomic: the four spinning animations, selected by the enemy population's first
+    /// parameter.
     /// </summary>
-    internal static ushort InitialInstructionList(ushort parameter) => parameter switch
+    internal static AtomicProgram InitialProgram(ushort parameter) => parameter switch
     {
-        0 => AtomicInstructionProgramDefinitions.UpRight,
-        1 => AtomicInstructionProgramDefinitions.UpLeft,
-        2 => AtomicInstructionProgramDefinitions.DownLeft,
-        3 => AtomicInstructionProgramDefinitions.DownRight,
+        0 => AtomicProgram.UpRight,
+        1 => AtomicProgram.UpLeft,
+        2 => AtomicProgram.DownLeft,
+        3 => AtomicProgram.DownRight,
         _ => throw new InvalidDataException(
             $"Atomic instruction selector ${parameter:X4} is outside the four authored appearances."),
     };

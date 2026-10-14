@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Sbug.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Sbug;
@@ -42,10 +44,10 @@ internal sealed class SbugBehavior : IEnemySpecies
 
         var state = new SbugEnemyState(slot)
         {
-            // Enemy extension arrays are cleared with room WRAM before initialization. Spell
-            // out the two animation words because SetSbugInstructionList compares them.
-            RequestedInstructionList = 0,
-            InstalledInstructionList = 0,
+            // Enemy extension arrays are cleared with room WRAM before initialization: no loop
+            // is requested or installed until the first direction is selected.
+            RequestedProgram = null,
+            InstalledProgram = null,
             Function = SbugEnemyFunction.WaitForSamus,
         };
         _sbugStates[slot.SlotIndex] = state;
@@ -437,13 +439,12 @@ internal sealed class SbugBehavior : IEnemySpecies
         // index back into a byte address clears bit zero. This only matters after the
         // cartridge's odd `(index + 4) & 7` reversal mask; the compiled selector must
         // choose the same word rather than treating an odd index as a distinct direction.
-        state.RequestedInstructionList =
-            SbugMovementDefinitions.FacingInstructionList(instructionIndex);
-        if (state.RequestedInstructionList == state.InstalledInstructionList)
+        state.RequestedProgram = SbugMovementDefinitions.FacingProgram(instructionIndex);
+        if (state.RequestedProgram == state.InstalledProgram)
             return;
 
-        state.InstalledInstructionList = state.RequestedInstructionList;
-        slot.CurrentInstruction = state.RequestedInstructionList;
+        state.InstalledProgram = state.RequestedProgram;
+        state.Program = AnimationProgramCursor<SbugProgram>.Start(state.RequestedProgram.Value);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -458,6 +459,18 @@ internal sealed class SbugBehavior : IEnemySpecies
     private SbugEnemyState RequireSbugState(RoomEnemySlot slot) =>
         _sbugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Sbug state.");
+
+    /// <summary>Runs Sbug's directional loops as typed programs (#641).</summary>
+    internal void RegisterSbugTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireSbugState(slot);
+            AnimationProgramCursor<SbugProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, SbugAnimations.Programs, ref cursor, SbugFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Routes both Sbug definitions through the parameter-selected initializer.</summary>
     internal void RegisterSbugInitializationAi(EnemyAiTable table)

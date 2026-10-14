@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>
@@ -32,6 +33,9 @@ public sealed class AtomicEnemyState
         _negativeSpeedFractions = negativeSpeedFractions;
         _negativeSpeedWholes = negativeSpeedWholes;
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<AtomicProgram> Program { get; set; }
 
     /// <summary>
     /// Native <c>Atomic.XMovementFunction</c> at enemy variable A. Despite that original

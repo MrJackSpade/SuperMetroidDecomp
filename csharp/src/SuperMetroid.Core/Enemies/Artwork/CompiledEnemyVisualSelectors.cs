@@ -47,10 +47,8 @@ internal static partial class CompiledEnemyVisualSelectors
         EnemyInstructionBank.Bank86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         EnemyInstructionBank.BankA2 => ShutterVisualDefinitions.IsPresentationWord((ushort)address) || BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address) || VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address),
         EnemyInstructionBank.BankA3 => ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        EnemyInstructionBank.BankA6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
-            FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        EnemyInstructionBank.BankA8 => BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
-            AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        EnemyInstructionBank.BankA6 => FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        EnemyInstructionBank.BankA8 => BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${SnesAddressMath.BankNumber(address):X2}."),
     };
     /// <summary>Resolves special and calculated sprite operands, then searches literal bank entries.</summary>
@@ -74,18 +72,14 @@ internal static partial class CompiledEnemyVisualSelectors
                     ? EnemySpritemapDefinitions.KamerPlatformFrameAt(operandAddress) : EnemySpritemapDefinitions.BoyonFrameAt(operandAddress),
                 EnemyInstructionBank.BankA3 => PlatformInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? TripperKamerVisualDefinitions.FrameAt(operandAddress) : EnemySpritemapDefinitions.ElevatorFrameAt(operandAddress),
-                EnemyInstructionBank.BankA6 => BoulderInstructionProgramDefinitions.IsPresentationWord(operandAddress)
-                    ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)
-                    : KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operandAddress),
+                EnemyInstructionBank.BankA6 => KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operandAddress),
                 EnemyInstructionBank.BankA8 => FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)
                     : AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.AlcoonFrameAt(operandAddress)
                     : BeetomInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.BeetomFrameAt(operandAddress)
-                    : BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord(operandAddress)
-                    ? BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operandAddress)
-                    : EnemySpritemapDefinitions.AtomicFrameAt(operandAddress),
+                    : BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operandAddress),
                 _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${bank:X2}."),
             };
             return true;

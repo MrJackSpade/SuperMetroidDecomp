@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Samus;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Atomic.Artwork;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Atomic;
 
@@ -32,7 +34,7 @@ internal sealed class AtomicBehavior : IEnemySpecies
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
-        slot.CurrentInstruction = AtomicMovementDefinitions.InitialInstructionList(slot.Parameter1);
+        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicMovementDefinitions.InitialProgram(slot.Parameter1));
 
         // Parameter two is an index into the shared eight-byte linear-speed record:
         // positive whole/fraction followed by its ROM-generated negative whole/fraction.
@@ -134,6 +136,18 @@ internal sealed class AtomicBehavior : IEnemySpecies
     private AtomicEnemyState RequireAtomicState(RoomEnemySlot slot) =>
         _atomicStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Atomic state.");
+
+    /// <summary>Runs Atomic's spinning animations as typed programs (#641).</summary>
+    internal void RegisterAtomicTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Atomic, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireAtomicState(slot);
+            AnimationProgramCursor<AtomicProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, AtomicAnimations.Programs, ref cursor, AtomicFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Registers the bank-$A8 Atomic initializer for its enemy definition.</summary>
     internal void RegisterAtomicInitializationAi(EnemyAiTable table)

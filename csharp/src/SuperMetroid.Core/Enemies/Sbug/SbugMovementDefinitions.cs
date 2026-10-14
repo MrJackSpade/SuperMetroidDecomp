@@ -4,16 +4,22 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 internal static class SbugMovementDefinitions
 {
     /// <summary>
-    /// $A3:A111: eight directional programs, each four duration/frame records plus
-    /// a goto pair (twenty bytes). Native odd reversal indices discard bit zero.
+    /// $A3:A111: the eight directional loops, selected by a byte index into the word table. Native odd reversal indices
+    /// discard bit zero.
     /// </summary>
-    internal static ushort FacingInstructionList(ushort directionIndex)
+    internal static SbugProgram FacingProgram(ushort directionIndex) => (directionIndex >> 1) switch
     {
-        if (directionIndex > 0x000f)
-            throw new InvalidDataException(
-                $"Sbug direction index ${directionIndex:X4} is outside the eight native selectors.");
-        return (ushort)(SbugInstructionProgramDefinitions.Right + 20 * (directionIndex >> 1));
-    }
+        0 => SbugProgram.Right,
+        1 => SbugProgram.UpRight,
+        2 => SbugProgram.Up,
+        3 => SbugProgram.UpLeft,
+        4 => SbugProgram.Left,
+        5 => SbugProgram.DownLeft,
+        6 => SbugProgram.Down,
+        7 => SbugProgram.DownRight,
+        _ => throw new InvalidDataException(
+            $"Sbug direction index {directionIndex} is outside the eight native selectors."),
+    };
 
     /// <summary>$A3:A121: dispatches the seven population-selected activation behaviors.</summary>
     internal static SbugEnemyFunction ActivationFunction(SbugActivationBehavior behavior) => behavior switch

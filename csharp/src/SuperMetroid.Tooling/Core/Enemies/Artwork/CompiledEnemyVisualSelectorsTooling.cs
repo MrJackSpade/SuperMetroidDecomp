@@ -18,9 +18,8 @@ internal static class CompiledEnemyVisualSelectorsTooling
 {
     /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
     internal static int CalculatedCount => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount + BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount + GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount + HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount + (VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
-        BoulderInstructionProgramDefinitionsTooling.PresentationWordCount +
         FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
-        FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount + AtomicInstructionProgramDefinitionsTooling.PresentationWordCount;
+        FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
     internal static int Count => CompiledEnemyVisualSelectors.Entries.Length + CalculatedCount;
     /// <summary>Returns one selector from the bank/address-ordered merge of literal and calculated entries.</summary>
@@ -97,12 +96,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
             return new(0xa30000 | operand, TripperKamerVisualDefinitions.FrameAt(operand));
         }
         index -= PlatformInstructionProgramDefinitionsTooling.PresentationWordCount;
-        if (index < BoulderInstructionProgramDefinitionsTooling.PresentationWordCount)
-        {
-            ushort operand = BoulderInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa60000 | operand, EnemySpritemapDefinitions.BoulderFrameAt(operand));
-        }
-        index -= BoulderInstructionProgramDefinitionsTooling.PresentationWordCount;
         if (index < FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount)
         {
             ushort operand = FakeKraidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
@@ -127,12 +120,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
             return new(0xa80000 | operand, EnemySpritemapDefinitions.AlcoonFrameAt(operand));
         }
         index -= AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
-        if (index < AtomicInstructionProgramDefinitionsTooling.PresentationWordCount)
-        {
-            ushort operand = AtomicInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa80000 | operand, EnemySpritemapDefinitions.AtomicFrameAt(operand));
-        }
-        index -= AtomicInstructionProgramDefinitionsTooling.PresentationWordCount;
         if (index < BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount)
         {
             ushort operand = BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(index);

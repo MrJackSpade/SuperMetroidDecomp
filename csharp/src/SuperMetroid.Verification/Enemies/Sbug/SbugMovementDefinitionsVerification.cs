@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -29,12 +30,13 @@ internal static class SbugMovementDefinitionsVerification
         Action<RoomEnemySlot> initialize = enemies.SbugBehavior.InitializeSbug;
         Action<RoomEnemySlot, SamusState, RoomLevelData?> runMain = enemies.SbugBehavior.RunSbugMain;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.Sbug;
 
         for (ushort directionIndex = 0; directionIndex < 16; directionIndex++)
         {
             int address = instructionTable + (directionIndex >> 1) * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native, SbugMovementDefinitions.FacingInstructionList(directionIndex),
+            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, SbugMovementDefinitions.FacingProgram(directionIndex)),
                 $"compiled Sbug facing selector {directionIndex}");
         }
 
@@ -57,8 +59,14 @@ internal static class SbugMovementDefinitionsVerification
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             AssertEqual(unchecked((ushort)(selector * 2)), (state ?? throw new InvalidOperationException("Verification requires state.")).ForwardInstructionIndex,
                 $"Sbug production facing index {selector}");
-            AssertEqual(native, slot.CurrentInstruction,
-                $"Sbug production facing instruction {selector}");
+            AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovementDefinitions.FacingProgram((ushort)(selector * 2))), state.Program,
+                $"Sbug production facing animation {selector}");
+            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, state.Program.Program),
+                $"Sbug production facing list {selector}");
+            // Each loop shows its four frames five updates apiece, then its goto shows the first again.
+            ushort[] loop = SbugAnimations.Spritemaps(state.Program.Program).ToArray();
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. loop, loop[0]], [5, 5, 5, 5, 5]),
+                EnemyInstructionRunner.ShownFrames(enemies, slot, 21), $"Sbug facing loop {selector}");
         }
 
         var samus = new SamusState
@@ -79,107 +87,18 @@ internal static class SbugMovementDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => SbugMovementDefinitions.FacingInstructionList(16),
+            () => SbugMovementDefinitions.FacingProgram(16),
             "Sbug facing selector beyond authored table");
         AssertThrows<InvalidDataException>(
-            () => SbugMovementDefinitions.FacingInstructionList(ushort.MaxValue),
+            () => SbugMovementDefinitions.FacingProgram(ushort.MaxValue),
             "Sbug restored facing selector does not read adjacent code");
         AssertThrows<InvalidDataException>(
             () => SbugMovementDefinitions.ActivationFunction((SbugActivationBehavior)7),
             "Sbug activation selector beyond authored table");
 
-        for (int index = 0;
-             index < SbugInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                SbugInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | definition.Address),
-                $"Sbug mechanics word $A3:{definition.Address:X4}");
-        }
-
-        var programGuard = NewSbugProgramReadGuard(rom);
-        ushort[] entries =
-        [
-            SbugInstructionProgramDefinitions.Right,
-            SbugInstructionProgramDefinitions.UpRight,
-            SbugInstructionProgramDefinitions.Up,
-            SbugInstructionProgramDefinitions.UpLeft,
-            SbugInstructionProgramDefinitions.Left,
-            SbugInstructionProgramDefinitions.DownLeft,
-            SbugInstructionProgramDefinitions.Down,
-            SbugInstructionProgramDefinitions.DownRight,
-        ];
-        for (int entryIndex = 0; entryIndex < entries.Length; entryIndex++)
-        {
-            var programSystem = new RoomEnemySystem();
-            programSystem.BindFixtureBus(programGuard);
-            RoomEnemySlot programSlot = programSystem.SlotTable.Slots[0];
-            programSlot.EnemyDefinitionPointer = entryIndex < 4
-                ? EnemyDefinitionId.Sbug
-                : EnemyDefinitionId.Sbug2;
-            programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
-            programSlot.CurrentInstruction = entries[entryIndex];
-            programSlot.InstructionTimer = NativeCountdown.Start(1);
-            object?[] arguments =
-                [programSlot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-
-            // Four five-frame entries total 20 frames; the margin proves the terminal
-            // goto restarts the production stream rather than merely reaching its target.
-            for (int frame = 0; frame < 25; frame++)
-                EnemyInstructionRunner.Process(programSystem, arguments);
-        }
-
-        AssertEqual(0, programGuard.ObservedWords.Count,
-            "all Sbug presentation selectors are compiled, not reread from cartridge");
-        for (int index = 0;
-             index < SbugInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                SbugInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | address),
-                EnemySpritemapDefinitions.SbugFrameAt(address),
-                $"compiled Sbug visual selector $A3:{address:X4} matches cartridge");
-        }
-        AssertEqual(0, programGuard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Sbug mechanics byte");
-
-        AssertThrows<InvalidDataException>(
-            () => SbugInstructionProgramDefinitions.ReadMechanicsWord(0xa073),
-            "interleaved Sbug spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => SbugInstructionProgramDefinitions.ReadMechanicsWord(0xffff),
-            "restored pointer outside all Sbug programs fails loudly");
-
-        _ = SbugInstructionProgramDefinitions.ReadMechanicsWord(
-            SbugInstructionProgramDefinitions.Right);
-        _ = ProbeSbugInstructionMechanicsAllocation();
-        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeSbugInstructionMechanicsAllocation();
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
-        AssertTrue(checksum != 0, "Sbug allocation probe consumes live data");
-        AssertEqual(0L, allocated,
-            "warmed Sbug mechanics lookups allocate no per-frame storage");
-
         Console.WriteLine(
-            "Sbug movement definitions: eight facing lists, seven activation callbacks, " +
-            "48 compiled instruction words, and eight complete loops pass with mechanics " +
-            "and all 32 visual-selector reads forbidden.");
-    }
-
-    /// <summary>Repeatedly reads a warmed mechanics word so thread allocation accounting can detect per-frame lookup storage.</summary>
-    private static int ProbeSbugInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += SbugInstructionProgramDefinitions.ReadMechanicsWord(
-                SbugInstructionProgramDefinitions.Right);
-        }
-        return checksum;
+            "Sbug movement definitions: eight facing loops, seven activation callbacks and every loop's run pass " +
+            "with the selector tables forbidden.");
     }
 
     /// <summary>Rejects reads of the two migrated Sbug movement-selector tables.</summary>
@@ -187,19 +106,14 @@ internal static class SbugMovementDefinitionsVerification
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3a111 and < 0xa3a12f,
             address => $"Sbug movement attempted migrated selector read ${address:X6}.");
 
-    /// <summary>Rejects compiled instruction mechanics reads while observing presentation-word accesses.</summary>
-    private static CartridgeReadGuard NewSbugProgramReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(SbugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled Sbug mechanics byte ${address:X6}.")
-            .ObserveWords(0xa30000, SbugInstructionProgramDefinitions.PresentationWordCount, SbugInstructionProgramDefinitions.PresentationWordAddress);
-
-    /// <summary>Runs the retail-backed Sbug movement and instruction migration check.</summary>
+    /// <summary>Runs the retail-backed Sbug movement checks and program oracle.</summary>
     [VerificationCommand("--sbug-instruction-mechanics")]
     internal static int SbugInstructionMechanicsCommand()
     {
-        Suite(nameof(VerifySbugMovementDefinitions), () => VerifySbugMovementDefinitions(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        SuperMetroidAddressSpace rom =
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifySbugMovementDefinitions), () => VerifySbugMovementDefinitions(rom));
+        Suite(nameof(SbugAnimationsVerification.VerifySbugAnimations), () => SbugAnimationsVerification.VerifySbugAnimations(rom));
         return 0;
     }
 }

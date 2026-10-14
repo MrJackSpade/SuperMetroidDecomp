@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.Sbug;
@@ -84,9 +85,12 @@ public sealed class SbugEnemyState
     /// <summary>Custom-direction byte offset into <c>$A3:A111</c>; normally even $00-$0E, but reversal preserves the native <c>(index + 4) &amp; $0007</c> mask.</summary>
     public ushort CustomInstructionIndex { get; internal set; }
 
-    /// <summary>The list most recently requested by direction-selection code.</summary>
-    public ushort RequestedInstructionList { get; internal set; }
+    /// <summary>The loop most recently requested by direction-selection code.</summary>
+    internal SbugProgram? RequestedProgram { get; set; }
 
-    /// <summary>The list already installed in the common enemy instruction interpreter.</summary>
-    public ushort InstalledInstructionList { get; internal set; }
+    /// <summary>The loop already started, or none before the first direction is selected.</summary>
+    internal SbugProgram? InstalledProgram { get; set; }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<SbugProgram> Program { get; set; }
 }

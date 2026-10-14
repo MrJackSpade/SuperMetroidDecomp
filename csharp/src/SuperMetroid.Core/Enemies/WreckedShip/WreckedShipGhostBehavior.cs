@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Samus;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
@@ -52,10 +54,10 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
             EnemyProperties.Invisible);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = WreckedShipGhostInstructionProgramDefinitions.Floating;
 
         var state = new WreckedShipGhostEnemyState(slot)
         {
+            Program = AnimationProgramCursor<WreckedShipGhostProgram>.Start(WreckedShipGhostProgram.Floating),
             Function = WreckedShipGhostAiFunction.InitialInvisibleDelay,
             PhaseTimer = NativeCountdown.Start(WreckedShipGhostInitialDelay),
         };
@@ -412,6 +414,18 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
     private WreckedShipGhostEnemyState RequireWreckedShipGhostState(RoomEnemySlot slot) =>
         _wreckedShipGhostStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Wrecked Ship ghost slot {slot.SlotIndex} has no initialized native state.");
+
+    /// <summary>Runs the ghost's floating loop as a typed program (#641).</summary>
+    internal void RegisterWreckedShipGhostTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireWreckedShipGhostState(slot);
+            AnimationProgramCursor<WreckedShipGhostProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, WreckedShipGhostAnimations.Programs, ref cursor, WreckedShipGhostFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Routes the native Coven initialization callback to the ghost's slot-zero setup.</summary>
     internal void RegisterWreckedShipGhostInitializationAi(EnemyAiTable table)

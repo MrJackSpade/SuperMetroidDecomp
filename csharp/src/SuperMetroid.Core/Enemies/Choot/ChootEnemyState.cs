@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>
@@ -36,6 +37,9 @@ public sealed class ChootEnemyState
         _initialYSpeedTableIndexes = initialYSpeedTableIndexes;
         _jumpDelayTimers = jumpDelayTimers;
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<ChootProgram> Program { get; set; }
 
     /// <summary>Native <c>function</c> at <c>$0FA8 + enemy index</c>, stored in variable A: the bank-$A2 callback selected by Choot's main AI dispatcher.</summary>
     public ChootEnemyFunction Function

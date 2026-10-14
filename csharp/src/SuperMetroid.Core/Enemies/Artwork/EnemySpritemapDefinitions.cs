@@ -1798,7 +1798,7 @@ internal static class EnemySpritemapDefinitions
                 LowerNorfairRioFrameAt(operandAddress),
             EnemyDefinitionId.Geruta => NorfairRioFrameAt(operandAddress),
             EnemyDefinitionId.Puyo => PuyoFrameAt(operandAddress),
-            EnemyDefinitionId.Bull => BullFrameAt(operandAddress),
+            EnemyDefinitionId.Bull => 0,
             EnemyDefinitionId.Alcoon => AlcoonFrameAt(operandAddress),
             EnemyDefinitionId.Beetom => BeetomFrameAt(operandAddress),
             EnemyDefinitionId.Sidehopper or
@@ -1806,10 +1806,9 @@ internal static class EnemySpritemapDefinitions
                 EnemyDefinitionId.SidehopperLarge or
                 EnemyDefinitionId.SidehopperTourian or
                 EnemyDefinitionId.DessgeegaLarge => HopperFrameAt(operandAddress),
-            EnemyDefinitionId.Choot => ChootFrameAt(operandAddress),
+            EnemyDefinitionId.Choot => 0,
             EnemyDefinitionId.HZoomer => HZoomerFrameAt(operandAddress),
-            EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2 =>
-                SbugFrameAt(operandAddress),
+            EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2 => 0,
             EnemyDefinitionId.Fune or
                 EnemyDefinitionId.Namihe =>
                 FuneNamiheFrameAt(operandAddress),
@@ -1831,10 +1830,10 @@ internal static class EnemySpritemapDefinitions
                 EnemyDefinitionId.MZoomer =>
                 SharedCrawlerFrameAt(operandAddress),
             EnemyDefinitionId.Cacatac => CacatacFrameAt(operandAddress),
-            EnemyDefinitionId.Fireflea => FirefleaFrameAt(operandAddress),
+            EnemyDefinitionId.Fireflea => 0,
             EnemyDefinitionId.Magdollite => MagdolliteFrameAt(operandAddress),
-            EnemyDefinitionId.Boulder => BoulderFrameAt(operandAddress),
-            EnemyDefinitionId.Atomic => AtomicFrameAt(operandAddress),
+            EnemyDefinitionId.Boulder => 0,
+            EnemyDefinitionId.Atomic => 0,
             EnemyDefinitionId.Skultera => SkulteraFrameAt(operandAddress),
             EnemyDefinitionId.Waver => WaverFrameAt(operandAddress),
             EnemyDefinitionId.Zoa => 0,
@@ -1923,7 +1922,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Holtz or
             EnemyDefinitionId.Geruta or
             EnemyDefinitionId.Puyo or
-            EnemyDefinitionId.Bull or
             EnemyDefinitionId.Alcoon or
             EnemyDefinitionId.Beetom or
             EnemyDefinitionId.Sidehopper or
@@ -1931,9 +1929,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.SidehopperLarge or
             EnemyDefinitionId.SidehopperTourian or
             EnemyDefinitionId.DessgeegaLarge or
-            EnemyDefinitionId.Choot or
             EnemyDefinitionId.HZoomer or
-            EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2 or
             EnemyDefinitionId.Fune or
             EnemyDefinitionId.Namihe or
             EnemyDefinitionId.Kamer or
@@ -1949,10 +1945,8 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Sova or
             EnemyDefinitionId.Zoomer or
             EnemyDefinitionId.MZoomer or
-            EnemyDefinitionId.Cacatac or EnemyDefinitionId.Fireflea or
-            EnemyDefinitionId.Magdollite or
-            EnemyDefinitionId.Boulder or
-            EnemyDefinitionId.Atomic or EnemyDefinitionId.Skultera or
+            EnemyDefinitionId.Cacatac or
+            EnemyDefinitionId.Magdollite or EnemyDefinitionId.Skultera or
             EnemyDefinitionId.Waver or
             EnemyDefinitionId.Metaree or EnemyDefinitionId.Skree or
             EnemyDefinitionId.Zeb or
@@ -2063,20 +2057,6 @@ internal static class EnemySpritemapDefinitions
     }
 
     /// <summary>
-    /// Bull's eight fixed visual operands at $A8:D843..D867 select three
-    /// editable OAM compositions. Its immune-shot loop remains engine-owned.
-    /// </summary>
-    internal static ushort BullFrameAt(ushort operandAddress)
-    {
-        if (BullInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(BullBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Bull visual operand $A8:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
     /// Alcoon's 44 left/right walking, fire-volley, and airborne visual operands
     /// at $A8:DBEB..DCC3 select eighteen editable OAM compositions. Movement,
     /// fireball callbacks, and instruction timing remain compiled gameplay rules.
@@ -2163,20 +2143,6 @@ internal static class EnemySpritemapDefinitions
     }
 
     /// <summary>
-    /// The five <c>$A2:D830-D848</c> Choot visual operands select four
-    /// installed idle, jump, apex, and falling compositions.
-    /// </summary>
-    internal static ushort ChootFrameAt(ushort operandAddress)
-    {
-        if (ChootInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(ChootBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Choot visual operand $A2:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
     /// The twenty <c>$A3:DFD1-E035</c> HZoomer visual operands select
     /// installed five-frame compositions for each of four surface orientations.
     /// </summary>
@@ -2188,28 +2154,6 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"HZoomer visual operand $A3:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
-    /// Sbug's 32 visual operands in eight four-frame direction loops select
-    /// 24 distinct OAM compositions; the compiled bank-$A3 instruction program
-    /// owns cadence and goto commands, not the editable sprite resource.
-    /// </summary>
-    internal static ushort SbugFrameAt(ushort operandAddress)
-    {
-        for (int index = 0; index <
-             SbugInstructionProgramDefinitions.PresentationWordCount; index++)
-        {
-            if (SbugInstructionProgramDefinitions.PresentationWordAddress(index) !=
-                operandAddress)
-                continue;
-            if (CompiledEnemyVisualSelectors.TryGet(SbugBank, operandAddress,
-                    out ushort frame))
-                return frame;
-            break;
-        }
-        throw new InvalidDataException(
-            $"Sbug visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>
@@ -2225,7 +2169,6 @@ internal static class EnemySpritemapDefinitions
         throw new InvalidDataException(
             $"Shared-crawler visual operand $A3:{operandAddress:X4} is not compiled.");
     }
-
 
     /// <summary>Compiled Skree and Metaree visual operands; attack phases remain code.</summary>
     internal static ushort SkreeMetareeFrameAt(bool metaree, ushort operandAddress) =>
@@ -2331,20 +2274,6 @@ internal static class EnemySpritemapDefinitions
     }
 
     /// <summary>
-    /// Fireflea's 52 interleaved frame selectors at $A3:8C31..8CFD. The 2/1-frame
-    /// cadence and loop instruction remain compiled mechanics, not visual assets.
-    /// </summary>
-    internal static ushort FirefleaFrameAt(ushort operandAddress)
-    {
-        if (FirefleaInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(FirefleaBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Fireflea visual operand $A3:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
     /// Magdollite's 53 head, throwing-hand, and pillar selectors at $A8:AC9E..AE0E.
     /// Their attack callbacks, timing, and physical movement remain engine-owned.
     /// </summary>
@@ -2356,46 +2285,5 @@ internal static class EnemySpritemapDefinitions
             return frame;
         throw new InvalidDataException(
             $"Magdollite visual operand $A8:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
-    /// Boulder rolls through eight four-part frames. Its right-moving list plays the
-    /// same eight frames in reverse after the first frame; direction and duration
-    /// remain gameplay-owned.
-    /// </summary>
-    internal static ushort BoulderFrameAt(ushort operandAddress)
-    {
-        if (operandAddress >= 0x86a9 && operandAddress <= 0x86c5 &&
-            (operandAddress - 0x86a9) % 4 == 0)
-            return unchecked((ushort)(0x8a59 + (operandAddress - 0x86a9) / 4 * 0x16));
-        if (operandAddress >= 0x86cd && operandAddress <= 0x86e9 &&
-            (operandAddress - 0x86cd) % 4 == 0)
-        {
-            int index = (operandAddress - 0x86cd) / 4;
-            return unchecked((ushort)(0x8a59 + (index == 0 ? 0 : 8 - index) * 0x16));
-        }
-        throw new InvalidDataException(
-            $"Boulder visual operand $A6:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
-    /// Atomic has two authored six-frame spirals; the down-left/down-right programs
-    /// replay the matching up spiral in reverse. Directional movement remains compiled.
-    /// </summary>
-    internal static ushort AtomicFrameAt(ushort operandAddress)
-    {
-        int offset = operandAddress - 0xe312;
-        if (AtomicInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-        {
-            int direction = offset / 28;
-            int frame = offset % 28 / 4;
-            if (direction >= 2) frame = 5 - frame;
-            // Each spiral has six records: a two-byte count and four five-byte
-            // OAM entries, except frame four has three entries. Its shorter record
-            // moves frame five back five bytes and makes the spiral span127 bytes.
-            return (ushort)(0xe489 + (direction & 1) * 127 + frame * 22 - (frame == 5 ? 5 : 0));
-        }
-        throw new InvalidDataException(
-            $"Atomic visual operand $A8:{operandAddress:X4} is not compiled.");
     }
 }

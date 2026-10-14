@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class BoulderEnemyState
 
     /// <summary>Attaches the debugger-facing state view to one physical Boulder record.</summary>
     internal BoulderEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<BoulderProgram> Program { get; set; }
 
     /// <summary>Current bank-$A6 indirect AI target, backed by common variable A here and corresponding to native <c>Boulder.function</c> at $0FA8,x.</summary>
     public BoulderAiFunction Function

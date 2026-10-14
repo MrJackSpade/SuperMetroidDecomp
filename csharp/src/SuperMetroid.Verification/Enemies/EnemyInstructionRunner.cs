@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
@@ -53,6 +54,29 @@ internal static class EnemyInstructionRunner
         }
         return string.Join(",", shown);
     }
+
+    /// <summary>
+    /// The <see cref="ShownFrames"/> listing of one pass through <paramref name="program"/>, a loop of shows that ends by
+    /// going back to its start, followed by its first frame again; the generated ROM oracle ties the program itself to
+    /// the cartridge, so this states only how the runtime must execute it.
+    /// </summary>
+    internal static string ExpectedLoop<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs,
+        TProgram program, Func<TFrame, ushort> spritemap)
+        where TProgram : struct, Enum
+        where TFrame : struct
+        where TCue : notnull
+    {
+        var shows = programs.Steps(program).Where(step => step.Kind == AnimationProgramStepKind.Show).ToArray();
+        return ExpectedFrames([.. shows.Select(step => spritemap(step.Frame)), spritemap(shows[0].Frame)],
+            [.. shows.Select(step => step.Duration), shows[0].Duration]);
+    }
+
+    /// <summary>The update count <see cref="ExpectedLoop"/> covers: one pass plus the first update of the next.</summary>
+    internal static int LoopUpdates<TProgram, TFrame, TCue>(AnimationProgramSet<TProgram, TFrame, TCue> programs, TProgram program)
+        where TProgram : struct, Enum
+        where TFrame : struct
+        where TCue : notnull =>
+        programs.Steps(program).Where(step => step.Kind == AnimationProgramStepKind.Show).Sum(step => step.Duration) + 1;
 
     /// <summary>Accepts a nullable fixture reference at an argument index and reports mismatched runtime types.</summary>
     private static T? Optional<T>(object?[] arguments, int index) where T : class => arguments[index] switch

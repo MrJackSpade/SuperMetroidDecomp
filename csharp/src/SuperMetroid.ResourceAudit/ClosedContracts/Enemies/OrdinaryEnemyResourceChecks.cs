@@ -16,7 +16,7 @@ internal static class OrdinaryEnemyResourceChecks
         [
             ("Hibashi", HibashiVisualDefinitions.Bank, HibashiVisualDefinitions.Operands(), null, HibashiVisualDefinitions.FrameCount),
             ("Zebetite", ZebetiteVisualDefinitions.Bank, null, ZebetiteVisualDefinitions.Spritemaps(), ZebetiteVisualDefinitions.FrameCount),
-            ("WreckedShipGhost", WreckedShipGhostVisualDefinitions.Bank, WreckedShipGhostVisualDefinitions.Operands(), null, WreckedShipGhostVisualDefinitions.FrameCount),
+            ("WreckedShipGhost", WreckedShipGhostVisualDefinitions.Bank, null, WreckedShipGhostVisualDefinitions.Spritemaps(), WreckedShipGhostVisualDefinitions.FrameCount),
             ("Powamp", PowampVisualDefinitions.Bank, PowampVisualDefinitions.Operands(), null, PowampVisualDefinitions.FrameCount),
             ("Spark", SparkVisualDefinitions.Bank, SparkVisualDefinitions.Operands(), null, SparkVisualDefinitions.FrameCount),
             ("Shitroid", ShitroidVisualDefinitions.Bank, null, ShitroidVisualDefinitions.Spritemaps(), ShitroidVisualDefinitions.FrameCount),

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>
@@ -29,6 +30,9 @@ public sealed class FirefleaEnemyState
         _maximumYPositions = maximumYPositions;
         _speedTableIndexes = speedTableIndexes;
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<FirefleaProgram> Program { get; set; }
 
     /// <summary>Fractional word from the selected signed 16.16 angular speed entry.</summary>
     public ushort SubAngleDelta

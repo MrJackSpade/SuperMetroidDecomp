@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
@@ -15,6 +16,9 @@ public sealed class WreckedShipGhostEnemyState
 
     /// <summary>Projects the ghost's extended state onto its live enemy slot.</summary>
     internal WreckedShipGhostEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<WreckedShipGhostProgram> Program { get; set; }
 
     /// <summary>Enemy variable A: bank-$A8 indirect main-AI function.</summary>
     public WreckedShipGhostAiFunction Function

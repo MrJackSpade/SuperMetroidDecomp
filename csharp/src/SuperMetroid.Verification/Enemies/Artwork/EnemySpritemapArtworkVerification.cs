@@ -1,3 +1,6 @@
+using SuperMetroid.Verification.Enemies.Choot;
+using SuperMetroid.Core.Enemies.Boulder;
+using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Zoa;
 using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.Tooling;
@@ -10,8 +13,6 @@ using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonInstructionProgramDe
 using static SuperMetroid.Verification.Enemies.Beetom.BeetomInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonVisualsVerification;
-using static SuperMetroid.Verification.Enemies.Bull.BullInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Choot.ChootInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Corpses.DeadTorizoArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Evir.EvirVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.GrowingShutterInstructionProgramDefinitionsVerification;
@@ -162,50 +163,19 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(rom, stock));
     }
 
-    /// <summary>Checks Choot frame selectors against bank $A2 while excluding adjacent path data.</summary>
+    /// <summary>Runs Choot's idle, jumping and falling animations with the installed stock artwork.</summary>
     private static void VerifyInstalledChootInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
-        for (int index = 0;
-             index < ChootInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Choot, operand, out ushort frame),
-                $"Choot visual operand $A2:{operand:X4} is compiled");
-            AssertEqual(ReadChootInstructionWord(rom, 0xa20000 | operand), frame,
-                $"Choot selector $A2:{operand:X4} matches the pinned cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.ChootFrameAt(0xd84c),
-            "Choot rejects adjacent path data as a visual selector");
-        Suite(nameof(VerifyChootInstructionProgramDefinitions), () => VerifyChootInstructionProgramDefinitions(rom, stock));
+        Suite(nameof(ChootBehaviorVerification.VerifyChootBehavior), () => ChootBehaviorVerification.VerifyChootBehavior(rom, stock));
     }
 
     /// <summary>Checks Bull frame selectors and exercises normal and immune-shot programs without cartridge visual reads.</summary>
     private static void VerifyInstalledBullInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
-        for (int index = 0;
-             index < BullInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = BullInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Bull, operand, out ushort frame),
-                $"Bull visual operand $A8:{operand:X4} is compiled");
-            AssertEqual(ReadBullInstructionWord(rom, 0xa80000 | operand), frame,
-                $"Bull frame selector $A8:{operand:X4} matches the pinned cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.BullFrameAt(0xd871),
-            "Bull rejects adjacent shot-angle data as presentation");
-
-        var guard = NewBullInstructionProgramReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem { TileArtwork = stock };
-        Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureBus(rom);
         RoomEnemySlot bull = enemies.SlotTable.Slots[0];
         bull.EnemyDefinitionPointer = EnemyDefinitionId.Bull;
         bull.Definition = default(RoomEnemyDefinition) with
@@ -215,23 +185,17 @@ internal static class EnemySpritemapArtworkVerification
             [bull, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int frame = 0; frame < 41; frame++)
             EnemyInstructionRunner.Process(enemies, arguments);
-        AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
-            bull.CurrentInstruction,
-            "installed Bull normal animation retains its cursor and timing");
+        AssertEqual(BullAnimations.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,
+            "installed Bull normal animation loops back to its first frame on time");
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
             "Bull initializer did not publish typed state.");
         BullBehavior.ResolveBullImmuneShot(bull, state, (ushort)2);
         for (int frame = 0; frame < 61; frame++)
             EnemyInstructionRunner.Process(enemies, arguments);
-        AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
-            bull.CurrentInstruction,
+        AssertEqual(BullAnimations.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,
             "installed Bull immune-shot program returns to the normal loop");
         AssertEqual((ushort)0, bull.Timer.RawValue,
             "installed Bull immune-shot loop exhausts its native repeat timer");
-        AssertEqual(0, guard.ObservedWords.Count,
-            "installed Bull programs read no cartridge visual selectors");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "installed Bull programs retain compiled timing and control words");
     }
 
     /// <summary>Checks Puyo frame selectors and grounded and airborne programs without native presentation reads.</summary>
@@ -598,19 +562,6 @@ internal static class EnemySpritemapArtworkVerification
             () => EnemySpritemapDefinitions.FuneNamiheFrameAt(
                 FuneNamiheInstructionProgramDefinitions.FuneIdleRight),
             "Fune/Namihe rejects adjacent mechanics as presentation");
-        for (int index = 0; index <
-             SbugInstructionProgramDefinitions.PresentationWordCount; index++)
-        {
-            ushort operand = SbugInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa3, operand);
-            AssertEqual(native, EnemySpritemapDefinitions.SbugFrameAt(operand),
-                $"Sbug visual selector $A3:{operand:X4} matches native");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.SbugFrameAt(
-                SbugInstructionProgramDefinitions.UpLeft),
-            "Sbug rejects an adjacent mechanics operand as presentation");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(EnemyDefinitionId.TourianStatue, 0xe312, out _),
             "an enemy family without a compiled selector keeps its own selector path");
         AssertThrows<InvalidOperationException>(
@@ -2139,7 +2090,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Cacatac Y offset changes live room OAM");
         AssertEqual(stockCacatac.LowTable[0], editedCacatac.LowTable[0],
             "Cacatac visual override leaves X unchanged");
-        ushort boulderPointer = EnemySpritemapDefinitions.BoulderFrameAt(0x86a9);
+        ushort boulderPointer = BoulderAnimations.Spritemaps(BoulderProgram.Left).First();
         var stockBoulder = DrawEnemy(stock, NewFrameReadGuard(rom),
             boulderPointer, EnemyDefinitionId.Boulder);
         var editedBoulder = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -2149,7 +2100,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Boulder Y offset changes live room OAM");
         AssertEqual(stockBoulder.LowTable[0], editedBoulder.LowTable[0],
             "Boulder visual override leaves X unchanged");
-        ushort atomicPointer = EnemySpritemapDefinitions.AtomicFrameAt(0xe312);
+        ushort atomicPointer = AtomicAnimations.Spritemaps(AtomicProgram.UpRight).First();
         var stockAtomic = DrawEnemy(stock, NewFrameReadGuard(rom),
             atomicPointer, EnemyDefinitionId.Atomic);
         var editedAtomic = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -2283,8 +2234,7 @@ internal static class EnemySpritemapArtworkVerification
             EnemyDefinitionId.GRipper);
         AssertEqual(unchecked((byte)(stockFrozen.LowTable[1] + 1)),
             editedFrozen.LowTable[1], "authored frozen GRipper Y offset changes live room OAM");
-        ushort firefleaPointer = EnemySpritemapDefinitions.FirefleaFrameAt(
-            FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
+        ushort firefleaPointer = FirefleaAnimations.Spritemaps(FirefleaProgram.Loop).First();
         OamBuffer stockFireflea = DrawEnemy(stock, NewFrameReadGuard(rom),
             firefleaPointer, EnemyDefinitionId.Fireflea);
         OamBuffer editedFireflea = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -2349,8 +2299,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Puyo Y offset changes installed room OAM");
         AssertEqual(stockPuyo.LowTable[0], editedPuyo.LowTable[0],
             "Puyo visual edit leaves physical X unchanged");
-        ushort bullPointer = EnemySpritemapDefinitions.BullFrameAt(
-            BullInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
+        ushort bullPointer = BullAnimations.Spritemaps(BullProgram.Normal).First();
         OamBuffer stockBull = DrawEnemy(stock, NewFrameReadGuard(rom),
             bullPointer, EnemyDefinitionId.Bull);
         OamBuffer editedBull = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -2393,8 +2342,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Sidehopper Y offset changes installed room OAM");
         AssertEqual(stockHopper.LowTable[0], editedHopper.LowTable[0],
             "Sidehopper visual edit leaves physical X unchanged");
-        ushort chootPointer = EnemySpritemapDefinitions.ChootFrameAt(
-            ChootInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
+        ushort chootPointer = ChootAnimations.Spritemaps(ChootProgram.Idle).First();
         OamBuffer stockChoot = DrawEnemy(stock, NewFrameReadGuard(rom),
             chootPointer, EnemyDefinitionId.Choot);
         OamBuffer editedChoot = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -2415,8 +2363,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored HZoomer Y offset changes installed room OAM");
         AssertEqual(stockHZoomer.LowTable[0], editedHZoomer.LowTable[0],
             "HZoomer visual edit leaves physical X unchanged");
-        ushort sbugPointer = EnemySpritemapDefinitions.SbugFrameAt(
-            SbugInstructionProgramDefinitions.PresentationWordAddress(0));
+        ushort sbugPointer = SbugAnimations.Spritemaps(SbugProgram.Right).First();
         foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
                  { EnemyDefinitionId.Sbug, EnemyDefinitionId.Sbug2 })
         {

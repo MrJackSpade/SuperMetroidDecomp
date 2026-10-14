@@ -1,3 +1,17 @@
+using SuperMetroid.Core.Enemies.Choot.Artwork;
+using SuperMetroid.Core.Enemies.Choot;
+using SuperMetroid.Core.Enemies.Boulder.Artwork;
+using SuperMetroid.Core.Enemies.Boulder;
+using SuperMetroid.Core.Enemies.Bull.Artwork;
+using SuperMetroid.Core.Enemies.Bull;
+using SuperMetroid.Core.Enemies.Atomic.Artwork;
+using SuperMetroid.Core.Enemies.Atomic;
+using SuperMetroid.Core.Enemies.Fireflea.Artwork;
+using SuperMetroid.Core.Enemies.Fireflea;
+using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
+using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Enemies.Sbug.Artwork;
+using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Kzan.Artwork;
@@ -113,6 +127,20 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(KzanAnimations), "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanAnimations.cs");
         RequireTypedFrames(PolypAnimations.Programs, PolypFrameDefinitions.Spritemap, PolypFrameDefinitions.Bank,
             nameof(PolypAnimations), "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypAnimations.cs");
+        RequireTypedFrames(SbugAnimations.Programs, SbugFrameDefinitions.Spritemap, SbugFrameDefinitions.Bank,
+            nameof(SbugAnimations), "csharp/src/SuperMetroid.Core/Enemies/Sbug/SbugAnimations.cs");
+        RequireTypedFrames(WreckedShipGhostAnimations.Programs, WreckedShipGhostFrameDefinitions.Spritemap, WreckedShipGhostFrameDefinitions.Bank,
+            nameof(WreckedShipGhostAnimations), "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostAnimations.cs");
+        RequireTypedFrames(FirefleaAnimations.Programs, FirefleaFrameDefinitions.Spritemap, FirefleaFrameDefinitions.Bank,
+            nameof(FirefleaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Fireflea/FirefleaAnimations.cs");
+        RequireTypedFrames(AtomicAnimations.Programs, AtomicFrameDefinitions.Spritemap, AtomicFrameDefinitions.Bank,
+            nameof(AtomicAnimations), "csharp/src/SuperMetroid.Core/Enemies/Atomic/AtomicAnimations.cs");
+        RequireTypedFrames(BullAnimations.Programs, BullFrameDefinitions.Spritemap, BullFrameDefinitions.Bank,
+            nameof(BullAnimations), "csharp/src/SuperMetroid.Core/Enemies/Bull/BullAnimations.cs");
+        RequireTypedFrames(BoulderAnimations.Programs, BoulderFrameDefinitions.Spritemap, BoulderFrameDefinitions.Bank,
+            nameof(BoulderAnimations), "csharp/src/SuperMetroid.Core/Enemies/Boulder/BoulderAnimations.cs");
+        RequireTypedFrames(ChootAnimations.Programs, ChootFrameDefinitions.Spritemap, ChootFrameDefinitions.Bank,
+            nameof(ChootAnimations), "csharp/src/SuperMetroid.Core/Enemies/Choot/ChootAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

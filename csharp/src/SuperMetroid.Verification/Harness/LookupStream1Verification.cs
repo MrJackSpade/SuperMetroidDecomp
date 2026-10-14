@@ -2111,11 +2111,7 @@ internal static class LookupStream1Verification
         }
         foreach (int invalid in new[] { int.MinValue, 0x90c480, 0x90c4b5, int.MaxValue })
             AssertThrows<InvalidDataException>(() => ChargeFlareAnimationDefinitions.ReadByte(invalid), "stream1 flare byte domain");
-        Check(0xa80000, 0xd841, 0xd871, BullInstructionProgramDefinitions.MechanicsWordCount, BullInstructionProgramDefinitionsTooling.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = BullInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: BullInstructionProgramDefinitionsTooling.PresentationWordAddress, Read: BullInstructionProgramDefinitions.ReadMechanicsWord, Owns: BullInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a is 0xd843 or 0xd847 or 0xd84b or 0xd84f or 0xd85b or 0xd85f or 0xd863 or 0xd867));
         Check(0x860000, 0xd92e, 0xd96a, CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount, CacatacProjectileInstructionProgramDefinitions.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress, Read: CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord, Owns: CacatacProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => (a - 0xd930) % 6 == 0));
-        for (int address = 0xd840; address <= 0xd871; address++)
-            AssertEqual(address is 0xd843 or 0xd847 or 0xd84b or 0xd84f or 0xd85b or 0xd85f or 0xd863 or 0xd867,
-                BullInstructionProgramDefinitions.IsPresentationWord((ushort)address), "stream1 Bull exact presentation classification");
 
         void Check(int bank, int first, int end, int mechanicsCount, int presentationCount, CompiledProgramSplit split)
         {

@@ -1439,6 +1439,13 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        ChootBehavior.RegisterChootTypedAnimations(table);
+        BoulderBehavior.RegisterBoulderTypedAnimations(table);
+        BullBehavior.RegisterBullTypedAnimations(table);
+        AtomicBehavior.RegisterAtomicTypedAnimations(table);
+        FirefleaBehavior.RegisterFirefleaTypedAnimations(table);
+        WreckedShipGhostBehavior.RegisterWreckedShipGhostTypedAnimations(table);
+        SbugBehavior.RegisterSbugTypedAnimations(table);
         PolypBehavior.RegisterPolypTypedAnimations(table);
         KzanBehavior.RegisterKzanTypedAnimations(table);
         KagoBehavior.RegisterKagoTypedAnimations(table);

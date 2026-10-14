@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Samus;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Choot.Artwork;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Choot;
 
@@ -35,7 +37,7 @@ internal sealed class ChootBehavior : IEnemySpecies
             _chootJumpDelayTimers);
         _chootStates[slot.SlotIndex] = state;
 
-        SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Idle);
+        SetChootProgram(slot, state, ChootProgram.Idle);
         state.Function = ChootEnemyFunction.WaitingForSamus;
         state.SpawnPosition = slot.Position.Whole;
 
@@ -113,7 +115,7 @@ internal sealed class ChootBehavior : IEnemySpecies
         if (timer.IsNonNegative)
             return;
 
-        SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Jumping);
+        SetChootProgram(slot, state, ChootProgram.Jumping);
         state.Function = ChootEnemyFunction.Jumping;
     }
 
@@ -140,7 +142,7 @@ internal sealed class ChootBehavior : IEnemySpecies
         state.FallingPatternIndex = 0;
         state.FallingPatternLoopCounter = NativeCountdown.FromRaw(unchecked((ushort)(
             (SnesLittleEndian.LowByte(slot.Parameter1)) - 1)));
-        SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Falling);
+        SetChootProgram(slot, state, ChootProgram.Falling);
         state.Function = ChootEnemyFunction.Falling;
     }
 
@@ -164,7 +166,7 @@ internal sealed class ChootBehavior : IEnemySpecies
             // idle bytecode, and rearms the same calculated ascent for the next activation.
             state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
             slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
-            SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Idle);
+            SetChootProgram(slot, state, ChootProgram.Idle);
             state.Function = ChootEnemyFunction.WaitingForSamus;
             return;
         }
@@ -195,11 +197,12 @@ internal sealed class ChootBehavior : IEnemySpecies
     }
 
     /// <summary>Installs idle, jumping, or falling bytecode and restarts its instruction timers.</summary>
-    private static void SetChootInstructionList(
+    private static void SetChootProgram(
         RoomEnemySlot slot,
-        ushort instructionList)
+        ChootEnemyState state,
+        ChootProgram program)
     {
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<ChootProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -208,6 +211,31 @@ internal sealed class ChootBehavior : IEnemySpecies
     private ChootEnemyState RequireChootState(RoomEnemySlot slot) =>
         _chootStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Choot state.");
+
+    /// <summary>Runs Choot's idle, jumping and falling animations as typed programs (#641).</summary>
+    internal void RegisterChootTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Choot, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireChootState(slot);
+            AnimationProgramCursor<ChootProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, ChootAnimations.Programs, ref cursor, ChootFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyChootCue(slot, cue));
+            state.Program = cursor;
+        });
+
+    /// <summary>Carries out one cue of Choot's animation: each switches off-screen processing on or off.</summary>
+    private static ChootProgram? ApplyChootCue(RoomEnemySlot slot, ChootCue cue)
+    {
+        slot.Properties = cue.Kind switch
+        {
+            ChootCueKind.ProcessOffScreen => slot.Properties.With(EnemyProperties.ProcessOffScreen),
+            ChootCueKind.StopProcessingOffScreen => slot.Properties.Without(EnemyProperties.ProcessOffScreen),
+            _ => throw new InvalidOperationException($"Undefined {nameof(ChootCueKind)} {cue.Kind}."),
+        };
+        return null;
+    }
 
     /// <summary>Registers the Choot-only initializer in the enemy AI table.</summary>
     internal void RegisterChootInitializationAi(EnemyAiTable table)

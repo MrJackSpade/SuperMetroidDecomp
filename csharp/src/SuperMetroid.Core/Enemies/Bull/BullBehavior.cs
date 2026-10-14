@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Samus;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Bull.Artwork;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Bull;
 
@@ -38,7 +40,7 @@ internal sealed class BullBehavior : IEnemySpecies
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = BullInstructionProgramDefinitions.Normal;
+        state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal);
 
         // These are definition selectors, not live timers or editable presentation data.
         // Unsupported debug-edited selectors fail explicitly instead of reading adjacent code.
@@ -225,7 +227,7 @@ internal sealed class BullBehavior : IEnemySpecies
 
         bull.InstructionTimer = NativeCountdown.Start(1);
         bull.Timer = NativeCountdown.Start(0);
-        bull.CurrentInstruction = BullInstructionProgramDefinitions.Shot;
+        state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot);
         int direction = projectileDirection & 0x000f;
         state.Angle = BullMovementDefinitions.ShotAngle(direction);
         state.Acceleration = 0x0100;
@@ -239,6 +241,18 @@ internal sealed class BullBehavior : IEnemySpecies
     private BullEnemyState RequireBullState(RoomEnemySlot slot) =>
         _bullStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Bull state.");
+
+    /// <summary>Runs Bull's normal and immune-shot animations as typed programs (#641).</summary>
+    internal void RegisterBullTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Bull, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireBullState(slot);
+            AnimationProgramCursor<BullProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, BullAnimations.Programs, ref cursor, BullFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Applies Bull's immune-hit recoil after common bomb damage handling.</summary>
     internal void RegisterBullBombReactions(EnemyAiTable table)

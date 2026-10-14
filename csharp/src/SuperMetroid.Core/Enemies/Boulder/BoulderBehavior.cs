@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Boulder.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -62,17 +64,17 @@ internal sealed class BoulderBehavior : IEnemySpecies
 
         // The population record's initialization parameter was copied to current_instruction
         // before init AI ran. Boulder consumes only its low byte as the strict Samus-Y
-        // trigger threshold, then replaces that word with the real animation list.
+        // trigger threshold, then starts the real rolling animation in its place.
         state.VerticalTriggerLimit = unchecked((byte)slot.CurrentInstruction);
         state.DirectionSelector = SnesLittleEndian.HighByte(slot.Parameter1);
         if (state.DirectionSelector == 0)
         {
             state.HorizontalTriggerLimit = unchecked((short)-state.HorizontalTriggerLimit);
-            slot.CurrentInstruction = BoulderInstructionProgramDefinitions.Right;
+            state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Right);
         }
         else
         {
-            slot.CurrentInstruction = BoulderInstructionProgramDefinitions.Left;
+            state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Left);
         }
 
         state.VerticalCompensation = (byte)slot.Parameter1 == 0 ? (ushort)2 : (ushort)5;
@@ -289,6 +291,18 @@ internal sealed class BoulderBehavior : IEnemySpecies
     private BoulderEnemyState RequireBoulderState(RoomEnemySlot slot) =>
         _boulderStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Boulder state.");
+
+    /// <summary>Runs the Boulder's rolling loops as typed programs (#641).</summary>
+    internal void RegisterBoulderTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Boulder, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireBoulderState(slot);
+            AnimationProgramCursor<BoulderProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, BoulderAnimations.Programs, ref cursor, BoulderFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Binds Boulder setup only to its matching enemy definition.</summary>
     internal void RegisterBoulderInitializationAi(EnemyAiTable table)

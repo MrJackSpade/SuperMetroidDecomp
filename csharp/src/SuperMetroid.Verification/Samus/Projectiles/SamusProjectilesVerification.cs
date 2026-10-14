@@ -1,0 +1,2034 @@
+using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerification;
+using static SuperMetroid.Verification.Runtime.HeroShotRuntimeVerification;
+using static SuperMetroid.Verification.Runtime.HeroShotsVerification;
+using static SuperMetroid.Verification.Samus.Projectiles.MissileEdgeVerification;
+using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCooldownsVerification;
+using static SuperMetroid.Verification.Samus.Projectiles.RedTowerHeroVerification;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Rom;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using static SuperMetroid.Verification.Samus.Projectiles.PlasmaPenetrationVerification;
+using static SuperMetroid.Verification.Samus.Projectiles.ProjectileNativeFixtureVerification;
+using static SuperMetroid.Verification.Samus.Hud.SamusHudSelectionVerification;
+using static SuperMetroid.Verification.Samus.Artwork.SamusRenderingFixtureVerification;
+using static SuperMetroid.Verification.Samus.Projectiles.SpinChargeVerification;
+using static SuperMetroid.Verification.Harness.SyntheticSamusCartridgeVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Drawing;
+namespace SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Verification.Harness;
+
+/// <summary>Projectile fixtures covering native shot production, flight, impact, artwork, and camera edges.</summary>
+internal static class SamusProjectilesVerification
+{
+
+/// <summary>
+/// Byte <paramref name="offset"/> of the bank-$93 power-beam projectile record that the native
+/// direction table at $93:8433 selects for <paramref name="direction"/>.
+/// </summary>
+[CpuBusBoundary("exact bus test: retail ROM oracle for power-beam projectile radius bytes")]
+static byte ReadRetailPowerBeamRadiusByte(ISnesAddressSpace rom, int direction, int offset) =>
+    rom.ReadCartridgeByte(0x930000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord((0x938433 + direction * 2)) + offset));
+
+/// <summary>Checks beam and missile records, charge, impact, OAM, sound, and cartridge-timed projectile lifecycles.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
+internal static void VerifySamusPowerBeamProjectiles()
+{
+    VerifyPlasmaEnemyPenetration();
+    var bus = new TestAddressSpace();
+
+    // Artwork is synthetic; native program selectors are seeded below.
+    InstallPowerBeamSpritemapFixture(bus);
+    InstallPowerBeamTrailFixture(bus);
+
+    ushort[] nativeUnchargedSounds =
+    [
+        0x000b, 0x000d, 0x000c, 0x000e, 0x000f, 0x0012,
+        0x0010, 0x0011, 0x0013, 0x0016, 0x0014, 0x0015,
+    ];
+    ushort[] nativeChargedSounds =
+    [
+        0x0017, 0x0019, 0x0018, 0x001a, 0x001b, 0x001e,
+        0x001c, 0x001d, 0x001f, 0x0022, 0x0020, 0x0021,
+    ];
+    PoisonRetiredBeamRoutingTables(bus);
+    InstallBeamTileAtlasFixture(bus);
+    InstallSamusBeamPaletteFixture(bus);
+    InstallChargeFlareFixture(bus);
+    // Motion definitions are compiled independently of the synthetic presentation bus.
+
+    const int width = 32;
+    const int height = 16;
+    var nativeProjectileRom = SeedNativeProjectileFixture(bus);
+    var fixtureTrails = ProjectileTrailCatalog.Load(
+        new MemoryStream(ProjectileTrailExtractor.Extract(bus)));
+    var fixtureChargeColors = SamusChargeColorCatalog.Load(
+        new MemoryStream(SamusChargeColorExtractor.Extract(bus)));
+    var fixtureSuitColors = SamusSuitColorCatalog.Load(
+        new MemoryStream(SamusSuitColorExtractor.Extract(bus)));
+    var fixtureFlarePlacement = ChargeFlarePlacementCatalog.Load(
+        new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
+    var fixtureFlareSprites = ChargeFlareSpriteCatalog.Load(
+        new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
+    var fixtureFrames = ProjectileFrameBindingCatalog.Load(
+        new MemoryStream(ProjectileFrameBindingExtractor.Extract(bus)));
+    var fixtureSprites = ProjectileSpriteCatalog.Load(
+        new MemoryStream(ProjectileSpriteExtractor.Extract(bus)));
+    SamusProjectileSystem CreateSyntheticProjectiles() => new() { Animation = { FrameBindings = fixtureFrames } };
+    SamusBombProjectileSystem CreateSyntheticBombs() => new() { FrameBindings = fixtureFrames };
+    ushort NativeWord(int a) => CartridgeImportSource.Require(nativeProjectileRom).ReadCartridgeWord(a);
+    ushort NativeDamage(int table, int beam) => NativeWord(0x930000 | NativeWord(table + beam * 2));
+    RoomLevelData air = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
+
+    // Update_Beam_Tiles_and_Palette queues exactly $100 bytes to VRAM word $6300 and
+    // writes sprite palette six. Drain the ordinary queue so this also validates the same
+    // hardware path used by runtime room setup, not a verifier-only direct memory copy.
+    var beamVram = new SnesVram();
+    var beamCgram = new SnesCgram();
+    var beamWrites = new VramWriteQueue();
+    var beamPalettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
+    var beamArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), beamPalettes);
+    SamusProjectileSystem.QueueBeamTilesAndLoadPalette(bus, beamWrites, beamCgram,
+        equippedBeams: 0, artwork: beamArtwork);
+    AssertEqual(1, beamWrites.Entries.Count, "power beam queues one tile DMA");
+    beamWrites.DrainTo(beamVram, ReferenceMutableMemory.From(bus), beamArtwork);
+    AssertEqual(0x5a, beamVram.ReadByte(0x6300 * 2),
+        "power beam tiles begin at VRAM word $6300");
+    AssertEqual(0xa5, beamVram.ReadByte(0x6300 * 2 + 0xff),
+        "power beam tile DMA copies exactly $100 source bytes");
+    AssertEqual(0x0100, beamCgram.Colors[0xe0],
+        "power beam palette begins at OBJ palette six");
+    AssertEqual(0x010f, beamCgram.Colors[0xef],
+        "power beam palette copies sixteen colors");
+
+    // `$90:BA56` accepts exactly ten low-nibble direction values. Exercise every pointer,
+    // horizontal/vertical/diagonal base-speed choice, acceleration sign, immediate movement,
+    // animation selection, cooldown, sound, and live-slot counter in isolation.
+    ReadOnlySpan<SamusPoseId> nativePosesByShotDirection =
+    [
+        SamusPoseId.StandingAimUpRightPose,
+        SamusPoseId.StandingAimDiagonalUpRightPose,
+        SamusPoseId.FacingRightNormalPose,
+        SamusPoseId.StandingAimDiagonalDownRightPose,
+        SamusPoseId.NormalJumpAimDownRightPose,
+        SamusPoseId.NormalJumpAimDownLeftPose,
+        SamusPoseId.StandingAimDiagonalDownLeftPose,
+        SamusPoseId.FacingLeftNormalPose,
+        SamusPoseId.StandingAimDiagonalUpLeftPose,
+        SamusPoseId.StandingAimUpLeftPose,
+    ];
+    for (byte direction = 0; direction < nativePosesByShotDirection.Length; direction++)
+    {
+        // Use one real pose for each of the ten native aim values. Pose dispatcher and
+        // aim metadata are compiled definition data, so a synthetic bank-$91 record can
+        // no longer override gameplay direction merely to simplify a fixture.
+        SamusPoseId pose = nativePosesByShotDirection[direction];
+        AssertEqual(direction, SamusPoseMetadata.ReadShotDirection(bus, pose),
+            $"native projectile fixture pose ${(int)pose:X2} aim");
+        var samus = new SamusState
+        {
+            Pose = pose,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+            EquippedBeams = 0,
+            SelectedHudItem = 0,
+        };
+        var bombs = CreateSyntheticBombs();
+        var projectiles = CreateSyntheticProjectiles();
+        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, 0, 0);
+        SamusProjectileSlotObservation beforeShot = projectiles.ObserveSlots();
+        SamusProjectileFrameResult result = projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), bombs);
+
+        AssertEqual((int?)0, beforeShot.FiredSlot(projectiles), $"power beam direction {direction} allocates slot zero");
+        AssertEqual(
+            (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x000b),
+            result.QueuedSoundEffect,
+            $"power beam direction {direction} queues ROM sound");
+        AssertEqual(1, projectiles.SlotTable.ProjectileCounter,
+            $"power beam direction {direction} increments counter");
+        AssertEqual(0x000f, bombs.CooldownTimer.RawValue,
+            $"power beam direction {direction} installs cooldown");
+        AssertEqual(direction, projectiles.Slots[0].Direction,
+            $"power beam direction {direction} survives initialization");
+        AssertEqual(0x0014, projectiles.Slots[0].Damage,
+            $"power beam direction {direction} loads damage");
+        AssertEqual(0xa24d, projectiles.Slots[0].SpritemapPointer,
+            $"power beam direction {direction} selects first art record");
+        AssertEqual((ushort)ReadRetailPowerBeamRadiusByte(nativeProjectileRom, direction, 4), projectiles.Slots[0].Radius.X,
+            $"power beam direction {direction} loads X radius");
+        AssertEqual((ushort)ReadRetailPowerBeamRadiusByte(nativeProjectileRom, direction, 5), projectiles.Slots[0].Radius.Y,
+            $"power beam direction {direction} loads Y radius");
+    }
+
+    // Charge Beam fires an ordinary shot on the initial held frame, counts to sixty while
+    // the muzzle flare becomes visible at fifteen, and emits the charged data family only
+    // when Shoot is released. This sequence mirrors `$90:B80D` frame by frame.
+    const SamusPoseId rightPose = SamusPoseId.FacingRightNormalPose;
+    WritePoseDefinition(
+        bus,
+        (int)rightPose,
+        [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
+
+    // Every valid low-nibble combination must index its own projectile data, cooldown, and
+    // sound cells. The dispatch split is equally data-significant: even entries stop on
+    // terrain, low wave entries 1/3 reload trail timer three, and wave entries 5/7/9/11
+    // reload four. Spazer/plasma remain one slot because their width lives in spritemap art.
+    for (ushort beamType = 1; beamType < 12; beamType++)
+    {
+        var combinedSamus = new SamusState
+        {
+            Pose = rightPose,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+            EquippedBeams = beamType,
+        };
+        var combinedBombs = CreateSyntheticBombs();
+        var combinedProjectiles = CreateSyntheticProjectiles();
+        combinedBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedSamus, 0, 0);
+        SamusProjectileSlotObservation beforeCombined = combinedProjectiles.ObserveSlots();
+        SamusProjectileFrameResult combinedResult = combinedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), combinedBombs);
+
+        SamusProjectileSlot combinedSlot = combinedProjectiles.Slots[0];
+        AssertEqual((int?)0, beforeCombined.FiredSlot(combinedProjectiles),
+            $"beam combination {beamType} allocates one ordinary slot");
+        AssertEqual(NativeDamage(0x9383c1, beamType), combinedSlot.Damage,
+            $"beam combination {beamType} indexes uncharged data pointer");
+        AssertEqual(beamType == 10 ? (ushort)12 : (ushort)15, combinedBombs.CooldownTimer.RawValue,
+            $"beam combination {beamType} indexes uncharged cooldown");
+        AssertEqual(
+            (SoundEffectId?)SoundEffectId.FromCartridge(
+                SoundEffectLibrary.Library1,
+                nativeUnchargedSounds[beamType]),
+            combinedResult.QueuedSoundEffect,
+            $"beam combination {beamType} indexes uncharged sound");
+        AssertEqual(10, combinedProjectiles.Firing.ProjectileInvincibilityTimer.RawValue,
+            $"beam combination {beamType} publishes native invincibility timer");
+
+        SamusProjectilePreInstruction expectedPreInstruction = (beamType & 1) == 0
+            ? SamusProjectilePreInstruction.NoWaveBeam
+            : beamType < 4
+                ? SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
+                : SamusProjectilePreInstruction.WaveBeamFourFrameTrail;
+        AssertEqual(expectedPreInstruction, combinedSlot.PreInstruction,
+            $"beam combination {beamType} selects native pre-instruction family");
+    }
+
+    // Spazer/plasma art takes `$93:8275` rather than the ordinary power/ice/wave flicker
+    // branch. Host slot zero is visible while NMI bit one is clear and suppressed while it
+    // is set—the opposite comparison and a different counter bit from entry-zero power.
+    var spazerFlickerSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+        EquippedBeams = 4,
+    };
+    var spazerFlickerBombs = CreateSyntheticBombs();
+    var spazerFlickerProjectiles = CreateSyntheticProjectiles();
+    spazerFlickerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, spazerFlickerSamus, 0, 0);
+    spazerFlickerProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), spazerFlickerBombs);
+    var spazerFlickerOam = new OamBuffer();
+    spazerFlickerOam.BeginFrame();
+    spazerFlickerProjectiles.DrawLiveProjectiles(
+        bus, spazerFlickerOam, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, compositions: fixtureSprites);
+    AssertTrue(spazerFlickerOam.NextByteOffset != 0,
+        "even-slot Spazer draws while NMI bit one is clear");
+    spazerFlickerOam.BeginFrame();
+    spazerFlickerProjectiles.DrawLiveProjectiles(
+        bus, spazerFlickerOam, Position16<RoomPixels>.Zero, nmiFrameCounter: 2, compositions: fixtureSprites);
+    AssertEqual(0, spazerFlickerOam.NextByteOffset,
+        "even-slot Spazer suppresses while NMI bit one is set");
+
+    // The initial firing pass changes timer four to three. Three more wave passes cause the
+    // first trail allocation and expose the only cadence distinction in `$B0C3/$B0E4`.
+    foreach ((ushort beamType, ushort expectedReload) in new (ushort, ushort)[]
+    {
+        (1, 3), // Uncharged power+wave uses `$90:B0E4`.
+        (3, 3), // Uncharged ice+wave uses the same low-family routine.
+        (5, 4), // Spazer+wave uses the common `$90:B0C3` routine.
+        (9, 4), // Plasma+wave also uses the common routine.
+    })
+    {
+        var cadenceSamus = new SamusState
+        {
+            Pose = rightPose,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+            EquippedBeams = beamType,
+        };
+        var cadenceBombs = CreateSyntheticBombs();
+        var cadenceProjectiles = CreateSyntheticProjectiles();
+        cadenceBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, cadenceSamus, 0, 0);
+        cadenceProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, cadenceSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), cadenceBombs);
+        for (int frame = 0; frame < 3; frame++)
+        {
+            cadenceBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, cadenceSamus, 0, 0);
+            cadenceProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, cadenceSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), cadenceBombs);
+        }
+        AssertEqual(expectedReload, cadenceProjectiles.Slots[0].TrailTimer.RawValue,
+            $"wave combination {beamType} reloads native trail cadence");
+    }
+
+    var chargeSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+        EquippedBeams = 0x1000,
+    };
+    BindSyntheticSamusRendering(bus, chargeSamus);
+    chargeSamus.Presentation.ChargeColors = fixtureChargeColors;
+    chargeSamus.Presentation.SuitColors = fixtureSuitColors;
+    var chargeBombs = CreateSyntheticBombs();
+    var chargeProjectiles = CreateSyntheticProjectiles();
+    var flareOam = new OamBuffer();
+    bool flareBecameVisible = false;
+    for (int frame = 0; frame < 60; frame++)
+    {
+        chargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, 0, 0);
+        SamusProjectileSlotObservation beforeChargeFrame = chargeProjectiles.ObserveSlots();
+        SamusProjectileFrameResult chargeFrame = chargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), chargeBombs);
+        if (frame == 0)
+            AssertEqual((int?)0, beforeChargeFrame.FiredSlot(chargeProjectiles), "charge press fires initial ordinary shot");
+        else if (frame == 15)
+        {
+            AssertEqual(
+                (SoundEffectId?)SoundEffectLibrary1Sounds.ChargeBeamStart,
+                chargeFrame.QueuedSoundEffect,
+                "charge counter sixteen queues the cartridge startup sound");
+            AssertEqual((byte)9, chargeFrame.QueuedSoundMaximum,
+                "charge startup uses QueueSfx1_Max9");
+        }
+        else
+        {
+            AssertEqual((SoundEffectId?)null, chargeFrame.QueuedSoundEffect,
+                $"charge held frame {frame + 1} does not restart its sustained sound");
+        }
+
+        flareOam.BeginFrame();
+        chargeProjectiles.HandleChargeFlareAndDraw(bus, flareOam, chargeSamus, new(0, 0), placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
+        // Runtime's later `$93:82F7` draw phase must run on every simulated gameplay frame.
+        // The ordinary power beam periodically allocates two empty streams; `$90:B6A9`
+        // consumes their zero terminators immediately instead of leaving timer-one slots.
+        chargeProjectiles.HandleTrailsAndDraw(bus, flareOam, Position16<RoomPixels>.Zero, timeIsFrozen: false, artwork: fixtureTrails);
+        flareBecameVisible |= flareOam.NextByteOffset != 0;
+    }
+    AssertEqual(60, chargeProjectiles.Charge.FlareCounter,
+        "charge held frames reach armed threshold");
+    AssertTrue(flareBecameVisible, "charge flare becomes visible from ROM spritemap table");
+    VerifySpinChargePreservation(bus, air, fixtureFrames);
+
+    // Make the release allocation fail through the real shared-cooldown gate. Native
+    // FireUnchargedBeam still stops a charge that reached sound-start counter sixteen,
+    // even though no replacement firing sequence can be queued.
+    var rejectedReleaseSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+        EquippedBeams = (ushort)SamusBeamFlags.Charge,
+    };
+    var rejectedReleaseBombs = CreateSyntheticBombs();
+    var rejectedReleaseProjectiles = CreateSyntheticProjectiles();
+    for (int frame = 0;
+        frame < SamusProjectileRomData.Beams.ChargeSoundStartCounter;
+        frame++)
+    {
+        rejectedReleaseBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, rejectedReleaseSamus, 0, 0);
+        rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), rejectedReleaseBombs);
+    }
+    rejectedReleaseBombs.SetSharedCooldown(1);
+    SamusProjectileSlotObservation beforeRejectedRelease = rejectedReleaseProjectiles.ObserveSlots();
+    SamusProjectileFrameResult rejectedRelease = rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), rejectedReleaseBombs);
+    AssertEqual((int?)null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
+        "cooldown gate rejects charged-audio release fixture");
+    AssertEqual((SoundEffectId?)SoundEffectLibrary1Sounds.CancelAll,
+        rejectedRelease.QueuedSoundEffect,
+        "rejected post-sound charge release queues cartridge cancellation");
+    AssertEqual((byte)15, rejectedRelease.QueuedSoundMaximum,
+        "rejected charge release uses QueueSfx1_Max15 cancellation");
+
+    // Build two identical fifteen-call charge states so their central flare frame and
+    // spritemap are identical. Rotating Samus's (+8,0) displacement around (120,96) by
+    // 90 degrees moves the temporary render center from (128,96) to (120,104): every OBJ
+    // entry must therefore shift exactly (-8,+8), while both physical Samus points stay put.
+    var baselineMode7Samus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+        EquippedBeams = 0x1000,
+    };
+    BindSyntheticSamusRendering(bus, baselineMode7Samus);
+    var rotatedMode7Samus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+        EquippedBeams = 0x1000,
+    };
+    BindSyntheticSamusRendering(bus, rotatedMode7Samus);
+    var baselineMode7Bombs = CreateSyntheticBombs();
+    var rotatedMode7Bombs = CreateSyntheticBombs();
+    var baselineMode7Projectiles = CreateSyntheticProjectiles();
+    var rotatedMode7Projectiles = CreateSyntheticProjectiles();
+    for (int frame = 0; frame < 15; frame++)
+    {
+        baselineMode7Bombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, baselineMode7Samus, 0, 0);
+        rotatedMode7Bombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, rotatedMode7Samus, 0, 0);
+        ushort newInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
+        baselineMode7Projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, baselineMode7Samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = newInput }, new(0, 0), baselineMode7Bombs);
+        rotatedMode7Projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, rotatedMode7Samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = newInput }, new(0, 0), rotatedMode7Bombs);
+    }
+    var baselineMode7FlareOam = new OamBuffer();
+    var rotatedMode7FlareOam = new OamBuffer();
+    baselineMode7FlareOam.BeginFrame();
+    rotatedMode7FlareOam.BeginFrame();
+    baselineMode7Projectiles.HandleChargeFlareAndDraw(
+        bus, baselineMode7FlareOam, baselineMode7Samus, new(0, 0), placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
+    rotatedMode7Projectiles.HandleChargeFlareAndDraw(
+        bus,
+        rotatedMode7FlareOam,
+        rotatedMode7Samus,
+        Position16<RoomPixels>.Zero,
+        new SamusMode7Transform(0, 0x0100, 0xff00, new Position16<RoomPixels>(120, 96)), placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
+    AssertTrue(baselineMode7FlareOam.NextByteOffset != 0,
+        "Mode 7 flare fixture reaches visible central component");
+    AssertEqual(baselineMode7FlareOam.NextByteOffset, rotatedMode7FlareOam.NextByteOffset,
+        "Mode 7 transform preserves charge-flare OBJ count");
+    int flareEntryCount = baselineMode7FlareOam.NextByteOffset / 4;
+    for (int entry = 0; entry < flareEntryCount; entry++)
+    {
+        OamEntry baselineEntry = baselineMode7FlareOam.GetEntry(entry);
+        OamEntry rotatedEntry = rotatedMode7FlareOam.GetEntry(entry);
+        AssertEqual((baselineEntry.X - 8) & 0x01ff, rotatedEntry.X,
+            $"Mode 7 charge-flare OBJ {entry} receives transformed center X");
+        AssertEqual(unchecked((byte)(baselineEntry.Y + 8)), rotatedEntry.Y,
+            $"Mode 7 charge-flare OBJ {entry} receives transformed center Y");
+    }
+    AssertSamusPosition(
+        new(128, 96),
+        rotatedMode7Samus,
+        "Mode 7 flare calculation preserves physical Samus position");
+
+    // While `$0B18` is zero and grapple is inactive, a fully charged beam cycles all six
+    // entries once per palette call. Verify Power/Varia/Gravity independently for both the
+    // normal charge and contact-damage-index-four pseudo-screw families. Six calls must
+    // wrap the native byte offset 0,2,4,6,8,10 back to zero.
+    var liveChargeCgram = new SnesCgram();
+    ushort[] suitEquipment = [0x0000, 0x0001, 0x0020];
+    for (int family = 0; family < 2; family++)
+    {
+        bool pseudoScrew = family == 1;
+        chargeSamus.HorizontalSpeed.ContactDamageIndex = pseudoScrew ? SamusContactDamageIndex.PseudoScrew : SamusContactDamageIndex.None;
+        for (int suit = 0; suit < suitEquipment.Length; suit++)
+        {
+            chargeSamus.EquippedItems = suitEquipment[suit];
+            for (int palette = 0; palette < 6; palette++)
+            {
+                // `$0B62` holds the byte offset of the palette this call installs.
+                AssertEqual(palette * 2, chargeProjectiles.Charge.SamusChargePaletteIndex,
+                    $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} selects palette ordinal");
+                SamusBeamChargePaletteStepResult liveChargeStep =
+                    chargeProjectiles.UpdateBeamChargePalette(bus, liveChargeCgram, chargeSamus);
+                // The installed colors are unique per family/suit/palette, so the CGRAM check
+                // below identifies the palette the call selected.
+                AssertEqual(
+                    pseudoScrew
+                        ? SamusBeamChargePaletteAction.PseudoScrewCycle
+                        : SamusBeamChargePaletteAction.ChargeCycle,
+                    liveChargeStep.Action,
+                    $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} suit {suit} palette {palette} branch");
+                for (int color = 0; color < 16; color++)
+                {
+                    ushort expectedColor = unchecked((ushort)(
+                        (pseudoScrew ? 0x4000 : 0x3000) +
+                        suit * 0x100 + palette * 0x20 + color));
+                    AssertEqual(expectedColor, liveChargeCgram.Colors[192 + color],
+                        $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} suit {suit} " +
+                        $"palette {palette} color {color}");
+                }
+            }
+            AssertEqual(0, chargeProjectiles.Charge.SamusChargePaletteIndex,
+                $"{(pseudoScrew ? "pseudo-screw" : "beam-charge")} six-entry list wraps");
+        }
+    }
+
+    // Any grapple function other than inactive takes `$D7B0` immediately. Seed index two
+    // with one eligible call, then prove a firing grapple resets it instead of merely
+    // pausing and resuming on the second palette.
+    chargeSamus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
+    chargeSamus.EquippedItems = 0;
+    chargeProjectiles.UpdateBeamChargePalette(bus, liveChargeCgram, chargeSamus);
+    AssertEqual(2, chargeProjectiles.Charge.SamusChargePaletteIndex,
+        "one live charge-palette call advances byte offset to two");
+    chargeSamus.Grapple.Phase = GrapplePhase.Firing;
+    SamusBeamChargePaletteStepResult grappleSuppressesCharge =
+        chargeProjectiles.UpdateBeamChargePalette(bus, liveChargeCgram, chargeSamus);
+    AssertEqual(SamusBeamChargePaletteAction.Inactive, grappleSuppressesCharge.Action,
+        "active grapple suppresses charge-body palette");
+    AssertEqual(0, chargeProjectiles.Charge.SamusChargePaletteIndex,
+        "active grapple resets charge-palette byte offset");
+    chargeSamus.Grapple.Phase = GrapplePhase.Inactive;
+
+    chargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, 0, 0);
+    SamusProjectileSlotObservation beforeChargedRelease = chargeProjectiles.ObserveSlots();
+    SamusProjectileFrameResult chargedRelease = chargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
+    int? chargedReleaseSlot = beforeChargedRelease.FiredSlot(chargeProjectiles);
+    AssertTrue(chargedReleaseSlot is not null, "charged release allocates projectile");
+    SamusProjectileSlot chargedSlot = chargeProjectiles.Slots[(chargedReleaseSlot ?? throw new InvalidOperationException("Verification requires chargedReleaseSlot."))];
+    AssertEqual(60, chargedSlot.Damage, "charged release uses charged data pointer");
+    AssertEqual(0x0010, unchecked((ushort)(chargedSlot.Type & 0x0010)),
+        "charged release sets charged type bit");
+    AssertEqual(
+        (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x0017),
+        chargedRelease.QueuedSoundEffect,
+        "charged power beam queues ROM sound");
+    AssertEqual(0x001e, chargeBombs.CooldownTimer.RawValue,
+        "charged power beam installs charged cooldown");
+    AssertEqual(4, chargeProjectiles.Charge.ChargedShotGlowTimer.RawValue,
+        "charged release installs glow timer");
+    AssertEqual(0, chargeProjectiles.Charge.FlareCounter,
+        "charged release clears flare counter");
+
+    // `$91:D799-$D7AE` decrements before testing zero. Calls one through three paint only
+    // colors 1-15 white; call four takes carry-set back to `$91:D717` and restores the
+    // complete suit palette. Seed transparent color zero with a sentinel to catch a broad
+    // sixteen-color white fill, and equip both suit bits to prove Gravity wins over Varia.
+    chargeSamus.EquippedItems = 0x0021;
+    var chargedGlowCgram = new SnesCgram();
+    chargedGlowCgram.SetColor(192, Bgr555.FromWord(0x4321));
+    for (int call = 0; call < 4; call++)
+    {
+        SamusBeamChargePaletteStepResult paletteStep =
+            chargeProjectiles.UpdateBeamChargePalette(bus, chargedGlowCgram, chargeSamus);
+        if (call < 3)
+        {
+            AssertEqual(SamusBeamChargePaletteAction.OrdinaryWhite, paletteStep.Action,
+                $"ordinary charged glow call {call + 1} selects white branch");
+            AssertEqual(unchecked((ushort)(3 - call)), chargeProjectiles.Charge.ChargedShotGlowTimer.RawValue,
+                $"ordinary charged glow call {call + 1} decrements before branch");
+            AssertEqual(0x4321, chargedGlowCgram.Colors[192],
+                $"ordinary charged glow call {call + 1} preserves transparent color zero");
+            for (int color = 1; color < 16; color++)
+            {
+                AssertEqual(0x03ff, chargedGlowCgram.Colors[192 + color],
+                    $"ordinary charged glow call {call + 1} paints visible color {color}");
+            }
+        }
+        else
+        {
+            AssertEqual(SamusBeamChargePaletteAction.RestoredNormalSuit, paletteStep.Action,
+                "ordinary charged glow fourth call restores suit");
+            // Gravity's unique fixture colors prove the restore selected the Gravity palette.
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(unchecked((ushort)(0x0140 + color)), chargedGlowCgram.Colors[192 + color],
+                    $"ordinary charged glow restore copies Gravity color {color}");
+            }
+        }
+    }
+    AssertEqual(0, chargeProjectiles.Charge.ChargedShotGlowTimer.RawValue,
+        "ordinary charged glow ends exactly on fourth palette call");
+
+    // Recreate `$91:F5CF-$F5E6 -> $90:B82D/$BA5F -> $90:EB20`: a new Shoot edge while
+    // normal-jump pose initialization occurs publishes `$8000 | direction` after this
+    // frame's projectile phase. On the next phase it forces release even though Shoot is
+    // still held, supplies the stored direction to the new projectile, and is then cleared.
+    WritePoseDefinition(
+        bus,
+        (int)SamusPoseId.NeutralJumpTransitionRightPose,
+        [0x08, 0x02, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
+    var bridgeSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+        EquippedBeams = 0x1000,
+    };
+    var bridgeBombs = CreateSyntheticBombs();
+    var bridgeProjectiles = CreateSyntheticProjectiles();
+    for (int frame = 0; frame < 60; frame++)
+    {
+        bridgeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, bridgeSamus, 0, 0);
+        bridgeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), bridgeBombs);
+    }
+    bridgeSamus.PoseTransitions.ApplyOrdinaryJumpTransition(
+        bus,
+        SamusPoseId.NeutralJumpTransitionRightPose,
+        controllerNewInput: (ushort)SnesButton.X);
+    AssertEqual(0x8002, bridgeSamus.PoseTransitionShotDirection,
+        "normal-jump initializer publishes tagged shot direction");
+    bridgeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, bridgeSamus, 0, 0);
+    SamusProjectileSlotObservation beforeBridgeRelease = bridgeProjectiles.ObserveSlots();
+    bridgeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = 0 }, layer1: new(0, 0), sharedProjectiles: bridgeBombs);
+    int? bridgeReleaseSlot = beforeBridgeRelease.FiredSlot(bridgeProjectiles);
+    AssertTrue(bridgeReleaseSlot is not null,
+        "pose-direction bridge forces charged release while Shoot remains held");
+    AssertEqual(2,
+        bridgeProjectiles.Slots[(bridgeReleaseSlot ?? throw new InvalidOperationException("Verification requires bridgeReleaseSlot."))].Direction,
+        "pose-direction bridge supplies stored low-byte direction");
+    AssertEqual(0, bridgeProjectiles.Charge.FlareCounter,
+        "pose-direction bridge consumes charge counter");
+    bridgeSamus.PoseTransitions.ClearPoseTransitionShotDirection();
+    AssertEqual(0, bridgeSamus.PoseTransitionShotDirection,
+        "current-state epilogue clears pose-direction bridge");
+
+    // Charged combinations index the parallel pointer/sound range and cooldown bytes
+    // `$10-$1B`. Even a low-family wave now uses the common four-frame wave routine; the
+    // special three-frame reload belongs only to uncharged types one and three.
+    for (ushort beamType = 1; beamType < 12; beamType++)
+    {
+        var combinedChargeSamus = new SamusState
+        {
+            Pose = rightPose,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+            EquippedBeams = unchecked((ushort)(0x1000 | beamType)),
+        };
+        var combinedChargeBombs = CreateSyntheticBombs();
+        var combinedChargeProjectiles = CreateSyntheticProjectiles();
+        for (int frame = 0; frame < 60; frame++)
+        {
+            combinedChargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedChargeSamus, 0, 0);
+            combinedChargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), combinedChargeBombs);
+        }
+
+        combinedChargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedChargeSamus, 0, 0);
+        SamusProjectileSlotObservation beforeCombinedChargedRelease =
+            combinedChargeProjectiles.ObserveSlots();
+        SamusProjectileFrameResult combinedChargedRelease = combinedChargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), combinedChargeBombs);
+        int? combinedChargedReleaseSlot =
+            beforeCombinedChargedRelease.FiredSlot(combinedChargeProjectiles);
+        AssertTrue(combinedChargedReleaseSlot is not null,
+            $"charged beam combination {beamType} allocates on release");
+        SamusProjectileSlot combinedChargedSlot =
+            combinedChargeProjectiles.Slots[(combinedChargedReleaseSlot ?? throw new InvalidOperationException("Verification requires combinedChargedReleaseSlot."))];
+        AssertEqual(NativeDamage(0x9383d9, beamType), combinedChargedSlot.Damage,
+            $"charged beam combination {beamType} indexes charged data pointer");
+        AssertEqual((ushort)30, combinedChargeBombs.CooldownTimer.RawValue,
+            $"charged beam combination {beamType} indexes charged cooldown");
+        AssertEqual(
+            (SoundEffectId?)SoundEffectId.FromCartridge(
+                SoundEffectLibrary.Library1,
+                nativeChargedSounds[beamType]),
+            combinedChargedRelease.QueuedSoundEffect,
+            $"charged beam combination {beamType} indexes charged sound");
+        AssertEqual(
+            (beamType & 1) == 0
+                ? SamusProjectilePreInstruction.NoWaveBeam
+                : SamusProjectilePreInstruction.WaveBeamFourFrameTrail,
+            combinedChargedSlot.PreInstruction,
+            $"charged beam combination {beamType} selects native wave dispatch");
+    }
+
+    // Hyper Beam ignores the equipped combination for projectile identity and forces
+    // charged-Plasma type `$9018`. Bank `$93` supplies its direction art/radii, after which
+    // the producer overwrites damage with literal 1000 and arms the descending flare state.
+    var hyperSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
+        EquippedBeams = 0x1009,
+        HyperBeam = 0x8000,
+    };
+    BindSyntheticSamusRendering(bus, hyperSamus);
+    hyperSamus.Presentation.ChargeColors = fixtureChargeColors;
+    hyperSamus.Presentation.SuitColors = fixtureSuitColors;
+    var hyperBombs = CreateSyntheticBombs();
+    var hyperProjectiles = CreateSyntheticProjectiles();
+    hyperBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, hyperSamus, 0, 0);
+    SamusProjectileSlotObservation beforeHyper = hyperProjectiles.ObserveSlots();
+    SamusProjectileFrameResult hyperResult = hyperProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, hyperSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), hyperBombs);
+    SamusProjectileSlot hyperSlot = hyperProjectiles.Slots[0];
+    AssertEqual((int?)0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
+    AssertEqual(0x9018, hyperSlot.Type, "Hyper Beam forces literal type `$9018`");
+    AssertEqual(1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
+    AssertEqual(SamusProjectilePreInstruction.HyperBeam, hyperSlot.PreInstruction,
+        "Hyper Beam selects trail-free Wave movement");
+    AssertEqual(0, hyperSlot.TrailTimer.RawValue, "Hyper Beam does not arm a projectile trail");
+    AssertEqual(21, hyperBombs.CooldownTimer.RawValue, "Hyper Beam installs literal cooldown 21");
+    AssertEqual(
+        (SoundEffectId?)SoundEffectId.FromCartridge(
+            SoundEffectLibrary.Library1, nativeChargedSounds[8]),
+        hyperResult.QueuedSoundEffect,
+        "Hyper Beam indexes charged sound entry eight");
+    AssertEqual(0x8014, hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue,
+        "Hyper Beam installs signed palette/glow phase `$8014`");
+    AssertEqual(0x8000, hyperProjectiles.Charge.FlareCounter,
+        "Hyper Beam arms descending flare sentinel");
+
+    // `$8014` supplies ten descending even table offsets with an odd no-write hold after
+    // each one. The twenty-first call sees `$8000`, skips the padding pointer, and restores
+    // Power Suit. Verify every ROM word so reversed palette order cannot look plausible.
+    var hyperGlowCgram = new SnesCgram();
+    for (int call = 0; call < 21; call++)
+    {
+        Bgr555[] beforeColors = hyperGlowCgram.Colors.ToArray();
+        ushort hyperTimerBefore = hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue;
+        SamusBeamChargePaletteStepResult paletteStep =
+            hyperProjectiles.UpdateBeamChargePalette(bus, hyperGlowCgram, hyperSamus);
+        if (call < 20 && (call & 1) == 0)
+        {
+            int palette = call / 2;
+            AssertEqual(SamusBeamChargePaletteAction.HyperPalette, paletteStep.Action,
+                $"Hyper body glow call {call + 1} loads palette");
+            // The timer's even low-five-bit value is the `$91:D829` byte offset; offsets
+            // descend from $14, selecting palettes 0..9 in order.
+            AssertEqual(0x14 - palette * 2, hyperTimerBefore & 0x001e,
+                $"Hyper body glow call {call + 1} uses descending table index");
+            ushort[] expectedPalette = Enumerable.Range(0, 16)
+                .Select(color => unchecked((ushort)(0x2000 + palette * 0x20 + color)))
+                .ToArray();
+            AssertPaletteSlice(hyperGlowCgram, 192, expectedPalette,
+                $"Hyper body palette {palette}");
+        }
+        else if (call < 20)
+        {
+            AssertEqual(SamusBeamChargePaletteAction.HyperHold, paletteStep.Action,
+                $"Hyper body glow call {call + 1} is odd hold");
+            AssertSequenceEqual(
+                beforeColors,
+                hyperGlowCgram.Colors.ToArray(),
+                $"Hyper body glow hold {call + 1} leaves CGRAM unchanged");
+        }
+        else
+        {
+            AssertEqual(SamusBeamChargePaletteAction.RestoredNormalSuit, paletteStep.Action,
+                "Hyper body glow call 21 restores suit");
+            AssertPaletteSlice(hyperGlowCgram, 192,
+                Enumerable.Range(0, 16)
+                    .Select(color => unchecked((ushort)(0x0100 + color)))
+                    .ToArray(),
+                "Hyper body glow restore installs the Power Suit palette");
+        }
+    }
+    AssertEqual(0, hyperProjectiles.Charge.ChargedShotGlowTimer.RawValue,
+        "Hyper body glow clears signed timer after 21 calls");
+
+    // Its three components begin at frames 29/5/5 with timer three. Fast sparks (component
+    // two) own completion, so exactly fifteen draw calls count five records down to zero.
+    var hyperFlareOam = new OamBuffer();
+    for (int call = 0; call < 15; call++)
+    {
+        hyperFlareOam.BeginFrame();
+        hyperProjectiles.HandleChargeFlareAndDraw(bus, hyperFlareOam, hyperSamus, new(0, 0), placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
+        AssertTrue(hyperFlareOam.NextByteOffset != 0,
+            $"Hyper Beam descending flare call {call + 1} draws ROM spritemaps");
+    }
+    AssertEqual(0, hyperProjectiles.Charge.FlareCounter,
+        "Hyper Beam fast-spark frame one clears flare sentinel");
+
+    // `$93:8268` exempts charged-family bit `$0010` from ordinary beam flicker. Slot zero
+    // would be suppressed on even NMI under the uncharged rule, making this a direct guard
+    // against accidentally applying that branch to the charged projectile.
+    var chargedOam = new OamBuffer();
+    chargedOam.BeginFrame();
+    chargeProjectiles.DrawLiveProjectiles(bus, chargedOam, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, compositions: fixtureSprites);
+    AssertTrue(chargedOam.NextByteOffset != 0,
+        "charged power beam bypasses ordinary alternating-frame flicker");
+
+    // The release frame has already changed trail timer 4 to 3. Three more alpha passes
+    // reach zero and allocate native trail byte index `$22` before the third pass moves the
+    // projectile. Handling the draw immediately must consume only the populated left stream.
+    chargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
+    chargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
+    ushort trailSourceX = chargedSlot.Position.X.Whole;
+    ushort trailSourceY = chargedSlot.Position.Y.Whole;
+    chargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
+
+    AssertEqual(1, chargeProjectiles.ActiveTrailCount,
+        "charged power allocates one of eighteen trail slots every fourth alpha pass");
+    SamusProjectileTrailSlot chargedTrail =
+        chargeProjectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
+    AssertTrue(chargedTrail.IsActive, "trail allocation scans downward from native index $22");
+    AssertEqual(unchecked((ushort)(trailSourceX - 4)), chargedTrail.Left.Position.X,
+        "trail samples projectile X before movement and subtracts four");
+    AssertEqual(unchecked((ushort)(trailSourceY - 4)), chargedTrail.Left.Position.Y,
+        "trail samples projectile Y before movement and subtracts four");
+
+    var trailOam = new OamBuffer();
+    trailOam.BeginFrame();
+    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, Position16<RoomPixels>.Zero, timeIsFrozen: false, artwork: fixtureTrails);
+    AssertEqual(4, trailOam.NextByteOffset, "charged power's left stream emits one raw OBJ");
+    AssertEqual(0, chargedTrail.Right.InstructionTimer.RawValue,
+        "charged power's empty right stream terminates without drawing");
+    OamEntry firstTrailObj = trailOam.GetEntry(0);
+    AssertEqual(0x038, firstTrailObj.TileNumber, "charged trail reads first `$2C38` tile");
+    AssertEqual(6, firstTrailObj.Palette, "charged trail retains packed OBJ palette six");
+    AssertTrue(!firstTrailObj.IsLarge, "projectile trail is an explicit small OBJ");
+
+    // Time freeze bypasses DEC and command parsing but not OAM emission. The same record and
+    // instruction pointer must remain visible and unchanged for an arbitrary frozen frame.
+    ushort frozenTrailPointer = chargedTrail.Left.InstructionPointer;
+    ushort frozenTrailTimer = chargedTrail.Left.InstructionTimer.RawValue;
+    trailOam.BeginFrame();
+    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, Position16<RoomPixels>.Zero, timeIsFrozen: true, artwork: fixtureTrails);
+    AssertEqual(frozenTrailPointer, chargedTrail.Left.InstructionPointer,
+        "frozen trail retains instruction pointer");
+    AssertEqual(frozenTrailTimer, chargedTrail.Left.InstructionTimer.RawValue,
+        "frozen trail retains instruction timer");
+    AssertEqual(4, trailOam.NextByteOffset, "frozen active trail still draws");
+
+    // Five more records reach the inline `$B525` opcode on the sixth call after the first
+    // draw. It mutates world Y, then falls through to the following timed tile in one pass.
+    ushort beforeTrailCommandY = chargedTrail.Left.Position.Y;
+    for (int call = 0; call < 6; call++)
+    {
+        trailOam.BeginFrame();
+        chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, Position16<RoomPixels>.Zero, timeIsFrozen: false, artwork: fixtureTrails);
+    }
+    AssertEqual(unchecked((ushort)(beforeTrailCommandY + 1)), chargedTrail.Left.Position.Y,
+        "inline `$B525` command moves the left trail down one pixel");
+    AssertEqual(0x039, trailOam.GetEntry(0).TileNumber,
+        "position command falls through to the following `$2C39` timed record");
+
+    // Commands identify the destination side, not the stream executing them. Charged
+    // Wave's right stream uses MoveLeftDown; rejecting that cross-side write crashes
+    // the first fully integrated special attack even though particle motion is correct.
+    // Use bank $90's mutable low-half alias for the synthetic stream: fixed high-bank
+    // program data is compiled and deliberately cannot be rewritten by a test fixture.
+    foreach (bool executeOnLeft in new[] { false, true })
+    foreach (ushort command in new[] { (ushort)ProjectileTrailInstruction.MoveLeftDown,
+        (ushort)ProjectileTrailInstruction.MoveRightDown, (ushort)ProjectileTrailInstruction.MoveLeftUp })
+    {
+        var commandProjectiles = CreateSyntheticProjectiles();
+        var pair = commandProjectiles.TrailSlots[0];
+        pair.Left.Position = pair.Left.Position.WithY(100);
+        pair.Right.Position = pair.Right.Position.WithY(120);
+        var executingSide = executeOnLeft ? pair.Left : pair.Right;
+        executingSide.InstructionTimer = NativeCountdown.Start(1);
+        executingSide.InstructionPointer = 0x0000;
+        WriteTrailCommandStreamFixture(bus, command);
+        trailOam.BeginFrame();
+        commandProjectiles.HandleTrailsAndDraw(bus, trailOam, Position16<RoomPixels>.Zero, timeIsFrozen: false);
+        AssertEqual(command == (ushort)ProjectileTrailInstruction.MoveLeftDown ? 101 :
+            command == (ushort)ProjectileTrailInstruction.MoveLeftUp ? 99 : 100,
+            pair.Left.Position.Y, "trail command targets named left side regardless of executing stream");
+        AssertEqual(command == (ushort)ProjectileTrailInstruction.MoveRightDown ? 121 : 120,
+            pair.Right.Position.Y, "trail command targets named right side regardless of executing stream");
+        AssertEqual(0x0006, executingSide.InstructionPointer,
+            "cross-side command continues the executing stream through its timed record");
+    }
+
+    // Isolate horizontal fixed-point motion and collision against an authentic type-eight
+    // solid column. The first rightward frame uses velocity `$0400+$0010`, producing four
+    // whole pixels and subposition `$1000`; repeated alpha passes eventually install the
+    // ROM explosion without freeing the slot early.
+    var wallWords = new ushort[width * height];
+    for (int y = 0; y < height; y++)
+        wallWords[y * width + 6] = 0x8000;
+    RoomLevelData wall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(wallWords, new byte[wallWords.Length], new ushort[wallWords.Length]), new byte[8]);
+
+    // Wave collision routines still scan the projectile's full radius but return carry
+    // clear after every block reaction. Drive power+wave through the same strict type-eight
+    // wall that kills the no-wave fixture below; its center must emerge beyond the column
+    // without ever entering the explosion family.
+    var waveWallSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
+        EquippedBeams = 1,
+    };
+    var waveWallBombs = CreateSyntheticBombs();
+    var waveWallProjectiles = CreateSyntheticProjectiles();
+    bool waveReportedExplosion = false;
+    for (int frame = 0; frame < 12; frame++)
+    {
+        waveWallBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, waveWallSamus, 0, 0);
+        SamusProjectileSlotObservation beforeWaveFrame = waveWallProjectiles.ObserveSlots();
+        waveWallProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, waveWallSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), waveWallBombs);
+        waveReportedExplosion |= beforeWaveFrame.CollisionStartedExplosion(waveWallProjectiles);
+    }
+    AssertTrue(!waveReportedExplosion, "wave beam never converts on a type-eight wall");
+    AssertTrue(waveWallProjectiles.Slots[0].Position.X.Whole > 112,
+        "wave beam advances completely through the solid column");
+    AssertEqual(SamusProjectilePreInstruction.WaveBeamThreeFrameTrail,
+        waveWallProjectiles.Slots[0].PreInstruction,
+        "power+wave remains in its native pass-through pre-instruction");
+
+    WritePoseDefinition(
+        bus,
+        (int)rightPose,
+        [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
+    var wallSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
+    };
+    var wallBombs = CreateSyntheticBombs();
+    var wallProjectiles = CreateSyntheticProjectiles();
+    wallBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, 0, 0);
+    wallProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), wallBombs);
+    AssertEqual(79, wallProjectiles.Slots[0].Position.X.Whole,
+        "right beam starts eleven pixels beyond Samus then moves four whole pixels");
+    AssertEqual(0x1000, wallProjectiles.Slots[0].Position.X.Fraction,
+        "right beam first frame retains one-sixteenth pixel");
+
+    bool wallExploded = false;
+    for (int frame = 0; frame < 16 && !wallExploded; frame++)
+    {
+        wallBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, 0, 0);
+        SamusProjectileSlotObservation beforeWallFrame = wallProjectiles.ObserveSlots();
+        wallProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), wallBombs);
+        wallExploded = beforeWallFrame.CollisionStartedExplosion(wallProjectiles);
+    }
+    AssertTrue(wallExploded, "power beam reaches type-eight wall");
+    AssertEqual(SamusProjectileFamily.BeamExplosion,
+        wallProjectiles.Slots[0].PackedType.Family,
+        "wall collision installs beam-explosion family");
+    AssertEqual(1, wallProjectiles.SlotTable.ProjectileCounter,
+        "beam explosion retains ordinary slot count");
+    AssertEqual(0xa254, wallProjectiles.Slots[0].SpritemapPointer,
+        "collision frame selects first explosion art");
+
+    for (int frame = 0; frame < NativeProjectileLifetime(nativeProjectileRom, 0x93867b); frame++)
+    {
+        wallBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, 0, 0);
+        wallProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), wallBombs);
+    }
+    AssertEqual(0, wallProjectiles.SlotTable.ProjectileCounter,
+        "explosion delete decrements ordinary counter");
+    AssertTrue(!wallProjectiles.Slots[0].IsActive,
+        "explosion delete clears ordinary slot");
+
+    // Replace the inert type-eight column with the two native shootable collision nibbles.
+    // This is an end-to-end producer test: a fired projectile must reach bank-$94's radius
+    // scanner, publish the correct bank-$84 PLM, run CE6B's synchronous terrain mutation,
+    // and retain the collision nibble's carry result. Filling the entire column makes the
+    // fixture independent of the pose-authored cannon Y offset while still requiring the
+    // projectile to travel from Samus to block column six.
+    var solidShotWords = new ushort[width * height];
+    var solidShotBehaviors = new byte[solidShotWords.Length];
+    for (int y = 0; y < height; y++)
+        solidShotWords[y * width + 6] = 0xc000;
+    RoomLevelData solidShotWall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(solidShotWords, solidShotBehaviors, new ushort[solidShotWords.Length]), new byte[8]);
+    var solidShotSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
+    };
+    var solidShotBombs = CreateSyntheticBombs();
+    var solidShotProjectiles = CreateSyntheticProjectiles();
+    var solidShotPlms = new RoomPlmSystem();
+    bool solidShotExploded = false;
+    for (int frame = 0; frame < 16 && !solidShotExploded; frame++)
+    {
+        solidShotBombs.StepFrame(new SamusTerrain { Bus = bus, Level = solidShotWall }, solidShotSamus, 0, 0);
+        SamusProjectileSlotObservation beforeSolidShotFrame = solidShotProjectiles.ObserveSlots();
+        solidShotProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = solidShotWall, Plms = solidShotPlms }, solidShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), solidShotBombs);
+        solidShotExploded = beforeSolidShotFrame.CollisionStartedExplosion(solidShotProjectiles);
+    }
+    AssertTrue(solidShotExploded,
+        "type-C shootable block retains solid shot collision");
+    AssertTrue(solidShotPlms.SlotTable.ActiveCount > 0,
+        "ordinary beam collision allocates bank-$84 shot-block PLM");
+    int synthesizedSolidShotBlocks = 0;
+    for (int y = 0; y < height; y++)
+    {
+        if (solidShotWall.GetCollisionBlock(new(6, checked((ushort)y))).LevelWord == 0x8052)
+            synthesizedSolidShotBlocks++;
+    }
+    AssertTrue(synthesizedSolidShotBlocks > 0,
+        "CE6B synchronously converts contacted type-C block to synthesized $8052");
+
+    // Type four calls the very same setup but returns carry clear. Wave compounds that rule:
+    // `$94:A352` must run every block side effect and then discard even a carry-set reaction.
+    // Crossing the whole column without an explosion proves neither the new PLM publication
+    // nor the temporary `$0052` word accidentally turned Wave into a clipping projectile.
+    var waveShotWords = new ushort[width * height];
+    var waveShotBehaviors = new byte[waveShotWords.Length];
+    for (int y = 0; y < height; y++)
+        waveShotWords[y * width + 6] = 0x4000;
+    RoomLevelData waveShotWall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(waveShotWords, waveShotBehaviors, new ushort[waveShotWords.Length]), new byte[8]);
+    var waveShotSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
+        EquippedBeams = 1,
+    };
+    var waveShotBombs = CreateSyntheticBombs();
+    var waveShotProjectiles = CreateSyntheticProjectiles();
+    var waveShotPlms = new RoomPlmSystem();
+    bool waveShotReportedExplosion = false;
+    for (int frame = 0; frame < 12; frame++)
+    {
+        waveShotBombs.StepFrame(new SamusTerrain { Bus = bus, Level = waveShotWall }, waveShotSamus, 0, 0);
+        SamusProjectileSlotObservation beforeWaveShotFrame = waveShotProjectiles.ObserveSlots();
+        waveShotProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = waveShotWall, Plms = waveShotPlms }, waveShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), waveShotBombs);
+        waveShotReportedExplosion |= beforeWaveShotFrame.CollisionStartedExplosion(waveShotProjectiles);
+    }
+    AssertTrue(!waveShotReportedExplosion,
+        "Wave remains alive after publishing type-four shot-block reaction");
+    AssertTrue(waveShotProjectiles.Slots[0].Position.X.Whole > 112,
+        "Wave crosses the complete shootable-air column");
+    AssertTrue(waveShotPlms.SlotTable.ActiveCount > 0,
+        "Wave scan allocates bank-$84 shot-block PLM");
+    int synthesizedAirShotBlocks = 0;
+    for (int y = 0; y < height; y++)
+    {
+        if (waveShotWall.GetCollisionBlock(new(6, checked((ushort)y))).LevelWord == 0x0052)
+            synthesizedAirShotBlocks++;
+    }
+    AssertTrue(synthesizedAirShotBlocks > 0,
+        "CE6B synchronously converts contacted type-four block to synthesized $0052");
+
+    // `$90:BE62` shares the ordinary five-slot array with beams but selects a completely
+    // different bank-$93 data family and bank-$90 pre-instruction. Fire a rightward missile
+    // into the same type-eight column so producer state, first-frame ignition, persistent
+    // trail, point collision, and missile-specific explosion are all observed in one route.
+    var missileSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
+        SelectedHudItem = 1,
+        Missiles = 3,
+    };
+    var missileBombs = CreateSyntheticBombs();
+    var missileProjectiles = CreateSyntheticProjectiles();
+    missileBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, 0, 0);
+    SamusProjectileSlotObservation beforeMissile = missileProjectiles.ObserveSlots();
+    SamusProjectileFrameResult missileFired = missileProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), missileBombs);
+    SamusProjectileSlot missile = missileProjectiles.Slots[0];
+    AssertEqual((int?)0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
+    AssertEqual(
+        (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 3),
+        missileFired.QueuedSoundEffect,
+        "missile producer queues library-one effect three");
+    AssertEqual(2, missileSamus.Missiles, "missile producer consumes exactly one ammo");
+    AssertEqual(1, missileSamus.SelectedHudItem,
+        "nonempty missile reserve remains HUD-selected");
+    AssertEqual(1, missileProjectiles.SlotTable.ProjectileCounter,
+        "missile increments the shared ordinary-projectile counter");
+    AssertEqual(10, missileBombs.CooldownTimer.RawValue,
+        "missile producer installs literal ten-frame shared cooldown");
+    AssertEqual(20, missileProjectiles.Firing.ProjectileInvincibilityTimer.RawValue,
+        "missile producer installs literal projectile invincibility timer twenty");
+    AssertEqual(0x8100, missile.Type, "missile uses active type word `$8100`");
+    AssertEqual(0x0064, missile.Damage, "missile reads damage from `$93:8641`");
+    AssertEqual(SamusProjectilePreInstruction.Missile, missile.PreInstruction,
+        "missile selects `$90:AF68` pre-instruction family");
+    AssertEqual(0x0100, missile.Variable,
+        "first alpha pass crosses `$0100` ignition threshold");
+    AssertEqual(0x0100, missile.Velocity.X.SignedRawValue,
+        "right missile begins at one pixel per frame after ignition");
+    AssertEqual(76, missile.Position.X.Whole,
+        "right missile moves one whole pixel on its ignition frame");
+    AssertEqual(0xa25b, missile.SpritemapPointer,
+        "missile instruction handler selects first bank-$93 art record");
+
+    var missileOam = new OamBuffer();
+    missileOam.BeginFrame();
+    missileProjectiles.DrawLiveProjectiles(bus, missileOam, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, compositions: fixtureSprites);
+    AssertEqual(4, missileOam.NextByteOffset,
+        "missile family bypasses ordinary beam alternating-frame flicker");
+    AssertEqual(0x044, missileOam.GetEntry(0).TileNumber,
+        "missile draw consumes its `$2A44` fixture OBJ");
+
+    // The firing alpha pass changed trail timer four to three. Exactly three further alpha
+    // passes allocate native trail entry `$20`; the subsequent draw parses `$90:B5A1` and
+    // publishes its first four-frame `$2A48` record while the empty right stream terminates.
+    for (int frame = 0; frame < 3; frame++)
+    {
+        missileBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, 0, 0);
+        missileProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), missileBombs);
+    }
+    AssertEqual(1, missileProjectiles.ActiveTrailCount,
+        "missile allocates one persistent trail every fourth alpha pass");
+    SamusProjectileTrailSlot missileTrail =
+        missileProjectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
+    missileOam.BeginFrame();
+    missileProjectiles.HandleTrailsAndDraw(bus, missileOam, Position16<RoomPixels>.Zero, timeIsFrozen: false, artwork: fixtureTrails);
+    AssertEqual(4, missileOam.NextByteOffset, "missile left trail emits one small OBJ");
+    AssertEqual(0x048, missileOam.GetEntry(0).TileNumber,
+        "missile trail starts at retail tile `$2A48`");
+    AssertEqual(4, missileTrail.Left.InstructionTimer.RawValue,
+        "missile trail retains its four-frame record duration");
+    AssertEqual(0, missileTrail.Right.InstructionTimer.RawValue,
+        "missile's empty right trail stream terminates immediately");
+
+    bool missileExploded = false;
+    for (int frame = 0; frame < 32 && !missileExploded; frame++)
+    {
+        missileBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, 0, 0);
+        SamusProjectileSlotObservation beforeMissileFrame = missileProjectiles.ObserveSlots();
+        missileProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), missileBombs);
+        missileExploded = beforeMissileFrame.CollisionStartedExplosion(missileProjectiles);
+    }
+    AssertTrue(missileExploded,
+        "accelerating missile reaches the type-eight wall");
+    AssertEqual(SamusProjectileFamily.MissileExplosion, missile.PackedType.Family,
+        "missile collision installs missile-explosion family `$0800`");
+    AssertEqual(1, missileProjectiles.SlotTable.ProjectileCounter,
+        "missile explosion retains its shared ordinary slot count");
+    AssertEqual(0xa254, missile.SpritemapPointer,
+        "missile collision frame selects first explosion art");
+    missileOam.BeginFrame();
+    missileProjectiles.DrawExplosions(bus, missileOam, Position16<RoomPixels>.Zero, compositions: fixtureSprites);
+    AssertEqual(4, missileOam.NextByteOffset,
+        "missile explosion participates in the early explosion draw pass");
+
+    for (int frame = 0; frame < NativeProjectileLifetime(nativeProjectileRom, 0x93867f); frame++)
+    {
+        missileBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, 0, 0);
+        missileProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), missileBombs);
+    }
+    AssertEqual(0, missileProjectiles.SlotTable.ProjectileCounter,
+        "missile explosion delete decrements ordinary counter");
+    AssertTrue(!missile.IsActive, "missile explosion delete clears its slot");
+
+    // Reuse the exact producer instance after the missile has completed, cycle the HUD with
+    // Select exactly as a player does, and fire again. With no later selectable item owned,
+    // `$90:C4E7` wraps item one back to zero. This guards the playthrough report that missile
+    // damage might survive deselection: a new beam must rebuild both packed family and damage
+    // from `$93:83C1`, never inherit slot history from the missile which occupied slot zero.
+    AssertTrue(SelectionChanged(missileSamus,
+            (ushort)SnesButton.Select,
+            (ushort)SnesButton.Select),
+        "Select cycles the live HUD selection from missiles to beams");
+    AssertEqual(0, missileSamus.SelectedHudItem,
+        "Select wrap chooses the ordinary beam producer");
+    missileBombs.Reset();
+    SamusProjectileSlotObservation beforePostMissileBeam = missileProjectiles.ObserveSlots();
+    missileProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), missileBombs);
+    int? postMissileBeamSlot = beforePostMissileBeam.FiredSlot(missileProjectiles);
+    AssertTrue(postMissileBeamSlot.HasValue,
+        "Shoot after missile deselection allocates a new beam");
+    SamusProjectileSlot postMissileBeam =
+        missileProjectiles.Slots[(postMissileBeamSlot ?? throw new InvalidOperationException("Verification requires postMissileBeamSlot."))];
+    AssertEqual(0x8000, postMissileBeam.Type,
+        "post-missile shot rebuilds active packed type as uncharged Power Beam");
+    AssertEqual(0x0014, postMissileBeam.Damage,
+        "post-missile shot reloads Power Beam damage instead of retaining missile damage");
+
+    // Point missiles use a deliberately different slope route from radius-spanning beams.
+    // Put the muzzle directly inside one synthetic type-one block and compare points above
+    // and inside the exact cartridge height. This locks `$94:A58F`'s shape-row indexing and
+    // `height <= y` comparison independently of the Landing Site cartridge smoke test.
+
+    RoomLevelData BuildPointSlopeRoom(byte behavior)
+    {
+        var words = new ushort[width * height];
+        var behaviors = new byte[words.Length];
+        int muzzleBlock = 6 * width + 4;
+        words[muzzleBlock] = 0x1000;
+        behaviors[muzzleBlock] = behavior;
+        return CreateRoom(new(width, height), words, behaviors);
+    }
+
+    // True when the fresh missile's first alpha pass collided and became an explosion.
+    bool FirePointMissile(RoomLevelData terrain, ushort yPosition)
+    {
+        var pointSamus = new SamusState
+        {
+            Pose = rightPose,
+            // Request muzzle (64,yPosition): default Right adds (11,1), then
+            // standing-pose mechanics subtract six from Y, regardless of artwork.
+            Position = FixedPosition<RoomPixels>.FromWhole(new(53, unchecked((ushort)(yPosition + 5)))),
+            SelectedHudItem = 1,
+            Missiles = 1,
+        };
+        var pointBombs = CreateSyntheticBombs();
+        var pointProjectiles = CreateSyntheticProjectiles();
+        pointBombs.StepFrame(new SamusTerrain { Bus = bus, Level = terrain }, pointSamus, 0, 0);
+        SamusProjectileSlotObservation beforePointMissile = pointProjectiles.ObserveSlots();
+        pointProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = terrain }, pointSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), pointBombs);
+        return beforePointMissile.CollisionStartedExplosion(pointProjectiles);
+    }
+
+    RoomLevelData nonSquareSlope = BuildPointSlopeRoom(0x12);
+    AssertTrue(!FirePointMissile(nonSquareSlope, 96),
+        "non-square point above ROM height remains air");
+    AssertTrue(FirePointMissile(nonSquareSlope, 111),
+        "non-square point at ROM height collides");
+
+    // Shape zero is the retail half-height square: top-left/top-right are air and both
+    // bottom quadrants are solid. These two centers differ only in bit three of Y, proving
+    // `$94:A66A`'s perpendicular quadrant XOR used during horizontal missile movement.
+    RoomLevelData squareSlope = BuildPointSlopeRoom(0x00);
+    AssertTrue(!FirePointMissile(squareSlope, 96),
+        "square-slope top half remains air");
+    AssertTrue(FirePointMissile(squareSlope, 104),
+        "square-slope bottom half collides");
+
+    // `$94:A1B5` gives bombable air and bombable solid distinct carry results even when
+    // `$84:CEDA` immediately deletes the missile-created PLM. This is easy to miss because
+    // neither terrain nor the PLM pool retains a visible mutation after an ordinary missile.
+    RoomLevelData BuildPointBlockRoom(ushort levelWord, byte behavior = 0)
+    {
+        var words = new ushort[width * height];
+        var behaviors = new byte[words.Length];
+        int muzzleBlock = 6 * width + 4;
+        words[muzzleBlock] = levelWord;
+        behaviors[muzzleBlock] = behavior;
+        return CreateRoom(new(width, height), words, behaviors);
+    }
+
+    AssertTrue(!FirePointMissile(BuildPointBlockRoom(0x7000), 96),
+        "bombable-air point reaction spawns-and-deletes PLM but returns carry clear");
+    AssertTrue(FirePointMissile(BuildPointBlockRoom(0xf000), 96),
+        "bombable-solid point reaction spawns-and-deletes PLM and returns carry set");
+
+    // Horizontal/vertical extensions return N set and redispatch the signed parent rather
+    // than using the extension's own apparent carry. Resolve both forms into bombable solid.
+    RoomLevelData horizontalExtension = BuildPointBlockRoom(0x5000, behavior: 1);
+    horizontalExtension.SetForegroundEntry(6 * width + 5, 0xf000);
+    AssertTrue(FirePointMissile(horizontalExtension, 96),
+        "horizontal extension redispatches missile against signed parent");
+
+    RoomLevelData verticalExtension = BuildPointBlockRoom(0xd000, behavior: 1);
+    verticalExtension.SetForegroundEntry(7 * width + 4, 0xf000);
+    AssertTrue(FirePointMissile(verticalExtension, 96),
+        "vertical extension redispatches missile against row-relative parent");
+
+    // Landing Site's first door is the more important inverse case: its power beam hits
+    // one of three type-$D cells whose negative BTS points upward to a type-$C/BTS-$41
+    // origin. Seed the exact retail right-facing blue-door program and draw lists, then
+    // prove the live radius scanner creates the PLM and its timed bank-$84 program clears
+    // the complete four-block cap without a test-owned terrain mutation.
+    InstallLandingSiteBlueDoorPlmFixture(bus);
+
+    // Room loading runs the shared `$84:C7B1` setup for every colored-door header before
+    // gameplay projectiles can inspect the decompressed collision map. Exercise all three
+    // colors and four orientations so no uncertain header is silently treated as a blue cap.
+    ushort[] coloredDoorHeaders =
+    [
+        0xc85a, 0xc860, 0xc866, 0xc86c,
+        0xc872, 0xc878, 0xc87e, 0xc884,
+        0xc88a, 0xc890, 0xc896, 0xc89c,
+    ];
+    const ushort coloredDoorPopulation = 0x9000;
+    var coloredDoorWords = new ushort[16 * 16];
+    var coloredDoorBehaviors = new byte[coloredDoorWords.Length];
+    var coloredDoorRecords = new (ushort Header, byte X, byte Y, ushort Argument)[coloredDoorHeaders.Length];
+    for (int index = 0; index < coloredDoorHeaders.Length; index++)
+    {
+        int blockX = index + 1;
+        int blockY = 3;
+        int blockIndex = blockY * 16 + blockX;
+        coloredDoorWords[blockIndex] = unchecked((ushort)(0x8000 | 0x0120 + index));
+        coloredDoorBehaviors[blockIndex] = unchecked((byte)(0x40 + (index & 3)));
+
+        coloredDoorRecords[index] = (coloredDoorHeaders[index],
+            unchecked((byte)blockX), unchecked((byte)blockY), unchecked((ushort)index));
+    }
+    WriteRoomPlmPopulationFixture(bus, coloredDoorPopulation, coloredDoorRecords);
+    RoomLevelData coloredDoors = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(coloredDoorWords, coloredDoorBehaviors, new ushort[coloredDoorWords.Length]), new byte[8]);
+    var coloredDoorPlms = new RoomPlmSystem();
+    AssertEqual(
+        coloredDoorHeaders.Length,
+        coloredDoorPlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, coloredDoors, coloredDoors.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, coloredDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        "colored-door setup scans all yellow, green, and red orientations");
+    for (int index = 0; index < coloredDoorHeaders.Length; index++)
+    {
+        RoomCollisionBlock block = coloredDoors.GetCollisionBlock(new(checked((ushort)(index + 1)), 3));
+        AssertEqual(RoomCollisionType.ShootableBlock, block.CollisionType,
+            $"colored-door setup installs shootable collision for header {index}");
+        AssertEqual(0x44, block.Behavior,
+            $"colored-door setup installs shared BTS for header {index}");
+        AssertEqual(0x0120 + index, block.LevelWord & 0x0fff,
+            $"colored-door setup preserves tile payload for header {index}");
+    }
+
+    // Exercise the resident actor rather than setup alone. These pointers reproduce the
+    // header/list graph consumed by the translation: header +2 selects the initial list,
+    // that list links the closed-blue, hit, and colored-closed draw records, and the hit
+    // list embeds its threshold byte plus opening-list pointer at the native odd offsets.
+    const ushort residentDoorPopulation = 0x9100;
+    const ushort residentDoorArgument = 37;
+    const int residentDoorBlock = 3 * 16 + 5;
+    InstallResidentDoorPlmGraphFixture(bus);
+    WriteRoomPlmPopulationFixture(bus, residentDoorPopulation, ((ushort)0xc88a, (byte)5, (byte)3, residentDoorArgument));
+
+    var residentWords = new ushort[16 * 16];
+    residentWords[residentDoorBlock] = 0x8120;
+    RoomLevelData residentDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(residentWords, new byte[residentWords.Length], new ushort[residentWords.Length]), new byte[8]);
+    var residentDoorSystem = new Bank80SystemState();
+    var residentDoorPlms = new RoomPlmSystem();
+    AssertEqual(1, residentDoorPlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, residentDoorLevel, residentDoorLevel.CreateBackgroundStreamer(), new SnesVram(), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        "resident colored-door loader allocates red door actor");
+    BackgroundTilemapStreamer residentDoorStreamer =
+        residentDoorLevel.CreateBackgroundStreamer();
+    residentDoorPlms.Step(bus, residentDoorLevel, residentDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+
+    AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0000),
+        "resident red door receives power-beam family for native rejection");
+    residentDoorPlms.Step(bus, residentDoorLevel, residentDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+    AssertTrue(residentDoorPlms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, 6)),
+        "wrong colored-door weapon queues native dud sound");
+    AssertEqual(0, residentDoorPlms.ColoredDoors.Single().HitCounter,
+        "wrong colored-door weapon does not advance threshold counter");
+
+    for (int hit = 1; hit <= 5; hit++)
+    {
+        AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0100),
+            $"red door accepts missile collision {hit}");
+        residentDoorPlms.Step(bus, residentDoorLevel, residentDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+    }
+    ColoredDoorPlmSnapshot openingDoor = residentDoorPlms.ColoredDoors.Single();
+    AssertEqual(ColoredDoorPhase.Opening, openingDoor.Phase,
+        "fifth missile selects cartridge opening list");
+    AssertEqual(5, openingDoor.HitCounter,
+        "red door retains exact five-missile threshold");
+    AssertTrue(residentDoorSystem.HasOpenedDoorBit(residentDoorArgument),
+        "opening instruction persists room-argument door bit");
+    AssertTrue(!residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0100),
+        "opening door no longer runs projectile pre-instruction");
+
+    residentDoorPlms.Reset();
+    AssertEqual(0, residentDoorPlms.ColoredDoors.Count,
+        "room reset discards resident colored-door actors");
+    AssertTrue(!residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0100),
+        "room reset cannot leak a hit into the discarded population");
+
+    var reopenedWords = new ushort[16 * 16];
+    reopenedWords[residentDoorBlock] = 0x8120;
+    RoomLevelData reopenedDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reopenedWords, new byte[reopenedWords.Length], new ushort[reopenedWords.Length]), new byte[8]);
+    var reopenedDoorPlms = new RoomPlmSystem();
+    reopenedDoorPlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, reopenedDoorLevel, reopenedDoorLevel.CreateBackgroundStreamer(), new SnesVram(), residentDoorSystem, 0), RoomPlmPopulationImporter.Read(bus, residentDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+    reopenedDoorPlms.Step(bus, reopenedDoorLevel, reopenedDoorLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+    AssertEqual(0x40, reopenedDoorLevel.GetCollisionBlockByIndex(residentDoorBlock).Behavior,
+        "persisted left-facing red door reloads as ordinary left blue cap");
+    AssertEqual(0, reopenedDoorPlms.ColoredDoors.Count,
+        "persisted colored-door conversion deletes resident actor after draw");
+
+    // Reproduce the generic grey-door graph with relocatable fixture pointers. This is
+    // intentionally not a direct call to an event setter: the regression starts at a
+    // bank-$8F population record, follows the header/list operands, publishes hits through
+    // BTS $44's shared collision seam, and lets the ordinary PLM interpreter execute the
+    // flashing/opening streams. It therefore guards the real cartridge ownership boundary
+    // that wakes Zebes after Old Mother Brain room's enemy quota is satisfied.
+    const ushort greyDoorPopulation = 0x9180;
+    const ushort greyDoorRawArgument = 0x0c2a;
+    const ushort greyDoorPersistedArgument = 0x002a;
+    const int greyDoorBlock = 6 * 16 + 2;
+
+    InstallGreyDoorPlmGraphFixture(bus);
+    WriteRoomPlmPopulationFixture(bus, greyDoorPopulation, ((ushort)0xc842, (byte)2, (byte)6, greyDoorRawArgument));
+
+    var greyDoorWords = new ushort[16 * 16];
+    greyDoorWords[greyDoorBlock] = 0x8220;
+    RoomLevelData greyDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(greyDoorWords, new byte[greyDoorWords.Length], new ushort[greyDoorWords.Length]), new byte[8]);
+    var greyDoorSystem = new Bank80SystemState();
+    var greyDoorPlms = new RoomPlmSystem();
+    AssertEqual(1, greyDoorPlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, greyDoorLevel, greyDoorLevel.CreateBackgroundStreamer(), new SnesVram(), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        "grey-door loader allocates enemy-quota actor from population");
+    AssertEqual(RoomCollisionType.ShootableBlock,
+        greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).CollisionType,
+        "grey-door setup installs shootable-solid collision");
+    AssertEqual(0x44, greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior,
+        "grey-door setup installs generic resident-PLM BTS");
+    GreyDoorPlmSnapshot lockedGreyDoor = greyDoorPlms.GreyDoorSnapshots.Single();
+    AssertEqual(GreyDoorCondition.EnemyDeathQuota, lockedGreyDoor.Condition,
+        "room argument high bits select cartridge enemy-quota condition");
+    AssertEqual(greyDoorPersistedArgument, lockedGreyDoor.RoomArgument,
+        "grey-door setup removes condition selector before persistence checks");
+
+    BackgroundTilemapStreamer greyDoorStreamer = greyDoorLevel.CreateBackgroundStreamer();
+    greyDoorPlms.Step(bus, greyDoorLevel, greyDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 }, enemyDeaths: 1, enemyDeathQuota: 2);
+    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
+        "shared BTS $44 collision publishes power-beam hit to grey door");
+    greyDoorPlms.Step(bus, greyDoorLevel, greyDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 }, enemyDeaths: 1, enemyDeathQuota: 2);
+    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, 6)),
+        "locked enemy-quota grey door consumes shot with native dud sound");
+    AssertTrue(!greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
+        "below-quota grey door does not publish Zebes-awake event");
+
+    // Publish a second hit on the exact quota-completion frame. BE01 clears the PLM shot
+    // timer while selecting its activation link, so this impact must not persist/open it.
+    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
+        "quota-completion frame can observe a colliding shot");
+    greyDoorPlms.Step(bus, greyDoorLevel, greyDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 }, enemyDeaths: 2, enemyDeathQuota: 2);
+    AssertTrue(greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
+        "enemy-quota grey door is native producer of Zebes-awake event");
+    AssertEqual(GreyDoorPhase.Flashing, greyDoorPlms.GreyDoorSnapshots.Single().Phase,
+        "quota completion enters cartridge flash loop");
+    AssertTrue(!greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
+        "quota-completion hit is cleared rather than opening grey door");
+
+    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
+        "later shot reaches flashing grey door's installed shot pre-instruction");
+    greyDoorPlms.Step(bus, greyDoorLevel, greyDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 }, enemyDeaths: 2, enemyDeathQuota: 2);
+    AssertEqual(GreyDoorPhase.Opening, greyDoorPlms.GreyDoorSnapshots.Single().Phase,
+        "post-unlock shot selects cartridge opening list");
+    AssertTrue(greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
+        "grey-door one-hit instruction persists sanitized room argument");
+    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x07), 6)),
+        "grey-door opening stream queues native library-three sound seven");
+
+    var reloadedGreyWords = new ushort[16 * 16];
+    reloadedGreyWords[greyDoorBlock] = 0x8220;
+    RoomLevelData reloadedGreyLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reloadedGreyWords, new byte[reloadedGreyWords.Length], new ushort[reloadedGreyWords.Length]), new byte[8]);
+    var reloadedGreyPlms = new RoomPlmSystem();
+    reloadedGreyPlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, reloadedGreyLevel, reloadedGreyLevel.CreateBackgroundStreamer(), new SnesVram(), greyDoorSystem, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, greyDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+    reloadedGreyPlms.Step(bus, reloadedGreyLevel, reloadedGreyLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+    AssertEqual(0x40, reloadedGreyLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior,
+        "persisted left grey door reloads as ordinary left blue cap");
+    AssertEqual(0, reloadedGreyPlms.GreyDoorSnapshots.Count,
+        "persisted grey-door conversion releases resident actor");
+
+    var blueDoorWords = new ushort[width * height];
+    var blueDoorBehaviors = new byte[blueDoorWords.Length];
+    int blueDoorOrigin = 4 * width + 6;
+    blueDoorWords[blueDoorOrigin] = 0xc000;
+    blueDoorBehaviors[blueDoorOrigin] = 0x41;
+    for (int rowOffset = 1; rowOffset < 4; rowOffset++)
+    {
+        blueDoorWords[blueDoorOrigin + rowOffset * width] = 0xd000;
+        blueDoorBehaviors[blueDoorOrigin + rowOffset * width] =
+            unchecked((byte)-rowOffset);
+    }
+    RoomLevelData blueDoor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(blueDoorWords, blueDoorBehaviors, new ushort[blueDoorWords.Length]), new byte[8]);
+
+    // Reproduce the in-game contact case rather than merely waiting for a distant beam to
+    // reach the cap. Right-facing power fire uses ROM muzzle offset +11: Samus center $5A
+    // therefore creates the beam at $65, already inside the $60-$6F door block. Native
+    // FireUnchargedBeam runs a zero-speed collision probe before its first four-pixel move;
+    // omitting that probe advances the leading edge to block $70 and skips the cap entirely.
+    var contactDoorWords = blueDoorWords.ToArray();
+    var contactDoorBehaviors = blueDoorBehaviors.ToArray();
+    RoomLevelData contactDoor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(contactDoorWords, contactDoorBehaviors, new ushort[contactDoorWords.Length]), new byte[8]);
+    var contactDoorSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(0x005a, 0x0060)),
+    };
+    var contactDoorBombs = CreateSyntheticBombs();
+    var contactDoorProjectiles = CreateSyntheticProjectiles();
+    var contactDoorPlms = new RoomPlmSystem();
+    contactDoorBombs.StepFrame(new SamusTerrain { Bus = bus, Level = contactDoor }, contactDoorSamus, 0, 0);
+    SamusProjectileSlotObservation beforeContactDoor = contactDoorProjectiles.ObserveSlots();
+    contactDoorProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = contactDoor, Plms = contactDoorPlms }, contactDoorSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), contactDoorBombs);
+    AssertTrue(beforeContactDoor.CollisionStartedExplosion(contactDoorProjectiles),
+        "beam born inside a blue cap collides before first-frame movement");
+    AssertEqual(1, contactDoorPlms.SlotTable.ActiveCount,
+        "contact-distance shot allocates the blue-door opening PLM");
+    AssertEqual(RoomCollisionType.SolidBlock,
+        contactDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
+        "contact-distance shot synchronously opens the cap origin");
+    AssertEqual(0x006d, contactDoorProjectiles.Slots[0].Position.X.Whole,
+        "fire-time impact anchors its explosion at the native leading edge");
+
+    var blueDoorSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
+    };
+    var blueDoorBombs = CreateSyntheticBombs();
+    var blueDoorProjectiles = CreateSyntheticProjectiles();
+    var blueDoorPlms = new RoomPlmSystem();
+    bool blueDoorExploded = false;
+    for (int frame = 0; frame < 16 && !blueDoorExploded; frame++)
+    {
+        blueDoorBombs.StepFrame(new SamusTerrain { Bus = bus, Level = blueDoor }, blueDoorSamus, 0, 0);
+        SamusProjectileSlotObservation beforeBlueDoorFrame = blueDoorProjectiles.ObserveSlots();
+        blueDoorProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = blueDoor, Plms = blueDoorPlms }, blueDoorSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), blueDoorBombs);
+        blueDoorExploded = beforeBlueDoorFrame.CollisionStartedExplosion(blueDoorProjectiles);
+    }
+    AssertTrue(blueDoorExploded,
+        "power beam collides through negative vertical door extension");
+    AssertEqual(1, blueDoorPlms.SlotTable.ActiveCount,
+        "BTS $41 collision allocates one right-facing blue-door PLM");
+    AssertEqual(RoomCollisionType.SolidBlock,
+        blueDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
+        "Setup_BlueDoor synchronously changes cap origin to type eight");
+
+    BackgroundTilemapStreamer blueDoorStreamer = blueDoor.CreateBackgroundStreamer();
+    blueDoorPlms.Step(bus, blueDoor, blueDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+    AssertTrue(blueDoorPlms.Sounds.SoundRequests.Any(request =>
+            request == new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x07), 6)),
+        "blue-door list queues library-three opening sound seven");
+    for (int frame = 1; frame < 19; frame++)
+        blueDoorPlms.Step(bus, blueDoor, blueDoorStreamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+    for (int rowOffset = 0; rowOffset < 4; rowOffset++)
+    {
+        AssertEqual(RoomCollisionType.Air,
+            blueDoor.GetCollisionBlockByIndex(
+                blueDoorOrigin + rowOffset * width).CollisionType,
+            $"blue-door final draw clears cap row {rowOffset}");
+    }
+
+    // Super Missiles share `$BE62` but differ in every animation-adjacent constant: HUD item
+    // two, type `$8200`, sound four, cooldown twenty, `$012C` damage, acceleration `$0100`,
+    // two-frame exhaust after the initial delay, an invisible linked slot, and a larger quake-
+    // producing explosion. Keep those distinctions together so a speed-only implementation
+    // cannot satisfy the regression.
+    var superSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
+        SelectedHudItem = 2,
+        SuperMissiles = 3,
+    };
+    var superBombs = CreateSyntheticBombs();
+    var superProjectiles = CreateSyntheticProjectiles();
+    superBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, 0, 0);
+    SamusProjectileSlotObservation beforeSuper = superProjectiles.ObserveSlots();
+    SamusProjectileFrameResult superFired = superProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), superBombs);
+    SamusProjectileSlot super = superProjectiles.Slots[0];
+    SamusProjectileSlot superLink = superProjectiles.Slots[1];
+    AssertEqual((int?)0, beforeSuper.FiredSlot(superProjectiles), "super fresh press allocates owner slot zero");
+    AssertEqual(
+        (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 4),
+        superFired.QueuedSoundEffect,
+        "super producer queues library-one effect four");
+    AssertEqual(2, superSamus.SuperMissiles,
+        "super producer consumes exactly one ammo");
+    AssertEqual(20, superBombs.CooldownTimer.RawValue,
+        "super producer installs literal twenty-frame cooldown");
+    AssertEqual(2, superProjectiles.SlotTable.ProjectileCounter,
+        "super ignition counts visible owner plus invisible link");
+    AssertEqual(0x8200, super.Type, "super owner uses active type `$8200`");
+    AssertEqual(0x012c, super.Damage, "super owner reads retail 300 damage");
+    AssertEqual(0x0100, super.Velocity.X.SignedRawValue,
+        "super ignition begins at one pixel per frame");
+    AssertEqual(0x0102, super.Variable,
+        "super variable combines initialized high byte and link byte index two");
+    AssertEqual(SamusProjectilePreInstruction.SuperMissile, super.PreInstruction,
+        "super owner selects `$90:AFE5`");
+    AssertEqual(0x8200, superLink.Type, "super link retains family `$0200`");
+    AssertEqual(0x012c, superLink.Damage, "super link carries native damage sentinel");
+    AssertEqual(SamusProjectilePreInstruction.SuperMissileLink, superLink.PreInstruction,
+        "super link selects stationary `$90:B075`");
+    AssertEqual(super.Position.X.Whole, superLink.Position.X.Whole,
+        "slow horizontal link follows owner center after ignition movement");
+
+    // The link instruction list is intentionally invisible; only the owner contributes an
+    // OBJ after its own bank-$93 program selects `$A030`.
+    var superOam = new OamBuffer();
+    superOam.BeginFrame();
+    superProjectiles.DrawLiveProjectiles(bus, superOam, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, compositions: fixtureSprites);
+    AssertEqual(4, superOam.NextByteOffset, "super owner draws while link spritemap is empty");
+    AssertEqual(0x045, superOam.GetEntry(0).TileNumber,
+        "super owner consumes its distinct `$2A45` OBJ");
+
+    for (int frame = 0; frame < 3; frame++)
+    {
+        superBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, 0, 0);
+        superProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), superBombs);
+    }
+    AssertEqual(1, superProjectiles.ActiveTrailCount,
+        "super's initial four-count allocates first exhaust trail");
+    AssertEqual(2, super.TrailTimer.RawValue,
+        "super exhaust reloads two instead of missile four");
+
+    bool superExploded = false;
+    for (int frame = 0; frame < 24 && !superExploded; frame++)
+    {
+        superBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, 0, 0);
+        SamusProjectileSlotObservation beforeSuperFrame = superProjectiles.ObserveSlots();
+        superProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), superBombs);
+        superExploded = beforeSuperFrame.CollisionStartedExplosion(superProjectiles);
+    }
+    AssertTrue(superExploded,
+        "accelerating super reaches the type-eight wall");
+    AssertEqual(0x8800, super.Type,
+        "super impact preserves active bit and selects family `$0800`");
+    AssertEqual((ushort)(NativeWord(0x938693) + 8), super.InstructionPointer,
+        "super collision consumes the first native explosion record");
+    AssertEqual(20, superProjectiles.Earthquakes.EarthquakeType,
+        "super impact publishes quake type `$14`");
+    AssertEqual(30, superProjectiles.Earthquakes.EarthquakeTimer,
+        "super impact publishes thirty-frame quake timer");
+    AssertTrue(!superLink.IsActive, "super owner impact clears invisible linked slot");
+    AssertEqual(1, superProjectiles.SlotTable.ProjectileCounter,
+        "super explosion retains only its visible owner count");
+
+    // Issue #283: reproduce the narrow-pillar helper impact from the player's recording.
+    // Original-ROM execution in native/ProjectileLinkAudit proves that the exploded helper
+    // continues following over air. Preserve that quirk, but require the cartridge's exact
+    // impact position and deletion on a second collision (not an explosion restart).
+    var pillarWords = new ushort[64 * 16];
+    pillarWords[851] = 0x8119;
+    var pillarRoom = CreateRoom(new(64, 16), pillarWords, new byte[pillarWords.Length]);
+    var pillarSamus = new SamusState
+    {
+        Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
+        SelectedHudItem = 2, SuperMissiles = 3,
+    };
+    var pillarBombs = CreateSyntheticBombs();
+    var pillarProjectiles = CreateSyntheticProjectiles();
+    pillarProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = pillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), pillarBombs);
+    var pillarOwner = pillarProjectiles.Slots[0];
+    var pillarLink = pillarProjectiles.Slots[1];
+    pillarLink.Position = pillarLink.Position.WithWholeY(0xd1);
+    pillarOwner.Position = pillarOwner.Position.WithWhole(new(0x12f, 0xd1));
+    pillarOwner.Velocity = pillarOwner.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(0x1100));
+    pillarOwner.Position = pillarOwner.Position.WithFractionX(0);
+    pillarLink.Position = pillarLink.Position.WithWholeX(0x128);
+    pillarLink.Radius = pillarLink.Radius.WithX(8);
+    // Native explosion timing remains live long enough for this three-frame sequence.
+    pillarProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = pillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0x100, 0), pillarBombs);
+    AssertEqual(0x139, pillarLink.Position.X.Whole,
+        "native missile helper impact does not apply the beam leading-edge radius");
+    AssertEqual(SamusProjectileFamily.MissileExplosion, pillarLink.PackedType.Family,
+        "supplemental pillar collision explodes the helper, not its owner");
+    pillarProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = pillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0x100, 0), pillarBombs);
+    AssertEqual(0x14b, pillarLink.Position.X.Whole,
+        "original ROM repositions an exploded helper over air");
+    pillarWords[853] = 0x8119;
+    var secondPillarRoom = CreateRoom(new(64, 16), pillarWords, new byte[pillarWords.Length]);
+    pillarProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = secondPillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0x100, 0), pillarBombs);
+    AssertTrue(!pillarLink.IsActive,
+        "native second collision deletes the explosion instead of restarting it");
+    AssertEqual(1, pillarProjectiles.SlotTable.ProjectileCounter,
+        "second helper collision decrements its counted slot exactly once");
+
+    // Drive a second real Super Missile into type-$C/BTS-A rather than calling the PLM
+    // owner directly. `$90:B00E`'s invisible linked point probe and the visible owner both
+    // carry family `$0200`; whichever reaches the column first must publish `$84:D08C`, run
+    // CF67 synchronously, and leave `$809F` behind for the normal same-frame PLM pass.
+    var integratedSuperWords = new ushort[width * height];
+    var integratedSuperBehaviors = new byte[integratedSuperWords.Length];
+    for (int y = 0; y < height; y++)
+    {
+        int index = y * width + 6;
+        integratedSuperWords[index] = 0xc000;
+        integratedSuperBehaviors[index] = 10;
+    }
+    RoomLevelData integratedSuperWall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedSuperWords, integratedSuperBehaviors, new ushort[integratedSuperWords.Length]), new byte[8]);
+    var integratedSuperSamus = new SamusState
+    {
+        Pose = rightPose,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
+        SelectedHudItem = 2,
+        SuperMissiles = 1,
+    };
+    var integratedSuperBombs = CreateSyntheticBombs();
+    var integratedSuperProjectiles = CreateSyntheticProjectiles();
+    var integratedSuperPlms = new RoomPlmSystem();
+    bool integratedSuperExploded = false;
+    for (int frame = 0; frame < 32 && !integratedSuperExploded; frame++)
+    {
+        integratedSuperBombs.StepFrame(new SamusTerrain { Bus = bus, Level = integratedSuperWall }, integratedSuperSamus, 0, 0);
+        SamusProjectileSlotObservation beforeIntegratedSuperFrame =
+            integratedSuperProjectiles.ObserveSlots();
+        integratedSuperProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = integratedSuperWall, Plms = integratedSuperPlms }, integratedSuperSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), integratedSuperBombs);
+        integratedSuperExploded =
+            beforeIntegratedSuperFrame.CollisionStartedExplosion(integratedSuperProjectiles);
+    }
+    AssertTrue(integratedSuperPlms.SlotTable.ActiveCount > 0,
+        "live Super Missile publishes weapon-gated block PLM");
+    int integratedSuperMutations = 0;
+    for (int y = 0; y < height; y++)
+    {
+        if (integratedSuperWall.GetCollisionBlock(new(6, checked((ushort)y))).LevelWord == 0x809f)
+            integratedSuperMutations++;
+    }
+    AssertTrue(integratedSuperMutations > 0,
+        "live Super Missile collision runs CF67 and synthesizes $809F");
+
+    // `$90:B406` runs a fast link's block collision before clearing it for an exploded owner.
+    // An owner moving twenty pixels jumps from column five into the column-seven wall; the
+    // link, ten pixels behind it, still strikes the Super Missile block in column six. The
+    // 13% movie opens a green door cap this way while its missile explodes on the door.
+    var skippedWords = new ushort[width * height];
+    var skippedBehaviors = new byte[skippedWords.Length];
+    for (int y = 0; y < height; y++)
+    {
+        skippedWords[y * width + 6] = 0xc000;
+        skippedBehaviors[y * width + 6] = 10;
+        skippedWords[y * width + 7] = 0x8000;
+    }
+    RoomLevelData skippedWall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(skippedWords, skippedBehaviors, new ushort[skippedWords.Length]), new byte[8]);
+    var skippedSamus = new SamusState
+    {
+        Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 96)), SelectedHudItem = 2, SuperMissiles = 1,
+    };
+    var skippedBombs = CreateSyntheticBombs();
+    var skippedProjectiles = CreateSyntheticProjectiles();
+    var skippedPlms = new RoomPlmSystem();
+    for (int frame = 0; frame < 3; frame++)
+    {
+        skippedBombs.StepFrame(new SamusTerrain { Bus = bus, Level = skippedWall }, skippedSamus, 0, 0);
+        skippedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = skippedWall, Plms = skippedPlms }, skippedSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), skippedBombs);
+    }
+    SamusProjectileSlot skippedOwner = skippedProjectiles.Slots[0];
+    SamusProjectileSlot skippedLink = skippedProjectiles.Slots[1];
+    AssertTrue(skippedOwner.PackedType.IsFamily(SamusProjectileFamily.SuperMissile) && skippedLink.IsActive,
+        "the Super Missile and its link are in flight");
+    skippedLink.Position = skippedLink.Position.WithWholeX(0x5c);
+    skippedOwner.Position = skippedOwner.Position.WithWholeX(0x5c).WithFractionX(0);
+    skippedOwner.Velocity = skippedOwner.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(0x1400));
+    skippedBombs.StepFrame(new SamusTerrain { Bus = bus, Level = skippedWall }, skippedSamus, 0, 0);
+    skippedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = skippedWall, Plms = skippedPlms }, skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), skippedBombs);
+    AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.PackedType.Family,
+        "the owner explodes on the column-seven wall");
+    AssertTrue(skippedPlms.SlotTable.ActiveCount > 0,
+        "the link still strikes the column-six Super Missile block before it is cleared");
+    AssertTrue(!skippedLink.IsActive, "the link is cleared after its collision");
+
+    Console.WriteLine(
+        "  Samus beams/missiles: producers, charge flare, linked supers, trails, all point-block families, motion, collision, and explosions agree.");
+}
+
+// Exercises ordinary Morph-Ball entry, `$F9` endpoint selection, rolling momentum,
+// walk-off, both automatic rebounds, grounded recovery, and blocked unmorph expansion.
+// Every table byte below is copied from the corresponding retail-ROM structure rather
+// than replaced with a host animation or physics constant.
+
+/// <summary>
+/// Seeds the one-object bank-$93 spritemaps that the power-beam projectile and explosion
+/// programs draw through.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for power-beam projectile spritemaps")]
+static void InstallPowerBeamSpritemapFixture(TestAddressSpace bus)
+{
+    // The substituted `$A24D` pointer is a bank-$93 spritemap, not merely an opaque
+    // animation token. One literal entry makes the draw path observable independently of
+    // the separate flare spritemap family seeded below.
+    SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(bus, 0xa24d, x: 0, y: 0, tileAttributes: 0x2c20);
+    // Native explosion programs intentionally share synthetic `$A254`; give that pointer
+    // its own visible one-OBJ map so the early explosion draw pass is tested, not inferred
+    // from a nonzero animation pointer.
+    SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(bus, 0xa254, x: 0, y: 0, tileAttributes: 0x2c30);
+    SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(bus, 0xa25b, x: 0, y: 0, tileAttributes: 0x2a44);
+    SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(bus, 0xa262, x: 0, y: 0, tileAttributes: 0x2a45);
+    WriteTestWord(bus, 0x93a117, 0);
+}
+
+/// <summary>
+/// Seeds the bank-$90 trail-stream selectors and charged-power trail program prefix and
+/// the bank-$9B trail offset tables used by power-beam trails.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for power-beam trail programs and offsets")]
+static void InstallPowerBeamTrailFixture(TestAddressSpace bus)
+{
+    // `$90:B5BB/$B609` select two independent trail instruction streams from the beam's
+    // low six type bits. Ordinary power selects two empty lists; charged power selects the
+    // long ice-style left list and an empty right list. These are genuine table relationships,
+    // not a verifier-specific particle definition.
+    WriteTestWord(bus, 0x90b5bb, 0xb4c9);
+    WriteTestWord(bus, 0x90b609, 0xb4c9);
+    WriteTestWord(bus, 0x90b5db, 0xb4cb);
+    WriteTestWord(bus, 0x90b629, 0xb4c9);
+    WriteTestWord(bus, 0x90b5fb, 0xb5a1);
+    WriteTestWord(bus, 0x90b649, 0xb4c9);
+    WriteTestWord(bus, 0x90b5fd, 0xb5a1);
+    WriteTestWord(bus, 0x90b64b, 0xb4c9);
+    WriteTestWord(bus, 0x90b4c9, 0x0000);
+    bus.WriteBytes(0x90b5a1, [
+        0x04, 0x00, 0x48, 0x2a,
+        0x04, 0x00, 0x49, 0x2a,
+        0x04, 0x00, 0x4a, 0x2a,
+        0x04, 0x00, 0x4b, 0x2a,
+        0x00, 0x00,
+    ]);
+
+    // This fixture supplies the appearance prefix needed for repeated one-frame tiles
+    // and the first embedded position command. Timing/commands now come from compiled
+    // retail definitions; the complete native program is checked by the trail-art suite.
+    WriteTestWords(bus, 0x90b4cb,
+        1, 0x2c38, 1, 0x2c38, 1, 0x2c38, 1, 0x2c38,
+        1, 0x2c39, 1, 0x2c39,
+        0xb525, 1, 0x2c39, 0);
+
+    // `$9B:A4B3/$A4CB` first choose a beam-combination family, then a direction-specific
+    // offset list. Plain power's offsets are all zero, so `$9B:A3CC` positions the 8x8 trail
+    // exactly four pixels above and left of the projectile's pre-movement center.
+    WriteTestWord(bus, 0x9ba4b3, 0xa50b);
+    WriteTestWord(bus, 0x9ba4cb, 0xa98f);
+    for (int direction = 0; direction < 10; direction++)
+    {
+        WriteTestWord(bus, 0x9ba50b + direction * 2, 0xa56f);
+        WriteTestWord(bus, 0x9ba98f + direction * 2, 0xaa07);
+    }
+    bus.WriteBytes(0x9ba56f, new byte[32]);
+    bus.WriteBytes(0x9baa07, new byte[32]);
+}
+
+/// <summary>
+/// Overwrites the retired bank-$90 beam sound and pre-instruction tables with distinct
+/// verifier-owned values so any remaining production read is observable.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture poisoning retired beam routing tables")]
+static void PoisonRetiredBeamRoutingTables(TestAddressSpace bus)
+{
+    // Poison the retired cartridge tables. Production firing must use the compiled
+    // routing definitions below rather than accepting these verifier-owned replacements.
+    WriteTestWord(bus, 0x90c28f, 0x0040);
+    WriteTestWord(bus, 0x90c2a7, 0x0060);
+    for (int beamType = 1; beamType < 12; beamType++)
+    {
+        // Distinct invalid values expose any remaining read or wrong-family selection.
+        WriteTestWord(bus, 0x90c28f + beamType * 2, unchecked((ushort)(0x0030 + beamType)));
+        WriteTestWord(bus, 0x90c2a7 + beamType * 2, unchecked((ushort)(0x0050 + beamType)));
+    }
+    for (int beamType = 0; beamType < 12; beamType++)
+    {
+        WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable + beamType * 2,
+            (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : beamType < 4
+                ? SamusBeamPreInstructionCodes.WaveThreeFrameTrail : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
+        WriteTestWord(bus, SamusBeamPreInstructionCodes.ChargedTable + beamType * 2,
+            (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
+    }
+}
+
+/// <summary>
+/// Seeds one shared beam tile sheet and palette for every legal beam tile-atlas selection.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for beam tile atlas selections")]
+static void InstallBeamTileAtlasFixture(TestAddressSpace bus)
+{
+    // Installed catalogs require every legal selection; share this fixture sheet.
+    for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
+    {
+        WriteTestWord(bus, 0x90c3b1 + selection * 2, 0x8000);
+        WriteTestWord(bus, 0x90c3c9 + selection * 2, 0xc3e1);
+    }
+    for (int index = 0; index < 0x100; index++)
+        WriteTestByte(bus, 0x9a8000 + index, unchecked((byte)(index ^ 0x5a)));
+    for (int index = 0; index < 16; index++)
+        WriteTestWord(bus, 0x90c3e1 + index * 2, unchecked((ushort)(0x0100 + index)));
+}
+
+/// <summary>
+/// Seeds the Samus normal-suit, Hyper-shot, beam-charge, and pseudo-Screw palette pointer
+/// tables in bank $91 and their distinct bank-$9B palettes.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Samus suit and beam palettes")]
+static void InstallSamusBeamPaletteFixture(TestAddressSpace bus)
+{
+    // Samus body palette fixtures for `$91:D743`. The normal table uses all three native
+    // byte offsets so a Gravity restore can prove selection priority independently of the
+    // ten Hyper-shot pointers. Every palette/color word is unique and remains valid BGR555.
+    ushort[] normalSuitPalettePointers =
+    [
+        SamusPaletteRomData.Common.NormalSuitPalettePointer(0),
+        SamusPaletteRomData.Common.NormalSuitPalettePointer(2),
+        SamusPaletteRomData.Common.NormalSuitPalettePointer(4),
+    ];
+    for (int suit = 0; suit < normalSuitPalettePointers.Length; suit++)
+    {
+        for (int color = 0; color < 16; color++)
+        {
+            WriteTestWord(
+                bus,
+                0x9b0000 | unchecked((ushort)(normalSuitPalettePointers[suit] + color * 2)),
+                unchecked((ushort)(0x0100 + suit * 0x20 + color)));
+        }
+    }
+    ushort[] hyperShotPalettePointers = new ushort[10];
+    for (int palette = 0; palette < hyperShotPalettePointers.Length; palette++)
+    {
+        ushort pointer = unchecked((ushort)(0xe400 + palette * 0x20));
+        hyperShotPalettePointers[palette] = pointer;
+        // `$91:D829` has one padding word; timer `$8014` indexes byte offset 20 and thus
+        // palette zero, descending by one palette on each later even timer value.
+        WriteTestWord(bus, 0x91d829 + 0x14 - palette * 2, pointer);
+        for (int color = 0; color < 16; color++)
+        {
+            WriteTestWord(
+                bus,
+                0x9b0000 | unchecked((ushort)(pointer + color * 2)),
+                unchecked((ushort)(0x2000 + palette * 0x20 + color)));
+        }
+    }
+
+    // `$91:D7D5-$D827` is two levels of pointers: each family first selects a
+    // suit-specific list in bank $91, then `$0B62` selects one of six bank-$9B palettes.
+    // Keep every family/suit/frame distinct so a wrong table, offset unit, or wrap cannot
+    // accidentally agree with the expected pixels.
+    ushort[,] beamChargePalettePointers = new ushort[3, 6];
+    ushort[,] pseudoScrewPalettePointers = new ushort[3, 6];
+    for (int suit = 0; suit < 3; suit++)
+    {
+        ushort chargeListPointer = unchecked((ushort)(0xe600 + suit * 12));
+        ushort pseudoListPointer = unchecked((ushort)(0xe624 + suit * 12));
+        WriteTestWord(bus, 0x91d7d5 + suit * 2, chargeListPointer);
+        WriteTestWord(bus, 0x91d7ff + suit * 2, pseudoListPointer);
+        for (int palette = 0; palette < 6; palette++)
+        {
+            ushort chargePointer = unchecked((ushort)(0xe800 + (suit * 6 + palette) * 0x20));
+            ushort pseudoPointer = unchecked((ushort)(0xeb00 + (suit * 6 + palette) * 0x20));
+            beamChargePalettePointers[suit, palette] = chargePointer;
+            pseudoScrewPalettePointers[suit, palette] = pseudoPointer;
+            WriteTestWord(bus, 0x910000 | unchecked((ushort)(chargeListPointer + palette * 2)), chargePointer);
+            WriteTestWord(bus, 0x910000 | unchecked((ushort)(pseudoListPointer + palette * 2)), pseudoPointer);
+            for (int color = 0; color < 16; color++)
+            {
+                WriteTestWord(
+                    bus,
+                    0x9b0000 | unchecked((ushort)(chargePointer + color * 2)),
+                    unchecked((ushort)(0x3000 + suit * 0x100 + palette * 0x20 + color)));
+                WriteTestWord(
+                    bus,
+                    0x9b0000 | unchecked((ushort)(pseudoPointer + color * 2)),
+                    unchecked((ushort)(0x4000 + suit * 0x100 + palette * 0x20 + color)));
+            }
+        }
+    }
+}
+
+/// <summary>
+/// Seeds one-object artwork for every compiled charge-flare spritemap and the bank-$90 main
+/// flare animation delays.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for charge-flare artwork and delays")]
+static void InstallChargeFlareFixture(TestAddressSpace bus)
+{
+    // Every compiled flare identity uses the original one-OBJ synthetic artwork.
+    // Animation timing remains owned by the native compiled instruction sequence.
+    foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
+    {
+        SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(
+            bus, pointer, x: 0, y: 0, tileAttributes: 0x2c30);
+    }
+    for (int index = 0; index < 30; index++)
+        WriteTestByte(bus, 0x90c487 + index, 3);
+    WriteTestByte(bus, 0x90c4a7, 5);
+    WriteTestByte(bus, 0x90c4a8, 0xff);
+    WriteTestByte(bus, 0x90c4ae, 4);
+    WriteTestByte(bus, 0x90c4af, 0xff);
+}
+
+/// <summary>
+/// Seeds the relocatable grey-door PLM graph in bank $84: header <c>$C842</c>'s initial
+/// list, the activation/flash/open-trigger/opening lists, the closed-blue draw pointer, and
+/// the four door draw lists.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the grey-door PLM instruction graph")]
+static void InstallGreyDoorPlmGraphFixture(TestAddressSpace bus)
+{
+    const ushort greyDoorInitialList = 0x0900;
+    const ushort greyDoorClosedBlueList = 0x0a00;
+    const ushort greyDoorActivationList = 0x0b00;
+    const ushort greyDoorFlashList = greyDoorActivationList + 8;
+    const ushort greyDoorOpenTriggerList = 0x0d00;
+    const ushort greyDoorOpeningList = 0x0e00;
+
+    // Header $C842 selects the synthetic initial list. The graph offsets below mirror
+    // $BE70: opened-door target at +2, activation link at +6, and closed draw at +12.
+    WriteTestWord(bus, 0x84c844, greyDoorInitialList);
+    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 2), greyDoorClosedBlueList);
+    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 6), greyDoorActivationList);
+    WriteTestWord(bus, 0x840000 | (greyDoorInitialList + 12), 0x1b00);
+
+    // The activation list links a later shot to the one-hit trigger. Its eight-byte setup
+    // falls through to a compact flash loop composed only of a timed draw and shared Goto.
+    WriteTestWord(bus, 0x840000 | (greyDoorActivationList + 2), greyDoorOpenTriggerList);
+    WriteTestWord(bus, 0x840000 | greyDoorFlashList, 1);
+    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 2), 0x1b20);
+    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 4), 0x8724);
+    WriteTestWord(bus, 0x840000 | (greyDoorFlashList + 6), greyDoorFlashList);
+
+    // Instruction $8A91 has a one-byte threshold followed by the successful target at
+    // offset three. The target uses the real shared sound-seven and Delete opcodes so the
+    // semantic door pre-pass and generic instruction interpreter are tested together.
+    WriteTestByte(bus, 0x840000 | (greyDoorOpenTriggerList + 2), 1);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpenTriggerList + 3), greyDoorOpeningList);
+    WriteTestWord(bus, 0x840000 | greyDoorOpeningList, 0x8c19);
+    WriteTestByte(bus, 0x840000 | (greyDoorOpeningList + 2), 7);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 3), 1);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 5), 0x1b40);
+    WriteTestWord(bus, 0x840000 | (greyDoorOpeningList + 7), 0x86bc);
+
+    // Persisted grey doors execute the same closed-blue list layout already exercised by
+    // colored doors: PLM_BTS_Y precedes a one-byte timer and draw pointer at offset five.
+    WriteTestWord(bus, 0x840000 | (greyDoorClosedBlueList + 5), 0x1b60);
+    WriteTestWords(bus, 0x841b00, 0x0001, 0xc220, 0x0000);
+    WriteTestWords(bus, 0x841b20, 0x0001, 0xc221, 0x0000);
+    WriteTestWords(bus, 0x841b40, 0x0001, 0x0222, 0x0000);
+    WriteTestWords(bus, 0x841b60, 0x0001, 0x8223, 0x0000);
+}
+
+/// <summary>
+/// Seeds the resident colored-door PLM graph in bank $84 reached from header <c>$C88A</c>:
+/// initial, closed-blue, hit, and colored-closed lists and their draw lists.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the resident colored-door PLM instruction graph")]
+static void InstallResidentDoorPlmGraphFixture(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0x84c88c, 0x0400);
+    WriteTestWord(bus, 0x840402, 0x0500);
+    WriteTestWord(bus, 0x840406, 0x0600);
+    WriteTestWord(bus, 0x84040e, 0x1300);
+    WriteTestByte(bus, 0x840602, 5);
+    WriteTestWord(bus, 0x840603, 0x0800);
+    WriteTestWord(bus, 0x840605, 1);
+    WriteTestWord(bus, 0x840607, 0x1320);
+    WriteTestWord(bus, 0x840800, 12);
+    WriteTestWord(bus, 0x840802, 0x1340);
+    WriteTestWord(bus, 0x840505, 0x1360);
+    WriteTestWords(bus, 0x841300, 0x0001, 0xc123, 0x0000);
+    WriteTestWords(bus, 0x841320, 0x0001, 0xc124, 0x0000);
+    WriteTestWords(bus, 0x841340, 0x0001, 0xc125, 0x0000);
+    WriteTestWords(bus, 0x841360, 0x0001, 0x8126, 0x0000);
+}
+
+/// <summary>
+/// Seeds the retail right-facing blue-door PLM program at <c>$84:C4BA</c> and its four
+/// bank-$84 draw lists.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Landing Site blue-door PLM program")]
+static void InstallLandingSiteBlueDoorPlmFixture(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0x84c4ba, 0x8c19);
+    WriteTestByte(bus, 0x84c4bc, 0x07);
+    WriteTestWord(bus, 0x84c4bd, 0x0006);
+    WriteTestWord(bus, 0x84c4bf, 0xa9fb);
+    WriteTestWord(bus, 0x84c4c1, 0x0006);
+    WriteTestWord(bus, 0x84c4c3, 0xaa07);
+    WriteTestWord(bus, 0x84c4c5, 0x0006);
+    WriteTestWord(bus, 0x84c4c7, 0xaa13);
+    WriteTestWord(bus, 0x84c4c9, 0x005e);
+    WriteTestWord(bus, 0x84c4cb, 0xa683);
+    WriteTestWord(bus, 0x84c4cd, 0x86bc);
+
+    WriteTestWords(bus, 0x84a9fb, 0x8004, 0x840d, 0x842d, 0x8c2d, 0x8c0d, 0x0000);
+    WriteTestWords(bus, 0x84aa07, 0x8004, 0x840e, 0x842e, 0x8c2e, 0x8c0e, 0x0000);
+    WriteTestWords(bus, 0x84aa13, 0x8004, 0x840f, 0x042f, 0x0c2f, 0x8c0f, 0x0000);
+    WriteTestWords(bus, 0x84a683, 0x8004, 0x0482, 0x04a2, 0x0ca2, 0x0c82, 0x0000);
+}
+/// <summary>
+/// Installs a three-word projectile trail stream at bank $90's mutable low-half offset
+/// <c>$0000</c>: <paramref name="command"/>, then a one-frame timed record of tile
+/// <c>$2C38</c>.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for a one-command projectile trail stream at $90:0000")]
+static void WriteTrailCommandStreamFixture(TestAddressSpace bus, ushort command) =>
+    WriteTestWords(bus, 0x900000, command, 1, 0x2c38);
+
+/// <summary>
+/// Installs a bank-$8F room PLM population at <paramref name="population"/>: six-byte
+/// records of header word, block X, block Y, and argument word, terminated by a zero word.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for bank-$8F room PLM populations")]
+static void WriteRoomPlmPopulationFixture(
+    TestAddressSpace bus,
+    ushort population,
+    params ReadOnlySpan<(ushort Header, byte X, byte Y, ushort Argument)> records)
+{
+    for (int index = 0; index < records.Length; index++)
+    {
+        int recordAddress = 0x8f0000 | unchecked((ushort)(population + index * 6));
+        WriteTestWord(bus, recordAddress, records[index].Header);
+        WriteTestByte(bus, recordAddress + 2, records[index].X);
+        WriteTestByte(bus, recordAddress + 3, records[index].Y);
+        WriteTestWord(bus, recordAddress + 4, records[index].Argument);
+    }
+    WriteTestWord(bus, 0x8f0000 | unchecked((ushort)(population + records.Length * 6)), 0);
+}
+
+    /// <summary>Runs projectile production, cooldown, camera-lifetime, and controlled hero-shot fixtures.</summary>
+    [VerificationCommand("--samus-projectiles")]
+    internal static int SamusProjectilesCommand()
+    {
+        Suite(nameof(VerifySamusPowerBeamProjectiles), () => VerifySamusPowerBeamProjectiles());
+        Suite(nameof(VerifyBeamSpeedRows), () => VerifyBeamSpeedRows());
+        Suite(nameof(VerifyProjectileCooldowns), () => VerifyProjectileCooldowns());
+        Suite(nameof(VerifyHeroShotCameraLifetime), () => VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv"));
+        Suite(nameof(VerifyHeroShotRuntimeCamera), () => VerifyHeroShotRuntimeCamera("csharp/test-fixtures/movement-release/hero-runtime-603.csv"));
+        Suite(nameof(VerifyMissileImpactCameraEdge), () => VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv"));
+        Suite(nameof(VerifyControlledRedTowerHeroShot), () => VerifyControlledRedTowerHeroShot());
+        return 0;
+    }
+}

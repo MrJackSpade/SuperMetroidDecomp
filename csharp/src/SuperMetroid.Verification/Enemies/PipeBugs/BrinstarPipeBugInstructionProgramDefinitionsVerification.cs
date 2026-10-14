@@ -1,0 +1,187 @@
+using SuperMetroid.Core.Rom;
+using System.Reflection;
+using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.PipeBugs;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.Verification.Enemies.PipeBugs;
+using SuperMetroid.Verification.Harness;
+
+/// <summary>Checks normal and strong Brinstar Pipe Bug instruction loops and visual selectors against bank-$B3 data.</summary>
+internal static class BrinstarPipeBugInstructionProgramDefinitionsVerification
+{
+    /// <summary>Loads retail cartridge data for the Brinstar Pipe Bug instruction suite.</summary>
+    internal static void VerifyBrinstarPipeBugInstructionProgramDefinitions()
+    {
+        Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+    }
+
+    /// <summary>Compares compiled words with ROM and runs all eight Zeb and Zebbo animation loops with mechanics and visual reads forbidden.</summary>
+    internal static void VerifyBrinstarPipeBugInstructionProgramDefinitions(
+        SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags =
+            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
+
+        for (int index = 0;
+             index < BrinstarPipeBugInstructionProgramDefinitionsTooling.MechanicsWordCount;
+             index++)
+        {
+            InstructionMechanicsWord definition =
+                BrinstarPipeBugInstructionProgramDefinitionsTooling.MechanicsWord(index);
+            AssertEqual(definition.Value,
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | definition.Address)),
+                $"Brinstar Pipe Bug instruction mechanics word $B3:{definition.Address:X4}");
+        }
+
+        int forbiddenPresentationReads = 0;
+        CartridgeReadGuard guard = new CartridgeReadGuard(rom)
+            .Forbid(BrinstarPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Pipe Bug mechanics byte ${address:X6}.")
+            .Observe(address => (SnesAddressMath.BankBase(address)) == 0xb30000 &&
+                    Enumerable.Range(0, BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount)
+                        .Select(BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress)
+                        .Any(word => unchecked((ushort)address) == word ||
+                            unchecked((ushort)address) == unchecked((ushort)(word + 1))),
+                _ => forbiddenPresentationReads++)
+            .ForbidWords(0xb30000, BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount,
+                BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Production read installed Brinstar Pipe Bug selector ${address:X6}.");
+        (PipeBugAnimationSelector Selector, ushort NormalCursor, int NormalFrames,
+            ushort StrongCursor, int StrongFrames)[] programs =
+        [
+            (PipeBugAnimationSelector.None, 0x87af, 17, 0x8a21, 7),
+            (PipeBugAnimationSelector.Shooting, 0x87d3, 7, 0x8a35, 13),
+            (PipeBugAnimationSelector.FacingRight, 0x87ef, 17, 0x8a49, 7),
+            (PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting,
+                0x8813, 7, 0x8a5d, 13),
+        ];
+
+        foreach (var program in programs)
+        {
+            VerifyProgram(strong: false, program.Selector, program.NormalCursor,
+                program.NormalFrames);
+            VerifyProgram(strong: true, program.Selector, program.StrongCursor,
+                program.StrongFrames);
+        }
+
+        AssertEqual(0, forbiddenPresentationReads,
+            "Brinstar Pipe Bug programs never read installed visual selectors");
+        for (int index = 0;
+             index < BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
+             index++)
+        {
+            ushort address =
+                BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
+            EnemyDefinitionId definition = address < 0x8a00
+                ? EnemyDefinitionId.Zeb
+                : EnemyDefinitionId.Zebbo;
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | address)),
+                PipeBugVisualDefinitions.FrameAt(definition, address),
+                $"compiled Brinstar Pipe Bug frame $B3:{address:X4}");
+        }
+        AssertThrows<InvalidDataException>(
+            () => PipeBugVisualDefinitions.FrameAt(
+                EnemyDefinitionId.Zeb, 0x882b),
+            "unlisted Brinstar Pipe Bug visual operand fails loudly");
+        AssertThrows<InvalidDataException>(
+            () => PipeBugVisualDefinitions.FrameAt(
+                EnemyDefinitionId.Zeb, 0x8a1f),
+            "normal Brinstar Pipe Bug rejects a strong visual operand");
+        AssertThrows<InvalidDataException>(
+            () => PipeBugVisualDefinitions.FrameAt(
+                EnemyDefinitionId.Zebbo, 0x87ad),
+            "strong Brinstar Pipe Bug rejects a normal visual operand");
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "production execution avoids every compiled Brinstar Pipe Bug mechanics byte");
+
+        AssertThrows<InvalidDataException>(
+            () => BrinstarPipeBugInstructionProgramDefinitions.ReadMechanicsWord(0x87ad),
+            "interleaved Pipe Bug spritemap pointer is rejected as mechanics");
+        AssertThrows<InvalidDataException>(
+            () => BrinstarPipeBugInstructionProgramDefinitions.ReadMechanicsWord(0x882b),
+            "adjacent Pipe Bug selector table is rejected as mechanics");
+
+        _ = ProbeBrinstarPipeBugInstructionMechanicsAllocation();
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        int checksum = ProbeBrinstarPipeBugInstructionMechanicsAllocation();
+        AssertTrue(checksum != 0, "Pipe Bug allocation probe consumes live data");
+        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
+            "warmed Pipe Bug mechanics lookups allocate no per-frame storage");
+
+        Console.WriteLine(
+            "Brinstar Pipe Bug instruction mechanics: sixty compiled words, all eight " +
+            "normal/strong programs and complete loops pass with forty-four visual " +
+            "selectors and mechanics source words forbidden.");
+
+        void VerifyProgram(
+            bool strong,
+            PipeBugAnimationSelector selector,
+            ushort expectedCursor,
+            int frames)
+        {
+            RoomEnemySystem enemies = CreateProgramSystem(strong, selector, out RoomEnemySlot slot);
+            AssertEqual(PipeBugDefinitions.BrinstarInstructionList(strong, selector),
+                slot.CurrentInstruction,
+                $"{(strong ? "strong" : "normal")} Pipe Bug installs {selector}");
+            RunProgram(enemies, slot, frames);
+            AssertEqual(expectedCursor, slot.CurrentInstruction,
+                $"{(strong ? "strong" : "normal")} Pipe Bug {selector} loops");
+        }
+
+        RoomEnemySystem CreateProgramSystem(
+            bool strong,
+            PipeBugAnimationSelector selector,
+            out RoomEnemySlot slot)
+        {
+            var enemies = new RoomEnemySystem();
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.PipeBugsBehavior.InitializeBrinstarPipeBug;
+            slot = enemies.SlotTable.Slots[0];
+            slot.EnemyDefinitionPointer = strong
+                ? EnemyDefinitionId.Zebbo
+                : EnemyDefinitionId.Zeb;
+            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
+            slot.Parameter1 = strong ? (ushort)1 : (ushort)0;
+            initialize(slot);
+            PipeBugEnemyState state = (enemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PipeBugStates[0]."));
+            (state ?? throw new InvalidOperationException("Verification requires state.")).InstalledAnimationState = selector == PipeBugAnimationSelector.None
+                ? PipeBugAnimationSelector.Shooting
+                : PipeBugAnimationSelector.None;
+            state.AnimationState = selector;
+            PipeBugsBehavior.SelectBrinstarPipeBugAnimation(slot, state);
+            return enemies;
+        }
+
+        static void RunProgram(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
+        {
+            object?[] arguments =
+                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            for (int frame = 0; frame < frames; frame++)
+                EnemyInstructionRunner.Process(enemies, arguments);
+        }
+    }
+
+    /// <summary>Reads the compiled rising-left program repeatedly to detect allocations in warmed mechanics lookup.</summary>
+    private static int ProbeBrinstarPipeBugInstructionMechanicsAllocation()
+    {
+        int checksum = 0;
+        for (int index = 0; index < 65536; index++)
+        {
+            checksum += BrinstarPipeBugInstructionProgramDefinitions.ReadMechanicsWord(
+                BrinstarPipeBugInstructionProgramDefinitions.NormalRisingLeft);
+        }
+        return checksum;
+    }
+
+    /// <summary>Runs the Brinstar Pipe Bug instruction mechanics verification command.</summary>
+    [VerificationCommand("--brinstar-pipe-bug-instruction-mechanics")]
+    internal static int BrinstarPipeBugInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions());
+        return 0;
+    }
+}

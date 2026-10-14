@@ -1,0 +1,161 @@
+using SuperMetroid.Core.Rom;
+using System.Reflection;
+using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Shutters;
+namespace SuperMetroid.Verification.Enemies.Shutters;
+using SuperMetroid.Verification.Harness;
+
+/// <summary>Checks the horizontal shutter's stationary instruction, selector, and exact bank $A2 ownership.</summary>
+internal static class HorizontalShutterInstructionProgramDefinitionsVerification
+{
+    /// <summary>Loads the pinned cartridge and runs the horizontal shutter comparison.</summary>
+    internal static void VerifyHorizontalShutterInstructionProgramDefinitions()
+    {
+        Suite(nameof(VerifyHorizontalShutterInstructionProgramDefinitions), () => VerifyHorizontalShutterInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+    }
+
+    /// <summary>Checks native word mappings, live initialization and sleep, read guards, and lookup allocation.</summary>
+    internal static void VerifyHorizontalShutterInstructionProgramDefinitions(
+        SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        Suite(nameof(VerifyHorizontalShutterMechanicsMapping), () => VerifyHorizontalShutterMechanicsMapping(rom));
+        Suite(nameof(VerifyHorizontalShutterPresentationMapping), () => VerifyHorizontalShutterPresentationMapping());
+
+        var guard = NewHorizontalShutterInstructionProgramGuard(rom);
+        var enemies = new RoomEnemySystem();
+        Type enemySystemType = typeof(RoomEnemySystem);
+        enemies.BindFixtureBus(guard);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.EnemyDefinitionPointer = EnemyDefinitionId.ShutterHorizShootable;
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
+        slot.CurrentInstruction = 0x0100;
+        slot.ExtraProperties = 0x0101;
+        slot.Parameter1 = 0x1002;
+        slot.Parameter2 = 24;
+        enemies.ShuttersBehavior.InitializeHorizontalShutter(slot, null);
+        AssertEqual(HorizontalShutterInstructionProgramDefinitions.Stationary,
+            slot.CurrentInstruction,
+            "horizontal-shutter real initializer program");
+
+        object?[] processArguments =
+            [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+        EnemyInstructionRunner.Process(enemies, processArguments);
+        AssertEqual(unchecked((ushort)(
+                HorizontalShutterInstructionProgramDefinitions.Stationary + 4)),
+            slot.CurrentInstruction,
+            "horizontal-shutter timed frame advances to terminal sleep");
+        AssertEqual((ushort)1, slot.InstructionTimer.RawValue,
+            "horizontal-shutter stationary frame duration");
+        EnemyInstructionRunner.Process(enemies, processArguments);
+        AssertEqual(unchecked((ushort)(
+                HorizontalShutterInstructionProgramDefinitions.Stationary + 4)),
+            slot.CurrentInstruction,
+            "horizontal-shutter terminal sleep remains installed");
+
+        AssertEqual(0, guard.ObservedWords.Count,
+            "horizontal-shutter spritemap word uses a compiled visual selector");
+        AssertEqual(0, guard.ForbiddenReadAttempts,
+            "production execution avoids compiled horizontal-shutter mechanics bytes");
+        AssertThrows<InvalidDataException>(
+            () => HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord(0xe9d6),
+            "horizontal-shutter spritemap pointer is rejected as mechanics");
+        AssertThrows<InvalidDataException>(
+            () => HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord(0xe9da),
+            "adjacent growing-shutter initializer is rejected as mechanics");
+
+        _ = ProbeHorizontalShutterInstructionMechanicsAllocation();
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        int checksum = ProbeHorizontalShutterInstructionMechanicsAllocation();
+        AssertTrue(checksum != 0,
+            "horizontal-shutter allocation probe consumes live data");
+        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
+            "warmed horizontal-shutter mechanics lookups allocate no per-frame storage");
+
+        Console.WriteLine(
+            "Horizontal-shutter instruction mechanics: two compiled words, the real " +
+            "initializer, terminal sleep, and one compiled visual selector pass with mechanics " +
+            "bytes forbidden.");
+    }
+
+    /// <summary>Checks the two owned mechanics words and rejects adjacent bytes and other banks.</summary>
+    private static void VerifyHorizontalShutterMechanicsMapping(SuperMetroidAddressSpace rom)
+    {
+        ushort[] addresses = [0xe9d4, 0xe9d8];
+        AssertEqual(addresses.Length, HorizontalShutterInstructionProgramDefinitionsTooling.MechanicsWordCount, "Horizontal shutter native mechanics count");
+        var bytes = new HashSet<int>();
+        for (int index = 0; index < addresses.Length; index++)
+        {
+            ushort address = addresses[index];
+            ushort native = ReadHorizontalShutterInstructionWord(rom, 0xa20000 | address);
+            var word = HorizontalShutterInstructionProgramDefinitionsTooling.MechanicsWord(index);
+            AssertEqual(address, word.Address, "Horizontal shutter native word address");
+            AssertEqual(native, word.Value, "Horizontal shutter enumerated native word");
+            AssertEqual(native, HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord(address), "Horizontal shutter direct native word");
+            bytes.Add(address);
+            bytes.Add(address + 1);
+        }
+        for (int address = 0; address <= ushort.MaxValue; address++)
+        {
+            AssertEqual(bytes.Contains(address), HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | address), "Horizontal shutter full byte ownership");
+            AssertEqual(bytes.Contains(address), HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a20000 | address), "Horizontal shutter bank mask aliases");
+            AssertTrue(!HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address), "Horizontal shutter rejects other bank");
+        }
+        var words = addresses.ToHashSet();
+        for (int address = addresses[0] - 2; address <= addresses[^1] + 4; address++)
+            if (!words.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Horizontal shutter rejects visual words, odd addresses and adjacent programs");
+        foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitionsTooling.MechanicsWord(index), "Horizontal shutter mechanics bounds");
+    }
+
+    /// <summary>Checks the single spritemap operand address and complete 16-bit membership domain.</summary>
+    private static void VerifyHorizontalShutterPresentationMapping()
+    {
+        ushort[] addresses = [0xe9d6];
+        AssertEqual(addresses.Length, HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount, "Horizontal shutter visual count");
+        for (int index = 0; index < addresses.Length; index++)
+            AssertEqual(addresses[index], HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Horizontal shutter native visual position");
+        var expected = addresses.ToHashSet();
+        for (int address = 0; address <= ushort.MaxValue; address++)
+            AssertEqual(expected.Contains((ushort)address), HorizontalShutterInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Horizontal shutter full visual membership domain");
+        foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Horizontal shutter visual bounds");
+    }
+    /// <summary>Repeats warmed stationary-word lookups for the caller's allocation measurement.</summary>
+    private static int ProbeHorizontalShutterInstructionMechanicsAllocation()
+    {
+        int checksum = 0;
+        for (int index = 0; index < 65536; index++)
+        {
+            checksum += HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord(
+                HorizontalShutterInstructionProgramDefinitions.Stationary);
+        }
+        return checksum;
+    }
+
+    /// <summary>Reads a native bank $A2 word for the independent mechanics comparison.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for horizontal shutter instruction words")]
+    internal static ushort ReadHorizontalShutterInstructionWord(
+        SuperMetroidAddressSpace bus,
+        int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+
+    /// <summary>Forbids compiled mechanics rereads and observes the native spritemap operand.</summary>
+    private static CartridgeReadGuard NewHorizontalShutterInstructionProgramGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled horizontal-shutter mechanics byte ${address:X6}.")
+            .ObserveWords(0xa20000, 1,
+                _ => HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
+
+    /// <summary>Dispatches the horizontal shutter instruction verification command.</summary>
+    [VerificationCommand("--horizontal-shutter-instruction-mechanics")]
+    internal static int HorizontalShutterInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyHorizontalShutterInstructionProgramDefinitions), () => VerifyHorizontalShutterInstructionProgramDefinitions());
+        return 0;
+    }
+}

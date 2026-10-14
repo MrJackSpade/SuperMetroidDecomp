@@ -5,6 +5,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.Verification.Harness;
 
 /// <summary>#441: real frontend loading from identical in-memory SRAM, with varied file-map waits.</summary>
 internal static class SaveLoadRandomAudit

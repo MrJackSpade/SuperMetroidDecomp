@@ -1,0 +1,360 @@
+using SuperMetroid.Tooling;
+using static SuperMetroid.Verification.Rooms.RoomEnemiesVerification;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
+using System.Text.Json;
+using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoDormantDefinitionsVerification;
+using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeOverlayTilemapsVerification;
+using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresEscapeTileArtworkVerification;
+using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireBg2ScrollVerification;
+using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireBodyVisualsVerification;
+using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltingDefinitionsVerification;
+using static SuperMetroid.Verification.Bosses.Crocomire.Artwork.CrocomireSkeletonArtworkVerification;
+using static SuperMetroid.Verification.Enemies.Corpses.DeadTorizoArtworkVerification;
+using static SuperMetroid.Verification.Enemies.Corpses.DeadTourianCorpseArtworkVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedFrameArtworkVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemySpritemapArtworkVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkBabyMetroidCutsceneColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkBotwoonColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkCeresDoorVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkChozoAndTubeColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkCrocomireColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkDachoraColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkDraygonBg2FramesVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkDraygonColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkGunshipLiftoffVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkKraidColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkKraidVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkMagdollitePaletteVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkMotherBrainDeathColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkNorfairRidleyColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkPhantoonBg2FramesVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkPhantoonColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkProjectileSpritemapsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkShitroidColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkSporeSpawnColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkTourianStatueColorsVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkWorkRobotPaletteVerification;
+using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkZebetiteColorsVerification;
+using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoInitialDefinitionsVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainCorpseArtworkVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEscapeTextArtworkVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainSpecialSpriteArtworkVerification;
+using static SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePiratePaletteArtworkVerification;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Bosses.Torizo.Artwork.TorizoInstructionVramArtworkVerification;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
+namespace SuperMetroid.Verification.Enemies.Artwork;
+using SuperMetroid.Verification.Harness;
+
+/// <summary>Coordinates retail tile and palette comparisons with installed enemy artwork and live edit checks.</summary>
+internal static class EnemyTileArtworkVerification
+{
+    /// <summary>Reads the exact tile upload bytes named by an enemy definition for the retail oracle.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native tile bytes")]
+    private static byte[] ReadNativeEnemyTiles(ISnesAddressSpace bus, RoomEnemyDefinition definition, int byteCount) =>
+        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
+
+    /// <summary>Loads a definition's native palette into OBJ CGRAM slots starting at index 128.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native palette DMA")]
+    private static SnesCgram LoadNativeEnemyPalette(ISnesAddressSpace bus, RoomEnemyDefinition definition)
+    {
+        var cgram = new SnesCgram();
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, ((int)new SnesAddress(definition.Bank, definition.PalettePointer)),
+            EnemyPaletteSheet.ColorCount, destinationIndex: 8 * 16);
+        return cgram;
+    }
+
+    /// <summary>The melt scratch image <paramref name="pass"/>'s copies produce from their retail cartridge sources.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Crocomire melting pass source bytes")]
+    private static byte[] ReadNativeCrocomireMeltingPassScratch(ISnesAddressSpace rom, CrocomireMeltingPass pass)
+    {
+        var expected = new byte[CrocomireDeathState.MeltingGraphicsByteCount];
+        foreach (CrocomireMeltingCopy copy in pass.Copies)
+        {
+            int destination = copy.DestinationWord - 0x4000;
+            for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
+                expected[destination + index] = rom.ReadCartridgeByte(
+                    ((int)new SnesAddress(pass.SourceBank, unchecked((ushort)(copy.SourceWord + index)))));
+        }
+        return expected;
+    }
+
+    /// <summary>Extracts stock enemy art and runs tile, palette, BG, spritemap and live override checks for the supported retail revision.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
+    internal static void VerifyEnemyTileArtwork()
+    {
+        string romPath = Path.GetFullPath("Super Metroid.smc");
+        if (!File.Exists(romPath))
+        {
+            Console.WriteLine("  Enemy tile artwork: private ROM absent; retail extraction skipped.");
+            return;
+        }
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        Suite(nameof(VerifyBombTorizoDormantDefinitions), () => VerifyBombTorizoDormantDefinitions(bus));
+        Suite(nameof(VerifyGoldenTorizoInitialDefinitions), () => VerifyGoldenTorizoInitialDefinitions(bus));
+        string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
+            "enemy-tiles-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            EnemyTileArtworkFiles.Extract(bus, directory, SupportedCartridge.Sha256);
+            EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, null);
+            Suite(nameof(VerifyTorizoInstructionVramArtwork), () => VerifyTorizoInstructionVramArtwork(bus, directory, stock));
+            Suite(nameof(VerifyCeresEscapeTileArtwork), () => VerifyCeresEscapeTileArtwork(bus, directory, stock));
+            Suite(nameof(VerifyCeresEscapeOverlayTilemaps), () => VerifyCeresEscapeOverlayTilemaps(bus, directory, stock));
+            Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(directory, stock));
+            Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(directory, stock));
+            Suite(nameof(VerifyInstalledMotherBrainSpecialSpriteArtwork), () => VerifyInstalledMotherBrainSpecialSpriteArtwork(directory, stock));
+            Suite(nameof(VerifyInstalledDeadTorizoArtwork), () => VerifyInstalledDeadTorizoArtwork(directory, stock));
+            Suite(nameof(VerifyInstalledDeadTourianCorpseArtwork), () => VerifyInstalledDeadTourianCorpseArtwork(directory, stock));
+            Suite(nameof(VerifyInstalledNinjaSpacePiratePalette), () => VerifyInstalledNinjaSpacePiratePalette(bus, directory, stock));
+            Suite(nameof(VerifyInstalledZebetiteColors), () => VerifyInstalledZebetiteColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledNorfairRidleyColors), () => VerifyInstalledNorfairRidleyColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledTourianStatueColors), () => VerifyInstalledTourianStatueColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledMagdollitePaletteCycle), () => VerifyInstalledMagdollitePaletteCycle(bus, directory, stock));
+            Suite(nameof(VerifyInstalledWorkRobotPaletteCycle), () => VerifyInstalledWorkRobotPaletteCycle(bus, directory, stock));
+            Suite(nameof(VerifyInstalledCrocomireColors), () => VerifyInstalledCrocomireColors(bus, directory, stock));
+            Suite(nameof(VerifyCrocomireBg2ScrollDefinitions), () => VerifyCrocomireBg2ScrollDefinitions(bus));
+            Suite(nameof(VerifyCrocomireSkeletonArtwork), () => VerifyCrocomireSkeletonArtwork(bus, directory, stock));
+            Suite(nameof(VerifyInstalledDraygonColors), () => VerifyInstalledDraygonColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledPhantoonColors), () => VerifyInstalledPhantoonColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledChozoAndTubeColors), () => VerifyInstalledChozoAndTubeColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledSporeSpawnColors), () => VerifyInstalledSporeSpawnColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledDachoraColors), () => VerifyInstalledDachoraColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledShitroidColors), () => VerifyInstalledShitroidColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledBabyMetroidCutsceneColors), () => VerifyInstalledBabyMetroidCutsceneColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledBotwoonColors), () => VerifyInstalledBotwoonColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledMotherBrainDeathColors), () => VerifyInstalledMotherBrainDeathColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledCeresDoorVisuals), () => VerifyInstalledCeresDoorVisuals(bus, directory, stock));
+            Suite(nameof(VerifyInstalledEnemyProjectileSpritemaps), () => VerifyInstalledEnemyProjectileSpritemaps(bus, directory, stock));
+            Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(bus, directory, stock));
+            Suite(nameof(VerifyInstalledKraidColors), () => VerifyInstalledKraidColors(bus, directory, stock));
+            Suite(nameof(VerifyInstalledEnemySpritemaps), () => VerifyInstalledEnemySpritemaps(bus, directory, stock));
+            Suite(nameof(VerifyInstalledEnemyExtendedFrames), () => VerifyInstalledEnemyExtendedFrames(bus, directory, stock));
+            Suite(nameof(VerifyInstalledCrocomireBodyVisuals), () => VerifyInstalledCrocomireBodyVisuals(bus, directory, stock));
+            Suite(nameof(VerifyInstalledPhantoonBg2Frames), () => VerifyInstalledPhantoonBg2Frames(bus, directory, stock));
+            Suite(nameof(VerifyInstalledDraygonBg2Frames), () => VerifyInstalledDraygonBg2Frames(bus, directory, stock));
+            Suite(nameof(VerifyInstalledGunshipLiftoffArtwork), () => VerifyInstalledGunshipLiftoffArtwork(bus, directory, stock));
+            string[] files = Directory.GetFiles(directory, "enemy-????-tiles.png");
+            AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,
+                "one indexed PNG per distinct retail enemy graphics definition");
+            var stockMeltImages = new List<byte[]>();
+            ushort[] stockFirstMeltTiles = VerifyInstalledCrocomireMeltingTilemap(
+                bus, stock, CrocomireMeltingTilemapAddress.FirstTilemap,
+                CrocomireBodyProgram.MeltingOneTopRow);
+            ushort[] stockSecondMeltTiles = VerifyInstalledCrocomireMeltingTilemap(
+                bus, stock, CrocomireMeltingTilemapAddress.SecondTilemap,
+                CrocomireBodyProgram.MeltingTwoTopRow);
+            foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
+            {
+                byte[] actual = VerifyInstalledCrocomireMeltingPass(bus, stock, pass);
+                byte[] expected = ReadNativeCrocomireMeltingPassScratch(bus, pass);
+                AssertTrue(actual.SequenceEqual(expected),
+                    $"installed Crocomire melt pass ${pass.HeaderOffset:X4} preserves native scratch bytes");
+                stockMeltImages.Add(actual);
+            }
+            foreach (string file in files)
+            {
+                EnemyDefinitionId pointer = EnemyDefinitionIds.FromHeaderPointer(
+                    Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16));
+                RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, pointer);
+                int byteCount = definition.TileDataSize & 0x7fff;
+                byte[] native = ReadNativeEnemyTiles(bus, definition, byteCount);
+                AssertTrue(stock.TryResolve(definition.TileDataAddress, byteCount,
+                        out ReadOnlyMemory<byte> queued) && queued.Span.SequenceEqual(native),
+                    $"enemy ${(int)pointer:X4} queued VRAM DMA resolves its installed PNG");
+                var vram = new SnesVram();
+                stock.LoadTo(pointer, byteCount, new VramStore(vram).All, 0);
+                AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
+                    $"enemy ${(int)pointer:X4} PNG preserves every native tile byte");
+                SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, definition);
+                var installedCgram = new SnesCgram();
+                stock.LoadPaletteTo(pointer, new CgramPalettes(installedCgram).All.Slice(8 * 16, 16));
+                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
+                    $"enemy ${(int)pointer:X4} RGB5 JSON preserves all native palette slots");
+            }
+
+            string editedFile = files[0];
+            EnemyDefinitionId editedPointer = EnemyDefinitionIds.FromHeaderPointer(
+                Convert.ToUInt16(Path.GetFileName(editedFile).Substring(6, 4), 16));
+            RoomEnemyDefinition editedDefinition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, editedPointer);
+            int editedByteCount = editedDefinition.TileDataSize & 0x7fff;
+            int tileCount = editedByteCount / RoomCharacterAtlasFormat.BytesPerTile;
+            int columns = Math.Min(tileCount, RoomCharacterAtlasFormat.TileColumns);
+            int rows = (tileCount + columns - 1) / columns;
+            using var stockPng = new MemoryStream(File.ReadAllBytes(editedFile), writable: false);
+            IndexedPngImage image = IndexedPng.Read(stockPng, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
+            image.Pixels[0] ^= 1;
+            string overrideDirectory = Path.Combine(directory, "overrides");
+            Directory.CreateDirectory(overrideDirectory);
+            string overridePath = Path.Combine(overrideDirectory, Path.GetFileName(editedFile));
+            using (var output = File.Create(overridePath))
+                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+            EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+            string meltFile = Path.Combine(directory,
+                CrocomireMeltingArtworkFormat.FirstFileName);
+            using (var meltInput = new MemoryStream(File.ReadAllBytes(meltFile), writable: false))
+            {
+                IndexedPngImage meltImage = IndexedPng.Read(meltInput, new(256, 32));
+                meltImage.Pixels[0] ^= 1;
+                using var meltOutput = File.Create(Path.Combine(overrideDirectory,
+                    CrocomireMeltingArtworkFormat.FirstFileName));
+                IndexedPng.Write(meltOutput, new(meltImage.Size.X, meltImage.Size.Y),
+                    meltImage.Pixels, meltImage.Palette);
+            }
+            EnemyTileArtworkCatalog editedMelt = EnemyTileArtworkFiles.Load(
+                directory, overrideDirectory);
+            byte[] changedMelt = VerifyInstalledCrocomireMeltingPass(bus, editedMelt,
+                CrocomireMeltingTransferDefinitions.Passes[0]);
+            AssertEqual((byte)(stockMeltImages[0][0] ^ 0x80), changedMelt[0],
+                "Crocomire melt PNG edit changes the live first planar pixel");
+            AssertTrue(changedMelt.AsSpan(1).SequenceEqual(stockMeltImages[0].AsSpan(1)),
+                "Crocomire melt PNG edit leaves all other scratch bytes unchanged");
+            AssertTrue(VerifyInstalledCrocomireMeltingPass(bus, editedMelt,
+                    CrocomireMeltingTransferDefinitions.Passes[1])
+                .SequenceEqual(stockMeltImages[1]),
+                "first-melt PNG edit does not change the second pass");
+            AssertTrue(VerifyInstalledCrocomireMeltingPass(bus,
+                    EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+                    CrocomireMeltingTransferDefinitions.Passes[0])
+                .SequenceEqual(changedMelt),
+                "Crocomire melt override survives catalog reload");
+            string firstTilemapFile = Path.Combine(directory,
+                CrocomireMeltingArtworkFormat.FirstTilemapFileName);
+            CrocomireMeltingTilemapDocument tilemapDocument =
+                RequiredJson.Deserialize<CrocomireMeltingTilemapDocument>(
+                    File.ReadAllBytes(firstTilemapFile),
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            CrocomireMeltingTilemapCell[] editedCells =
+                (CrocomireMeltingTilemapCell[])tilemapDocument.Cells.Clone();
+            editedCells[0] = editedCells[0] with
+            {
+                TileIndex = editedCells[0].TileIndex ^ 1,
+            };
+            string tilemapOverride = Path.Combine(overrideDirectory,
+                CrocomireMeltingArtworkFormat.FirstTilemapFileName);
+            using (var tilemapOutput = File.Create(tilemapOverride))
+                CrocomireMeltingArtwork.WriteTilemap(tilemapOutput,
+                    tilemapDocument with { Cells = editedCells });
+            EnemyTileArtworkCatalog editedMeltMap = EnemyTileArtworkFiles.Load(
+                directory, overrideDirectory);
+            ushort[] changedTiles = VerifyInstalledCrocomireMeltingTilemap(
+                bus, editedMeltMap, CrocomireMeltingTilemapAddress.FirstTilemap,
+                CrocomireBodyProgram.MeltingOneTopRow,
+                compareRom: false);
+            AssertEqual((ushort)(stockFirstMeltTiles[0] ^ 1), changedTiles[0],
+                "Crocomire melt JSON edit changes its selected BG2 tile reference");
+            AssertTrue(changedTiles.AsSpan(1).SequenceEqual(stockFirstMeltTiles.AsSpan(1)),
+                "Crocomire melt JSON edit leaves other BG2 cells unchanged");
+            AssertTrue(VerifyInstalledCrocomireMeltingTilemap(
+                    bus, editedMeltMap,
+                    CrocomireMeltingTilemapAddress.SecondTilemap,
+                    CrocomireBodyProgram.MeltingTwoTopRow,
+                    compareRom: false)
+                .SequenceEqual(stockSecondMeltTiles),
+                "first-melt tilemap edit does not change the second melt");
+            AssertTrue(VerifyInstalledCrocomireMeltingTilemap(bus,
+                    EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+                    CrocomireMeltingTilemapAddress.FirstTilemap,
+                    CrocomireBodyProgram.MeltingOneTopRow,
+                    compareRom: false)
+                .SequenceEqual(changedTiles),
+                "Crocomire melt tilemap override survives catalog reload");
+            var stockVram = new SnesVram();
+            var editedVram = new SnesVram();
+            stock.LoadTo(editedPointer, editedByteCount, new VramStore(stockVram).All, 0);
+            edited.LoadTo(editedPointer, editedByteCount, new VramStore(editedVram).All, 0);
+            AssertEqual((byte)(stockVram.ReadByte(0) ^ 0x80), editedVram.ReadByte(0),
+                "edited enemy PNG changes its first indexed pixel at the native tile location");
+            AssertTrue(stockVram.Bytes[1..].SequenceEqual(editedVram.Bytes[1..]),
+                "enemy PNG edit leaves all neighboring VRAM bytes unchanged");
+            var reloadedVram = new SnesVram();
+            EnemyTileArtworkFiles.Load(directory, overrideDirectory)
+                .LoadTo(editedPointer, editedByteCount, new VramStore(reloadedVram).All, 0);
+            AssertTrue(reloadedVram.ImageEquals(editedVram),
+                "enemy override survives content reload without modifying stock PNG");
+
+            string stockPalettePath = Path.Combine(directory,
+                EnemyTileArtworkFormat.PaletteFileName(editedPointer));
+            EnemyPaletteSheetDocument paletteDocument = RequiredJson.Deserialize<EnemyPaletteSheetDocument>(
+                File.ReadAllBytes(stockPalettePath),
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            PaletteRgb5[] editedColors = (PaletteRgb5[])paletteDocument.Colors.Clone();
+            editedColors[0] = editedColors[0] with { Red = editedColors[0].Red ^ 1 };
+            string paletteOverridePath = Path.Combine(overrideDirectory,
+                EnemyTileArtworkFormat.PaletteFileName(editedPointer));
+            File.WriteAllBytes(paletteOverridePath, EnemyPaletteSheet.Write(
+                new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }));
+            EnemyTileArtworkCatalog editedPalette = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+            var originalColors = new SnesCgram();
+            var changedColors = new SnesCgram();
+            stock.LoadPaletteTo(editedPointer, new CgramPalettes(originalColors).All.Slice(8 * 16, 16));
+            editedPalette.LoadPaletteTo(editedPointer, new CgramPalettes(changedColors).All.Slice(8 * 16, 16));
+            AssertEqual((ushort)(originalColors.Colors[128].ToWord() ^ 1), changedColors.Colors[128],
+                "RGB5 override changes its selected enemy palette channel");
+            for (int color = 0; color < SnesCgram.ColorCount; color++)
+                if (color != 128)
+                    AssertEqual(originalColors.Colors[color], changedColors.Colors[color],
+                        "enemy palette edit leaves all other CGRAM slots unchanged");
+            var reloadedColors = new SnesCgram();
+            EnemyTileArtworkFiles.Load(directory, overrideDirectory)
+                .LoadPaletteTo(editedPointer, new CgramPalettes(reloadedColors).All.Slice(8 * 16, 16));
+            AssertTrue(new CgramPalettes(reloadedColors).ImageEquals(new CgramPalettes(changedColors)),
+                "enemy palette override survives catalog reload");
+
+            byte[] original = File.ReadAllBytes(editedFile);
+            File.WriteAllBytes(editedFile, new byte[] { 0 });
+            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, null),
+                "corrupt stock enemy artwork fails its manifest hash");
+            File.WriteAllBytes(editedFile, original);
+            File.WriteAllBytes(overridePath, new byte[] { 0 });
+            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+                "malformed enemy override fails loudly");
+            File.WriteAllBytes(overridePath, File.ReadAllBytes(editedFile));
+            string meltOverride = Path.Combine(overrideDirectory,
+                CrocomireMeltingArtworkFormat.FirstFileName);
+            File.WriteAllBytes(meltOverride, new byte[] { 0 });
+            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(
+                    directory, overrideDirectory),
+                "malformed Crocomire melt override fails loudly");
+            File.WriteAllBytes(meltOverride, File.ReadAllBytes(meltFile));
+            File.WriteAllBytes(tilemapOverride, new byte[] { 0 });
+            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(
+                    directory, overrideDirectory),
+                "malformed Crocomire tilemap override fails loudly");
+            File.WriteAllBytes(tilemapOverride, File.ReadAllBytes(firstTilemapFile));
+            File.WriteAllBytes(paletteOverridePath, new byte[] { 0 });
+            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+                "malformed enemy palette override fails loudly");
+            File.WriteAllText(paletteOverridePath, "{\"version\":1,\"version\":1,\"colors\":[]}");
+            AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+                "duplicate enemy palette keys fail loudly");
+            editedColors[0] = editedColors[0] with { Red = 32 };
+            AssertThrows<InvalidDataException>(() => EnemyPaletteSheet.Write(
+                    new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }),
+                "RGB5 palette channel outside native five-bit precision is rejected");
+        }
+        finally
+        {
+            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
+        }
+            Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver/Skree/Metaree/Zoa/Pipe Bug/Fake Kraid/Kraid nail/Owtch/Stoke/Ripper/Fireflea/Magdollite/Ceres door/Ceres Baby/Rio/Lower Norfair Rio/Norfair Rio/Puyo/Bull/Alcoon/Beetom/Sidehopper/Dessgeega/Choot/HZoomer/Sbug/Fune/Namihe/Kamer platform/Elevator/Zeela/Sova/Zoomer/Stone Zoomer visual frames pass stock parity, live edits, persistence, and invalid-resource checks.");
+            Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, Tripper/Kamer, Dragon, Multiviola, Norfair lava-jumper, Chozo statue, Viola, and Rinka OAM frames: cartridge parity, installed draws, and legacy composition overrides pass.");
+    }
+
+    /// <summary>Runs artwork comparisons alongside mapped source routing and room-enemy loading checks.</summary>
+    [VerificationCommand("--enemy-tile-artwork")]
+    internal static int EnemyTileArtworkCommand()
+    {
+        Suite(nameof(VerifyEnemyTileArtwork), () => VerifyEnemyTileArtwork());
+        Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
+        Suite(nameof(VerifyRoomEnemyLoading), () => VerifyRoomEnemyLoading());
+        return 0;
+    }
+}

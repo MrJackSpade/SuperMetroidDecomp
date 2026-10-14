@@ -1,0 +1,95 @@
+using SuperMetroid.Core.Rooms;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
+namespace SuperMetroid.Verification.Fx;
+using SuperMetroid.Verification.Harness;
+
+/// <summary>Checks Maridia sand animation selection, timing, NMI transfers, and room departure.</summary>
+internal static class SandAnimatedTilesVerification
+{
+    /// <summary>ROM-free bank-$83 selection, bank-$87 cadence, and NMI transfer regression for sand.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
+    [CpuBusBoundary("exact bus test: retail ROM oracle for sand animated tiles")]
+    internal static void VerifySandAnimatedTiles()
+    {
+        var bus = new TestAddressSpace();
+        var vram = new SnesVram();
+        var queue = new VramWriteQueue();
+        var sand = new RoomSandAnimatedTilesState();
+        const ushort sandFxRecord = 0x9e44;
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        AssertEqual((byte)0x0c, rom.ReadCartridgeByte(0x830000 | (sandFxRecord + 14)),
+            "selected retail FX record enables ceiling and falling sand");
+        ushort[] definitions = [(ushort)AnimatedTileObject.MaridiaSandCeiling, (ushort)AnimatedTileObject.MaridiaSandFalling];
+        for (int slot = 0; slot < 2; slot++)
+        {
+            AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
+                    (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition? definition),
+                $"sand object {slot} resolves compiled mechanics");
+            for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count; frame++)
+            {
+                int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
+                    definition, definition.Frames[frame].InstructionPointer);
+                bus.WriteBytes(source,
+                    Enumerable.Repeat((byte)(1 + slot * 4 + frame),
+                        definition.TransferByteCount).ToArray());
+            }
+        }
+        var atlas = RoomFxAnimatedTileAtlas.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.RoomFxAnimatedTileAtlasExtractor.Extract(bus)));
+        var provider = new RoomFxArtworkTestProvider(atlas);
+        var guarded = NewRoomFxArtworkForbiddenBus(bus);
+        sand.LoadRoom(guarded, sandFxRecord, 0, AreaId.Maridia);
+        AssertEqual(2, sand.Count, "both FX sand bits create objects");
+        for (int tick = 0; tick < 31; tick++)
+        {
+            byte before = vram.ReadByte(0x2000);
+            sand.Step(guarded, vram, queue);
+            AssertEqual(before, vram.ReadByte(0x2000), "sand animation does not bypass NMI");
+            AssertEqual(tick % 10 == 0 ? 2 : 0, queue.Entries.Count,
+                "sand source changes follow compiled cartridge durations");
+            if (tick % 10 == 0)
+                for (int slot = 0; slot < 2; slot++)
+                {
+                    AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
+                            (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition? definition),
+                        $"sand object {slot} remains catalogued at transfer");
+                    int expectedSource = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
+                        (definition ?? throw new InvalidOperationException("Verification requires definition.")), (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames[tick / 10 % 4].InstructionPointer);
+                    AssertEqual(expectedSource, queue.Entries[slot].SourceAddress,
+                        "sand NMI transfer uses the compiled artwork source identity");
+                }
+            queue.DrainTo(vram, ReferenceMutableMemory.From(bus), provider);
+            for (int slot = 0; slot < 2; slot++)
+            {
+                AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
+                        (AnimatedTileObject)definitions[slot], out RoomFxAnimatedTileObjectDefinition? definition),
+                    $"sand object {slot} remains catalogued");
+                int destination = (definition ?? throw new InvalidOperationException("Verification requires definition.")).EncodedVramDestination * 2;
+                for (int i = 0; i < definition.TransferByteCount; i++)
+                {
+                    AssertEqual((byte)(1 + slot * 4 + tick / 10 % 4),
+                        vram.ReadByte(destination + i),
+                        "sand ceiling/fall graphics loop independently at exact destinations");
+                }
+            }
+        }
+        sand.LoadRoom(guarded, 0, 0, AreaId.Maridia);
+        AssertEqual(0, sand.Count, "next room without FX clears sand owners");
+        sand.Step(guarded, vram, queue);
+        AssertEqual(0, queue.Entries.Count, "departed room cannot continue writing sand graphics");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "sand runtime never reads artwork from ROM");
+        Console.WriteLine("  Sand animation: FX selection, timed loops, NMI visibility, and room reset agree.");
+    }
+
+    /// <summary>Runs the ROM-free sand animation transfer check.</summary>
+    [VerificationCommand("--sand-animated-tiles")]
+    internal static int SandAnimatedTilesCommand()
+    {
+        Suite(nameof(VerifySandAnimatedTiles), () => VerifySandAnimatedTiles());
+        return 0;
+    }
+}

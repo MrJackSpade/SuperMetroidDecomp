@@ -1,0 +1,101 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+
+namespace SuperMetroid.Verification.Frontend.Menus;
+
+/// <summary>Checks reconstructed compact menu glyph pixels and edited atlas uploads against native tiles.</summary>
+internal static class MenuCompactLetteringPixelsVerification
+{
+    /// <summary>Compares every selected glyph pixel, Tourian's distinct T cap, and edited VRAM encodings.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
+    [CpuBusBoundary("exact bus test: retail ROM oracle for menu compact lettering pixels")]
+    internal static void VerifyMenuCompactLetteringPixels(ISnesAddressSpace rom)
+    {
+        int[] tiles = [0,1,2,3,4,5,6,7,8,9,0x10,0x12,0x13,0x14,0x15,0x16,0x18,0x19,0x20,0x32,0x44,0x45,0x53,0x54,0x55,0x56,0x5f,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,0xb7];
+        var files = MapSpriteExtractor.Extract(rom);
+        byte[] json = files[MapSpriteFormat.JsonFile];
+        var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), new(128, 128));
+        var font = new MenuCompactLetteringArtwork(image);
+        AssertEqual(80, font.StoredInkByteCount, "twenty shared six-row glyph silhouettes only");
+        AssertEqual(1, font.StoredEditCount, "only the authored Tourian T-cap outline differs; EXIT/SELECT/START need no deviations");
+        AssertTrue(font.HasPixelOverride(8, new(2, 2)), "the retained drawing pixel is Tourian's left T-cap corner");
+        AssertTrue(!font.HasPixelOverride(0xb7, new(6, 2)), "EXIT's mirrored T-cap corner is calculated by the ordinary bevel");
+        AssertTrue(!font.HasPixelOverride(0xaa, new(0, 4)), "START R's enclosed shadow gap is calculated without an override");
+        var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
+        AssertEqual(3360, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
+        var native = new byte[8192];
+        for (int index = 0; index < native.Length; index++) native[index] = rom.ReadCartridgeByte(0xb6c000 + index);
+        byte OriginalPixel(int tile, int x, int y)
+        {
+            int result = 0;
+            for (int plane = 0; plane < 4; plane++)
+                result |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
+            return (byte)result;
+        }
+        // Complete T plus one outline column on either side, including both terminal rows.
+        // The only difference after reflection is the particular Tourian cap choice.
+        for (int y = 0; y < 8; y++)
+        for (int x = 2; x <= 6; x++)
+        {
+            byte tourian = OriginalPixel(8, x, y), exit = OriginalPixel(0xb7, 8 - x, y);
+            AssertEqual(tourian == 11, exit == 11, "complete reflected T ink matches");
+            if (x == 2 && y == 2)
+            {
+                AssertEqual((byte)15, tourian, "Tourian retains black below the outer cap tip");
+                AssertEqual((byte)0, exit, "EXIT trims the reflected cap tip");
+            }
+            else AssertEqual(tourian, exit, "all other reflected T pixels match");
+        }
+        foreach (int destination in new[] { 0x4000, 0xc000 })
+        {
+            var vram = new SnesVram(); stock.LoadArtworkTo(new VramStore(vram).All.Slice(destination / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
+            AssertTrue(vram.Bytes.Slice(destination, native.Length).SequenceEqual(native), "whole original menu atlas upload");
+        }
+        foreach (int tile in tiles)
+        for (int y = 0; y < 8; y++)
+        for (int x = 0; x < 8; x++)
+        {
+            int expected = 0;
+            for (int plane = 0; plane < 4; plane++)
+                expected |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
+            AssertEqual((byte)expected, font.Pixel(tile, new(checked((ushort)x), checked((ushort)y))), "original letter ink, outline, trim and transparency");
+            byte[] pixels = (byte[])image.Pixels.Clone();
+            int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
+            pixels[position] = (byte)((expected + 1) % 16);
+            CheckEdited(pixels);
+        }
+        // Every color at an strip-edge ink pixel, neighboring outline and trimmed corner, including introducing/removing foreground.
+        foreach (int position in new[] { 128 + 7, 8, 0, 81 * 128 + 40, 82 * 128 + 72 })
+        for (byte value = 0; value < 16; value++)
+        {
+            byte[] pixels = (byte[])image.Pixels.Clone(); pixels[position] = value; CheckEdited(pixels);
+        }
+        byte[] all = (byte[])image.Pixels.Clone();
+        foreach (int tile in tiles)
+        for (int y = 0; y < 8; y++)
+        for (int x = 0; x < 8; x++)
+        {
+            int position = (tile / 16 * 8 + y) * 128 + tile % 16 * 8 + x;
+            all[position] = (byte)((all[position] + 1) % 16);
+        }
+        CheckEdited(all);
+        foreach (int invalid in new[] { -1, 0xa, 0x11, 0x17, 0x52, 0x57, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(invalid, new(0, 0)), "invalid elevator lettering tile");
+        foreach (int invalid in new[] { -1, 8, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0, new(unchecked((ushort)invalid), 0)), "invalid glyph X");
+            AssertThrows<ArgumentOutOfRangeException>(() => font.Pixel(0, new(0, unchecked((ushort)invalid))), "invalid glyph Y");
+        }
+        void CheckEdited(byte[] pixels)
+        {
+            using var png = new MemoryStream(); IndexedPng.Write(png, new(128, 128), pixels, image.Palette); png.Position = 0;
+            var edited = MapSpriteCatalog.Load(new MemoryStream(json), png);
+            var vram = new SnesVram(); edited.LoadArtworkTo(new VramStore(vram).All.Slice(0x4000 / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
+            byte[] expected = SnesPlanarTileEncoder.Encode(pixels, new(128, 128), 4);
+            AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "independent edits do not change neighboring shadows or glyphs");
+        }
+    }
+}

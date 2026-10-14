@@ -1,0 +1,84 @@
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using System.Text.Json;
+using SuperMetroid.Core.Rendering;
+using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
+using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+namespace SuperMetroid.Verification.Fx;
+using SuperMetroid.Verification.Harness;
+
+/// <summary>Checks Wrecked Ship treadmill DMA frames through rendered floor-character pixels.</summary>
+internal static class TreadmillVisualVerification
+{
+    /// <summary>Compares four cycling graphics frames with native transfer sources in powered treadmill rooms.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
+    internal static void VerifyTreadmillVisual()
+    {
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        using var rooms = JsonDocument.Parse(File.ReadAllText("standalone-assets/maps/room-placements.json"));
+        foreach (var placement in rooms.RootElement.EnumerateArray())
+        {
+            if (placement.GetProperty("Area").GetString() != "WreckedShip") continue;
+            ushort pointer = Convert.ToUInt16((placement.GetProperty("RoomHeader").GetString() ?? throw new InvalidOperationException("Verification requires placement.GetProperty(\"RoomHeader\").GetString()."))[2..], 16);
+            var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
+            runtime.LoadCartridgeRoomForDebug(pointer);
+            var room = runtime.Room.LoadedRoom;
+            ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, 0);
+            byte bits = record == 0 ? (byte)0 : RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
+            Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animation bits={bits:X2} door treadmill={runtime.WreckedShipTreadmill.IsActive}");
+            if ((bits & 12) == 0) continue;
+            var images = new HashSet<string>();
+            var renderedFrames = new HashSet<string>();
+            var palette = new SnesCgram();
+            for (int color = 0; color < 16; color++) palette.SetColor(color, Bgr555.FromWord((ushort)(color * 2)));
+            int[] sources = (bits & 4) != 0
+                ? [WreckedShipTreadmillRomData.Frame0Source, WreckedShipTreadmillRomData.Frame1Source,
+                    WreckedShipTreadmillRomData.Frame2Source, WreckedShipTreadmillRomData.Frame3Source]
+                : [WreckedShipTreadmillRomData.Frame3Source, WreckedShipTreadmillRomData.Frame2Source,
+                    WreckedShipTreadmillRomData.Frame1Source, WreckedShipTreadmillRomData.Frame0Source];
+            for (int frame = 0; frame < 12; frame++)
+            {
+                runtime.StepFrame(0);
+                images.Add(Convert.ToHexString(runtime.Vram.Bytes.Slice(
+                    WreckedShipTreadmillRomData.EncodedVramDestination * 2,
+                    WreckedShipTreadmillRomData.TransferByteCount)));
+                // Isolate the live floor character in a one-tile viewport. A diagnostic
+                // ramp exposes every color index; this tests actual decoded pixels,
+                // not merely a changing DMA pointer or unrelated enemy animation.
+                var tileView = new SnesVram();
+                tileView.LoadBytes(0, runtime.Vram.Bytes);
+                tileView.ExecuteWordTransfer([(ushort)(WreckedShipTreadmillRomData.EncodedVramDestination / 16)], 0x7000, 1);
+                var pixels = SnesBgTilemapRenderer.Render4BppViewport(tileView, palette, new BgVramAddresses { TilemapBaseWord = 0x7000, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8) });
+                renderedFrames.Add(string.Join(',', pixels.Select(pixel => pixel.R)));
+                if (frame > 0)
+                {
+                    var expected = new SnesVram();
+                    ImportedVramOracle.ExecuteHardware(expected, bus, sources[(frame - 1) & 3],
+                        WreckedShipTreadmillRomData.TransferByteCount,
+                        WreckedShipTreadmillRomData.EncodedVramDestination);
+                    expected.ExecuteWordTransfer([(ushort)(WreckedShipTreadmillRomData.EncodedVramDestination / 16)], 0x7000, 1);
+                    AssertTrue(pixels.SequenceEqual(SnesBgTilemapRenderer.Render4BppViewport(expected, palette, new BgVramAddresses { TilemapBaseWord = 0x7000, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8) })), $"{room.Identity} native direction/cadence pixels frame {frame}");
+                }
+            }
+            AssertEqual(4, images.Count, $"{room.Identity} powered floor uploads all four graphics frames");
+            AssertEqual(4, renderedFrames.Count, $"{room.Identity} powered floor renders four distinct character frames");
+        }
+    }
+
+    /// <summary>Runs the focused Wrecked Ship treadmill visual comparison.</summary>
+    [VerificationCommand("--treadmill-visual")]
+    internal static int TreadmillVisualCommand()
+    {
+        Suite(nameof(VerifyTreadmillVisual), () => VerifyTreadmillVisual());
+        return 0;
+    }
+}

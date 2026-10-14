@@ -1,0 +1,69 @@
+using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Frontend.Intro;
+
+namespace SuperMetroid.Verification.Areas.Ceres;
+
+/// <summary>Checks the Ceres repeating explosion schedule against native countdown and actor playback.</summary>
+internal static class CeresSpawnerScheduleVerification
+{
+    /// <summary>Compares spawn events and timer reloads across reseeds and departure frames, including inactive boundaries.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres spawner schedule")]
+    internal static void VerifyCeresSpawnerSchedule(ISnesAddressSpace rom)
+    {
+        // C33B loads the repeat countdown seed; C4A8 reloads the period after a spawn.
+        AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x8bc33b), "native countdown seed opcode");
+        AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x8bc4a8), "native countdown reload opcode");
+        foreach (int reseedFrame in new[] { 1, 211, 273 })
+        foreach (int departure in new[] { 1, 209, 210, 222, 273, int.MaxValue })
+        {
+            var native = new IntroDiscoverySprite(new(0, 0), 0, 0xce35);
+            ushort countdown = 0;
+            ushort actualCountdown = 0;
+            bool disabled = false;
+            for (int frame = 1; frame <= 300; frame++)
+            {
+                if (frame == reseedFrame)
+                {
+                    countdown = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8bc33c);
+                    actualCountdown = CeresExplosionDefinitions.RepeatingCountdownSeed;
+                }
+                CeresExplosionSpawnEvents expected = default;
+                if (native.IsActive && native.PreInstructionPointer == 0xc489 && !disabled)
+                {
+                    if (frame >= departure) disabled = true;
+                    else
+                    {
+                        countdown = NativeWordCounter.Decrement(countdown).Value;
+                        if ((short)countdown <= 0)
+                        {
+                            expected = expected with { Repeating = true };
+                            countdown = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8bc4a9);
+                        }
+                    }
+                }
+                native.Step((CeresSpawnerOpcode opcode, ushort cursor) =>
+                {
+                    expected = opcode switch
+                    {
+                        CeresSpawnerOpcode.SpawnInitial => expected with { Initial = true },
+                        CeresSpawnerOpcode.SpawnFinal => expected with { Final = true },
+                        _ => throw new InvalidOperationException($"Undefined CeresSpawnerOpcode {opcode}."),
+                    };
+                    return cursor;
+                }, pointer => CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0000 | pointer)));
+                AssertEqual(expected, CeresExplosionDefinitions.EventsAtFrame(frame, frame < departure, ref actualCountdown),
+                    $"native spawner events at frame{frame}, reset{reseedFrame}, departure{departure}");
+                AssertEqual(countdown, actualCountdown, "native repeat countdown including late fade reset");
+            }
+            AssertEqual(false, native.IsActive, "native spawner terminates");
+        }
+        foreach (int outside in new[] { int.MinValue, -1, 0, 301, int.MaxValue })
+        {
+            ushort untouched = 123;
+            AssertEqual(default(CeresExplosionSpawnEvents), CeresExplosionDefinitions.EventsAtFrame(outside, true, ref untouched), "outside finite spawner lifetime");
+            AssertEqual((ushort)123, untouched, "inactive countdown is untouched");
+        }
+    }
+}

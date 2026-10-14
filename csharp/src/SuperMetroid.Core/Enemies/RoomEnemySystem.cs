@@ -1426,7 +1426,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CeresDoorBehavior.RegisterCeresDoorOwnedInstructions(table);
         DeadSidehopperBehavior.RegisterDeadSidehopperOwnedInstructions(table);
         ShitroidBehavior.RegisterShitroidTypedAnimations(table);
-        SporeSpawnBehavior.RegisterSporeSpawnOwnedInstructions(table);
+        SporeSpawnBehavior.RegisterSporeSpawnTypedAnimations(table);
         RinkaBehavior.RegisterRinkaOwnedInstructions(table);
         RioBehavior.RegisterRioOwnedInstructions(table);
         NorfairLavaJumpingEnemyBehavior.RegisterNorfairLavaJumpingEnemyOwnedInstructions(table);

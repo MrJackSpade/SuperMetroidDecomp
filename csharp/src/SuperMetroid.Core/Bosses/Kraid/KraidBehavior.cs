@@ -483,34 +483,13 @@ internal sealed class KraidBehavior : IEnemySpecies
     /// </summary>
     internal void AdvanceKraidPartAnimation(RoomEnemySlot part)
     {
-        KraidPartState partState = RequireKraidState(part).Parts[part.SlotIndex];
-        ushort oldTimer = part.InstructionTimer.RawValue;
-        part.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
-        {
-            part.ExtraProperties = part.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+        if (!EnemyProgramAnimation.Expire(part))
             return;
-        }
-
+        KraidPartState partState = RequireKraidState(part).Parts[part.SlotIndex];
         AnimationProgramCursor<KraidPartProgram> cursor = partState.Cursor;
-        NativeCountdown counter = part.Timer;
-        AnimationProgramAdvance<KraidPartFrame> advance = KraidAnimations.Programs.Advance(ref cursor, ref counter,
-            (cue, continuation) => ApplyKraidPartCue(cue));
-        part.Timer = counter;
+        EnemyProgramAnimation.Run(part, KraidAnimations.Programs, ref cursor, frame => frame.Spritemap,
+            (cue, continuation) => ApplyKraidPartCue(cue), EnemyProgramCounter.SlotTimer);
         partState.Cursor = cursor;
-        switch (advance.Kind)
-        {
-            case AnimationProgramAdvanceKind.Show:
-                part.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                part.SpritemapPointer = advance.Frame.Spritemap;
-                part.ExtraProperties = part.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
-                return;
-            case AnimationProgramAdvanceKind.Hold:
-                // The native sleep: the timer wraps from zero and the last frame stays.
-                return;
-            default:
-                throw new InvalidOperationException($"Kraid's part programs have no {advance.Kind} step.");
-        }
     }
 
     /// <summary>Carries out one cue of a Kraid part program.</summary>

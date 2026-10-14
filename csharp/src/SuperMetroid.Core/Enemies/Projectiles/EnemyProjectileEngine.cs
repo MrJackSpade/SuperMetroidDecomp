@@ -1226,11 +1226,6 @@ internal sealed class EnemyProjectileEngine
                 address);
         }
 
-        if (SporeSpawnProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return SporeSpawnProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (TorizoLandingDustInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return TorizoLandingDustInstructionProgramDefinitions.ReadMechanicsWord(address);

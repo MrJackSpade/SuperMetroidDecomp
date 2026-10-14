@@ -10,5 +10,5 @@ public static class SporeSpawnScrollingHooks
     /// prevents layer one from moving above Y <c>$01D0</c> while the live encounter owns
     /// the global scrolling-finished callback.
     /// </summary>
-    public const ushort FightMinimumLayerOneY = 0x01d0;
+    public const ushort FightMinimumLayerOneY = 464;
 }

@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnInstructionProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification;
+using SuperMetroid.Verification.Bosses.SporeSpawn;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -21,25 +23,28 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         AssertTrue(stock.Spritemaps is not null && stock.ExtendedFrames is not null,
             "installed Spore Spawn comparison has complete enemy art");
 
-        (ushort Pointer, int Frames)[] programs =
+        (SporeSpawnBodyProgram Program, int Frames)[] programs =
         [
-            (SporeSpawnInstructionProgramDefinitions.InitialDead, 4),
-            (SporeSpawnInstructionProgramDefinitions.InitialAlive, 260),
-            (SporeSpawnInstructionProgramDefinitions.FightStarted, 2200),
-            (SporeSpawnInstructionProgramDefinitions.CloseAndMove, 1600),
-            (SporeSpawnInstructionProgramDefinitions.Death, 500),
+            (SporeSpawnBodyProgram.InitialDead, 4),
+            (SporeSpawnBodyProgram.InitialAlive, 260),
+            (SporeSpawnBodyProgram.FightStarted, 2200),
+            (SporeSpawnBodyProgram.CloseAndMove, 1600),
+            (SporeSpawnBodyProgram.Death, 500),
         ];
         int framesCompared = 0;
         var allNativeSelectors = new HashSet<ushort>();
-        foreach ((ushort pointer, int frames) in programs)
+        // Spore Spawn's body runs typed programs (#1288); its cursor is compared as the native pointer it stands for.
+        var steps = BodyStepAddresses(CartridgeImportSource.Require(rom));
+        foreach ((SporeSpawnBodyProgram program, int frames) in programs)
         {
+            ushort pointer = SporeSpawnNativeListAddresses.BodyEntry(program);
 
             var installedBus = NewSporeSpawnInstructionReadGuard(rom);
             var nativeTrace = ReadReferenceSporeSpawnProgram(rom, pointer, frames, allNativeSelectors);
             var installedTrace = new List<SporeSpawnProgramFrame>(frames);
-            RunSporeSpawnProgram(installedBus, pointer, frames, stock,
+            RunSporeSpawnProgram(installedBus, program, frames, stock,
                 afterFrame: (system, slot) =>
-                    installedTrace.Add(CaptureSporeSpawnProgramFrame(system, slot)));
+                    installedTrace.Add(CaptureSporeSpawnProgramFrame(system, slot, steps)));
             AssertEqual(nativeTrace.Count, installedTrace.Count,
                 $"Spore Spawn program {pointer:X4} installed frame count");
             for (int frame = 0; frame < frames; frame++)
@@ -52,7 +57,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
 
             framesCompared += frames;
         }
-        AssertEqual(SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount,
+        AssertEqual(BodyFrameRecordCount,
             allNativeSelectors.Count,
             "all Spore Spawn selector operands execute in the five native programs");
         Console.WriteLine($"  Installed Spore Spawn visual selectors: {allNativeSelectors.Count} compiled operands and {framesCompared} native-parity program ticks, with presentation ROM reads forbidden.");
@@ -132,11 +137,11 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     }
     /// <summary>Captures the live state compared with one native Spore Spawn instruction tick.</summary>
     private static SporeSpawnProgramFrame CaptureSporeSpawnProgramFrame(
-        RoomEnemySystem system, RoomEnemySlot slot)
+        RoomEnemySystem system, RoomEnemySlot slot, Dictionary<SporeSpawnBodyProgram, ushort[]> steps)
     {
         SporeSpawnEnemyState state = (system.SporeSpawn ?? throw new InvalidOperationException("Verification requires system.SporeSpawn."));
         return new SporeSpawnProgramFrame(
-            slot.CurrentInstruction, slot.InstructionTimer.RawValue,
+            NativeBodyInstruction(steps, state), slot.InstructionTimer.RawValue,
             slot.SpritemapPointer, slot.Position.Whole,
             slot.Health, slot.Properties, slot.ExtraProperties,
             (state ?? throw new InvalidOperationException("Verification requires state.")).Function, state.Angle, state.MaximumXRadius,
@@ -157,26 +162,28 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         EnemyTileArtworkCatalog stock,
         EnemyTileArtworkCatalog remapped)
     {
-        (ushort Pointer, int Frames)[] programs =
+        (SporeSpawnBodyProgram Program, int Frames)[] programs =
         [
-            (SporeSpawnInstructionProgramDefinitions.InitialDead, 4),
-            (SporeSpawnInstructionProgramDefinitions.InitialAlive, 260),
-            (SporeSpawnInstructionProgramDefinitions.FightStarted, 2200),
-            (SporeSpawnInstructionProgramDefinitions.CloseAndMove, 1600),
-            (SporeSpawnInstructionProgramDefinitions.Death, 500),
+            (SporeSpawnBodyProgram.InitialDead, 4),
+            (SporeSpawnBodyProgram.InitialAlive, 260),
+            (SporeSpawnBodyProgram.FightStarted, 2200),
+            (SporeSpawnBodyProgram.CloseAndMove, 1600),
+            (SporeSpawnBodyProgram.Death, 500),
         ];
-        foreach ((ushort pointer, int frames) in programs)
+        var steps = BodyStepAddresses(CartridgeImportSource.Require(rom));
+        foreach ((SporeSpawnBodyProgram program, int frames) in programs)
         {
+            ushort pointer = SporeSpawnNativeListAddresses.BodyEntry(program);
             var stockBus = NewSporeSpawnInstructionReadGuard(rom);
             var remappedBus = NewSporeSpawnInstructionReadGuard(rom);
             var stockTrace = new List<SporeSpawnProgramFrame>(frames);
             var remappedTrace = new List<SporeSpawnProgramFrame>(frames);
-            RunSporeSpawnProgram(stockBus, pointer, frames, stock,
+            RunSporeSpawnProgram(stockBus, program, frames, stock,
                 afterFrame: (system, slot) =>
-                    stockTrace.Add(CaptureSporeSpawnProgramFrame(system, slot)));
-            RunSporeSpawnProgram(remappedBus, pointer, frames, remapped,
+                    stockTrace.Add(CaptureSporeSpawnProgramFrame(system, slot, steps)));
+            RunSporeSpawnProgram(remappedBus, program, frames, remapped,
                 afterFrame: (system, slot) =>
-                    remappedTrace.Add(CaptureSporeSpawnProgramFrame(system, slot)));
+                    remappedTrace.Add(CaptureSporeSpawnProgramFrame(system, slot, steps)));
             AssertEqual(stockTrace.Count, remappedTrace.Count,
                 $"Spore Spawn visual remap program {pointer:X4} tick count");
             for (int frame = 0; frame < frames; frame++)

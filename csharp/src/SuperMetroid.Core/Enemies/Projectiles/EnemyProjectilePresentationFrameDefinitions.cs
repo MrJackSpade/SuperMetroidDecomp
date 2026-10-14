@@ -33,6 +33,7 @@ using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -183,8 +184,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             ShaktoolProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "space_pirate", SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount,
             SpacePirateProjectileInstructionProgramDefinitions.PresentationWordAddress);
-        Add(frames, "spore_spawn", SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordCount,
-            SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "spore_spawn", SporeSpawnProjectileVisualDefinitions.ProjectileFrameCount,
+            index => SporeSpawnProjectileVisualDefinitions.PresentationKey(SporeSpawnProjectileVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "stoke", StokeProjectileInstructionProgramDefinitions.PresentationWordCount,
             StokeProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "tourian_statue", TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount,

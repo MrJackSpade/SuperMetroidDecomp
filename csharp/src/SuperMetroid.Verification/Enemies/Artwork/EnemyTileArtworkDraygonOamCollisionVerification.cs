@@ -22,15 +22,8 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
     internal static void VerifyCompiledDraygonOamCollision(
         SuperMetroidAddressSpace rom)
     {
-        var sporePointers = new HashSet<ushort>();
-        for (int index = 0;
-             index < SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort address = SporeSpawnInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            sporePointers.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, address)))));
-        }
+        // VerifySporeSpawnAnimations confirms each typed Spore Spawn frame's spritemap equals its native operand.
+        var sporePointers = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.BodySpritemaps();
 
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

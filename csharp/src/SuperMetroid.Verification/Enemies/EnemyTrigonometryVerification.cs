@@ -255,7 +255,7 @@ using static SuperMetroid.Verification.Rooms.LevelData.SlopeSpeedDefinitionsVeri
 using static SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Sparks.SparkMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnProjectileDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnProjectileInstructionProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification;
 using static SuperMetroid.Verification.Samus.Movement.SquareSlopeDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.StationAccessPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.StatueWalkDefinitionsVerification;
@@ -361,7 +361,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyShaktoolProjectileInstructionProgramDefinitions), () => VerifyShaktoolProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyChozoTourianDustInstructionProgramDefinitions), () => VerifyChozoTourianDustInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyTourianStatueProjectileInstructionProgramDefinitions), () => VerifyTourianStatueProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifySporeSpawnProjectileInstructionProgramDefinitions), () => VerifySporeSpawnProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifySporeSpawnAnimations), () => VerifySporeSpawnAnimations(LoadRepositoryRom())),
         new(nameof(VerifyBotwoonProjectileAnimations), () => VerifyBotwoonProjectileAnimations(LoadRepositoryRom())),
         new(nameof(VerifyTorizoLandingDustInstructionProgramDefinitions), () => VerifyTorizoLandingDustInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyTorizoExplosiveSwipeInstructionProgramDefinitions), () => VerifyTorizoExplosiveSwipeInstructionProgramDefinitions(LoadRepositoryRom())),

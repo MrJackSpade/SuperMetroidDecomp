@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -21,6 +22,8 @@ public sealed class SporeSpawnEnemyState
     public RoomEnemySlot Body { get; }
     /// <summary>Current bank-$A5 main-AI pointer, corresponding to native variable A at WRAM $0FA8.</summary>
     public SporeSpawnFunction Function { get; internal set; }
+    /// <summary>Where the body's typed program resumes (#641).</summary>
+    internal AnimationProgramCursor<SporeSpawnBodyProgram> BodyProgram { get; set; }
     /// <summary>
     /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y 72 pixels
     /// above it; native <c>stalkXOrigin</c>/<c>stalkYOrigin</c> at $7E:7808/$7E:780A.

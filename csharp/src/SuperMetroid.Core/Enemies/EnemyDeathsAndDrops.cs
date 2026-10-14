@@ -616,6 +616,9 @@ internal sealed class EnemyDeathsAndDrops
         }, EnemyProjectilePreInstruction.Pickup);
     }
 
+    /// <summary>Queues the library-two enemy-killed sound 9, as <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) does.</summary>
+    internal void QueueEnemyKilledSound() => LastEnemyDeathSoundEffectLibrary2 = 9;
+
     /// <summary>Registers death sounds, explosion-to-pickup conversion, and retained-enemy respawn opcodes.</summary>
     internal void RegisterDeathExplosionInstructions(EnemyProjectileHandlerTable table)
     {
@@ -627,7 +630,7 @@ internal sealed class EnemyDeathsAndDrops
                 // pointer unchanged. Therefore the timed duration begins immediately
                 // after $EE8B. Treating that duration as an operand skips two bytes and
                 // interprets the following spritemap pointer as another opcode.
-                LastEnemyDeathSoundEffectLibrary2 = 9;
+                QueueEnemyKilledSound();
                 cursor = unchecked((ushort)(cursor + 2));
                 return EnemyProjectileInstructionOutcome.Continue;
             });

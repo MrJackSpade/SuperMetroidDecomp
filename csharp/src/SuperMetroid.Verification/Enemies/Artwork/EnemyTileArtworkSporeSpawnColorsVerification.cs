@@ -13,6 +13,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks installed Spore Spawn spore, health, and death colors against ROM and live current and target palettes.</summary>
 internal static class EnemyTileArtworkSporeSpawnColorsVerification
@@ -111,8 +112,8 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             AssertEqual(colors.ResolveSpore(color), state.TargetPalette.Span[slot],
                 $"live spore target color {color}");
         }
-        AssertEqual(SporeSpawnInstructionProgramDefinitions.InitialAlive,
-            body.CurrentInstruction, "Spore Spawn retains native living instruction");
+        AssertEqual(AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialAlive),
+            state.BodyProgram, "Spore Spawn starts its living program");
 
         for (int frame = 0; frame < SporeSpawnColorRomData.HealthFrameCount; frame++)
         {

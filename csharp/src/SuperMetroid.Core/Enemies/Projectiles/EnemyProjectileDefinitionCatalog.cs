@@ -27,6 +27,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -417,9 +418,9 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.ShaktoolAttackFrontCircle => new(0xBE03, ShaktoolProjectileInstructionProgramDefinitions.Front, 0x0404, 0x000A, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle => new(0x84FB, ShaktoolProjectileInstructionProgramDefinitions.Middle, 0x0404, 0x2000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.ShaktoolAttackBackCircle => new(0x84FB, ShaktoolProjectileInstructionProgramDefinitions.Back, 0x0404, 0x2000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.SporeSpawnStalk => new(0xDD44, SporeSpawnProjectileInstructionProgramDefinitions.Stalk, 0x0808, 0x2000, 0x0000, SporeSpawnProjectileInstructionProgramDefinitions.Stalk),
-        RoomEnemyProjectileKind.SporeSpawnSpore => new(0xDCEE, SporeSpawnProjectileInstructionProgramDefinitions.Spore, 0x0202, 0x8004, 0x0000, SporeSpawnProjectileInstructionProgramDefinitions.SporeShot),
-        RoomEnemyProjectileKind.SporeSpawnSpawner => new(0xDD46, SporeSpawnProjectileInstructionProgramDefinitions.SpawnerClosed, 0x0202, 0x2000, 0x0000, SporeSpawnProjectileInstructionProgramDefinitions.SpawnerClosed),
+        RoomEnemyProjectileKind.SporeSpawnStalk => new(0xDD44, SporeSpawnProjectileVisualDefinitions.StalkProgram, 0x0808, 0x2000, 0x0000, SporeSpawnProjectileVisualDefinitions.StalkProgram),
+        RoomEnemyProjectileKind.SporeSpawnSpore => new(0xDCEE, SporeSpawnProjectileVisualDefinitions.SporeProgram, 0x0202, 0x8004, 0x0000, SporeSpawnProjectileVisualDefinitions.SporeShotProgram),
+        RoomEnemyProjectileKind.SporeSpawnSpawner => new(0xDD46, SporeSpawnProjectileVisualDefinitions.SpawnerClosedProgram, 0x0202, 0x2000, 0x0000, SporeSpawnProjectileVisualDefinitions.SpawnerClosedProgram),
         RoomEnemyProjectileKind.SaveStationElectricity => new(
             0xE6D1,
             SaveStationElectricityInstructionProgramDefinitions.Initial,

@@ -19,15 +19,8 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
     internal static void VerifyCompiledSporeSpawnCollision(
         SuperMetroidAddressSpace rom)
     {
-        var selected = new HashSet<ushort>();
-        for (int index = 0;
-             index < SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort address = SporeSpawnInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            selected.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, address)))));
-        }
+        // VerifySporeSpawnAnimations confirms each typed Spore Spawn frame's spritemap equals its native operand.
+        var selected = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.BodySpritemaps();
 
         var installed = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

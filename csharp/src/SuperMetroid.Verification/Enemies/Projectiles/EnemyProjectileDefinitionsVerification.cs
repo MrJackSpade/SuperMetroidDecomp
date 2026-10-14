@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Bosses.SporeSpawn;
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -156,6 +157,21 @@ internal static class EnemyProjectileDefinitionsVerification
                     : PhantoonFlameProgram.DestroyableIdle;
                 AssertTrue(projectile.Animation is PhantoonFlameAnimation started
                         && started.Cursor == AnimationProgramCursor<PhantoonFlameProgram>.Start(expected),
+                    $"{kind} production shot starts the typed {expected} program");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+            }
+            else if (kind is RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or
+                RoomEnemyProjectileKind.SporeSpawnSpawner)
+            {
+                // Spore Spawn's projectiles are typed (#1288); VerifySporeSpawnAnimations matches them to the native lists.
+                SporeSpawnProjectileProgram expected = kind switch
+                {
+                    RoomEnemyProjectileKind.SporeSpawnStalk => SporeSpawnProjectileProgram.Stalk,
+                    RoomEnemyProjectileKind.SporeSpawnSpore => SporeSpawnProjectileProgram.SporeShot,
+                    _ => SporeSpawnProjectileProgram.SpawnerClosed,
+                };
+                AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started
+                        && started.Cursor == AnimationProgramCursor<SporeSpawnProjectileProgram>.Start(expected),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
             }

@@ -71,34 +71,14 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// </summary>
     internal void AdvanceRidleyBodyAnimation(RoomEnemySlot slot, SamusState? samus)
     {
-        ushort oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
-        {
-            slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+        if (!EnemyProgramAnimation.Expire(slot))
             return;
-        }
-
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
         AnimationProgramCursor<RidleyBodyProgram> cursor = state.BodyProgram;
         // Ridley's body lists load no loop counter.
-        NativeCountdown counter = NativeCountdown.Start(0);
-        AnimationProgramAdvance<RidleyCollisionDefinitions.BodyFrame> advance = RidleyAnimations.Programs.Advance(ref cursor, ref counter,
-            (cue, continuation) => ApplyRidleyBodyCue(slot, state, samus, cue));
+        EnemyProgramAnimation.Run(slot, RidleyAnimations.Programs, ref cursor, frame => (ushort)frame,
+            (cue, continuation) => ApplyRidleyBodyCue(slot, state, samus, cue), EnemyProgramCounter.None);
         state.BodyProgram = cursor;
-        switch (advance.Kind)
-        {
-            case AnimationProgramAdvanceKind.Show:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                slot.SpritemapPointer = (ushort)advance.Frame;
-                slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
-                return;
-            case AnimationProgramAdvanceKind.Hold:
-                // The native sleep: the timer wraps from zero and the last frame stays.
-                return;
-            default:
-                throw new InvalidOperationException($"Ridley's body programs have no {advance.Kind} step.");
-        }
     }
 
     /// <summary>Carries out one cue of Ridley's body program, returning the program a goto cue continues at.</summary>
@@ -1573,34 +1553,15 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// </summary>
     internal void AdvanceRidleyBreakupAnimation(RoomEnemySlot fragment)
     {
-        ushort oldTimer = fragment.InstructionTimer.RawValue;
-        fragment.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
-        {
-            fragment.ExtraProperties = fragment.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+        if (!EnemyProgramAnimation.Expire(fragment))
             return;
-        }
-
         RidleyEnemyState state = _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
             $"Ridley breakup fragment in slot {fragment.SlotIndex} requires Ridley's encounter state.");
         if (!state.BreakupPrograms.TryGetValue(fragment.SlotIndex, out AnimationProgramCursor<RidleyBreakupFrame> cursor))
             throw new InvalidOperationException($"Ridley breakup fragment in slot {fragment.SlotIndex} has no program.");
-        NativeCountdown counter = NativeCountdown.Start(0);
-        AnimationProgramAdvance<RidleyBreakupFrame> advance = RidleyBreakupAnimations.Programs.Advance(ref cursor, ref counter,
-            (cue, continuation) => throw new InvalidOperationException("Ridley's breakup programs publish no cues."));
+        EnemyProgramAnimation.Run(fragment, RidleyBreakupAnimations.Programs, ref cursor, RidleyBreakupFrameDefinitions.Spritemap,
+            (cue, continuation) => throw new InvalidOperationException("Ridley's breakup programs publish no cues."), EnemyProgramCounter.None);
         state.BreakupPrograms[fragment.SlotIndex] = cursor;
-        switch (advance.Kind)
-        {
-            case AnimationProgramAdvanceKind.Show:
-                fragment.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                fragment.SpritemapPointer = RidleyBreakupFrameDefinitions.Spritemap(advance.Frame);
-                fragment.ExtraProperties = fragment.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
-                return;
-            case AnimationProgramAdvanceKind.Hold:
-                return;
-            default:
-                throw new InvalidOperationException($"Ridley's breakup programs have no {advance.Kind} step.");
-        }
     }
 
     /// <summary>Ports main AI $A6:C8D4: flicker, drag, gravity, movement, and lifetime.</summary>

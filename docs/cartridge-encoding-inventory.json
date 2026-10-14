@@ -23,23 +23,23 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 34045,
-    "PointerDispatch": 1095,
-    "OpaqueWordArray": 1123,
-    "CatalogHexLiteral": 96764,
+    "RawHexLiteral": 33980,
+    "PointerDispatch": 1084,
+    "OpaqueWordArray": 1120,
+    "CatalogHexLiteral": 96757,
     "JustifiedHexLiteral": 148,
     "RawWidthOperation": 46,
     "OwnedWidthOperation": 72,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
-    "CountdownSelfDecrement": 25,
-    "class:NumericQuantity": 55477,
-    "class:DomainIdentity": 6673,
-    "class:ComposableBits": 1598,
-    "class:StructuredInstruction": 44209,
-    "class:CartridgeAddress": 24471,
-    "class:Unknown": 896,
-    "storageWidthMembers": 1560
+    "CountdownSelfDecrement": 24,
+    "class:NumericQuantity": 55453,
+    "class:DomainIdentity": 6690,
+    "class:ComposableBits": 1581,
+    "class:StructuredInstruction": 44188,
+    "class:CartridgeAddress": 24430,
+    "class:Unknown": 895,
+    "storageWidthMembers": 1561
   },
   "subsystems": [
     {
@@ -3377,19 +3377,15 @@
     {
       "name": "Boss: Spore Spawn",
       "totals": {
-        "RawHexLiteral": 23,
-        "PointerDispatch": 16,
-        "CatalogHexLiteral": 126,
-        "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 80,
-        "class:DomainIdentity": 4,
-        "class:ComposableBits": 17,
-        "class:CartridgeAddress": 65,
-        "storageWidthMembers": 7
+        "PointerDispatch": 6,
+        "CatalogHexLiteral": 90,
+        "class:NumericQuantity": 41,
+        "class:DomainIdentity": 21,
+        "class:CartridgeAddress": 34,
+        "storageWidthMembers": 8
       },
       "addressInterpretingTypes": [
-        "SporeSpawnCeilingPlmProgramDefinitions",
-        "SporeSpawnProjectileInstructionProgramDefinitions"
+        "SporeSpawnCeilingPlmProgramDefinitions"
       ],
       "files": [
         {
@@ -3401,13 +3397,27 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 4,
+            "class:NumericQuantity": 4
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnProjectileVisualDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 21,
+            "class:NumericQuantity": 4,
+            "class:DomainIdentity": 17
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 22,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 6,
-            "class:ComposableBits": 17
+            "storageWidthMembers": 1
           }
         },
         {
@@ -3441,8 +3451,8 @@
           "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnCollisionDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 4,
-            "class:NumericQuantity": 2,
+            "CatalogHexLiteral": 5,
+            "class:NumericQuantity": 3,
             "class:CartridgeAddress": 2
           }
         },
@@ -3478,38 +3488,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnInstruction.cs",
+          "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnSoundDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 12,
-            "class:CartridgeAddress": 12
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 48,
-            "class:NumericQuantity": 39,
-            "class:CartridgeAddress": 9
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnProjectileInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 10,
-            "CatalogHexLiteral": 5,
-            "class:NumericQuantity": 5,
-            "class:CartridgeAddress": 10
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnScrollingHooks.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
+            "CatalogHexLiteral": 3,
+            "class:NumericQuantity": 3
           }
         }
       ]
@@ -9985,9 +9968,9 @@
         "PointerDispatch": 13,
         "CatalogHexLiteral": 885,
         "OwnedWidthOperation": 1,
-        "class:NumericQuantity": 567,
+        "class:NumericQuantity": 571,
         "class:ComposableBits": 37,
-        "class:CartridgeAddress": 352,
+        "class:CartridgeAddress": 348,
         "storageWidthMembers": 3
       },
       "addressInterpretingTypes": [
@@ -10027,8 +10010,8 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 545,
-            "class:NumericQuantity": 408,
-            "class:CartridgeAddress": 137
+            "class:NumericQuantity": 412,
+            "class:CartridgeAddress": 133
           }
         },
         {
@@ -10221,20 +10204,20 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 31800,
-        "PointerDispatch": 369,
-        "OpaqueWordArray": 989,
-        "CatalogHexLiteral": 1149,
+        "RawHexLiteral": 31758,
+        "PointerDispatch": 368,
+        "OpaqueWordArray": 986,
+        "CatalogHexLiteral": 1178,
         "RawWidthOperation": 46,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 10681,
+        "class:NumericQuantity": 10692,
         "class:DomainIdentity": 609,
         "class:ComposableBits": 563,
-        "class:StructuredInstruction": 14048,
-        "class:CartridgeAddress": 7951,
-        "class:Unknown": 516,
+        "class:StructuredInstruction": 14027,
+        "class:CartridgeAddress": 7945,
+        "class:Unknown": 515,
         "storageWidthMembers": 82
       },
       "addressInterpretingTypes": [
@@ -10367,7 +10350,6 @@
         "SpacePirateProjectileInstructionProgramDefinitionsTooling",
         "SparkMovementDefinitionsVerification",
         "SporeSpawnCeilingPlmsVerification",
-        "SporeSpawnProjectileInstructionProgramDefinitionsTooling",
         "StandardObjectArtworkVerification",
         "StokeProjectileInstructionProgramDefinitionsTooling",
         "StokeProjectileInstructionProgramDefinitionsVerification",
@@ -11133,14 +11115,6 @@
             "PointerDispatch": 2,
             "class:ComposableBits": 1,
             "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Bosses/SporeSpawn/SporeSpawnProjectileInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 1
           }
         },
         {
@@ -14625,13 +14599,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 16,
-            "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 12,
-            "class:Unknown": 1
+            "CatalogHexLiteral": 29,
+            "class:NumericQuantity": 15,
+            "class:CartridgeAddress": 14
           }
         },
         {
@@ -14644,17 +14617,6 @@
             "class:ComposableBits": 4,
             "class:CartridgeAddress": 14,
             "class:Unknown": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnProjectileInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 26,
-            "OpaqueWordArray": 3,
-            "class:NumericQuantity": 1,
-            "class:StructuredInstruction": 21,
-            "class:CartridgeAddress": 7
           }
         },
         {

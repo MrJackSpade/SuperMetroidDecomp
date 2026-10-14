@@ -423,9 +423,6 @@ internal sealed class EnemyInstructionInterpreter
             return MamaTurtleInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn)
-            return SporeSpawnInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka)
             return RinkaInstructionProgramDefinitions.ReadMechanicsWord(address);
 

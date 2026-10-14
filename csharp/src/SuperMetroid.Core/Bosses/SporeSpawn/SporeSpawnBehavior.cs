@@ -6,6 +6,9 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -138,14 +141,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         state.LoadedAsDefeated = _room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss);
         if (state.LoadedAsDefeated)
         {
-            body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.InitialDead;
+            state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialDead);
             body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
             UpdateSporeSpawnStalks(state);
             PublishSporeSpawnPlm(header: PlmHeaderId.ClearSporeSpawnCeiling);
             return;
         }
 
-        body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.InitialAlive;
+        state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialAlive);
         body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 128)));
 
         // `flag_process_all_enemies = FFFF` is a global bank-$A0 activity override, not an
@@ -196,7 +199,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));
         if (unchecked((short)(body.Position.Y.Whole - SporeSpawnDeathCenterY)) >= 0)
         {
-            body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.FightStarted;
+            state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.FightStarted);
             body.InstructionTimer = NativeCountdown.Start(1);
         }
 
@@ -230,8 +233,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             new(unchecked((short)(SporeSpawnDeathCenterX - body.Position.X.Whole)), unchecked((short)(SporeSpawnDeathCenterY - body.Position.Y.Whole))))));
         state.DeathAngle = direction;
         state.DeathVelocityMagnitude = new(
-            SnesSignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 0x40)),
-            SnesSignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 0x80)));
+            SnesSignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 64)),
+            SnesSignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 128)));
     }
 
     /// <summary>Ports <c>SporeSpawn_Func_4</c> at $A5:EBEE.</summary>
@@ -239,10 +242,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         RoomEnemySlot body,
         SporeSpawnEnemyState state)
     {
-        int xDisplacement = ((state.DeathAngle + 64) & 0x80) != 0
+        int xDisplacement = unchecked((byte)(state.DeathAngle + 64)) >= 128
             ? -state.DeathVelocityMagnitude.X.RawValue
             : state.DeathVelocityMagnitude.X.RawValue;
-        int yDisplacement = ((state.DeathAngle + 128) & 0x80) != 0
+        int yDisplacement = unchecked((byte)(state.DeathAngle + 128)) >= 128
             ? -state.DeathVelocityMagnitude.Y.RawValue
             : state.DeathVelocityMagnitude.Y.RawValue;
         body.Position = body.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
@@ -256,11 +259,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
 
         UpdateSporeSpawnStalks(state);
         // $A5:E9F7 tests the 16-bit NMI_FrameCounter, not the 8-bit $05B5 copy.
-        if ((_frameContext._enemyFrameNmiFrameCounter & 0x0f) == 0)
+        if (_frameContext._enemyFrameNmiFrameCounter % 16 == 0)
         {
             ushort random = _room.Random.Generate();
             _ = _spriteObjects.SpawnRoomSpriteObject(
-                new(unchecked((ushort)((random & 0x003f) + 96)), unchecked((ushort)(((SnesLittleEndian.HighByte(random) & 0x0f)) + 480))),
+                new(unchecked((ushort)(random % 64 + 96)), unchecked((ushort)(SnesLittleEndian.HighByte(random) % 16 + 480))),
                 RoomSpriteObjectKind.DustCloud,
                 graphicsIndex: 0);
         }
@@ -290,7 +293,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         bool horizontal)
     {
         ushort signedDelta = unchecked((ushort)(end - anchor));
-        bool negative = (signedDelta & 0x8000) != 0;
+        bool negative = unchecked((short)signedDelta) < 0;
         ushort magnitude = negative
             ? unchecked((ushort)(anchor - end))
             : signedDelta;
@@ -345,29 +348,35 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             RunSporeSpawnSpawnerPreInstruction(context.Projectile);
         }, EnemyProjectilePreInstruction.SporeSpawner);
 
-        table.RegisterInstruction(EnemyProjectileInstruction.Spores_SpawnEnemyDrops, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
+        table.RegisterShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpore,
+            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SporeShot));
+        table.RegisterShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpawner,
+            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerClosed));
+        table.RegisterShotAnimation(RoomEnemyProjectileKind.SporeSpawnStalk,
+            () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Stalk));
+        table.RegisterCue<SporeSpawnProjectileCue>((projectile, samus, cue) =>
+        {
+            switch (cue)
             {
-                RequestSporeSpawnSporeDrop(projectile);
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
-
-        table.RegisterInstruction(EnemyProjectileInstruction.SporeSpawner_SpawnSpore, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
-                SpawnSporeSpawnSpore(projectile.Position.Whole);
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
-
-        table.RegisterInstruction(EnemyProjectileInstruction.Spores_SetProperties3000, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
-                SetSporeSpawnImpactProperties(projectile);
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
+                case SporeSpawnProjectileCue.SpawnSpore:
+                    SpawnSporeSpawnSpore(projectile.Position.Whole);
+                    return;
+                case SporeSpawnProjectileCue.SetImpactProperties:
+                    SetSporeSpawnImpactProperties(projectile);
+                    return;
+                case SporeSpawnProjectileCue.QueueKilledSound:
+                    _deathsAndDrops.QueueEnemyKilledSound();
+                    return;
+                case SporeSpawnProjectileCue.RequestDrop:
+                    RequestSporeSpawnSporeDrop(projectile);
+                    return;
+                case SporeSpawnProjectileCue.Delete:
+                    projectile.Clear();
+                    return;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(SporeSpawnProjectileCue)} {cue}.");
+            }
+        });
     }
 
     /// <summary>Registers initialization of the single Spore Spawn body.</summary>
@@ -390,14 +399,26 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers Spore Spawn's private motion, palette, sound, and death opcodes.</summary>
-    internal void RegisterSporeSpawnOwnedInstructions(EnemyAiTable table)
+    /// <summary>Runs Spore Spawn's body as typed programs in place of its bank-$A5 lists (#641).</summary>
+    internal void RegisterSporeSpawnTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn,
+            (slot, context) => AdvanceSporeSpawnAnimation(slot));
+
+    /// <summary>Runs Spore Spawn's body program where the enemy instruction interpreter would.</summary>
+    internal void AdvanceSporeSpawnAnimation(RoomEnemySlot body)
     {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
-        {
-            yieldInterpreter = false;
-            return TryProcessSporeSpawnInstruction(slot, word, ref cursor);
-        });
+        if (!EnemyProgramAnimation.Expire(body))
+            return;
+        SporeSpawnEnemyState state = RequireSporeSpawnState(body);
+        AnimationProgramCursor<SporeSpawnBodyProgram> cursor = state.BodyProgram;
+        // The open-pulse and death-burst repeats count the body's timer word, as the native timer commands do.
+        EnemyProgramAnimation.Run(body, SporeSpawnAnimations.Programs, ref cursor, SporeSpawnFrameDefinitions.Spritemap,
+            (cue, continuation) =>
+            {
+                ApplySporeSpawnCue(body, state, cue);
+                return null;
+            }, EnemyProgramCounter.SlotTimer);
+        state.BodyProgram = cursor;
     }
 
     /// <summary>Restricts core-hitbox damage to accepted projectile families and handles boss death.</summary>
@@ -458,7 +479,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
     }
     /// <summary>Checks the projectile family bits accepted by the vulnerable core.</summary>
     private static bool SporeSpawnAcceptsProjectile(ushort projectileType) =>
-        (projectileType & 0x0700) != 0 || (projectileType & 0x0010) != 0;
+        (projectileType & SporeSpawnCollisionDefinitions.AcceptedFamilyBits) != 0 || new SamusProjectileTypeWord(projectileType).IsChargedBeam;
 
     /// <summary>Ports the post-common body of <c>SporeSpawn_Shot</c> at $A5:ED5A.</summary>
     private void ResolveSporeSpawnShotAfterCommon(RoomEnemySlot body)
@@ -472,7 +493,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             // current sign. At exactly 400 it leaves the existing delta untouched.
             if (unchecked((short)(body.Health - 400)) < 0)
             {
-                state.AngleDelta = (state.AngleDelta & 0x8000) != 0
+                state.AngleDelta = unchecked((short)state.AngleDelta) < 0
                     ? unchecked((ushort)-2)
                     : (ushort)2;
             }
@@ -483,7 +504,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             {
                 state.AngleDelta = unchecked((ushort)-state.AngleDelta);
                 state.DamagedFlag = 1;
-                body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.CloseAndMove;
+                state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.CloseAndMove);
                 body.InstructionTimer = NativeCountdown.Start(1);
 
                 ushort paletteOffset = body.Health >= 770
@@ -528,105 +549,66 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         for (int projectileSlot = 0; projectileSlot <= 13; projectileSlot++)
             _projectiles.EnemyProjectiles[projectileSlot].Clear();
 
-        body.CurrentInstruction = SporeSpawnInstructionProgramDefinitions.Death;
+        state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.Death);
         body.InstructionTimer = NativeCountdown.Start(1);
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         state.ScrollClampHookActive = false;
         PublishSporeSpawnPlm(header: PlmHeaderId.CrumbleSporeSpawnCeiling);
     }
 
-    /// <summary>Executes one boss-owned instruction and advances its native operand cursor.</summary>
-    private bool TryProcessSporeSpawnInstruction(
-        RoomEnemySlot body,
-        ushort opcode,
-        ref ushort cursor)
+    /// <summary>Carries out one cue of Spore Spawn's body program.</summary>
+    internal void ApplySporeSpawnCue(RoomEnemySlot body, SporeSpawnEnemyState state, SporeSpawnCue cue)
     {
-        if (body.EnemyDefinitionPointer != EnemyDefinitionId.SporeSpawn)
-            return false;
-
-        SporeSpawnEnemyState state = RequireSporeSpawnState(body);
-        ushort next = unchecked((ushort)(cursor + 2));
-        if (!Enum.IsDefined((SporeSpawnInstruction)opcode))
-            return false;
-        SporeSpawnInstruction instruction = (SporeSpawnInstruction)opcode;
-        switch (instruction)
+        switch (cue.Kind)
         {
-            case SporeSpawnInstruction.IncreaseMaxXRadius:
+            case SporeSpawnCueKind.IncreaseMaxXRadius:
                 if (unchecked((short)(state.MaximumXRadius - 40)) < 0)
                     state.MaximumXRadius = unchecked((ushort)(state.MaximumXRadius + 8));
-                cursor = next;
-                return true;
-
-            case SporeSpawnInstruction.ClearDamagedFlag:
+                return;
+            case SporeSpawnCueKind.ClearDamagedFlag:
                 state.DamagedFlag = 0;
-                cursor = next;
-                return true;
-
-            case SporeSpawnInstruction.SetMaxXRadiusAndAngleDelta:
-                state.MaximumXRadius = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(body, next);
-                state.AngleDelta = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                    body,
-                    unchecked((ushort)(next + 2)));
-                cursor = unchecked((ushort)(next + 4));
-                return true;
-
-            case SporeSpawnInstruction.SporeGenerationFlagInY:
-                state.SporeGenerationFlag = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(body, next);
-                cursor = unchecked((ushort)(next + 2));
-                return true;
-
-            case SporeSpawnInstruction.Harden:
+                return;
+            case SporeSpawnCueKind.SetMaxXRadiusAndAngleDelta:
+                state.MaximumXRadius = cue.Value;
+                state.AngleDelta = cue.AngleDelta;
+                return;
+            case SporeSpawnCueKind.SetSporeGeneration:
+                state.SporeGenerationFlag = cue.Value;
+                return;
+            case SporeSpawnCueKind.Harden:
                 body.Position = body.Position.WithWhole(new(SporeSpawnDeathCenterX, SporeSpawnDeathCenterY));
                 body.Properties = body.Properties
                     .With(EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions)
                     .Without(EnemyProperties.IgnoreSamusCollision);
-                cursor = next;
-                return true;
-
-            case SporeSpawnInstruction.QueueSFXInY_Lib2_Max6:
-                LastSporeSpawnSoundEffectLibrary2 =
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(body, next);
-                cursor = unchecked((ushort)(next + 2));
-                return true;
-
-            case SporeSpawnInstruction.CallSporeSpawnDeathItemDropRoutine:
+                return;
+            case SporeSpawnCueKind.QueueSound:
+                LastSporeSpawnSoundEffectLibrary2 = cue.Value;
+                return;
+            case SporeSpawnCueKind.RequestDeathDrops:
                 RequestSporeSpawnDeathDrops(state);
-                cursor = next;
-                return true;
-
-            case SporeSpawnInstruction.FunctionInY:
-                state.Function = (SporeSpawnFunction)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(body, next);
-                cursor = unchecked((ushort)(next + 2));
-                return true;
-
-            case SporeSpawnInstruction.LoadDeathSequencePalette:
-                LoadSporeSpawnDeathPalette(
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(body, next),
-                    targetOnly: false);
-                cursor = unchecked((ushort)(next + 2));
-                return true;
-
-            case SporeSpawnInstruction.LoadDeathSequenceTargetPalette:
-                LoadSporeSpawnDeathPalette(
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(body, next),
-                    targetOnly: true);
-                cursor = unchecked((ushort)(next + 2));
-                return true;
-
-            case SporeSpawnInstruction.SpawnHardeningDustCloud:
+                return;
+            case SporeSpawnCueKind.SetFunction:
+                state.Function = cue.Function;
+                return;
+            case SporeSpawnCueKind.LoadDeathPalette:
+                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.Value), targetOnly: false);
+                return;
+            case SporeSpawnCueKind.LoadDeathTargetPalette:
+                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.Value), targetOnly: true);
+                return;
+            case SporeSpawnCueKind.SpawnHardeningDust:
                 SpawnSporeSpawnHardeningDust(state);
-                cursor = next;
-                return true;
-
-            case SporeSpawnInstruction.SpawnDyingExplosion:
+                return;
+            case SporeSpawnCueKind.SpawnDyingExplosion:
                 SpawnSporeSpawnDyingExplosion(state);
-                cursor = next;
-                return true;
-
+                return;
             default:
-                throw new InvalidOperationException($"Undefined SporeSpawnInstruction {instruction}.");
+                throw new InvalidOperationException($"Undefined {nameof(SporeSpawnCueKind)} {cue.Kind}.");
         }
     }
+
+    /// <summary>The source byte offset of death-palette fade step <paramref name="step"/>, as the native operand gives it.</summary>
+    private static ushort DeathPaletteRow(ushort step) => checked((ushort)(step * SporeSpawnColorRomData.FrameByteCount));
 
     /// <summary>Ports <c>SporeSpawn_Func_7</c> at $A5:EE4A.</summary>
     internal void LoadSporeSpawnHealthPalette(ushort sourceByteOffset)
@@ -692,9 +674,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
     {
         ushort random = _room.Random.Generate();
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(state.Body.Position.X.Whole + (random & 0x007f) - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + ((SnesLittleEndian.HighByte(random) & 0x7f)) - 64))),
+            new(unchecked((ushort)(state.Body.Position.X.Whole + random % 128 - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + SnesLittleEndian.HighByte(random) % 128 - 64))),
             MiscDustAnimation.BigDustCloud);
-        LastSporeSpawnSoundEffectLibrary2 = 0x0029;
+        LastSporeSpawnSoundEffectLibrary2 = SporeSpawnSoundDefinitions.HardeningDust;
     }
 
     /// <summary>Uses one RNG word to place a dying explosion sprite and request its sound.</summary>
@@ -702,10 +684,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
     {
         ushort random = _room.Random.Generate();
         _ = _spriteObjects.SpawnRoomSpriteObject(
-            new(unchecked((ushort)(state.Body.Position.X.Whole + (random & 0x007f) - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + ((SnesLittleEndian.HighByte(random) & 0x3f)) - 32))),
+            new(unchecked((ushort)(state.Body.Position.X.Whole + random % 128 - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + SnesLittleEndian.HighByte(random) % 64 - 32))),
             RoomSpriteObjectKind.SporeSpawnDyingExplosion,
             graphicsIndex: 0);
-        LastSporeSpawnSoundEffectLibrary2 = 0x0025;
+        LastSporeSpawnSoundEffectLibrary2 = SporeSpawnSoundDefinitions.DyingExplosion;
     }
 
     /// <summary>Generates sixteen RNG-positioned boss drops and marks the death drop as requested.</summary>
@@ -714,18 +696,15 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         for (int drop = 0; drop < 16; drop++)
         {
             ushort random = _room.Random.Generate();
-            ushort x = unchecked((ushort)((random & 0x007f) + 64));
-            ushort y = unchecked((ushort)(((SnesLittleEndian.HighByte(random) & 0x3f)) + 528));
+            ushort x = unchecked((ushort)(random % 128 + 64));
+            ushort y = unchecked((ushort)(SnesLittleEndian.HighByte(random) % 64 + 528));
             _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(new(x, y), EnemyDefinitionId.SporeSpawn);
         }
         state.DeathDropRequested = true;
     }
-    /// <summary>Instruction list installed when a ceiling emitter releases a spore.</summary>
-    private const ushort SporeSpawnSpawnerSpawnInstruction =
-        SporeSpawnProjectileInstructionProgramDefinitions.SpawnerRelease;
     /// <summary>Graphics bits assigned to newly spawned spores.</summary>
-    private const ushort SporeSpawnGraphicsIndex = 0x0200;
+    private static readonly ushort SporeSpawnGraphicsIndex = EnemyPaletteBits.Palette1;
 
     /// <summary>Ports projectile definition $86:DE6C and initializer $86:DCA3.</summary>
     internal void SpawnSporeSpawnStalk(RoomEnemySlot body, ushort spawnArgument)
@@ -740,6 +719,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             stalk,
             RoomEnemyProjectileKind.SporeSpawnStalk,
             unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex)));
+        stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Stalk));
         stalk.Position = stalk.Position.WithWholeX(body.Position.X.Whole);
         stalk.Position = stalk.Position.WithWholeY(unchecked((ushort)(
             body.Position.Y.Whole +
@@ -759,6 +739,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             spawner,
             RoomEnemyProjectileKind.SporeSpawnSpawner,
             unchecked((ushort)(body.VramTilesIndex | body.PaletteIndex)));
+        spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerClosed));
         spawner.Position = spawner.Position.WithWholeX(SporeSpawnProjectileDefinitions.SpawnerX(spawnArgument));
         spawner.Position = spawner.Position.WithWholeY(520);
     }
@@ -774,6 +755,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             spore,
             RoomEnemyProjectileKind.SporeSpawnSpore,
             SporeSpawnGraphicsIndex);
+        spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Spore));
         spore.Position = spore.Position.WithWhole(position);
 
         // Var1 retains the original X coordinate. Bit seven alone mirrors horizontal motion,
@@ -788,7 +770,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         Offset16<RoomPixels> movement =
             SporeSpawnProjectileDefinitions.MovementAt(movementOffset);
         int xDelta = movement.X;
-        if ((spore.Variable1 & 0x0080) != 0)
+        if (SnesLittleEndian.LowByte(spore.Variable1) >= 128)
             xDelta = -xDelta;
         spore.Position = spore.Position.WithWholeX(unchecked((ushort)(spore.Position.X.Whole + xDelta)));
 
@@ -811,11 +793,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
 
         if (spawner.Variable1 == 0)
         {
-            spawner.InstructionPointer = SporeSpawnSpawnerSpawnInstruction;
-            spawner.InstructionTimer = NativeCountdown.Start(1);
-            spawner.Variable1 = unchecked((ushort)(_room.Random.Generate() & 0x01ff));
+            spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerRelease));
+            spawner.Variable1 = unchecked((ushort)(_room.Random.Generate() % 512));
         }
-        spawner.Variable1 = unchecked((ushort)(spawner.Variable1 - 1));
+        spawner.Variable1 = NativeWordCounter.Decrement(spawner.Variable1).Value;
     }
 
     /// <summary>Ports projectile instruction $86:DC5A's complete property-word replace.</summary>

@@ -1777,38 +1777,19 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     /// </summary>
     internal void AdvancePhantoonPartAnimation(RoomEnemySlot part)
     {
-        ushort oldTimer = part.InstructionTimer.RawValue;
-        part.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
-        if (oldTimer != 1)
-        {
-            part.ExtraProperties = part.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+        if (!EnemyProgramAnimation.Expire(part))
             return;
-        }
-
         PhantoonEnemyState state = RequirePhantoonState(part);
         AnimationProgramCursor<PhantoonPartProgram> cursor = state.PartProgram(part);
-        // Phantoon's part lists load no loop counter, so a local one keeps cue-written timers intact.
-        NativeCountdown counter = NativeCountdown.Start(0);
-        AnimationProgramAdvance<PhantoonPartFrame> advance = PhantoonAnimations.Programs.Advance(ref cursor, ref counter,
+        // Writing the cursor back after the cues lets the program's own sleep overwrite a cue's install on this
+        // part, as the native Sleep does. Phantoon's part lists load no loop counter.
+        EnemyProgramAnimation.Run(part, PhantoonAnimations.Programs, ref cursor, frame => frame.Spritemap,
             (cue, continuation) =>
             {
                 ApplyPhantoonPartCue(part, cue);
                 return null;
-            });
+            }, EnemyProgramCounter.None);
         state.PartProgram(part) = cursor;
-        switch (advance.Kind)
-        {
-            case AnimationProgramAdvanceKind.Show:
-                part.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                part.SpritemapPointer = advance.Frame.Spritemap;
-                part.ExtraProperties = part.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
-                return;
-            case AnimationProgramAdvanceKind.Hold:
-                // The native sleep: the timer wraps from zero and the last frame stays.
-                return;
-            default:
-                throw new InvalidOperationException($"Phantoon's part programs have no {advance.Kind} step.");
-        }
     }
 
     /// <summary>Carries out one cue of a Phantoon part program.</summary>

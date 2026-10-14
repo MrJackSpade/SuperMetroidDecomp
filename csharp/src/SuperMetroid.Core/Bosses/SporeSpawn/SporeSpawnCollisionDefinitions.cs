@@ -16,6 +16,11 @@ internal static class SporeSpawnCollisionDefinitions
     private const ushort Shot = EnemyAiCodePointers.BankA5.SporeSpawnShot;
     /// <summary>Inactive head touch callback used before Spore Spawn opens.</summary>
     private const ushort NoOp = EnemyAiCodePointers.BankA0.NoOp;
+    /// <summary>
+    /// Samus projectile family bits 8-10: the vulnerable core accepts any projectile with one set, besides a charged
+    /// beam (<c>SporeSpawn_Shot</c>).
+    /// </summary>
+    internal const ushort AcceptedFamilyBits = 0x0700;
     /// <summary>Dud shot callback for shell rectangles and the inactive trailing point.</summary>
     private const ushort Dud = EnemyAiCodePointers.BankA0.DudShot;
 

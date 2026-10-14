@@ -56,6 +56,10 @@ internal static class NativeEnemyProjectileListDefinitions
         [(ushort)EnemyProjectileInstruction.TimerInY] = WordKind.SetCounter,
         [(ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = WordKind.RepeatWhileCounting,
         [(ushort)EnemyProjectileInstruction.SpawnPhantoonDrop] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.SporeSpawner_SpawnSpore] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.Spores_SetProperties3000] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.Spores_SpawnEnemyDrops] = WordKind.Callback,
     };
 
     /// <summary>Decodes a native projectile list word, rejecting words outside the compared set.</summary>
@@ -86,7 +90,7 @@ internal static class NativeEnemyProjectileListDefinitions
         /// <summary>The projectile's general-timer word, which the counter commands count.</summary>
         internal ushort Counter { get; private set; }
         /// <summary>The owner callbacks the latest update executed.</summary>
-        internal List<ushort> Callbacks { get; } = [];
+        internal List<EnemyProjectileInstruction> Callbacks { get; } = [];
 
         /// <summary>Runs one update.</summary>
         internal void Step(IImportCartridgeSource cartridge)
@@ -142,7 +146,7 @@ internal static class NativeEnemyProjectileListDefinitions
                             : unchecked((ushort)(cursor + 4));
                         continue;
                     case WordKind.Callback:
-                        Callbacks.Add(word);
+                        Callbacks.Add((EnemyProjectileInstruction)word);
                         cursor = unchecked((ushort)(cursor + 2));
                         continue;
                     default:

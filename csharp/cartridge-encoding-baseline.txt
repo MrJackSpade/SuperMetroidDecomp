@@ -46,11 +46,7 @@ csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRoomPaletteProgramDef
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaBehavior.cs	SME6340	26
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyClawOffsets.cs	SME6342	1
-csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnBehavior.cs	SME6340	22
-csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnCeilingPlmProgramDefinitions.cs	SME6341	6
-csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnProjectileInstructionProgramDefinitions.cs	SME6341	10
-csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnScrollingHooks.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoBehavior.cs	SME6340	131
 csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoBehavior.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoBehavior.cs	SME6349	1
@@ -612,7 +608,6 @@ csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/MotherBrainRoomC
 csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/MotherBrainFxRecordPointers.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitionsTooling.cs	SME6340	2
 csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitionsTooling.cs	SME6341	2
-csharp/src/SuperMetroid.Tooling/Core/Bosses/SporeSpawn/SporeSpawnProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Torizo/BombTorizoDormantInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Torizo/BombTorizoDroolInstructionProgramDefinitionsTooling.cs	SME6341	5
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Torizo/BombTorizoHandPlmProgramDefinitionsTooling.cs	SME6340	1
@@ -1084,11 +1079,8 @@ csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCeilingPlmsVeri
 csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCeilingPlmsVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCeilingPlmsVerification.cs	SME6342	4
 csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCeilingVisualsVerification.cs	SME6340	27
-csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnInstructionProgramDefinitionsVerification.cs	SME6340	16
 csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnProjectileDefinitionsVerification.cs	SME6340	23
 csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnProjectileDefinitionsVerification.cs	SME6345	2
-csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnProjectileInstructionProgramDefinitionsVerification.cs	SME6340	26
-csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnProjectileInstructionProgramDefinitionsVerification.cs	SME6342	3
 csharp/src/SuperMetroid.Verification/Bosses/Torizo/Artwork/TorizoInstructionVramArtworkVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Bosses/Torizo/Artwork/TorizoInstructionVramArtworkVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Bosses/Torizo/BombTorizoAttackDefinitionsVerification.cs	SME6340	9

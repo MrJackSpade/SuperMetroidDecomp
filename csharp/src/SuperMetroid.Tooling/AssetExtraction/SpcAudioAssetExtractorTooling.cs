@@ -1,8 +1,5 @@
-﻿using System.Security.Cryptography;
-using System.Text.Json;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-using static SuperMetroid.AssetExtraction.SpcExtractionData;
+﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.AssetExtraction.Audio;
 
 namespace SuperMetroid.AssetExtraction;
 

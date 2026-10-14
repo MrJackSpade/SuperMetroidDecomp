@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>Checks installed gameplay HUD art, live tile updates, and editable layout overrides.</summary>
@@ -20,7 +21,7 @@ internal static class GameplayHudPresentationVerification
         GameplayBasePaletteCatalog initialPalettes)
     {
         string stockPath = Path.Combine(stock, GameplayHudDefinitions.FileName);
-        byte[] extracted = SuperMetroid.AssetExtraction.GameplayHudPresentationExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed gameplay HUD JSON is the deterministic cartridge extraction");
         GameplayHudPresentation presentation = GameplayHudPresentation.Load(new MemoryStream(extracted));

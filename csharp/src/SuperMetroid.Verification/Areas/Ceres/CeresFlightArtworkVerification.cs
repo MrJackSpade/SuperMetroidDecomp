@@ -1,9 +1,7 @@
 using System.Text.Json;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Areas.Ceres.CeresFlightSpriteArtworkVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
@@ -14,6 +12,10 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Areas.Ceres;
 
 /// <summary>Checks installed Ceres flight Mode 7, sprite, actor, and palette art against retail sources.</summary>
@@ -30,7 +32,7 @@ internal static class CeresFlightArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight Mode 7 characters, maps, object characters and palette")]
     internal static void VerifyCeresFlightArtwork(GameInstallation installation,
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         CeresFlightArtworkCatalog stock = installation.LoadIntroCinematicArt().CeresFlight;
         AssertTrue(stock.Mode7Characters.Span.SequenceEqual(RomDataReader.Decompress(bus,
@@ -193,7 +195,7 @@ internal static class CeresFlightArtworkVerification
     /// <summary>Checks five native rear-view actor positions and an edited asteroid's live OAM result.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres flight actor spritemap layout")]
     private static void VerifyCeresFlightActorLayout(GameInstallation installation,
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, CeresFlightArtworkCatalog stock,
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, CeresFlightArtworkCatalog stock,
         ISnesAddressSpace guardedBus)
     {
         string name = CeresFlightActorLayoutFormat.FileName;
@@ -340,7 +342,7 @@ internal static class CeresFlightArtworkVerification
 
     /// <summary>Confirms each PNG and both Mode 7 map views can alter rendered flight pixels.</summary>
     private static void VerifyCeresVisibleOverrides(GameInstallation installation,
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         foreach (string name in new[]
             {

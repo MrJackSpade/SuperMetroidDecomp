@@ -23,8 +23,8 @@ internal static class AttractCaptureTestsVerification
         int samples = 0;
         foreach (bool cancel in new[] { false, true })
         {
-            var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-            var captured = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+            var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
+            var captured = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
             legacy.BindArtwork(legacy.Artwork with
             {
                 MapPresentation = presentation,

@@ -1,6 +1,5 @@
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
@@ -14,6 +13,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
 /// <summary>Checks installed map highlight palettes in file-select arrows and pause and map screens.</summary>
@@ -30,7 +30,7 @@ internal static class MapPaletteCycleVerification
         arrows.StepArrows(_ => true);
         var arrowOam = new OamBuffer();
         arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, original.Sprites);
-        ushort nativeArrowPalette = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationRomData.AnimatedSpritePalette);
+        ushort nativeArrowPalette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationRomData.AnimatedSpritePalette);
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)
             AssertEqual(SnesLittleEndian.HighByte(nativeArrowPalette), (byte)(arrowOam.LowTable[offset + 3] & 14), "each file-select arrow uses cartridge animated palette");
@@ -147,7 +147,7 @@ internal static class MapPaletteCycleVerification
         AssertTrue(!installed.Step(installedColors) && installed.Step(installedColors), "authored duration controls subsequent cycle ticks");
 
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
-        SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
+        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "palette override survives re-extraction and reload");
         AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(replacement)), "palette override never rewritten");
         foreach (string invalid in new[] { "null", "{}", "{\"version\":1,\"frames\":[]}", "{\"version\":1,\"frames\":null}" })

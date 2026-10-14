@@ -1,5 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// Exact bus test double (#629) that proves which cartridge bytes a definition, renderer, importer or

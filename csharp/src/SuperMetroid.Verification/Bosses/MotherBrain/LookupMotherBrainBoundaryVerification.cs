@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerifi
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 

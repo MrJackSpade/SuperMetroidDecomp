@@ -1,9 +1,7 @@
 using SuperMetroid.Core;
 using System.Reflection;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareProductionVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
@@ -15,6 +13,8 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 /// <summary>Checks Grapple flare timing, OAM, editable offsets, and restored actor binding against native presentation.</summary>

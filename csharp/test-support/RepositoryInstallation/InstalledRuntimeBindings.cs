@@ -1,5 +1,5 @@
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Binds one installation's runtime presentation catalogs to bare <see cref="SuperMetroidRuntime"/> fixtures.</summary>
 internal static class InstalledRuntimeBindings

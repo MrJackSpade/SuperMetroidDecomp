@@ -1,7 +1,5 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Rom;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
@@ -15,6 +13,9 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Artwork;
 using SuperMetroid.Verification.Harness;
 

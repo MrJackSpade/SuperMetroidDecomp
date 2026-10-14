@@ -34,8 +34,8 @@ internal static class InvalidBeamGraphicsVerification
             "definition window cannot admit adjacent, uncompiled cartridge bytes");
         using var scratch = new TestScratchDirectory("projectile-artwork");
         string installedDirectory = scratch.Root;
-        SuperMetroid.AssetExtraction.ProjectilePresentationFiles.Extract(bus, installedDirectory);
-        var artwork = SuperMetroid.AssetExtraction.ProjectilePresentationFiles.Load(installedDirectory, null).BeamTiles;
+        SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Extract(bus, installedDirectory);
+        var artwork = SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Load(installedDirectory, null).BeamTiles;
         AssertTrue(artwork.TryResolve(ChainsawBeamGraphicsDefinitions.TileSource, 256, out var legacyTiles),
             "restored native Chainsaw DMA resolves through installed artwork");
         AssertTrue(legacyTiles.Span.SequenceEqual(artwork.Resolve(VramAssetId.BeamChainsawTiles).Span),

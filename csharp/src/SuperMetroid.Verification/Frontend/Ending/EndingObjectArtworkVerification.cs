@@ -1,9 +1,7 @@
 using System.Text.Json;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Frontend.Ending.EndingCompletionTextInstructionsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingCompletionTextSpriteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingExplosionSpriteArtworkVerification;
@@ -20,6 +18,9 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 

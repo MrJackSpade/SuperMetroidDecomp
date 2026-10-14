@@ -1,15 +1,13 @@
-using Android.App;
 using Android.OS;
-using Android.Widget;
 using Android.Views;
 using Android.Content.PM;
 using SuperMetroid.Core.Input;
-using SuperMetroid.AssetExtraction;
 using Android.Content;
 using Android.Hardware.Input;
 using Android.Media;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Android;
 

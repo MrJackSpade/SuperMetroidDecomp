@@ -21,7 +21,7 @@ internal static class GameOptionsPresentationVerification
         AreaMapPresentationCatalog original)
     {
         string stockPath = Path.Combine(stock, GameOptionsPresentationDefinitions.FileName);
-        byte[] extracted = SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed options JSON is the deterministic cartridge extraction");
         _ = GameOptionsPresentation.Load(new MemoryStream(extracted));

@@ -7,6 +7,8 @@ using static SuperMetroid.Verification.Frontend.Ending.EndingFlyawayArtworkVerif
 using static SuperMetroid.Verification.Frontend.Ending.EndingMode7ArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingObjectArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingPaletteArtworkVerification;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 

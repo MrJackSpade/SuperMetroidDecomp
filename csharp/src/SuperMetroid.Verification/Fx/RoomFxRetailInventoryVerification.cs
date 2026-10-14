@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -11,6 +10,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 
@@ -37,11 +37,11 @@ internal static class RoomFxRetailInventoryVerification
     {
         RetailFxCatalogs catalogs = retailFxCatalogs.GetValue(bus, source => new(
             RoomFxPaletteBlendCatalog.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.RoomFxPaletteBlendExtractor.Extract(source))),
+                SuperMetroid.AssetExtraction.Fx.RoomFxPaletteBlendExtractor.Extract(source))),
             RoomFxLayer3TilemapCatalog.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.RoomFxLayer3TilemapExtractor.Extract(source))),
+                SuperMetroid.AssetExtraction.Fx.RoomFxLayer3TilemapExtractor.Extract(source))),
             RoomFxAnimatedTileAtlas.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.RoomFxAnimatedTileAtlasExtractor.Extract(source)))));
+                SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(source)))));
         return new()
         {
             PaletteBlendColors = catalogs.PaletteBlends,

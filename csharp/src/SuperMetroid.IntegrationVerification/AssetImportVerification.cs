@@ -1,8 +1,9 @@
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Checks cartridge import validation, extracted-content reuse and repair, and ROM-free Android startup.</summary>
 internal static class AssetImportVerification
@@ -124,7 +125,7 @@ try
     string settings = Path.Combine(root, "SuperMetroid.ini");
     File.WriteAllText(settings, SuperMetroidGameOptionsIni.DefaultFileContents);
     string save = Path.Combine(root, "SuperMetroid.save.json");
-    GameSaveFileStore.WriteAtomic(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), save, installed.LoadMaps());
+    GameSaveFileStore.WriteAtomic(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), save, installed.LoadMaps());
     byte[] saveBefore = File.ReadAllBytes(save);
     string waveform = Directory.GetFiles(Path.Combine(installed.AudioDirectory, "samples"), "*.wav")[0];
     byte[] waveBefore = File.ReadAllBytes(waveform);

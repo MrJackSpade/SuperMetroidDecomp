@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using B = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyCue;
 using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadCue;
 using K = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadCueKind;
@@ -6,6 +5,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies;
 

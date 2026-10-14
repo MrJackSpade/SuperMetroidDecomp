@@ -123,10 +123,10 @@ internal static class SaveSchemaTranslationVerification
         ram.SetGameCompleted(false);
         var native = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var text = SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.EndingTextExtractor.Extract(native), writable: false));
+            SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native), writable: false));
         var ending = new EndingCreditsState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text });
         ending.BindPaletteFxColors(SuperMetroid.Core.Fx.Artwork.RoomPaletteFxPresentation.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(native), writable: false)));
+            SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(native), writable: false)));
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         ending.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
         ending.phaseTimer = 1;

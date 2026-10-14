@@ -18,8 +18,8 @@ internal static class FrontendRenderCaptureTestsVerification
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
-        var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-        var captured = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
+        var captured = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
         legacy.BindArtwork(legacy.Artwork with
         {
             MapPresentation = presentation,

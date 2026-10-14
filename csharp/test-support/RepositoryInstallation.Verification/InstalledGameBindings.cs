@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Binds one installation's host presentation catalogs to bare <see cref="SuperMetroidGame"/> fixtures.</summary>
 internal static class InstalledGameBindings

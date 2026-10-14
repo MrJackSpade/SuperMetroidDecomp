@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Areas.Ceres.CeresDestructionVerification;
 using static SuperMetroid.Verification.Frontend.FrontendVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleFixtureVerification;
@@ -10,6 +9,7 @@ using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 
 namespace SuperMetroid.Verification.Frontend.Title;
 
@@ -23,7 +23,7 @@ internal static class TitleSequenceRomDataVerification
     internal static void VerifyTitleSequenceRomData()
     {
         byte[] rom = CreateConstructedTitleRom();
-        var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         TitleGradientPresentation gradient = TitleGradientPresentation.Load(
             new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
         var state = CreateTitleFixture(bus, titleGradientPresentation: gradient);
@@ -78,7 +78,7 @@ internal static class TitleSequenceRomDataVerification
             maximumFrames: 40,
             "title file-select handoff");
 
-        var skipped = CreateTitleFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom),
+        var skipped = CreateTitleFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom),
             titleGradientPresentation: gradient);
         skipped.Step((ushort)SnesButton.A);
         AssertEqual(TitleSequencePhase.SkipFadeOut, skipped.Phase,
@@ -114,7 +114,7 @@ internal static class TitleSequenceRomDataVerification
     /// <summary>Builds a ROM image with valid synthetic title art and compiled text/control identities.</summary>
     internal static byte[] CreateConstructedTitleRom()
     {
-        var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
+        var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
         // Valid constructed fixed-color/control streams; retail tests check the real
         // gradient bands separately. Every zoom index selects the same black run.
         for (int index = 0; index < 16; index++)

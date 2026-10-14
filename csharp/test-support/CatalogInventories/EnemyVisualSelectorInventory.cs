@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -7,6 +6,7 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// Cartridge-backed development inventory, never a production ROM fallback.

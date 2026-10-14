@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Rooms.Backgrounds.RoomSkyTilemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -21,6 +20,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
 
@@ -142,7 +142,7 @@ internal static void VerifyHudStateAndBg3Rendering()
 
     var hud = new HudState();
     hud.BindPresentation(GameplayHudPresentation.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.GameplayHudPresentationExtractor.Extract(bus))));
+        SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus))));
     hud.Initialize(bus, HudSnapshot.CeresDebug);
     AssertEqual(0x2d09, hud.Tiles[0x8c / 2], "HUD health tens digit from ROM table");
     AssertEqual(0x2d09, hud.Tiles[0x8e / 2], "HUD health ones digit from ROM table");
@@ -179,13 +179,13 @@ internal static void VerifyHudStateAndBg3Rendering()
 
     var mapSystem = new Bank80SystemState();
     mapSystem.SetAreaMapAcquired(0);
-    hud.UpdateMinimap(bus, mapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(bus, mapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(new Position16<MapTiles>(27, 5), hud.MinimapCenter, "minimap Landing Site absolute tile");
     AssertEqual(0x2c99, hud.Tiles[26], "minimap top-left unvisited map-station tile");
     AssertEqual(0x28bb, hud.Tiles[60], "minimap explored center tile");
 
     var noMapSystem = new Bank80SystemState();
-    hud.UpdateMinimap(bus, noMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(bus, noMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(0x3cbb, hud.Tiles[60], "minimap blinking center palette");
     AssertEqual(0x2c1f, hud.Tiles[26], "minimap hides unvisited tile without map station");
 
@@ -201,10 +201,10 @@ internal static void VerifyHudStateAndBg3Rendering()
         ushort savedAbove = ReadFixtureMapWord(bus, aboveTile);
         SeedFixtureMapWord(bus, currentTile, slope);
         SeedFixtureMapWord(bus, aboveTile, 0x0029);
-        hud.UpdateMinimap(bus, slopeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new((byte)x, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria) });
+        hud.UpdateMinimap(bus, slopeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new((byte)x, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
         AssertTrue(slopeSystem.IsMapTileExplored(0, new(checked((ushort)x), 4)), "sloped hallway explores its upper corner on either map page");
         AssertEqual(0x2c1f, hud.Tiles[28], "upper corner remains blank on native discovery update");
-        hud.UpdateMinimap(bus, slopeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new((byte)x, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria) });
+        hud.UpdateMinimap(bus, slopeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new((byte)x, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
         AssertEqual(0x2829, hud.Tiles[28], "upper corner displays its explored palette on following update");
         SeedFixtureMapWord(bus, currentTile, savedCurrent);
         SeedFixtureMapWord(bus, aboveTile, savedAbove);
@@ -215,7 +215,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     Position16<MapTiles> ordinaryTile = new(30, 5);
     ushort ordinarySaved = ReadFixtureMapWord(bus, ordinaryTile);
     SeedFixtureMapWord(bus, ordinaryTile, 0x0029);
-    hud.UpdateMinimap(bus, ordinaryCornerSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(30, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(bus, ordinaryCornerSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(30, 4), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertTrue(!ordinaryCornerSystem.IsMapTileExplored(0, new(30, 4)), "ordinary map character does not explore upper corner");
     SeedFixtureMapWord(bus, ordinaryTile, ordinarySaved);
 
@@ -227,21 +227,21 @@ internal static void VerifyHudStateAndBg3Rendering()
     const int publicHudX = 26;
     ClearFixtureMapStationBit(bus, new(secretHudX, secretHudY));
     var overrideSystem = new Bank80SystemState();
-    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Public, PresentationMap = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Public, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual((ushort)MapTileWords.HudBlank, hud.Tiles[26],
         "Public HUD override excludes cartridge secret-only cell");
     AssertEqual(0x2c00, hud.Tiles[27] & 0x3c00,
         "Public HUD override reveals station cell as unentered");
-    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(0x2c00, hud.Tiles[26] & 0x3c00,
         "Secret HUD override reveals cartridge secret-only cell as unentered");
     overrideSystem.MarkExploredMapTile(AreaId.Crateria, new(secretHudX, secretHudY));
-    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(0x2800, hud.Tiles[26] & 0x3c00,
         "Secret HUD keeps entered secret cell visually distinct");
     AssertEqual(0x2c00, hud.Tiles[27] & 0x3c00,
         "Secret HUD leaves override-only public cell unentered");
-    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.None, PresentationMap = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(bus, overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.None, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual((ushort)MapTileWords.HudBlank, hud.Tiles[27],
         "returning HUD override to None immediately hides unentered public cell");
     AssertTrue(!overrideSystem.HasAreaMap(AreaId.Crateria),
@@ -258,7 +258,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     ResetFixtureMapStationBitsToSingleTile(bus, new(rightPageNeighborX, rightPageCenterY));
     var rightPageSystem = new Bank80SystemState();
     rightPageSystem.SetAreaMapAcquired(AreaId.Crateria);
-    hud.UpdateMinimap(bus, rightPageSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(34, 18), RoomSize = new(2 * 16, 16), Samus = new(0x0080, 0x0080), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria) });
+    hud.UpdateMinimap(bus, rightPageSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(34, 18), RoomSize = new(2 * 16, 16), Samus = new(0x0080, 0x0080), NmiFrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(new Position16<MapTiles>(34, rightPageCenterY), hud.MinimapCenter, "right-page minimap absolute tile");
     AssertEqual(0x2e63, hud.Tiles[61],
         "right-page minimap reads the same eastern cell as pause map");
@@ -292,7 +292,7 @@ internal static void VerifyHudStateAndBg3Rendering()
 /// <summary>Reads the synthetic Crateria map tile before a fixture temporarily replaces it.</summary>
 [CpuBusBoundary("exact bus test: reads a seeded bank-$B5 area-map tilemap word back from the synthetic cartridge fixture to restore it")]
 static ushort ReadFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile) =>
-    SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+    SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
         0xb58000 + AreaMapLayout.GetTilemapWordIndex(tile) * 2);
 
 /// <summary>Overwrites the synthetic Crateria bank-$B5 area-map tilemap word at <paramref name="tile"/>.</summary>
@@ -1243,7 +1243,7 @@ internal static void VerifyHostRoomViewportAlignment()
 
 /// <summary>The native first pre-scaled power-bomb profile's half width for <paramref name="row"/> at $88:9F06.</summary>
 [CpuBusBoundary("exact bus test: retail ROM oracle for the first pre-scaled power-bomb window profile")]
-static int ReadRetailPowerBombPreScaledHalfWidth(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, int row) =>
+static int ReadRetailPowerBombPreScaledHalfWidth(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, int row) =>
     rom.ReadCartridgeByte(0x889f06 + row);
 
 /// <summary>
@@ -1280,7 +1280,7 @@ internal static void VerifyPowerBombColorMathWindow()
 
     const ushort centerX = 100;
     const ushort centerY = 100;
-    var explosion = new SamusPowerBombExplosionState { PresentationColors = SuperMetroid.Core.Samus.Artwork.PowerBombFixedColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.PowerBombFixedColorExtractor.Extract(bus))) };
+    var explosion = new SamusPowerBombExplosionState { PresentationColors = SuperMetroid.Core.Samus.Artwork.PowerBombFixedColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.PowerBombFixedColorExtractor.Extract(bus))) };
     explosion.Arm();
     explosion.Spawn(new(centerX, centerY));
 

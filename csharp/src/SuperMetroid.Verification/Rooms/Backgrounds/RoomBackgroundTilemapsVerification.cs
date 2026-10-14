@@ -3,9 +3,10 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 using SuperMetroid.Verification.Harness;
 
@@ -27,7 +28,7 @@ internal static class RoomBackgroundTilemapsVerification
             "one tilemap resource per distinct retail compressed background source");
         foreach (int source in sources)
         {
-            byte[] native = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), source);
+            byte[] native = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), source);
             RoomBackgroundTilemapAtlas atlas = RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(files[RoomBackgroundTilemapFormat.SourceFileName(source)],
                     writable: false), native.Length);
@@ -38,7 +39,7 @@ internal static class RoomBackgroundTilemapsVerification
         var compiled = new Dictionary<int, RoomBackgroundTilemapAtlas>();
         foreach (int source in sources)
         {
-            byte[] native = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), source);
+            byte[] native = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), source);
             compiled.Add(source, RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(files[RoomBackgroundTilemapFormat.SourceFileName(source)],
                     writable: false), native.Length));
@@ -55,7 +56,7 @@ internal static class RoomBackgroundTilemapsVerification
         AssertTrue(nativeVram.ImageEquals(selectedVram),
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
 
-        byte[] original = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), ceresSource);
+        byte[] original = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), ceresSource);
         JsonNode edited = JsonNode.Parse(files[RoomBackgroundTilemapFormat.SourceFileName(ceresSource)])
             ?? throw new InvalidDataException("Ceres background JSON is empty.");
         JsonNode firstCell = edited.Required("pages").Required(0).Required("cells").Required(0);

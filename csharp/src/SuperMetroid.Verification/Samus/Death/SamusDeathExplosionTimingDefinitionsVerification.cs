@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Samus.Abilities.SamusSpecialStatesVerific
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Death;
 using SuperMetroid.Verification.Harness;
 

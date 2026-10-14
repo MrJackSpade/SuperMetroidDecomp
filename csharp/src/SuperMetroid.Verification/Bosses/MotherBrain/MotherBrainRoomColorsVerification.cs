@@ -21,7 +21,7 @@ internal static class MotherBrainRoomColorsVerification
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
         MotherBrainRoomColorPresentation extracted = MotherBrainRoomColorPresentation.Load(
-            new MemoryStream(SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom),
+            new MemoryStream(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom),
                 writable: false));
         Seed(nativeCgram);
         Seed(installedCgram);

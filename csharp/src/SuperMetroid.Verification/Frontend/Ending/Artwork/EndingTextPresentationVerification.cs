@@ -5,10 +5,10 @@ using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
 
@@ -20,12 +20,12 @@ internal static class EndingTextPresentationVerification
     internal static void VerifyEndingTextPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        byte[] extracted = SuperMetroid.AssetExtraction.EndingTextExtractor.Extract(nativeBus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(nativeBus);
         EndingTextPresentation presentation = EndingTextPresentation.Load(
             new MemoryStream(extracted, writable: false));
-        byte[] fontPng = SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(nativeBus);
+        byte[] fontPng = SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(nativeBus);
         EndingFontAtlas font = EndingFontAtlas.Load(new MemoryStream(fontPng, writable: false));
-        byte[] nativeFont = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(nativeBus),
+        byte[] nativeFont = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(nativeBus),
             EndingCreditsRomData.Assets.EndingFontCharacters,
             EndingCreditsRomData.Rendering.Mode7Bytes);
         AssertTrue(font.Transfer.Span.SequenceEqual(
@@ -134,7 +134,7 @@ internal static class EndingTextPresentationVerification
         string overrideDirectory,
         AreaMapPresentationCatalog stockCatalog)
     {
-        byte[] deterministic = SuperMetroid.AssetExtraction.EndingTextExtractor.Extract(bus);
+        byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, EndingTextDefinitions.FileName))),
             "installed ending text is the deterministic cartridge extraction");
@@ -164,7 +164,7 @@ internal static class EndingTextPresentationVerification
         string overrideDirectory,
         AreaMapPresentationCatalog stockCatalog)
     {
-        byte[] deterministic = SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(bus);
+        byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, EndingFontAtlasFormat.FileName))),
             "installed ending font is the deterministic cartridge extraction");

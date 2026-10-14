@@ -3,12 +3,12 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleFixtureVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleSequenceRomDataVerification;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 
@@ -25,11 +25,11 @@ internal static class TitleSnapshotTestsVerification
 
         static void Verify(byte[] rom, string source)
         {
-            var sourceBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+            var sourceBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
             TitleGradientPresentation gradient = TitleGradientPresentation.Load(
                 new MemoryStream(TitleGradientExtractor.Extract(sourceBus), writable: false));
             var scene = CreateTitleFixture(sourceBus, titleGradientPresentation: gradient);
-            var control = CreateTitleFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom),
+            var control = CreateTitleFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom),
                 titleGradientPresentation: gradient);
             var phases = new HashSet<TitleSequencePhase>();
             int comparisons = 0;

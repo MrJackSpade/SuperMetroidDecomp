@@ -14,12 +14,12 @@ internal static class RetailEndingTests
         int samples = 0;
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
-            var leftBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom); var rightBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+            var leftBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom); var rightBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
             var leftAudio = new CartridgeAudioState(); var rightAudio = new CartridgeAudioState();
             var legacy = InstalledFixtures.CreateEnding(leftBus, leftAudio, hours, 59);
             var captured = InstalledFixtures.CreateEnding(rightBus, rightAudio, hours, 59);
             var credits = CreditsPresentation.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(leftBus)));
+                SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(leftBus)));
             legacy.BindStaffCredits(credits);
             captured.BindStaffCredits(credits);
             var phases = new HashSet<EndingCreditsPhase>();

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 

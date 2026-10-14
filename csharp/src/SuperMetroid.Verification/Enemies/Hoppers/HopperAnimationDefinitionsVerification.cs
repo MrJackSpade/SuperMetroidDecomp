@@ -1,13 +1,13 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.LookupStream3Verification;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Hoppers;
 using SuperMetroid.Verification.Harness;
 

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProgramMappingsVerification;
@@ -9,6 +8,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;

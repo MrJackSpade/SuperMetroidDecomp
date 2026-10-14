@@ -24,7 +24,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
     internal static void VerifyGameplayCaptureIntegration()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
@@ -82,8 +82,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
 
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
-        var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
-        var packets = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
+        var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
+        var packets = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
         legacy.BindArtwork(legacy.Artwork with
         {
             MapPresentation = presentation,

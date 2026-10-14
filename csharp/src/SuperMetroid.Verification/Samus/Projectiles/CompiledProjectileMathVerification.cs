@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.WordSamplesVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -11,6 +10,7 @@ using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Enemies;
 

@@ -1,9 +1,7 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareCompositionsVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
@@ -17,6 +15,8 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 

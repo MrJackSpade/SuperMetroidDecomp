@@ -22,7 +22,7 @@ internal static class FileSelectPresentationVerification
         AreaMapPresentationCatalog original)
     {
         string stockPath = Path.Combine(stock, FileSelectPresentationDefinitions.FileName);
-        byte[] extracted = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed file-select JSON is the deterministic cartridge extraction");
         _ = FileSelectPresentation.Load(new MemoryStream(extracted));

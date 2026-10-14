@@ -13,14 +13,14 @@ internal static class AndroidFileImport
     {
         if (slot == DebuggerStateFormat.AutomaticSlot)
             return "The auto slot is reserved for door transitions. Choose a numbered slot (0-9) to import a state.";
-        var installation = new SuperMetroid.AssetExtraction.GameInstallation(root);
+        var installation = new SuperMetroid.AssetExtraction.Installation.GameInstallation(root);
         var maps = installation.LoadMaps();
         var projectiles = installation.LoadProjectiles();
-        var contentIdentity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(
+        var contentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
             installation.LoadAudio(),
             maps,
             projectiles,
-            SuperMetroid.AssetExtraction.InstalledArtworkIdentity.Create(installation.LoadGameArtwork(maps, projectiles)));
+            SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(installation.LoadGameArtwork(maps, projectiles)));
         return ImportStateCore(
             root,
             source,
@@ -59,7 +59,7 @@ internal static class AndroidFileImport
     /// <summary>Stages and fully validates an installed-game save without a cartridge payload.</summary>
     public static string StageRegularSave(string root, string source) =>
         StageRegularSaveCore(root, source, SuperMetroidAddressSpace.CreateWithoutCartridge(),
-            new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps());
+            new SuperMetroid.AssetExtraction.Installation.GameInstallation(root).LoadMaps());
 
     /// <summary>Applies an imported save to a temporary ROM-free bus before publishing a pending file.</summary>
     private static string StageRegularSaveCore(

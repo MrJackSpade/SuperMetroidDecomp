@@ -1,9 +1,9 @@
 using static SuperMetroid.Verification.Enemies.ShotCallbackDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rom;
 using System.Text.RegularExpressions;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 

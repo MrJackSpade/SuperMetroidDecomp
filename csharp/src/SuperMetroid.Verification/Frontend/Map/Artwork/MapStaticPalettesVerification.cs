@@ -27,9 +27,9 @@ internal static class MapStaticPalettesVerification
     {
         var guard = NewMapDataGuard(bus, rules);
         var palette = new SnesCgram();
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(palette, bus, MapStaticPalettesRomData.PausePalette);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, MapStaticPalettesRomData.PausePalette);
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.Pause), "all static pause colors match cartridge");
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(palette, bus, FileSelectMapRomData.EntryPalette);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(palette, bus, FileSelectMapRomData.EntryPalette);
         AssertTrue(palette.Colors.SequenceEqual(original.Palettes.FileSelect), "all static file-select colors match cartridge");
         var nativeWorld = new FileSelectAreaMapGraphics(bus, 0, original.Tiles,
             original.Palettes, original.Screens, original.WorldArtwork, original.Sprites);
@@ -84,7 +84,7 @@ internal static class MapStaticPalettesVerification
             AssertEqual(color is 14 or 30 ? Bgr555.Black : edited.Palettes.FileSelect[color], entry.Cgram.Colors[color], "ongoing fade reaches newly bound palette target");
 
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
-        SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
+        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "static palette override survives stock replacement");
         AssertTrue(replacementBytes.SequenceEqual(File.ReadAllBytes(path)), "static palette overrides are not rewritten");
         var badColor = document.Pause.ToArray(); badColor[0] = badColor[0] with { Blue = -1 };

@@ -633,7 +633,7 @@ internal static class CollectiblesVerification
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (File.Exists(romPath))
         {
-            var retailBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(File.ReadAllBytes(romPath));
+            var retailBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(File.ReadAllBytes(romPath));
             for (byte messageId = 1; messageId <= 26; messageId++)
             {
                 var retailMessage = CreateGameplayMessageFixture();
@@ -665,7 +665,7 @@ internal static class CollectiblesVerification
     {
         TestAddressSpace bus = CreateSuitPickupCartridge();
         SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
-            new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+            new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
         Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory(bus, suitColors));
         var cgram = new SnesCgram();
         var samus = new SamusState

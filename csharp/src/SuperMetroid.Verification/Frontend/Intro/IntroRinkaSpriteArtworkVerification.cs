@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
@@ -10,6 +9,7 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 

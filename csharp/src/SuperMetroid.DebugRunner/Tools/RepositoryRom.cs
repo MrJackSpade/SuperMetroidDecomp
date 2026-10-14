@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>The repository ROM the developer tools read.</summary>
 internal static class RepositoryRom

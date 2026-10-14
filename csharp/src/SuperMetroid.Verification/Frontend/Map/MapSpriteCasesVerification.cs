@@ -1,9 +1,7 @@
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpriteNamesVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
@@ -13,6 +11,8 @@ using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 

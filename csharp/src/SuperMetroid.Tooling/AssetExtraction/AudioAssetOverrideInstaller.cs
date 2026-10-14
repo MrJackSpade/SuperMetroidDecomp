@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>

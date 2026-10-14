@@ -7,6 +7,9 @@ using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerifi
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 

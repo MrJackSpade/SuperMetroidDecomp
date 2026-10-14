@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHead
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 

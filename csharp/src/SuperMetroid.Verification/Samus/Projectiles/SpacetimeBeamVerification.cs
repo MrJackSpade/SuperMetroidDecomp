@@ -19,6 +19,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -166,7 +167,7 @@ internal static class SpacetimeBeamVerification
     /// <summary>Checks each byte in the bounded copy source against the supported ROM before replaying the beam.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the bounded SpaceTime copy-source definition")]
     private static void VerifySpacetimeCopySourceAgainstRetailRom(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         AssertEqual(SpacetimeBeamCopyDefinitions.LastSourceAddress - SpacetimeBeamCopyDefinitions.FirstSourceAddress + 1,
             SpacetimeBeamCopyDefinitions.SourceBytes.Length, "bounded native copy definition size");
@@ -344,7 +345,7 @@ internal static class SpacetimeBeamVerification
 
     /// <summary>Checks the SpaceTime graphics pointers against their native table words and returns the native tiles.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the SpaceTime adjacent-table graphics pointers and tiles")]
-    private static byte[] ReadRetailSpacetimeGraphicsOracle(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
+    private static byte[] ReadRetailSpacetimeGraphicsOracle(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         AssertEqual(SpacetimeBeamGraphicsDefinitions.TileSource & 0xffff,
             bus.ReadCartridgeWord(0x90c3cd),

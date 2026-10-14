@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
@@ -12,6 +11,7 @@ using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 

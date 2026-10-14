@@ -1,6 +1,5 @@
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallPlmsVerification;
@@ -10,6 +9,9 @@ using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Verification.Harness;
 

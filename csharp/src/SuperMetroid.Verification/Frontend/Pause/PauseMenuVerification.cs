@@ -33,7 +33,7 @@ internal static class PauseMenuVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyPauseMenuEquipmentInteraction()
     {
-        var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
+        var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
 
         // Area zero's pause map is a literal 64x32 tilemap at $B5:9000, and its area label
         // uses a harmless zero-filled bank-$82 source. The visual bytes may remain zero for
@@ -94,7 +94,7 @@ internal static class PauseMenuVerification
 
         var gameplayVram = new SnesVram();
         gameplayVram.ExecuteWordTransfer([0x0001], 0x5800, 1);
-        var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var presentation = CreateConstructedPausePresentation(bus);
         var samus = new SamusState
         {
@@ -196,7 +196,7 @@ internal static class PauseMenuVerification
         var resumeRuntime = CreateRetailRuntimeFixture(bus);
         // Keep the fixture's distinctive Wave sheet and palette through the real
         // installed transfer queue; no synthetic native DMA fallback is involved.
-        var beamFiles = SuperMetroid.AssetExtraction.BeamTileExtractor.Extract(
+        var beamFiles = SuperMetroid.AssetExtraction.Samus.BeamTileExtractor.Extract(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         byte[] wavePlanar = Enumerable.Range(0, 256).Select(index => unchecked((byte)(0x40 + index))).ToArray();
         byte[] wavePixels = SnesGraphics.DecodePlanarTiles(wavePlanar, 4,
@@ -287,7 +287,7 @@ internal static class PauseMenuVerification
     /// <summary>Seeds a three-byte SNES pointer in the constructed pause-menu cartridge fixture.</summary>
     private static void WriteRomLong(byte[] rom, int snesAddress, int value)
     {
-        int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
+        int offset = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
         rom[offset] = unchecked((byte)value);
         rom[offset + 1] = SnesLittleEndian.HighByte(unchecked((ushort)value));
         rom[offset + 2] = SnesLittleEndian.BankByte(value);
@@ -295,7 +295,7 @@ internal static class PauseMenuVerification
 
     /// <summary>Seeds one cartridge byte at a mapped SNES address in the pause fixture.</summary>
     private static void WriteRomByte(byte[] rom, int snesAddress, byte value) =>
-        rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
+        rom[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
 
     /// <summary>Runs the constructed pause equipment and map interaction fixture.</summary>
     [VerificationCommand("--pause-equipment-interaction-fixture")]

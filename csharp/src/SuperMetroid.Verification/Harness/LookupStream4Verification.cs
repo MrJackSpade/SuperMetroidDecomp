@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeExplosionDefinitionsVerification;
 using System.Runtime.CompilerServices;
-using SuperMetroid.Core.Rom;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -61,6 +60,14 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.AssetExtraction.Bosses.Ridley;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>
@@ -322,7 +329,7 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending font character data")]
     internal static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
     {
-        byte[] decoded = SuperMetroid.Core.Rom.RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom),
+        byte[] decoded = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom),
             0x97E7DE, EndingCreditsRomData.Rendering.Mode7Bytes);
         byte[] native = decoded.AsSpan(0, 160 * 32).ToArray();
         byte[] png = EndingFontAtlasExtractor.Extract(rom);
@@ -918,8 +925,8 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Spore Spawn level-fade palette")]
     internal static void VerifyLookupStream4SporeLevelFade(ISnesAddressSpace rom)
     {
-        byte[] palette = SuperMetroid.Core.Rom.RomDataReader.Decompress(
-            SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
+        byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
         Bgr555[] basis = SporeSpawnDeathColorDefinitions.InitialRoomLevelColors;
         AssertEqual(12, basis.Length, "Level fade retains twelve required original room-color sites");
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
@@ -989,8 +996,8 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Spore Spawn background-fade palette")]
     internal static void VerifyLookupStream4SporeBackgroundFade(ISnesAddressSpace rom)
     {
-        byte[] palette = SuperMetroid.Core.Rom.RomDataReader.Decompress(
-            SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
+        byte[] palette = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
         Bgr555[] basis = SporeSpawnDeathColorDefinitions.InitialRoomBackgroundColors;
         AssertEqual(13, basis.Length, "Background fade retains exactly thirteen required original room-color sites");
         foreach (int color in Enumerable.Range(1, 11).Concat(new[] { 14, 15 }))

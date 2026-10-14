@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Fx.LookupFxTilemapSourcesVerification;
 using static SuperMetroid.Verification.Rooms.TilemapJsonContractsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Fx;
 

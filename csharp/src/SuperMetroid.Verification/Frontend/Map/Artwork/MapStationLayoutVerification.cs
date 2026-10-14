@@ -2,12 +2,12 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 
@@ -82,7 +82,7 @@ internal static class MapStationLayoutVerification
         AssertTrue(before.SequenceEqual(Enumerable.Range(0, before.Length)
             .Select(i => state.GetExploredMapByteRaw(AreaId.Brinstar, i)).ToArray()), "layout render/rebind preserves exploration bytes");
         string rebuilt = Path.Combine(overrides, "rebuilt");
-        SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
+        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "station override survives stock replacement");
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(replacement)), "station override bytes preserved");
         string rebuiltStations = Path.Combine(rebuilt, MapStationLayoutFormat.FileName);

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Hardware;
 
@@ -33,10 +34,10 @@ internal static class DmaSourceRoutingVerification
         AssertEqual((byte)0x66, vram.ReadByte(5), "DMA reads SRAM high byte");
 
         var cgram = new SnesCgram();
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x80ffff, colorCount: 1);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x80ffff, colorCount: 1);
         AssertEqual((ushort)0x3322, cgram.Colors[0],
             "CGRAM word straddles cartridge and WRAM mirror");
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x700010, colorCount: 1, destinationIndex: 1);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x700010, colorCount: 1, destinationIndex: 1);
         AssertEqual((ushort)0x6655, cgram.Colors[1], "CGRAM reads SRAM word");
 
         AssertEqual(1, source.CartridgeReads, "only import-time palette transfer reads cartridge");
@@ -46,7 +47,7 @@ internal static class DmaSourceRoutingVerification
             () => vram.ExecuteQueuedMemoryWrite(source, 0x806000, 1, 0),
             "VRAM rejects unmapped expansion source");
         AssertThrows<InvalidOperationException>(
-            () => SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x802000, colorCount: 1),
+            () => SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x802000, colorCount: 1),
             "CGRAM rejects unmapped hardware source");
 
         Console.WriteLine("  PPU DMA sources: runtime rejects ROM, importer resolves ROM/WRAM wrap, and SRAM uses typed routes.");

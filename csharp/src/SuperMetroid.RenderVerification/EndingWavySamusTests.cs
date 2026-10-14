@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>Checks post-credits Samus wave HDMA, color addition, and serialized rendering.</summary>
 internal static class EndingWavySamusTests
@@ -111,6 +112,6 @@ internal static class EndingWavySamusTests
 
     /// <summary>Reads a signed native sine sample used by the independent wave-scroll calculation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending wave sine table at $A0:B443")]
-    private static short NativeWaveSample(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, int offset) =>
+    private static short NativeWaveSample(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, int offset) =>
         unchecked((short)rom.ReadCartridgeWord(0xa0b443 + offset));
 }

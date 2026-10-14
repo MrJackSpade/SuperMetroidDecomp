@@ -1,8 +1,8 @@
 using System.Reflection;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 

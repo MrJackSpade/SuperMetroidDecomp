@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Frontend.Ending.EndingCloudPlacementVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingExplosionSlotOrderVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingRewardGestureVerification;
@@ -9,6 +8,7 @@ using static SuperMetroid.Verification.Rendering.ObjSubscreenVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 

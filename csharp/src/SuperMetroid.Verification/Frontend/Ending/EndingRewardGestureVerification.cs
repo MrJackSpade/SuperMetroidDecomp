@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Frontend.Ending.EndingCloudMotionVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingPostShotVerification;
@@ -8,6 +7,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 

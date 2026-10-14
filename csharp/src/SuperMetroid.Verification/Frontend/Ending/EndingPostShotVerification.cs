@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoTablesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -19,18 +19,18 @@ internal static class EndingPostShotVerification
         Suite(nameof(VerifyEndingPostShotTransferFields), () => VerifyEndingPostShotTransferFields(bus));
         var guardedBus = NewPostShotUploadTableReadGuard(bus);
         var cgram = new SnesCgram();
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, 0x8ce7e9);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, bus, 0x8ce7e9);
         Bgr555[] initial = cgram.Colors.ToArray();
         var vram = new SnesVram();
         var expected = Enumerable.Repeat((byte)0xa5, SnesVram.ByteCount).ToArray();
         vram.LoadBytes(0, expected);
-        byte[] font = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), 0x97e7de, 0x8000);
+        byte[] font = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x97e7de, 0x8000);
         using var fontPng = new MemoryStream(
-            SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(bus), writable: false);
+            SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(bus), writable: false);
         EndingFontAtlas fontAtlas = EndingFontAtlas.Load(fontPng);
         var shot = new EndingPostShot(guardedBus, cgram, fontAtlas, RepositoryInstallation.Installation.LoadEndingObjectArt());
-        byte[] tiles = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), 0x99e089, 0x8000);
-        byte[] map = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), 0x99ecc4, 0x8000);
+        byte[] tiles = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99e089, 0x8000);
+        byte[] map = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99ecc4, 0x8000);
         for (int frame = 1; frame <= 216; frame++)
         {
             shot.Step(vram, cgram);

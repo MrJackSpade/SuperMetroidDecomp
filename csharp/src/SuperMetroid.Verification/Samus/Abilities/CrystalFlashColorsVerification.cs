@@ -1,13 +1,13 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Samus.Abilities;
 
@@ -20,7 +20,7 @@ internal static class CrystalFlashColorsVerification
     internal static void VerifyCrystalFlashColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
-        byte[] extracted = SuperMetroid.AssetExtraction.CrystalFlashColorExtractor.Extract(rom);
+        byte[] extracted = SuperMetroid.AssetExtraction.Samus.CrystalFlashColorExtractor.Extract(rom);
         CrystalFlashColorCatalog native = CrystalFlashColorCatalog.Load(
             new MemoryStream(extracted, writable: false));
         for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
@@ -115,7 +115,7 @@ internal static class CrystalFlashColorsVerification
             Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
             "crystal-color-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
-        SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
+        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
         AreaMapPresentationCatalog afterRepair = AreaMapPresentationCatalog.Load(
             replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity,

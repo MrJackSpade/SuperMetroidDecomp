@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.WordSamplesVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Enemies;
 

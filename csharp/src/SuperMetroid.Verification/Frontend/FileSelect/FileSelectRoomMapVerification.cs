@@ -4,7 +4,6 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -14,6 +13,7 @@ using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 
@@ -38,7 +38,7 @@ internal static class FileSelectRoomMapVerification
         {
             AreaId area = (AreaId)areaIndex;
             var system = new Bank80SystemState();
-            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area);
+            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
             byte[] original = map.RawTilemapBytes.ToArray();
             // Deliberately cross both native pages and explore cells outside the map
             // station's mask: explored cells win, even for secret rooms.
@@ -172,7 +172,7 @@ internal static class FileSelectRoomMapVerification
         paletteJson.Position = 0;
         animations.BindPalette(MapPaletteCycle.Load(paletteJson));
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(retail);
+        var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(retail);
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
@@ -244,7 +244,7 @@ internal static class FileSelectRoomMapVerification
         using var stationJson = new MemoryStream();
         MapStationLayout.Write(stationJson, new() { Version = 1, Markers = stations });
         stationJson.Position = 0;
-        var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(bus);
+        var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(bus);
         var document = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (ushort id in new ushort[] { 9, 0x62, 0x0b, 0x59, 0x5b, 0x5d })
         {
@@ -434,7 +434,7 @@ internal static class FileSelectRoomMapVerification
     private static void VerifyFileSelectMapScroll()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AreaMapCartridgeData map = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria);
+        AreaMapCartridgeData map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria);
         var system = new Bank80SystemState();
         system.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         system.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
@@ -480,13 +480,13 @@ internal static class FileSelectRoomMapVerification
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var positions = RequiredJson.Deserialize<MapSaveMarkerDocument>(
-            SuperMetroid.AssetExtraction.MapSaveMarkerExtractor.Extract(bus), options);
+            SuperMetroid.AssetExtraction.Frontend.Map.MapSaveMarkerExtractor.Extract(bus), options);
         positions.Markers[MapSaveMarkerDefinitions.Id(AreaId.Crateria, 0)] = new(100, 80);
         using var positionJson = new MemoryStream();
         MapSaveMarkerLayout.Write(positionJson, positions);
         positionJson.Position = 0;
         var layout = MapSaveMarkerLayout.Load(positionJson);
-        var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(bus);
+        var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(bus);
         var document = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         // Preserve the original fixture's one-part (-2,-3) sprite and priority three.
         foreach (ushort id in new ushort[] { 0x12, 0x5f, 0x60, 0x61 })

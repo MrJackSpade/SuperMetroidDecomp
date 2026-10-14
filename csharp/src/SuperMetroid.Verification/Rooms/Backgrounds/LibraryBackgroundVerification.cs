@@ -5,12 +5,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundProgramsVerification;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 using SuperMetroid.Verification.Harness;
 
@@ -51,7 +52,7 @@ internal static void VerifyLibraryBackgroundSourceInventory()
         .Where(source => source.Command == LibraryBackgroundCommand.DecompressToWorkRam)
         .Select(source => source.SourceAddress).Distinct())
         RoomBackgroundTilemapFormat.ValidatePageCount(
-            RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), source).Length);
+            RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), source).Length);
     VerifyKraidLibraryHudArtwork(bus, romTransfers);
     Console.WriteLine($"  Library BG inventory: {sources.Count} source operands, " +
         $"{listCount} source-bearing lists, {compressedCount} distinct compressed sources, " +
@@ -120,13 +121,13 @@ static void VerifyKraidLibraryHudArtwork(
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 internal static void VerifyLibraryBackgroundLoader()
 {
-    var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
+    var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
 
     // Fixture list mirrors Ceres $8F:E4A5: decompress a four-byte tilemap to $7E:4000,
     // copy it to both BG2 screen pages, then terminate. The compressed stream begins at
     // $90:8000 and consists of one four-byte literal followed by $FF.
     byte[] compressed = [0x03, 0x11, 0x22, 0x33, 0x44, 0xff];
-    int compressedOffset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0x908000);
+    int compressedOffset = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(0x908000);
     compressed.CopyTo(rom, compressedOffset);
 
     ushort cursor = 0xe000;
@@ -143,7 +144,7 @@ internal static void VerifyLibraryBackgroundLoader()
     WriteLibraryWord(rom, cursor, 0x0004); cursor += 2;
     WriteLibraryWord(rom, cursor, 0x0000);
 
-    var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+    var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     var vram = new SnesVram();
     LibraryBackgroundExecutionResult result =
         SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, vram, 0xe000, activeDoorPointer: 0);
@@ -172,7 +173,7 @@ internal static void VerifyLibraryBackgroundLoader()
     // both pages with the native blank tile rather than relying on a fresh host array.
     WriteLibraryWord(rom, 0xe040, 0x000a);
     WriteLibraryWord(rom, 0xe042, 0x0000);
-    bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+    bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     vram = new SnesVram();
     vram.ExecuteWordTransfer([0xffff], 0x4800, 1);
     LibraryBackgroundLoader.ExecuteProgram(bus, vram, SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.Read(bus, 0xe040), activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork());
@@ -191,7 +192,7 @@ internal static void VerifyLibraryBackgroundLoader()
 private static void VerifyLibraryBackgroundBankEndWrap(byte[] rom)
 {
     WriteLibraryByte(rom, 0xffff, 0);
-    var wrappedBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+    var wrappedBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     wrappedBus.WriteByte(0x8f0000, 0);
     var wrapped = new LibraryBackgroundTypedReadGuard(wrappedBus);
     _ = SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(
@@ -253,7 +254,7 @@ private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
 /// <summary>Places a fixture command byte at the LoROM offset addressed through bank $8F.</summary>
 private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
 {
-    int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0x8f0000 | pointer);
+    int offset = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(0x8f0000 | pointer);
     rom[offset] = value;
 }
 

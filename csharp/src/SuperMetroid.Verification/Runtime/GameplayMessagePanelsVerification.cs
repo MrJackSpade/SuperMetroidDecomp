@@ -18,7 +18,7 @@ internal static class GameplayMessagePanelsVerification
     internal static void VerifyGameplayMessagePanels(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        byte[] extracted = SuperMetroid.AssetExtraction.GameplayMessagePanelExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayMessagePanelExtractor.Extract(bus);
         GameplayMessagePanelPresentation stock = GameplayMessagePanelPresentation.Load(
             new MemoryStream(extracted, writable: false));
 
@@ -80,7 +80,7 @@ internal static class GameplayMessagePanelsVerification
         string overrideDirectory,
         AreaMapPresentationCatalog stockCatalog)
     {
-        byte[] deterministic = SuperMetroid.AssetExtraction.GameplayMessagePanelExtractor.Extract(bus);
+        byte[] deterministic = SuperMetroid.AssetExtraction.Hud.GameplayMessagePanelExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, GameplayMessagePanelDefinitions.FileName))),
             "installed gameplay-message panels are the deterministic cartridge extraction");

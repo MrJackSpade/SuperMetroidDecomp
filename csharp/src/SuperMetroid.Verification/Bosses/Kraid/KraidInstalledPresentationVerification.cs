@@ -6,6 +6,8 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationRe
 using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationTailVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
 

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
@@ -10,6 +9,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Hud;
 
 /// <summary>Checks installed HUD artwork against native VRAM transfer bytes and rendered minimap pixels.</summary>

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map;
@@ -9,6 +8,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -65,7 +65,7 @@ internal static class MapAtlasVerification
         AssertTrue(menuBefore.SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "restored menu replaces stale modified atlas pixels");
         AssertTrue(pauseBefore.SequenceEqual(pause.Render()), "pause rebind restores exact stock atlas pixels");
         string rebuilt = Path.Combine(overrides, "stock-rebuilt");
-        SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
+        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "PNG override survives stock re-extraction");
         AssertTrue(replacementBytes.SequenceEqual(File.ReadAllBytes(replacement)), "PNG override bytes never rewritten");
         File.WriteAllText(replacement, "invalid PNG");

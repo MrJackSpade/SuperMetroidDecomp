@@ -2,7 +2,7 @@ using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
 /// Reproduces known extraction-preflight failures without running gameplay or

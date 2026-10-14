@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -65,7 +66,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
 
     /// <summary>Imports a ROM-shaped enemy header from the fixture's seeded bytes.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
-        SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(this, pointer);
+        SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(this, pointer);
 
     /// <summary>Decodes the bank-$A9 falling-tube population record of <paramref name="piece"/> from seeded words.</summary>
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(MotherBrainTubePiece piece)

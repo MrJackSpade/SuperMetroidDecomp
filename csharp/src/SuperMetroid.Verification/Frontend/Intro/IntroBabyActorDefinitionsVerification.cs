@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Input;
 using System.Reflection;
 using static SuperMetroid.Verification.Frontend.Intro.IntroBabyDiscoveryInputVerification;
@@ -9,6 +8,7 @@ using static SuperMetroid.Verification.Frontend.Intro.IntroScientistInstructions
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 

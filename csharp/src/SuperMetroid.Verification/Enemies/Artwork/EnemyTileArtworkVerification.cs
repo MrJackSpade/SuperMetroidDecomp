@@ -1,9 +1,7 @@
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Rooms.RoomEnemiesVerification;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using System.Text.Json;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoDormantDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeOverlayTilemapsVerification;
@@ -50,6 +48,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 
@@ -66,7 +66,7 @@ internal static class EnemyTileArtworkVerification
     private static SnesCgram LoadNativeEnemyPalette(ISnesAddressSpace bus, RoomEnemyDefinition definition)
     {
         var cgram = new SnesCgram();
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, ((int)new SnesAddress(definition.Bank, definition.PalettePointer)),
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, bus, ((int)new SnesAddress(definition.Bank, definition.PalettePointer)),
             EnemyPaletteSheet.ColorCount, destinationIndex: 8 * 16);
         return cgram;
     }
@@ -163,7 +163,7 @@ internal static class EnemyTileArtworkVerification
             {
                 EnemyDefinitionId pointer = EnemyDefinitionIds.FromHeaderPointer(
                     Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16));
-                RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, pointer);
+                RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus, pointer);
                 int byteCount = definition.TileDataSize & 0x7fff;
                 byte[] native = ReadNativeEnemyTiles(bus, definition, byteCount);
                 AssertTrue(stock.TryResolve(definition.TileDataAddress, byteCount,
@@ -183,7 +183,7 @@ internal static class EnemyTileArtworkVerification
             string editedFile = files[0];
             EnemyDefinitionId editedPointer = EnemyDefinitionIds.FromHeaderPointer(
                 Convert.ToUInt16(Path.GetFileName(editedFile).Substring(6, 4), 16));
-            RoomEnemyDefinition editedDefinition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, editedPointer);
+            RoomEnemyDefinition editedDefinition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus, editedPointer);
             int editedByteCount = editedDefinition.TileDataSize & 0x7fff;
             int tileCount = editedByteCount / RoomCharacterAtlasFormat.BytesPerTile;
             int columns = Math.Min(tileCount, RoomCharacterAtlasFormat.TileColumns);

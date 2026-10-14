@@ -12,11 +12,11 @@ public static class WordReadMatcher
     private static readonly string[] ByteMethods = ["ReadCartridgeByte", "ReadWorkRamByte", "ReadSaveRamByte"];
     /// <summary>Interfaces that identify a read as coming from supported memory rather than an unrelated helper.</summary>
     private static readonly string[] Sources =
-        ["SuperMetroid.Core.Hardware.IImportCartridgeSource", "SuperMetroid.Core.Hardware.ISnesMutableMemory"];
+        ["SuperMetroid.AssetExtraction.Cartridge.IImportCartridgeSource", "SuperMetroid.Core.Hardware.ISnesMutableMemory"];
 
     /// <summary>The canonical implementations, which compose the bytes themselves.</summary>
     public static readonly string[] CanonicalTypes =
-        ["SuperMetroid.Core.Hardware.SnesWordReads", "SuperMetroid.Core.Hardware.CartridgeWordReads", "SuperMetroid.Core.Hardware.CartridgeLongReads"];
+        ["SuperMetroid.Core.Hardware.SnesWordReads", "SuperMetroid.AssetExtraction.Cartridge.CartridgeWordReads", "SuperMetroid.Core.Hardware.CartridgeLongReads"];
 
     /// <summary>Matches the top of an OR (or plus) chain that rebuilds a word.</summary>
     public static WordReadMatch? Match(BinaryExpressionSyntax root, SemanticModel model)
@@ -166,7 +166,7 @@ public static class WordReadMatcher
     }
 
     /// <summary>The import extension that provides cartridge reads through an address space.</summary>
-    private const string AddressSpaceImportExtensions = "SuperMetroid.Core.Hardware.SnesCartridgeImportExtensions";
+    private const string AddressSpaceImportExtensions = "SuperMetroid.AssetExtraction.Cartridge.SnesCartridgeImportExtensions";
 
     /// <summary>Checks whether the byte method implements a recognized source interface member.</summary>
     private static bool OwnsByteRead(IMethodSymbol method)

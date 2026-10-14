@@ -323,6 +323,10 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.Fx;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Verification.Harness;
 

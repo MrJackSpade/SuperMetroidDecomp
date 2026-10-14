@@ -2,9 +2,10 @@ using SuperMetroid.Tooling;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Finite source-inventoried Samus PNG/JSON admission checks. These edit only copied

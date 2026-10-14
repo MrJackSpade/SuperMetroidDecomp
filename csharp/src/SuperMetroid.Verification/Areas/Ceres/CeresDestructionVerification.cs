@@ -1,13 +1,13 @@
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Frontend.FrontendVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +19,7 @@ internal static class CeresDestructionVerification
 [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
 internal static void VerifyCeresDestructionCinematic()
 {
-    var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
+    var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
 
     AssertEqual(SnesAngle.FromTableIndex(0x20), CeresDestructionRomData.Motion.ApproachAngle,
         "Ceres destruction typed approach angle");
@@ -190,7 +190,7 @@ internal static void WriteRepeatedCompressedStream(
 /// <summary>Writes one cartridge byte and advances across LoROM bank boundaries.</summary>
 static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
 {
-    rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
+    rom[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
     int offset = SnesAddressMath.OffsetInBank(snesAddress);
     snesAddress = offset == 0xffff
         ? (int)new SnesAddress(unchecked((byte)(SnesAddressMath.BankNumber(snesAddress) + 1)), 0x8000)

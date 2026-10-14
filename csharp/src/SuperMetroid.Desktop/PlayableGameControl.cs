@@ -10,11 +10,12 @@ using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
 using Microsoft.Win32;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Desktop;
 
@@ -26,7 +27,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Installed map art used for file loading and save-file migration.</summary>
     private SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog? mapPresentation;
     /// <summary>Installed projectile display data selected at session restart.</summary>
-    private SuperMetroid.AssetExtraction.InstalledProjectilePresentation? projectilePresentation;
+    private SuperMetroid.AssetExtraction.Samus.InstalledProjectilePresentation? projectilePresentation;
     /// <summary>Installed gameplay and frontend artwork rebound after debugger restores.</summary>
     private GameArtwork? artwork;
     /// <summary>Human-readable JSON save path in the player data directory.</summary>

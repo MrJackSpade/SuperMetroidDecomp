@@ -1,5 +1,4 @@
 using System.Reflection;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -9,6 +8,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 /// <summary>Checks the Bomb Torizo landing earthquake through the full frontend.</summary>
 internal static class TorizoLandingLifetimeVerification

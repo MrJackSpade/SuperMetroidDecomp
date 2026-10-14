@@ -1,9 +1,9 @@
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
+using SuperMetroid.AssetExtraction.Frontend;
 
 namespace SuperMetroid.Verification.Frontend.GameOver;
 

@@ -1,9 +1,9 @@
 using System.Text;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>Reads the retail room-FX records and renders the generated Core catalog that holds them.</summary>
 internal static class RoomFxRecordCatalogSource

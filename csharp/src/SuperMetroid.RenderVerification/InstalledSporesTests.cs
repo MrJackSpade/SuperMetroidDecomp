@@ -184,7 +184,7 @@ internal static class InstalledSporesTests
         foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
         {
             for (int index = 0; index < segment.ByteCount; index++)
-                Require(planar[segmentOffset + index] == SuperMetroid.Core.Hardware.SnesCartridgeImportExtensions.ReadCartridgeByte(rom, segment.SourceAddress + index),
+                Require(planar[segmentOffset + index] == SuperMetroid.AssetExtraction.Cartridge.SnesCartridgeImportExtensions.ReadCartridgeByte(rom, segment.SourceAddress + index),
                     $"Installed sheet segment ${segment.SourceAddress:X6} differs from its native bytes at +{index}.");
             segmentOffset += segment.ByteCount;
         }

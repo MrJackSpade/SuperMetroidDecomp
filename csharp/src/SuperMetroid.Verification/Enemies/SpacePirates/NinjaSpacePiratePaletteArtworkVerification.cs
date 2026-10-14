@@ -1,12 +1,12 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.SpacePirates;
 
@@ -19,7 +19,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
     internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
-        RoomEnemyDefinition shared = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus,
+        RoomEnemyDefinition shared = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus,
             EnemyDefinitionId.PirateGoldWall);
         AssertEqual(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,
             ((int)new SnesAddress(            shared.Bank, shared.PalettePointer)),

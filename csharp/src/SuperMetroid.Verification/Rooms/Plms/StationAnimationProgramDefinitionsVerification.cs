@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.Plms.LookupStationLayoutsVerification;
@@ -8,6 +7,7 @@ using static SuperMetroid.Verification.Rooms.Plms.StationAccessPlmDefinitionsVer
 using static SuperMetroid.Verification.Rooms.Plms.StationVisualsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 
@@ -18,7 +18,7 @@ internal static class StationAnimationProgramDefinitionsVerification
     internal static void VerifyStationAnimationProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+        AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Station animation oracle revision");
         Suite(nameof(VerifyStationVisualIds), () => VerifyStationVisualIds());
         Suite(nameof(VerifyStationAnimationDurations), () => VerifyStationAnimationDurations(rom));

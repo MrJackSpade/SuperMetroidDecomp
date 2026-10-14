@@ -1,5 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Areas.Ceres.CeresFlightArtworkVerification;
@@ -7,6 +6,7 @@ using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 

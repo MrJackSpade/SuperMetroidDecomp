@@ -82,11 +82,11 @@ internal static void VerifySamusDrainedController()
     InstallHyperBeamSuitPaletteFixture(bus);
     InstallHyperBeamProjectilePaletteProgramFixture(bus);
     var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     var rainbowColors = SamusHyperBeamColorCatalog.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.SamusHyperBeamColorExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.SamusHyperBeamColorExtractor.Extract(bus)));
     var projectileColors = HyperBeamFxColorCatalog.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.HyperBeamFxColorExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorExtractor.Extract(bus)));
     var drainedCgram = new SnesCgram();
 
     const int width = 8;

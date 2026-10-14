@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -8,6 +7,9 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -21,13 +23,13 @@ internal static class PostCreditsCharacterArtworkVerification
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
         EndingMode7ArtworkCatalog stockMode7 = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
-        var source = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var source = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         CreditsPresentation credits = CreditsPresentation.Load(new MemoryStream(
             CreditsPresentationExtractor.Extract(source)));
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
-            var nativeBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-            var guardedBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+            var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
+            var guardedBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
             var nativeAudio = new CartridgeAudioState();
             var installedAudio = new CartridgeAudioState();
             var native = CreateRetailEndingFixture(nativeBus, nativeAudio, hours, 0);
@@ -193,8 +195,8 @@ internal static class PostCreditsCharacterArtworkVerification
                         image.Palette);
                 }
                 EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
-                var stockBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-                var editedBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+                var stockBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
+                var editedBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var stockAudio = new CartridgeAudioState();
                 var editedAudio = new CartridgeAudioState();
                 var stockState = CreateRetailEndingFixture(stockBus, stockAudio, hours, 0);

@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefini
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Rooms.LevelData;
 

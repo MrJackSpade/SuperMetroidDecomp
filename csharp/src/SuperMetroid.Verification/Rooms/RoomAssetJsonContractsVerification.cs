@@ -5,6 +5,9 @@ using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.TilemapJsonContractsVerification;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 

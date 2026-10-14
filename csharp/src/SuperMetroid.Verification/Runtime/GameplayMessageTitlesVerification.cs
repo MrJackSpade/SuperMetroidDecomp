@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 
@@ -16,7 +17,7 @@ internal static class GameplayMessageTitlesVerification
     internal static void VerifyGameplayMessageTitles(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        byte[] extracted = SuperMetroid.AssetExtraction.GameplayMessageTitleExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayMessageTitleExtractor.Extract(bus);
         GameplayMessageTitlePresentation stock = GameplayMessageTitlePresentation.Load(
             new MemoryStream(extracted, writable: false));
 

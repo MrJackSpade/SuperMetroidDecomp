@@ -1,14 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 using SuperMetroid.Game;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Spatial;
 
 using static DesktopVerificationSupport;
 
@@ -122,7 +120,7 @@ internal static class DesktopTimerSoakTests
     }
 
     /// <summary>Creates a gameplay or paused debugger slot for the desktop timer run.</summary>
-    private static void CreateDesktopSoakSeed(SuperMetroid.AssetExtraction.GameInstallation installation,
+    private static void CreateDesktopSoakSeed(SuperMetroid.AssetExtraction.Installation.GameInstallation installation,
         SuperMetroidGameOptions options, bool paused)
     {
         var bus = installation.OpenRuntimeAddressSpace();
@@ -138,7 +136,7 @@ internal static class DesktopTimerSoakTests
         Step(0);
         if (paused) Step((ushort)SnesButton.Start);
         for (int warmup = 0; warmup < 120; warmup++) Step(0);
-        var identity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(installation.LoadAudio(),
+        var identity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(installation.LoadAudio(),
             installation.LoadMaps(), installation.LoadProjectiles());
         DebuggerSaveStateStore.ForInstalledGame(installation.Root, options, identity).Save(0, bus, game);
     }

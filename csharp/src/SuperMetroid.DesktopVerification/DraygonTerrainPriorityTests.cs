@@ -3,12 +3,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>Checks Draygon's native BG2 tilemap words and the visible priority where its body overlaps terrain.</summary>
 internal static class DraygonTerrainPriorityTests
 {
     /// <summary>The repository ROM, the independent source of Draygon's authored tilemap words.</summary>
-    private static readonly Lazy<SuperMetroid.AssetExtraction.CartridgeImportAddressSpace> draygonReferenceRom =
+    private static readonly Lazy<SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace> draygonReferenceRom =
         new(() => SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 
     /// <summary>Check the ROM-authored words, not just the compositor's interpretation of them.</summary>

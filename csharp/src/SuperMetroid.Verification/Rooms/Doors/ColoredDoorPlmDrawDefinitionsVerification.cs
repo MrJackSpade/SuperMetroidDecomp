@@ -4,7 +4,6 @@ using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Rooms.Doors.LookupColoredCapVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupColoredDoorStockVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupColoredProgramVerification;
@@ -16,6 +15,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
 

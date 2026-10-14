@@ -38,7 +38,7 @@ internal static class DraygonScrollingSpeedCapVerification
 
     /// <summary>Runs the real Draygon carry path and reads Samus's resulting previous-position words.</summary>
     private static (ushort X, ushort Y) PreviousAfterDraygonMove(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, FixedPosition<RoomPixels> checkpoint, Position16<RoomPixels> body)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, FixedPosition<RoomPixels> checkpoint, Position16<RoomPixels> body)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();

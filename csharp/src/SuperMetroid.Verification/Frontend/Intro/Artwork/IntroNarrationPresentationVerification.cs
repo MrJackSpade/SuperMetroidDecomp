@@ -5,11 +5,11 @@ using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 using SuperMetroid.Verification.Harness;
 
@@ -22,15 +22,15 @@ internal static class IntroNarrationPresentationVerification
     internal static void VerifyIntroNarrationPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        byte[] extracted = SuperMetroid.AssetExtraction.IntroNarrationExtractor.Extract(nativeBus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationExtractor.Extract(nativeBus);
         IntroNarrationPresentation presentation = IntroNarrationPresentation.Load(
             new MemoryStream(extracted, writable: false));
         ISnesAddressSpace installedBus = NewIntroNarrationGuard(nativeBus);
 
-        byte[] fontPng = SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(nativeBus);
+        byte[] fontPng = SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(nativeBus);
         IntroFontAtlas font = IntroFontAtlas.Load(new MemoryStream(fontPng, writable: false));
         byte[] nativeFont = RomDataReader.Decompress(
-            SuperMetroid.Core.Rom.CartridgeImportSource.Require(nativeBus),
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(nativeBus),
             IntroCinematicRomData.Assets.FontOne,
             maximumOutputBytes: IntroCinematicRomData.Vram.FontOneBytes);
         AssertTrue(font.Transfer.Span.SequenceEqual(
@@ -185,7 +185,7 @@ internal static class IntroNarrationPresentationVerification
         string overrideDirectory,
         AreaMapPresentationCatalog stockCatalog)
     {
-        byte[] deterministic = SuperMetroid.AssetExtraction.IntroNarrationExtractor.Extract(bus);
+        byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, IntroNarrationDefinitions.FileName))),
             "installed opening narration is the deterministic cartridge extraction");
@@ -221,7 +221,7 @@ internal static class IntroNarrationPresentationVerification
         string overrideDirectory,
         AreaMapPresentationCatalog stockCatalog)
     {
-        byte[] deterministic = SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(bus);
+        byte[] deterministic = SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, IntroFontAtlasFormat.FileName))),
             "installed opening font is the deterministic cartridge extraction");

@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Samus.Palettes.PowerBombFixedColorsVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 

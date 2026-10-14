@@ -23,7 +23,7 @@ internal static class AreaMapAssetsVerification
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             int index = AreaIds.ToIndex(area);
-            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area);
+            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
             AssertEqual(AreaMapAssetVerificationDefinitions.TilemapAddresses[index],
                 map.TilemapAddress,
                 $"{area} tilemap address");
@@ -59,7 +59,7 @@ internal static class AreaMapAssetsVerification
                 $"{area} secret-only cell count");
         }
 
-        AreaMapCartridgeData brinstar = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Brinstar);
+        AreaMapCartridgeData brinstar = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Brinstar);
         AssertTrue(brinstar.IsRevealedByMapStation(new(9, 1)),
             "representative Brinstar public map cell");
         AssertTrue(brinstar.IsDiscoverable(new(23, 2)) &&

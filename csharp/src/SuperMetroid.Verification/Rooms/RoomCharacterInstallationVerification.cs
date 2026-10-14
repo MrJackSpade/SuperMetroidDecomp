@@ -5,7 +5,6 @@ using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Rooms.RoomArtworkRenderParityVerification;
@@ -16,6 +15,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Harness;
 
@@ -81,7 +83,7 @@ internal static class RoomCharacterInstallationVerification
             int ghostSource = RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress;
             string ghostName = RoomCharacterAtlasFormat.SourceFileName(ghostSource);
             string ghostStockPath = Path.Combine(installed.RoomCharacterDirectory, ghostName);
-            byte[] nativeGhost = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            byte[] nativeGhost = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 ghostSource, RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount);
             AssertTrue(stock.Get(ghostSource).Transfer.Span.SequenceEqual(nativeGhost),
                 "installed statue-ghost PNG preserves every native character byte");
@@ -256,7 +258,7 @@ internal static class RoomCharacterInstallationVerification
             string skyName = RoomSkyTilemapFormat.FileName(skyPage);
             string skyStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory, skyName);
             AssertTrue(File.Exists(skyStockPath), "selected scrolling-sky page is installed");
-            byte[] nativeSky = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            byte[] nativeSky = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 landingSky.SourceAddress, landingSky.ByteCount);
             AssertTrue(stockSky.TryResolve(landingSky.SourceAddress,
                     landingSky.ByteCount, out ReadOnlyMemory<byte> installedSky) &&

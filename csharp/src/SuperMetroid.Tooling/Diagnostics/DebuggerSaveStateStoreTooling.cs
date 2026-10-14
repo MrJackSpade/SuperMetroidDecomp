@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Desktop;
 

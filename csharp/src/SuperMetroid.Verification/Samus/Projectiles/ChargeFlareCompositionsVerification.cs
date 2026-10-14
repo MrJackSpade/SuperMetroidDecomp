@@ -2,9 +2,7 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Text;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareProductionVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFlarePresentationVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrapplePointAnimationVerification;
@@ -12,6 +10,9 @@ using static SuperMetroid.Verification.Samus.Grapple.GrappleTileArtworkVerificat
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 

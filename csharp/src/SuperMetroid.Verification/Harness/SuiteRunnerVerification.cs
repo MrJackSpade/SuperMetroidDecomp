@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Verification.Harness;
 

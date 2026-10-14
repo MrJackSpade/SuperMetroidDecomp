@@ -63,7 +63,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
                (ushort)(SnesButton.Left | SnesButton.Right | SnesButton.Start),
         "opposed fixed directions and Start survive binding normalization");
 
-    var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
+    var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
     // Five independent all-blank pages are enough to exercise the state machine. The
     // decompressor and page addresses remain real; visual asset fidelity is covered by the
     // production-ROM capture audits rather than embedding copyrighted menu data here.
@@ -92,7 +92,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
         GameOptionsRomData.Pages.Get(GameOptionsTilemap.SpecialJapanese).Address,
         GameOptionsRomData.TilemapByteCount,
         0);
-    var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+    var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     var options = new GameOptionsMenuState(bus, mapPresentation: RetailPresentationFixture());
     StepOptionsUntil(options, GameOptionsPhase.Main);
 
@@ -370,18 +370,18 @@ internal static void VerifyEndingCreditsState()
     }
 
     byte[] rom = File.ReadAllBytes(romPath);
-    if (rom.Length != SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount)
+    if (rom.Length != SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount)
     {
         throw new InvalidDataException(
             $"Ending smoke-test ROM is ${rom.Length:X} bytes; expected headerless retail size " +
-            $"${SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount:X}.");
+            $"${SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount:X}.");
     }
 
-    var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+    var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     var audio = new SuperMetroid.Core.Audio.CartridgeAudioState();
     var ending = CreateRetailEndingFixture(bus, audio, gameTimeHours: 2, gameTimeMinutes: 59);
     ending.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus))));
+        SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus))));
     EndingCreditsPhase previous = ending.Phase;
     var reached = new HashSet<EndingCreditsPhase> { previous };
     int renderedTransitions = 0;

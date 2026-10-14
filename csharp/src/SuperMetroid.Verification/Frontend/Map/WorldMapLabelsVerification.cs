@@ -61,7 +61,7 @@ internal static class WorldMapLabelsVerification
         installed.BindLabels(original.Labels);
         AssertTrue(native.Render(used).SequenceEqual(installed.Render(used)), "rebind restores stock label pixels");
         string rebuilt = Path.Combine(overrides, "rebuilt");
-        SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
+        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "label override survives stock replacement");
         AssertTrue(bytes.SequenceEqual(File.ReadAllBytes(replacement)), "label override bytes preserved");
         foreach (var invalid in new[] { document with { Version = 2 }, document with { Areas = new() },

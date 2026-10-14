@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -43,6 +42,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -53,13 +53,13 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5MeltingTilemaps()
     {
         var oracle = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+        AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Melt tilemap source revision");
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"), "lookup-melt-maps-" + Guid.NewGuid().ToString("N"));
         try
         {
-            SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Extract(oracle, directory, SuperMetroid.AssetExtraction.SupportedCartridge.Sha256);
-            EnemyTileArtworkCatalog catalog = SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(directory, null);
+            SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Extract(oracle, directory, SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256);
+            EnemyTileArtworkCatalog catalog = SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(directory, null);
             CrocomireMeltingArtwork art = (catalog.CrocomireMelting ?? throw new InvalidOperationException("Verification requires catalog.CrocomireMelting."));
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var native = new ushort[2][];
@@ -103,17 +103,17 @@ internal static class LookupStream5Verification
     {
         var oracle = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+        AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
             "Skeleton transfer oracle revision");
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
             "lookup-skeleton-transfers-" + Guid.NewGuid().ToString("N"));
         try
         {
-            SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Extract(oracle, directory,
-                SuperMetroid.AssetExtraction.SupportedCartridge.Sha256);
+            SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Extract(oracle, directory,
+                SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256);
             VerifyCrocomireSkeletonArtwork(oracle, directory,
-                SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(directory, null));
+                SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(directory, null));
             AssertThrows<InvalidDataException>(() => CrocomireSkeletonTransferDefinitions.TryGet(-1, out _),
                 "Skeleton negative transfer index rejects");
             AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireSkeletonTransferDefinitions.Frames[6],
@@ -432,7 +432,7 @@ internal static class LookupStream5Verification
     /// <summary>Compares Ceres overlay tile words and their installed draw order with retail data.</summary>
     internal static void VerifyLookupStream5CeresOverlayWords(SuperMetroidAddressSpace rom)
     {
-        byte[] json = SuperMetroid.AssetExtraction.CeresEscapeOverlayTilemapFiles.Extract(rom);
+        byte[] json = SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayTilemapFiles.Extract(rom);
         var document = RequiredJson.Deserialize<CeresEscapeOverlayTilemapDocument>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
         CeresEscapeOverlayTilemapCatalog stock = Check(document);
         var edits = stock.edits;
@@ -587,9 +587,9 @@ internal static class LookupStream5Verification
     /// <summary>Checks authored area-map landmark tiles and their native reveal cases.</summary>
     internal static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
     {
-        byte[] extracted = SuperMetroid.AssetExtraction.MapLandmarkExtractor.Extract(rom);
+        byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Map.MapLandmarkExtractor.Extract(rom);
         MapLandmarkLayout layout = MapLandmarkLayout.Load(new MemoryStream(extracted));
-        var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(rom);
+        var artwork = SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteExtractor.Extract(rom);
         MapSpriteCatalog sprites = MapSpriteCatalog.Load(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         int Read(int pointer) => ReadVerificationWord(rom, FileSelectMapRomData.MenuObjectBank | pointer);
         int Root(int table, AreaId area) => ReadVerificationWord(rom, table + (int)area * 2);
@@ -748,7 +748,7 @@ internal static class LookupStream5Verification
     /// <summary>Compares Phantoon fade color rows and transition timing with cartridge palettes.</summary>
     internal static void VerifyLookupStream5PhantoonFade(SuperMetroidAddressSpace rom)
     {
-        byte[] bytes = SuperMetroid.AssetExtraction.PhantoonColorExtractor.Extract(rom);
+        byte[] bytes = SuperMetroid.AssetExtraction.Bosses.PhantoonColorExtractor.Extract(rom);
         PhantoonColorDocument document = RequiredJson.Deserialize<PhantoonColorDocument>(bytes,
             new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
         PhantoonColorCatalog stock = Check(document);
@@ -897,7 +897,7 @@ internal static class LookupStream5Verification
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in CeresDestructionSpriteDefinitions.Frames)
-            frames.Add(definition.Name, SuperMetroid.AssetExtraction.IntroCinematicSpriteFrameExtractor.Extract(
+            frames.Add(definition.Name, SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicSpriteFrameExtractor.Extract(
                 rom, definition.Pointer, definition.StockPartCount, definition.Name));
         var document = new CeresDestructionSpriteDocument { Version = 1, Frames = frames };
         var stock = Load(document);
@@ -1053,7 +1053,7 @@ internal static class LookupStream5Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon markers")]
     internal static void VerifyLookupStream5PhantoonMarkers(SuperMetroidAddressSpace rom)
     {
-        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+        AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
@@ -1089,7 +1089,7 @@ internal static class LookupStream5Verification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5MagdollitePulse(SuperMetroidAddressSpace rom)
     {
-        byte[] json = SuperMetroid.AssetExtraction.MagdollitePaletteCycleExtractor.Extract(rom);
+        byte[] json = SuperMetroid.AssetExtraction.Enemies.MagdollitePaletteCycleExtractor.Extract(rom);
         var native = RequiredJson.Deserialize<MagdollitePaletteCycleDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         MagdollitePaletteCycle stock = Check(native);
@@ -1139,7 +1139,7 @@ internal static class LookupStream5Verification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream5ZebetitePulse(SuperMetroidAddressSpace rom)
     {
-        byte[] json = SuperMetroid.AssetExtraction.ZebetiteColorExtractor.Extract(rom);
+        byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.ZebetiteColorExtractor.Extract(rom);
         var native = RequiredJson.Deserialize<ZebetiteColorDocument>(json,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         ZebetiteColorCatalog stock = Check(native);
@@ -1850,7 +1850,7 @@ internal static class LookupStream5Verification
     internal static void VerifyLookupStream5DoorQuakeDecoding(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCeresDoorQuakeDefinitions), () => VerifyCeresDoorQuakeDefinitions(rom));
-        byte[] stockJson = SuperMetroid.AssetExtraction.EnemySpritemapFiles.Extract(rom);
+        byte[] stockJson = SuperMetroid.AssetExtraction.Enemies.EnemySpritemapFiles.Extract(rom);
         var installed = EnemySpritemapCatalog.Load(new MemoryStream(stockJson, writable: false));
         var enemies = new RoomEnemySystem
         {
@@ -1916,7 +1916,7 @@ internal static class LookupStream5Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(-1), "Ceres palette lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(SnesCgram.ColorCount), "Ceres palette upper bound");
         AssertThrows<ArgumentException>(() => stock.CopyTransferTo(new byte[CgramPalettes.ByteCount - 1]), "Ceres palette output extent");
-        IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.CeresFlightArtworkExtractor.Extract(rom);
+        IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightArtworkExtractor.Extract(rom);
         var catalog = CeresFlightArtworkCatalog.Load(Open(CeresFlightArtworkFormat.Mode7FileName),
             Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
             Open(CeresFlightPaletteFormat.FileName), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));

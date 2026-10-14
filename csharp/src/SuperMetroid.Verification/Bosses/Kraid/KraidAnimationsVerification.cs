@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidFootCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidNativeListAddresses;
@@ -9,6 +8,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;

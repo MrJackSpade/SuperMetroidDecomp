@@ -1,11 +1,11 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rom;
 using System.Globalization;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 
@@ -44,7 +44,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
 
         foreach (EnemyDefinitionId definitionPointer in definitions)
         {
-            RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(
+            RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(
                 rom, definitionPointer);
             IReadOnlyList<RoomEnemyPopulationRecord> records =
                 populations.TryGetValue(definitionPointer, out List<RoomEnemyPopulationRecord>? found)

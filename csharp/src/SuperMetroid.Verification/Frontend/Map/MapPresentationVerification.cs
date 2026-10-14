@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Bosses.Ridley.CeresRidleyColorsVerification;
@@ -78,6 +77,7 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 
@@ -118,7 +118,7 @@ internal static class MapPresentationVerification
             // the ROM-free bus and still exercise the production HUD owner.
             var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
             var hudArt = GameplayHudPresentation.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.GameplayHudPresentationExtractor.Extract(source)));
+                SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(source)));
             var hud = new HudState();
             hud.BindPresentation(hudArt);
             hud.Initialize(new TestAddressSpace(), HudSnapshot.CeresDebug);
@@ -141,7 +141,7 @@ internal static class MapPresentationVerification
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
             foreach (AreaId area in Enum.GetValues<AreaId>())
             {
-                var stock = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area);
+                var stock = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
                 using var json = new MemoryStream();
                 AreaMapPresentationAsset.Write(json, stock);
                 json.Position = 0;
@@ -212,7 +212,7 @@ internal static class MapPresentationVerification
         public SamusBodyArtworkCatalog SamusBody { get; }
 
         /// <summary>Loads the complete installed room artwork set once for live-map override checks.</summary>
-        public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.GameInstallation installation)
+        public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.Installation.GameInstallation installation)
         {
             InitialPalettes = installation.LoadGameplayBasePalettes();
             standardObjects = installation.LoadStandardObjects();
@@ -253,9 +253,9 @@ internal static class MapPresentationVerification
         using var temporaryDirectory = new TestScratchDirectory("map-catalog");
         string root = temporaryDirectory.Root;
         string stock = Path.Combine(root, "game", "maps"), repaired = Path.Combine(root, "replacement-stock"), overrides = Path.Combine(root, "overrides", "maps");
-        var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area));
-        SuperMetroid.AssetExtraction.GameInstallation installation =
-            SuperMetroid.AssetExtraction.GameAssetInstaller.Install(
+        var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area));
+        SuperMetroid.AssetExtraction.Installation.GameInstallation installation =
+            SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(
                 Path.GetFullPath("Super Metroid.smc"), root);
         var original = installation.LoadMaps();
         var fixtureAssets = new MapPresentationInstalledRoomAssets(installation);
@@ -319,7 +319,7 @@ internal static class MapPresentationVerification
             fixtureAssets));
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "map override changes content identity");
         AssertTrue(edited.Get(AreaId.Crateria).GetTile(new(0, 0)) != original.Get(AreaId.Crateria).GetTile(new(0, 0)), "catalog prefers valid override");
-        SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, repaired, "test-provenance");
+        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, repaired, "test-provenance");
         var afterRepair = AreaMapPresentationCatalog.Load(repaired, overrides);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity, "re-extracted stock preserves selected override");
         AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(replacement)), "stock extraction and reload never rewrite override bytes");
@@ -366,7 +366,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, NewForbiddenMapBus(), original, original, verifyCapturedRendering: true));
         Suite(nameof(VerifyMapLoadAnchors), () => VerifyMapLoadAnchors(bus, original));
         Suite(nameof(VerifyCompiledMapScrollControls), () => VerifyCompiledMapScrollControls(bus, original));
-        AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
+        AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
         File.WriteAllText(replacement, "{ broken JSON");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt override fails instead of selecting stock");
         AssertEqual("{ broken JSON", File.ReadAllText(replacement), "invalid override retained for user repair");
@@ -399,11 +399,11 @@ internal static class MapPresentationVerification
             int pointer = MotherBrainRainbowPaletteRomData.PointerTable + frame * sizeof(ushort);
             int palette = MotherBrainRainbowPaletteRomData.SourceBank |
                 SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
-            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.BodyColor);
-            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.BrainColor);
-            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette + MotherBrainRainbowPaletteRomData.ColorCount * sizeof(ushort),
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + MotherBrainRainbowPaletteRomData.ColorCount * sizeof(ushort),
                 MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
             original.MotherBrainRainbowPalette.ApplyRainbow(installed, frame);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
@@ -432,9 +432,9 @@ internal static class MapPresentationVerification
             int pointer = table + frame * sizeof(ushort);
             int palette = MotherBrainRainbowPaletteRomData.SourceBank |
                 SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
-            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BodyColor);
-            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BrainColor);
-            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BodyColor);
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BrainColor);
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),
                 MotherBrainDrainedPaletteRomData.BackLegCount,
                 MotherBrainDrainedPaletteRomData.BackLegColor);
             var guard = NewPaletteReadForbiddenBus();
@@ -452,11 +452,11 @@ internal static class MapPresentationVerification
 
         var nativeNormal = new SnesCgram();
         var installedNormal = new SnesCgram();
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
             MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.BodyColor);
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalBrainSource,
             MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.BrainColor);
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalSecondarySource,
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalSecondarySource,
             MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
         original.MotherBrainRainbowPalette.ApplyNormal(installedNormal);
         AssertTrue(new CgramPalettes(nativeNormal).ImageEquals(new CgramPalettes(installedNormal)),
@@ -678,7 +678,7 @@ internal static class MapPresentationVerification
             ?? throw new InvalidDataException("Extracted Mother Brain health palette is null.");
         MotherBrainHealthPalettePresentation extracted =
             MotherBrainHealthPalettePresentation.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.MotherBrainHealthPaletteExtractor.Extract(bus),
+                SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(bus),
                 writable: false));
         foreach (var (health, state) in new (ushort, int)[]
             { (36000, 0), (9000, 0), (8999, 1), (5400, 1), (5399, 2), (1800, 2), (1799, 3), (0, 3) })

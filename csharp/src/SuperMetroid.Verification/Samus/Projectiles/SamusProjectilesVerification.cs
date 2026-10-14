@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Samus.Projectiles.MissileEdgeVerification
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCooldownsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.RedTowerHeroVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -30,6 +29,8 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 

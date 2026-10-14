@@ -1,12 +1,12 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
 

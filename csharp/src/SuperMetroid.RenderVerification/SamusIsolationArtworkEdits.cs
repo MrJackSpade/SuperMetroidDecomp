@@ -1,8 +1,9 @@
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Conspicuous, valid disk edits used only by the paired Samus isolation fixtures.</summary>
 internal static class SamusIsolationArtworkEdits

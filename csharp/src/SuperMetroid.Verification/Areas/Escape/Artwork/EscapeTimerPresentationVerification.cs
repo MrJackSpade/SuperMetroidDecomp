@@ -2,7 +2,6 @@ using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -10,6 +9,7 @@ using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Harness;
 
@@ -27,17 +27,17 @@ internal static class EscapeTimerPresentationVerification
 
         string stockPath = Path.Combine(stock, EscapeTimerPresentationDefinitions.FileName);
         string stockTilePath = Path.Combine(stock, EscapeTimerTileAtlasFormat.FileName);
-        byte[] extracted = SuperMetroid.AssetExtraction.EscapeTimerPresentationExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed timer JSON is the deterministic cartridge extraction");
-        byte[] extractedTiles = SuperMetroid.AssetExtraction.EscapeTimerTileAtlasExtractor.Extract(bus);
+        byte[] extractedTiles = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(bus);
         AssertTrue(extractedTiles.SequenceEqual(File.ReadAllBytes(stockTilePath)),
             "installed timer PNG is the deterministic cartridge extraction");
 
         var tileAtlas = EscapeTimerTileAtlas.Load(new MemoryStream(extractedTiles));
-        byte[] nativeFirstTiles = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativeFirstTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             EscapeTimerTileRomData.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
-        byte[] nativeSecondTiles = SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativeSecondTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             EscapeTimerTileRomData.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount);
         AssertTrue(nativeFirstTiles.SequenceEqual(tileAtlas.Resolve(VramAssetId.EscapeTimerFirstTiles).Span),
             "first timer PNG page compiles to exact native characters");
@@ -201,8 +201,8 @@ internal static class EscapeTimerPresentationVerification
             () => EscapeTimerPresentationDefinitions.DigitSpritemapPointer(10),
             "escape-timer digit pointer rejects non-decimal values");
 
-        byte[] nativeExtraction = SuperMetroid.AssetExtraction.EscapeTimerPresentationExtractor.Extract(bus);
-        byte[] guardedExtraction = SuperMetroid.AssetExtraction.EscapeTimerPresentationExtractor.Extract(
+        byte[] nativeExtraction = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerPresentationExtractor.Extract(bus);
+        byte[] guardedExtraction = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerPresentationExtractor.Extract(
             new CartridgeReadGuard(bus).Forbid(
                 address => address >= EscapeTimerPresentationDefinitions.DigitPointerTable &&
                     address < EscapeTimerPresentationDefinitions.DigitPointerTable + 10 * sizeof(ushort),

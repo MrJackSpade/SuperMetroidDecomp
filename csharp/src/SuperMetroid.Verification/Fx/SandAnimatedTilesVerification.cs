@@ -39,7 +39,7 @@ internal static class SandAnimatedTilesVerification
             }
         }
         var atlas = RoomFxAnimatedTileAtlas.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.RoomFxAnimatedTileAtlasExtractor.Extract(bus)));
+            SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(bus)));
         var provider = new RoomFxArtworkTestProvider(atlas);
         var guarded = NewRoomFxArtworkForbiddenBus(bus);
         sand.LoadRoom(guarded, sandFxRecord, 0, AreaId.Maridia);

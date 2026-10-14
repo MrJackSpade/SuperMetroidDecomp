@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidMouthHitboxesVerification;
 using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

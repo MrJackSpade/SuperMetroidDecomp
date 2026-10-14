@@ -1,9 +1,9 @@
 ﻿using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction;
 

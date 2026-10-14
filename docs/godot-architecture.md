@@ -410,10 +410,10 @@ and animation mechanics. These inspected sources provide starting boundaries:
 
 | Existing source | Migration-relevant information |
 | --- | --- |
-| [SamusBodyArtworkFiles](../csharp/src/SuperMetroid.AssetExtraction/SamusBodyArtworkFiles.cs) and [SamusSpritemapArtworkCatalog](../csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapArtworkCatalog.cs) | Indexed upper/lower tile atlases, pose/frame graphics selectors, and ordered sprite parts. The atlas chunks are transfer definitions, not finished animation frames. |
+| [SamusBodyArtworkFiles](../csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyArtworkFiles.cs) and [SamusSpritemapArtworkCatalog](../csharp/src/SuperMetroid.Core/Samus/Artwork/SamusSpritemapArtworkCatalog.cs) | Indexed upper/lower tile atlases, pose/frame graphics selectors, and ordered sprite parts. The atlas chunks are transfer definitions, not finished animation frames. |
 | [SpriteComposition](../csharp/src/SuperMetroid.Core/Assets/SpriteComposition.cs) | Ordered visual regions with offsets, size, flips, priority, and explicit or inherited palette selection. |
 | [EnemySpritemapCatalog](../csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCatalog.cs) | Native frame identities and editable display bindings; changing artwork does not replace the AI's frame pointer. |
-| [EnemyExtendedFrameFiles](../csharp/src/SuperMetroid.AssetExtraction/EnemyExtendedFrameFiles.cs) and [EnemyBg2FrameFiles](../csharp/src/SuperMetroid.AssetExtraction/EnemyBg2FrameFiles.cs) | Multipart visual roots, including bodies mixing ordinary sprites with background tilemap drawing. Gameplay hitboxes and callbacks are separate. |
+| [EnemyExtendedFrameFiles](../csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyExtendedFrameFiles.cs) and [EnemyBg2FrameFiles](../csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyBg2FrameFiles.cs) | Multipart visual roots, including bodies mixing ordinary sprites with background tilemap drawing. Gameplay hitboxes and callbacks are separate. |
 
 When defining a conversion slice, inventory its artwork selectors, composition
 rules, graphics transfers, palettes, and animation consumers statically. Follow
@@ -575,7 +575,7 @@ door links, camera rules, callbacks, and multipart actor constraints in the data
 conversion. Reject ambiguous mappings with useful diagnostics.
 
 The existing
-[`RoomVisualLayoutFiles`](../csharp/src/SuperMetroid.AssetExtraction/RoomVisualLayoutFiles.cs)
+[`RoomVisualLayoutFiles`](../csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomVisualLayoutFiles.cs)
 overrides intentionally affect visuals while collision types and BTS behavior
 metadata retain their original ownership. Editable gameplay layout therefore needs
 a new definition boundary; relabeling those overrides as full scene editing is

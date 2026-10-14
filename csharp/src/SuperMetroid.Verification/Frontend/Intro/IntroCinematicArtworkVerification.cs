@@ -3,12 +3,10 @@ using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Buffers.Binary;
 using System.Reflection;
 using System.Text.Json;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Areas.Ceres.CeresDestructionArtworkVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresFlightArtworkVerification;
@@ -39,6 +37,8 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Verification.Harness;
 
@@ -56,7 +56,7 @@ internal static class IntroCinematicArtworkVerification
         string root = copy.Root;
         {
             GameInstallation installation = copy.Installation;
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             if (samusBodyOnly)
             {
                 Suite(nameof(VerifySamusBodyArtwork), () => VerifySamusBodyArtwork(bus, installation));
@@ -612,7 +612,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Compares installed eye tilemap frames and instruction timing with native VRAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
+    private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         var guarded = NewIntroArtworkSourceReadGuard(bus);
@@ -683,7 +683,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Compares caret sprite compositions and blink behavior with native OAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
+    private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         Suite(nameof(VerifyIntroCaretInstructions), () => VerifyIntroCaretInstructions(bus));
@@ -798,7 +798,7 @@ internal static class IntroCinematicArtworkVerification
     }
 
     /// <summary>Checks the installed flashback collision source without rereading its cartridge bytes.</summary>
-    private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
+    private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
         byte[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
@@ -825,7 +825,7 @@ internal static class IntroCinematicArtworkVerification
 
     /// <summary>Compares installed Mother Brain flashback sprite frames with the cartridge's OAM layout.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
+    private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         foreach (IntroMotherBrainSpriteFrameDefinition definition in
@@ -905,7 +905,7 @@ internal static class IntroCinematicArtworkVerification
     /// <summary>Checks explosion sprite compositions and rejects missing named override frames.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroMotherBrainExplosionSpriteArtwork(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, IntroCinematicArtworkCatalog stock,
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, IntroCinematicArtworkCatalog stock,
         GameInstallation installation)
     {
         const ushort x = 120;

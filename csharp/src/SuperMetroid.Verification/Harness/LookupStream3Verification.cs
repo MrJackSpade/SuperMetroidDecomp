@@ -1,6 +1,5 @@
 using SuperMetroid.Tooling;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
@@ -52,6 +51,9 @@ using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -521,7 +523,7 @@ internal static class LookupStream3Verification
         static bool Calculated(SpriteComposition composition) =>
             composition.parts is not CompiledSpritePart[];
 
-        byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);
+        byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
         GameOverPresentationDocument Read() => RequiredJson.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
         GameOverPresentation Load(GameOverPresentationDocument document) => GameOverPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
@@ -587,8 +589,8 @@ internal static class LookupStream3Verification
             expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0] with { OffsetX = 17 }];
             Confirm(Sprites(Load(expanded))[name], expanded.Sprites[name]);
         }
-        ConfirmCursorCaller(SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom), source => FileSelectPresentation.Load(source).sprites);
-        ConfirmCursorCaller(SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsPresentation.Load(source).sprites);
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom), source => FileSelectPresentation.Load(source).sprites);
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsPresentation.Load(source).sprites);
 
         void ConfirmCursorCaller(byte[] json, Func<Stream, Dictionary<string, SpriteComposition>> load)
         {
@@ -740,7 +742,7 @@ internal static class LookupStream3Verification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyStream3GameOverText(ISnesAddressSpace rom)
     {
-        byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);
+        byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
         GameOverPresentation Load() => GameOverPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
@@ -776,7 +778,7 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for options geometry")]
     private static void VerifyStream3OptionsGeometry(ISnesAddressSpace rom)
     {
-        byte[] imported = SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(rom);
+        byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom);
         GameOptionsPresentationDocument ReadDocument() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             imported, MapPresentationFormat.JsonOptions);
         GameOptionsPresentation Load(GameOptionsPresentationDocument document) => GameOptionsPresentation.Load(new MemoryStream(
@@ -1206,7 +1208,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyStream3PainfulWalking), () => VerifyStream3PainfulWalking(rom));
         Suite(nameof(VerifyStream3DeathSelectors), () => VerifyStream3DeathSelectors(rom));
         Suite(nameof(VerifyMotherBrainContactHitboxes), () => VerifyMotherBrainContactHitboxes());
-        byte[] grappleSpriteJson = SuperMetroid.AssetExtraction.GrappleSpriteExtractor.Extract(rom);
+        byte[] grappleSpriteJson = SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.Extract(rom);
         var grappleSprites = GrappleSpriteCatalog.Load(new MemoryStream(grappleSpriteJson));
         AssertTrue(grappleSprites.segments is null, "stream 3 stock rope attribute rows discarded");
         AssertTrue(GrappleSpriteDefinitions.SegmentAttributeAddresses.SequenceEqual(new[] { 0x94b18d, 0x94b191, 0x94b195, 0x94b199 }),
@@ -1233,7 +1235,7 @@ internal static class LookupStream3Verification
             AssertThrows<InvalidDataException>(() => grappleSprites.Segment(invalid), "stream 3 rope attribute bounds");
         }
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.GrappleSwingFrameExtractor.Extract(rom)));
+            SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
             AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve((byte)angle), "stream 3 native calculated swing art frame");
         AssertTrue(swingFrames.frames is null, "stream 3 stock swing frame lookup discarded");
@@ -1248,7 +1250,7 @@ internal static class LookupStream3Verification
                 AssertEqual((byte)editedFrames[angle], edited.Resolve((byte)angle), "stream 3 independently edited swing art frame");
             editedFrames[editedAngle] = original;
         }
-        byte[] fileSelectJson = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
+        byte[] fileSelectJson = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         var fileSelect = FileSelectPresentation.Load(new MemoryStream(fileSelectJson));
         foreach (object? sequence in new object?[] { fileSelect.digits, fileSelect.slotLetters })
             AssertTrue(sequence is null, "stream 3 stock file-select glyph sequence discarded");
@@ -1278,13 +1280,13 @@ internal static class LookupStream3Verification
         string[] expectedCreditRoles = ["staff-heading", "producer-heading", "producer-name", "director-heading", "director-name", "background-designers-heading", "background-designer-1", "background-designer-2", "background-designer-3", "object-designers-heading", "object-designer-1", "object-designer-2", "samus-original-designer-heading", "samus-original-designer-name", "samus-designer-heading", "samus-designer-name", "sound-program-heading", "sound-effects-heading", "sound-programmer-name", "music-composers-heading", "music-composer-1", "music-composer-2", "program-director-heading", "program-director-name", "system-coordinator-heading", "system-coordinator-name", "system-programmer-heading", "system-programmer-name", "samus-programmer-heading", "samus-programmer-name", "event-programmer-heading", "event-programmer-name", "enemy-programmer-heading", "enemy-programmer-name", "map-programmer-heading", "map-programmer-name", "assistant-programmer-heading", "assistant-programmer-name", "coordinators-heading", "coordinator-1", "coordinator-2", "printed-art-work-heading", "printed-art-work-1", "printed-art-work-2", "printed-art-work-3", "printed-art-work-4", "printed-art-work-5", "printed-art-work-6", "special-thanks-heading", "special-thanks-01", "special-thanks-02", "special-thanks-03", "special-thanks-04", "special-thanks-05", "special-thanks-06", "special-thanks-07", "special-thanks-08", "special-thanks-09", "special-thanks-10", "special-thanks-11", "special-thanks-12", "special-thanks-13", "special-thanks-14", "special-thanks-15", "special-thanks-r-and-d", "general-manager-heading", "general-manager-name"];
         AssertTrue(CreditsPresentationDefinitions.Lines.Select(line => line.Id).SequenceEqual(expectedCreditRoles), "stream 3 all credit role identities and order");
         Suite(nameof(VerifyCreditsPresentation), () => VerifyCreditsPresentation(Path.GetFullPath("Super Metroid.smc")));
-        byte[] creditsJson = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(rom);
+        byte[] creditsJson = SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(rom);
         var credits = CreditsPresentation.Load(new MemoryStream(creditsJson));
         AssertTrue(credits.fixtureRows is null, "stream 3 credits stock has no cached row storage");
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(creditsJson)), credits.ContentIdentity, "stream 3 credits source identity preserved");
         foreach (int invalid in new[] { -1, credits.RowCount, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = credits.GetRow(invalid).Length, "stream 3 calculated credits row bounds");
-        Suite(nameof(VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions), () => VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.CartridgeImportAddressSpace)rom));
+        Suite(nameof(VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions), () => VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace)rom));
         foreach (var lightning in CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
         {
             foreach (int invalid in new[] { -1, lightning.Frames.Count, int.MaxValue })
@@ -1294,7 +1296,7 @@ internal static class LookupStream3Verification
             foreach (int invalid in new[] { -1, 2, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = lightning.MechanicsBytes[invalid], "stream 3 lightning timer bounds");
         }
-        Suite(nameof(VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions), () => VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.CartridgeImportAddressSpace)rom));
+        Suite(nameof(VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions), () => VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace)rom));
         var escapePrograms = CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All;
         AssertEqual(2, escapePrograms.Count, "stream 3 escape lightning owner count");
         AssertTrue(escapePrograms.Select(program => program.Owner).SequenceEqual(new[] { CrateriaEscapeLightningPaletteOwner.YellowLightning, CrateriaEscapeLightningPaletteOwner.CreBlockPixel }), "stream 3 escape lightning owner order");
@@ -1439,9 +1441,9 @@ internal static class LookupStream3Verification
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(invalid), "stream 3 door transfer bounds");
         using var temporary = new TestScratchDirectory("map-catalog");
-        SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Extract(rom, temporary.Root, SuperMetroid.AssetExtraction.SupportedCartridge.Sha256);
+        SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Extract(rom, temporary.Root, SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256);
         Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(temporary.Root,
-            SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(temporary.Root, null)));
+            SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(temporary.Root, null)));
     }
 
     /// <summary>Checks corpse row offsets and rot/page transfer geometry against native source and destination words.</summary>
@@ -2457,7 +2459,7 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for health tint")]
     private static void VerifyStream3HealthTint(ISnesAddressSpace rom)
     {
-        byte[] json = SuperMetroid.AssetExtraction.MotherBrainHealthPaletteExtractor.Extract(rom);
+        byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteExtractor.Extract(rom);
         var stock = MotherBrainHealthPalettePresentation.Load(new MemoryStream(json));
         var node = RequiredJson.Parse(json);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -2533,7 +2535,7 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for recovery lights")]
     internal static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
     {
-        byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
         var node = RequiredJson.Parse(json);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -2629,7 +2631,7 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for room flash")]
     internal static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
     {
-        byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
         var node = RequiredJson.Parse(json);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -2764,7 +2766,7 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for phase two rear leg")]
     internal static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
     {
-        byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
         var node = RequiredJson.Parse(json);
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -2998,7 +3000,7 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain attack palette")]
     internal static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
     {
-        byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var document = RequiredJson.Parse(json);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -3051,7 +3053,7 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for final room paints")]
     internal static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
     {
-        byte[] imported = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<MotherBrainRoomColorDocument>(imported, MapPresentationFormat.JsonOptions);
         MotherBrainRoomColorPresentation Load() => MotherBrainRoomColorPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
@@ -3118,7 +3120,7 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for room entry palettes")]
     internal static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
     {
-        byte[] imported = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         MotherBrainRoomColorDocument Read() => RequiredJson.Deserialize<MotherBrainRoomColorDocument>(
             imported, MapPresentationFormat.JsonOptions);
         MotherBrainRoomColorPresentation Load(MotherBrainRoomColorDocument document, MotherBrainRoomColorPresentation? current = null) =>
@@ -3220,8 +3222,8 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby initial paints")]
     internal static void VerifyStream3BabyInitialPaints(ISnesAddressSpace rom)
     {
-        var babyDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.BabyMetroidCutsceneColorExtractor.Extract(rom));
-        var liveDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.ShitroidColorExtractor.Extract(rom));
+        var babyDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidCutsceneColorExtractor.Extract(rom));
+        var liveDocument = RequiredJson.Parse(SuperMetroid.AssetExtraction.Bosses.MotherBrain.ShitroidColorExtractor.Extract(rom));
         var stock = LoadBaby(babyDocument);
         var liveStock = LoadLive(liveDocument);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -3288,19 +3290,19 @@ internal static class LookupStream3Verification
         {
             string source = Path.GetFullPath("Super Metroid.smc");
             var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
-            byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
+            byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.FirstNarrationTilemap, maximumOutputBytes: 2048);
-            var installation = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(source, root);
+            var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
             IntroCinematicArtworkCatalog Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(stock.PortraitTilemap.ToArray()), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "all 1024 initial narration words match native");
             AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
-            var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(rom)));
+            var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
-            byte[] nativeFont = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
+            byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
                 (IntroVramLayout.FontOne.Offset * 2), nativeFont.Length).SequenceEqual(nativeFont),
@@ -3341,7 +3343,7 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select sprites")]
     internal static void VerifyStream3FileSelectSprites(ISnesAddressSpace rom)
     {
-        byte[] imported = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
+        byte[] imported = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         Suite(nameof(VerifyStream3FileSelectBorders), () => VerifyStream3FileSelectBorders(rom, imported));
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions);
@@ -3425,9 +3427,9 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3IntroFont()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
+        byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
             IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
-        var stock = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(rom)));
+        var stock = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
         AssertTrue(stock.Transfer.Span.SequenceEqual(native), "144 calculated font tiles match native 2304 bytes");
         AssertTrue(stock.suppliedTransfer is null, "native font retains no planar output array");
         for (int index = 0; index < native.Length; index++)
@@ -3476,9 +3478,9 @@ internal static class LookupStream3Verification
         {
             string source = Path.GetFullPath("Super Metroid.smc");
             var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
-            byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
+            byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.BackgroundPageTilemaps, maximumOutputBytes: 8192);
-            var installation = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(source, root);
+            var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);
             IntroCinematicArtworkCatalog Copy(byte[] background)
@@ -3510,7 +3512,7 @@ internal static class LookupStream3Verification
             }
             AssertTrue(stock.BackgroundPages.Span.SequenceEqual(native), "background edits do not cross-couple pages");
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
-            var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(rom)));
+            var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
@@ -3623,9 +3625,9 @@ internal static class LookupStream3Verification
         {
             string source = Path.GetFullPath("Super Metroid.smc");
             var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(source);
-            byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
+            byte[] native = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.SamusHeadTilemap, maximumOutputBytes: 2048);
-            var installation = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(source, root);
+            var installation = SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(source, root);
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(bytes);
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
@@ -3647,7 +3649,7 @@ internal static class LookupStream3Verification
             }
             AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(native), "portrait edits do not cross-mutate stock");
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
-            var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(rom)));
+            var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
@@ -3788,7 +3790,7 @@ internal static class LookupStream3Verification
     internal static int LookupStream3OptionsSpritesCommand()
     {
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyStream3OptionsBorders), () => VerifyStream3OptionsBorders(oracle, SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(oracle)));
+        Suite(nameof(VerifyStream3OptionsBorders), () => VerifyStream3OptionsBorders(oracle, SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(oracle)));
         Console.WriteLine("Options headings: 144 native parts, 576 independent edits, reordered/expanded compositions and actual OAM draw pass.");
         return 0;
     }
@@ -3839,7 +3841,7 @@ internal static class LookupStream3Verification
     internal static int LookupFileSelectPatchesCommand()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var data = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
+        var data = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         Suite(nameof(VerifyStream3FileSelectPatches), () => VerifyStream3FileSelectPatches(rom, data, FileSelectPresentation.Load(new MemoryStream(data))));
         Console.WriteLine("File-select patches: native cells, zero stock fallback, independent edits and actual placement pass.");
         return 0;

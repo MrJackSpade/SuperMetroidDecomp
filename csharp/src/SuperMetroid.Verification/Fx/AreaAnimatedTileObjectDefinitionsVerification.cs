@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Fx.LookupAnimatedAreasVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 
@@ -19,7 +20,7 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+        AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Animated area oracle revision");
         Suite(nameof(VerifyAnimatedAreaListPointers), () => VerifyAnimatedAreaListPointers(rom));
         Suite(nameof(VerifyAnimatedAreaObjectSelection), () => VerifyAnimatedAreaObjectSelection(rom));

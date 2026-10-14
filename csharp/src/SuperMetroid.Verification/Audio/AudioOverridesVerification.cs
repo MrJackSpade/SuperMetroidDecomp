@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using static SuperMetroid.Verification.Audio.AudioInstrumentsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
 

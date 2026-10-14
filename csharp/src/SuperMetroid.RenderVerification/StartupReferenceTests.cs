@@ -20,7 +20,7 @@ internal static class StartupReferenceTests
     private static void Verify(D3D11RenderDevice device, D3D11FrameRenderer renderer, byte[] rom,
         string referenceDigest, string scene, bool yearOnly)
     {
-        var title = RenderRetailFixture.CreateTitle(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        var title = RenderRetailFixture.CreateTitle(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
         SuperMetroid.Core.Assets.Rgba32[]? nativePixels = null;
         RenderFrameSnapshot? closestPacket = null;
         int closestDifference = int.MaxValue;

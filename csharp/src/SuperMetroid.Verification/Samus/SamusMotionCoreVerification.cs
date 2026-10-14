@@ -104,10 +104,10 @@ internal static void VerifySamusHorizontalSpeed()
     var bus = new TestAddressSpace();
     SamusFullBodyCycleColorCatalog CycleColors() =>
         SamusFullBodyCycleColorCatalog.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(bus)));
+            SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
     SamusSuitColorCatalog SuitColors() =>
         SamusSuitColorCatalog.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+            SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
 
     // Normal air stores $9F55. Running movement type one advances by one more 12-byte
     // record to $9F61: acceleration 0.3000, maximum 2.C000, deceleration 0.8000.

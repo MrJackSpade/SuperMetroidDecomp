@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using SuperMetroid.Core.Samus.Artwork;
@@ -8,6 +7,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 

@@ -1,7 +1,5 @@
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rom;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -22,6 +20,9 @@ using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;

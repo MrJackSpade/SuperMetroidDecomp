@@ -101,9 +101,9 @@ internal static void VerifySamusCrystalFlash()
     SeedCrystalFlashCartridge(bus);
 
     var crystalColors = CrystalFlashColorCatalog.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.CrystalFlashColorExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.CrystalFlashColorExtractor.Extract(bus)));
     var beamPalettes = BeamPaletteCatalog.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.BeamPaletteExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.BeamPaletteExtractor.Extract(bus)));
     const ushort chord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
     var samus = new SamusState
     {
@@ -206,7 +206,7 @@ internal static void VerifySamusCrystalFlash()
     var crystalWindow = new SamusPowerBombExplosionState
     {
         PresentationColors = PowerBombFixedColorCatalog.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.PowerBombFixedColorExtractor.Extract(bus))),
+            SuperMetroid.AssetExtraction.Samus.PowerBombFixedColorExtractor.Extract(bus))),
     };
     crystalWindow.Arm();
     crystalWindow.BeginCrystalFlash(samus.Position.Whole);
@@ -403,9 +403,9 @@ internal static void VerifySamusXray()
 
     var cgram = new SnesCgram();
     var xrayColors = SamusVisorColorCatalog.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.SamusVisorColorExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
     var xraySuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     var standing = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,

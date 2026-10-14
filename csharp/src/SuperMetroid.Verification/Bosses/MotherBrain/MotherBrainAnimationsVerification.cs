@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVerification;
 using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileInstructionMechanicsDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBeamWindowVerification;
@@ -13,6 +12,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;

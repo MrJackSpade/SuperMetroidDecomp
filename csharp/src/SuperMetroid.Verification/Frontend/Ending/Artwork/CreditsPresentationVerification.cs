@@ -17,15 +17,15 @@ internal static class CreditsPresentationVerification
     internal static void VerifyCreditsPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        byte[] extracted = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus);
-        byte[] repeated = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus);
+        byte[] repeated = SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(repeated),
             "staff-credit extraction is deterministic");
 
         CreditsPresentation presentation = CreditsPresentation.Load(
             new MemoryStream(extracted, writable: false));
         ushort[][] nativeRows =
-            SuperMetroid.AssetExtraction.CreditsPresentationExtractor.ReadNativeRows(bus);
+            SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.ReadNativeRows(bus);
         AssertEqual(CreditsPresentationDefinitions.ExpectedCompiledRows,
             presentation.RowCount, "installed credits retain the fixed native schedule");
         for (int row = 0; row < nativeRows.Length; row++)

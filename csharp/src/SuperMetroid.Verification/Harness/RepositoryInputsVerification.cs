@@ -10,6 +10,6 @@ internal static class RepositoryInputsVerification
     internal static string RepositoryRomPath => Path.GetFullPath("Super Metroid.smc");
 
     /// <summary>A fresh retail address space over <see cref="RepositoryRomPath"/>, owned by one suite.</summary>
-    internal static SuperMetroid.AssetExtraction.CartridgeImportAddressSpace LoadRepositoryRom() =>
+    internal static SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace LoadRepositoryRom() =>
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath);
 }

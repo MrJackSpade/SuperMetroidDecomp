@@ -39,7 +39,7 @@ internal static void VerifySamusRenderingSlice()
     var oam = new OamBuffer();
 
     SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
-        new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+        new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     SamusPresentation.LoadPowerSuitPalette(bus, cgram, suitColors);
     AssertEqual(0x3800, cgram.Colors[192], "Samus power-suit palette color zero at CGRAM 192");
     AssertEqual(0x000d, cgram.Colors[207], "Samus power-suit palette color fifteen at CGRAM 207");
@@ -625,7 +625,7 @@ internal static void VerifySamusVisorPalette()
     ushort[] colors = [0x1000, 0x1001, 0x1002, 0x2000, 0x2001, 0x2002];
     WriteVisorColors(bus, colors);
 
-    var visorColors = SamusVisorColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusVisorColorExtractor.Extract(bus)));
+    var visorColors = SamusVisorColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusVisorColorExtractor.Extract(bus)));
     var state = new SamusVisorPaletteState { PresentationColors = visorColors };
     cgram.SetColor(196, Bgr555.FromWord(0x7777));
     state.Update(
@@ -717,13 +717,13 @@ internal static void VerifySamusHurtFlashPalette()
 
     SeedHurtFlashPalettes(bus);
 
-    var hurtColors = SamusHurtColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusHurtColorExtractor.Extract(bus)));
+    var hurtColors = SamusHurtColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusHurtColorExtractor.Extract(bus)));
     var samus = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         EquippedItems = 0x0021, // Both suit bits prove Gravity's native precedence.
         HurtFlashCounter = 1,
-        Presentation = { SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus))) },
+        Presentation = { SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus))) },
     };
 
     int hurtPaletteCalls = 0;

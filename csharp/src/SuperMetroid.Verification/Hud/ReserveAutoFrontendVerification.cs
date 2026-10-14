@@ -11,6 +11,7 @@ using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Hud;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Samus.Projectiles;
@@ -20,7 +21,7 @@ internal static class ReserveAutoFrontendVerification
 {
     /// <summary>The native HUD digit tilemap word for <paramref name="digit"/> at $80:9DBF.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the HUD health-digit tilemap words")]
-    private static ushort ReadRetailHudDigitTile(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, int digit)
+    private static ushort ReadRetailHudDigitTile(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, int digit)
     {
         int address = 0x809dbf + digit * 2;
         return bus.ReadCartridgeWord(address);
@@ -28,7 +29,7 @@ internal static class ReserveAutoFrontendVerification
 
     /// <summary>The native empty AUTO reserve-indicator tilemap word at byte <paramref name="offset"/> from $80:9997.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the HUD empty AUTO reserve-indicator tilemap")]
-    private static ushort ReadRetailEmptyAutoReserveTile(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, int offset)
+    private static ushort ReadRetailEmptyAutoReserveTile(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, int offset)
     {
         int address = 0x809997 + offset;
         return bus.ReadCartridgeWord(address);

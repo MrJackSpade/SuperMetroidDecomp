@@ -1,7 +1,6 @@
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.LookupStream5Verification;
-using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -20,6 +19,9 @@ using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 

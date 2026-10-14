@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -28,7 +28,7 @@ internal static class ProjectileNativeFixtureVerification
 
     /// <summary>Seeds cartridge-selected projectile programs into a test bus, replacing only spritemap references while retaining native timing and collision.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile fixture")]
-    internal static SuperMetroid.AssetExtraction.CartridgeImportAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
+    internal static SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         void Art(int entry, ushort map)

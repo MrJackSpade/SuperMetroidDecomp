@@ -1,15 +1,16 @@
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Verification.Rooms;
 
@@ -22,7 +23,7 @@ internal static class RoomVisualLayoutsVerification
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room level streams")]
     internal static void VerifyRoomVisualLayouts(GameInstallation installed,
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, CartridgeRoomHeader landing)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, CartridgeRoomHeader landing)
     {
         RoomVisualLayoutCatalog stock = installed.LoadRoomVisualLayouts();
         AssertEqual(246, RoomVisualLayoutFiles.RetailSources.Count,

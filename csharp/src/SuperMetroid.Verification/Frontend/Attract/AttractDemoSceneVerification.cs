@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Samus.Grapple.GrappleDemoTrajectoryVerifi
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Frontend.Attract.AttractInputFixtureVerification;
 using static SuperMetroid.Verification.Frontend.FrontendVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -10,6 +9,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Attract;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Attract;
 using SuperMetroid.Verification.Harness;
 
@@ -20,7 +20,7 @@ internal static class AttractDemoSceneVerification
     internal static void VerifyAttractDemoScene()
     {
         Suite(nameof(VerifyStockAttractScenes), () => VerifyStockAttractScenes());
-        var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
+        var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
         WriteRomWord(rom, AttractDemoRomData.RoomSetPointers, 0x9000);
         WriteRomWord(rom, AttractDemoRomData.EquipmentSetPointers, 0xa000);
         WriteRomWord(rom, AttractDemoRomData.SamusSetupSetPointers, 0xb000);
@@ -41,7 +41,7 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputRomData.Attract.ShinesparkContinuation, 7);
         WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputRomData.Attract.ShinesparkContinuation) + 2,
             (ushort)SnesButton.Right);
-        var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var expected = new AttractDemoScene(0x91f8, 0x8000, new(0x100, 0x200), new(-46, 0x40),
             0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, 0x3105, 10, 5, 2, 399, 0x100f, 0x100b, 0x9000);
         if (SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)

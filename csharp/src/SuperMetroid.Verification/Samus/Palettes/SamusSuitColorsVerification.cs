@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
@@ -16,6 +15,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
 
@@ -28,9 +28,9 @@ internal static class SamusSuitColorsVerification
     {
         var cartridge = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+        AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(cartridge.Rom)), "Normal suit sharing oracle revision");
-        byte[] extracted = SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(cartridge);
+        byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(cartridge);
         SamusSuitColorCatalog colors = SamusSuitColorCatalog.Load(new MemoryStream(extracted));
         foreach (var (differences, source) in new[] { (colors.varia, 0x9b9520), (colors.gravity, 0x9b9800) })
         {
@@ -119,7 +119,7 @@ internal static class SamusSuitColorsVerification
         GameplayBasePaletteCatalog initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
-        byte[] extracted = SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus);
         SamusSuitColorCatalog decoded = SamusSuitColorCatalog.Load(
             new MemoryStream(extracted, writable: false));
         int[] sourceAddresses =

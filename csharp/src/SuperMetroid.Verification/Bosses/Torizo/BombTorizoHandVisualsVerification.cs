@@ -3,6 +3,9 @@ using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandStockVerification;
 using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 

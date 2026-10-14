@@ -2,15 +2,15 @@ using static SuperMetroid.Verification.Frontend.Title.TitleSequenceRomDataVerifi
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rom;
 using System.Text.Json;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 namespace SuperMetroid.Verification.Frontend.Title;
 using SuperMetroid.Verification.Harness;
 
@@ -26,7 +26,7 @@ internal static class TitleGradientVerification
         InstalledFixtures.CreateTitle(bus, titleGradientPresentation: titleGradientPresentation,
             titlePalettePresentation: titlePalettePresentation, titleGraphicsPresentation: titleGraphicsPresentation);
     /// <summary>Checks native gradient band boundaries and all 256 zoom selections after artwork and schema suites.</summary>
-    internal static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
+    internal static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         Suite(nameof(VerifyTitleGradientObjectEligibility), () => VerifyTitleGradientObjectEligibility());
         Suite(nameof(VerifyExtractedTitleGraphics), () => VerifyExtractedTitleGraphics(bus));
@@ -68,7 +68,7 @@ internal static class TitleGradientVerification
         var cartridgeReads = new HashSet<int>();
         var tracingBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         IReadOnlyDictionary<string, byte[]> files =
-            SuperMetroid.AssetExtraction.TitleGraphicsExtractor.Extract(tracingBus);
+            SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsExtractor.Extract(tracingBus);
         TitleGraphicsPresentation presentation = TitleGraphicsPresentation.Load(
             new MemoryStream(files[TitleGraphicsFormat.Mode7TilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.Mode7MapFile]),
@@ -218,7 +218,7 @@ internal static class TitleGradientVerification
 
         void AssertSource(int address, int count, ReadOnlySpan<byte> actual, string description)
         {
-            byte[] source = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), address);
+            byte[] source = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), address);
             if (!source.AsSpan(0, count).SequenceEqual(actual))
                 throw new InvalidDataException($"Extracted {description} differ from cartridge data.");
         }
@@ -229,11 +229,11 @@ internal static class TitleGradientVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the title palette")]
     private static void VerifyExtractedTitlePalette(ISnesAddressSpace bus)
     {
-        byte[] extracted = SuperMetroid.AssetExtraction.TitlePaletteExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Title.TitlePaletteExtractor.Extract(bus);
         TitlePalettePresentation presentation = TitlePalettePresentation.Load(
             new MemoryStream(extracted, writable: false));
         var expected = new SnesCgram();
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(expected, bus, TitleSequenceRomData.Assets.PaletteAddress);
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(expected, bus, TitleSequenceRomData.Assets.PaletteAddress);
         if (!presentation.Colors.SequenceEqual(expected.Colors))
             throw new InvalidDataException("Extracted title palette differs from cartridge CGRAM data.");
         AssertEqual(TitleSequenceRomData.Palette.CopyrightWhite,
@@ -405,7 +405,7 @@ internal static class TitleGradientVerification
         for (ushort variant = 0; variant < TitleGradientFormat.VariantCount; variant++)
             _ = TitleGradientDecoder.Decode(tracingBus, checked((ushort)(variant << 4)));
 
-        byte[] extracted = SuperMetroid.AssetExtraction.TitleGradientExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Frontend.Title.TitleGradientExtractor.Extract(bus);
         TitleGradientPresentation presentation = TitleGradientPresentation.Load(
             new MemoryStream(extracted, writable: false));
         for (ushort zoom = 0; zoom < 256; zoom++)

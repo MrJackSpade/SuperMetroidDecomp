@@ -22,6 +22,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Samus.Projectiles;
 
@@ -294,7 +295,7 @@ internal static class NativeSnapshotImportVerification
             }
         }
         if (runtime.Enemies.MotherBrainEncounter.MotherBrain is not null)
-            ImportNativeMotherBrain(runtime, SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), W);
+            ImportNativeMotherBrain(runtime, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         runtime.Nmi.NmiFrameCounter = W(NativeSnapshotMemory.NmiCounter);
         runtime.Nmi.NmiFrameCounter8 = memory[NativeSnapshotMemory.NmiCounterByte];
         samus.CollectedItems = W(NativeSnapshotMemory.CollectedItems); samus.CollectedBeams = W(NativeSnapshotMemory.CollectedBeams);

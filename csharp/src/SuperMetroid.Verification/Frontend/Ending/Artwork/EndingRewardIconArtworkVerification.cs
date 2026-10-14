@@ -1,13 +1,14 @@
 using SuperMetroid.Core;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Frontend.Ending.EndingMode7ArtworkVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 
@@ -21,7 +22,7 @@ internal static class EndingRewardIconArtworkVerification
     {
         EndingMode7ArtworkCatalog stock = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
-        var source = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var source = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         byte[] native = RomDataReader.Decompress(source,
             EndingCreditsRomData.Assets.PostCreditsMode7Characters,
             EndingCreditsRomData.Rendering.DecompressionLimit);
@@ -31,8 +32,8 @@ internal static class EndingRewardIconArtworkVerification
         CreditsPresentation credits = CreditsPresentation.Load(new MemoryStream(
             CreditsPresentationExtractor.Extract(source)));
 
-        var nativeBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-        var installedBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
+        var installedBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var nativeScene = CreateRetailEndingFixture(nativeBus, nativeAudio, 3, 0);
@@ -108,7 +109,7 @@ internal static class EndingRewardIconArtworkVerification
                         image.Pixels, image.Palette);
                 }
                 EndingMode7ArtworkCatalog edited = installation.LoadEndingMode7Art();
-                var uploadBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+                var uploadBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var upload = new EndingRewardGraphicsUpload(uploadBus, stock.RewardIcon);
                 var partialVram = new SnesVram();
                 partialVram.LoadBytes(0, Enumerable.Repeat((byte)0xa5,
@@ -124,7 +125,7 @@ internal static class EndingRewardIconArtworkVerification
                     $"{name} rebinds eight completed chunks without touching pending VRAM");
                 AssertEqual(0, uploadBus.ForbiddenReadAttempts,
                     $"{name} partial upload never reads compressed ROM icon art");
-                var sceneBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+                var sceneBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var sceneAudio = new CartridgeAudioState();
                 var scene = CreateRetailEndingFixture(sceneBus, sceneAudio, 3, 0);
                 scene.BindStaffCredits(credits);

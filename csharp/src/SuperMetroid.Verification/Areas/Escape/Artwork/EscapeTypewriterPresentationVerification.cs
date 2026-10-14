@@ -18,7 +18,7 @@ internal static class EscapeTypewriterPresentationVerification
     internal static void VerifyEscapeTypewriterPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        byte[] extracted = SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus);
         EscapeTypewriterPresentation presentation = EscapeTypewriterPresentation.Load(
             new MemoryStream(extracted, writable: false));
 
@@ -102,7 +102,7 @@ internal static class EscapeTypewriterPresentationVerification
         string overrideDirectory,
         AreaMapPresentationCatalog stockCatalog)
     {
-        byte[] deterministic = SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus);
+        byte[] deterministic = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, EscapeTypewriterDefinitions.FileName))),
             "installed escape typewriter is the deterministic cartridge extraction");

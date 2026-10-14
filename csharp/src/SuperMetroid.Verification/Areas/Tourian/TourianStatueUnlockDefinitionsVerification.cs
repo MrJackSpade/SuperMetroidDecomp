@@ -1,6 +1,4 @@
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianArtworkVerification;
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianDescriptorsVerification;
@@ -15,6 +13,8 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Fx;
 namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
 
@@ -22,7 +22,7 @@ using SuperMetroid.Verification.Harness;
 internal static class TourianStatueUnlockDefinitionsVerification
 {
     /// <summary>Matches all four eye coordinates to native tables and checks guarded eye/soul projectile spawns.</summary>
-    internal static void VerifyTourianStatueUnlockDefinitions(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
+    internal static void VerifyTourianStatueUnlockDefinitions(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         for (ushort parameter = 0; parameter <= 6; parameter += 2)
         {
@@ -75,7 +75,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
 
     /// <summary>Checks compiled statue control words and artwork selections, then runs the retail unlock sequence with source reads denied.</summary>
     private static void VerifyTourianStatueAnimatedTileMechanics(
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyTourianStatueArtworkSources), () => VerifyTourianStatueArtworkSources(rom));
         Suite(nameof(VerifyTourianStatueDescriptorFields), () => VerifyTourianStatueDescriptorFields(rom));

@@ -1,10 +1,10 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Drawing;
 using SuperMetroid.Verification.Harness;
 
@@ -16,9 +16,9 @@ internal static class SamusArmCannonDefinitionsVerification
     internal static void VerifySamusArmCannonDefinitions(SuperMetroidAddressSpace rom)
     {
         using var artworkDirectory = new TestScratchDirectory("map-catalog");
-        SuperMetroid.AssetExtraction.SamusArmCannonArtworkFiles.Extract(
+        SuperMetroid.AssetExtraction.Samus.SamusArmCannonArtworkFiles.Extract(
             rom, artworkDirectory.Root, SupportedCartridge.Sha256);
-        var artwork = SuperMetroid.AssetExtraction.SamusArmCannonArtworkFiles.Load(
+        var artwork = SuperMetroid.AssetExtraction.Samus.SamusArmCannonArtworkFiles.Load(
             artworkDirectory.Root, null);
         for (ushort selectedHudItem = 0;
              selectedHudItem < SamusArmCannonDefinitions.HudItemCount;

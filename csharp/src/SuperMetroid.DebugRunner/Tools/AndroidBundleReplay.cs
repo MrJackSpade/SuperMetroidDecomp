@@ -9,6 +9,7 @@ using SuperMetroid.Desktop;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
 /// Replays one explicitly selected journal from an Android export without extracting

@@ -1,0 +1,83 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Pause;
+
+/// <summary>Resolves reserve-screen presentation once without exposing its mode or energy mechanics.</summary>
+[CpuBusBoundary("codec: ROM bank-$82 reserve-screen labels and colors → pause reserve UI presentation")]
+public static class PauseReserveUiExtractor
+{
+    /// <summary>Resolves reserve labels, decimal digit cells, arrow positions, palettes, and animation colors into a versioned presentation document.</summary>
+    /// <param name="bus">Supported-cartridge address space containing reserve-screen label pointers, tilemaps, and arrow color tables.</param>
+    /// <returns>UTF-8 JSON bytes for reserve-screen visuals without mode or energy behavior.</returns>
+    public static byte[] Extract(ISnesAddressSpace bus)
+    {
+        var labels = new Dictionary<string, PauseReserveLabelVisual>
+        {
+            ["Mode"] = Label(0, PauseReserveUiDefinitions.LabelWords),
+            ["ReserveTank"] = Label(1, PauseReserveUiDefinitions.LabelWords),
+            ["Manual"] = DirectLabel(PauseReserveUiDefinitions.ManualSource, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
+            ["Auto"] = DirectLabel(PauseReserveUiDefinitions.AutoSource, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
+        };
+        var digits = new PauseReserveDigitVisual
+        {
+            Anchor = Point(PauseReserveUiDefinitions.DigitCell),
+            Cells = Enumerable.Range(0, PauseReserveUiDefinitions.DigitCount)
+                .Select(value => PauseTileGrid.FromWord((ushort)(PauseReserveUiDefinitions.DigitZeroWord + value), $"Reserve.Digit{value}"))
+                .ToArray(),
+        };
+        PauseGridPoint[] arrowCells =
+        [
+            .. Enumerable.Range(0, PauseReserveUiDefinitions.VerticalCount)
+                .Select(index => Point(PauseReserveUiDefinitions.VerticalStartCell + index * PauseReserveUiDefinitions.RowStrideCells)),
+            .. Enumerable.Range(0, PauseReserveUiDefinitions.HorizontalCount)
+                .Select(index => Point(PauseReserveUiDefinitions.HorizontalStartCell + index)),
+        ];
+        var frames = new PauseReserveArrowFrame[PauseReserveUiDefinitions.ArrowFrames];
+        for (int frame = 0; frame < frames.Length; frame++)
+            frames[frame] = new()
+            {
+                Color6 = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveUiDefinitions.ArrowColor6Source + frame * 2)),
+                Color11 = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveUiDefinitions.ArrowColor11Source + frame * 2)),
+            };
+        using var output = new MemoryStream();
+        PauseReserveUiPresentation.Write(output, new()
+        {
+            Version = PauseReserveUiDefinitions.Version,
+            Labels = labels,
+            Digits = digits,
+            Arrow = new()
+            {
+                Cells = arrowCells,
+                EnabledPalette = PauseReserveUiDefinitions.EnabledPalette,
+                DisabledPalette = PauseReserveUiDefinitions.DisabledPalette,
+                SolidColor6 = Rgb(PauseReserveUiDefinitions.SolidColor6),
+                SolidColor11 = Rgb(PauseReserveUiDefinitions.SolidColor11),
+                Frames = frames,
+            },
+        });
+        return output.ToArray();
+
+        PauseReserveLabelVisual Label(int index, int words)
+        {
+            int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveUiDefinitions.LabelDestinations + index * 2) -
+                PauseReserveUiDefinitions.TilemapWramBase;
+            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveUiDefinitions.LabelSources + index * 2);
+            return DirectLabel(CartridgeBankWindow.At(PauseMenuCartridgeTables.MenuBank, pointer), destination / 2, words);
+        }
+        PauseReserveLabelVisual DirectLabel(int address, int cell, int words) => new()
+        {
+            Anchor = Point(cell),
+            Cells = Enumerable.Range(0, words).Select(index => PauseTileGrid.FromWord(
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + index * 2), $"Reserve label {address:X6}.{index}")).ToArray(),
+        };
+        static PauseGridPoint Point(int cell) => new()
+        {
+            Column = cell % PauseReserveUiDefinitions.TilemapColumns,
+            Row = cell / PauseReserveUiDefinitions.TilemapColumns,
+        };
+        static PaletteRgb5 Rgb(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+    }
+}

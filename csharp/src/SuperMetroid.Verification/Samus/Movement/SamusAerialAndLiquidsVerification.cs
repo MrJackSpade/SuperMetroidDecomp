@@ -699,9 +699,9 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     }
 
     var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     var cycleColors = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
     var palettes = new SamusHorizontalSpeedState();
     var cgram = new SnesCgram();
     AssertTrue(palettes.UpdateSpeedBoosterPalette(bus, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = 0x0008 }, suitColors: suitColors, cycleColors: cycleColors),

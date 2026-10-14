@@ -2,12 +2,12 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
 /// <summary>Checks retained render packets across the escape, credits, and timed reward branches.</summary>
@@ -23,13 +23,13 @@ internal static class EndingSnapshotTestsVerification
         int samples = 0;
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
-            var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-            var otherBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+            var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
+            var otherBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
             var audio = new CartridgeAudioState(); var otherAudio = new CartridgeAudioState();
             var legacy = CreateRetailEndingFixture(bus, audio, hours, 59);
             var captured = CreateRetailEndingFixture(otherBus, otherAudio, hours, 59);
             var credits = CreditsPresentation.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus)));
+                SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus)));
             legacy.BindStaffCredits(credits);
             captured.BindStaffCredits(credits);
             var phases = new HashSet<EndingCreditsPhase>();

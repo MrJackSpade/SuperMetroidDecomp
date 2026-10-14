@@ -1,10 +1,10 @@
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Audio.AudioUploadCatalogVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorSoundDisableVerification;
 using static SuperMetroid.Verification.Audio.GameplayAudioPublicationVerification;
 using static SuperMetroid.Verification.Audio.SoundQueueReturnVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.AssetExtraction.Audio;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
 
@@ -77,7 +77,7 @@ internal static class AudioVerification
         WriteAudioRomByte(rom, 0x918000, 0xbb);
         WriteAudioRomByte(rom, 0x918001, 0x00); // terminator
         WriteAudioRomByte(rom, 0x918002, 0x00);
-        var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         Suite(nameof(VerifySoundQueueAccumulator), () => VerifySoundQueueAccumulator(bus));
         Suite(nameof(VerifyGameplayAudioPublication), () => VerifyGameplayAudioPublication(bus));
 
@@ -290,7 +290,7 @@ internal static class AudioVerification
 
     /// <summary>Seeds a synthetic upload byte at its mapped LoROM offset for cross-bank reader checks.</summary>
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>
-        rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
+        rom[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
 
     /// <summary>Runs the cartridge audio queue and upload-stream verification command.</summary>
     [VerificationCommand("--audio-queues")]

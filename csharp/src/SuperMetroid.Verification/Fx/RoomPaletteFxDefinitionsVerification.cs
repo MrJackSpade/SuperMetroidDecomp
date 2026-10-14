@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.PaletteFx.LookupPaletteFxAreasVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.LookupPaletteFxDispatchVerification;
@@ -7,6 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 
@@ -103,7 +103,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         var hyperBeam = new HyperBeamPaletteFxState();
         hyperBeam.Spawn();
         var hyperColors = SuperMetroid.Core.Samus.Artwork.HyperBeamFxColorCatalog.Load(
-            new MemoryStream(SuperMetroid.AssetExtraction.HyperBeamFxColorExtractor.Extract(rom)));
+            new MemoryStream(SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorExtractor.Extract(rom)));
         hyperBeam.Step(guardedRom, new SnesCgram(), hyperColors);
         AssertEqual(0, hyperBeam.CurrentFrameIndex,
             "specialized Hyper Beam owner executes with its definition bytes forbidden");

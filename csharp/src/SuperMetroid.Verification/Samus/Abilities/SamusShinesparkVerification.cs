@@ -68,9 +68,9 @@ internal static void VerifySamusStoredShineAndShinespark()
 
     SeedStoredShinePalettes(bus);
     var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     var cycleColors = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(bus)));
+        SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
 
     var shine = new SamusState
     {

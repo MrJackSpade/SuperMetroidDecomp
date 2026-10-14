@@ -449,7 +449,7 @@ internal static class DebuggerObjectGraphSerializer
                 }
                 field.SetValue(instance, restoredValue);
             }
-            if (instance is SuperMetroid.AssetExtraction.IRestoredSharedContent shared)
+            if (instance is SuperMetroid.AssetExtraction.Installation.IRestoredSharedContent shared)
                 shared.ReattachSharedContent();
             return instance;
         }

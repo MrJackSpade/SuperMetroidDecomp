@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// Import-only reference DMA for comparisons with installed artwork. Linked into

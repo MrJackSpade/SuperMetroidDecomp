@@ -19,7 +19,7 @@ internal static class GameOverPresentationVerification
         AreaMapPresentationCatalog original)
     {
         string stockPath = Path.Combine(stock, GameOverPresentationDefinitions.FileName);
-        byte[] extracted = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(bus);
         AssertTrue(extracted.SequenceEqual(File.ReadAllBytes(stockPath)),
             "installed game-over JSON is the deterministic cartridge extraction");
         _ = GameOverPresentation.Load(new MemoryStream(extracted));

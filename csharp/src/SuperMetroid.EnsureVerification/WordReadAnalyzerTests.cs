@@ -12,11 +12,11 @@ internal static class WordReadAnalyzerTests
         var analyzer = new WordReadAnalyzer();
         void Expect(string source, string? id = null, string? message = null) => VerifySnippet(source, id, message, analyzer);
         const string api =
-            "namespace SuperMetroid.Core.Hardware { " +
+            "namespace SuperMetroid.AssetExtraction.Cartridge { using SuperMetroid.Core.Hardware; " +
             "public interface IImportCartridgeSource { byte ReadCartridgeByte(int cpuAddress); } " +
             "public static class SnesCartridgeImportExtensions { public static byte ReadCartridgeByte(this ISnesAddressSpace bus, int a) => 0; } " +
             "public static class SnesAddressMath2 { } } " +
-            "namespace Game { using SuperMetroid.Core.Hardware; ";
+            "namespace Game { using SuperMetroid.Core.Hardware; using SuperMetroid.AssetExtraction.Cartridge; ";
         const string end = " }";
 
         // Linear and fixed-bank progressions, through the cartridge source, the address space and WRAM.
@@ -49,7 +49,7 @@ internal static class WordReadAnalyzerTests
         Expect(api + "class C { int M(IImportCartridgeSource rom, IImportCartridgeSource other, int a) => rom.ReadCartridgeByte(a) | other.ReadCartridgeByte(a + 1) << 8; }" + end);
         Expect(api + "class C { byte[] b = new byte[4]; int M(int a) => b[a] | b[a + 1] << 8; }" + end);
         Expect(api + "class R { public byte ReadCartridgeByte(int a) => 0; } class C { int M(R r, int a) => r.ReadCartridgeByte(a) | r.ReadCartridgeByte(a + 1) << 8; }" + end);
-        Expect("namespace SuperMetroid.Core.Hardware { public interface IImportCartridgeSource { byte ReadCartridgeByte(int cpuAddress); } " +
+        Expect("namespace SuperMetroid.AssetExtraction.Cartridge { public interface IImportCartridgeSource { byte ReadCartridgeByte(int cpuAddress); } " +
             "public static class CartridgeWordReads { public static ushort ReadCartridgeWord(IImportCartridgeSource c, int a) => " +
             "(ushort)(c.ReadCartridgeByte(a) | c.ReadCartridgeByte(a + 1) << 8); } }");
     }

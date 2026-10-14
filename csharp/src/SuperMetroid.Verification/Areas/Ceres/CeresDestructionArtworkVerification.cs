@@ -1,9 +1,7 @@
 using System.Text.Json;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -13,6 +11,8 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
 namespace SuperMetroid.Verification.Areas.Ceres;
 
 /// <summary>Checks installed Ceres destruction and Zebes reveal art against cartridge transfers and live cinematic rendering.</summary>
@@ -21,7 +21,7 @@ internal static class CeresDestructionArtworkVerification
     /// <summary>Confirms native maps, characters, and OAM, then exercises editable actor, sprite, map, and PNG overrides through the running scene.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres destruction tilemaps, characters and actor layout")]
     internal static void VerifyCeresDestructionArtwork(GameInstallation installation,
-        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
         byte[] nativeMaps = RomDataReader.Decompress(bus,

@@ -1,7 +1,7 @@
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Input;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Game;
 

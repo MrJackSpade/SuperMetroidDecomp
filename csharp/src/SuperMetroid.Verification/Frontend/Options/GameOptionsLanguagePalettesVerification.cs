@@ -8,6 +8,8 @@ using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend;
 namespace SuperMetroid.Verification.Frontend.Options;
 using SuperMetroid.Verification.Harness;
 
@@ -75,7 +77,7 @@ internal static class GameOptionsLanguagePalettesVerification
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)),
             "options language oracle revision");
-        byte[] extracted = SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
         GameOptionsPresentation presentation = GameOptionsPresentation.Load(new MemoryStream(extracted));
         AreaMapPresentationCatalog installed = RetailPresentationFixture();
         AssertEqual(4, GameOptionsRomData.LanguagePaletteRegionCount, "native language highlight has four regions");

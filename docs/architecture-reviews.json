@@ -17,7 +17,7 @@
       "reason": "Android audio-focus and input-device listener; the platform calls it, and it forwards to its activity."
     },
     {
-      "type": "SuperMetroid.AssetExtraction.ProjectilePresentationFiles.ProjectilePresentationSourceFiles",
+      "type": "SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.ProjectilePresentationSourceFiles",
       "flags": [
         "context-bag"
       ],
@@ -25,7 +25,7 @@
       "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
     },
     {
-      "type": "SuperMetroid.AssetExtraction.RoomPlmVisualCatalogSet",
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomPlmVisualCatalogSet",
       "flags": [
         "context-bag"
       ],

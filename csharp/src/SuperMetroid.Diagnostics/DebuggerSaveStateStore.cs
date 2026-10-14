@@ -3,7 +3,8 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Desktop;
 

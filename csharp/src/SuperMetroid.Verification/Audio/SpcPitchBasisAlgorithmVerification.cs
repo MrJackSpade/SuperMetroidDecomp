@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Rom;
 using System.Numerics;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Audio;
 

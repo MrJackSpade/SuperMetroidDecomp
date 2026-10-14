@@ -2,7 +2,6 @@ using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -15,6 +14,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Palettes;
 
 /// <summary>Checks extracted Samus charge palettes, editable overrides, native phase selection, and guarded runtime color updates.</summary>
@@ -26,7 +26,7 @@ internal static class SamusChargeColorsVerification
     internal static void VerifySamusChargeColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
-        byte[] extracted = SuperMetroid.AssetExtraction.SamusChargeColorExtractor.Extract(rom);
+        byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
         var native = SamusChargeColorCatalog.Load(new MemoryStream(extracted, writable: false));
         var forbidden = new HashSet<int>();
         forbidden.UnionWith(VerifySamusChargeColorPhases(rom));
@@ -128,7 +128,7 @@ internal static class SamusChargeColorsVerification
             Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
             "charge-color-reextract");
         byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
-        SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
+        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
         AreaMapPresentationCatalog repaired = AreaMapPresentationCatalog.Load(replacementStock, overrideDirectory);
         AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
             "stock re-extraction preserves charge color override");
@@ -158,7 +158,7 @@ internal static class SamusChargeColorsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus charge color phases")]
     internal static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
     {
-        byte[] extracted = SuperMetroid.AssetExtraction.SamusChargeColorExtractor.Extract(rom);
+        byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
         var catalog = SamusChargeColorCatalog.Load(new MemoryStream(extracted));
         var forbidden = new HashSet<int>();
         var expected = new ushort[2, 3, 6, 16];

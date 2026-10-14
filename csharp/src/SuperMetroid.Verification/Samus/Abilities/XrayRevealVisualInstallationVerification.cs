@@ -1,7 +1,5 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Rom;
 using System.Text.Json.Nodes;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
@@ -9,6 +7,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.Xray;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 
@@ -37,7 +38,7 @@ internal static class XrayRevealVisualInstallationVerification
         AssertEqual(305, drawable, "complete pinned drawable X-ray rule count");
         XrayOverlayVisualCatalog overlays = stock.Overlays ??
             throw new InvalidDataException("Installed X-ray visuals omit item and room overlays.");
-        var nativeBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(File.ReadAllBytes(installed.RomPath));
+        var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(File.ReadAllBytes(installed.RomPath));
         ushort NativeWord(int address) => CartridgeImportSource.Require(nativeBus).ReadCartridgeWord(address);
         for (int slot = 0; slot < XrayOverlayRomData.DynamicGraphicsSlots * 2; slot++)
         {

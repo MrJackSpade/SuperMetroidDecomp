@@ -1,4 +1,4 @@
-using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Audio;
 
 namespace SuperMetroid.Verification.Audio;
 

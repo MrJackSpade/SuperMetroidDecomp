@@ -1,5 +1,4 @@
 using SuperMetroid.Tooling;
-using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -7,6 +6,7 @@ using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotInitialSelect
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 

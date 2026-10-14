@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -24,6 +23,7 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
@@ -674,8 +674,8 @@ private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddress
 {
     using var directoryScratch = new TestScratchDirectory("ceres-door-fixture");
     string directory = directoryScratch.Root;
-    SuperMetroid.AssetExtraction.CeresDoorVisualFiles.Extract(bus, directory);
-    var visuals = SuperMetroid.AssetExtraction.CeresDoorVisualFiles.Load(
+    SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualFiles.Extract(bus, directory);
+    var visuals = SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualFiles.Load(
         File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.TilesFileName)),
         File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName)));
     return EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visuals });
@@ -872,13 +872,13 @@ internal static void VerifyCeresRidleyRoomEntry()
         Presentation =
         {
             CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(bus))),
+                SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus))),
             CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.CeresRidleyMode7ColorExtractor.Extract(bus))),
+                SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
         },
     };
     using (var escapeText = new MemoryStream(
-        SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus), writable: false))
+        SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterExtractor.Extract(bus), writable: false))
         enemies.EscapeTypewriterPresentation = EscapeTypewriterPresentation.Load(escapeText);
     ClearCeresEscapeTypewriterSource(bus);
     bool ceresBossDefeated = false;

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
@@ -12,6 +11,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Frontend.Map;
 
@@ -142,7 +142,7 @@ internal static class MapLoadAnchorsVerification
                         var stations = new byte[Bank80SystemState.MapStationByteCount]; stations[area] = 1;
                         system.LoadMapStationBytes(stations);
                     }
-                    var native = new FileSelectMapScroll(bus, SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, typedArea), system, expected);
+                    var native = new FileSelectMapScroll(bus, SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, typedArea), system, expected);
                     var compiled = new FileSelectMapScroll(guard, catalog.Get(typedArea), system, actual);
                     AssertEqual(ScrollState(native), ScrollState(compiled), "compiled anchors retain bounds and initial clipping for empty/sparse/full/downloaded maps");
                     foreach (ushort input in MapScrollControls.Buttons)

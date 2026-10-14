@@ -18,7 +18,7 @@ internal static class GameplayMessageNoticesVerification
     internal static void VerifyGameplayMessageNotices(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        byte[] extracted = SuperMetroid.AssetExtraction.GameplayMessageNoticeExtractor.Extract(bus);
+        byte[] extracted = SuperMetroid.AssetExtraction.Hud.GameplayMessageNoticeExtractor.Extract(bus);
         GameplayMessageNoticePresentation stock = GameplayMessageNoticePresentation.Load(
             new MemoryStream(extracted, writable: false));
 
@@ -85,7 +85,7 @@ internal static class GameplayMessageNoticesVerification
         string overrideDirectory,
         AreaMapPresentationCatalog stockCatalog)
     {
-        byte[] deterministic = SuperMetroid.AssetExtraction.GameplayMessageNoticeExtractor.Extract(bus);
+        byte[] deterministic = SuperMetroid.AssetExtraction.Hud.GameplayMessageNoticeExtractor.Extract(bus);
         AssertTrue(deterministic.SequenceEqual(File.ReadAllBytes(
             Path.Combine(stockDirectory, GameplayMessageNoticeDefinitions.FileName))),
             "installed gameplay-message notices are the deterministic cartridge extraction");

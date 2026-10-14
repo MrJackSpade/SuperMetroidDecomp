@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -15,6 +14,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Fx.Artwork;
 using SuperMetroid.Verification.Fx.PaletteFx;
 
@@ -27,7 +27,7 @@ internal static class RoomPaletteFxPresentationVerification
         SuperMetroidAddressSpace bus)
     {
         byte[] extracted =
-            SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(bus);
+            SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus);
         RoomPaletteFxPresentation presentation = RoomPaletteFxPresentation.Load(
             new MemoryStream(extracted, writable: false));
         var colorAddresses = new HashSet<int>();
@@ -229,7 +229,7 @@ internal static class RoomPaletteFxPresentationVerification
         AssertEqual(256, identities.Length, "gunship auditor identities include calculated colors");
         AssertEqual(256, identities.Distinct().Count(), "gunship auditor identities are unique");
         var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(
-            SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions);
+            SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions);
         // White, both dim boundaries, the special boundary color, each interpolation
         // stage and the bright base all remain independently editable.
         foreach (var edit in new[] { (0, 1), (7, 2), (7, 15), (8, 3), (3, 4), (11, 5), (15, 6) })
@@ -298,7 +298,7 @@ internal static class RoomPaletteFxPresentationVerification
         AssertEqual(224, identities.Length, "glare computed and supplied identities remain enumerable");
         AssertEqual(224, identities.Distinct().Count(), "glare identities have no duplicates");
         var document = RequiredJson.Deserialize<RoomPaletteFxPresentationDocument>(
-            SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions);
+            SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(bus), MapPresentationFormat.JsonOptions);
         // An intermediate, its return-side counterpart, white peak and base can be
         // edited independently. Unchanged rows must not inherit a changed base value.
         foreach (var edit in new[] { (0, 1), (12, 2), (6, 0), (13, 3) })

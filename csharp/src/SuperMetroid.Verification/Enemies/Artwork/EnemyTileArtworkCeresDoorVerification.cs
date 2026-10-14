@@ -1,14 +1,14 @@
 using SuperMetroid.Tooling;
 using System.Text.Json;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -33,19 +33,19 @@ internal static class EnemyTileArtworkCeresDoorVerification
 
         var nativeColors = new SnesCgram();
         var compiledColors = new SnesCgram();
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.NormalColors,
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.NormalColors,
             CeresDoorVisualRomData.SetupColorCount, CeresDoorVisualRomData.NormalTargetColor);
         visual.LoadNormalColors(compiledColors, CeresDoorVisualRomData.NormalTargetColor);
         AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors)),
             "installed Ceres-door normal RGB5 palette matches the cartridge");
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.EscapeColors,
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.EscapeColors,
             CeresDoorVisualRomData.SetupColorCount, CeresDoorVisualRomData.ActiveTargetColor);
         visual.LoadEscapeColors(compiledColors, CeresDoorVisualRomData.ActiveTargetColor);
         AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors)),
             "installed Ceres-door escape RGB5 palette matches the cartridge");
         for (int row = 0; row < CeresDoorVisualRomData.AnimationRowCount; row++)
         {
-            SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeColors, bus,
+            SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeColors, bus,
                 CeresDoorVisualRomData.AnimationColors +
                     row * CeresDoorVisualRomData.AnimationRowByteStride,
                 CeresDoorVisualRomData.AnimationColorCount,

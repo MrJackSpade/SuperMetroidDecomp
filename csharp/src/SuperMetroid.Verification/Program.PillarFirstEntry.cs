@@ -74,7 +74,7 @@ internal static class PillarFirstEntryVerification
             var heads = runtime.Enemies.SlotTable.Slots.Take(2).ToArray();
             var states = runtime.Enemies.NuclearWaffleStates.Where(state => state is not null).ToArray();
             if (frame % 8 != 0) continue;
-            var snapshot = GameplayDisplayCapture.CaptureFrame(runtime);
+            var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
             // Remove all OBJ only from an immutable comparison frame. Keep the real
             // terrain, acid, color math and priority ladder: emitted OAM hidden behind

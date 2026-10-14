@@ -202,7 +202,7 @@ internal static partial class SwapchainTests
             PumpUntil(() => worker.Ready.IsCompleted);
             worker.Ready.GetAwaiter().GetResult();
             long sequence = 1;
-            worker.Publish(new(new(sequence, 1, 0), GameplayDisplayCapture.CaptureFrame(runtime)));
+            worker.Publish(new(new(sequence, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())));
             PumpUntil(() => entered.IsSet);
             var clock = Stopwatch.StartNew();
             RenderFrameSnapshot? latest = null;
@@ -221,7 +221,7 @@ internal static partial class SwapchainTests
             RenderMailboxCounterView resumed = mailbox.VerificationCounters;
             if (resumed.HasPendingFrame || resumed.Taken != 2)
                 throw new InvalidOperationException("Resumed door consumer did not skip superseded transition packets.");
-            PixelComparison.Verify(latest, SuperMetroidRuntimeFrameRenderer.Render(runtime),
+            PixelComparison.Verify(latest, SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(latest), $"{device.Kind}: retained destination after blocked {context} door");
             Console.WriteLine($"{device.Kind}: blocked {context} door completed; {sequence - 2} replaced frames, latest destination consumed.");
         }

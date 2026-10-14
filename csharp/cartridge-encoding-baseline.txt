@@ -575,7 +575,7 @@ csharp/src/SuperMetroid.Core/Rendering/SamusSuitPickupRenderer.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Rendering/SnesGameplayFrameRenderer.cs	SME6340	7
 csharp/src/SuperMetroid.Core/Rendering/SnesMode7Renderer.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Rendering/SnesObjRenderer.cs	SME6340	8
-csharp/src/SuperMetroid.Core/Rendering/SuperMetroidRuntimeFrameRenderer.cs	SME6340	2
+csharp/src/SuperMetroid.Core/Rendering/SuperMetroidRuntimeFrameRenderer.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Rendering/TitleGradientColorMath.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Rendering/XrayRoomDisplayRules.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Rooms/BackgroundTilemapStreamer.cs	SME6340	30

@@ -15,7 +15,7 @@ internal static class CrystalFlashVisualsVerification
     {
         var samus = runtime.Player.IntroducedSamus;
         var bus = runtime.AddressSpace;
-        var packet = GameplayDisplayCapture.CaptureFrame(runtime);
+        var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         if (samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash)
         {
             // Independent timeline lookup: expand authored durations into a cycle

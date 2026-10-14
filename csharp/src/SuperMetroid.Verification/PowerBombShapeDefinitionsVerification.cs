@@ -59,8 +59,7 @@ internal static class PowerBombShapeDefinitionsVerification
             return result;
         }
         var explosion = new SamusPowerBombExplosionState();
-        var read = new Func<SamusPowerBombExplosionState, int, int>(SnesGameplayFrameRenderer.ReadPowerBombHalfWidth);
-        var forbidden = NewPowerBombShapeReadGuard();
+        var read = new Func<SamusPowerBombExplosionState, int, int>((state, y) => SnesGameplayFrameRenderer.ReadPowerBombHalfWidth(PowerBombRenderSnapshot.Capture(state), y));
         foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite, PowerBombExplosionPhase.ExplosionYellow })
         {
             explosion.RenderedPhase = phase;
@@ -83,7 +82,7 @@ internal static class PowerBombShapeDefinitionsVerification
             explosion.RenderedExplosionRadius = (ushort)SnesEightEight.FromWhole(radius);
             explosion.FixedColorRed = (byte)31;
             var frame = Enumerable.Repeat(new Rgba32(0, 0, 0, 255), 256 * 224).ToArray();
-            SnesGameplayFrameRenderer.ApplyPowerBombColorMath(frame, forbidden, explosion, new Position16<RoomPixels>(0, 0));
+            SnesGameplayFrameRenderer.ApplyPowerBombColorMath(frame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
             int[] profile = Profile(radius);
             for (int y = 0; y < 224; y++)
             for (int x = 0; x < 256; x++)
@@ -97,12 +96,6 @@ internal static class PowerBombShapeDefinitionsVerification
         }
         Console.WriteLine($"Power Bomb compiled shape: 64 native bytes, 197120 signed scanline cases and {frames} complete clipped/HUD-preserving frames match without a bus.");
     }
-
-    /// <summary>Rejects all bus access while the installed shape renderer calculates pixels.</summary>
-    private static CartridgeReadGuard NewPowerBombShapeReadGuard() =>
-        CartridgeReadGuard.Unbacked()
-            .ForbidAll(address => $"Unexpected shape ROM read: {address:X6}.")
-            .RejectWrites(_ => "Unexpected shape bus write.");
 
     /// <summary>Runs the Power Bomb shape algorithm and pixel fixture.</summary>
     [VerificationCommand("--power-bomb-shape-fixture")]

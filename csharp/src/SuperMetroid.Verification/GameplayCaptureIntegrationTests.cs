@@ -25,8 +25,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.NmiHandler.RunNmi(0, true);
-        AssertTrue(SuperMetroidRuntimeFrameRenderer.Render(runtime).SequenceEqual(
-            SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureFrame(runtime))), "Ceres Mode-7 capture parity");
+        AssertTrue(SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()).SequenceEqual(
+            SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()))), "Ceres Mode-7 capture parity");
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
         runtime.NmiHandler.RunNmi(0, true);
 
@@ -38,7 +38,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
             0x0412);
         runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: false);
         OrdinaryGameplayRegisters laggedRegisters =
-            ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime)
+            ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame())
                 .Layers[0]).Registers;
         AssertEqual((byte)0, laggedRegisters.Windows.ObjectColorLogic,
             "lag NMI does not publish Chainsaw WOBJLOG store");
@@ -48,7 +48,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
             "lag NMI retains preceding gameplay TM");
         runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
         OrdinaryGameplayRegisters acceptedRegisters =
-            ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime)
+            ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame())
                 .Layers[0]).Registers;
         AssertEqual((byte)0x12, acceptedRegisters.Windows.ObjectColorLogic,
             "accepted NMI publishes Chainsaw WOBJLOG store");
@@ -64,8 +64,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);
         runtime.SuitPickup.Begin(bus, runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
-        Rgba32[] expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-        LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureFrame(runtime);
+        Rgba32[] expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+        LayeredRenderSnapshot captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(captured.Layers.Length == 4 && captured.Layers[0] is OrdinaryGameplayRenderLayer
             && captured.Layers[1] is ScanlineColorAddRenderLayer && captured.Layers[2] is MessageBoxRenderLayer
             && captured.Layers[3] is ScanlineColorAddRenderLayer, "base/Power Bomb/message/suit order");

@@ -51,9 +51,9 @@ internal static class RetailRoomPublicationTests
             }
             for (int tick = 0; tick < 13; tick++)
             {
-                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
                 var packet = new RenderFrameSnapshot(new(++sequence, 1, (ushort)tick),
-                    GameplayDisplayCapture.CaptureFrame(runtime));
+                    GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 if (fx == PublishedFx.Heat &&
                     ((packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")).Layers[0] is not OrdinaryGameplayRenderLayer heat ||

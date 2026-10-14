@@ -87,7 +87,7 @@ internal static class MoatFirstEntryVerification
                 // SuperMetroidGame publishes gameplay immediately after this same
                 // transition step. Capture the IRQ scroll and palette fade too,
                 // not just the already-completed destination used by older probes.
-                var snapshot = GameplayDisplayCapture.CaptureFrame(runtime);
+                var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
                 var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
                 if (!pauseBeforeEntry) unpausedTransitionFrames[(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedTransitionFrames[(source, frame)]),
@@ -100,7 +100,7 @@ internal static class MoatFirstEntryVerification
             for (int frame = 0; frame < 4; frame++)
             {
                 runtime.StepFrame(0);
-                var snapshot = GameplayDisplayCapture.CaptureFrame(runtime);
+                var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
                 var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
                 if (!pauseBeforeEntry) unpausedFrames[(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedFrames[(source, frame)]),

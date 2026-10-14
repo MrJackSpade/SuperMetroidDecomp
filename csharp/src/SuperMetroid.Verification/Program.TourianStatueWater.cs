@@ -53,8 +53,8 @@ internal static class TourianStatueWaterVerification
         var displayed = runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("No displayed water snapshot");
         AssertEqual((short)0xb0, displayed.WaterSurfaceScreenY, "Displayed water surface stays at native room height");
         AssertEqual(LayerBlendingConfiguration.LiquidOrFogAdditive, displayed.LayerBlendConfiguration, "Native configuration 18");
-        var basis = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
-        var full = GameplayDisplayCapture.CaptureFrame(runtime);
+        var basis = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
+        var full = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertEqual(1, full.Layers.Count(layer => layer is Bg2BppColorMathRenderLayer), "One BG3 water plane accompanies the statue");
         var dryPixels = SoftwareLayeredSnapshotRenderer.Render(basis);
         var wetPixels = SoftwareLayeredSnapshotRenderer.Render(full);
@@ -71,7 +71,7 @@ internal static class TourianStatueWaterVerification
         runtime.TourianStatues.descent = 64 << 16;
         runtime.TourianStatues.LatchDisplay();
         runtime.NmiHandler.RunNmi(0, true);
-        var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
+        var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(unchecked((ushort)(runtime.Display.DisplayedGameplayPpu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset)),
             descending.Registers.Bg2Scroll.Y, "Statue descent retains its independent BG2 vertical scroll");
         AssertEqual((short)0xb0, runtime.Display.DisplayedRoomLayer3Fx.Value.WaterSurfaceScreenY,

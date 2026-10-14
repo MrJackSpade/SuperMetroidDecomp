@@ -64,7 +64,7 @@ internal static class ColorWindowSnapshotTestsVerification
         foreach (ushort centerX in new ushort[] { 128, 65500, 290 })
         {
             var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombFixedColors };
-            AssertTrue(SnesGameplayFrameRenderer.CapturePowerBombColorMath(bus, explosion, new Position16<RoomPixels>(0, 0)) is null,
+            AssertTrue(SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0)) is null,
                 "inactive Power Bomb emits no operation");
             explosion.Arm(); explosion.Spawn(new(centerX, 120));
             var phases = new HashSet<PowerBombExplosionPhase>();
@@ -76,8 +76,8 @@ internal static class ColorWindowSnapshotTestsVerification
                 if (sample)
                 {
                     expected = baseline.ToArray();
-                    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(expected, bus, explosion, new Position16<RoomPixels>(0, 0));
-                    retained = SnesGameplayFrameRenderer.CapturePowerBombColorMath(bus, explosion, new Position16<RoomPixels>(0, 0));
+                    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(expected, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+                    retained = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
                     Compare(expected, (retained ?? throw new InvalidOperationException("Verification requires retained.")));
                 }
                 explosion.StepFrame(bus);

@@ -67,8 +67,8 @@ internal static class InstalledPowerBombIsolationTests
                         Require(expected == actual, context + ": cleanup result differs");
                         if (replacement.Phase == PowerBombExplosionPhase.CrystalFlashAfterglow)
                             CheckEditedRestore(replacement, stock.PowerBombFixedColors, context);
-                        var first = SnesGameplayFrameRenderer.CapturePowerBombColorMath(memory, baseline, new Position16<RoomPixels>(0, 0));
-                        var second = SnesGameplayFrameRenderer.CapturePowerBombColorMath(memory, replacement, new Position16<RoomPixels>(0, 0));
+                        var first = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(baseline), new Position16<RoomPixels>(0, 0));
+                        var second = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(replacement), new Position16<RoomPixels>(0, 0));
                         RequireSameGeometry(first, second, context);
                         if (Colors(baseline) != Colors(replacement)) changedColors++;
                         if (second is not null)

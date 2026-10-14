@@ -1282,7 +1282,7 @@ internal static void VerifyPowerBombColorMathWindow()
     // Spawn happens after the native HDMA pass. Even though status is already `$8000`,
     // the host must not invent an explosion table on this frame.
     Rgba32[] spawnFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(spawnFrame, bus, explosion, new Position16<RoomPixels>(0, 0));
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(spawnFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
     AssertEqual(new Rgba32(0, 0, 0, 255),
         spawnFrame[centerY * SnesGameplayFrameRenderer.Width + centerX],
         "power-bomb spawn frame has no premature HDMA window");
@@ -1300,7 +1300,7 @@ internal static void VerifyPowerBombColorMathWindow()
     AssertEqual(0x3400, explosion.PreExplosionRadius,
         "power-bomb logic advances next-frame radius");
     Rgba32[] scaledFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(scaledFrame, bus, explosion, new Position16<RoomPixels>(0, 0));
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(scaledFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
     Rgba32 fixedColor = new(8, 16, 24, 255);
     AssertEqual(fixedColor,
         scaledFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 3],
@@ -1321,7 +1321,7 @@ internal static void VerifyPowerBombColorMathWindow()
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
     Rgba32[] shapeFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(shapeFrame, bus, explosion, new Position16<RoomPixels>(0, 0));
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(shapeFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
     AssertEqual(0x9f06, explosion.RenderedShapeDefinitionPointer,
         "first yellow frame selects the native profile");
     for (int y = 0; y < SnesGameplayFrameRenderer.Height; y++)

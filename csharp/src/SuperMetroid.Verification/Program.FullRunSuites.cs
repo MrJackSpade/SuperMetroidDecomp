@@ -132,6 +132,7 @@ using static GameSaveJsonVerification;
 using static GameTimeVerification;
 using static GamepadInputVerification;
 using static GameplayCaptureIntegrationTestsVerification;
+using static GameplayDisplayFrameTestsVerification;
 using static GameplaySnapshotTestsVerification;
 using static GateBeamCollisionVerification;
 using static GateJumpTraceVerification;
@@ -412,6 +413,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEyeWindowSnapshots), () => VerifyEyeWindowSnapshots()),
         new(nameof(VerifyRoomFxSnapshots), () => VerifyRoomFxSnapshots()),
         new(nameof(VerifyGameplayCaptureIntegration), () => VerifyGameplayCaptureIntegration()),
+        new(nameof(VerifyGameplayDisplayFrame), () => VerifyGameplayDisplayFrame()),
         new(nameof(VerifyMode7GameplaySnapshots), () => VerifyMode7GameplaySnapshots()),
         new(nameof(VerifyEndingRenderSnapshots), () => VerifyEndingRenderSnapshots()),
         new(nameof(VerifyFileMapSnapshots), () => VerifyFileMapSnapshots()),

@@ -924,7 +924,7 @@ internal sealed class CeresDestructionCinematicState
 
     /// <summary>Captures the active station blast's scanline color addition as a render layer.</summary>
     private ScanlineColorAddRenderLayer? CaptureStationExplosion() =>
-        SnesGameplayFrameRenderer.CapturePowerBombColorMath(bus, stationExplosion,
+        SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(stationExplosion),
             layer1: Position16<RoomPixels>.Zero, firstVisibleScanline: 0);
 
     /// <summary>Draws live actors into OAM, retaining native slot order when Ceres explosions recycle slots.</summary>

@@ -36,7 +36,7 @@ internal static class PowerBombRuntimeIntegrationVerification
             camera: new Position16<RoomPixels>(0, 0));
         runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
 
-        Rgba32[] baseline = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();
+        Rgba32[] baseline = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()).ToArray();
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Arm();
         explosion.Spawn(
@@ -45,15 +45,17 @@ internal static class PowerBombRuntimeIntegrationVerification
         AssertEqual(PowerBombExplosionPhase.Inactive, explosion.RenderedPhase,
             "HDMA allocation setup does not draw the first flash prematurely");
         explosion.StepFrame(bus);
+        // The window table is read during display, but the pre-instruction's COLDATA
+        // write reaches the PPU only with the following accepted NMI (#1307).
+        runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
 
         GameplayPpuRenderSnapshot ppu = runtime.Display.DisplayedGameplayPpu;
         Rgba32[] expected = baseline.ToArray();
         SnesGameplayFrameRenderer.ApplyPowerBombColorMath(
             expected,
-            bus,
-            explosion,
+            PowerBombRenderSnapshot.Capture(explosion),
             ppu.Layer1Position);
-        Rgba32[] actual = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+        Rgba32[] actual = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
 
         int expectedChangedPixels = CountPowerBombFrameDifferences(baseline, expected);
         AssertTrue(expectedChangedPixels > 0,

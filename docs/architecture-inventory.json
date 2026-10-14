@@ -12275,6 +12275,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "GameplayDisplayFrameTestsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/GameplayDisplayFrameTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "GameplayGrapplePaletteVerification",
       "kind": "static class",
       "scope": "test",
@@ -62749,6 +62762,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Game.CeresHazeRenderSnapshot",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Game/CeresHazeRenderSnapshot.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Game.CeresHazeState",
       "kind": "class",
       "scope": "product",
@@ -76880,6 +76906,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Game.PhantoonDisplaySnapshot",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Game/PhantoonDisplaySnapshot.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Game.PhantoonEnemyState",
       "kind": "class",
       "scope": "product",
@@ -77720,6 +77759,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Game/PowerBombFuseStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Game.PowerBombRenderSnapshot",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Game/PowerBombRenderSnapshot.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -83426,6 +83478,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Game.SamusXrayDisplaySnapshot",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Game/SamusXrayDisplaySnapshot.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Game.SamusXrayRomData",
       "kind": "static class",
       "scope": "product",
@@ -83798,6 +83863,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Game/ScrollingSkyChunkTable.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Game.ScrollingSkyRegisterSnapshot",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Game/ScrollingSkyRegisterSnapshot.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -88544,6 +88622,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Hardware/FixedColorMemory.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Hardware.FixedColorRegisterSnapshot",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Hardware/FixedColorRegisterSnapshot.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -97693,6 +97784,19 @@
       "disposition": "constructor-parameters"
     },
     {
+      "type": "SuperMetroid.Core.Runtime.GameplayDisplayFrame",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/GameplayDisplayFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Runtime.GameplayDisplayState",
       "kind": "class",
       "scope": "product",
@@ -97704,6 +97808,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.GameplayFrameEndDisplayInputs",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/GameplayFrameEndDisplayInputs.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Runtime.GameplayHudSetup",
@@ -97730,6 +97847,58 @@
       ],
       "partial": "none",
       "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.GameplayLatchedBossBackgrounds",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/GameplayLatchedBossBackgrounds.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.GameplayLatchedFixedColors",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/GameplayLatchedFixedColors.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.GameplayLatchedSceneRegisters",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/GameplayLatchedSceneRegisters.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Runtime.GameplayNmiDisplayLatch",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Runtime/GameplayNmiDisplayLatch.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Runtime.GameplayOptions",

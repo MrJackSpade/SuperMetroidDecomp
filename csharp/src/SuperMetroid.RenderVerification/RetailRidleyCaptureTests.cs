@@ -33,8 +33,10 @@ internal static class RetailRidleyCaptureTests
             ridley.Mode7MatrixC = unchecked((ushort)-tilt);
             ridley.Mode7Center = new Position16<Mode7Pixels>(128, 120);
             ridley.Mode7Offset = new Offset16<Mode7Pixels>(7, unchecked((short)scroll));
-            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();
-            var scene = GameplayDisplayCapture.CaptureFrame(runtime);
+            // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
+            runtime.NmiHandler.RunNmi(0, true);
+            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()).ToArray();
+            var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             if (scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null } mixed ||
                 mixed.HudScanlines != SnesPpuLayout.GameplayHudHeightPixels)
                 throw new InvalidOperationException("Retail Ridley fixture did not capture mixed Mode-7 floor and HUD.");

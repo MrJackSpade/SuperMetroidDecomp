@@ -151,10 +151,10 @@ internal sealed class FrontendDisplay
         // The diagnostic no-render mode deliberately retains the prior display. Do not
         // materialize a stored packet simply because this simulation-only caller steps.
         if (!renderGameplayFrames) return;
+        GameplayDisplayFrame frame = activeRuntime.PublishDisplayFrame();
         if (captureIdentity is { } identity)
-            capturedDisplay = new(identity, GameplayDisplayCapture.CaptureFrame(activeRuntime)
-                ?? throw new InvalidOperationException("Gameplay publication omitted its render snapshot."));
-        else Pixels = SuperMetroidRuntimeFrameRenderer.Render(activeRuntime);
+            capturedDisplay = new(identity, GameplayDisplayCapture.Capture(frame));
+        else Pixels = SuperMetroidRuntimeFrameRenderer.Render(frame, activeRuntime.GameplayFrameBuffer);
     }
 
     /// <summary>Replaces the published scene with opaque black under the current capture identity.</summary>

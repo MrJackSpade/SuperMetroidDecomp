@@ -477,12 +477,9 @@ public static class SnesGameplayFrameRenderer
     /// </remarks>
     public static void ApplyPowerBombColorMath(
         Span<Rgba32> frame,
-        ISnesAddressSpace bus,
-        SamusPowerBombExplosionState explosion,
+        PowerBombRenderSnapshot explosion,
         Position16<RoomPixels> layer1)
     {
-        Ensure.NotNull(bus);
-        Ensure.NotNull(explosion);
         Ensure.LengthEqual(frame, Width * Height);
         if (!explosion.IsActive)
             return;
@@ -739,11 +736,9 @@ public static class SnesGameplayFrameRenderer
     /// </summary>
     public static void ApplyMorphBallEyeBeamColorMath(
         Span<Rgba32> frame,
-        ISnesAddressSpace bus,
         MorphBallEyeBeamRenderSnapshot beam,
         Position16<RoomPixels> layer1)
     {
-        Ensure.NotNull(bus);
         Ensure.LengthEqual(frame, Width * Height);
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or
             MorphBallEyeBeamPhase.PendingInitialization)
@@ -754,7 +749,7 @@ public static class SnesGameplayFrameRenderer
         // Both display-packet and immediate rendering consume the same cartridge
         // endpoint builder. Backend equality is useful coverage, but the separate
         // executed-ROM fixture is the independent oracle for these endpoints.
-        ScanlineColorAddRenderLayer layer = CaptureMorphBallEyeBeam(bus, beam, layer1) ??
+        ScanlineColorAddRenderLayer layer = CaptureMorphBallEyeBeam(beam, layer1) ??
             throw new InvalidOperationException("An active morph-ball eye beam always captures its windows.");
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
@@ -774,7 +769,7 @@ public static class SnesGameplayFrameRenderer
 
     /// <summary>Samples the active power-bomb window's half-width at a signed distance from its center, or minus one outside the flash.</summary>
     internal static int ReadPowerBombHalfWidth(
-        SamusPowerBombExplosionState explosion,
+        PowerBombRenderSnapshot explosion,
         int yFromCenter)
     {
         PowerBombExplosionPhase renderedPhase = explosion.RenderedPhase;
@@ -942,10 +937,9 @@ public static class SnesGameplayFrameRenderer
     }
 
     /// <summary>Resolves the published eye cone and ROM tangent table into inclusive color windows.</summary>
-    public static ScanlineColorAddRenderLayer? CaptureMorphBallEyeBeam(ISnesAddressSpace bus,
+    public static ScanlineColorAddRenderLayer? CaptureMorphBallEyeBeam(
         MorphBallEyeBeamRenderSnapshot beam, Position16<RoomPixels> layer1)
     {
-        Ensure.NotNull(bus);
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
             return null;
         Offset16<ScreenPixels> origin = beam.WorldPosition.RelativeToCamera(layer1);
@@ -1071,12 +1065,10 @@ public static class SnesGameplayFrameRenderer
     /// Resolves ROM curve data and the rendered explosion phase on the producer side.
     /// The renderer receives only clipped endpoints/colors, not a bus or projectile owner.
     /// </summary>
-    public static ScanlineColorAddRenderLayer? CapturePowerBombColorMath(ISnesAddressSpace bus,
-        SamusPowerBombExplosionState explosion, Position16<RoomPixels> layer1,
+    public static ScanlineColorAddRenderLayer? CapturePowerBombColorMath(
+        PowerBombRenderSnapshot explosion, Position16<RoomPixels> layer1,
         int firstVisibleScanline = HudHeight)
     {
-        Ensure.NotNull(bus);
-        Ensure.NotNull(explosion);
         if ((uint)firstVisibleScanline > Height)
             throw new ArgumentOutOfRangeException(nameof(firstVisibleScanline));
         if (!explosion.IsActive) return null;
@@ -1103,18 +1095,18 @@ public static class SnesGameplayFrameRenderer
     }
 
     /// <summary>Resolves the same tangent inequalities as the reference X-ray raster into immutable line intervals.</summary>
-    public static XrayWindowLine[] CaptureXrayWindowLines(ISnesAddressSpace bus, SamusState samus,
+    public static XrayWindowLine[] CaptureXrayWindowLines(SamusXrayDisplaySnapshot xray,
         Position16<RoomPixels> layer1)
     {
-        bool leftFacing = samus.PoseMetadata.IsFacingLeft(bus);
-        Offset16<ScreenPixels> samusOnScreen = samus.Position.Whole.RelativeToCamera(layer1);
+        bool leftFacing = xray.FacingLeft;
+        Offset16<ScreenPixels> samusOnScreen = xray.SamusPosition.RelativeToCamera(layer1);
         int originX = samusOnScreen.X +
             (leftFacing ? -XrayWindowRenderDefinitions.EyeHorizontalOffset : XrayWindowRenderDefinitions.EyeHorizontalOffset);
         int originY = samusOnScreen.Y -
-            (samus.PoseMetadata.ReadMovementType(bus) == SamusMovementType.Crouching
+            (xray.Crouching
                 ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
-        int angle = samus.Xray.Angle.TableIndex;
-        int width = SnesLittleEndian.LowByte(samus.Xray.AngularWidth);
+        int angle = xray.Angle.TableIndex;
+        int width = SnesLittleEndian.LowByte(xray.AngularWidth);
         Offset16<ScreenPixels> a = ReadXrayDirection(angle - width), b = ReadXrayDirection(angle + width);
         bool horizontal = width == 0 && (angle == SnesAngle.QuarterTurn.TableIndex || angle == SnesAngle.ThreeQuarterTurn.TableIndex);
         var lines = new XrayWindowLine[Height];

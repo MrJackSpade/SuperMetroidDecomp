@@ -26,8 +26,8 @@ internal static class EndingExplosionSlotOrderVerification
         for (int frame = 0; frame < 100; frame++) ending.Step();
         var definition = EndingCreditsRomData.Sprites.ExplosionAfterglow;
         var afterglow = new IntroDiscoverySprite(new(definition.Position.X, definition.Position.Y),
-            definition.Attributes.Raw, definition.InstructionPointer);
-        afterglow.Step(instructionWord: EndingCartridgeInstructionWord(bus));
+            definition.Attributes.Raw, definition.Program);
+        afterglow.Step();
         var expected = new OamBuffer();
         expected.BeginFrame();
         afterglow.Draw(expected, installedArt: RepositoryInstallation.Installation.LoadEndingObjectArt().ExplosionSprites);

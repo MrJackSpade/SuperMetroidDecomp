@@ -126,30 +126,27 @@ internal sealed class IntroBabyDiscoveryState
         if (egg.PreInstructionPointer == IntroBabyActorDefinitions.Egg.PreInstruction &&
             unchecked((short)(Samus.Position.X.Whole - 0x00a9)) < 0)
         {
-            egg.Redirect(CinematicCodePointers.Lists.MetroidEggHatching);
+            egg.Start(CinematicSpriteProgram.MetroidEggHatching);
             egg.PreInstructionPointerForDiscovery(
                 CinematicCodePointers.CinematicSpriteObject_PreInstruction_NoOp);
             EggHatchingStarted = true;
         }
 
         // $A903 replaces the egg with the shared delete list only when page three's reverse
-        // crossfade reaches zero. It is installed by list opcode $944C after $B33E.
-        if (egg.PreInstructionPointer ==
-                CinematicCodePointers.PreInstruction_MetroidEgg_DeleteAfterCrossFade &&
+        // crossfade reaches zero. The egg's program installs it after starting page three.
+        if (egg.ListPreInstruction == CinematicSpritePreInstruction.MetroidEggDeleteAfterCrossFade &&
             introCrossfadeTimer == 0)
         {
-            egg.Redirect(CinematicCodePointers.Lists.Delete);
+            egg.Start(CinematicSpriteProgram.Delete);
             // $8B:A914: page three's text hides Samus.
             SamusDisplay = IntroSamusDisplay.Hidden;
         }
-        egg.Step<IntroEggInstruction>(HandleEggInstruction,
-            IntroBabyDiscoveryInstructionDefinitions.ReadWord);
+        egg.Step(HandleEggCue);
 
         // The baby slot follows the egg slot in the native descending actor traversal, so
         // it observes the egg's freshly advanced list pointer in this same frame.
         StepConfusedBaby(introCrossfadeTimer);
-        confusedBaby.Step<ConfusedBabyInstruction>(HandleConfusedBabyInstruction,
-            IntroBabyDiscoveryInstructionDefinitions.ReadWord);
+        confusedBaby.Step();
 
         foreach (IntroEggParticle particle in eggParticles)
             particle.Step();
@@ -222,11 +219,11 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Spawns hatch particles or requests the page-three transition from the egg's list.</summary>
-    private ushort HandleEggInstruction(IntroEggInstruction opcode, ushort argumentPointer)
+    private void HandleEggCue(CinematicSpriteCueKind cue)
     {
-        switch (opcode)
+        switch (cue)
         {
-            case IntroEggInstruction.SpawnParticles:
+            case CinematicSpriteCueKind.SpawnParticles:
                 // The six JSR Spawn calls at $A918..A94C use definitions CECD through CEEB
                 // and init parameters zero through five, in this exact order.
                 for (byte index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
@@ -234,47 +231,31 @@ internal sealed class IntroBabyDiscoveryState
                 audio?.QueueSound(
                     IntroCinematicRomData.Objects.EggHatch,
                     maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
-                return argumentPointer;
+                return;
 
-            case IntroEggInstruction.StartIntroPage3:
-                // This opcode switches the outer cinematic function to page three and then
-                // returns without consuming operands. The state owner performs the palette
-                // transition; the actor interpreter merely reports the native request.
+            case CinematicSpriteCueKind.StartIntroPage3:
+                // This cue switches the outer cinematic function to page three. The state
+                // owner performs the palette transition; the actor merely reports the request.
                 PageThreeRequested = true;
-                return argumentPointer;
+                return;
 
             default:
-                throw new InvalidOperationException($"Undefined IntroEggInstruction {opcode}.");
+                throw new InvalidOperationException($"The Metroid egg programs publish no {cue} cue.");
         }
-    }
-
-    /// <summary>Queues the particular cry selected by the confused baby's instruction list.</summary>
-    private ushort HandleConfusedBabyInstruction(ConfusedBabyInstruction opcode, ushort argumentPointer)
-    {
-        byte soundId = opcode switch
-        {
-            ConfusedBabyInstruction.PlayCry1 => IntroCinematicRomData.Objects.BabyCry1.Value,
-            ConfusedBabyInstruction.PlayCry2 => IntroCinematicRomData.Objects.BabyCry2.Value,
-            ConfusedBabyInstruction.PlayCry3 => IntroCinematicRomData.Objects.BabyCry3.Value,
-            _ => throw new InvalidOperationException($"Undefined ConfusedBabyInstruction {opcode}."),
-        };
-
-        audio?.QueueSound(
-            SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, soundId),
-            maximumQueued: 6);
-        return argumentPointer;
     }
 
     /// <summary>Advances the baby from hatch wait through rise, idle, and crossfade dance phases.</summary>
     private void StepConfusedBaby(ushort introCrossfadeTimer)
     {
-        switch (CinematicInstructionWords.Decode<ConfusedBabyPreInstruction>(
-                    confusedBaby.PreInstructionPointer, confusedBaby.InstructionPointer))
+        switch (CinematicInstructionWords.DecodePreInstruction<ConfusedBabyPreInstruction>(
+                    confusedBaby.PreInstructionPointer, confusedBaby.CurrentProgram))
         {
             case ConfusedBabyPreInstruction.WaitingForHatch:
-                // $BA5E watches the egg's *next* instruction pointer. CB79 is the first
-                // fully-hatched frame list, so the baby starts moving on that exact handoff.
-                if (egg.InstructionPointer >= CinematicCodePointers.Lists.MetroidEggHatchedFrame2)
+                // $BA5E watches the egg's *next* instruction pointer reach CB79, the first fully-hatched frame list:
+                // the egg's program is then MetroidEggHatchedFrame2 or a later one, so the baby starts moving on that
+                // exact handoff.
+                if (egg.CurrentProgram is CinematicSpriteProgram.MetroidEggHatchedFrame2 or
+                    CinematicSpriteProgram.MetroidEggHatched or CinematicSpriteProgram.Delete)
                 {
                     confusedBaby.PreInstructionPointerForDiscovery(
                         (ushort)ConfusedBabyPreInstruction.Hatched);
@@ -427,7 +408,7 @@ internal sealed class IntroBabyDiscoveryState
         var actor = new IntroDiscoverySprite(
             definition.Position,
             definition.PaletteBits,
-            definition.InstructionList);
+            definition.Program);
         actor.PreInstructionPointerForDiscovery(definition.PreInstruction);
         return actor;
     }

@@ -6,11 +6,9 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The eight cinematic sprite objects spawned by Mother Brain's fourth intro missile hit.
 /// </summary>
 /// <remarks>
-/// This is not a desktop particle approximation. It is the small common subset of the
-/// bank-$8B cinematic-object interpreter used by definitions $CF15 and $CF1B: initializer
-/// tables, delayed instruction timers, six cartridge spritemaps, one blank frame, and the
-/// $94BC loop opcode. Keeping it separate from Mother Brain makes each native object retain
-/// its own timer and instruction pointer, which is what creates the staggered blast pattern.
+/// Definitions $CF15 and $CF1B: initializer tables place each object and delay its first frame, and each runs its own
+/// typed program (#641). Every object keeps its own timer and program, which is what creates the staggered blast
+/// pattern.
 /// </remarks>
 internal sealed class IntroMotherBrainExplosionSystem
 {
@@ -35,9 +33,8 @@ internal sealed class IntroMotherBrainExplosionSystem
     }
 
     /// <summary>Advances every allocated object through the exact bank-$8B list format.</summary>
-    public void Step(ISnesAddressSpace bus, ushort introCrossfadeTimer)
+    public void Step(ushort introCrossfadeTimer)
     {
-        Ensure.NotNull(bus);
         foreach (ExplosionActor actor in actors)
             actor.Step(introCrossfadeTimer);
     }
@@ -56,33 +53,30 @@ internal sealed class IntroMotherBrainExplosionSystem
         }
     }
 
-    /// <summary>One bank-$8B cinematic object's own delayed instruction cursor and visible frame.</summary>
+    /// <summary>One bank-$8B cinematic object's delayed program and visible frame.</summary>
     internal sealed class ExplosionActor
     {
-        /// <summary>Next native duration or command word to decode.</summary>
-        private ushort instructionPointer;
-        /// <summary>Remaining handler calls before the next instruction word is read.</summary>
-        private NativeCountdown instructionTimer;
+        /// <summary>The cinematic sprite object running the explosion's program.</summary>
+        private readonly IntroDiscoverySprite sprite;
 
         /// <summary>Starts one explosion at its authored offset and independent launch delay.</summary>
         private ExplosionActor(
             Position16<ScreenPixels> position,
-            ushort instructionPointer,
-            ushort instructionTimer)
+            CinematicSpriteProgram program,
+            ushort startDelay)
         {
-            Position = position;
-            this.instructionPointer = instructionPointer;
-            this.instructionTimer = NativeCountdown.FromRaw(instructionTimer);
+            sprite = new IntroDiscoverySprite(position, IntroCinematicRomData.Objects.ExplosionPalette.Raw, program);
+            sprite.DelayFirstInstruction(startDelay);
         }
 
         /// <summary>Fixed cinematic screen origin selected by the small or big placement table.</summary>
-        public Position16<ScreenPixels> Position { get; }
+        public Position16<ScreenPixels> Position => sprite.WholePosition;
 
-        /// <summary>Current bank-$8B visual frame pointer, zero before the first timed pose or after deletion.</summary>
-        public ushort SpriteMapPointer { get; private set; }
+        /// <summary>Current bank-$8C visual frame pointer, zero before the first timed pose or after deletion.</summary>
+        public ushort SpriteMapPointer => sprite.SpriteMapPointer;
 
-        /// <summary>Cleared by the native delete command after the later crossfade or list completion.</summary>
-        public bool IsActive { get; private set; } = true;
+        /// <summary>Cleared by the program's delete after the later crossfade or list completion.</summary>
+        public bool IsActive => sprite.IsActive;
 
         /// <summary>Starts a big explosion from its five-entry position and delay table.</summary>
         public static ExplosionActor CreateBig(ushort parameter)
@@ -91,8 +85,8 @@ internal sealed class IntroMotherBrainExplosionSystem
                 IntroMotherBrainDefinitions.BigExplosion(parameter);
             return new ExplosionActor(
                 IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
-                instructionPointer: IntroMotherBrainDefinitions.BigExplosionActor.InstructionList,
-                instructionTimer: placement.StartTimer);
+                IntroMotherBrainDefinitions.BigExplosionActor.Program,
+                placement.StartTimer);
         }
 
         /// <summary>Starts a small explosion from its three-entry position and delay table.</summary>
@@ -102,66 +96,22 @@ internal sealed class IntroMotherBrainExplosionSystem
                 IntroMotherBrainDefinitions.SmallExplosion(parameter);
             return new ExplosionActor(
                 IntroMotherBrainDefinitions.MotherBrainOrigin + placement.Offset,
-                instructionPointer: IntroMotherBrainDefinitions.SmallExplosionActor.InstructionList,
-                instructionTimer: placement.StartTimer);
+                IntroMotherBrainDefinitions.SmallExplosionActor.Program,
+                placement.StartTimer);
         }
 
-        /// <summary>Consumes one cinematic handler call, following timed frames, loop branches, or deletion.</summary>
+        /// <summary>Consumes one cinematic handler call.</summary>
         public void Step(ushort introCrossfadeTimer)
         {
             if (!IsActive)
                 return;
 
             // $8B:BA0F deletes these actors only when the later page-two crossfade timer
-            // reaches zero. Writing timer one and list $CE53 before the generic decrement
-            // makes deletion occur in this same handler call.
+            // reaches zero. Starting the delete before the generic decrement makes deletion
+            // occur in this same handler call.
             if (introCrossfadeTimer == 0)
-            {
-                instructionTimer = NativeCountdown.Start(1);
-                instructionPointer = CinematicCodePointers.Lists.Delete;
-            }
-
-            instructionTimer = instructionTimer.Decrement().Remaining;
-            if (!instructionTimer.IsZero)
-                return;
-
-            ushort pointer = instructionPointer;
-            while (true)
-            {
-                ushort instructionOrDuration =
-                    IntroMotherBrainExplosionInstructionDefinitions.ReadWord(pointer);
-                if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
-                {
-                    instructionTimer = NativeCountdown.FromRaw(instructionOrDuration);
-                    SpriteMapPointer = IntroMotherBrainExplosionInstructionDefinitions.ReadWord(
-                        Add(pointer, 2));
-                    instructionPointer = Add(pointer, 4);
-                    return;
-                }
-
-                if (instructionOrDuration == (ushort)CinematicSpriteInstruction.Goto)
-                {
-                    pointer = IntroMotherBrainExplosionInstructionDefinitions.ReadWord(
-                        Add(pointer, 2));
-                    continue;
-                }
-
-                if (instructionOrDuration == (ushort)CinematicSpriteInstruction.Delete)
-                {
-                    IsActive = false;
-                    SpriteMapPointer = 0;
-                    instructionPointer = 0;
-                    return;
-                }
-
-                throw new InvalidDataException(
-                    $"Intro Mother Brain explosion opcode $8B:{instructionOrDuration:X4} at $8B:{pointer:X4} is invalid.");
-            }
+                sprite.Start(CinematicSpriteProgram.Delete);
+            sprite.Step();
         }
-
-        /// <summary>Advances a bank-$8B instruction pointer with native sixteen-bit wrap.</summary>
-        private static ushort Add(ushort pointer, int byteCount) =>
-            unchecked((ushort)(pointer + byteCount));
-
     }
 }

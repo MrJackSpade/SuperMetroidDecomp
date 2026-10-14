@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Frontend.Intro;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -51,22 +52,10 @@ internal static class EndingObjectArtworkVerification
         }
     }
 
-    /// <summary>Compares six compiled cloud lists and grids with native instruction words, OAM, and actor timing.</summary>
+    /// <summary>Compares the six cloud compositions and grids with native OAM.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending cloud definitions")]
     internal static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
     {
-        for (int pointer = EndingCloudInstructionDefinitions.Start;
-             pointer < EndingCloudInstructionDefinitions.End; pointer += sizeof(ushort))
-        {
-            int address = (int)new SnesAddress(0x8b, (ushort)pointer);
-            ushort nativeWord = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-            AssertEqual(nativeWord, EndingCloudInstructionDefinitions.ReadWord((ushort)pointer),
-                $"ending cloud instruction $8B:{pointer:X4} matches cartridge");
-        }
-        AssertThrows<InvalidDataException>(() =>
-            EndingCloudInstructionDefinitions.ReadWord(
-                EndingCloudInstructionDefinitions.End),
-            "ending cloud reader cannot escape its six lists");
         string[] names = ["scene-b-upper-a", "scene-b-upper-b", "scene-b-lower-a", "scene-b-lower-b", "scene-a-right", "scene-a-left"];
         var catalog = EndingCloudSpriteDefinitions.Frames;
         AssertEqual(6, catalog.Count, "cloud catalog count");
@@ -113,18 +102,6 @@ internal static class EndingObjectArtworkVerification
             }
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = grid[invalid], "cloud grid part bounds");
-            ushort list = unchecked((ushort)(EndingCloudInstructionDefinitions.Start + index * 8));
-            var nativeActor = new IntroDiscoverySprite(new(120, 72), 0x0800, list);
-            var installedActor = new IntroDiscoverySprite(new(120, 72), 0x0800, list);
-            for (int frame = 0; frame < 120; frame++)
-            {
-                nativeActor.Step(instructionWord: pointer => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8b0000 | pointer));
-                installedActor.Step(instructionWord: EndingCloudInstructionDefinitions.ReadWord);
-                AssertEqual(nativeActor.InstructionPointer, installedActor.InstructionPointer,
-                    $"ending cloud {index} list cursor at frame {frame}");
-                AssertEqual(nativeActor.SpriteMapPointer, installedActor.SpriteMapPointer,
-                    $"ending cloud {index} selected visual frame at frame {frame}");
-            }
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "cloud catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
@@ -132,8 +109,6 @@ internal static class EndingObjectArtworkVerification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "cloud catalog bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => _ = new EndingCloudGridParts((EndingCloudSpriteDefinitions.Role)invalid), "cloud grid role bounds");
         }
-        foreach (ushort invalid in new ushort[] { 0, 0xecec, 0xecee, 0xed1d, 0xffff })
-            AssertThrows<InvalidDataException>(() => EndingCloudInstructionDefinitions.ReadWord(invalid), "cloud program bounds");
     }
 
     /// <summary>Checks ending OBJ sheets, sprite actors, backgrounds, edits, and guarded runtime reads.</summary>
@@ -465,21 +440,8 @@ internal static class EndingObjectArtworkVerification
     internal static MutableCartridgeReadGuard NewEndingObjectSourceReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address >= (int)new SnesAddress(0x8b, EndingCloudInstructionDefinitions.Start) &&
-                address < (int)new SnesAddress(0x8b, EndingCloudInstructionDefinitions.End),
-            address => $"Ending cloud reread compiled instruction ${address:X6}.");
-        guard.Forbid(address => address >= (int)new SnesAddress(0x8b, EndingExplosionInstructionDefinitions.Start) &&
-                address < (int)new SnesAddress(0x8b, EndingExplosionInstructionDefinitions.End),
-            address => $"Ending explosion reread compiled instruction ${address:X6}.");
-        guard.Forbid(address => address >= (int)new SnesAddress(0x8b, EndingCompletionTextInstructionDefinitions.Start) &&
-                address < (int)new SnesAddress(0x8b, EndingCompletionTextInstructionDefinitions.End),
-            address => $"Ending completion text reread compiled instruction ${address:X6}.");
-        guard.Forbid(address => address >= (int)new SnesAddress(0x8b, EndingRewardInstructionDefinitions.Start) &&
-                address < (int)new SnesAddress(0x8b, EndingRewardInstructionDefinitions.End),
-            address => $"Ending reward reread compiled instruction ${address:X6}.");
-        guard.Forbid(address => address >= (int)new SnesAddress(0x8b, EndingLogoInstructionDefinitions.Start) &&
-                address < (int)new SnesAddress(0x8b, EndingLogoInstructionDefinitions.End),
-            address => $"Ending logo reread compiled instruction ${address:X6}.");
+        guard.Forbid(CinematicSpriteNativeListAddresses.InListRegion,
+            address => $"Ending actor reread native cinematic sprite list ${address:X6}.");
         guard.Forbid(address => EndingCloudSpriteDefinitions.Frames.Any(frame =>
                 {
                     int start = (int)new SnesAddress(

@@ -7,20 +7,13 @@ internal sealed class IntroScientistCutsceneState
 {
     /// <summary>Delivered or examined Baby actor whose instruction list drives scene completion.</summary>
     internal readonly IntroDiscoverySprite baby;
-    /// <summary>Optional intro sound queue for the three Baby cry opcodes.</summary>
-    private readonly CartridgeAudioState? audio;
     /// <summary>Selects delivery's horizontal pan or examination's vertical pan and page transition.</summary>
     private readonly ScientistSceneKind kind;
-    /// <summary>Instruction source, defaulting to the compiled scientist-scene program words.</summary>
-    private readonly Func<ushort, ushort> instructionWord;
 
     /// <summary>Initializes the selected laboratory page, mirrored camera pan, and Baby actor program.</summary>
-    private IntroScientistCutsceneState(ScientistSceneKind kind, CartridgeAudioState? audio,
-        Func<ushort, ushort>? instructionWord)
+    private IntroScientistCutsceneState(ScientistSceneKind kind)
     {
         this.kind = kind;
-        this.audio = audio;
-        this.instructionWord = instructionWord ?? IntroScientistInstructionDefinitions.ReadWord;
         bool delivery = kind == ScientistSceneKind.Delivery;
         IntroBabyActorDefinition definition = delivery
             ? IntroBabyActorDefinitions.DeliveredBaby
@@ -30,7 +23,7 @@ internal sealed class IntroScientistCutsceneState
         baby = new IntroDiscoverySprite(
             definition.Position,
             definition.PaletteBits,
-            definition.InstructionList);
+            definition.Program);
         baby.PreInstructionPointerForDiscovery(definition.PreInstruction);
         TilemapBaseWord = delivery ? (ushort)0x5800 : (ushort)0x5c00;
         Background = delivery ? new(0x0020, 0x0008) : new(0, 0xffe8);
@@ -49,14 +42,10 @@ internal sealed class IntroScientistCutsceneState
     public bool PageFiveRequested { get; private set; }
 
     /// <summary>Starts the delivered-Baby page with a leftward camera pan and page-four handoff.</summary>
-    public static IntroScientistCutsceneState CreateDelivery(CartridgeAudioState? audio = null,
-        Func<ushort, ushort>? instructionWord = null) =>
-        new(ScientistSceneKind.Delivery, audio, instructionWord);
+    public static IntroScientistCutsceneState CreateDelivery() => new(ScientistSceneKind.Delivery);
 
     /// <summary>Starts the examined-Baby page with a downward camera pan and page-five handoff.</summary>
-    public static IntroScientistCutsceneState CreateExamination(CartridgeAudioState? audio = null,
-        Func<ushort, ushort>? instructionWord = null) =>
-        new(ScientistSceneKind.Examination, audio, instructionWord);
+    public static IntroScientistCutsceneState CreateExamination() => new(ScientistSceneKind.Examination);
 
     /// <summary>Advances the Baby script and pans on every fourth function tick until the alternate crossfade timer redirects it to deletion.</summary>
     public void Step(
@@ -71,7 +60,7 @@ internal sealed class IntroScientistCutsceneState
         // cinematic-function counter while IntroCrossFadeTimer remains $007F.
         if (introCrossfadeTimer == 0)
         {
-            baby.Redirect(CinematicCodePointers.Lists.Delete);
+            baby.Start(CinematicSpriteProgram.Delete);
         }
         else if ((cinematicFunctionTimer & 3) == 0)
         {
@@ -92,7 +81,7 @@ internal sealed class IntroScientistCutsceneState
             }
         }
 
-        baby.Step<IntroScientistBabyInstruction>(HandleInstruction, instructionWord);
+        baby.Step(HandleCue);
     }
 
     /// <summary>Draws the current Baby actor frame through the installed scientist-scene sprite presentation.</summary>
@@ -100,36 +89,21 @@ internal sealed class IntroScientistCutsceneState
         IntroScientistSpritePresentation? installedArt = null) =>
         baby.Draw(oam, installedArt: installedArt);
 
-    /// <summary>Queues authored Baby cries or requests the next intro page, leaving instruction advancement with the actor.</summary>
-    private ushort HandleInstruction(IntroScientistBabyInstruction opcode, ushort argumentPointer)
+    /// <summary>Requests the next intro page when the Baby's program reaches its page cue.</summary>
+    private void HandleCue(CinematicSpriteCueKind cue)
     {
-        switch (opcode)
+        switch (cue)
         {
-            case IntroScientistBabyInstruction.PlayCry1:
-                audio?.QueueSound(
-                    IntroCinematicRomData.Objects.BabyCry1,
-                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
-                return argumentPointer;
-            case IntroScientistBabyInstruction.PlayCry2:
-                audio?.QueueSound(
-                    IntroCinematicRomData.Objects.BabyCry2,
-                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
-                return argumentPointer;
-            case IntroScientistBabyInstruction.PlayCry3:
-                audio?.QueueSound(
-                    IntroCinematicRomData.Objects.BabyCry3,
-                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
-                return argumentPointer;
-            case IntroScientistBabyInstruction.StartIntroPage4:
+            case CinematicSpriteCueKind.StartIntroPage4:
                 // The delivery loop ends by selecting page four.
                 PageFourRequested = true;
-                return argumentPointer;
-            case IntroScientistBabyInstruction.StartIntroPage5:
+                return;
+            case CinematicSpriteCueKind.StartIntroPage5:
                 // The examination loop ends by selecting page five.
                 PageFiveRequested = true;
-                return argumentPointer;
+                return;
             default:
-                throw new InvalidOperationException($"Undefined IntroScientistBabyInstruction {opcode}.");
+                throw new InvalidOperationException($"The scientist-scene Baby programs publish no {cue} cue.");
         }
     }
 

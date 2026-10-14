@@ -15,7 +15,6 @@ internal static class IntroRinkaDefinitionsVerification
     internal static void VerifyIntroRinkaDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyIntroRinkaPrograms), () => VerifyIntroRinkaPrograms(retail));
         // Native six-byte definitions $8B:CF21 (Rinka) and $8B:CF27 (spawner). Their first
         // word, the initialization callback, has no port counterpart.
         (IntroRinkaActorDefinition Actor, ushort NativePointer)[] actors =
@@ -29,7 +28,7 @@ internal static class IntroRinkaDefinitionsVerification
             int address = IntroRinkaDefinitions.NativeBank | actors[index].NativePointer;
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), actual.PreInstruction,
                 $"intro Rinka actor {index} pre-instruction callback");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), actual.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
                 $"intro Rinka actor {index} instruction list");
         }
 

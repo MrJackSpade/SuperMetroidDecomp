@@ -198,7 +198,7 @@ internal sealed class IntroCeresFlightState
             IntroCeresFlightPhase.FadeOut)
             StepRearViewActors();
         else if (Phase is not (IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished))
-            stars.Step(instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
+            stars.Step();
     }
 
     /// <summary>Composites the scene's current Mode 7 or title layers, OBJ priorities, color math, and brightness.</summary>
@@ -331,7 +331,7 @@ internal sealed class IntroCeresFlightState
         var actor = new IntroDiscoverySprite(
             definition.Position,
             definition.Attributes,
-            definition.InstructionList)
+            definition.Program)
         {
             GeneralTimer = definition.InitialTimer,
         };
@@ -480,7 +480,7 @@ internal sealed class IntroCeresFlightState
                 AddWrappedX(actor, unchecked((ushort)definition.HorizontalDelta));
             else
                 AddSignedX(actor, definition.HorizontalDelta);
-            actor.Step(instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
+            actor.Step();
         }
     }
 

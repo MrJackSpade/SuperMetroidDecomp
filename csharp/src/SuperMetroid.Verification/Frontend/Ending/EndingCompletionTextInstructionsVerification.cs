@@ -14,27 +14,10 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// <summary>Checks ending completion-text instruction words, sprite prefix frames, and OAM parts against the cartridge.</summary>
 internal static class EndingCompletionTextInstructionsVerification
 {
-    /// <summary>Compares the compiled program and all published glyphs, then advances each text actor against native instructions.</summary>
+    /// <summary>Compares all published completion-text glyphs and their compositions with the cartridge.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending completion text instructions")]
     internal static void VerifyEndingCompletionTextInstructions(ISnesAddressSpace bus)
     {
-        for (int pointer = EndingCompletionTextInstructionDefinitions.Start;
-             pointer < EndingCompletionTextInstructionDefinitions.End; pointer += sizeof(ushort))
-        {
-            int address = (int)new SnesAddress(0x8b, (ushort)pointer);
-            ushort nativeWord = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-            AssertEqual(nativeWord, EndingCompletionTextInstructionDefinitions.ReadWord((ushort)pointer),
-                $"ending completion text instruction $8B:{pointer:X4} matches cartridge");
-        }
-        AssertThrows<InvalidDataException>(() =>
-            EndingCompletionTextInstructionDefinitions.ReadWord(
-                EndingCompletionTextInstructionDefinitions.End),
-            "ending completion reader rejects an address after the colon list");
-        AssertThrows<InvalidDataException>(() =>
-            EndingCompletionTextInstructionDefinitions.ReadWord(
-                unchecked((ushort)(EndingCompletionTextInstructionDefinitions.Start + 1))),
-            "ending completion reader rejects an unaligned address");
-
         var catalog = EndingCompletionTextSpriteDefinitions.Frames;
         string[] expectedKeys =
         [
@@ -84,33 +67,6 @@ internal static class EndingCompletionTextInstructionsVerification
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(expectedKeys), "completion catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 56, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "completion catalog bounds");
-        foreach (ushort invalid in new ushort[] { 0, 0xeb90, 0xecd9, 0xffff })
-            AssertThrows<InvalidDataException>(() => EndingCompletionTextInstructionDefinitions.ReadWord(invalid), "completion program bounds");
-
-        ushort[] starts =
-        [
-            0xeb91, 0xebd7, 0xec35, 0xec81, 0xec89, 0xec91, 0xec99, 0xeca1,
-            0xeca9, 0xecb1, 0xecb9, 0xecc1, 0xecc9, 0xecd1,
-        ];
-        foreach (ushort start in starts)
-        {
-            var native = new IntroDiscoverySprite(new(120, 72), 0x0800, start);
-            var installed = new IntroDiscoverySprite(new(120, 72), 0x0800, start);
-            for (int frame = 0; frame < 480; frame++)
-            {
-                // The scene owns private callbacks; here both actor interpreters
-                // advance across the same callback without duplicating its effects.
-                native.Step((EndingSpriteInstruction _, ushort cursor) => cursor, pointer => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8b0000 | pointer));
-                installed.Step((EndingSpriteInstruction _, ushort cursor) => cursor,
-                    EndingCompletionTextInstructionDefinitions.ReadWord);
-                AssertEqual(native.InstructionPointer, installed.InstructionPointer,
-                    $"completion actor ${start:X4} cursor at frame {frame}");
-                AssertEqual(native.SpriteMapPointer, installed.SpriteMapPointer,
-                    $"completion actor ${start:X4} visual frame at frame {frame}");
-                AssertEqual(native.IsActive, installed.IsActive,
-                    $"completion actor ${start:X4} lifetime at frame {frame}");
-            }
-        }
     }
 
     /// <summary>Checks calculated stock composition, on- and off-screen OAM, and retention of independent artwork edits.</summary>

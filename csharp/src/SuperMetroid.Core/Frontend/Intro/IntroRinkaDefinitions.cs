@@ -31,7 +31,7 @@ internal static class IntroRinkaDefinitions
     /// spritemaps or adjacent visual data.
     /// </remarks>
     public static IntroRinkaActorDefinition RinkaActor =>
-        new(SharedNoOp, 0xcdeb);
+        new(SharedNoOp, CinematicSpriteProgram.IntroRinka);
 
     /// <summary><c>$8B:CF27</c>, Rinka-spawner no-op callbacks and initial list.</summary>
     /// <remarks>
@@ -47,7 +47,7 @@ internal static class IntroRinkaDefinitions
     /// recurrence or infer a third wave from adjacent data.
     /// </remarks>
     public static IntroRinkaActorDefinition SpawnerActor =>
-        new(SharedNoOp, 0xce0d);
+        new(SharedNoOp, CinematicSpriteProgram.IntroRinkaSpawner);
 
     /// <summary>
     /// Returns one complete parameter-selected physical definition. <c>$8B:B896</c>

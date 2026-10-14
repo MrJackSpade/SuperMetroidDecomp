@@ -31,7 +31,7 @@ internal sealed class IntroRinkaSystem
     {
         // $8B:AEB8 spawns the invisible spawner while slots 1..14 are all free. Reusing the
         // focused ROM-list interpreter preserves its exact $4A then $80 frame waits.
-        spawner = new(new(0, 0), 0, IntroRinkaDefinitions.SpawnerActor.InstructionList);
+        spawner = new(new(0, 0), 0, IntroRinkaDefinitions.SpawnerActor.Program);
         slots[SpawnerSlot] = spawner;
     }
 
@@ -60,16 +60,14 @@ internal sealed class IntroRinkaSystem
 
             if (ReferenceEquals(actor, spawner))
             {
-                spawner.Step<IntroRinkaSpawnerInstruction>(HandleSpawnerInstruction,
-                    IntroRinkaInstructionDefinitions.ReadWord);
+                spawner.Step(HandleSpawnerCue);
             }
             else
             {
                 RunPreInstruction(actor, samus, motherBrainExploding);
                 if (actor.IsActive)
                 {
-                    actor.Step((IntroRinkaInstruction opcode, ushort next) => HandleRinkaInstruction(actor, opcode, next),
-                        IntroRinkaInstructionDefinitions.ReadWord);
+                    actor.Step(cue => HandleRinkaCue(actor, cue));
                 }
             }
 
@@ -91,33 +89,32 @@ internal sealed class IntroRinkaSystem
     }
 
     /// <summary>Handles the two spawner commands, allocating Rinkas zero and one or two and three.</summary>
-    private ushort HandleSpawnerInstruction(IntroRinkaSpawnerInstruction opcode, ushort next)
+    private void HandleSpawnerCue(CinematicSpriteCueKind cue)
     {
-        switch (opcode)
+        switch (cue)
         {
-            case IntroRinkaSpawnerInstruction.SpawnRinkas0And1:
+            case CinematicSpriteCueKind.SpawnRinkas0And1:
                 Spawn(0);
                 Spawn(1);
-                return next;
+                return;
 
-            case IntroRinkaSpawnerInstruction.SpawnRinkas2And3:
+            case CinematicSpriteCueKind.SpawnRinkas2And3:
                 Spawn(2);
                 Spawn(3);
-                return next;
+                return;
 
             default:
-                throw new InvalidOperationException($"Undefined IntroRinkaSpawnerInstruction {opcode}.");
+                throw new InvalidOperationException($"The Rinka spawner program publishes no {cue} cue.");
         }
     }
 
     /// <summary>Starts a Rinka's movement, selecting the sole hit route for parameter zero and miss routes for the others.</summary>
-    private static ushort HandleRinkaInstruction(
+    private static void HandleRinkaCue(
         IntroDiscoverySprite rinka,
-        IntroRinkaInstruction opcode,
-        ushort next)
+        CinematicSpriteCueKind cue)
     {
-        if (opcode != IntroRinkaInstruction.StartMoving)
-            throw new InvalidOperationException($"Undefined IntroRinkaInstruction {opcode}.");
+        if (cue != CinematicSpriteCueKind.StartRinkaMoving)
+            throw new InvalidOperationException($"The Rinka program publishes no {cue} cue.");
 
         // Init parameter zero is the sole “hits Samus” route. Parameters one through three
         // select the miss routine and remain in GeneralTimer for its velocity table lookup.
@@ -125,7 +122,6 @@ internal sealed class IntroRinkaSystem
             (ushort)(rinka.GeneralTimer == 0
                 ? IntroRinkaPreInstruction.MovingHitsSamus
                 : IntroRinkaPreInstruction.MovingMissesSamus));
-        return next;
     }
 
     /// <summary>Allocates one definition-selected Rinka in the highest available cinematic slot.</summary>
@@ -147,7 +143,7 @@ internal sealed class IntroRinkaSystem
         var rinka = new IntroDiscoverySprite(
             definition.Position,
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-            instructionPointer: IntroRinkaDefinitions.RinkaActor.InstructionList)
+            program: IntroRinkaDefinitions.RinkaActor.Program)
         {
             GeneralTimer = (ushort)parameter,
         };
@@ -162,8 +158,8 @@ internal sealed class IntroRinkaSystem
         SamusState samus,
         bool motherBrainExploding)
     {
-        switch (CinematicInstructionWords.Decode<IntroRinkaPreInstruction>(
-                    rinka.PreInstructionPointer, rinka.InstructionPointer))
+        switch (CinematicInstructionWords.DecodePreInstruction<IntroRinkaPreInstruction>(
+                    rinka.PreInstructionPointer, rinka.CurrentProgram))
         {
             case IntroRinkaPreInstruction.None:
             case IntroRinkaPreInstruction.NoOp:

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresBlastPlacementVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresSpawnerScheduleVerification;
@@ -68,7 +69,7 @@ internal static class CeresExplosionDefinitionsVerification
             int address = CeresExplosionDefinitions.NativeBank | definitionPointer;
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), definition.PreInstruction,
                 $"{name} pre-instruction callback");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), definition.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(definition.Program),
                 $"{name} instruction list");
         }
     }

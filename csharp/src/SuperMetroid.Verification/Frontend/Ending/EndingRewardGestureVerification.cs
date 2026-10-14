@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Ending.EndingCloudMotionVerification;
@@ -68,7 +69,7 @@ internal static class EndingRewardGestureVerification
             int calls = 0;
             while (!gesture.JumpRequested && calls < 1000)
             {
-                gesture.Step(EndingRewardInstructionDefinitions.ReadWord);
+                gesture.Step();
                 calls++;
                 maps.Add(Convert.ToHexString(gesture.Draw(rewardSprites).LowTable));
             }
@@ -86,7 +87,7 @@ internal static class EndingRewardGestureVerification
             while (!jump.ShotRequested && jumpCalls++ < 500)
             {
                 int beforeVelocity = jump.VerticalVelocity;
-                jump.Step(EndingRewardInstructionDefinitions.ReadWord);
+                jump.Step();
                 if (beforeVelocity == -16 * 65536 && !firstMotion)
                 {
                     AssertEqual(-16 * 65536 + (reward == EndingReward.Suitless ? 0x3800 : 0x7000),
@@ -150,7 +151,7 @@ internal static class EndingRewardGestureVerification
             ushort initializer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual(initializer, (ushort)actual.Initialization, $"reward actor ${pointer:X4} initialization callback");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), actual.PreInstruction, $"reward actor ${pointer:X4} pre-instruction callback");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), actual.InstructionList, $"reward actor ${pointer:X4} instruction list");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program), $"reward actor ${pointer:X4} instruction list");
             if (!initializers.Add(initializer)) continue;
             int code = 0x8b0000 | initializer;
             for (int offset = 0; offset <= 12; offset += 6)

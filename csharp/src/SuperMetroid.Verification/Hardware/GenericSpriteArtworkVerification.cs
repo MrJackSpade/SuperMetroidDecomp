@@ -98,7 +98,7 @@ internal static class GenericSpriteArtworkVerification
 
         intro.SetupMotherBrainFlashback();
         var motherBrain = intro.flashbackMotherBrain;
-        (motherBrain ?? throw new InvalidOperationException("Verification requires motherBrain.")).Step(memory);
+        (motherBrain ?? throw new InvalidOperationException("Verification requires motherBrain.")).Step();
         actual = intro.PrepareMotherBrainOam();
         expected = new OamBuffer();
         expected.BeginFrame();
@@ -112,7 +112,7 @@ internal static class GenericSpriteArtworkVerification
 
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
-        explosions.Step(memory, introCrossfadeTimer: 1);
+        explosions.Step(introCrossfadeTimer: 1);
         actual = new OamBuffer(); actual.BeginFrame();
         explosions.Draw(actual, introArtwork.MotherBrainExplosionSprites);
         actual.FinalizeFrame();

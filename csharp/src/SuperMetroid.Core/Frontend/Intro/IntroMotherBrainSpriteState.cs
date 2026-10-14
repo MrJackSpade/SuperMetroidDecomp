@@ -11,18 +11,19 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
 {
-    /// <summary>Next word in the cinematic sprite's bank-$8B instruction list.</summary>
-    private ushort instructionPointer = IntroMotherBrainDefinitions.MotherBrain.InstructionList;
-    /// <summary>Frames until the actor interprets another instruction-list entry.</summary>
-    private NativeCountdown instructionTimer = NativeCountdown.Start(1);
+    /// <summary>The cinematic sprite object running the Mother Brain's typed program (#641).</summary>
+    private readonly IntroDiscoverySprite actor =
+        new(IntroMotherBrainDefinitions.MotherBrainOrigin, IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
+            IntroMotherBrainDefinitions.MotherBrain.Program);
     /// <summary>Remaining palette alternations after a missile hit.</summary>
     private NativeCountdown hurtFlashTimer;
     /// <summary>Frames since the fourth hit began the explosion phase.</summary>
     private ushort explodingTimer;
     /// <summary>Whether explosion timing has entered the page-two instruction list.</summary>
     private bool pageTwoInstructionStarted;
-    /// <summary>Whether the page-two pre-instruction has replaced hit flashing.</summary>
-    private bool crossfadingToPageTwo;
+    /// <summary>Whether the page-two program's pre-instruction has replaced hit flashing.</summary>
+    private bool CrossfadingToPageTwo =>
+        actor.ListPreInstruction == CinematicSpritePreInstruction.IntroMotherBrainCrossFading;
 
     /// <summary>Fixed cinematic screen origin from definition $8B:CE55.</summary>
     public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
@@ -31,7 +32,7 @@ internal sealed class IntroMotherBrainSpriteState
     public static ushort PaletteBits => IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
 
     /// <summary>Bank-$8C spritemap selected by the latest timed instruction entry.</summary>
-    public ushort SpriteMapPointer { get; private set; }
+    public ushort SpriteMapPointer => actor.SpriteMapPointer;
 
     /// <summary>Number of missiles consumed by <c>$8B:B786</c>, from zero through four.</summary>
     public ushort HitCount { get; private set; }
@@ -58,7 +59,7 @@ internal sealed class IntroMotherBrainSpriteState
         ushort cinematicFrameCounter,
         ushort introCrossfadeTimer)
     {
-        if (crossfadingToPageTwo)
+        if (CrossfadingToPageTwo)
         {
             ApplyScreenShake(cinematicFrameCounter);
             // $8B:B82E observes the timer after the cinematic function has decremented it.
@@ -77,10 +78,9 @@ internal sealed class IntroMotherBrainSpriteState
         explodingTimer++;
         if (explodingTimer >= 0x0080)
         {
-            // $B80F primes list $CB19. The generic handler below executes its two control
-            // instructions during this same cinematic-object call.
-            instructionTimer = NativeCountdown.Start(1);
-            instructionPointer = CinematicCodePointers.Lists.IntroMotherBrainStartPage2;
+            // $B80F starts the page-two program. The generic handler below runs its page request and
+            // pre-instruction install during this same cinematic-object call.
+            actor.Start(CinematicSpriteProgram.IntroMotherBrainStartPage2);
             pageTwoInstructionStarted = true;
         }
     }
@@ -114,59 +114,13 @@ internal sealed class IntroMotherBrainSpriteState
         return true;
     }
 
-    /// <summary>Ports the timing/control-flow portion of $8B:9409 for definition $CE55.</summary>
-    public void Step(ISnesAddressSpace bus)
+    /// <summary>Runs the generic cinematic sprite handler ($8B:9409) for definition $CE55.</summary>
+    public void Step() => actor.Step(cue =>
     {
-        Ensure.NotNull(bus);
-        if (!(instructionTimer = instructionTimer.Decrement().Remaining).IsZero)
-            return;
-
-        ushort pointer = instructionPointer;
-        while (true)
-        {
-            ushort instructionOrDuration = IntroMotherBrainInstructionDefinitions.ReadWord(pointer);
-            if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
-            {
-                instructionTimer = NativeCountdown.FromRaw(instructionOrDuration);
-                SpriteMapPointer = IntroMotherBrainInstructionDefinitions.ReadWord(Add(pointer, 2));
-                instructionPointer = Add(pointer, 4);
-                return;
-            }
-
-            if (instructionOrDuration != (ushort)CinematicSpriteInstruction.Goto)
-            {
-                if (instructionOrDuration == CinematicCodePointers.Instruction_StartIntroPage2)
-                {
-                    PageTwoRequested = true;
-                    pointer = Add(pointer, 2);
-                    continue;
-                }
-
-                if (instructionOrDuration == (ushort)CinematicSpriteInstruction.SetPreInstruction)
-                {
-                    ushort preInstruction = IntroMotherBrainInstructionDefinitions.ReadWord(Add(pointer, 2));
-                    if (preInstruction != CinematicCodePointers.PreInstruction_IntroMotherBrain_CrossFading)
-                    {
-                        throw new InvalidDataException(
-                            $"Intro Mother Brain names invalid pre-instruction $8B:{preInstruction:X4}.");
-                    }
-
-                    crossfadingToPageTwo = true;
-                    pointer = Add(pointer, 4);
-                    continue;
-                }
-
-                throw new InvalidDataException(
-                    $"Intro Mother Brain sprite opcode $8B:{instructionOrDuration:X4} at $8B:{pointer:X4} is invalid.");
-            }
-
-            pointer = IntroMotherBrainInstructionDefinitions.ReadWord(Add(pointer, 2));
-        }
-    }
-
-    /// <summary>Advances an instruction address with the bank-local 16-bit wrap behavior.</summary>
-    private static ushort Add(ushort pointer, int byteCount) =>
-        unchecked((ushort)(pointer + byteCount));
+        if (cue != CinematicSpriteCueKind.StartIntroPage2)
+            throw new InvalidOperationException($"The intro Mother Brain programs publish no {cue} cue.");
+        PageTwoRequested = true;
+    });
 
     /// <summary>Alternates BG1 scroll by four pixels from the inherited flashback offset.</summary>
     private void ApplyScreenShake(ushort cinematicFrameCounter)

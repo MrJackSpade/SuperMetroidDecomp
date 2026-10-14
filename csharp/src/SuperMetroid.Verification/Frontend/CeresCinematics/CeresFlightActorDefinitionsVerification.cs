@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightActorMetadataVerification;
-using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -18,16 +17,7 @@ internal static class CeresFlightActorDefinitionsVerification
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyCeresFlightActorMetadata), () => VerifyCeresFlightActorMetadata(retail));
 
-        AssertThrows<InvalidDataException>(() =>
-            CeresFlightSpriteInstructionDefinitions.ReadWord(
-                CeresFlightSpriteInstructionDefinitions.RearClusterEnd - 1),
-            "Ceres flight instruction reader cannot cross into the next actor list");
-        AssertThrows<InvalidDataException>(() =>
-            CeresFlightSpriteInstructionDefinitions.ReadWord(
-                CeresFlightSpriteInstructionDefinitions.StarsEnd),
-            "Ceres flight instruction reader cannot enter the adjacent explosion list");
 
-        Suite(nameof(VerifyCeresFlightPrograms), () => VerifyCeresFlightPrograms(retail));
 
         var guard = NewCeresFlightActorDefinitionReadGuard(retail);
         var state = new IntroCeresFlightState(guard, new CartridgeAudioState(), InstalledFixtures.IntroArtwork.CeresFlight);

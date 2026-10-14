@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoTablesVerification;
@@ -19,7 +20,7 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// <summary>Compares compiled ending-logo actors, sprite relationships, and palette timing with cartridge execution.</summary>
 internal static class EndingLogoVerification
 {
-    /// <summary>Steps the compiled and native logo programs together, comparing CGRAM, OAM, and completion timing.</summary>
+    /// <summary>Steps the logo, comparing its crossfade palettes with the cartridge tables and its timing with the native scene.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending logo crossfade palette tables")]
     internal static void VerifyEndingLogo(ISnesAddressSpace bus)
@@ -28,30 +29,18 @@ internal static class EndingLogoVerification
         Suite(nameof(VerifyEndingLogoPrograms), () => VerifyEndingLogoPrograms(bus));
         var guarded = NewEndingLogoDefinitionReadGuard(bus);
         var cgram = new SnesCgram();
-        var nativeCgram = new SnesCgram();
         int landings = 0;
         EndingPaletteCatalog palettes = RepositoryInstallation.Installation.LoadEndingPalettes();
         EndingLogoSpritePresentation logoSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites;
         var logo = new EndingLogo(guarded, cgram, () => landings++, palettes);
-        var nativeLogo = new EndingLogo(bus, nativeCgram, () => { }, palettes);
         int frame = 0, fadeStart = 0;
         var poses = new HashSet<string>();
         while (!logo.Completed && frame < 300)
         {
-            // The cartridge reference reads the logo program from the ROM; the compiled
-            // logo below reads the checked-in definitions.
-            nativeLogo.Step(nativeCgram, EndingCartridgeInstructionWord(bus));
-            logo.Step(cgram, EndingLogoInstructionDefinitions.ReadWord);
+            // The actors run their typed programs (#641), which the cinematic sprite oracle matches to the native
+            // lists; the timing and palette assertions below hold them to the cartridge's scene.
+            logo.Step(cgram);
             frame++;
-            AssertEqual(nativeLogo.Completed, logo.Completed,
-                $"compiled logo lifetime at frame {frame}");
-            AssertEqual(nativeLogo.CrossfadeStarted, logo.CrossfadeStarted,
-                $"compiled logo palette handoff at frame {frame}");
-            AssertEqual(nativeLogo.PaletteStep, logo.PaletteStep,
-                $"compiled logo palette step at frame {frame}");
-            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(cgram)) &&
-                    nativeLogo.Draw(logoSprites).ImageEquals(logo.Draw(logoSprites)),
-                $"compiled logo palette and OAM at frame {frame}");
             if (logo.CrossfadeStarted && fadeStart == 0) fadeStart = frame;
             if (logo.PaletteStep > 0)
                 for (int p = 0; p < 2; p++)
@@ -109,36 +98,6 @@ internal static class EndingLogoVerification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "logo catalog bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoSpriteDefinitions.FramePointer(invalid), "logo frame address bounds");
         }
-        for (int pointer = EndingLogoInstructionDefinitions.Start;
-             pointer < EndingLogoInstructionDefinitions.End; pointer += sizeof(ushort))
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8b0000 | pointer),
-                EndingLogoInstructionDefinitions.ReadWord((ushort)pointer),
-                $"ending logo instruction $8B:{pointer:X4} matches cartridge");
-        AssertThrows<InvalidDataException>(() =>
-            EndingLogoInstructionDefinitions.ReadWord(EndingLogoInstructionDefinitions.End),
-            "logo instruction reader rejects the following definition table");
-        AssertThrows<InvalidDataException>(() =>
-            EndingLogoInstructionDefinitions.ReadWord(
-                unchecked((ushort)(EndingLogoInstructionDefinitions.Start + 1))),
-            "logo instruction reader rejects an unaligned address");
-        foreach (ushort start in new ushort[] { 0xee5d, 0xee65, 0xee6d, 0xee87 })
-        {
-            var native = new IntroDiscoverySprite(new(0, 0), 0, start);
-            var generated = new IntroDiscoverySprite(new(0, 0), 0, start);
-            for (int frame = 0; frame < 200; frame++)
-            {
-                ushort nativeCallback = 0, generatedCallback = 0;
-                native.Step((EndingLogoInstruction opcode, ushort cursor) => { nativeCallback = (ushort)opcode; return cursor; },
-                    pointer => (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, 0x8b0000 | pointer), CpuBusRegionRead.Read(bus, 0x8b0000 | (pointer + 1)))));
-                generated.Step((EndingLogoInstruction opcode, ushort cursor) => { generatedCallback = (ushort)opcode; return cursor; },
-                    EndingLogoInstructionDefinitions.ReadWord);
-                AssertEqual(native.InstructionPointer, generated.InstructionPointer, "logo program cursor");
-                AssertEqual(native.SpriteMapPointer, generated.SpriteMapPointer, "logo program frame");
-                AssertEqual(nativeCallback, generatedCallback, "logo callback timing");
-            }
-        }
-        foreach (ushort invalid in new ushort[] { 0, 0xee5c, 0xee9b, 0xffff })
-            AssertThrows<InvalidDataException>(() => EndingLogoInstructionDefinitions.ReadWord(invalid), "logo program bounds");
     }
 
     /// <summary>Checks calculated logo sprite relationships while preserving supplied edits and native OAM placement.</summary>
@@ -224,7 +183,7 @@ internal static class EndingLogoVerification
             int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), actual.PreInstruction,
                 $"logo actor {index} pre-instruction callback");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), actual.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
                 $"logo actor {index} initial instruction list");
             int initialize = 0x8b0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize), "native LDA X origin");
@@ -255,9 +214,8 @@ internal static class EndingLogoVerification
     /// <summary>Rejects runtime reads of compiled logo instructions, palette pointers, and actor definitions.</summary>
     private static CartridgeReadGuard NewEndingLogoDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => address is >= (0x8b0000 + EndingLogoInstructionDefinitions.Start) and
-                    < (0x8b0000 + EndingLogoInstructionDefinitions.End),
-                address => $"Ending logo reread compiled instruction byte ${address:X6}.")
+            .Forbid(CinematicSpriteNativeListAddresses.InListRegion,
+                address => $"Ending logo reread a native cinematic sprite list byte ${address:X6}.")
             .ForbidRange(EndingLogoPalettePointerDefinitions.NativeTableAddress,
                 EndingLogoDefinitions.PaletteSteps * 2 * sizeof(ushort),
                 address => $"Ending logo reread palette pointer byte ${address:X6}.")

@@ -644,13 +644,13 @@ public sealed class IntroCinematicState
 
         // This ordering makes a newly spawned timer-one object select its first spritemap
         // on the same accepted frame as the page-one input transition.
-        flashbackMotherBrain?.Step(bus);
+        flashbackMotherBrain?.Step();
         if (explosionsExistedBeforeThisFrame)
         {
             // The eight actors are allocated while object zero is already being processed,
             // so their first generic-handler call occurs on the following frame. Hit count
             // four is reached on the spawn frame, after the handler passed their free slots.
-            flashbackMotherBrainExplosions?.Step(bus, crossfadeCounter.RawValue);
+            flashbackMotherBrainExplosions?.Step(crossfadeCounter.RawValue);
         }
 
         // Handle_CinematicSpriteObjects ($8B:93EF) runs after the cinematic function, so the
@@ -900,7 +900,7 @@ public sealed class IntroCinematicState
         // $B0F2 selects BG1SC=$58, starts it 32 pixels right with vertical scroll eight,
         // seeds IntroCrossFadeTimer, and spawns definition $CE61 before configuring the
         // scientist palette transition. Its tilemap is already in the $96:FF14 payload.
-        scientistCutscene = IntroScientistCutsceneState.CreateDelivery(audio);
+        scientistCutscene = IntroScientistCutsceneState.CreateDelivery();
         babyDiscovery = null;
 
         paletteFader = new CinematicPaletteFader(introPalette);
@@ -984,7 +984,7 @@ public sealed class IntroCinematicState
 
         // $B123 selects BG1SC=$5C, starts the page at Y=-24, and spawns definition $CE67.
         // Its setup is otherwise the same two-counter scientist crossfade as delivery.
-        scientistCutscene = IntroScientistCutsceneState.CreateExamination(audio);
+        scientistCutscene = IntroScientistCutsceneState.CreateExamination();
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.Discovery);
         paletteFader.ComposeInto(cgram);

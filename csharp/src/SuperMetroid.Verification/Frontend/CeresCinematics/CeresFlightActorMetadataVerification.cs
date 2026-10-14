@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -78,7 +79,7 @@ internal static class CeresFlightActorMetadataVerification
                 () => CeresFlightActorDefinitions.RearViewActor(index), "rear metadata invalid index");
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe51), "rear vortex native initializer parameter");
         AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe5a), "rear stars native initializer parameter");
-        AssertEqual(front.InstructionList, CeresFlightActorDefinitions.RearViewActor(4).InstructionList, "front/rear program alias");
+        AssertEqual(front.Program, CeresFlightActorDefinitions.RearViewActor(4).Program, "front/rear program alias");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((CeresFlightActorDefinitions.NativeBank | (frontDefinition + 2))),
             front.ActivePreInstruction, "front stars preserve the definition callback");
         AssertEqual(0, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");
@@ -90,7 +91,7 @@ internal static class CeresFlightActorMetadataVerification
             string name)
         {
             int address = CeresFlightActorDefinitions.NativeBank | definitionPointer;
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), actor.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Program),
                 $"{name} instruction list");
         }
 

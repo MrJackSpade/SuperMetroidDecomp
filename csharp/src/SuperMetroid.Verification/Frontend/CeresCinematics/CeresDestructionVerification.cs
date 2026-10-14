@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -32,28 +33,24 @@ internal static void VerifyCeresDestructionCinematic()
             CeresDestructionRomData.Vram.Mode7CharacterBytes <= SnesVram.ByteCount,
         "Ceres destruction OBJ transfer fits VRAM");
 
-    // Keep the delayed-instruction interpreter case synthetic and independent of
-    // the compiled cinematic programs used by the complete scene below.
-    WriteRomWord(rom, 0x8bccdb, 0x7fff);
-    WriteRomWord(rom, 0x8bccdd, 0);
-    var fixtureBus = new CartridgeImportAddressSpace(rom);
-    ushort ReadFixtureWord(ushort pointer) => CartridgeImportSource.Require(fixtureBus).ReadCartridgeWordFixedBank(0x8b0000 | pointer);
-    // Ceres' five initial explosions share $CCDB but seed instruction timers 1/16/32/48/64.
+    // Ceres' five initial explosions share one program but seed instruction timers 1/16/32/48/64.
     // Prove the reusable object keeps that timer distinct from GeneralTimer, which belongs
-    // to the list's decrement-and-goto opcode and must remain untouched.
-    var delayedExplosion = new IntroDiscoverySprite(new(0, 0), 0, 0xccdb);
+    // to the program's counted loops and must remain untouched.
+    var delayedExplosion = new IntroDiscoverySprite(new(0, 0), 0, CinematicSpriteProgram.CeresSmallExplosion);
     delayedExplosion.DelayFirstInstruction(3);
-    delayedExplosion.Step(instructionWord: ReadFixtureWord);
-    delayedExplosion.Step(instructionWord: ReadFixtureWord);
+    delayedExplosion.Step();
+    delayedExplosion.Step();
     AssertEqual(0, delayedExplosion.SpriteMapPointer,
         "Ceres staggered explosion remains invisible before instruction delay");
     AssertEqual(0, delayedExplosion.GeneralTimer,
         "instruction delay does not overwrite cinematic goto timer");
-    delayedExplosion.Step(instructionWord: ReadFixtureWord);
-    AssertEqual(0, delayedExplosion.SpriteMapPointer,
-        "fixture's first delayed explosion frame uses invisible map zero");
-    AssertEqual(0xccdf, delayedExplosion.InstructionPointer,
+    delayedExplosion.Step();
+    AssertEqual(CinematicSpritePoseDefinitions.Spritemap(CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.CeresSmallExplosion)[0].Frame),
+        delayedExplosion.SpriteMapPointer, "third handler call shows the delayed explosion's first frame");
+    AssertEqual(new AnimationProgramCursor<CinematicSpriteProgram>(CinematicSpriteProgram.CeresSmallExplosion, 1), delayedExplosion.Program,
         "third handler call consumes the first delayed explosion frame");
+
+    var fixtureBus = new CartridgeImportAddressSpace(rom);
 
     // Preserve the distinctive native map slices through the installed-artwork
     // boundary. Scene programs and all other art retain their retail definitions.

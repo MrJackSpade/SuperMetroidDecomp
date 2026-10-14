@@ -23,14 +23,6 @@ internal static class RetailGameFixtureVerification
         CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
         InstalledFixtures.CreateDestruction(bus, audio, artwork);
 
-    /// <summary>
-    /// Independent reference for ending-actor instruction streams: reads each word from the
-    /// cartridge's bank $8B, where production reads the compiled instruction definitions.
-    /// </summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending instruction-program words")]
-    internal static Func<ushort, ushort> EndingCartridgeInstructionWord(ISnesAddressSpace bus) =>
-        pointer => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8b0000 | pointer);
-
     /// <summary>Creates an ending state with supplied game time, inventory, audio, and language selection.</summary>
     internal static EndingCreditsState CreateRetailEndingFixture(ISnesAddressSpace bus,
         CartridgeAudioState audio, ushort gameTimeHours, ushort gameTimeMinutes,

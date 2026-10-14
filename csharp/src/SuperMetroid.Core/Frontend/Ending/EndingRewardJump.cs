@@ -39,7 +39,7 @@ internal sealed class EndingRewardJump
     }
 
     /// <summary>Advances head before body, including shared gravity, landing uploads, and instruction effects.</summary>
-    public void Step(Func<ushort, ushort>? instructionWord = null)
+    public void Step()
     {
         // Native fixed slots put the head above the body in the descending handler.
         // Both pre-instructions use the shared Samus velocity, so each call accelerates it.
@@ -50,7 +50,7 @@ internal sealed class EndingRewardJump
                 Move(head);
                 if (unchecked((short)head.WholePosition.Y) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
             }
-            head.Step<EndingRewardJumpInstruction>(Instruction, instructionWord);
+            head.Step(HandleCue);
         }
         EndingRewardJumpPreInstruction? bodyPreInstruction = InstalledPreInstruction(body);
         if (bodyPreInstruction == EndingRewardJumpPreInstruction.BodyFlight)
@@ -60,7 +60,7 @@ internal sealed class EndingRewardJump
             {
                 ObjectSelection = 3;
                 body.SetAttributes(SnesObjPalettes.Index6);
-                body.Redirect(EndingRewardJumpDefinitions.FallingList);
+                body.Start(CinematicSpriteProgram.Falling);
                 body.PreInstructionPointerForDiscovery((ushort)EndingRewardJumpPreInstruction.Landing);
             }
         }
@@ -71,11 +71,11 @@ internal sealed class EndingRewardJump
             if (BodyY >= EndingRewardJumpDefinitions.LandingY)
             {
                 body.WholePosition = body.WholePosition.WithY(EndingRewardJumpDefinitions.LandingY);
-                body.Redirect(EndingRewardJumpDefinitions.LandedList);
+                body.Start(CinematicSpriteProgram.Landing);
                 body.PreInstructionPointerForDiscovery(0);
             }
         }
-        body.Step<EndingRewardJumpInstruction>(Instruction, instructionWord);
+        body.Step(HandleCue);
     }
 
     /// <summary>Draws the active head and body into a supplied frame or a newly finalized OAM buffer.</summary>
@@ -97,26 +97,26 @@ internal sealed class EndingRewardJump
         actor.Position = actor.Position.WithY(IntroCinematicMotion.Unpacked(position));
     }
 
-    /// <summary>Handles launch, head placement, and the shoot event emitted by jump instruction lists.</summary>
-    private ushort Instruction(EndingRewardJumpInstruction instruction, ushort cursor)
+    /// <summary>Handles launch, head placement, and the shoot event the jump programs publish.</summary>
+    private void HandleCue(CinematicSpriteCueKind cue)
     {
-        switch (instruction)
+        switch (cue)
         {
-            case EndingRewardJumpInstruction.Launch:
+            case CinematicSpriteCueKind.Launch:
                 velocity = EndingRewardJumpDefinitions.LaunchVelocity;
-                return cursor;
-            case EndingRewardJumpInstruction.PrepareHead:
+                return;
+            case CinematicSpriteCueKind.PrepareHead:
                 RequireHead().WholePosition = new((ushort)(helmeted ? 118 : 120), 120);
-                return cursor;
-            case EndingRewardJumpInstruction.LaunchHead:
+                return;
+            case CinematicSpriteCueKind.LaunchHead:
                 RequireHead().WholePosition = new((ushort)(helmeted ? 120 : 121), (ushort)(helmeted ? 114 : 116));
-                return cursor;
-            case EndingRewardJumpInstruction.Shoot:
+                return;
+            case CinematicSpriteCueKind.Shoot:
                 body.SetAttributes(SnesObjPalettes.Index7);
                 ShotRequested = true;
-                return cursor;
+                return;
             default:
-                throw new InvalidOperationException($"Undefined EndingRewardJumpInstruction {instruction}.");
+                throw new InvalidOperationException($"The reward jump programs publish no {cue} cue.");
         }
     }
 
@@ -136,7 +136,7 @@ internal sealed class EndingRewardJump
         var actor = new IntroDiscoverySprite(
             new((ushort)x, (ushort)y),
             (ushort)palette,
-            record.InstructionList);
+            record.Program);
         actor.PreInstructionPointerForDiscovery(record.PreInstruction);
         return actor;
     }

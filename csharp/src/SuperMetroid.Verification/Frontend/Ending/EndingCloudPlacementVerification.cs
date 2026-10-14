@@ -38,7 +38,7 @@ internal static class EndingCloudPlacementVerification
             EndingCreditsRomData.Sprites.EscapeBCloudBottomB];
         var actors = definitions.Select((definition, index) => new EndingSprite(
             new IntroDiscoverySprite(new(128, unchecked((ushort)nativeY[index])), definition.Attributes.Raw,
-                definition.InstructionPointer), roles[index])).ToArray();
+                definition.Program), roles[index])).ToArray();
         var cloudSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().CloudSprites;
         int checkedFrames = 0;
         for (int frame = 0; frame < 200; frame++)
@@ -56,7 +56,7 @@ internal static class EndingCloudPlacementVerification
                 if (frame != 0)
                     actor.Sprite.WholePosition = actor.Sprite.WholePosition.WithY(
                         unchecked((ushort)(actor.Sprite.WholePosition.Y + (index < 2 ? 1 : -1))));
-                actor.Sprite.Step(instructionWord: EndingCartridgeInstructionWord(bus));
+                actor.Sprite.Step();
             }
             var oam = new OamBuffer();
             oam.BeginFrame();

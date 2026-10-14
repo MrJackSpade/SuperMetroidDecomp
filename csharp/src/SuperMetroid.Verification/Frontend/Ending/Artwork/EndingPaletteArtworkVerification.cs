@@ -357,8 +357,8 @@ internal static class EndingPaletteArtworkVerification
                 {
                     for (int frame = 0; frame < 300 && stockLogo.PaletteStep == 0; frame++)
                     {
-                        stockLogo.Step(stockCgram, EndingLogoInstructionDefinitions.ReadWord);
-                        editedLogo.Step(editedCgram, EndingLogoInstructionDefinitions.ReadWord);
+                        stockLogo.Step(stockCgram);
+                        editedLogo.Step(editedCgram);
                     }
                     AssertEqual(1, stockLogo.PaletteStep,
                         "logo override fixture reaches its first palette transfer");
@@ -488,7 +488,7 @@ internal static class EndingPaletteArtworkVerification
             "installed initial logo palette matches cartridge CGRAM");
         for (int frame = 0; frame < 300 && !nativeLogo.Completed; frame++)
         {
-            nativeLogo.Step(nativeCgram, pointer => CartridgeImportSource.Require(nativeBus).ReadCartridgeWordFixedBank(0x8b0000 | pointer));
+            nativeLogo.Step(nativeCgram);
             if (nativeLogo.PaletteStep > 0)
             {
                 byte[] nativeColors = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus,
@@ -501,7 +501,7 @@ internal static class EndingPaletteArtworkVerification
                             Bgr555.FromWord((ushort)(SnesLittleEndian.Word(nativeColors[offset], nativeColors[offset + 1]))));
                     }
             }
-            installedLogo.Step(installedCgram, EndingLogoInstructionDefinitions.ReadWord);
+            installedLogo.Step(installedCgram);
             AssertEqual(nativeLogo.PaletteStep, installedLogo.PaletteStep,
                 $"installed logo crossfade step {frame}");
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),

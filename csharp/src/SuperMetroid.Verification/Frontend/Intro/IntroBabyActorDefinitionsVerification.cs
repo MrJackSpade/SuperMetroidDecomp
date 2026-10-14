@@ -2,9 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using System.Reflection;
 using static SuperMetroid.Verification.Frontend.Intro.IntroBabyDiscoveryInputVerification;
-using static SuperMetroid.Verification.Frontend.Intro.IntroBabyDiscoveryInstructionsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryCollisionVerification;
-using static SuperMetroid.Verification.Frontend.Intro.IntroScientistInstructionsVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
@@ -20,8 +18,6 @@ internal static class IntroBabyActorDefinitionsVerification
     internal static void VerifyIntroBabyActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyIntroBabyDiscoveryInstructions), () => VerifyIntroBabyDiscoveryInstructions(retail));
-        Suite(nameof(VerifyIntroScientistInstructions), () => VerifyIntroScientistInstructions(retail));
         Suite(nameof(VerifyIntroBabyDiscoveryInput), () => VerifyIntroBabyDiscoveryInput(retail));
         AssertThrows<InvalidDataException>(() =>
             IntroBabyDiscoveryInputDefinitions.ReadWord(
@@ -54,10 +50,6 @@ internal static class IntroBabyActorDefinitionsVerification
             AssertEqual(cartridgeInput.NewlyPressed, compiledInput.NewlyPressed,
                 $"SR388 initial demo input edge at frame {frame}");
         }
-        AssertThrows<InvalidDataException>(
-            () => IntroBabyDiscoveryInstructionDefinitions.ReadWord(
-                IntroBabyDiscoveryInstructionDefinitions.EggEnd),
-            "SR388 discovery reader rejects scientist-scene lists");
         // Native cinematic-object definitions $8B:CE5B/CE61/CE67/CE79, in compiled order.
         (IntroBabyActorDefinition Actor, ushort DefinitionPointer)[] actors =
         [
@@ -72,7 +64,7 @@ internal static class IntroBabyActorDefinitionsVerification
             int definitionAddress = IntroBabyActorDefinitions.NativeBank | actors[index].DefinitionPointer;
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), actual.PreInstruction,
                 $"intro baby actor {index} pre-instruction callback");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), actual.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
                 $"intro baby actor {index} instruction list");
 
             // The definition's initialization callback supplies the compiled placement.
@@ -160,40 +152,15 @@ internal static class IntroBabyActorDefinitionsVerification
         AssertEqual(reference.Samus.InputLocked, discovery.Samus.InputLocked,
             "SR388 end-demo Samus input lock matches ROM-backed controller");
 
-        ushort RomScientistWord(ushort pointer) => CartridgeImportSource.Require(referenceBus).ReadCartridgeWord((IntroBabyActorDefinitions.NativeBank | pointer));
         IntroScientistCutsceneState delivery = IntroScientistCutsceneState.CreateDelivery();
         IntroScientistCutsceneState examination = IntroScientistCutsceneState.CreateExamination();
-        IntroScientistCutsceneState nativeDelivery =
-            IntroScientistCutsceneState.CreateDelivery(instructionWord: RomScientistWord);
-        IntroScientistCutsceneState nativeExamination =
-            IntroScientistCutsceneState.CreateExamination(instructionWord: RomScientistWord);
         var deliveredBaby = delivery.baby;
         var examinedBaby = examination.baby;
-        var nativeDeliveredBaby = nativeDelivery.baby;
-        var nativeExaminedBaby = nativeExamination.baby;
         for (ushort frame = 0; frame < 1024 &&
             (!delivery.PageFourRequested || !examination.PageFiveRequested); frame++)
         {
             delivery.Step(frame, introCrossfadeTimer: 0x007f);
             examination.Step(frame, introCrossfadeTimer: 0x007f);
-            nativeDelivery.Step(frame, introCrossfadeTimer: 0x007f);
-            nativeExamination.Step(frame, introCrossfadeTimer: 0x007f);
-            AssertEqual(nativeDelivery.Background.X, delivery.Background.X,
-                $"scientist delivery camera X at frame {frame}");
-            AssertEqual(nativeExamination.Background.Y, examination.Background.Y,
-                $"scientist examination camera Y at frame {frame}");
-            AssertEqual(nativeDeliveredBaby.WholePosition.X, deliveredBaby.WholePosition.X,
-                $"scientist delivery baby X at frame {frame}");
-            AssertEqual(nativeExaminedBaby.WholePosition.Y, examinedBaby.WholePosition.Y,
-                $"scientist examination baby Y at frame {frame}");
-            AssertEqual(nativeDeliveredBaby.SpriteMapPointer, deliveredBaby.SpriteMapPointer,
-                $"scientist delivery visual frame {frame}");
-            AssertEqual(nativeExaminedBaby.SpriteMapPointer, examinedBaby.SpriteMapPointer,
-                $"scientist examination visual frame {frame}");
-            AssertEqual(nativeDelivery.PageFourRequested, delivery.PageFourRequested,
-                $"scientist page-four handoff at frame {frame}");
-            AssertEqual(nativeExamination.PageFiveRequested, examination.PageFiveRequested,
-                $"scientist page-five handoff at frame {frame}");
         }
         AssertTrue(delivery.PageFourRequested,
             "delivered-baby production actor reaches page-four instruction");
@@ -201,12 +168,6 @@ internal static class IntroBabyActorDefinitionsVerification
             "examined-baby production actor reaches page-five instruction");
         delivery.Step(0, introCrossfadeTimer: 0);
         examination.Step(0, introCrossfadeTimer: 0);
-        nativeDelivery.Step(0, introCrossfadeTimer: 0);
-        nativeExamination.Step(0, introCrossfadeTimer: 0);
-        AssertEqual(nativeDeliveredBaby.IsActive, deliveredBaby.IsActive,
-            "scientist delivery crossfade deletion matches ROM-backed actor");
-        AssertEqual(nativeExaminedBaby.IsActive, examinedBaby.IsActive,
-            "scientist examination crossfade deletion matches ROM-backed actor");
         AssertTrue(!deliveredBaby.IsActive && !examinedBaby.IsActive,
             "scientist actors delete at zero crossfade");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -236,10 +197,7 @@ internal static class IntroBabyActorDefinitionsVerification
                 >= 0x8bad55 and < 0x8bad68 or
                 >= 0x8bad93 and < 0x8bada6 or
                 >= 0x8bba4b and < 0x8bba5e ||
-                (address >= (IntroBabyActorDefinitions.NativeBank |
-                    IntroScientistInstructionDefinitions.DeliveryStart) &&
-                 address < (IntroBabyActorDefinitions.NativeBank |
-                    IntroScientistInstructionDefinitions.ExaminationEnd)) ||
+                CinematicSpriteNativeListAddresses.InListRegion(address) ||
                 (address >= (DemoInputRomData.BankBase |
                     IntroBabyDiscoveryInputDefinitions.ListStart) &&
                  address < (DemoInputRomData.BankBase |

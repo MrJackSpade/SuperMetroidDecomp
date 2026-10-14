@@ -8,30 +8,6 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// <summary>Compares compiled intro egg-effect scripts and frame identities with the retail cartridge.</summary>
 internal static class IntroEggEffectProgramsVerification
 {
-    /// <summary>Checks byte and overlapping-word views of both lists, including terminal and outside-pointer failures.</summary>
-    internal static void VerifyIntroEggEffectPrograms(ISnesAddressSpace rom)
-    {
-        foreach ((int start, int end) in new[] { (0xcd39, 0xcd83), (0xce53, 0xce55) })
-        {
-            for (int pointer = start; pointer < end; pointer++)
-            {
-                AssertEqual(IntroEggEffectProgramsRomByte(rom, 0x8b0000 + pointer), IntroEggEffectInstructionDefinitions.ReadByte((ushort)pointer), "original egg-effect byte");
-                if (pointer < end - 1)
-                    AssertEqual((ushort)(SnesLittleEndian.Word(IntroEggEffectProgramsRomByte(rom, 0x8b0000 + pointer), IntroEggEffectProgramsRomByte(rom, 0x8b0001 + pointer))),
-                        IntroEggEffectInstructionDefinitions.ReadWord((ushort)pointer), "original egg-effect overlapping word");
-            }
-            AssertThrows<InvalidDataException>(() => IntroEggEffectInstructionDefinitions.ReadWord((ushort)(end - 1)), "egg-effect terminal word crossing");
-        }
-        foreach (ushort pointer in new ushort[] { 0, 0xcd38, 0xcd83, 0xce52, 0xce55, ushort.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroEggEffectInstructionDefinitions.ReadByte(pointer), "egg-effect byte boundary");
-            AssertThrows<InvalidDataException>(() => IntroEggEffectInstructionDefinitions.ReadWord(pointer), "egg-effect word boundary");
-        }
-    }
-
-    /// <summary>Reads one original bank-$8B script byte for comparison with the compiled program.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro egg effect programs")]
-    private static byte IntroEggEffectProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks eleven published frame names, native operands, OAM part counts, and catalog bounds.</summary>
     internal static void VerifyIntroEggEffectFrameCatalog(ISnesAddressSpace rom)
     {

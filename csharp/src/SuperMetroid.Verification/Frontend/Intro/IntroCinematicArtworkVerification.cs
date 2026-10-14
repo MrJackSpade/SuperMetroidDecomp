@@ -1,3 +1,4 @@
+using static SuperMetroid.Verification.Frontend.Intro.CinematicSpriteAnimationsVerification;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Buffers.Binary;
@@ -17,7 +18,6 @@ using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingPaletteArtw
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoCartridgeFallbackVerification;
 using static SuperMetroid.Verification.Harness.GraphDigestVerification;
-using static SuperMetroid.Verification.Frontend.Intro.IntroCaretInstructionsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryActorSpriteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroEggEffectSpriteArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroEyeInstructionsVerification;
@@ -689,7 +689,7 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
-        Suite(nameof(VerifyIntroCaretInstructions), () => VerifyIntroCaretInstructions(bus));
+        Suite(nameof(VerifyCinematicSpriteAnimations), () => VerifyCinematicSpriteAnimations(bus));
         const ushort originX = 8;
         const ushort originY = 24;
         ushort paletteBits = IntroCinematicRomData.Objects.ScientistPalette.Raw;
@@ -891,7 +891,7 @@ internal static class IntroCinematicArtworkVerification
         {
             state.SetupFirstIllustratedPage();
             state.SetupMotherBrainFlashback();
-            ((state.flashbackMotherBrain ?? throw new InvalidOperationException("Verification requires state.flashbackMotherBrain."))).Step(guarded);
+            (state.flashbackMotherBrain ?? throw new InvalidOperationException("Verification requires state.flashbackMotherBrain.")).Step();
         }
         Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
         Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
@@ -949,7 +949,7 @@ internal static class IntroCinematicArtworkVerification
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroMotherBrainExplosions);
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
-        explosions.Step(guarded, introCrossfadeTimer: 1);
+        explosions.Step(introCrossfadeTimer: 1);
         var stockOam = new OamBuffer();
         stockOam.BeginFrame();
         explosions.Draw(stockOam, stock.MotherBrainExplosionSprites);
@@ -1073,15 +1073,8 @@ internal static class IntroCinematicArtworkVerification
         }
         int eyeScriptStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
             IntroEyeAnimationDefinitions.StartPointer);
-        int caretScriptStart = (int)new SnesAddress(
-            IntroCinematicRomDataBanksConstants.CinematicCode >> 16,
-            IntroCaretInstructionDefinitions.StartPointer);
-        if (address >= caretScriptStart &&
-            address < caretScriptStart + IntroCaretInstructionDefinitions.EndPointer -
-                IntroCaretInstructionDefinitions.StartPointer)
-        {
-            return $"Cinematic reread caret instruction ${address:X6}.";
-        }
+        if (CinematicSpriteNativeListAddresses.InListRegion(address))
+            return $"Cinematic reread a native cinematic sprite list ${address:X6}.";
         int eyeFrameStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
             IntroEyeAnimationDefinitions.FrameStartPointer);
         foreach (IntroCaretFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)

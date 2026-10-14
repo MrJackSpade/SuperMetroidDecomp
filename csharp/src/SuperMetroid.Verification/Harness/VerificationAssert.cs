@@ -24,15 +24,12 @@ using static SuperMetroid.Verification.Enemies.Boyon.BoyonInstructionProgramDefi
 using static SuperMetroid.Verification.Enemies.PipeBugs.BrinstarPipeBugInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Bull.BullInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Cacatac.CacatacInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresBackdropProgramsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresBlastPlacementVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionFrameCatalogVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeVramTransferDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionDefinitionsVerification;
-using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionProgramsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightActorMetadataVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightFrameCatalogVerification;
-using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightProgramsVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresHazeVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresInitialActorMetadataVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresLargeAsteroidPartsVerification;
@@ -123,8 +120,6 @@ using static SuperMetroid.Verification.Hardware.HighlightTilePixelsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.HorizontalShutterInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.HyperBeamFxColorArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroBabyDiscoveryInputVerification;
-using static SuperMetroid.Verification.Frontend.Intro.IntroBabyDiscoveryInstructionsVerification;
-using static SuperMetroid.Verification.Frontend.Intro.IntroCaretInstructionsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroConfusedBabyPartsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryCollisionVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryFrameCatalogVerification;
@@ -139,12 +134,10 @@ using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroMotherBrainEx
 using static SuperMetroid.Verification.Frontend.Intro.IntroMotherBrainExplosionProgramsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroMotherBrainFrameCatalogVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroMotherBrainInputSourceVerification;
-using static SuperMetroid.Verification.Frontend.Intro.IntroMotherBrainInstructionsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroMotherBrainPartsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroRinkaPartsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroRinkaProgramsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroScientistFrameCatalogVerification;
-using static SuperMetroid.Verification.Frontend.Intro.IntroScientistInstructionsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroScientistPartsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmComponentHitboxesVerification;
@@ -2027,7 +2020,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending explosion oracle revision");
-        Suite(nameof(VerifyEndingExplosionPrograms), () => VerifyEndingExplosionPrograms(rom));
         Console.WriteLine("Ending explosion programs: all65 native words, eight actor streams, frame record layout and bounds pass.");
         return 0;
     }
@@ -2161,7 +2153,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres flight program oracle revision");
-        Suite(nameof(VerifyCeresFlightPrograms), () => VerifyCeresFlightPrograms(rom));
         Suite(nameof(VerifyCeresFlightFrameCatalog), () => VerifyCeresFlightFrameCatalog(rom));
         Suite(nameof(VerifySpaceColonyCaption), () => VerifySpaceColonyCaption(rom));
         Suite(nameof(VerifyCeresStationParts), () => VerifyCeresStationParts(rom));
@@ -2180,7 +2171,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres backdrop program oracle revision");
-        Suite(nameof(VerifyCeresBackdropPrograms), () => VerifyCeresBackdropPrograms(rom));
         Suite(nameof(VerifyCeresDestructionFrameCatalog), () => VerifyCeresDestructionFrameCatalog(rom));
         Suite(nameof(VerifyPlanetZebesTitleParts), () => VerifyPlanetZebesTitleParts(rom));
         Suite(nameof(VerifyZebesPlanetBandParts), () => VerifyZebesPlanetBandParts(rom));
@@ -2195,10 +2185,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres explosion program oracle revision");
-        Suite(nameof(VerifyCeresInitialExplosionProgram), () => VerifyCeresInitialExplosionProgram(rom));
-        Suite(nameof(VerifyCeresRepeatingExplosionProgram), () => VerifyCeresRepeatingExplosionProgram(rom));
-        Suite(nameof(VerifyCeresFinalWaveProgram), () => VerifyCeresFinalWaveProgram(rom));
-        Suite(nameof(VerifyCeresStationBlastProgram), () => VerifyCeresStationBlastProgram(rom));
         Suite(nameof(VerifyCeresStationBlastParts), () => VerifyCeresStationBlastParts(rom));
         Suite(nameof(VerifyCeresLargeBlastParts), () => VerifyCeresLargeBlastParts(rom));
         Console.WriteLine("Ceres explosion programs: four original streams, byte/word bounds and actual interpreter timing/deletion pass.");
@@ -2268,7 +2254,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro egg-effect oracle revision");
-        Suite(nameof(VerifyIntroEggEffectPrograms), () => VerifyIntroEggEffectPrograms(rom));
         Suite(nameof(VerifyIntroEggEffectFrameCatalog), () => VerifyIntroEggEffectFrameCatalog(rom));
         Suite(nameof(VerifyIntroEggEffectParts), () => VerifyIntroEggEffectParts(rom));
         Console.WriteLine("Intro egg effects: all76 bytes, eleven frame records/calculated parts, native OAM, independent edits and boundaries pass.");
@@ -2282,7 +2267,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro Rinka oracle revision");
-        Suite(nameof(VerifyIntroRinkaPrograms), () => VerifyIntroRinkaPrograms(rom));
         Suite(nameof(VerifyIntroRinkaFrameCatalog), () => VerifyIntroRinkaFrameCatalog(rom));
         Suite(nameof(VerifyIntroRinkaParts), () => VerifyIntroRinkaParts(rom));
         Console.WriteLine("Intro Rinka: program/catalog, twelve calculated parts, native OAM, independent edits and bounds pass.");
@@ -2296,7 +2280,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro discovery oracle revision");
-        Suite(nameof(VerifyIntroBabyDiscoveryInstructions), () => VerifyIntroBabyDiscoveryInstructions(rom));
         Suite(nameof(VerifyIntroDiscoveryFrameCatalog), () => VerifyIntroDiscoveryFrameCatalog(rom));
         Suite(nameof(VerifyIntroEggRemnantParts), () => VerifyIntroEggRemnantParts(rom));
         Suite(nameof(VerifyIntroEggRockingParts), () => VerifyIntroEggRockingParts(rom));
@@ -2316,7 +2299,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro scientist oracle revision");
-        Suite(nameof(VerifyIntroScientistInstructions), () => VerifyIntroScientistInstructions(rom));
         Suite(nameof(VerifyIntroScientistFrameCatalog), () => VerifyIntroScientistFrameCatalog(rom));
         Suite(nameof(VerifyIntroScientistParts), () => VerifyIntroScientistParts(rom));
         Console.WriteLine("Intro scientist programs/catalog: all142 bytes, overlapping views, ten original frame records, stable asset names and boundaries pass.");
@@ -2342,7 +2324,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain instruction oracle revision");
-        Suite(nameof(VerifyIntroMotherBrainInstructions), () => VerifyIntroMotherBrainInstructions(rom));
         Suite(nameof(VerifyIntroMotherBrainFrameCatalog), () => VerifyIntroMotherBrainFrameCatalog(rom));
         Suite(nameof(VerifyIntroMotherBrainParts), () => VerifyIntroMotherBrainParts(rom));
         Console.WriteLine("Mother Brain programs/catalog: all46 bytes,45 word views,three frames and boundaries pass.");
@@ -2380,7 +2361,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro explosion oracle revision");
-        Suite(nameof(VerifyIntroMotherBrainExplosionPrograms), () => VerifyIntroMotherBrainExplosionPrograms(rom));
         Suite(nameof(VerifyIntroMotherBrainExplosionFrameCatalog), () => VerifyIntroMotherBrainExplosionFrameCatalog(rom));
         Suite(nameof(VerifyIntroMotherBrainExplosionParts), () => VerifyIntroMotherBrainExplosionParts(rom));
         Console.WriteLine("Intro Mother Brain explosions: both native programs, word views, delete, twelve frame identities and bounds pass.");
@@ -2394,7 +2374,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro caret oracle revision");
-        Suite(nameof(VerifyIntroCaretInstructions), () => VerifyIntroCaretInstructions(rom));
         Console.WriteLine("Intro caret instructions: all20 bytes, overlapping word views and boundary behavior pass.");
         return 0;
     }

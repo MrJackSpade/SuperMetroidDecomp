@@ -35,11 +35,11 @@ internal sealed class EndingRewardGesture
     }
 
     /// <summary>Advances active gesture actors once and records any instruction-triggered jump handoff.</summary>
-    public void Step(Func<ushort, ushort>? instructionWord = null)
+    public void Step()
     {
         if (JumpRequested) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");
         foreach (IntroDiscoverySprite actor in actors)
-            actor.Step<EndingRewardGestureInstruction>(HandleInstruction, instructionWord);
+            actor.Step(HandleCue);
         actors.RemoveAll(actor => !actor.IsActive);
     }
 
@@ -54,20 +54,20 @@ internal sealed class EndingRewardGesture
         return oam;
     }
 
-    /// <summary>Converts the native jump opcode into a suited or suitless handoff while retaining the list cursor.</summary>
-    private ushort HandleInstruction(EndingRewardGestureInstruction instruction, ushort cursor)
+    /// <summary>Converts the jump cue into a suited or suitless handoff.</summary>
+    private void HandleCue(CinematicSpriteCueKind cue)
     {
-        switch (instruction)
+        switch (cue)
         {
-            case EndingRewardGestureInstruction.SpawnSuitlessJump:
+            case CinematicSpriteCueKind.SpawnSuitlessJump:
                 SuitlessJumpRequested = true;
                 JumpRequested = true;
-                return cursor;
-            case EndingRewardGestureInstruction.SpawnSuitedJump:
+                return;
+            case CinematicSpriteCueKind.SpawnSuitedJump:
                 JumpRequested = true;
-                return cursor;
+                return;
             default:
-                throw new InvalidOperationException($"Undefined EndingRewardGestureInstruction {instruction}.");
+                throw new InvalidOperationException($"The reward gesture programs publish no {cue} cue.");
         }
     }
 
@@ -80,7 +80,7 @@ internal sealed class EndingRewardGesture
         var actor = new IntroDiscoverySprite(
             new((ushort)x, (ushort)y),
             (ushort)palette,
-            record.InstructionList);
+            record.Program);
         actor.PreInstructionPointerForDiscovery(record.PreInstruction);
         actors.Add(actor);
     }

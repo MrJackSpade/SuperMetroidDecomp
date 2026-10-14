@@ -382,8 +382,7 @@ internal sealed class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.PostCreditsGesture:
-                RewardGesture.Step(objectArtwork is null
-                    ? null : EndingRewardInstructionDefinitions.ReadWord);
+                RewardGesture.Step();
                 if (RewardGesture.JumpRequested)
                 {
                     rewardGesture = null;
@@ -394,8 +393,7 @@ internal sealed class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.PostCreditsJump:
-                RewardJump.Step(objectArtwork is null
-                    ? null : EndingRewardInstructionDefinitions.ReadWord);
+                RewardJump.Step();
                 if (RewardJump.ShotRequested)
                 {
                     postShot = new EndingPostShot(bus, cgram, ResolveEndingFont(), objectArtwork);
@@ -408,16 +406,14 @@ internal sealed class EndingCreditsState
                 // Cinematic function runs before actors; palette fades and queued
                 // tile replacements therefore precede the next sprite instruction.
                 PostShot.Step(vram, cgram);
-                RewardJump.Step(objectArtwork is null
-                    ? null : EndingRewardInstructionDefinitions.ReadWord);
+                RewardJump.Step();
                 if (PostShot.ReadyForWhiteFlash)
                     BeginPostCreditsWhiteFlash();
                 break;
 
             case EndingCreditsPhase.PostCreditsWhiteFlash:
                 if (whiteFlashColor > 0) whiteFlashColor = NativeWordCounter.DecrementByte(whiteFlashColor);
-                RewardJump.Step(objectArtwork is null
-                    ? null : EndingRewardInstructionDefinitions.ReadWord);
+                RewardJump.Step();
                 if (--phaseTimer <= 0) FinishPostCreditsWhiteFlash();
                 break;
 
@@ -788,8 +784,7 @@ internal sealed class EndingCreditsState
         {
             IntroDiscoverySprite sprite = wrapper.Sprite;
             EndingCloudMotion.Step(wrapper, mode7Zoom);
-            sprite.Step(instructionWord: objectArtwork is null
-                ? null : EndingCloudInstructionDefinitions.ReadWord);
+            sprite.Step();
         }
     }
 
@@ -812,38 +807,29 @@ internal sealed class EndingCreditsState
             EndingSprite? wrapper = sprites.Find(actor => actor.NativeSlot == slot && actor.Sprite.IsActive);
             if (wrapper is null) continue;
             StepEndingSpritePreInstruction(wrapper);
-            Func<ushort, ushort>? instructionWord = objectArtwork is null ? null : wrapper.Role.Family() switch
-            {
-                EndingSpriteFamily.Cloud => null,
-                EndingSpriteFamily.Explosion => EndingExplosionInstructionDefinitions.ReadWord,
-                EndingSpriteFamily.CompletionText => EndingCompletionTextInstructionDefinitions.ReadWord,
-                EndingSpriteFamily.Reward => EndingRewardInstructionDefinitions.ReadWord,
-                EndingSpriteFamily.AnimalEscape => EndingAnimalEscapeDefinitions.ReadWord,
-                var family => throw new InvalidOperationException($"Undefined ending sprite family {family}."),
-            };
-            wrapper.Sprite.Step<EndingSpriteInstruction>(HandleSpriteOpcode, instructionWord);
+            wrapper.Sprite.Step(HandleSpriteCue);
         }
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }
 
-    /// <summary>Applies bank-$8B sprite opcodes that spawn actors, trigger palette effects or advance the cinematic phase.</summary>
-    private ushort HandleSpriteOpcode(EndingSpriteInstruction opcode, ushort cursor)
+    /// <summary>Carries out the ending sprite programs' cues that spawn actors, trigger palette effects or advance the cinematic phase.</summary>
+    private void HandleSpriteCue(CinematicSpriteCueKind cue)
     {
-        switch (opcode)
+        switch (cue)
         {
-            case EndingSpriteInstruction.FadeExplosionPalette:
+            case CinematicSpriteCueKind.FadeExplosionPalette:
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.FadePlanet, 0);
                 new FrontendPalettes(cgram).EndingExplosionGlow.Write(0, new Bgr555(1, 0, 0));
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.SpawnExplosionSilhouette:
+            case CinematicSpriteCueKind.SpawnExplosionSilhouette:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionSilhouette,
                     EndingSpriteRole.ExplosionSilhouette);
                 new FrontendPalettes(cgram).EndingBackdrop.Write(0, EndingCreditsRomData.Rendering.WhiteColor);
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.StartZebesExplosion:
+            case CinematicSpriteCueKind.StartZebesExplosion:
                 explosionBurstDisplay = true;
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Supernova, 0);
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Explosion, 0);
@@ -854,17 +840,17 @@ internal sealed class EndingCreditsState
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionStarsLeft,
                     EndingSpriteRole.ExplosionStarsLeft);
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.ExplosionFinale:
+            case CinematicSpriteCueKind.ExplosionFinale:
                 explosionFinaleDisplay = true;
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.SupernovaFinale, 0);
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionAfterglow,
                     EndingSpriteRole.ExplosionAfterglow);
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.EndZebesExplosion:
+            case CinematicSpriteCueKind.EndZebesExplosion:
                 // F32B disables TM/TS without deleting the actors: the stars must still
                 // advance and become visible again when Func120 starts the flyaway.
                 var flash = new FrontendPalettes(cgram);
@@ -873,49 +859,49 @@ internal sealed class EndingCreditsState
                 flash.EndingLogoBackground.Fill(EndingCreditsRomData.Rendering.WhiteColor);
                 phaseTimer = 120;
                 Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.SpawnCompletedText:
+            case CinematicSpriteCueKind.SpawnCompletedText:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.CompletedSuccessfullyText,
                     EndingSpriteRole.CompletedSuccessfullyText);
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.SpawnClearTime:
+            case CinematicSpriteCueKind.SpawnClearTime:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ClearTimeText,
                     EndingSpriteRole.ClearTimeText);
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.SpawnHoursTens:
+            case CinematicSpriteCueKind.SpawnHoursTens:
                 SpawnDigit(gameTimeHours / 10, EndingCreditsRomData.Text.HoursTensX);
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.SpawnHoursUnits:
+            case CinematicSpriteCueKind.SpawnHoursUnits:
                 SpawnDigit(gameTimeHours % 10, EndingCreditsRomData.Text.HoursUnitsX);
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.SpawnColon:
+            case CinematicSpriteCueKind.SpawnColon:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ClearTimeColon,
                     EndingSpriteRole.ClearTimeDigit);
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.SpawnMinutesTens:
+            case CinematicSpriteCueKind.SpawnMinutesTens:
                 SpawnDigit(gameTimeMinutes / 10, EndingCreditsRomData.Text.MinutesTensX);
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.SpawnMinutesUnits:
+            case CinematicSpriteCueKind.SpawnMinutesUnits:
                 SpawnDigit(gameTimeMinutes % 10, EndingCreditsRomData.Text.MinutesUnitsX);
-                return cursor;
+                return;
 
-            case EndingSpriteInstruction.TransitionToCredits:
+            case CinematicSpriteCueKind.TransitionToCredits:
                 fadeCounter = 1;
                 Phase = EndingCreditsPhase.FadeOutToCredits;
-                return cursor;
+                return;
 
             default:
-                throw new InvalidOperationException($"Undefined EndingSpriteInstruction {opcode}.");
+                throw new InvalidOperationException($"The ending sprite programs publish no {cue} cue.");
         }
     }
 
@@ -926,11 +912,25 @@ internal sealed class EndingCreditsState
         SpawnSprite(
             new(x, EndingCreditsRomData.Sprites.ClearTimeDigitY),
             0,
-            unchecked((ushort)(
-                EndingCreditsRomData.Sprites.ClearTimeDigitInstructionBase +
-                normalized * EndingCreditsRomData.Sprites.ClearTimeDigitInstructionStride)),
+            ClearTimeDigitProgram(normalized),
             EndingSpriteRole.ClearTimeDigit);
     }
+
+    /// <summary>The program showing clear-time <paramref name="digit"/>.</summary>
+    private static CinematicSpriteProgram ClearTimeDigitProgram(int digit) => digit switch
+    {
+        0 => CinematicSpriteProgram.ClearTimeDigit0,
+        1 => CinematicSpriteProgram.ClearTimeDigit1,
+        2 => CinematicSpriteProgram.ClearTimeDigit2,
+        3 => CinematicSpriteProgram.ClearTimeDigit3,
+        4 => CinematicSpriteProgram.ClearTimeDigit4,
+        5 => CinematicSpriteProgram.ClearTimeDigit5,
+        6 => CinematicSpriteProgram.ClearTimeDigit6,
+        7 => CinematicSpriteProgram.ClearTimeDigit7,
+        8 => CinematicSpriteProgram.ClearTimeDigit8,
+        9 => CinematicSpriteProgram.ClearTimeDigit9,
+        _ => throw new ArgumentOutOfRangeException(nameof(digit), digit, "A clear-time digit is 0..9."),
+    };
 
     /// <summary>Installs the two-piece Samus reward art selected by clear-time thresholds.</summary>
     private void SpawnEndingRewardActors()
@@ -967,7 +967,7 @@ internal sealed class EndingCreditsState
     private void SpawnSprite(
         Position16<ScreenPixels> position,
         ushort palette,
-        ushort instructionPointer,
+        CinematicSpriteProgram program,
         EndingSpriteRole role)
     {
         int slot = role switch
@@ -989,18 +989,18 @@ internal sealed class EndingCreditsState
         };
         if (slot < 0) throw new InvalidOperationException("Ending cinematic actor slots exhausted.");
         sprites.RemoveAll(actor => actor.NativeSlot == slot);
-        sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, palette, instructionPointer), role)
+        sprites.Add(new EndingSprite(new IntroDiscoverySprite(position, palette, program), role)
             { NativeSlot = slot });
         if (role == EndingSpriteRole.ExplosionStarsLeft)
             sprites[^1].Sprite.PreInstructionPointerForDiscovery((ushort)EndingSpritePreInstruction.WaitForFlyaway);
     }
 
-    /// <summary>Installs a sprite from its authored position, attributes and instruction pointer.</summary>
+    /// <summary>Installs a sprite from its authored position, attributes and program.</summary>
     private void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
         SpawnSprite(
             definition.Position,
             definition.Attributes.Raw,
-            definition.InstructionPointer,
+            definition.Program,
             role);
 
     /// <summary>Runs the first rotating planet-escape motion pattern until the fast zoom threshold.</summary>
@@ -1041,14 +1041,14 @@ internal sealed class EndingCreditsState
             if (crittersEscaped)
             {
                 SpawnSprite(new(EndingAnimalEscapeDefinitions.Origin, EndingAnimalEscapeDefinitions.Origin),
-                    EndingAnimalEscapeDefinitions.Palette, EndingAnimalEscapeDefinitions.InstructionStart,
+                    EndingAnimalEscapeDefinitions.Palette, CinematicSpriteProgram.EndingAnimalEscape,
                     EndingSpriteRole.AnimalEscape);
                 IntroDiscoverySprite pod = sprites[^1].Sprite;
                 pod.GeneralTimer = EndingAnimalEscapeDefinitions.GeneralTimer;
                 // Native cinematic dispatch precedes actors, so a newly spawned pod
                 // moves and selects its first animation frame on this same call.
                 StepEndingSpritePreInstruction(sprites[^1]);
-                pod.Step(instructionWord: EndingAnimalEscapeDefinitions.ReadWord);
+                pod.Step();
             }
         }
     }
@@ -1546,8 +1546,7 @@ internal sealed class EndingCreditsState
     /// <summary>Advances logo instructions and starts the item-percentage text once the logo completes.</summary>
     private void StepPostCreditsLogo()
     {
-        EndingLogo.Step(cgram, objectArtwork is null
-            ? null : EndingLogoInstructionDefinitions.ReadWord);
+        EndingLogo.Step(cgram);
         if (!EndingLogo.Completed) return;
         postCreditsText = new EndingBackgroundTextState(bus, new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, InstructionPointer = EndingCreditsRomData.Instructions.ItemPercentageText, Inventory = inventory, JapaneseText = japaneseText, TilemapDestination = EndingPostShotDefinitions.FinalTextTilemapWord, Presentation = endingText, InstalledSequence = endingText is null ? null : SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextSequence.ItemPercentage });
         Phase = EndingCreditsPhase.ItemPercentage;

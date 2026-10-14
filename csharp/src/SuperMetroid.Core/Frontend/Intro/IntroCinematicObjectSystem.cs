@@ -51,11 +51,8 @@ internal sealed class IntroCinematicObjectSystem
     private bool narrationInitialMarkerPending;
     /// <summary>Whether page six entered its final 128-frame caret hold.</summary>
     private bool narrationFinalHoldStarted;
-    /// <summary>Bank-$8B cursor for the persistent portrait-border or text-caret sprite.</summary>
-    private ushort spriteInstructionPointer =
-        CinematicCodePointers.Lists.IntroTextCaret;
-    /// <summary>Countdown before the sprite object's next list record.</summary>
-    private NativeCountdown spriteInstructionTimer = NativeCountdown.Start(1);
+    /// <summary>The persistent text-caret sprite object, running its typed program (#641); <see cref="Caret"/> places it.</summary>
+    private readonly IntroDiscoverySprite caretSprite = new(default, 0, CinematicSpriteProgram.IntroTextCaret);
     /// <summary>Alternates typewriter audio calls while letters appear.</summary>
     private bool typewriterSoundToggle;
     /// <summary>Created by the first glyph to animate per-character glow effects.</summary>
@@ -102,7 +99,7 @@ internal sealed class IntroCinematicObjectSystem
     public bool IntroFinishRequested { get; private set; }
 
     /// <summary>The bank-$8C spritemap selected by the current sprite timing record.</summary>
-    public ushort SpriteMapPointer { get; private set; }
+    public ushort SpriteMapPointer => caretSprite.SpriteMapPointer;
 
     /// <summary>Current native screen position of the persistent text caret object; Y=$F8 deliberately hides it below the viewport.</summary>
     public Position16<ScreenPixels> Caret { get; private set; } =
@@ -208,7 +205,7 @@ internal sealed class IntroCinematicObjectSystem
             throw new InvalidOperationException(
                 "Opening narration host content must be rebound after state restoration.");
         }
-        StepSpriteObject();
+        caretSprite.Step();
         subtitles.Step(newlyPressed, MarkAwaitingInput);
         StepBgObject(ref eyeInstructionPointer, ref eyeInstructionTimer);
         if (narrationProgram is not null)
@@ -349,54 +346,6 @@ internal sealed class IntroCinematicObjectSystem
             case IntroNarrationPageId.Page4: PageFourAwaitingInput = true; break;
             case IntroNarrationPageId.Page5: PageFiveAwaitingInput = true; break;
             default: throw new ArgumentOutOfRangeException(nameof(page), page, null);
-        }
-    }
-
-    /// <summary>Interprets the caret/border sprite list, including goto, sleep, and delete controls.</summary>
-    private void StepSpriteObject()
-    {
-        if (spriteInstructionPointer == 0 || !(spriteInstructionTimer = spriteInstructionTimer.Decrement().Remaining).IsZero)
-            return;
-
-        ushort pointer = spriteInstructionPointer;
-        while (true)
-        {
-            ushort instructionOrDuration = ReadBank8B(pointer);
-            if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
-            {
-                spriteInstructionTimer = NativeCountdown.FromRaw(instructionOrDuration);
-                SpriteMapPointer = ReadBank8B(Add(
-                    pointer,
-                    IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
-                spriteInstructionPointer = Add(
-                    pointer,
-                    IntroCinematicRomData.ObjectSystem.RecordDurationToDataPointerByteCount);
-                return;
-            }
-
-            // The opening border animation uses only the common goto. Delete and sleep are
-            // retained because they are fundamental interpreter control flow, not page lore.
-            switch (CinematicInstructionWords.Decode<CinematicSpriteInstruction>(instructionOrDuration, pointer))
-            {
-                case CinematicSpriteInstruction.Goto:
-                    pointer = ReadBank8B(Add(
-                        pointer,
-                        IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
-                    break;
-                case CinematicSpriteInstruction.Delete:
-                    SpriteMapPointer = 0;
-                    spriteInstructionPointer = 0;
-                    return;
-                case CinematicSpriteInstruction.Sleep:
-                    spriteInstructionPointer = pointer;
-                    return;
-                case CinematicSpriteInstruction.SetPreInstruction:
-                case CinematicSpriteInstruction.DecrementTimerAndGoto:
-                case CinematicSpriteInstruction.SetTimer:
-                    throw Unsupported("sprite", instructionOrDuration, pointer);
-                default:
-                    throw new InvalidOperationException($"Undefined CinematicSpriteInstruction {instructionOrDuration}.");
-            }
         }
     }
 
@@ -553,17 +502,15 @@ internal sealed class IntroCinematicObjectSystem
         // RestIntroTextCaret ($8B:ADEE) moves the persistent slot back from Y=$F8 before
         // restoring its non-blinking list. Position is state, not a renderer constant.
         Caret = new(IntroCinematicRomData.ObjectSystem.CaretLeftX, IntroCinematicRomData.ObjectSystem.CaretFirstTextY);
-        spriteInstructionPointer = CinematicCodePointers.Lists.IntroTextCaret;
-        spriteInstructionTimer = NativeCountdown.Start(1);
+        caretSprite.Start(CinematicSpriteProgram.IntroTextCaret);
     }
 
     /// <summary>Points the existing caret slot at its blinking list and primes its timer.</summary>
     internal void SetCaretBlinking()
     {
-        // Instruction_SetCaretToBlink points the existing slot at $CC03 and primes timer
-        // one, allowing the generic sprite list handler to select the first frame now.
-        spriteInstructionPointer = CinematicCodePointers.Lists.IntroTextCaretBlink;
-        spriteInstructionTimer = NativeCountdown.Start(1);
+        // Instruction_SetCaretToBlink starts the existing slot's blinking program and primes timer
+        // one, allowing the generic sprite handler to select the first frame now.
+        caretSprite.Start(CinematicSpriteProgram.IntroTextCaretBlink);
     }
 
     /// <summary>Rejects any eye rectangle extending beyond the 32-by-32 portrait tilemap.</summary>
@@ -574,13 +521,6 @@ internal sealed class IntroCinematicObjectSystem
             throw new InvalidDataException(
                 $"Cinematic rectangle ({origin.X},{origin.Y}) {size.X}x{size.Y} leaves its 32x32 tilemap.");
     }
-
-    /// <summary>Requires a compiled caret instruction word from bank $8B.</summary>
-    private static ushort ReadBank8B(ushort pointer) =>
-        IntroCaretInstructionDefinitions.TryReadWord(pointer, out ushort word)
-            ? word
-            : throw new InvalidDataException(
-                $"Cinematic caret instruction $8B:{pointer:X4} is not compiled.");
 
     /// <summary>Requires a compiled eye instruction word from bank $8C.</summary>
     private static ushort ReadBank8C(ushort pointer) =>

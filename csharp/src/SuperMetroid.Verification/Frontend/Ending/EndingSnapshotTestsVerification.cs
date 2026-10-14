@@ -140,7 +140,7 @@ internal static class EndingSnapshotTestsVerification
                     if (firstPhaseFrame)
                         referenceJump = new EndingRewardJump(bus, legacy.EndingReward, _ => { });
                     else
-                        (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step(pointer => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8b0000 | pointer));
+                        (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step();
                     var jumpFrame = legacy.Presentation.CaptureRenderSnapshot();
                     var expectedOam = referenceJump.Draw(rewardArt);
                     AssertEqual(referenceJump.ObjectSelection, jumpFrame.ObjectSelection,

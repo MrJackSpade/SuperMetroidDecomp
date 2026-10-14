@@ -1,29 +1,30 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Small bank-$8B cinematic-sprite interpreter shared by the SR388 egg actors.
+/// A bank-$8B cinematic sprite object: its position, palette and pre-instruction, running one of the typed
+/// <see cref="CinematicSpriteProgram"/>s (#641) where the generic cinematic sprite handler ran its native list.
 /// </summary>
 /// <remarks>
-/// This is intentionally narrower than a pretend 65c816 VM. Every translated opcode below
-/// is part of the retail egg/baby streams. Unknown words fail with their cartridge address,
-/// keeping later scene work honest instead of silently treating an opcode as frame data.
+/// The shared pre-instruction install is carried out here; every other cue goes to the owner that steps the actor, and
+/// an owner-less cue fails rather than being skipped.
 /// </remarks>
 internal sealed class IntroDiscoverySprite
 {
     /// <summary>Countdown before the next sprite instruction is decoded; setup may stagger the first frame.</summary>
     private NativeCountdown instructionTimer = NativeCountdown.Start(1);
 
-    /// <summary>Creates an egg-scene actor at a whole-pixel origin with its starting OBJ attributes and list cursor.</summary>
+    /// <summary>Creates an actor at a whole-pixel origin with its starting OBJ attributes and program.</summary>
     public IntroDiscoverySprite(
         Position16<ScreenPixels> position,
         ushort paletteBits,
-        ushort instructionPointer)
+        CinematicSpriteProgram program)
     {
         Position = new(new(position.X, 0), new(position.Y, 0));
         PaletteBits = paletteBits;
-        InstructionPointer = instructionPointer;
+        Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
     }
 
     /// <summary>Cleared when the list's delete opcode retires the actor.</summary>
@@ -48,8 +49,11 @@ internal sealed class IntroDiscoverySprite
     /// <summary>Frame pointer most recently published by a timed instruction.</summary>
     public ushort SpriteMapPointer { get; private set; }
 
-    /// <summary>The next list word, matching <c>CinematicSpriteObject_InstListPointers</c>.</summary>
-    public ushort InstructionPointer { get; private set; }
+    /// <summary>Where the actor's program resumes, in place of <c>CinematicSpriteObject_InstListPointers</c>.</summary>
+    internal AnimationProgramCursor<CinematicSpriteProgram> Program { get; private set; }
+
+    /// <summary>The program the actor is running.</summary>
+    internal CinematicSpriteProgram CurrentProgram => CinematicSpriteAnimations.Programs.ResidentProgram(Program);
 
     /// <summary>The actor scratch word used by timer and motion opcodes.</summary>
     public ushort GeneralTimer { get; set; }
@@ -67,10 +71,13 @@ internal sealed class IntroDiscoverySprite
     /// <summary>The selected native pre-instruction address, when the list changes it.</summary>
     public ushort PreInstructionPointer { get; private set; }
 
-    /// <summary>Starts decoding a new list on the next handler call, discarding the old frame countdown.</summary>
-    public void Redirect(ushort pointer)
+    /// <summary>The pre-instruction the actor's program installed, until an owner installs its own.</summary>
+    internal CinematicSpritePreInstruction? ListPreInstruction { get; private set; }
+
+    /// <summary>Starts <paramref name="program"/> on the next handler call, discarding the old frame countdown.</summary>
+    public void Start(CinematicSpriteProgram program)
     {
-        InstructionPointer = pointer;
+        Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
         instructionTimer = NativeCountdown.Start(1);
     }
 
@@ -97,34 +104,25 @@ internal sealed class IntroDiscoverySprite
     /// setter named and internal prevents unrelated code from treating the native address as
     /// an arbitrary public state field.
     /// </summary>
-    public void PreInstructionPointerForDiscovery(ushort pointer) =>
+    public void PreInstructionPointerForDiscovery(ushort pointer)
+    {
         PreInstructionPointer = pointer;
+        ListPreInstruction = null;
+    }
 
-    /// <summary>Retires the actor and clears both its visible frame and instruction cursor.</summary>
+    /// <summary>Retires the actor and clears its visible frame.</summary>
     public void Delete()
     {
         IsActive = false;
         SpriteMapPointer = 0;
-        InstructionPointer = 0;
     }
 
     /// <summary>
-    /// Advances one generic cinematic-sprite handler call for a list that uses only the
-    /// shared instructions; any other instruction word fails with its address.
+    /// Advances one generic cinematic-sprite handler call: when the frame expires, runs the program until it shows a
+    /// frame, holds or stops. Owner cues go to <paramref name="ownerCue"/>; a program that publishes one with no owner
+    /// fails.
     /// </summary>
-    public void Step(Func<ushort, ushort>? instructionWord) =>
-        Step<CinematicSpriteInstruction>(ownerInstruction: null, instructionWord);
-
-    /// <summary>
-    /// Advances one generic cinematic-sprite handler call. Words outside the shared set are
-    /// decoded into the owner's closed <typeparamref name="TInstruction"/> set and passed to
-    /// <paramref name="ownerInstruction"/>, which returns the next list cursor. A word in
-    /// neither set means the wrong owner and list were composed, and fails with its address.
-    /// </summary>
-    public void Step<TInstruction>(
-        Func<TInstruction, ushort, ushort>? ownerInstruction,
-        Func<ushort, ushort>? instructionWord)
-        where TInstruction : struct, Enum
+    public void Step(Action<CinematicSpriteCueKind>? ownerCue = null)
     {
         if (!IsActive)
             return;
@@ -133,69 +131,47 @@ internal sealed class IntroDiscoverySprite
         if (!instructionTimer.IsZero)
             return;
 
-        ushort Read(ushort pointer) => (instructionWord ?? throw new InvalidOperationException(
-            "Cinematic sprites require compiled instruction definitions."))(pointer);
-
-        ushort cursor = InstructionPointer;
-        while (true)
+        AnimationProgramCursor<CinematicSpriteProgram> cursor = Program;
+        // Counter steps count the actor's goto-timer word, as the native timer-load and countdown opcodes do. Only a
+        // counter step changes it, so an owner's own use of the word between steps survives.
+        ushort timerBefore = GeneralTimer;
+        NativeCountdown counter = InstructionLoopCountdown;
+        AnimationProgramAdvance<CinematicSpritePose> advance = CinematicSpriteAnimations.Programs.Advance(ref cursor, ref counter,
+            (cue, _) =>
+            {
+                ApplyCue(cue, ownerCue);
+                return null;
+            });
+        Program = cursor;
+        if (counter.RawValue != timerBefore)
+            InstructionLoopCountdown = counter;
+        switch (advance.Kind)
         {
-            ushort word = Read(cursor);
-            if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
-            {
-                instructionTimer = NativeCountdown.FromRaw(word);
-                SpriteMapPointer = Read(Add(cursor, 2));
-                InstructionPointer = Add(cursor, 4);
+            case AnimationProgramAdvanceKind.Show:
+                instructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+                SpriteMapPointer = CinematicSpritePoseDefinitions.Spritemap(advance.Frame);
                 return;
-            }
-
-            if (!CinematicInstructionWords.TryDecode(word, out CinematicSpriteInstruction shared))
-            {
-                // Private opcodes are owned by the containing cinematic object.
-                if (ownerInstruction is null)
-                    throw new InvalidDataException(
-                        $"Cinematic sprite opcode $8B:{word:X4} at $8B:{cursor:X4} has no owner.");
-                cursor = ownerInstruction(
-                    CinematicInstructionWords.Decode<TInstruction>(word, cursor), Add(cursor, 2));
-                continue;
-            }
-
-            switch (shared)
-            {
-                case CinematicSpriteInstruction.Delete:
-                    Delete();
-                    return;
-
-                case CinematicSpriteInstruction.Sleep:
-                    // Sleep returns the opcode's own address so it is encountered again
-                    // after an external owner primes the instruction timer/list pointer.
-                    InstructionPointer = cursor;
-                    return;
-
-                case CinematicSpriteInstruction.SetPreInstruction:
-                    PreInstructionPointer = Read(Add(cursor, 2));
-                    cursor = Add(cursor, 4);
-                    break;
-
-                case CinematicSpriteInstruction.Goto:
-                    cursor = Read(Add(cursor, 2));
-                    break;
-
-                case CinematicSpriteInstruction.DecrementTimerAndGoto:
-                    InstructionLoopCountdown = InstructionLoopCountdown.Decrement().Remaining;
-                    cursor = !InstructionLoopCountdown.IsZero
-                        ? Read(Add(cursor, 2))
-                        : Add(cursor, 4);
-                    break;
-
-                case CinematicSpriteInstruction.SetTimer:
-                    InstructionLoopCountdown = NativeCountdown.FromRaw(Read(Add(cursor, 2)));
-                    cursor = Add(cursor, 4);
-                    break;
-
-                default:
-                    throw new InvalidOperationException($"Undefined CinematicSpriteInstruction {shared}.");
-            }
+            case AnimationProgramAdvanceKind.Hold:
+                return;
+            case AnimationProgramAdvanceKind.Stop:
+                Delete();
+                return;
+            default:
+                throw new InvalidOperationException($"A cinematic sprite program ended an update with {advance.Kind}.");
         }
+    }
+
+    /// <summary>Installs a pre-instruction, or hands any other cue to the actor's owner.</summary>
+    private void ApplyCue(CinematicSpriteCue cue, Action<CinematicSpriteCueKind>? ownerCue)
+    {
+        if (cue.Kind == CinematicSpriteCueKind.SetPreInstruction)
+        {
+            PreInstructionPointer = (ushort)cue.PreInstruction;
+            ListPreInstruction = cue.PreInstruction;
+            return;
+        }
+        (ownerCue ?? throw new InvalidOperationException(
+            $"Cinematic sprite program {CurrentProgram} published {cue.Kind} with no owner to carry it out."))(cue.Kind);
     }
 
     /// <summary>Draws the current frame at the whole position minus <paramref name="scroll"/>.</summary>
@@ -217,8 +193,4 @@ internal sealed class IntroDiscoverySprite
             "Cinematic sprites require installed artwork."))
             .Draw(SpriteMapPointer, oam, origin.ToOam(), PaletteBits, originIsOnScreen);
     }
-
-    /// <summary>Advances a bank-$8B list cursor with native 16-bit address wraparound.</summary>
-    private static ushort Add(ushort pointer, int bytes) =>
-        unchecked((ushort)(pointer + bytes));
 }

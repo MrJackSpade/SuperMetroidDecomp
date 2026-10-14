@@ -573,7 +573,7 @@ internal sealed class CeresDestructionCinematicState
         var actor = new IntroDiscoverySprite(
             definition.Position,
             definition.Attributes,
-            definition.InstructionList);
+            definition.Program);
         actor.PreInstructionPointerForDiscovery(definition.ActivePreInstruction);
         return actor;
     }
@@ -654,8 +654,7 @@ internal sealed class CeresDestructionCinematicState
             else
                 MoveExplosion(actor);
 
-            actor.Step(instructionWord:
-                CeresDestructionSpriteInstructionDefinitions.ReadWord);
+            actor.Step();
             if (!actor.IsActive)
             {
                 ceresActorSlots.Remove(actor);
@@ -696,7 +695,7 @@ internal sealed class CeresDestructionCinematicState
         var cinematicExplosion = new IntroDiscoverySprite(
             new(x, y),
             CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
-            CeresExplosionDefinitions.StationBlastActor.InstructionList);
+            CeresExplosionDefinitions.StationBlastActor.Program);
         cinematicExplosion.PreInstructionPointerForDiscovery(
             CeresExplosionDefinitions.StationBlastActor.PreInstruction);
         _ = TryAddCeresActor(cinematicExplosion);
@@ -715,7 +714,7 @@ internal sealed class CeresDestructionCinematicState
                 unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY -
                     unchecked((short)background.Y.Whole) + placement.Offset.Y))),
             CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
-            definition.InstructionList);
+            definition.Program);
         actor.PreInstructionPointerForDiscovery(definition.PreInstruction);
 
         // The native initializer writes its stagger directly to the instruction timer.
@@ -805,24 +804,23 @@ internal sealed class CeresDestructionCinematicState
                 }
             }
 
-            actor.Step<ZebesTitleInstruction>(HandleZebesInstruction,
-                CeresDestructionSpriteInstructionDefinitions.ReadWord);
+            actor.Step(HandleZebesInstruction);
             if (!actor.IsActive)
                 actors.RemoveAt(index);
         }
     }
 
     /// <summary>Lets the title actor start the camera flight at its authored instruction boundary.</summary>
-    private ushort HandleZebesInstruction(ZebesTitleInstruction opcode, ushort cursor)
+    private void HandleZebesInstruction(CinematicSpriteCueKind cue)
     {
-        switch (opcode)
+        switch (cue)
         {
-            case ZebesTitleInstruction.FadeInText:
-            case ZebesTitleInstruction.SpawnJapaneseTextIfNeeded:
-            case ZebesTitleInstruction.FadeOutText:
-                return cursor;
+            case CinematicSpriteCueKind.FadeInZebesText:
+            case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
+            case CinematicSpriteCueKind.FadeOutZebesText:
+                return;
 
-            case ZebesTitleInstruction.StartFlyingToZebes:
+            case CinematicSpriteCueKind.StartFlyingToZebes:
                 // The title actor, not a host timer, publishes the camera flight exactly
                 // where its cartridge instruction list reaches C9C7.
                 background = new(background.X.WithWhole(CeresDestructionRomData.Motion.Mode7ExitX),
@@ -830,10 +828,10 @@ internal sealed class CeresDestructionCinematicState
                 angle = CeresDestructionRomData.Motion.ApproachAngle;
                 zoom = CeresDestructionRomData.Motion.MinimumScale;
                 Phase = CeresDestructionPhase.FlyingTowardZebesA;
-                return cursor;
+                return;
 
             default:
-                throw new InvalidOperationException($"Undefined ZebesTitleInstruction {opcode}.");
+                throw new InvalidOperationException($"The Zebes title programs publish no {cue} cue.");
         }
     }
 

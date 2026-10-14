@@ -18,7 +18,7 @@ internal static class CeresSpawnerScheduleVerification
         foreach (int reseedFrame in new[] { 1, 211, 273 })
         foreach (int departure in new[] { 1, 209, 210, 222, 273, int.MaxValue })
         {
-            var native = new IntroDiscoverySprite(new(0, 0), 0, 0xce35);
+            var native = new IntroDiscoverySprite(new(0, 0), 0, CinematicSpriteProgram.CeresExplosionSpawner);
             ushort countdown = 0;
             ushort actualCountdown = 0;
             bool disabled = false;
@@ -30,7 +30,7 @@ internal static class CeresSpawnerScheduleVerification
                     actualCountdown = CeresExplosionDefinitions.RepeatingCountdownSeed;
                 }
                 CeresExplosionSpawnEvents expected = default;
-                if (native.IsActive && native.PreInstructionPointer == 0xc489 && !disabled)
+                if (native.IsActive && native.ListPreInstruction == CinematicSpritePreInstruction.CeresExplosionSpawnerRepeating && !disabled)
                 {
                     if (frame >= departure) disabled = true;
                     else
@@ -43,16 +43,16 @@ internal static class CeresSpawnerScheduleVerification
                         }
                     }
                 }
-                native.Step((CeresSpawnerOpcode opcode, ushort cursor) =>
+                // The spawner's typed program (#641), which the cinematic sprite oracle matches to $8B:CE35.
+                native.Step(cue =>
                 {
-                    expected = opcode switch
+                    expected = cue switch
                     {
-                        CeresSpawnerOpcode.SpawnInitial => expected with { Initial = true },
-                        CeresSpawnerOpcode.SpawnFinal => expected with { Final = true },
-                        _ => throw new InvalidOperationException($"Undefined CeresSpawnerOpcode {opcode}."),
+                        CinematicSpriteCueKind.SpawnInitialExplosionWave => expected with { Initial = true },
+                        CinematicSpriteCueKind.SpawnFinalExplosionWave => expected with { Final = true },
+                        _ => throw new InvalidOperationException($"The Ceres explosion spawner program publishes no {cue} cue."),
                     };
-                    return cursor;
-                }, pointer => CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0000 | pointer)));
+                });
                 AssertEqual(expected, CeresExplosionDefinitions.EventsAtFrame(frame, frame < departure, ref actualCountdown),
                     $"native spawner events at frame{frame}, reset{reseedFrame}, departure{departure}");
                 AssertEqual(countdown, actualCountdown, "native repeat countdown including late fade reset");

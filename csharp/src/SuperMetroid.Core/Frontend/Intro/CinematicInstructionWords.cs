@@ -17,6 +17,14 @@ internal static class CinematicInstructionWords
         return Enum.IsDefined(instruction);
     }
 
+    /// <summary>Decodes the pre-instruction <paramref name="word"/> an actor running <paramref name="program"/> holds, or throws.</summary>
+    public static TPreInstruction DecodePreInstruction<TPreInstruction>(ushort word, CinematicSpriteProgram program)
+        where TPreInstruction : struct, Enum =>
+        TryDecode(word, out TPreInstruction instruction)
+            ? instruction
+            : throw new InvalidDataException(
+                $"Cinematic pre-instruction $8B:{word:X4} of an actor running {program} is not a {typeof(TPreInstruction).Name}.");
+
     /// <summary>Decodes <paramref name="word"/>, read at <paramref name="address"/>, or throws.</summary>
     public static TInstruction Decode<TInstruction>(ushort word, ushort address)
         where TInstruction : struct, Enum =>

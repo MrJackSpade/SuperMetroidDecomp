@@ -8,32 +8,6 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// <summary>Checks Mother Brain intro explosion instructions and frame catalog against native records.</summary>
 internal static class IntroMotherBrainExplosionProgramsVerification
 {
-    /// <summary>Compares every compiled explosion byte, overlapping word, delete operation, and range boundary.</summary>
-    internal static void VerifyIntroMotherBrainExplosionPrograms(ISnesAddressSpace rom)
-    {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(IntroMotherBrainExplosionProgramsRomByte(rom, address), IntroMotherBrainExplosionProgramsRomByte(rom, address + 1)));
-        for (int pointer = 0xcdab; pointer < 0xcdeb; pointer++)
-        {
-            AssertEqual(IntroMotherBrainExplosionProgramsRomByte(rom, 0x8b0000 + pointer), IntroMotherBrainExplosionInstructionDefinitions.ReadByte((ushort)pointer), "original explosion program byte");
-            if (pointer < 0xcdea)
-                AssertEqual(Word(0x8b0000 + pointer), IntroMotherBrainExplosionInstructionDefinitions.ReadWord((ushort)pointer), "original explosion overlapping word");
-        }
-        for (int offset = 0; offset < 2; offset++)
-            AssertEqual(IntroMotherBrainExplosionProgramsRomByte(rom, 0x8bce53 + offset), IntroMotherBrainExplosionInstructionDefinitions.ReadByte((ushort)(0xce53 + offset)), "original shared delete byte");
-        AssertEqual(Word(0x8bce53), IntroMotherBrainExplosionInstructionDefinitions.ReadWord(0xce53), "original delete operation");
-        foreach (ushort pointer in new ushort[] { 0, 0xcdaa, 0xcdeb, 0xce52, 0xce55, ushort.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroMotherBrainExplosionInstructionDefinitions.ReadByte(pointer), "explosion byte boundary");
-            AssertThrows<InvalidDataException>(() => IntroMotherBrainExplosionInstructionDefinitions.ReadWord(pointer), "explosion word boundary");
-        }
-        foreach (ushort pointer in new ushort[] { 0xcdea, 0xce54 })
-            AssertThrows<InvalidDataException>(() => IntroMotherBrainExplosionInstructionDefinitions.ReadWord(pointer), "explosion word crosses boundary");
-    }
-
-    /// <summary>Reads a native intro explosion byte for independent program comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain explosion programs")]
-    private static byte IntroMotherBrainExplosionProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
     /// <summary>Checks twelve named explosion frames, their native pointers and part counts, and lookup bounds.</summary>
     internal static void VerifyIntroMotherBrainExplosionFrameCatalog(ISnesAddressSpace rom)
     {

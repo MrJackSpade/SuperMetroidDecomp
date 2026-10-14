@@ -14,7 +14,6 @@ internal static class IntroEggEffectDefinitionsVerification
     internal static void VerifyIntroEggEffectDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyIntroEggEffectPrograms), () => VerifyIntroEggEffectPrograms(retail));
         for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
             VerifyIntroEggEffectActor(retail, unchecked((ushort)(0xcecd + index * 6)), IntroEggEffectDefinitions.Particle(index),
                 $"intro egg particle {index}");
@@ -78,7 +77,7 @@ internal static class IntroEggEffectDefinitionsVerification
         int address = IntroEggEffectDefinitions.NativeDefinitionBank | definitionPointer;
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), actual.PreInstruction,
             $"{name} pre-instruction callback");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), actual.InstructionList,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actual.Program),
             $"{name} instruction list");
     }
 

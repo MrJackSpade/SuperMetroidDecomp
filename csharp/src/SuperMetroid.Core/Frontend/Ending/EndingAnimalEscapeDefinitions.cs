@@ -21,8 +21,6 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
     internal const ushort XVelocity = 1;
     /// <summary>$8B:EFD8 deletes the actor when its center reaches $0110.</summary>
     internal const ushort DeleteX = 0x0110;
-    /// <summary>$8B:ECD9 starts the four one-frame spritemaps and unconditional loop.</summary>
-    internal const ushort InstructionStart = 0xecd9;
     /// <summary>$8C:BC41-BC56 defines four single-small-OBJ frames, centered at (-4,-4).</summary>
     private const ushort FrameStart = 0xbc41;
     /// <summary>Each native pod spritemap record occupies a count word and one five-byte OAM part.</summary>
@@ -33,19 +31,6 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
     private const ushort SpriteOffset = 4;
     /// <summary>$8C:BC43 starts the priority-three, palette-seven pod tiles $1E0-$1E3.</summary>
     private const ushort FirstAttributes = 0x3fe0;
-    /// <summary>Four one-frame poses followed by an unconditional jump to the first pose.</summary>
-    private static ReadOnlySpan<ushort> Program =>
-        [1, 0xbc41, 1, 0xbc48, 1, 0xbc4f, 1, 0xbc56, 0x94bc, InstructionStart];
-
-    /// <summary>Reads an aligned word from the compiled escape-pod instruction loop.</summary>
-    internal static ushort ReadWord(ushort pointer)
-    {
-        int offset = pointer - InstructionStart;
-        if (offset < 0 || offset >= Program.Length * 2 || (offset & 1) != 0)
-            throw new InvalidDataException($"Animal escape instruction $8B:{pointer:X4} is outside its list.");
-        return Program[offset / 2];
-    }
-
     /// <summary>Draws the selected one-part pod frame centered on the actor using its authored attributes.</summary>
     public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits, bool originIsOnScreen)
     {

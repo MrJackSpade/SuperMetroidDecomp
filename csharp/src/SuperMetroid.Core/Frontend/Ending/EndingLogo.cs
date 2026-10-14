@@ -38,7 +38,7 @@ internal sealed class EndingLogo
             actors[i] = new IntroDiscoverySprite(
                 EndingLogoDefinitions.Origin(i),
                 SnesObjPalettes.Index7.Raw,
-                definition.InstructionList);
+                definition.Program);
             actors[i].PreInstructionPointerForDiscovery(definition.PreInstruction);
         }
         new FrontendPalettes(cgram).EndingLogoBackground.Fill(Bgr555.Black);
@@ -51,7 +51,7 @@ internal sealed class EndingLogo
     public void BindPaletteArtwork(EndingPaletteCatalog? value) => paletteArtwork = value;
 
     /// <summary>Applies the pending crossfade pair before moving actors and interpreting their next instructions.</summary>
-    public void Step(SnesCgram cgram, Func<ushort, ushort>? instructionWord = null)
+    public void Step(SnesCgram cgram)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
         // The cinematic function runs before sprite instructions, so the first palette
@@ -71,7 +71,7 @@ internal sealed class EndingLogo
         for (int i = 0; i < actors.Length; i++)
         {
             if (i < 2 && !settled[i]) MoveHalf(i);
-            actors[i].Step<EndingLogoInstruction>(Instruction, instructionWord);
+            actors[i].Step(HandleCue);
         }
     }
 
@@ -93,13 +93,12 @@ internal sealed class EndingLogo
         else speeds[index] += EndingLogoDefinitions.Acceleration;
     }
 
-    /// <summary>Handles the grey-out opcode by starting crossfade on the following step.</summary>
-    private ushort Instruction(EndingLogoInstruction opcode, ushort cursor)
+    /// <summary>Starts the crossfade on the step after the grey-out cue.</summary>
+    private void HandleCue(CinematicSpriteCueKind cue)
     {
-        if (opcode != EndingLogoInstruction.GreyOut)
-            throw new InvalidOperationException($"Undefined EndingLogoInstruction {opcode}.");
+        if (cue != CinematicSpriteCueKind.GreyOut)
+            throw new InvalidOperationException($"The logo programs publish no {cue} cue.");
         CrossfadeStarted = true;
-        return cursor;
     }
 
     /// <summary>Draws active logo actors into supplied OAM or a newly finalized frame buffer.</summary>

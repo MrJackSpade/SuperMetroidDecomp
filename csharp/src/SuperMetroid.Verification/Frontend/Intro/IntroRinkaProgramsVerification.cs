@@ -8,28 +8,6 @@ namespace SuperMetroid.Verification.Frontend.Intro;
 /// <summary>Checks compiled intro Rinka instruction bytes and frame catalog against native records.</summary>
 internal static class IntroRinkaProgramsVerification
 {
-    /// <summary>Compares every Rinka program byte and overlapping word, including terminal boundaries.</summary>
-    internal static void VerifyIntroRinkaPrograms(ISnesAddressSpace rom)
-    {
-        for (int pointer = 0xcdeb; pointer < 0xce1b; pointer++)
-        {
-            AssertEqual(IntroRinkaProgramsRomByte(rom, 0x8b0000 + pointer), IntroRinkaInstructionDefinitions.ReadByte((ushort)pointer), "original Rinka program byte");
-            if (pointer < 0xce1a)
-                AssertEqual((ushort)(SnesLittleEndian.Word(IntroRinkaProgramsRomByte(rom, 0x8b0000 + pointer), IntroRinkaProgramsRomByte(rom, 0x8b0001 + pointer))),
-                    IntroRinkaInstructionDefinitions.ReadWord((ushort)pointer), "original Rinka overlapping word");
-        }
-        foreach (ushort pointer in new ushort[] { 0, 0xcdea, 0xce1b, ushort.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroRinkaInstructionDefinitions.ReadByte(pointer), "Rinka byte boundary");
-            AssertThrows<InvalidDataException>(() => IntroRinkaInstructionDefinitions.ReadWord(pointer), "Rinka word boundary");
-        }
-        AssertThrows<InvalidDataException>(() => IntroRinkaInstructionDefinitions.ReadWord(0xce1a), "Rinka terminal word crossing");
-    }
-
-    /// <summary>Reads one native instruction byte solely as a verification oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Rinka programs")]
-    private static byte IntroRinkaProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
     /// <summary>Checks three native frame operands, published names, stock part counts, and catalog bounds.</summary>
     internal static void VerifyIntroRinkaFrameCatalog(ISnesAddressSpace rom)
     {

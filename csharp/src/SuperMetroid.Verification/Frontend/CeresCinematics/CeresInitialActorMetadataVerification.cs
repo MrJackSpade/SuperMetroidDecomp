@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -58,7 +59,7 @@ internal static class CeresInitialActorMetadataVerification
             if (preservesDefinitionCallback)
                 AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), actor.ActivePreInstruction,
                     $"{name} initializer preserves definition pre-instruction");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), actor.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Entry(actor.Program),
                 $"{name} instruction list");
         }
 

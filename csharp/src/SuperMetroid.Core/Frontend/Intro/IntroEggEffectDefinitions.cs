@@ -49,7 +49,16 @@ internal static class IntroEggEffectDefinitions
             throw new ArgumentOutOfRangeException(nameof(index));
         return new(
             0xa994,
-            unchecked((ushort)(0xcd39 + index * 8)));
+            index switch
+            {
+                0 => CinematicSpriteProgram.MetroidEggParticle1,
+                1 => CinematicSpriteProgram.MetroidEggParticle2,
+                2 => CinematicSpriteProgram.MetroidEggParticle3,
+                3 => CinematicSpriteProgram.MetroidEggParticle4,
+                4 => CinematicSpriteProgram.MetroidEggParticle5,
+                5 => CinematicSpriteProgram.MetroidEggParticle6,
+                _ => throw new ArgumentOutOfRangeException(nameof(index)),
+            });
     }
 
     /// <summary><c>$8B:CEF1</c>, the shared egg-slime initialization, motion, and list definition.</summary>
@@ -65,5 +74,5 @@ internal static class IntroEggEffectDefinitions
     /// identities and do not infer a sixth frame from adjacent ROM data.
     /// </remarks>
     public static IntroEggEffectActorDefinition SlimeDrop =>
-        new(0xaab3, 0xcd69);
+        new(0xaab3, CinematicSpriteProgram.MetroidEggParticle7);
 }

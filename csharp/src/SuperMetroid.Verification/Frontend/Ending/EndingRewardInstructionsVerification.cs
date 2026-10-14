@@ -14,26 +14,10 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// <summary>Checks ending reward actor bytecode and calculated Samus sprite compositions against cartridge data.</summary>
 internal static class EndingRewardInstructionsVerification
 {
-    /// <summary>Compares each bank-$8B instruction word and all 37 artwork identities, then steps native and compiled actors through their lists.</summary>
+    /// <summary>Compares all 37 reward artwork identities and their compositions with the cartridge.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward instructions")]
     internal static void VerifyEndingRewardInstructions(ISnesAddressSpace bus)
     {
-        for (int pointer = EndingRewardInstructionDefinitions.Start;
-             pointer < EndingRewardInstructionDefinitions.End; pointer += sizeof(ushort))
-        {
-            int address = (int)new SnesAddress(0x8b, (ushort)pointer);
-            ushort nativeWord = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-            AssertEqual(nativeWord, EndingRewardInstructionDefinitions.ReadWord((ushort)pointer),
-                $"ending reward instruction $8B:{pointer:X4} matches cartridge");
-        }
-        AssertThrows<InvalidDataException>(() =>
-            EndingRewardInstructionDefinitions.ReadWord(EndingRewardInstructionDefinitions.End),
-            "ending reward reader rejects the next actor family");
-        AssertThrows<InvalidDataException>(() =>
-            EndingRewardInstructionDefinitions.ReadWord(
-                unchecked((ushort)(EndingRewardInstructionDefinitions.Start + 1))),
-            "ending reward reader rejects unaligned instructions");
-
         // Original display operands select catalog frames independently of native storage order.
         ushort[] operands = [
             0xed1f, 0xed27, 0xed33, 0xed37, 0xed3b, 0xed3f, 0xed43, 0xed47,
@@ -72,39 +56,6 @@ internal static class EndingRewardInstructionsVerification
         {
             AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "reward catalog bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardSpriteDefinitions.FramePointer((EndingRewardSpriteFrame)invalid), "reward frame bounds");
-        }
-
-        ushort[] starts =
-        [
-            0xed1d, 0xed25, 0xed2d, 0xed59, 0xed7f, 0xed95, 0xed9d,
-            0xedb1, 0xedb9, 0xedc1, 0xedc9, 0xedd3, 0xee0f, 0xee15,
-            0xee27, 0xee3d, 0xee4d,
-        ];
-        foreach (ushort start in starts)
-        {
-            var native = new IntroDiscoverySprite(new(120, 120), 0x0a00, start);
-            var installed = new IntroDiscoverySprite(new(120, 120), 0x0a00, start);
-            for (int frame = 0; frame < 480; frame++)
-            {
-                // Scene callbacks own actor allocation and velocity; the
-                // independent list interpreters advance across each callback.
-                var nativeCallbacks = new List<ushort>();
-                var generatedCallbacks = new List<ushort>();
-                native.Step((EndingRewardOpcode opcode, ushort cursor) => { nativeCallbacks.Add((ushort)opcode); return cursor; }, pointer =>
-                    CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8b0000 | pointer));
-                installed.Step((EndingRewardOpcode opcode, ushort cursor) => { generatedCallbacks.Add((ushort)opcode); return cursor; },
-                    EndingRewardInstructionDefinitions.ReadWord);
-                AssertTrue(nativeCallbacks.SequenceEqual(generatedCallbacks),
-                    $"reward actor ${start:X4} callback order/timing at frame {frame}");
-                AssertEqual(native.InstructionPointer, installed.InstructionPointer,
-                    $"reward actor ${start:X4} cursor at frame {frame}");
-                AssertEqual(native.SpriteMapPointer, installed.SpriteMapPointer,
-                    $"reward actor ${start:X4} visual frame at frame {frame}");
-                AssertEqual(native.PreInstructionPointer, installed.PreInstructionPointer,
-                    $"reward actor ${start:X4} pre-instruction at frame {frame}");
-                AssertEqual(native.IsActive, installed.IsActive,
-                    $"reward actor ${start:X4} lifetime at frame {frame}");
-            }
         }
     }
 

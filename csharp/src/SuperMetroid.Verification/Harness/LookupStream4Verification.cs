@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeExplosionDefinitionsVerification;
@@ -121,7 +122,7 @@ internal static class LookupStream4Verification
             ticks++;
         }
         AssertEqual((int)rom.ReadCartridgeWord(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
-        AssertEqual(rom.ReadCartridgeWord(0x8beb71), EndingExplosionInstructionDefinitions.ReadWord(0xeb71), "Actual actor program retains the shared native handoff");
+        AssertEqual((int)rom.ReadCartridgeWord(0x8beb71), CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.ZebesExplosionRightStars)[0].Duration, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.CycleFrames, "Derived complete exposure");
         fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");

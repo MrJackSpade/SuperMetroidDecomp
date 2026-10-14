@@ -1,7 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresBackdropProgramsVerification;
-using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresExplosionProgramsVerification;
-using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresFlightProgramsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresInitialActorMetadataVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresZebesActorMetadataVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -32,20 +29,6 @@ internal static class CeresDestructionActorDefinitionsVerification
                 CeresDestructionActorDefinitions.ZebesActorCount),
             "Zebes reveal actor definition boundary");
 
-        Suite(nameof(VerifyCeresBackdropPrograms), () => VerifyCeresBackdropPrograms(retail));
-        Suite(nameof(VerifyCeresInitialExplosionProgram), () => VerifyCeresInitialExplosionProgram(retail));
-        Suite(nameof(VerifyCeresRepeatingExplosionProgram), () => VerifyCeresRepeatingExplosionProgram(retail));
-        Suite(nameof(VerifyCeresFinalWaveProgram), () => VerifyCeresFinalWaveProgram(retail));
-        Suite(nameof(VerifyCeresStationBlastProgram), () => VerifyCeresStationBlastProgram(retail));
-        AssertThrows<InvalidDataException>(() =>
-            CeresDestructionSpriteInstructionDefinitions.ReadWord(
-                CeresDestructionSpriteInstructionDefinitions.InitialExplosionEnd - 1),
-            "Ceres explosion reader cannot cross between adjacent lists");
-        AssertThrows<InvalidDataException>(() =>
-            CeresDestructionSpriteInstructionDefinitions.ReadWord(
-                CeresDestructionSpriteInstructionDefinitions.StarSheetsStart + 7),
-            "Ceres star-sheet reader cannot cross into the next quadrant");
-        Suite(nameof(VerifyCeresRearPrograms), () => VerifyCeresRearPrograms(retail));
 
         var guard = NewCeresDestructionActorDefinitionReadGuard(retail);
         var state = CreateRetailDestructionFixture(guard);

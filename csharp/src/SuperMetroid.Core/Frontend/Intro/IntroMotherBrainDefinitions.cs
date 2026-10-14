@@ -6,15 +6,15 @@ internal static class IntroMotherBrainDefinitions
 
     /// <summary><c>$8B:CE55</c>, intro Mother Brain initialization, pre-instruction, and initial list.</summary>
     public static IntroMotherBrainActorDefinition MotherBrain =>
-        new(0xcb05);
+        new(CinematicSpriteProgram.IntroMotherBrain);
 
     /// <summary><c>$8B:CF15</c>, large explosion initialization, pre-instruction, and initial list.</summary>
     public static IntroMotherBrainActorDefinition BigExplosionActor =>
-        new(0xcdab);
+        new(CinematicSpriteProgram.IntroMotherBrainExplosionBig);
 
     /// <summary><c>$8B:CF1B</c>, small explosion initialization, pre-instruction, and initial list.</summary>
     public static IntroMotherBrainActorDefinition SmallExplosionActor =>
-        new(0xcdcb);
+        new(CinematicSpriteProgram.IntroMotherBrainExplosionSmall);
 
     /// <summary><c>$8B:B773</c> fixes Mother Brain's cinematic origin at (56,111).</summary>
     public static Position16<ScreenPixels> MotherBrainOrigin => new(0x0038, 0x006f);

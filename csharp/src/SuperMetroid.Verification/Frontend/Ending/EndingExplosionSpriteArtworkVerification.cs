@@ -153,66 +153,10 @@ internal static class EndingExplosionSpriteArtworkVerification
                 (EndingExplosionSpriteDefinitions.Pose)invalid, 0), "quadrant basis role bounds");
     }
 
-    /// <summary>Checks every bank-$8B program word and advances all eight sprite actors against native cursor, frame, callback, timer, and lifetime behavior.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion programs")]
-    internal static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)
-    {
-        for (int pointer = EndingExplosionInstructionDefinitions.Start;
-             pointer < EndingExplosionInstructionDefinitions.End; pointer += sizeof(ushort))
-        {
-            int address = (int)new SnesAddress(0x8b, (ushort)pointer);
-            ushort nativeWord = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-            AssertEqual(nativeWord, EndingExplosionInstructionDefinitions.ReadWord((ushort)pointer),
-                $"ending explosion instruction $8B:{pointer:X4} matches cartridge");
-        }
-        AssertThrows<InvalidDataException>(() =>
-            EndingExplosionInstructionDefinitions.ReadWord(EndingExplosionInstructionDefinitions.End),
-            "ending explosion reader rejects an address past its eight lists");
-        AssertThrows<InvalidDataException>(() =>
-            EndingExplosionInstructionDefinitions.ReadWord(
-                unchecked((ushort)(EndingExplosionInstructionDefinitions.Start + 1))),
-            "ending explosion reader rejects an unaligned address");
-
-        ushort[] starts = [0xeb0f, 0xeb3d, 0xeb51, 0xeb59, 0xeb69, 0xeb71, 0xeb81, 0xeb89];
-        foreach (ushort start in starts)
-        {
-            var native = new IntroDiscoverySprite(new(120, 72), 0x0800, start);
-            var installed = new IntroDiscoverySprite(new(120, 72), 0x0800, start);
-            for (int frame = 0; frame < 500; frame++)
-            {
-                // Private opcodes affect the containing ending scene. This actor-level
-                // comparison advances their cursor identically without duplicating that scene.
-                var nativeCallbacks = new List<ushort>();
-                var generatedCallbacks = new List<ushort>();
-                native.Step((EndingSpriteInstruction opcode, ushort cursor) => { nativeCallbacks.Add((ushort)opcode); return cursor; }, pointer =>
-                    CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8b0000 | pointer));
-                installed.Step((EndingSpriteInstruction opcode, ushort cursor) => { generatedCallbacks.Add((ushort)opcode); return cursor; },
-                    EndingExplosionInstructionDefinitions.ReadWord);
-                AssertTrue(nativeCallbacks.SequenceEqual(generatedCallbacks),
-                    $"explosion actor ${start:X4} callback order/timing at frame {frame}");
-                AssertEqual(native.InstructionPointer, installed.InstructionPointer,
-                    $"explosion actor ${start:X4} cursor at frame {frame}");
-                AssertEqual(native.SpriteMapPointer, installed.SpriteMapPointer,
-                    $"explosion actor ${start:X4} visual frame at frame {frame}");
-                AssertEqual(native.PreInstructionPointer, installed.PreInstructionPointer,
-                    $"explosion actor ${start:X4} pre-instruction at frame {frame}");
-                AssertEqual(native.GeneralTimer, installed.GeneralTimer,
-                    $"explosion actor ${start:X4} timer at frame {frame}");
-                AssertEqual(native.IsActive, installed.IsActive,
-                    $"explosion actor ${start:X4} lifetime at frame {frame}");
-            }
-        }
-
-        for (int frame = 0; frame < 10; frame++)
-            AssertEqual((ushort)4, CartridgeImportSource.Require(bus).ReadCartridgeWord(0x8ca396 + 22 * frame),
-                $"explosion frame {frame} has four OAM parts and a 22-byte record");
-    }
-
     /// <summary>Compares installed explosion OAM with native maps for visible and wrapped offscreen origins after checking frame and program catalogs.</summary>
     internal static void VerifyEndingExplosionActorArtwork(
         ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
     {
-        Suite(nameof(VerifyEndingExplosionPrograms), () => VerifyEndingExplosionPrograms(bus));
         Suite(nameof(VerifyEndingExplosionFrameCatalog), () => VerifyEndingExplosionFrameCatalog(bus));
 
         foreach (EndingExplosionSpriteFrameDefinition frame in EndingExplosionSpriteDefinitions.Frames)

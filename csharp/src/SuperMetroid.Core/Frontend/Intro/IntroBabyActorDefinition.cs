@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal readonly record struct IntroBabyActorDefinition(
     ushort PreInstruction,
-    ushort InstructionList,
+    CinematicSpriteProgram Program,
     Position16<ScreenPixels> Position,
     ushort PaletteBits);

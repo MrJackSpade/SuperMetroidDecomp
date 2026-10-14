@@ -18,7 +18,7 @@ internal sealed class IntroEggParticle
         sprite = new IntroDiscoverySprite(
             IntroEggMotionDefinitions.FragmentInitialPosition(index),
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-            instructionPointer: definition.InstructionList)
+            program: definition.Program)
         {
             GeneralTimer = index,
         };
@@ -49,14 +49,14 @@ internal sealed class IntroEggParticle
         {
             // Native code primes the shared one-word delete list, which the generic handler
             // consumes later in this same object call.
-            sprite.Redirect(CinematicCodePointers.Lists.Delete);
+            sprite.Start(CinematicSpriteProgram.Delete);
         }
         else
         {
             sprite.GeneralTimer = unchecked((ushort)(sprite.GeneralTimer + 0x0100));
         }
 
-        sprite.Step(instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
+        sprite.Step();
     }
 
     /// <summary>Draws the fragment's current cinematic pose using installed art when supplied.</summary>

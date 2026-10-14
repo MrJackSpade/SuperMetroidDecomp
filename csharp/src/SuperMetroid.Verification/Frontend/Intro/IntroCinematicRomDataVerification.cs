@@ -82,21 +82,16 @@ internal static class IntroCinematicRomDataVerification
             .Concat(new[]
             {
                 typeof(CinematicSpriteInstruction), typeof(CinematicBackgroundInstruction),
-                typeof(ZebesTitleInstruction), typeof(IntroEggInstruction),
-                typeof(ConfusedBabyInstruction), typeof(IntroScientistBabyInstruction),
-                typeof(IntroRinkaSpawnerInstruction), typeof(IntroRinkaInstruction),
                 typeof(IntroRinkaPreInstruction), typeof(ConfusedBabyPreInstruction),
-                typeof(EndingSpriteInstruction), typeof(EndingLogoInstruction),
-                typeof(EndingRewardGestureInstruction), typeof(EndingRewardJumpInstruction),
-                typeof(TitleSequenceInstruction),
+                typeof(CinematicSpritePreInstruction), typeof(TitleSequenceInstruction),
             }.SelectMany(domain => Enum.GetValues(domain).Cast<object>().Select(Convert.ToUInt16)))
+            // The owner instructions the typed cinematic sprite programs (#641) turn into cues.
+            .Concat(CinematicSpriteNativeListAddresses.OwnerInstructions.Keys)
             .Where(pointer => pointer != 0)
             .Distinct()
             .ToArray();
-        ushort[] bank8BLists = GetUshortConstants(typeof(CinematicCodePointers.Lists))
-            .Where(field => field.Name != nameof(CinematicCodePointersListsConstants.MetroidEggParticleStride))
-            .Select(field => field.RequiredConstant<ushort>())
-            .ToArray();
+        // The native list of every typed cinematic sprite program (#641).
+        ushort[] bank8BLists = [.. CinematicSpriteNativeListAddresses.Entries.Select(entry => entry.Entry)];
         ushort[] bank8CLists = GetUshortConstants(typeof(CinematicCodePointers.BackgroundLists))
             .Concat(GetUshortConstants(typeof(CinematicCodePointersIndirectData)))
             .Select(field => field.RequiredConstant<ushort>())

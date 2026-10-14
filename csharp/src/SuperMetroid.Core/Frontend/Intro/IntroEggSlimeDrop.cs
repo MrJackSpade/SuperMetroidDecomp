@@ -23,7 +23,7 @@ internal sealed class IntroEggSlimeDrop
         sprite = new IntroDiscoverySprite(
             babyPosition,
             paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
-            instructionPointer: definition.InstructionList)
+            program: definition.Program)
         {
             GeneralTimer = index,
         };
@@ -54,7 +54,7 @@ internal sealed class IntroEggSlimeDrop
             {
                 // $AAB3 changes both list and pre-instruction, freezing the impact point
                 // while CD71 plays four ten-frame puddle frames and deletes the actor.
-                sprite.Redirect(CinematicCodePointers.Lists.MetroidEggParticleHitGround);
+                sprite.Start(CinematicSpriteProgram.MetroidEggParticleHitGround);
                 sprite.PreInstructionPointerForDiscovery(
                     CinematicCodePointers.CinematicSpriteObject_PreInstruction_NoOp);
                 motionEnabled = false;
@@ -65,7 +65,7 @@ internal sealed class IntroEggSlimeDrop
             }
         }
 
-        sprite.Step(instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
+        sprite.Step();
     }
 
     /// <summary>Draws the drop's current frame with installed egg-effect artwork when provided.</summary>

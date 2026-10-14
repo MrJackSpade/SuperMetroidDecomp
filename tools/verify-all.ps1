@@ -7,6 +7,20 @@ param()
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
 
+# Full verification is for validating a whole body of work before it is committed, not for
+# checking each change. A start is refused within 120 minutes of the previous start; the start
+# time lives in the Git common directory so every worktree shares it and it is never committed.
+$minimumInterval = [TimeSpan]::FromMinutes(120)
+$lastRunFile = Join-Path (git rev-parse --path-format=absolute --git-common-dir) 'verify-all-last-run.txt'
+$now = [DateTimeOffset]::UtcNow
+if (Test-Path -LiteralPath $lastRunFile) {
+    $lastRun = [DateTimeOffset]::Parse((Get-Content -LiteralPath $lastRunFile -Raw).Trim(), [Globalization.CultureInfo]::InvariantCulture)
+    if ($now - $lastRun -lt $minimumInterval) {
+        throw "verify-all last started at $($lastRun.ToLocalTime().ToString('yyyy-MM-dd HH:mm')); it may not run again until $(($lastRun + $minimumInterval).ToLocalTime().ToString('yyyy-MM-dd HH:mm')). Run full verification only once the whole body of work is ready to commit."
+    }
+}
+Set-Content -LiteralPath $lastRunFile -Value $now.ToString('o', [Globalization.CultureInfo]::InvariantCulture) -NoNewline
+
 $run = 'csharp/test-temp/verify-all'
 # Committed compact replay traces (see docs/smv-gameplay-parity.md). --ridley-full-movie
 # reads csharp/test-fixtures/replay-traces/ridley itself.

@@ -32,7 +32,7 @@ public sealed class CartridgeAudioState
     /// <summary>Per-library port handshake phase, from request through zero acknowledgement.</summary>
     internal readonly byte[] _soundStates = new byte[AudioRomData.Queues.SoundLibraryCount];
     /// <summary>Request byte currently awaiting each SPC library's acknowledgement.</summary>
-    private readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
+    internal readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
     /// <summary>Two-frame hold before a recognized SFX request is cleared from the APU port.</summary>
     private readonly byte[] _soundClearDelays =
         new byte[AudioRomData.Queues.SoundLibraryCount];
@@ -274,8 +274,8 @@ public sealed class CartridgeAudioState
         return accumulator;
     }
 
-    /// <summary>Runs selected audio dispatch owners and returns their pending APU writes.</summary>
-    public IReadOnlyList<CartridgeAudioCommand> AdvanceFrame(
+    /// <summary>Runs selected audio dispatch owners and returns their pending APU writes, which only the session's port model consumes.</summary>
+    internal IReadOnlyList<CartridgeAudioCommand> AdvanceFrame(
         ISnesAddressSpace bus,
         CartridgeAudioAcknowledgements acknowledgements,
         bool advanceMusicQueue = true,

@@ -125,8 +125,8 @@ internal static class AudioMusicProgramsVerification
             WriteAudioManifest(manifestPath, editedManifest);
 
             ExtractedAudioAssetCatalog edited = ExtractedAudioAssetCatalog.Load(editedDirectory);
-            var stockRenderer = new CartridgeAudioRenderer(stock);
-            var editedRenderer = new CartridgeAudioRenderer(edited);
+            var stockRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(stock);
+            var editedRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(edited);
             CartridgeAudioCommand common = CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
             CartridgeAudioCommand titleUpload = CartridgeAudioCommand.Upload(AudioBank.TitleSequence);
             CartridgeAudioCommand titleCommand = CartridgeAudioCommand.WritePort(
@@ -143,7 +143,7 @@ internal static class AudioMusicProgramsVerification
             {
                 AssertEqual(
                     value,
-                    editedRenderer.player.ReadApuByteForVerification(address),
+                    editedRenderer.PlayerForVerification.ReadApuByteForVerification(address),
                     $"edited title music byte ${address:X4}");
             }
             bool stockAudible = false;

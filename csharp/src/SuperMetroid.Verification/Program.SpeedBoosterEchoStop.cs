@@ -22,11 +22,11 @@ internal static class SpeedBoosterEchoStopVerification
     internal static void VerifySpeedBoosterEchoStop()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
+        var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         var queue = new CartridgeAudioState();
-        renderer.RenderFrame(queue.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
+        renderer.RenderFrame(queue.AdvanceFrame(bus, renderer.Acknowledgements));
         renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
-        var libraries = renderer.player.soundLibraries;
+        var libraries = renderer.PlayerForVerification.soundLibraries;
         var samus = new SamusState { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
@@ -56,7 +56,7 @@ internal static class SpeedBoosterEchoStopVerification
                 }
                 queue.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued, request.SoundSuppressed);
             }
-            var commands = queue.AdvanceFrame(bus, renderer.ReadAcknowledgements());
+            var commands = queue.AdvanceFrame(bus, renderer.Acknowledgements);
             starts += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary3 && command.Value == 3);
             stops += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary3 && command.Value == 0x25);
             var pcm = renderer.RenderFrame(commands);

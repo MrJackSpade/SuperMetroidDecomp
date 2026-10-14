@@ -29,23 +29,23 @@ internal static class FileSelectCaptureComparison
         var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
         game.BindAudio(assets);
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        var muted = new CartridgeAudioRenderer(assets);
+        var muted = new ManagedSpcAudioBackend(assets);
+        var suppressed = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         var expected = new List<double>();
         var control = new List<double>();
         int requests = 0, firstDifference = -1;
         for (int tick = 0; tick < recording.ControllerInputs.Length; tick++)
         {
             var frame = game.StepCaptured(recording.ControllerInputs[tick], tick + 1, 1).Frame;
-            bool IsSwoosh(CartridgeAudioCommand command) =>
-                command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary1 &&
-                command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value;
-            if (frame.AudioCommands.Any(IsSwoosh))
+            static bool IsSwoosh(AudioEvent audioEvent) => audioEvent.Kind == AudioEventKind.StartSoundEffect &&
+                audioEvent.SoundEffect == SoundEffectLibrary1Sounds.FileSelectSwoosh;
+            if (frame.AudioEvents.Any(IsSwoosh))
             {
                 requests++;
-                Console.WriteLine($"Swoosh command: tick={tick}, phase={frame.Phase}");
+                Console.WriteLine($"Swoosh start: tick={tick}, phase={frame.Phase}");
             }
             game.CopyAudioFrame(pcm);
-            short[] suppressed = muted.RenderFrame(frame.AudioCommands.Where(c => !IsSwoosh(c)).ToArray());
+            muted.Render(new AudioFrameEvents([.. frame.AudioEvents.Where(audioEvent => !IsSwoosh(audioEvent))]), suppressed);
             for (int i = 0; i < pcm.Length; i += 2)
             {
                 double sample = (pcm[i] + pcm[i + 1]) * 0.5;

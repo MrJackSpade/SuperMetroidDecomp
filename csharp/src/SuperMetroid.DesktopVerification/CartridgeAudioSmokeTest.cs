@@ -21,7 +21,7 @@ public static class CartridgeAudioSmokeTest
         int nonZeroSamples = 0;
         int peakAmplitude = 0;
         CartridgeAudioAcknowledgements acknowledgements = default;
-        var engine = DesktopAccess.CreateAudioRenderer();
+        var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < frames; frame++)
         {
             IReadOnlyList<CartridgeAudioCommand> commands =
@@ -33,7 +33,7 @@ public static class CartridgeAudioSmokeTest
                 int amplitude = sample == short.MinValue ? 32768 : Math.Abs(sample);
                 peakAmplitude = Math.Max(peakAmplitude, amplitude);
             }
-            acknowledgements = engine.ReadAcknowledgements();
+            acknowledgements = engine.Acknowledgements;
         }
 
         if (nonZeroSamples == 0 || peakAmplitude == 0)
@@ -69,7 +69,7 @@ public static class CartridgeAudioSmokeTest
         bool requestAcknowledged = false;
         bool clearAcknowledgedAfterRequest = false;
         int nonZeroSamples = 0;
-        var soundEngine = DesktopAccess.CreateAudioRenderer();
+        var soundEngine = DesktopAccess.CreateAudioSession();
 
         for (int frame = 0; frame < auditFrames; frame++)
         {
@@ -81,7 +81,7 @@ public static class CartridgeAudioSmokeTest
                     nonZeroSamples++;
             }
 
-            acknowledgements = soundEngine.ReadAcknowledgements();
+            acknowledgements = soundEngine.Acknowledgements;
             if (acknowledgements[ApuPort.SoundLibrary1] == powerBeamSound)
                 requestAcknowledged = true;
             else if (requestAcknowledged && acknowledgements[ApuPort.SoundLibrary1] == 0)

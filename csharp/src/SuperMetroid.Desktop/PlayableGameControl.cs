@@ -488,8 +488,8 @@ public sealed class PlayableGameControl : UserControl
 
     /// <summary>Defers simulation while the enabled audio output cannot accept another frame.</summary>
     private RecoveringAudioOutput CreateAudioDevice() => new(() => new WaveOutAudioDevice(
-        CartridgeAudioRenderer.SampleRate,
-        CartridgeAudioRenderer.ChannelCount,
+        CartridgeAudioSession.SampleRate,
+        CartridgeAudioSession.ChannelCount,
         CartridgeAudioSession.PcmSamplesPerFrame,
         gameOptions.MasterVolumePercent));
 

@@ -102,7 +102,7 @@ try
             "ROM-only extraction matches every reference file, with no missing or extra files");
     }
 
-    var renderer = new CartridgeAudioRenderer(catalog);
+    var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(catalog);
     long audible = 0;
     for (int frame = 0; frame < 120; frame++)
     {

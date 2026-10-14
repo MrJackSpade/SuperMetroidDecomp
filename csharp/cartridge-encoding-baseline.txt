@@ -644,7 +644,7 @@ csharp/src/SuperMetroid.DebugRunner/Program.cs	SME6340	3
 csharp/src/SuperMetroid.DebugRunner/Tools/ShutterNativeArc.cs	SME6340	61
 csharp/src/SuperMetroid.Desktop/GitHubErrorReporter.cs	SME6340	3
 csharp/src/SuperMetroid.Desktop/WaveOutAudioDevice.cs	SME6340	1
-csharp/src/SuperMetroid.DesktopVerification/AudioInputReplaySmokeTest.cs	SME6340	2
+csharp/src/SuperMetroid.DesktopVerification/AudioInputReplaySmokeTest.cs	SME6340	1
 csharp/src/SuperMetroid.DesktopVerification/CartridgeAudioSmokeTest.cs	SME6340	2
 csharp/src/SuperMetroid.DesktopVerification/DebuggerSaveStateSmokeTest.cs	SME6340	2
 csharp/src/SuperMetroid.DesktopVerification/DesktopSessionLogSmokeTest.cs	SME6340	2
@@ -1369,7 +1369,7 @@ csharp/src/SuperMetroid.Verification/Program.InvalidBeamGraphics.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.InvalidBeamSelection.cs	SME6340	35
 csharp/src/SuperMetroid.Verification/Program.InvalidBeamSelection.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.JumpNoXMovement.cs	SME6340	5
-csharp/src/SuperMetroid.Verification/Program.KiHunterSpitAudio.cs	SME6340	13
+csharp/src/SuperMetroid.Verification/Program.KiHunterSpitAudio.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Program.KiHunterSpitAudio.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.KnockbackShinesparkLaunch.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Program.KraidArmCollisionDefinitions.cs	SME6342	1

@@ -177,7 +177,7 @@ internal static class ManagedAudioVerification
         upload.Add(0);
         upload.Add(0);
 
-        var player = new ManagedSpcPlayer();
+        var player = new PortDrivenSpcPlayer();
         player.Upload(CollectionsMarshal.AsSpan(upload));
         player.WritePort(ApuPort.Music, 1);
         short[] pcm = new short[SpcDriverData.HostStereoFramesPerVideoFrame * 2];
@@ -192,7 +192,7 @@ internal static class ManagedAudioVerification
                 tap * SnesDspRegisterMap.VoiceStride));
             AssertEqual(
                 expectedCoefficients[tap],
-                player.ReadDspRegisterForVerification(register),
+                player.Player.ReadDspRegisterForVerification(register),
                 $"addressed FIR coefficient {tap}");
         }
     }

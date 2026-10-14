@@ -61,7 +61,7 @@ internal static class AudioBankTransitionVerification
         var assets = ExtractedAudioAssetCatalog.Load(directory);
         foreach (var bank in AudioAssetCatalogData.Music)
         {
-            var renderer = new CartridgeAudioRenderer(assets);
+            var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(assets);
             renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.SpcEngine)]);
             renderer.RenderFrame([CartridgeAudioCommand.Upload(bank.Bank)]);
             renderer.RenderFrame([CartridgeAudioCommand.WritePort(ApuPort.Music, 5)]);

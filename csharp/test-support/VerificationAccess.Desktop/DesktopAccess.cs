@@ -66,9 +66,9 @@ internal static class DesktopAccess
     internal static ExtractedAudioAssetCatalog LoadAudioAssets(string? audioDirectory = null) =>
         ExtractedAudioAssetCatalog.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
 
-    /// <summary>A standalone renderer over that audio, for fixtures that drive the cartridge audio types directly.</summary>
-    internal static CartridgeAudioRenderer CreateAudioRenderer(string? audioDirectory = null) =>
-        new(LoadAudioAssets(audioDirectory));
+    /// <summary>A standalone synthesizing session over that audio, for fixtures that drive the cartridge audio types directly.</summary>
+    internal static CartridgeAudioSession CreateAudioSession(string? audioDirectory = null) =>
+        CartridgeAudioSessionAccess.CreateSynthesizing(LoadAudioAssets(audioDirectory));
 
     /// <summary>
     /// A game control over the installation beside a ROM path, importing it on first use, or over

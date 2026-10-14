@@ -2,14 +2,19 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Presents a fixture-owned byte per APU port as the SPC's acknowledgement, ignoring the
-/// session's port model. Fixtures that echo each CPU port write back on the next update
-/// isolate the 65816 handshake from the SPC poll phase.
+/// Presents each sound-effect port's latest CPU write as the SPC's acknowledgement, ignoring the
+/// session's port model. Echoing every write on the next update isolates the 65816 handshake
+/// from the SPC poll phase.
 /// </summary>
-/// <param name="ports">The four port bytes, updated by the fixture between updates.</param>
-internal sealed class PortWriteEchoAcknowledgements(byte[] ports) : ISoundAcknowledgementSource
+/// <remarks>
+/// The dispatcher's current request byte for a library is exactly the value it last wrote to
+/// that library's port: every send, rewrite, clear and downtime write updates both together.
+/// </remarks>
+/// <param name="audio">The dispatcher whose port writes are echoed.</param>
+internal sealed class PortWriteEchoAcknowledgements(CartridgeAudioState audio) : ISoundAcknowledgementSource
 {
-    /// <summary>Returns the fixture-owned port bytes, ignoring the modeled acknowledgements.</summary>
+    /// <summary>Returns the dispatcher's latest port writes, ignoring the modeled acknowledgements.</summary>
     public CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled) =>
-        new(ports[0], ports[1], ports[2], ports[3]);
+        new(0, audio.CurrentSoundForVerification(0), audio.CurrentSoundForVerification(1),
+            audio.CurrentSoundForVerification(2));
 }

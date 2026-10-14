@@ -92,8 +92,8 @@ internal static class AudioSoundProgramsVerification
             WriteAudioManifest(manifestPath, editedManifest);
 
             ExtractedAudioAssetCatalog edited = ExtractedAudioAssetCatalog.Load(editedDirectory);
-            var stockRenderer = new CartridgeAudioRenderer(stock);
-            var editedRenderer = new CartridgeAudioRenderer(edited);
+            var stockRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(stock);
+            var editedRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(edited);
             CartridgeAudioCommand common = CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
             stockRenderer.RenderFrame([common]);
             editedRenderer.RenderFrame([common]);
@@ -102,7 +102,7 @@ internal static class AudioSoundProgramsVerification
                 byte expected = SpcSoundEffectProgramCodec.Encode(editedProgram)[offset];
                 AssertEqual(
                     expected,
-                    editedRenderer.player.ReadApuByteForVerification(editedProgram.Address + offset),
+                    editedRenderer.PlayerForVerification.ReadApuByteForVerification(editedProgram.Address + offset),
                     $"edited SFX program live byte {offset}");
             }
 

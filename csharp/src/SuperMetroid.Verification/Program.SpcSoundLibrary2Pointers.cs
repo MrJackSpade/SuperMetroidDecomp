@@ -52,7 +52,7 @@ internal static class SpcSoundLibrary2PointersVerification
         }
 
         short[] pcm = new short[SpcDriverData.HostStereoFramesPerVideoFrame * 2];
-        var zero = new ManagedSpcPlayer();
+        var zero = new PortDrivenSpcPlayer();
         zero.WritePort(ApuPorts.ForSoundLibrary(library), 0);
         zero.GenerateFrame(pcm);
         AssertEqual((byte)0, zero.ReadPort(ApuPorts.ForSoundLibrary(library)),
@@ -60,7 +60,7 @@ internal static class SpcSoundLibrary2PointersVerification
 
         // #1269: the driver reads a request on one service and dispatches it on the next, so
         // the undefined command is rejected on the second frame, before its stream dispatch.
-        var invalidPlayer = new ManagedSpcPlayer();
+        var invalidPlayer = new PortDrivenSpcPlayer();
         invalidPlayer.WritePort(ApuPorts.ForSoundLibrary(library), (byte)(count + 1));
         invalidPlayer.GenerateFrame(pcm);
         AssertThrows<InvalidDataException>(() => invalidPlayer.GenerateFrame(pcm),

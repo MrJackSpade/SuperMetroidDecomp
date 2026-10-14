@@ -186,7 +186,7 @@ internal static class DesktopSmokeAuditCommands
                     $"Recorded pause {pause.EntryFrame}-{pause.ResumeFrame} in " +
                     $"$8F:{pause.RoomPointer:X4}: {pause.PauseOwnedFrames} pause frames, " +
                     $"RMS {pause.MinimumPausedRms:F1}-{pause.MaximumPausedRms:F1} " +
-                    $"(mean {pause.MeanPausedRms:F1}), {pause.AudioCommands} APU commands; " +
+                    $"(mean {pause.MeanPausedRms:F1}), {pause.AudioEvents} audio events; " +
                     $"{pause.CommandTrace}.");
             }
             return true;

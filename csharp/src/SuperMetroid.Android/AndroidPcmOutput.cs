@@ -22,7 +22,7 @@ internal sealed class AndroidPcmOutput : IDisposable
     public AndroidPcmOutput(AndroidResumeTrace trace)
     {
         this.trace = trace;
-        int minimumBytes = AudioTrack.GetMinBufferSize(CartridgeAudioRenderer.SampleRate,
+        int minimumBytes = AudioTrack.GetMinBufferSize(CartridgeAudioSession.SampleRate,
             ChannelOut.Stereo, Encoding.Pcm16bit);
         if (minimumBytes <= 0) throw new IOException($"AudioTrack minimum buffer query failed: {minimumBytes}.");
         using var attributesBuilder = new AudioAttributes.Builder();
@@ -31,7 +31,7 @@ internal sealed class AndroidPcmOutput : IDisposable
         using var attributes = attributesBuilder.Build() ??
             throw new IOException("Android could not build the game audio attributes.");
         using var formatBuilder = new AudioFormat.Builder();
-        formatBuilder.SetSampleRate(CartridgeAudioRenderer.SampleRate);
+        formatBuilder.SetSampleRate(CartridgeAudioSession.SampleRate);
         formatBuilder.SetEncoding(Encoding.Pcm16bit);
         formatBuilder.SetChannelMask(ChannelOut.Stereo);
         using var format = formatBuilder.Build() ??
@@ -45,7 +45,7 @@ internal sealed class AndroidPcmOutput : IDisposable
             .SetTransferMode(AudioTrackMode.Stream)
             .SetPerformanceMode(AudioTrackPerformanceMode.LowLatency)
             .SetBufferSizeInBytes(Math.Max(minimumBytes,
-                CartridgeAudioRenderer.StereoFramesPerVideoFrame * CartridgeAudioRenderer.ChannelCount * sizeof(short) * 3))
+                CartridgeAudioSession.StereoFramesPerVideoFrame * CartridgeAudioSession.ChannelCount * sizeof(short) * 3))
             .Build();
         if (track.State != AudioTrackState.Initialized)
         {

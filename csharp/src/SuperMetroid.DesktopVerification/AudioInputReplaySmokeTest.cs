@@ -77,15 +77,9 @@ public static class AudioInputReplaySmokeTest
             }
 
             projectileFired |= game.GameplayLastFiredProjectileSlot is not null;
-            foreach (CartridgeAudioCommand command in frame.AudioCommands)
-            {
-                if (command.Kind == CartridgeAudioCommandKind.WritePort &&
-                    command.InputPort == ApuPort.SoundLibrary1 &&
-                    command.Value == 0x0b)
-                {
-                    powerBeamCommandObserved = true;
-                }
-            }
+            powerBeamCommandObserved |= frame.AudioEvents.Any(audioEvent =>
+                audioEvent.Kind == AudioEventKind.StartSoundEffect &&
+                audioEvent.SoundEffect == SoundEffectLibrary1Sounds.PowerBeam);
             powerBeamAcknowledged |= acknowledgements[ApuPort.SoundLibrary1] == 0x0b;
 
             if (game.GameState == SuperMetroidGameState.LoadingNextRoomB)
@@ -217,9 +211,10 @@ public static class AudioInputReplaySmokeTest
             }
             if (active is { } pause)
             {
-                pause.AudioCommands += frame.AudioCommands.Count;
-                if (frame.AudioCommands.Count != 0)
-                    pause.RecordCommands(frameIndex, frame.GameState, frame.AudioCommands);
+                AudioEvent[] events = [.. frame.AudioEvents.Where(audioEvent => audioEvent.Kind != AudioEventKind.DriverTick)];
+                pause.AudioEvents += events.Length;
+                if (events.Length != 0)
+                    pause.RecordEvents(frameIndex, frame.GameState, events);
                 if (pauseOwned)
                     pause.PauseOwnedFrames++;
                 if (frame.GameState == SuperMetroidGameState.PausedB)
@@ -267,8 +262,8 @@ public static class AudioInputReplaySmokeTest
         public ushort RoomPointer { get; }
         /// <summary>Count of frontend updates owned by pause states, including transitions.</summary>
         public int PauseOwnedFrames { get; set; }
-        /// <summary>Number of audio commands dispatched during pause ownership.</summary>
-        public int AudioCommands { get; set; }
+        /// <summary>Number of bank loads, music commands and sound-effect starts during pause ownership.</summary>
+        public int AudioEvents { get; set; }
 
         /// <summary>Measures one fully paused stereo PCM frame before waveOut receives it.</summary>
         public void AddPausedFrame(ReadOnlySpan<short> samples)
@@ -283,19 +278,13 @@ public static class AudioInputReplaySmokeTest
             pausedFrames++;
         }
 
-        /// <summary>Captures upload and port-write commands with their recorded frame and frontend state.</summary>
-        public void RecordCommands(
+        /// <summary>Captures bank loads, music commands and sound-effect starts with their recorded frame and frontend state.</summary>
+        public void RecordEvents(
             int frameIndex,
             SuperMetroidGameState state,
-            IReadOnlyList<CartridgeAudioCommand> commands)
+            IReadOnlyList<AudioEvent> events)
         {
-            string formatted = string.Join(',', commands.Select(command => command.Kind switch
-            {
-                CartridgeAudioCommandKind.Upload => $"upload:{command.Bank}",
-                CartridgeAudioCommandKind.WritePort => $"port{(int)command.InputPort}:${command.Value:X2}",
-                _ => throw new InvalidDataException($"Unknown audio command {command.Kind}."),
-            }));
-            commandTrace.Add($"{frameIndex}/{state}={formatted}");
+            commandTrace.Add($"{frameIndex}/{state}={string.Join(',', events)}");
         }
 
         /// <summary>Finalizes a complete interval, requiring at least one fully paused PCM frame.</summary>
@@ -311,7 +300,7 @@ public static class AudioInputReplaySmokeTest
                 minimumRms,
                 maximumRms,
                 sumRms / pausedFrames,
-                AudioCommands,
+                AudioEvents,
                 string.Join(';', commandTrace));
         }
     }

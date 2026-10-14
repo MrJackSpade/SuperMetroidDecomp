@@ -529,7 +529,8 @@ public sealed class ManagedSpcPlayer
     /// <summary>Consumes the CPU music port and advances track blocks, sequence channels and tempo state.</summary>
     private void HandleMusicCommand()
     {
-        byte command = commandPorts.TakeMusicCommand();
+        byte command = musicInputLatch;
+        musicInputLatch = (byte)MusicPortCommand.None;
         if (Enum.IsDefined((MusicPortCommand)command))
         {
             switch ((MusicPortCommand)command)
@@ -1193,8 +1194,13 @@ public sealed class ManagedSpcPlayer
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
     [SpcMemoryAccess]
     internal readonly byte[] ram = new byte[SpcDriverData.ApuRamSize];
-    /// <summary>Input latches, sound-effect acknowledgement ports and the driver timer (#1304).</summary>
-    internal readonly SpcCommandPorts commandPorts = new();
+    /// <summary>
+    /// <c>$F4</c> as the sequencer reads it: the CPU's latest music command, or
+    /// <see cref="MusicPortCommand.None"/> once a tempo tick consumed it. The sound-effect
+    /// latches, their acknowledgements and the driver timer belong to the game session's
+    /// <see cref="SpcCommandPorts"/>, which schedules this player's ticks (#1304).
+    /// </summary>
+    private byte musicInputLatch;
     /// <summary>Output port zero: the sequencer's echo of the playing track.</summary>
     internal byte musicPortToSnes;
     /// <summary>Eight music sequencer states that continue advancing under borrowed DSP voices.</summary>
@@ -1292,7 +1298,7 @@ public sealed class ManagedSpcPlayer
     private byte lastWrittenEchoDelay;
 
     /// <summary>Creates an independent SPC sequencer and DSP over owned 64-KiB APU RAM, applying native driver reset state without loading an audio bank or opening a host audio device.</summary>
-    /// <remarks>Uploads and instrument, music, sound-effect, and decoded sample definitions are installed separately by the audio renderer before playback.</remarks>
+    /// <remarks>Uploads and instrument, music, sound-effect, and decoded sample definitions are installed separately by <see cref="ManagedSpcAudioBackend"/> before playback.</remarks>
     public ManagedSpcPlayer()
     {
         dsp = CreateDsp();
@@ -1411,8 +1417,8 @@ public sealed class ManagedSpcPlayer
             WriteByte(address, value);
     }
 
-    /// <summary>Writes one CPU-to-SPC communication port exactly as the cartridge does.</summary>
-    public void WritePort(ApuPort port, byte value) => commandPorts.WritePort(port, value);
+    /// <summary>Latches one CPU write to the music port; the sequencer consumes it at its next tempo tick.</summary>
+    public void WriteMusicPort(byte value) => musicInputLatch = value;
 
     /// <summary>
     /// Applies a complete cartridge upload stream to APU RAM. Each record contains a little-
@@ -1445,14 +1451,26 @@ public sealed class ManagedSpcPlayer
         }
 
         musicPortToSnes = 0;
-        commandPorts.ResetForUpload();
+        // The music latch reads empty after an upload; the port model resets the sound-effect latches.
+        musicInputLatch = (byte)MusicPortCommand.None;
         musicTopLevelPointer = ReadWord(SpcDriverData.Ram.DefaultMusicPointer);
         counter = SpcDriverData.Music.TrackStartupTicks;
         keyOff |= unchecked((byte)~channelOnMask);
     }
 
-    /// <summary>Advances one 60-Hz emulation frame and returns 48-kHz interleaved stereo PCM.</summary>
-    public void GenerateFrame(Span<short> destination)
+    /// <summary>
+    /// Advances one 60-Hz emulation frame along <paramref name="schedule"/> and returns 48-kHz
+    /// interleaved stereo PCM.
+    /// </summary>
+    /// <param name="schedule">
+    /// The frame's driver ticks in time order, as <see cref="SpcCommandPorts.AdvanceFrame"/> walked
+    /// them: the port model owns the driver timer and the sound-effect polls, and the sequencer
+    /// and DSP follow it.
+    /// </param>
+    /// <param name="destination">Receives the frame's interleaved left/right samples.</param>
+    /// <exception cref="ArgumentException"><paramref name="destination"/> is too short.</exception>
+    /// <exception cref="InvalidDataException">The schedule is out of order or outside the frame, or the driver state cannot be synthesized.</exception>
+    public void GenerateFrame(ReadOnlySpan<SpcDriverTick> schedule, Span<short> destination)
     {
         if (destination.Length < SpcDriverData.HostStereoFramesPerVideoFrame * 2)
         {
@@ -1463,13 +1481,11 @@ public sealed class ManagedSpcPlayer
         if (dsp.BufferedStereoFrameCount != 0)
             throw new InvalidDataException("S-DSP sample cursor is not at a frame boundary.");
 
-        // The command ports own the driver timer: they walk the frame's DSP cycles first and
-        // report where each tick and sound-effect poll falls; the sequencer and DSP follow.
-        Span<SpcDriverTick> schedule = stackalloc SpcDriverTick[SpcCommandPorts.MaximumTicksPerFrame];
-        int tickCount = commandPorts.AdvanceFrame(schedule);
         int cycle = 0;
-        foreach (SpcDriverTick tick in schedule[..tickCount])
+        foreach (SpcDriverTick tick in schedule)
         {
+            if (tick.DspCycleOffset < cycle || tick.DspCycleOffset >= SpcCommandPorts.DspCyclesPerFrame)
+                throw new InvalidDataException($"Driver tick at DSP cycle {tick.DspCycleOffset} is out of order or outside the frame.");
             for (; cycle < tick.DspCycleOffset; cycle++)
                 dsp.Cycle();
             LoopPartTwo(tick);

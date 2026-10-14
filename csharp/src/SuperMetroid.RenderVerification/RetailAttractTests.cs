@@ -29,7 +29,7 @@ internal static class RetailAttractTests
                 var actual = captured.StepCaptured(input, tick + 1, 1);
                 states.Add(expected.GameState);
                 if (actual.UsedLegacyRaster || expected.GameState != actual.Frame.GameState ||
-                    expected.Phase != actual.Frame.Phase || !expected.AudioCommands.SequenceEqual(actual.Frame.AudioCommands))
+                    expected.Phase != actual.Frame.Phase || !expected.AudioEvents.SequenceEqual(actual.Frame.AudioEvents))
                     throw new InvalidOperationException($"Attract state/audio/capture divergence at {tick}.");
                 bool demo = expected.GameState is SuperMetroidGameState.TransitionToDemoA or SuperMetroidGameState.TransitionToDemoB
                     or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;

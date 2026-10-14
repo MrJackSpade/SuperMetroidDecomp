@@ -74,15 +74,16 @@ internal static class BabyMetroidDeathCryVerification
             }
         }
         var audio = new CartridgeAudioState();
-        var renderer = new CartridgeAudioRenderer(installation.LoadAudio());
-        renderer.RenderFrame(audio.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
+        var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(installation.LoadAudio());
+        renderer.RenderFrame(audio.AdvanceFrame(bus, renderer.Acknowledgements));
         renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.MotherBrain)]);
         audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         var writes = new List<CartridgeAudioCommand>();
         for (int frame = 0; frame < 8; frame++)
         {
-            var commands = audio.AdvanceFrame(bus, renderer.ReadAcknowledgements());
+            var commands = audio.AdvanceFrame(bus, renderer.Acknowledgements);
             writes.AddRange(commands.Where(command => command.Kind == CartridgeAudioCommandKind.WritePort));
+            Console.WriteLine($"DEBUG frame {frame} ack {renderer.Acknowledgements} writes {string.Join(",", commands)} queue {audio.SoundQueueForVerification(2)}");
             renderer.RenderFrame(commands);
         }
         AssertEqual(1, writes.Count(command => command.InputPort == ApuPort.SoundLibrary3 && command.Value == 0x19), "SPC receives exactly one library-three death cry");

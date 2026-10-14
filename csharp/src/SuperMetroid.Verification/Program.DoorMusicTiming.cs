@@ -59,8 +59,7 @@ internal static class DoorMusicTimingVerification
         for (int frame = 0; frame < 40; frame++) audio.AdvanceFrame(bus, default);
         AssertEqual((byte)9, audio.MusicDataIndex, "source music data is active");
         AssertEqual((byte)5, audio.MusicTrackIndex, "source track is active");
-        byte[] ports = new byte[4];
-        game.SoundAcknowledgements = new PortWriteEchoAcknowledgements(ports);
+        game.SoundAcknowledgements = new PortWriteEchoAcknowledgements(audio);
         int trackFrame = -1, musicWaitFrame = -1, uploadFrame = -1;
         for (int frame = 0; frame < 400; frame++)
         {
@@ -68,12 +67,11 @@ internal static class DoorMusicTimingVerification
             if (phase == DoorTransitionPhase.WaitForMusicQueue && musicWaitFrame < 0)
                 musicWaitFrame = frame;
             var output = game.Step(0);
-            foreach (var command in output.AudioCommands)
+            // Bank loads and music-port writes are published in the update the CPU issues them.
+            foreach (var audioEvent in output.AudioEvents)
             {
-                if (command.Kind == CartridgeAudioCommandKind.Upload) uploadFrame = frame;
-                if (command.Kind != CartridgeAudioCommandKind.WritePort) continue;
-                ports[(int)command.InputPort] = command.Value;
-                if (command.InputPort == ApuPort.Music && command.Value == 5)
+                if (audioEvent.Kind == AudioEventKind.LoadAudioBank) uploadFrame = frame;
+                if (audioEvent == AudioEvent.WriteMusicPort(MusicCommand.SelectTrack(5)))
                 {
                     Console.WriteLine($"Destination music at frame {frame}, phase {phase}, music wait frame {musicWaitFrame}.");
                     AssertTrue(musicWaitFrame >= 0, "destination track must not start before door scrolling finishes");

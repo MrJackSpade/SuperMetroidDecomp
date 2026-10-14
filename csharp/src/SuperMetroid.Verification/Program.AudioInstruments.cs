@@ -93,8 +93,8 @@ internal static class AudioInstrumentsVerification
 
             ExtractedAudioAssetCatalog edited =
                 ExtractedAudioAssetCatalog.Load(editedDirectory);
-            var stockRenderer = new CartridgeAudioRenderer(stock);
-            var editedRenderer = new CartridgeAudioRenderer(edited);
+            var stockRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(stock);
+            var editedRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(edited);
             CartridgeAudioCommand common =
                 CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
             CartridgeAudioCommand titleUpload =
@@ -115,10 +115,10 @@ internal static class AudioInstrumentsVerification
                 int address = SpcDriverData.Ram.InstrumentTable +
                     index * SpcDriverData.Ram.InstrumentRecordSize;
                 AssertEqual(SnesLittleEndian.HighByte(installed[index].PitchBase),
-                    editedRenderer.player.ReadApuByteForVerification(address + 4),
+                    editedRenderer.PlayerForVerification.ReadApuByteForVerification(address + 4),
                     $"edited title instrument {index} pitch high");
                 AssertEqual(unchecked((byte)installed[index].PitchBase),
-                    editedRenderer.player.ReadApuByteForVerification(address + 5),
+                    editedRenderer.PlayerForVerification.ReadApuByteForVerification(address + 5),
                     $"edited title instrument {index} pitch low");
             }
 

@@ -311,11 +311,11 @@ internal static partial class SwapchainTests
             var undrawn = headless.StepCaptured(input, sequence, 1);
             if (undrawn.UsedLegacyRaster || undrawn.Frame.GameState != actual.Frame.GameState ||
                 undrawn.Frame.Phase != actual.Frame.Phase || undrawn.Frame.FrameNumber != actual.Frame.FrameNumber ||
-                !undrawn.Frame.AudioCommands.SequenceEqual(actual.Frame.AudioCommands))
+                !undrawn.Frame.AudioEvents.SequenceEqual(actual.Frame.AudioEvents))
                 throw new InvalidOperationException($"Headless frame/command divergence at {sequence}.");
             if (expected.GameState != actual.Frame.GameState || expected.Phase != actual.Frame.Phase ||
                 expected.FrameNumber != actual.Frame.FrameNumber ||
-                !expected.AudioCommands.SequenceEqual(actual.Frame.AudioCommands))
+                !expected.AudioEvents.SequenceEqual(actual.Frame.AudioEvents))
                 throw new InvalidOperationException($"Slow-consumer game/audio command divergence at {sequence}.");
             legacy.CopyAudioFrame(left);
             captured.CopyAudioFrame(right);

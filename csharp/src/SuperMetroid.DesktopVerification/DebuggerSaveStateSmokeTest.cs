@@ -115,7 +115,7 @@ public static class DebuggerSaveStateSmokeTest
                     actual.FrameNumber != wanted.FrameNumber ||
                     actual.Phase != wanted.Phase ||
                     !actual.Pixels.SequenceEqual(wanted.Pixels) ||
-                    !actual.AudioCommands.SequenceEqual(wanted.AudioCommands) ||
+                    !actual.AudioEvents.SequenceEqual(wanted.AudioEvents) ||
                     !actualPcm.SequenceEqual(expectedPcm[frame]) ||
                     actualAcknowledgements != expectedAcknowledgements[frame])
                 {

@@ -1784,13 +1784,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Kamer => 0,
             EnemyDefinitionId.Elevator => 0,
             EnemyDefinitionId.YappingMaw => 0,
-            EnemyDefinitionId.KihunterGreen or
-                EnemyDefinitionId.KihunterGreenWings or
-                EnemyDefinitionId.KihunterYellow or
-                EnemyDefinitionId.KihunterYellowWings or
-                EnemyDefinitionId.KihunterRed or
-                EnemyDefinitionId.KihunterRedWings =>
-                KiHunterVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellow or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterRedWings => 0,
             EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer => 0,
             EnemyDefinitionId.Cacatac => 0,
             EnemyDefinitionId.Fireflea => 0,
@@ -1848,12 +1842,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.CeresDoor or
             EnemyDefinitionId.Chozo or
             EnemyDefinitionId.Botwoon or
-            EnemyDefinitionId.KihunterGreen or
-            EnemyDefinitionId.KihunterGreenWings or
-            EnemyDefinitionId.KihunterYellow or
-            EnemyDefinitionId.KihunterYellowWings or
-            EnemyDefinitionId.KihunterRed or
-            EnemyDefinitionId.KihunterRedWings or
             EnemyDefinitionId.Magdollite or
             EnemyDefinitionId.MiniKraid or
             EnemyDefinitionId.KraidNail or

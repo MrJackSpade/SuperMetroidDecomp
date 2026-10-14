@@ -1417,7 +1417,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         SkulteraBehavior.RegisterSkulteraTypedAnimations(table);
         PlatformsBehavior.RegisterPlatformTypedAnimations(table);
         AlcoonBehavior.RegisterAlcoonTypedAnimations(table);
-        KiHunterBehavior.RegisterKiHunterOwnedInstructions(table);
+        KiHunterBehavior.RegisterKiHunterTypedAnimations(table);
         SparkBehavior.RegisterSparkTypedAnimations(table);
         HibashiBehavior.RegisterHibashiTypedAnimations(table);
         FakeKraidBehavior.RegisterFakeKraidOwnedInstructions(table);
@@ -1439,6 +1439,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        KiHunterBehavior.RegisterKiHunterTypedAnimations(table);
         YardBehavior.RegisterYardTypedAnimations(table);
         ShaktoolBehavior.RegisterShaktoolTypedAnimations(table);
         WorkRobotBehavior.RegisterWorkRobotTypedAnimations(table);

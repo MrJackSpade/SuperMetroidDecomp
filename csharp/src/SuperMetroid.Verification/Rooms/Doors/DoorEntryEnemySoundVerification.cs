@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
 using SuperMetroid.Core.Runtime;
@@ -42,7 +43,8 @@ internal static class DoorEntryEnemySoundVerification
         body.Position = body.Position.WithWhole(new(128, 128));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = KiHunterEnemyFunction.NoOp;
         // The real spit opcode (library two $4C) executes during the entry frame's enemy pass.
-        body.CurrentInstruction = (ushort)(KiHunterInstructionProgramDefinitions.SpitRight + 0x10);
+        // The spit cue, four poses into the right spit animation.
+        state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 4);
         body.InstructionTimer = NativeCountdown.Start(1);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

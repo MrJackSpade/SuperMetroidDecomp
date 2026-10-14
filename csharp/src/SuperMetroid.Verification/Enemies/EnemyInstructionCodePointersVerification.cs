@@ -63,7 +63,6 @@ internal static class EnemyInstructionCodePointersVerification
         [
             typeof(ChozoStatueInstruction),
             typeof(FakeKraidInstruction),
-            typeof(KiHunterInstruction),
             typeof(MagdolliteInstruction),
             typeof(MamaTurtleInstruction),
             typeof(SpacePirateInstruction),
@@ -73,7 +72,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(ChozoStatueInstruction),
             typeof(CommonEnemyInstruction),
             typeof(FakeKraidInstruction),
-            typeof(KiHunterInstruction),
             typeof(MagdolliteInstruction),
             typeof(MamaTurtleInstruction),
             typeof(MotherBrainInstructionCodes),

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -24,133 +25,93 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
     internal static void VerifyKiHunterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags =
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
-        for (int index = 0;
-             index < KiHunterInstructionProgramDefinitionsTooling.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                KiHunterInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa80000 | definition.Address)),
-                $"KiHunter instruction mechanics word $A8:{definition.Address:X4}");
-        }
-
-        var guard = NewKiHunterInstructionProgramGuard(rom);
-        Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterInstructionProgramDefinitions.FlyingLeft, movingRight: false));
-        Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterInstructionProgramDefinitions.FlyingRight, movingRight: true));
-        Suite(nameof(VerifySwoop), () => VerifySwoop(KiHunterInstructionProgramDefinitions.SwoopLeft, movingRight: false));
-        Suite(nameof(VerifySwoop), () => VerifySwoop(KiHunterInstructionProgramDefinitions.SwoopRight, movingRight: true));
-        Suite(nameof(VerifyWingLoop), () => VerifyWingLoop(KiHunterInstructionProgramDefinitions.WingsLeft, "left"));
-        Suite(nameof(VerifyWingLoop), () => VerifyWingLoop(KiHunterInstructionProgramDefinitions.WingsRight, "right"));
+        Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterProgram.FlyingLeft, movingRight: false));
+        Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterProgram.FlyingRight, movingRight: true));
+        Suite(nameof(VerifySwoop), () => VerifySwoop(KiHunterProgram.SwoopLeft, movingRight: false));
+        Suite(nameof(VerifySwoop), () => VerifySwoop(KiHunterProgram.SwoopRight, movingRight: true));
+        Suite(nameof(VerifyWingLoop), () => VerifyWingLoop(KiHunterProgram.WingsLeft, "left"));
+        Suite(nameof(VerifyWingLoop), () => VerifyWingLoop(KiHunterProgram.WingsRight, "right"));
         Suite(nameof(VerifyDetachedWings), () => VerifyDetachedWings());
-        Suite(nameof(VerifyJump), () => VerifyJump(KiHunterInstructionProgramDefinitions.JumpLeft, "left"));
-        Suite(nameof(VerifyJump), () => VerifyJump(KiHunterInstructionProgramDefinitions.JumpRight, "right"));
-        Suite(nameof(VerifyLanding), () => VerifyLanding(KiHunterInstructionProgramDefinitions.LandLeft, "left"));
-        Suite(nameof(VerifyLanding), () => VerifyLanding(KiHunterInstructionProgramDefinitions.LandRight, "right"));
-        Suite(nameof(VerifySpit), () => VerifySpit(KiHunterInstructionProgramDefinitions.SpitLeft, movingRight: false));
-        Suite(nameof(VerifySpit), () => VerifySpit(KiHunterInstructionProgramDefinitions.SpitRight, movingRight: true));
+        Suite(nameof(VerifyJump), () => VerifyJump(KiHunterProgram.JumpLeft, "left"));
+        Suite(nameof(VerifyJump), () => VerifyJump(KiHunterProgram.JumpRight, "right"));
+        Suite(nameof(VerifyLanding), () => VerifyLanding(KiHunterProgram.LandLeft, "left"));
+        Suite(nameof(VerifyLanding), () => VerifyLanding(KiHunterProgram.LandRight, "right"));
+        Suite(nameof(VerifySpit), () => VerifySpit(KiHunterProgram.SpitLeft, movingRight: false));
+        Suite(nameof(VerifySpit), () => VerifySpit(KiHunterProgram.SpitRight, movingRight: true));
 
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids compiled KiHunter mechanics and visual bytes");
-        AssertThrows<InvalidDataException>(
-            () => KiHunterInstructionProgramDefinitions.ReadMechanicsWord(0xe9fc),
-            "KiHunter spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => KiHunterInstructionProgramDefinitions.ReadMechanicsWord(0xeb2e),
-            "adjacent KiHunter spritemap data is rejected as mechanics");
+        Suite(nameof(KiHunterAnimationsVerification.VerifyKiHunterAnimations), () => KiHunterAnimationsVerification.VerifyKiHunterAnimations(rom));
 
-        _ = ProbeKiHunterInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeKiHunterInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "KiHunter allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed KiHunter mechanics lookups allocate no per-frame storage");
+        Console.WriteLine("KiHunter: flight, swoop, wing, detached-wing, jump, landing and spit programs with their cues pass.");
 
-        Console.WriteLine(
-            $"KiHunter instruction mechanics: " +
-            $"{KiHunterInstructionProgramDefinitionsTooling.MechanicsWordCount} compiled words, " +
-            "thirteen complete body/wing programs, two real acid spawns, and " +
-            $"{KiHunterInstructionProgramDefinitions.PresentationWordCount} compiled " +
-            "visual selectors pass with cartridge reads forbidden.");
-
-        void VerifyFlying(ushort program, bool movingRight)
+        void VerifyFlying(KiHunterProgram program, bool movingRight)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
             state.Velocity = state.Velocity.WithWholeX(movingRight ? (short)1 : (short)-1);
-            Install(body, program);
+            Install(body, state, program);
             RunFrames(enemies, body, 7);
-            AssertTrue(body.CurrentInstruction >= program &&
-                body.CurrentInstruction <= unchecked((ushort)(program + 0x0c)),
+            AssertEqual(program, state.Program.Program,
                 $"KiHunter {(movingRight ? "right" : "left")} flight remains in steady list");
         }
 
-        void VerifySwoop(ushort program, bool movingRight)
+        void VerifySwoop(KiHunterProgram program, bool movingRight)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
             state.Velocity = state.Velocity.WithWholeX(movingRight ? (short)1 : (short)-1);
-            Install(body, program);
+            Install(body, state, program);
             RunFrames(enemies, body, 55);
-            ushort idle = movingRight
-                ? KiHunterInstructionProgramDefinitions.FlyingRight
-                : KiHunterInstructionProgramDefinitions.FlyingLeft;
-            AssertTrue(body.CurrentInstruction >= idle &&
-                body.CurrentInstruction <= unchecked((ushort)(idle + 0x0c)),
+            KiHunterProgram idle = movingRight
+                ? KiHunterProgram.FlyingRight
+                : KiHunterProgram.FlyingLeft;
+            AssertEqual(idle, state.Program.Program,
                 $"KiHunter {(movingRight ? "right" : "left")} swoop returns to flight");
         }
 
-        void VerifyWingLoop(ushort program, string direction)
+        void VerifyWingLoop(KiHunterProgram program, string direction)
         {
-            (RoomEnemySystem enemies, _, RoomEnemySlot wings, _, _) = CreatePair();
-            Install(wings, program);
+            (RoomEnemySystem enemies, _, RoomEnemySlot wings, _, KiHunterEnemyState wingState) = CreatePair();
+            Install(wings, wingState, program);
             RunFrames(enemies, wings, 7);
-            AssertTrue(wings.CurrentInstruction >= program &&
-                wings.CurrentInstruction <= unchecked((ushort)(program + 0x0c)),
+            AssertEqual(program, wingState.Program.Program,
                 $"KiHunter {direction} wing loop remains bounded");
         }
 
         void VerifyDetachedWings()
         {
-            (RoomEnemySystem enemies, _, RoomEnemySlot wings, _, _) = CreatePair();
-            Install(wings, KiHunterInstructionProgramDefinitions.DetachedWings);
+            (RoomEnemySystem enemies, _, RoomEnemySlot wings, _, KiHunterEnemyState wingState) = CreatePair();
+            Install(wings, wingState, KiHunterProgram.DetachedWings);
             RunFrames(enemies, wings, 3);
-            AssertEqual(unchecked((ushort)(KiHunterInstructionProgramDefinitions.DetachedWings + 4)),
-                wings.CurrentInstruction,
-                "KiHunter detached wings reach terminal sleep");
+            AssertAsleep(wingState, KiHunterProgram.DetachedWings, "KiHunter detached wings reach terminal sleep");
         }
 
-        void VerifyJump(ushort program, string direction)
+        void VerifyJump(KiHunterProgram program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
-            Install(body, program);
+            Install(body, state, program);
             RunFrames(enemies, body, 40);
             AssertEqual(KiHunterEnemyFunction.GroundJump, state.Function,
                 $"KiHunter {direction} jump installs ground-jump owner");
-            AssertEqual(unchecked((ushort)(program + 0x1a)), body.CurrentInstruction,
-                $"KiHunter {direction} jump reaches terminal sleep");
+            AssertAsleep(state, program, $"KiHunter {direction} jump reaches terminal sleep");
         }
 
-        void VerifyLanding(ushort program, string direction)
+        void VerifyLanding(KiHunterProgram program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
-            Install(body, program);
+            Install(body, state, program);
             RunFrames(enemies, body, 45);
             AssertEqual(KiHunterEnemyFunction.GroundWait, state.Function,
                 $"KiHunter {direction} landing installs ground-wait owner");
-            AssertEqual(unchecked((ushort)(program + 0x16)), body.CurrentInstruction,
-                $"KiHunter {direction} landing reaches terminal sleep");
+            AssertAsleep(state, program, $"KiHunter {direction} landing reaches terminal sleep");
         }
 
-        void VerifySpit(ushort program, bool movingRight)
+        void VerifySpit(KiHunterProgram program, bool movingRight)
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
-            Install(body, program);
+            Install(body, state, program);
             RunFrames(enemies, body, 90);
             AssertEqual(KiHunterEnemyFunction.GroundWait, state.Function,
                 $"KiHunter {(movingRight ? "right" : "left")} spit restores ground wait");
@@ -163,15 +124,14 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 : RoomEnemyProjectileKind.KiHunterAcidSpitLeft;
             AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == kind),
                 $"KiHunter {(movingRight ? "right" : "left")} acid spawn");
-            AssertEqual(unchecked((ushort)(program + 0x1c)), body.CurrentInstruction,
-                $"KiHunter {(movingRight ? "right" : "left")} spit reaches terminal sleep");
+            AssertAsleep(state, program, $"KiHunter {(movingRight ? "right" : "left")} spit reaches terminal sleep");
         }
 
         (RoomEnemySystem Enemies, RoomEnemySlot Body, RoomEnemySlot Wings,
             KiHunterEnemyState BodyState, KiHunterEnemyState WingState) CreatePair()
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guard);
+            enemies.BindFixtureBus(rom);
             Action<RoomEnemySlot> initializeBody = enemies.KiHunterBehavior.InitializeKiHunter;
             Action<RoomEnemySlot> initializeWings = enemies.KiHunterBehavior.InitializeKiHunterWings;
 
@@ -188,11 +148,18 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 (enemies.KiHunterStates[0] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter state.")), (enemies.KiHunterStates[1] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter state.")));
         }
 
-        static void Install(RoomEnemySlot slot, ushort program)
+        static void Install(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterProgram program)
         {
-            slot.CurrentInstruction = program;
+            state.Program = AnimationProgramCursor<KiHunterProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.Timer = NativeCountdown.Start(0);
+        }
+
+        // The cursor rests on the program's sleep step.
+        static void AssertAsleep(KiHunterEnemyState state, KiHunterProgram program, string message)
+        {
+            AssertEqual(program, state.Program.Program, message);
+            AssertEqual(AnimationProgramStepKind.Hold, KiHunterAnimations.Programs.Steps(program)[state.Program.Position].Kind, message);
         }
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
@@ -202,27 +169,6 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
-
-    /// <summary>Consumes warmed KiHunter mechanics words for a per-frame allocation check.</summary>
-    private static int ProbeKiHunterInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += KiHunterInstructionProgramDefinitions.ReadMechanicsWord(
-                KiHunterInstructionProgramDefinitions.FlyingLeft);
-        }
-        return checksum;
-    }
-
-    /// <summary>Rejects runtime cartridge reads of compiled mechanics and visual selector words.</summary>
-    private static CartridgeReadGuard NewKiHunterInstructionProgramGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(KiHunterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled KiHunter mechanics ${address:X6}.")
-            .ForbidWords(0xa80000, KiHunterInstructionProgramDefinitions.PresentationWordCount,
-                KiHunterInstructionProgramDefinitions.PresentationWordAddress,
-                address => $"Production read compiled KiHunter visual byte ${address:X6}.");
 
     /// <summary>Runs the KiHunter instruction check against the local retail cartridge image.</summary>
     [VerificationCommand("--kihunter-instruction-mechanics")]

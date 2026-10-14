@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.KiHunters.Artwork;
+using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.Yard.Artwork;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Enemies.Shaktool.Artwork;
@@ -295,6 +297,8 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(ShaktoolAnimations), "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolAnimations.cs");
         RequireTypedFrames(YardAnimations.Programs, YardFrameDefinitions.Spritemap, YardFrameDefinitions.Bank,
             nameof(YardAnimations), "csharp/src/SuperMetroid.Core/Enemies/Yard/YardAnimations.cs");
+        RequireTypedFrames(KiHunterAnimations.Programs, KiHunterFrameDefinitions.Spritemap, KiHunterFrameDefinitions.Bank,
+            nameof(KiHunterAnimations), "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

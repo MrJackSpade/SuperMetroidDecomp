@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -46,7 +47,8 @@ internal static class KiHunterSpitAudioVerification
         body.Position = body.Position.WithWhole(new(128, 128));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = KiHunterEnemyFunction.NoOp;
         // Stage the real spit opcode; subsequent frames must not replay its one-shot call.
-        body.CurrentInstruction = (ushort)(KiHunterInstructionProgramDefinitions.SpitRight + 0x10);
+        // The spit cue, four poses into the right spit animation.
+        state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 4);
         body.InstructionTimer = NativeCountdown.Start(1);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -72,7 +74,8 @@ internal static class KiHunterSpitAudioVerification
         AssertEqual(1, runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpitRight), "staged attack spawns one real acid projectile");
         AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == spit && request.MaximumQueued == 6), "spit calls library two Max6");
         // Remain in the post-spit waiting state without introducing another attack.
-        body.CurrentInstruction = (ushort)(KiHunterInstructionProgramDefinitions.SpitRight + 0x1c);
+        // The right spit animation's final sleep.
+        state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 8);
         body.InstructionTimer = NativeCountdown.Start(1);
         for (int frame = 1; frame < 20; frame++) Step();
         Console.WriteLine($"One KiHunter spit: {requests} requests, {writes} APU writes over 20 frames.");

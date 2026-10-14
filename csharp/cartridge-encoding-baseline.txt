@@ -830,7 +830,7 @@ csharp/src/SuperMetroid.Verification/Enemies/Artwork/EmptyExtendedFrameShotsVeri
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkCommonEmptyVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification.cs	SME6340	22
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkVerification.cs	SME6340	337
-csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6340	183
+csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6340	182
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkBabyMetroidCutsceneColorsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkBotwoonColorsVerification.cs	SME6340	3
@@ -973,10 +973,10 @@ csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperAnimationDefinitionsV
 csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperAnimationDefinitionsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Enemies/Kago/KagoBugProjectileInstructionProgramDefinitionsVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterAcidSpitInstructionProgramDefinitionsVerification.cs	SME6340	9
-csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterInstructionProgramDefinitionsVerification.cs	SME6340	15
+csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterInstructionProgramDefinitionsVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterMotionDefinitionsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterMotionDefinitionsVerification.cs	SME6345	3
-csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterSpitAudioVerification.cs	SME6340	13
+csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterSpitAudioVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterSpitAudioVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Enemies/LavaJumpers/NorfairLavaJumpDefinitionsVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Enemies/LookupSmallGameTablesVerification.cs	SME6340	19
@@ -1422,7 +1422,7 @@ csharp/src/SuperMetroid.Verification/Rooms/Doors/BlueDoorPlmDrawDefinitionsVerif
 csharp/src/SuperMetroid.Verification/Rooms/Doors/ColoredDoorPlmDrawDefinitionsVerification.cs	SME6340	33
 csharp/src/SuperMetroid.Verification/Rooms/Doors/DoorAlignmentVerification.cs	SME6340	23
 csharp/src/SuperMetroid.Verification/Rooms/Doors/DoorAnimatedTilesVerification.cs	SME6340	3
-csharp/src/SuperMetroid.Verification/Rooms/Doors/DoorEntryEnemySoundVerification.cs	SME6340	5
+csharp/src/SuperMetroid.Verification/Rooms/Doors/DoorEntryEnemySoundVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Rooms/Doors/DoorEntryRoomFxSoundVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Rooms/Doors/DoorMusicTimingVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Rooms/Doors/DoorOrientationDomainVerification.cs	SME6340	2

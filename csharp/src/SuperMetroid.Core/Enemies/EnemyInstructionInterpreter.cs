@@ -365,9 +365,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite)
             return MagdolliteInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (KiHunterBehavior.IsKiHunterDefinition(slot.EnemyDefinitionPointer))
-            return KiHunterInstructionProgramDefinitions.ReadMechanicsWord(address);
-
 
         throw new InvalidDataException(
             $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} instruction mechanics pointer " +

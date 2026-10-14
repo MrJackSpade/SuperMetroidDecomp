@@ -13,28 +13,10 @@ internal static class KiHunterVisualDefinitions
     /// in KiHunter's thirteen native programs. Addresses are stable frame identities;
     /// timing, callbacks and collision continue to use compiled mechanics.
     /// </summary>
-    internal static EnemySpritemapDefinition[] Frames()
-    {
-        var pointers = new SortedSet<ushort>();
-        for (int index = 0; index < KiHunterInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-            pointers.Add(FrameAt(KiHunterInstructionProgramDefinitions.PresentationWordAddress(index)));
-        return [.. pointers.Select(pointer => new EnemySpritemapDefinition(
-            Bank, pointer, $"ki_hunter_a8_{pointer:x4}"))];
-    }
+    internal static EnemySpritemapDefinition[] Frames() =>
+        [.. new SortedSet<ushort>(KiHunterAnimations.Spritemaps(Enum.GetValues<KiHunterProgram>()))
+            .Select(pointer => new EnemySpritemapDefinition(Bank, pointer, $"ki_hunter_a8_{pointer:x4}"))];
 
-    /// <summary>Accepts only compiled visual operands, never adjacent control words.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        for (int index = 0; index < KiHunterInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            if (KiHunterInstructionProgramDefinitions.PresentationWordAddress(index) ==
-                operandAddress &&
-                CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress, out ushort frame))
-                return frame;
-        }
-        throw new InvalidDataException(
-            $"KiHunter visual operand $A8:{operandAddress:X4} is not compiled.");
-    }
+    /// <summary>The pose the left-facing flight opens on, the idle Ki-Hunter's first frame.</summary>
+    internal static ushort IdleFrame => KiHunterAnimations.Spritemaps(KiHunterProgram.FlyingLeft).First();
 }

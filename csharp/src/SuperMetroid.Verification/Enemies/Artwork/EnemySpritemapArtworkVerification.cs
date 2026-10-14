@@ -342,27 +342,10 @@ internal static class EnemySpritemapArtworkVerification
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
-        for (int index = 0;
-             index < KiHunterInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = KiHunterInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa8, operand);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.KihunterGreen, operand, out ushort selected),
-                $"KiHunter visual selector $A8:{operand:X4} is installed");
-            AssertEqual(native, selected,
-                $"KiHunter visual selector $A8:{operand:X4} matches cartridge");
-            AssertTrue(installedHunterPointers.Contains(native),
-                $"KiHunter visual target $A8:{native:X4} has installed art");
-        }
-        AssertEqual(41, installedHunterPointers.Count,
-            "KiHunter's visual operands select 41 distinct OAM frames");
-        AssertThrows<InvalidDataException>(
-            () => KiHunterVisualDefinitions.FrameAt(
-                KiHunterInstructionProgramDefinitions.FlyingLeft),
-            "KiHunter rejects adjacent instruction mechanics as presentation");
+        AssertTrue(KiHunterAnimations.Spritemaps(Enum.GetValues<KiHunterProgram>()).ToHashSet().SetEquals(
+                installedHunterPointers),
+            "the Ki-Hunter's programs show exactly its installed frames");
+        AssertEqual(41, installedHunterPointers.Count, "KiHunter's programs show 41 distinct OAM frames");
         HashSet<ushort> installedMawPointers = EnemySpritemapDefinitions.Frames
             
             .Where(frame => frame.Name.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
@@ -1186,8 +1169,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             OffsetY = mawPart.OffsetY + 1,
         };
-        ushort hunterIdlePointer = KiHunterVisualDefinitions.FrameAt(
-            KiHunterInstructionProgramDefinitions.PresentationWordAddress(0));
+        ushort hunterIdlePointer = KiHunterVisualDefinitions.IdleFrame;
         string hunterIdleName = $"ki_hunter_a8_{hunterIdlePointer:x4}";
         SpriteVisualPart hunterPart = document.Frames[hunterIdleName][0];
         document.Frames[hunterIdleName][0] = hunterPart with

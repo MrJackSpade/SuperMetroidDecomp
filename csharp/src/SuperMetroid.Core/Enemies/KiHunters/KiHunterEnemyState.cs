@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
@@ -21,6 +22,9 @@ public sealed class KiHunterEnemyState
         // body/wing callbacks continue using physical +/-$40 slot aliases.
         IsWing = KiHunterBehavior.IsKiHunterWingDefinition(slot.EnemyDefinitionPointer);
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<KiHunterProgram> Program { get; set; }
 
     /// <summary>Role fixed by the initializer, retained even if deletion clears the native definition word; body and wing callbacks still use adjacent physical slots.</summary>
     public bool IsWing { get; }

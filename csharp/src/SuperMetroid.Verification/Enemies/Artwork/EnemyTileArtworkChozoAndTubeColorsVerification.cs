@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -66,10 +67,10 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             "n00b-tube cracks", (enemies, _) => enemies.ChozoStatueBehavior.InitializeN00bTubeCracks(), null));
         Suite(nameof(VerifyLive), () => VerifyLive((ushort)0, colors.ResolveWreckedShip,
             "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
-            ChozoStatueInstructionProgramDefinitions.WreckedShipInitial));
+            ChozoStatueProgram.WreckedShipInitial));
         Suite(nameof(VerifyLive), () => VerifyLive((ushort)2, colors.ResolveLowerNorfair,
             "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
-            ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial));
+            ChozoStatueProgram.LowerNorfairInitial));
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(
@@ -99,7 +100,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         }
 
         void VerifyLive(ushort variant, Func<int, Bgr555> resolve, string name,
-            Action<RoomEnemySystem, RoomEnemySlot> initialize, ushort? expectedInstruction)
+            Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueProgram? expectedProgram)
         {
             var cgram = new SnesCgram();
             var enemies = new RoomEnemySystem { TileArtwork = edited };
@@ -112,10 +113,12 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
                 AssertEqual(resolve(color),
                     cgram.Colors[ChozoAndTubeColorRomData.Destination + color],
                     $"live {name} CGRAM color {color}");
-            if (expectedInstruction is not null)
+            if (expectedProgram is not null)
             {
-                AssertEqual(expectedInstruction.Value, statue.CurrentInstruction,
-                    $"{name} keeps native instruction selection");
+                AssertEqual(AnimationProgramCursor<ChozoStatueProgram>.Start(expectedProgram.Value),
+                    (enemies.ChozoStatueBehavior._chozoStatueStates[statue.SlotIndex]
+                        ?? throw new InvalidOperationException($"{name} has no statue state.")).Program,
+                    $"{name} keeps native animation selection");
                 AssertTrue(enemies.ChozoStatuePlmRequests.Count != 0,
                     $"{name} still publishes its native PLM request");
             }

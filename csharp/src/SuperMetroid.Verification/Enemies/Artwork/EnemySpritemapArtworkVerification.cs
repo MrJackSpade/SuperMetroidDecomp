@@ -457,30 +457,8 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(ChozoStatueVisualDefinitions.FrameCount, chozoFrames.Count,
             "the two Chozo sequences select twenty-six distinct installed frames");
-        var selectedChozoFrames = new HashSet<ushort>();
-        for (int index = 0;
-             index < ChozoStatueInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = ChozoStatueInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xaa, operand);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Chozo,
-                    operand, out ushort selected),
-                $"Chozo statue visual selector $AA:{operand:X4} is installed");
-            AssertEqual(native, selected,
-                $"Chozo statue visual selector $AA:{operand:X4} matches the cartridge");
-            AssertTrue(chozoFrames.Contains(selected),
-                $"Chozo statue visual target $AA:{selected:X4} has installed art");
-            selectedChozoFrames.Add(selected);
-        }
-        AssertTrue(selectedChozoFrames.SetEquals(chozoFrames),
-            "every installed Chozo composition is selected by a native program");
-        AssertThrows<InvalidDataException>(
-            () => ChozoStatueVisualDefinitions.FrameAt(
-                ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial),
-            "Chozo visual selector rejects neighboring mechanics data");
+        AssertTrue(ChozoStatueAnimations.Spritemaps(Enum.GetValues<ChozoStatueProgram>()).ToHashSet().SetEquals(chozoFrames),
+            "every installed Chozo composition is shown by a typed program");
         HashSet<ushort> violaFrames = ViolaVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(ViolaVisualDefinitions.FrameCount, violaFrames.Count,
@@ -1314,12 +1292,10 @@ internal static class EnemySpritemapArtworkVerification
             editedLavaJumper.LowTable[0],
             "lava-jumper authored OAM offset changes installed room presentation");
         OamBuffer stockChozo = DrawEnemy(stock, NewFrameReadGuard(rom),
-            ChozoStatueVisualDefinitions.FrameAt(
-                ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(0)),
+            ChozoStatueAnimations.Spritemaps(ChozoStatueProgram.LowerNorfairInitial).First(),
             EnemyDefinitionId.Chozo);
         OamBuffer editedChozo = DrawEnemy(edited, NewFrameReadGuard(rom),
-            ChozoStatueVisualDefinitions.FrameAt(
-                ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(0)),
+            ChozoStatueAnimations.Spritemaps(ChozoStatueProgram.LowerNorfairInitial).First(),
             EnemyDefinitionId.Chozo);
         AssertEqual(unchecked((byte)(stockChozo.LowTable[0] + 1)),
             editedChozo.LowTable[0],
@@ -1697,8 +1673,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Fireflea Y offset changes live room OAM");
         AssertEqual(stockFireflea.LowTable[0], editedFireflea.LowTable[0],
             "Fireflea visual edit leaves X position unchanged");
-        ushort magdollitePointer = EnemySpritemapDefinitions.MagdolliteFrameAt(
-            MagdolliteInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
+        ushort magdollitePointer = MagdolliteAnimations.Spritemaps(MagdolliteProgram.LeftIdle).First();
         OamBuffer stockMagdollite = DrawEnemy(stock, NewFrameReadGuard(rom),
             magdollitePointer, EnemyDefinitionId.Magdollite);
         OamBuffer editedMagdollite = DrawEnemy(edited, NewFrameReadGuard(rom),

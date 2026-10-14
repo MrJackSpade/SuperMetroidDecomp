@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.MamaTurtles;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -10,6 +12,9 @@ public sealed class BabyTurtleEnemyState
 
     /// <summary>Attaches one Baby Turtle's typed view to its native child record.</summary>
     internal BabyTurtleEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<MamaTurtleProgram> Program { get; set; }
 
     /// <summary>Gets the current bank-$A2 Baby Turtle AI function pointer.</summary>
     public BabyTurtleAiFunction Function

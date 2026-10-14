@@ -29,10 +29,27 @@ internal static class NativeEnemyProgramOracle
         Action<ushort, ushort[], TCue, string> compareCue)
         where TProgram : struct, Enum
         where TFrame : struct
-        where TCue : notnull
-    {
-        return StepAddresses(cartridge, bank, entries, programs, spritemap, operandWords, compareCue).Values.Sum(addresses => addresses.Length);
-    }
+        where TCue : notnull =>
+        CompareAll(cartridge, bank, entries, programs, spritemap, new NativeEnemyCueRules<TCue>(operandWords, compareCue));
+
+    /// <summary>Compares every program with its native list under <paramref name="rules"/> and returns the total step count.</summary>
+    /// <param name="cartridge">The pinned cartridge.</param>
+    /// <param name="bank">The lists' bank.</param>
+    /// <param name="entries">Each program's native entry, in authored order.</param>
+    /// <param name="programs">The typed programs.</param>
+    /// <param name="spritemap">The spritemap a frame shows.</param>
+    /// <param name="rules">How the owner's instructions are read and compared.</param>
+    internal static int CompareAll<TProgram, TFrame, TCue>(
+        IImportCartridgeSource cartridge,
+        byte bank,
+        (TProgram Program, ushort Entry)[] entries,
+        AnimationProgramSet<TProgram, TFrame, TCue> programs,
+        Func<TFrame, ushort> spritemap,
+        NativeEnemyCueRules<TCue> rules)
+        where TProgram : struct, Enum
+        where TFrame : struct
+        where TCue : notnull =>
+        StepAddresses(cartridge, bank, entries, programs, spritemap, rules).Values.Sum(addresses => addresses.Length);
 
     /// <summary>
     /// Compares every program with its native list, as <see cref="CompareAll"/> does, and returns the native address of
@@ -48,13 +65,26 @@ internal static class NativeEnemyProgramOracle
         Action<ushort, ushort[], TCue, string> compareCue)
         where TProgram : struct, Enum
         where TFrame : struct
+        where TCue : notnull =>
+        StepAddresses(cartridge, bank, entries, programs, spritemap, new NativeEnemyCueRules<TCue>(operandWords, compareCue));
+
+    /// <summary>Compares every program with its native list under <paramref name="rules"/> and returns each program's step addresses.</summary>
+    internal static Dictionary<TProgram, ushort[]> StepAddresses<TProgram, TFrame, TCue>(
+        IImportCartridgeSource cartridge,
+        byte bank,
+        (TProgram Program, ushort Entry)[] entries,
+        AnimationProgramSet<TProgram, TFrame, TCue> programs,
+        Func<TFrame, ushort> spritemap,
+        NativeEnemyCueRules<TCue> rules)
+        where TProgram : struct, Enum
+        where TFrame : struct
         where TCue : notnull
     {
         AssertEqual(Enum.GetValues<TProgram>().Length, entries.Length, $"every typed {typeof(TProgram).Name} has a native entry");
         for (int index = 0; index < entries.Length; index++)
             AssertEqual(Enum.GetValues<TProgram>()[index], entries[index].Program, $"the {typeof(TProgram).Name} values are declared in authored order");
         AssertTrue(entries.Zip(entries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry), $"native {typeof(TProgram).Name} entries ascend");
-        var family = new Family<TProgram, TFrame, TCue>(cartridge, bank, entries, programs, spritemap, operandWords, compareCue);
+        var family = new Family<TProgram, TFrame, TCue>(cartridge, bank, entries, programs, spritemap, rules);
         return entries.ToDictionary(item => item.Program, item => Compare(family, item.Program, item.Entry));
     }
 
@@ -64,16 +94,14 @@ internal static class NativeEnemyProgramOracle
     /// <param name="Entries">Each program's native entry, in authored order.</param>
     /// <param name="Programs">The typed programs.</param>
     /// <param name="Spritemap">The spritemap a frame shows.</param>
-    /// <param name="OperandWords">An owner instruction's operand word count, or null for a word the owner does not use.</param>
-    /// <param name="CompareCue">Compares an owner instruction's operands with the cue it became.</param>
+    /// <param name="Rules">How the owner's instructions are read and compared.</param>
     private sealed record Family<TProgram, TFrame, TCue>(
         IImportCartridgeSource Cartridge,
         byte Bank,
         (TProgram Program, ushort Entry)[] Entries,
         AnimationProgramSet<TProgram, TFrame, TCue> Programs,
         Func<TFrame, ushort> Spritemap,
-        Func<ushort, int?> OperandWords,
-        Action<ushort, ushort[], TCue, string> CompareCue)
+        NativeEnemyCueRules<TCue> Rules)
         where TProgram : struct, Enum
         where TFrame : struct
         where TCue : notnull;
@@ -95,7 +123,8 @@ internal static class NativeEnemyProgramOracle
         where TCue : notnull
     {
         (IImportCartridgeSource cartridge, byte bank, (TProgram Program, ushort Entry)[] entries, AnimationProgramSet<TProgram, TFrame, TCue> programs,
-            Func<TFrame, ushort> spritemap, Func<ushort, int?> operandWords, Action<ushort, ushort[], TCue, string> compareCue) = family;
+            Func<TFrame, ushort> spritemap, NativeEnemyCueRules<TCue> rules) = family;
+        (Func<ushort, int?> operandWords, Action<ushort, ushort[], TCue, string> compareCue, Func<TCue, bool>? endsList) = rules;
         var steps = programs.Steps(program);
         var addresses = new ushort[steps.Count];
         ushort cursor = entry;
@@ -177,7 +206,11 @@ internal static class NativeEnemyProgramOracle
                     ushort[] operands = [.. Enumerable.Range(0, count).Select(item => cartridge.ReadCartridgeWord(address + 2 + 2 * item))];
                     compareCue(word, operands, step.PublishedCue, at);
                     cursor = unchecked((ushort)(cursor + 2 + 2 * count));
-                    continue;
+                    if (endsList?.Invoke(step.PublishedCue) != true)
+                        continue;
+                    AssertEqual(AnimationProgramStepKind.Hold, Next("end after a cue that always continues elsewhere").Kind,
+                        $"{at}: the program ends at its cue");
+                    break;
                 }
                 case NativeEnemyListDefinitions.WordKind.Frame:
                 default:

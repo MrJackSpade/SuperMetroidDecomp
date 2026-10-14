@@ -30,6 +30,13 @@ internal static class MagdollitePhaseDefinitions
         return s_apexThresholdsByEnemySlot[enemySlot];
     }
 
+    /// <summary>The narrow pillars and the three- to eight-segment stacks the rising body shows, in rise order.</summary>
+    private static readonly MagdolliteProgram[] PillarPrograms =
+    [
+        MagdolliteProgram.PillarPhase0, MagdolliteProgram.PillarPhase1, MagdolliteProgram.PillarPhase2, MagdolliteProgram.PillarPhase3,
+        MagdolliteProgram.PillarPhase4, MagdolliteProgram.PillarPhase5, MagdolliteProgram.PillarPhase6, MagdolliteProgram.PillarPhase7,
+    ];
+
     /// <summary>
     /// $A8:AF55/$A8:AF67/$A8:AF79: distance thresholds, body animation lists,
     /// and body-to-overlay Y offsets for the nine authored phases.
@@ -40,11 +47,11 @@ internal static class MagdollitePhaseDefinitions
             throw new InvalidDataException(
                 $"Magdollite phase {index} is outside the nine authored records.");
         // The zero-distance setup repeats the first visible pillar. Each following
-        // sixteen-pixel rise selects the next six-byte frame/sleep program and moves
+        // sixteen-pixel rise selects the next pillar-stack program and moves
         // the overlay down one eight-pixel tile relative to the body.
         int visiblePhase = Math.Max(0, index - 1);
         return new((ushort)(16 * index),
-            (ushort)(MagdolliteInstructionProgramDefinitions.PillarPhase0 + 6 * visiblePhase),
+            PillarPrograms[visiblePhase],
             (ushort)(12 + 8 * visiblePhase));
     }
 }

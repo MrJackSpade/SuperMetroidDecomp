@@ -1741,8 +1741,7 @@ internal static class EnemySpritemapDefinitions
     {
         frame = enemyDefinition switch
         {
-            EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle =>
-                MamaTurtleVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle => 0,
             EnemyDefinitionId.Boyon => 0,
             EnemyDefinitionId.Sciser => 0,
             EnemyDefinitionId.Zero => 0,
@@ -1757,8 +1756,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Dragon => 0,
             EnemyDefinitionId.Multiviola => 0,
             EnemyDefinitionId.Squeept => 0,
-            EnemyDefinitionId.Chozo =>
-                ChozoStatueVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Chozo => 0,
             EnemyDefinitionId.Viola => 0,
             EnemyDefinitionId.Rinka => 0,
             EnemyDefinitionId.CorpseTorizo => 0,
@@ -1788,7 +1786,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer => 0,
             EnemyDefinitionId.Cacatac => 0,
             EnemyDefinitionId.Fireflea => 0,
-            EnemyDefinitionId.Magdollite => MagdolliteFrameAt(operandAddress),
+            EnemyDefinitionId.Magdollite => 0,
             EnemyDefinitionId.Boulder => 0,
             EnemyDefinitionId.Atomic => 0,
             EnemyDefinitionId.Skultera => 0,
@@ -1838,26 +1836,10 @@ internal static class EnemySpritemapDefinitions
             _ => throw new InvalidOperationException($"Undefined EnemyDefinitionId {enemyDefinition}."),
         };
         return enemyDefinition is
-            EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle or
             EnemyDefinitionId.CeresDoor or
-            EnemyDefinitionId.Chozo or
             EnemyDefinitionId.Botwoon or
-            EnemyDefinitionId.Magdollite or
             EnemyDefinitionId.MiniKraid or
             EnemyDefinitionId.KraidNail or
             EnemyDefinitionId.KraidNailBad;
-    }
-    /// <summary>
-    /// Magdollite's 53 head, throwing-hand, and pillar selectors at $A8:AC9E..AE0E.
-    /// Their attack callbacks, timing, and physical movement remain engine-owned.
-    /// </summary>
-    internal static ushort MagdolliteFrameAt(ushort operandAddress)
-    {
-        if (MagdolliteInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(MagdolliteBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Magdollite visual operand $A8:{operandAddress:X4} is not compiled.");
     }
 }

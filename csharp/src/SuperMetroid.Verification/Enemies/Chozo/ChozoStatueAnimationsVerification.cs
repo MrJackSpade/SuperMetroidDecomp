@@ -1,0 +1,33 @@
+using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueNativeListAddresses;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Verification.Enemies;
+
+namespace SuperMetroid.Verification.Enemies.Chozo;
+
+/// <summary>#641: the Chozo statue's typed programs, each matched step by step to its native bank-$AA list.</summary>
+internal static class ChozoStatueAnimationsVerification
+{
+    /// <summary>Every program matches its native list.</summary>
+    internal static void VerifyChozoStatueAnimations(SuperMetroidAddressSpace rom)
+    {
+        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, ChozoStatueAnimations.Programs,
+            ChozoStatueFrameDefinitions.Spritemap,
+            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+            (word, operands, cue, at) =>
+            {
+                var instruction = Instructions[word];
+                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                for (int index = 0; index < operands.Length; index++)
+                    AssertEqual(operands[index], instruction.Operands[index] switch
+                {
+                    'V' => cue.Value,
+                    'E' => (ushort)cue.PreInstruction,
+                    _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
+                }, $"{at}: operand {index}");
+            });
+        Console.WriteLine($"  Chozo statue programs: {Entries.Length} programs ({steps} steps) match bank $AA.");
+    }
+}

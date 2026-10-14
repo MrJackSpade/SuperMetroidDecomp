@@ -14,18 +14,13 @@ internal static class ChozoStatueVisualDefinitions
     /// <summary>Distinct OAM compositions reached by the Lower Norfair and Wrecked Ship Chozo lists.</summary>
     internal const int FrameCount = 26;
 
-    /// <summary>Deduplicates the compiled visual selections in instruction order and requires the complete 26-frame set.</summary>
+    /// <summary>Deduplicates the frames the statues' programs show, in program order, and requires the complete 26-frame set.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var seen = new HashSet<ushort>();
         var frames = new List<EnemySpritemapDefinition>(FrameCount);
-        for (int index = 0;
-             index < ChozoStatueInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in ChozoStatueAnimations.Spritemaps(Enum.GetValues<ChozoStatueProgram>()))
         {
-            ushort operand = ChozoStatueInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            ushort pointer = FrameAt(operand);
             if (seen.Add(pointer))
                 frames.Add(new EnemySpritemapDefinition(Bank, pointer,
                     $"chozo_statue_aa_{pointer:x4}"));
@@ -34,20 +29,5 @@ internal static class ChozoStatueVisualDefinitions
             throw new InvalidDataException(
                 $"Chozo statue selects {frames.Count} distinct frames, expected {FrameCount}.");
         return frames.ToArray();
-    }
-
-    /// <summary>Resolves only a compiled presentation operand of the four native lists.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        for (int index = 0;
-             index < ChozoStatueInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-            if (ChozoStatueInstructionProgramDefinitions
-                    .PresentationWordAddress(index) == operandAddress &&
-                CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress,
-                    out ushort frame))
-                return frame;
-        throw new InvalidDataException(
-            $"Chozo statue visual operand $AA:{operandAddress:X4} is not compiled.");
     }
 }

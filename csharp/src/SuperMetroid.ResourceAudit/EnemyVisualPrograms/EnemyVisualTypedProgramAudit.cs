@@ -1,3 +1,9 @@
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;
+using SuperMetroid.Core.Enemies.MamaTurtles;
+using SuperMetroid.Core.Enemies.Magdollite.Artwork;
+using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.Yard.Artwork;
@@ -299,6 +305,12 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(YardAnimations), "csharp/src/SuperMetroid.Core/Enemies/Yard/YardAnimations.cs");
         RequireTypedFrames(KiHunterAnimations.Programs, KiHunterFrameDefinitions.Spritemap, KiHunterFrameDefinitions.Bank,
             nameof(KiHunterAnimations), "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAnimations.cs");
+        RequireTypedFrames(MagdolliteAnimations.Programs, MagdolliteFrameDefinitions.Spritemap, MagdolliteFrameDefinitions.Bank,
+            nameof(MagdolliteAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteAnimations.cs");
+        RequireTypedFrames(MamaTurtleAnimations.Programs, MamaTurtleFrameDefinitions.Spritemap, MamaTurtleFrameDefinitions.Bank,
+            nameof(MamaTurtleAnimations), "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/MamaTurtleAnimations.cs");
+        RequireTypedFrames(ChozoStatueAnimations.Programs, ChozoStatueFrameDefinitions.Spritemap, ChozoStatueFrameDefinitions.Bank,
+            nameof(ChozoStatueAnimations), "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

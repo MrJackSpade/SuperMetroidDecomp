@@ -26,7 +26,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             AssertEqual(ReadMagdolliteWord(rom, thresholdTable + phaseIndex * 2),
                 phase.DistanceThreshold, $"Magdollite threshold {phaseIndex}");
             AssertEqual(ReadMagdolliteWord(rom, instructionTable + phaseIndex * 2),
-                phase.BodyInstructionList, $"Magdollite body list {phaseIndex}");
+                NativeEnemyProgramOracle.EntryOf(MagdolliteNativeListAddresses.Entries, phase.BodyProgram), $"Magdollite body list {phaseIndex}");
             AssertEqual(ReadMagdolliteWord(rom, overlayOffsetTable + phaseIndex * 2),
                 phase.OverlayYOffset, $"Magdollite overlay offset {phaseIndex}");
         }
@@ -57,8 +57,8 @@ internal static class MagdollitePhaseDefinitionsVerification
         (headState ?? throw new InvalidOperationException("Verification requires headState.")).PositiveSpeedWhole = headState.PositiveSpeedFraction = 0;
         headState.NegativeSpeedWhole = headState.NegativeSpeedFraction = 0;
 
-        AssertEqual(MagdollitePhaseDefinitions.Phase(0).BodyInstructionList,
-            (bodyState ?? throw new InvalidOperationException("Verification requires bodyState.")).DesiredInstructionList, "Magdollite production initial body list");
+        AssertEqual(MagdollitePhaseDefinitions.Phase(0).BodyProgram,
+            (bodyState ?? throw new InvalidOperationException("Verification requires bodyState.")).DesiredProgram, "Magdollite production initial body list");
 
         for (int phaseIndex = 0; phaseIndex < 9; phaseIndex++)
         {
@@ -90,7 +90,7 @@ internal static class MagdollitePhaseDefinitionsVerification
                 MagdollitePhaseDefinition next = MagdollitePhaseDefinitions.Phase(phaseIndex + 1);
                 AssertEqual((ushort)((phaseIndex + 1) * 2), bodyState.BodyPhaseOffset,
                     $"Magdollite production rise phase {phaseIndex}");
-                AssertEqual(next.BodyInstructionList, bodyState.DesiredInstructionList,
+                AssertEqual(next.BodyProgram, bodyState.DesiredProgram,
                     $"Magdollite production rise list {phaseIndex}");
             }
             else
@@ -109,8 +109,8 @@ internal static class MagdollitePhaseDefinitionsVerification
             fall(body, bodyState);
             AssertEqual((ushort)(priorPhase * 2), bodyState.BodyPhaseOffset,
                 $"Magdollite production fall phase {priorPhase}");
-            AssertEqual(MagdollitePhaseDefinitions.Phase(priorPhase).BodyInstructionList,
-                bodyState.DesiredInstructionList,
+            AssertEqual(MagdollitePhaseDefinitions.Phase(priorPhase).BodyProgram,
+                bodyState.DesiredProgram,
                 $"Magdollite production fall list {priorPhase}");
         }
 

@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Enemies.Chozo.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -129,16 +131,14 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
 
         if (statue.Parameter2 == 0)
         {
-            statue.CurrentInstruction =
-                ChozoStatueInstructionProgramDefinitions.WreckedShipInitial;
+            state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipInitial);
             LoadChozoStatuePalette(wreckedShip: true);
             PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, new Position16<RoomBlocks>(0x4a, 0x17));
             PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, new Position16<RoomBlocks>(0x17, 0x1d));
         }
         else
         {
-            statue.CurrentInstruction =
-                ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial;
+            state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairInitial);
             LoadChozoStatuePalette(wreckedShip: false);
             PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, new Position16<RoomBlocks>(0x0c, 0x1d));
         }
@@ -214,8 +214,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             case ChozoStatuePreInstruction.WaitForLowerNorfairHandTrigger:
                 if (statue.Parameter1 != 0)
                 {
-                    statue.CurrentInstruction =
-                        ChozoStatueInstructionProgramDefinitions.LowerNorfairActivated;
+                    state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairActivated);
                     statue.InstructionTimer = NativeCountdown.Start(1);
                 }
                 return;
@@ -223,8 +222,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             case ChozoStatuePreInstruction.WaitForWreckedShipHandTrigger:
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && statue.Parameter1 != 0)
                 {
-                    statue.CurrentInstruction =
-                        ChozoStatueInstructionProgramDefinitions.WreckedShipActivated;
+                    state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipActivated);
                     statue.InstructionTimer = NativeCountdown.Start(1);
                     state.VariableA = unchecked((ushort)-256);
                     state.VariableB = 256;
@@ -237,34 +235,28 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Dispatches every callback reachable from lists $E39D/$E3A7/$E457/$E461.</summary>
-    private bool TryProcessChozoStatueInstruction(
+    /// <summary>
+    /// Carries out one cue of the Chozo statues' animations: every callback reachable from lists
+    /// $E39D/$E3A7/$E457/$E461. Every cue runs on to the next step, so none redirects.
+    /// </summary>
+    private ChozoStatueProgram? ApplyChozoStatueCue(
         RoomEnemySlot statue,
+        ChozoStatueCue cue,
         SamusState? samus,
-        RoomLevelData? level,
-        ushort opcode,
-        ref ushort cursor)
+        RoomLevelData? level)
     {
-        // The shared interpreter hands every remaining negative word here; only the
-        // statue's opcodes belong to this handler.
-        if (statue.EnemyDefinitionPointer != EnemyDefinitionId.Chozo ||
-            !Enum.IsDefined((ChozoStatueInstruction)opcode))
-            return false;
-
         ChozoStatueState state = RequireChozoStatueState(statue);
-        switch ((ChozoStatueInstruction)opcode)
+        switch (cue.Kind)
         {
-            case ChozoStatueInstruction.CommonAA_Enemy0FB2_InY:
-                state.PreInstruction = (ChozoStatuePreInstruction)ReadChozoInstructionOperand(cursor);
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
+            case ChozoStatueCueKind.SetPreInstruction:
+                state.PreInstruction = cue.PreInstruction;
+                return null;
 
-            case ChozoStatueInstruction.CommonAA3_SetEnemy0FB2ToRTS:
+            case ChozoStatueCueKind.ClearPreInstruction:
                 state.PreInstruction = ChozoStatuePreInstruction.Cleared;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return null;
 
-            case ChozoStatueInstruction.Chozo_StartLoweringAcid:
+            case ChozoStatueCueKind.StartLoweringAcid:
                 ChozoStatueFxTimer = ChozoStatueFxData.LoweringDelay;
                 ChozoStatueFxYVelocity = ChozoStatueFxData.LoweringVelocity;
                 // Native AI writes the same FX words consumed by the liquid handler.
@@ -272,66 +264,53 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
                 // diagnostic values, which would repeatedly reset the delay.
                 _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(
                     timer: ChozoStatueFxTimer, packedYVelocity: ChozoStatueFxYVelocity);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return null;
 
-            case ChozoStatueInstruction.Chozo_SetLoweredAcidPosition:
+            case ChozoStatueCueKind.SetLoweredAcidPosition:
                 ChozoStatueFxBaseYPosition = ChozoStatuePlmRomData.LoweredAcidY;
                 _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(baseYPosition: ChozoStatueFxBaseYPosition);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return null;
 
-            case ChozoStatueInstruction.Chozo_UnlockSamus:
+            case ChozoStatueCueKind.UnlockSamus:
                 SetChozoStatueSamusControls(enabled: true);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return null;
 
-            case ChozoStatueInstruction.Chozo_PlayChozoGrabsSamusSFX:
+            case ChozoStatueCueKind.PlayGrabSound:
                 LastChozoStatueSoundEffect = 0x001c;
                 _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
                     LastChozoStatueSoundEffect.Value), maximumQueued: 6);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return null;
 
-            case ChozoStatueInstruction.Chozo_PlayChozoFootstepsSFX:
+            case ChozoStatueCueKind.PlayFootstepSound:
                 LastChozoStatueSoundEffect = 0x004b;
                 _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
                     LastChozoStatueSoundEffect.Value), maximumQueued: 6);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return null;
 
-            case ChozoStatueInstruction.Chozo_SpawnChozoSpikeClearingFootstepProjectile:
+            case ChozoStatueCueKind.Footstep:
                 ProcessChozoStatueFootstep(
                     statue,
                     RequireChozoLevel(level),
-                    ReadChozoInstructionOperand(cursor));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
+                    cue.Value);
+                return null;
 
-            case ChozoStatueInstruction.Chozo_Movement_IndexInY:
+            case ChozoStatueCueKind.Move:
                 ProcessChozoStatueMovement(
                     statue,
                     state,
                     RequireChozoSamus(samus),
                     RequireChozoLevel(level),
-                    ReadChozoInstructionOperand(cursor));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
+                    cue.Value);
+                return null;
 
-            case ChozoStatueInstruction.Chozo_ReleaseSamus_BlockSlopeAccess:
+            case ChozoStatueCueKind.ReleaseSamus:
                 FinishWreckedShipChozoSequence();
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return null;
 
             default:
-                throw new InvalidOperationException($"Undefined Chozo statue instruction ${opcode:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(ChozoStatueCueKind)} {cue.Kind}.");
         }
     }
-
-    /// <summary>Reads the compiled bank-$AA mechanics word following a private statue opcode.</summary>
-    private static ushort ReadChozoInstructionOperand(ushort cursor) =>
-        ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(
-            unchecked((ushort)(cursor + 2)));
 
     /// <summary>Moves the statue through terrain, then places Samus at the authored carry offset from its accepted position.</summary>
     internal void ProcessChozoStatueMovement(
@@ -471,15 +450,19 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Routes statue-specific movement, sound, FX and PLM opcodes to their compiled handler.</summary>
-    internal void RegisterChozoStatueOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Chozo statues' animations as typed programs (#641).</summary>
+    internal void RegisterChozoStatueTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo, (slot, context) =>
         {
-            yieldInterpreter = false;
-            return TryProcessChozoStatueInstruction(slot, context.Samus, context.Level, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireChozoStatueState(slot);
+            AnimationProgramCursor<ChozoStatueProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, ChozoStatueAnimations.Programs, ref cursor, ChozoStatueFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level));
+            state.Program = cursor;
         });
-    }
+
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

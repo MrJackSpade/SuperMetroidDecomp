@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class ChozoStatueState
 
     /// <summary>Projects the Chozo controller's named variables over its physical room enemy slot.</summary>
     internal ChozoStatueState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<ChozoStatueProgram> Program { get; set; }
 
     /// <summary>Movement-table byte offset consumed by instruction $AA:E5D8.</summary>
     public ushort MovementTableOffset

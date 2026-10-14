@@ -331,9 +331,6 @@ internal sealed class EnemyInstructionInterpreter
     /// </summary>
     internal static ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo)
-            return ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid)
             return FakeKraidInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -354,16 +351,6 @@ internal sealed class EnemyInstructionInterpreter
             return NinjaSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(
                 address);
         }
-
-        if (slot.EnemyDefinitionPointer is
-            EnemyDefinitionId.MamaTurtle or
-            EnemyDefinitionId.BabyTurtle)
-        {
-            return MamaTurtleInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite)
-            return MagdolliteInstructionProgramDefinitions.ReadMechanicsWord(address);
 
 
         throw new InvalidDataException(

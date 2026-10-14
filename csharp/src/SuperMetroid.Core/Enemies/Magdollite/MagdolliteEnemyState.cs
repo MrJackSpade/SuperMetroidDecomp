@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
@@ -18,6 +19,9 @@ public sealed class MagdolliteEnemyState
         Part = part;
     }
 
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<MagdolliteProgram> Program { get; set; }
+
     /// <summary>The immutable head, arm, or hand role decoded from this physical enemy slot's population parameter one.</summary>
     public MagdollitePart Part { get; }
     /// <summary>Native variable F ($0FB2 plus the slot's byte index): the current bank-$A8 AI function pointer.</summary>
@@ -34,19 +38,11 @@ public sealed class MagdolliteEnemyState
         internal set => _slot.VariableB = value;
     }
 
-    /// <summary>Native variable C: last instruction list actually installed.</summary>
-    public ushort InstalledInstructionList
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
+    /// <summary>Native variable C: the program last installed; null until a part's initializer installs its first.</summary>
+    internal MagdolliteProgram? InstalledProgram { get; set; }
 
-    /// <summary>Native variable D: desired instruction list.</summary>
-    public ushort DesiredInstructionList
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
-    }
+    /// <summary>Native variable D: the program the part's AI wants shown.</summary>
+    internal MagdolliteProgram DesiredProgram { get; set; }
 
     /// <summary>Native variable E: signed whole-pixel displacement accumulated by the body.</summary>
     public ushort VerticalWholeDisplacement

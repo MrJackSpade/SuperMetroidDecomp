@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Enemies.MorphBallEye;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Input;
@@ -1759,7 +1760,7 @@ internal static class LookupStream5Verification
         {
             var actual = MagdollitePhaseDefinitions.Phase(index);
             AssertEqual(ReadVerificationWord(rom, 0xa8af55 + 2 * index), actual.DistanceThreshold, "Magdollite original rise threshold");
-            AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), actual.BodyInstructionList, "Magdollite original body program");
+            AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyProgramOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyProgram), "Magdollite original body program");
             AssertEqual(ReadVerificationWord(rom, 0xa8af79 + 2 * index), actual.OverlayYOffset, "Magdollite original overlay offset");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorInitializationDefinitions.For(7), "Ceres door upper bound");

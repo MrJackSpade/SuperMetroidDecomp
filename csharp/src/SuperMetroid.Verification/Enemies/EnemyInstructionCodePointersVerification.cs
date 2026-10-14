@@ -61,19 +61,13 @@ internal static class EnemyInstructionCodePointersVerification
         // reuse a common offset.
         Type[] ownerInstructionSets =
         [
-            typeof(ChozoStatueInstruction),
             typeof(FakeKraidInstruction),
-            typeof(MagdolliteInstruction),
-            typeof(MamaTurtleInstruction),
             typeof(SpacePirateInstruction),
         ];
         Type[] codeCatalogs =
         [
-            typeof(ChozoStatueInstruction),
             typeof(CommonEnemyInstruction),
             typeof(FakeKraidInstruction),
-            typeof(MagdolliteInstruction),
-            typeof(MamaTurtleInstruction),
             typeof(MotherBrainInstructionCodes),
             typeof(SpacePirateInstruction),
         ];

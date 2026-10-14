@@ -16,59 +16,12 @@ internal static class ChozoStatueInstructionProgramDefinitionsVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Compares 166 control words with ROM, rejects visual operands, and checks warmed lookup allocations.</summary>
+    /// <summary>Checks the statues' typed programs, cues and shown frames against the four cartridge lists.</summary>
     internal static void VerifyChozoStatueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        for (int index = 0;
-             index < ChozoStatueInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                ChozoStatueInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaa0000 | definition.Address)),
-                $"Chozo statue instruction mechanics word $AA:{definition.Address:X4}");
-        }
-
-        for (int index = 0;
-             index < ChozoStatueInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertThrows<InvalidDataException>(
-                () => ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(address),
-                $"Chozo statue spritemap $AA:{address:X4} is rejected as mechanics");
-        }
-
-        AssertThrows<InvalidDataException>(
-            () => ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(0xe429),
-            "adjacent Chozo callback code is rejected as instruction mechanics");
-
-        _ = ProbeChozoStatueInstructionMechanicsAllocation();
-        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeChozoStatueInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "Chozo statue allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - allocatedBefore,
-            "warmed Chozo statue mechanics lookups allocate no per-frame storage");
-
-        Console.WriteLine(
-            "Chozo statue instruction mechanics: 166 compiled words across four production " +
-            "programs; 52 spritemap selectors bind separately installed presentation data.");
-    }
-
-    /// <summary>Repeatedly resolves a production instruction word to expose per-lookup allocation.</summary>
-    private static int ProbeChozoStatueInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(
-                ChozoStatueInstructionProgramDefinitions.WreckedShipActivated);
-        }
-        return checksum;
+        Suite(nameof(ChozoStatueAnimationsVerification.VerifyChozoStatueAnimations), () => ChozoStatueAnimationsVerification.VerifyChozoStatueAnimations(rom));
+        Console.WriteLine("Chozo statue: idle and activation programs with their cues match the cartridge.");
     }
 
     /// <summary>Runs the focused Chozo statue instruction mechanics check.</summary>

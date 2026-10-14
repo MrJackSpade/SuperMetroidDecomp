@@ -13,16 +13,18 @@ internal static class MamaTurtleVisualDefinitions
     /// <summary>Twenty-nine selected Spritemap_BabyTurtle/MamaTurtle records at $A2:94D9..983F.</summary>
     internal const int FrameCount = 29;
 
-    /// <summary>Exports each distinct selected Tatori OAM composition once, preserving program reuse and requiring all 29 native frames.</summary>
+    /// <summary>
+    /// Exports each distinct OAM composition the turtles' programs show once, in the order the programs first show
+    /// it, requiring all 29 native frames.
+    /// </summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new List<EnemySpritemapDefinition>(FrameCount);
         var seen = new HashSet<ushort>();
-        for (int index = 0; index < MamaTurtleInstructionProgramDefinitions.PresentationWordCount; index++)
+        foreach (ushort pointer in MamaTurtleAnimations.Spritemaps(Enum.GetValues<MamaTurtleProgram>()))
         {
-            ushort pointer = FrameAt(MamaTurtleInstructionProgramDefinitions.PresentationWordAddress(index));
             // Crawling, shell and spinning programs reuse native compositions.
-            // Export each actual selection once, leaving repetitions in mechanics.
+            // Export each actual selection once, leaving repetitions in the programs.
             if (seen.Add(pointer))
                 frames.Add(new(Bank, pointer, $"tatori_{frames.Count:D2}"));
         }
@@ -30,19 +32,5 @@ internal static class MamaTurtleVisualDefinitions
             throw new InvalidDataException(
                 $"Tatori programs select {frames.Count} distinct OAM frames, expected {FrameCount}.");
         return [.. frames];
-    }
-
-    /// <summary>Resolves a compiled Mama/Baby Turtle visual operand to its bank-$A2 OAM pointer and rejects unowned addresses.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        for (int index = 0; index < MamaTurtleInstructionProgramDefinitions.PresentationWordCount; index++)
-        {
-            if (operandAddress != MamaTurtleInstructionProgramDefinitions.PresentationWordAddress(index))
-                continue;
-            if (CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress, out ushort pointer))
-                return pointer;
-            break;
-        }
-        throw new InvalidDataException($"Tatori visual operand $A2:{operandAddress:X4} is not compiled.");
     }
 }

@@ -74,14 +74,11 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(MagdolliteInstruction),
             typeof(MamaTurtleInstruction),
             typeof(MaridiaLargeSnailInstruction),
-            typeof(MetareeInstruction),
             typeof(MetroidInstruction),
             typeof(NorfairRioInstruction),
             typeof(PlatformInstruction),
             typeof(RinkaInstruction),
             typeof(ShaktoolInstruction),
-            typeof(SkreeInstruction),
-            typeof(SkulteraInstruction),
             typeof(SpacePirateInstruction),
             typeof(SparkInstruction),
             typeof(WorkRobotInstruction),
@@ -102,7 +99,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(KiHunterInstruction),
             typeof(MagdolliteInstruction),
             typeof(MamaTurtleInstruction),
-            typeof(MetareeInstruction),
             typeof(MetroidInstruction),
             typeof(MotherBrainInstructionCodes),
             typeof(NorfairRioInstruction),
@@ -110,8 +106,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(RinkaInstruction),
             typeof(RioInstructionCodes),
             typeof(ShaktoolInstruction),
-            typeof(SkreeInstruction),
-            typeof(SkulteraInstruction),
             typeof(SpacePirateInstruction),
             typeof(SparkInstruction),
             typeof(WorkRobotInstruction),
@@ -130,46 +124,7 @@ internal static class EnemyInstructionCodePointersVerification
             }
         }
 
-        (Type Catalog, byte Bank)[] bankLocalCatalogs =
-        [
-            (typeof(OrdinaryEnemyInstructionLists), 0xa3),
-        ];
-        foreach ((Type catalog, _) in bankLocalCatalogs)
-            AssertUniqueMappedInstructionPointers(catalog);
-
-        string romPath = Path.GetFullPath("Super Metroid.smc");
-        if (!File.Exists(romPath))
-        {
-            Console.WriteLine(
-                $"  Enemy instructions: {codeCatalogs.Length + bankLocalCatalogs.Length} " +
-                "catalogs are structurally valid; retail ROM reads skipped (private input absent).");
-            return;
-        }
-
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        int readableEntries = ReadEveryBankLocalInstructionPointer(bus, bankLocalCatalogs);
-
-        Console.WriteLine(
-            $"  Enemy instructions: {codeCatalogs.Length + bankLocalCatalogs.Length} " +
-            $"unique catalogs and {readableEntries} bank-local ROM entries verified.");
-    }
-
-    /// <summary>Reads each named bank-local instruction pointer from the retail cartridge and counts them.</summary>
-    [CpuBusBoundary("exact bus test: proves every bank-local enemy instruction catalog pointer maps to readable retail cartridge ROM")]
-    private static int ReadEveryBankLocalInstructionPointer(
-        SuperMetroidAddressSpace bus, (Type Catalog, byte Bank)[] bankLocalCatalogs)
-    {
-        int readableEntries = 0;
-        foreach ((Type catalog, byte bank) in bankLocalCatalogs)
-        {
-            foreach (FieldInfo field in GetUshortConstants(catalog))
-            {
-                ushort pointer = field.RequiredConstant<ushort>();
-                _ = bus.ReadCartridgeByte(((int)new SnesAddress(bank, pointer)));
-                readableEntries++;
-            }
-        }
-        return readableEntries;
+        Console.WriteLine($"  Enemy instructions: {codeCatalogs.Length} unique catalogs verified.");
     }
 
     /// <summary>Requires each catalog's ushort instruction constants to be distinct mapped-bank offsets.</summary>

@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Samus;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
@@ -59,9 +61,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         {
             // Parameter one bit zero is a fixed mounting direction, not a live facing test.
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
-            slot.CurrentInstruction = (slot.Parameter1 & 1) == 0
-                ? MorphBallEyeInstructionProgramDefinitions.FacingRightClosed
-                : MorphBallEyeInstructionProgramDefinitions.FacingLeftClosed;
+            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((slot.Parameter1 & 1) == 0
+                ? MorphBallEyeProgram.FacingRightClosed
+                : MorphBallEyeProgram.FacingLeftClosed);
             return;
         }
 
@@ -69,7 +71,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         var mount = MorphBallEyeGeometryDefinitions.Mount(mountDirection);
         slot.Position += new Offset16<RoomPixels>(unchecked((short)(mount.X)), unchecked((short)(mount.Y)));
         state.Function = MorphBallEyeAiFunction.MountNoOp;
-        slot.CurrentInstruction = mount.Program;
+        state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(mount.Program);
 
         // Native clears all 256 window endpoint words from the mount initializer. Host
         // geometry is generated from BeamState, so resetting that state is the equivalent
@@ -124,9 +126,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
 
         state.FunctionTimer = NativeCountdown.Start(EyeTransitionDuration);
         eye.InstructionTimer = NativeCountdown.Start(1);
-        eye.CurrentInstruction = (eye.Parameter1 & 1) == 0
-            ? MorphBallEyeInstructionProgramDefinitions.FacingRightActivating
-            : MorphBallEyeInstructionProgramDefinitions.FacingLeftActivating;
+        state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((eye.Parameter1 & 1) == 0
+            ? MorphBallEyeProgram.FacingRightActivating
+            : MorphBallEyeProgram.FacingLeftActivating);
         state.Function = MorphBallEyeAiFunction.Activating;
     }
 
@@ -163,9 +165,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
             LastMorphBallEyeSoundEffect = EyeDeactivationSound;
             state.ActivatedFlag = 0;
             state.FunctionTimer = NativeCountdown.Start(EyeTransitionDuration);
-            eye.CurrentInstruction = (eye.Parameter1 & 1) == 0
-                ? MorphBallEyeInstructionProgramDefinitions.FacingRightDeactivating
-                : MorphBallEyeInstructionProgramDefinitions.FacingLeftDeactivating;
+            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((eye.Parameter1 & 1) == 0
+                ? MorphBallEyeProgram.FacingRightDeactivating
+                : MorphBallEyeProgram.FacingLeftDeactivating);
             state.Function = MorphBallEyeAiFunction.Deactivating;
             eye.InstructionTimer = NativeCountdown.Start(1);
             return;
@@ -173,11 +175,10 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
 
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
 
-        // Sixteen four-byte duration/map records begin at $8FAC. The high angle nibble is
-        // shifted down by two, producing byte offsets $00,$04,...,$3C exactly as native.
-        eye.CurrentInstruction = unchecked((ushort)(
-            MorphBallEyeInstructionProgramDefinitions.Active +
-            ((state.Angle.TableIndex & 0x00f0) >> 2)));
+        // The native pointer is $8FAC plus the high angle nibble shifted down by two, one four-byte record per
+        // pose: the tracking loop resumes at the pose that nibble selects.
+        state.Program = new AnimationProgramCursor<MorphBallEyeProgram>(MorphBallEyeProgram.Active,
+            (state.Angle.TableIndex & 0x00f0) >> 4);
         eye.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -335,6 +336,19 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
     private MorphBallEyeEnemyState RequireMorphBallEyeState(RoomEnemySlot slot) =>
         _morphBallEyeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Morph-ball eye slot {slot.SlotIndex} has no initialized native state.");
+
+    /// <summary>Runs the Morph Ball eye's tracking, eyelid and mount animations as typed programs (#641).</summary>
+    internal void RegisterMorphBallEyeTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Eye, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireMorphBallEyeState(slot);
+            AnimationProgramCursor<MorphBallEyeProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, MorphBallEyeAnimations.Programs, ref cursor, MorphBallEyeFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
+
 
     /// <summary>Binds eye body/mount setup to the Eye enemy-definition ID.</summary>
     internal void RegisterMorphBallEyeInitializationAi(EnemyAiTable table)

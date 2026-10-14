@@ -8,12 +8,12 @@ internal static class MorphBallEyeGeometryDefinitions
     /// Parameter two's low nibble names left, right, up or down; the mount is one tile
     /// from the eye center along that direction.
     /// </summary>
-    internal static (short X, short Y, ushort Program) Mount(int direction) => direction switch
+    internal static (short X, short Y, MorphBallEyeProgram Program) Mount(int direction) => direction switch
     {
-        0 => (-8, 0, MorphBallEyeInstructionProgramDefinitions.MountFacingLeft),
-        1 => (8, 0, MorphBallEyeInstructionProgramDefinitions.MountFacingRight),
-        2 => (0, -8, MorphBallEyeInstructionProgramDefinitions.MountFacingUp),
-        3 => (0, 8, MorphBallEyeInstructionProgramDefinitions.MountFacingDown),
+        0 => (-8, 0, MorphBallEyeProgram.MountFacingLeft),
+        1 => (8, 0, MorphBallEyeProgram.MountFacingRight),
+        2 => (0, -8, MorphBallEyeProgram.MountFacingUp),
+        3 => (0, 8, MorphBallEyeProgram.MountFacingDown),
         _ => throw new InvalidDataException($"Morph-ball eye mount direction {direction} exceeds its four directions."),
     };
 

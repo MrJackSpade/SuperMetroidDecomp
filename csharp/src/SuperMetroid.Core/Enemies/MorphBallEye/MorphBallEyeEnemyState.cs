@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
@@ -11,6 +12,9 @@ public sealed class MorphBallEyeEnemyState
 
     /// <summary>Projects the eye's typed state over an existing enemy slot.</summary>
     internal MorphBallEyeEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<MorphBallEyeProgram> Program { get; set; }
 
     /// <summary>
     /// Native <c>Eye.activatedFlag</c> in variable C. The bank-$88 beam object sets this

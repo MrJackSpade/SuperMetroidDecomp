@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>
@@ -36,6 +37,9 @@ public sealed class SkulteraEnemyState
         _previousYOffsets = previousYOffsets;
         _currentYOffsets = currentYOffsets;
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<SkulteraProgram> Program { get; set; }
 
     /// <summary>Direct bank-$A3 state-function pointer dispatched by main AI.</summary>
     public SkulteraEnemyFunction Function

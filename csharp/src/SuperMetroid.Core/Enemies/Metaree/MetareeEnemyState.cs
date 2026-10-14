@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Skree;
 
 namespace SuperMetroid.Core.Enemies.Metaree;
@@ -14,6 +15,9 @@ public sealed class MetareeEnemyState
 
     /// <summary>Projects Metaree's six private words from its occupied enemy slot.</summary>
     internal MetareeEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<SkreeMetareeProgram> Program { get; set; }
 
     /// <summary>Reloaded to 21 during flight, then counted down while underground.</summary>
     public NativeCountdown BurrowTimer

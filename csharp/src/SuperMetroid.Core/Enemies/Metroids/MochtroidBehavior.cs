@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Metroids.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 
@@ -45,14 +47,14 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         // retained. Ordinary room loads start clean and therefore take the safe path.
         var state = new MochtroidEnemyState(slot)
         {
-            InstalledInstructionList = 0,
+            InstalledProgram = null,
             AttachmentDamageTimer = 0,
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
         _mochtroidStates[slot.SlotIndex] = state;
         slot.Layer = 2;
-        SetMochtroidInstructionList(
-            slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
+        SetMochtroidProgram(
+            slot, state, MochtroidProgram.FreeFlight);
     }
 
     /// <summary>Ports the reset-before-dispatch behavior of <c>MainAI_Mochtroid</c>.</summary>
@@ -113,8 +115,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
             StoreMochtroidXVelocity(state, 0);
 
-        SetMochtroidInstructionList(
-            slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
+        SetMochtroidProgram(
+            slot, state, MochtroidProgram.FreeFlight);
     }
 
     /// <summary>Caps a signed 16.16 velocity by its whole-pixel component at three pixels.</summary>
@@ -166,8 +168,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         state.ShakeTimer = state.ShakeTimer.Decrement().Remaining;
         if (state.ShakeTimer.IsZero)
             state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
-        SetMochtroidInstructionList(
-            slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
+        SetMochtroidProgram(
+            slot, state, MochtroidProgram.FreeFlight);
     }
 
     /// <summary>Stores the current raw 16.16 horizontal velocity in the species state.</summary>
@@ -182,16 +184,16 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromRaw(velocity));
     }
 
-    /// <summary>Installs a changed flight or attachment list and restarts its instruction timers.</summary>
-    internal static void SetMochtroidInstructionList(
+    /// <summary>Installs a changed flight or attachment animation and restarts its instruction timers.</summary>
+    internal static void SetMochtroidProgram(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
-        ushort instructionList)
+        MochtroidProgram program)
     {
-        if (state.InstalledInstructionList == instructionList)
+        if (state.InstalledProgram == program)
             return;
-        state.InstalledInstructionList = instructionList;
-        slot.CurrentInstruction = instructionList;
+        state.InstalledProgram = program;
+        state.Program = AnimationProgramCursor<MochtroidProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -203,8 +205,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         SamusState samus)
     {
         state.MovementMode = MochtroidMovementMode.TouchingSamus;
-        SetMochtroidInstructionList(
-            slot, state, MochtroidInstructionProgramDefinitions.Attached);
+        SetMochtroidProgram(
+            slot, state, MochtroidProgram.Attached);
         state.AttachmentDamageTimer = unchecked((ushort)(state.AttachmentDamageTimer + 1));
 
         bool applyCommonTouch = samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
@@ -259,6 +261,19 @@ internal sealed class MochtroidBehavior : IEnemySpecies
     private MochtroidEnemyState RequireMochtroidState(RoomEnemySlot slot) =>
         _mochtroidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Mochtroid state.");
+
+    /// <summary>Runs Mochtroid's flight and attached pulse loops as typed programs (#641).</summary>
+    internal void RegisterMochtroidTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireMochtroidState(slot);
+            AnimationProgramCursor<MochtroidProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, MochtroidAnimations.Programs, ref cursor, MochtroidFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
+
 
     /// <summary>Registers the guarded native Mochtroid initialization routine.</summary>
     internal void RegisterMochtroidInitializationAi(EnemyAiTable table)

@@ -120,11 +120,8 @@ csharp/src/SuperMetroid.Core/Enemies/Metaree/MetareeBehavior.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidBehavior.cs	SME6340	18
 csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidBehavior.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeBeamState.cs	SME6340	6
 csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeBehavior.cs	SME6340	22
-csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeBehavior.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeInstructionProgramDefinitions.cs	SME6341	9
 csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleProjectileInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchBehavior.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Enemies/PipeBugs/PipeBugsBehavior.cs	SME6340	4
@@ -488,9 +485,6 @@ csharp/src/SuperMetroid.Tooling/Core/Enemies/MamaTurtles/MamaTurtleInstructionPr
 csharp/src/SuperMetroid.Tooling/Core/Enemies/MamaTurtles/MamaTurtleInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Metroids/MetroidInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Metroids/MetroidInstructionProgramDefinitionsTooling.cs	SME6341	3
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Metroids/MochtroidInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Metroids/MochtroidInstructionProgramDefinitionsTooling.cs	SME6341	3
-csharp/src/SuperMetroid.Tooling/Core/Enemies/MorphBallEye/MorphBallEyeInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Nuclear/NuclearWaffleProjectileInstructionProgramDefinitionsTooling.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Platforms/PlatformInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Platforms/PlatformInstructionProgramDefinitionsTooling.cs	SME6341	3
@@ -509,9 +503,7 @@ csharp/src/SuperMetroid.Tooling/Core/Enemies/Shaktool/ShaktoolInstructionProgram
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Shaktool/ShaktoolInstructionProgramDefinitionsTooling.cs	SME6341	4
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Shaktool/ShaktoolProjectileInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Shaktool/ShaktoolProjectileInstructionProgramDefinitionsTooling.cs	SME6341	4
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Skree/SkreeMetareeInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Skree/SkreeMetareeParticleInstructionProgramDefinitionsTooling.cs	SME6341	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Skultera/SkulteraInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/SpacePirates/NinjaSpacePirateInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/SpacePirates/SpacePirateProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/SpacePirates/WalkingSpacePirateInstructionProgramDefinitionsTooling.cs	SME6340	1
@@ -892,7 +884,7 @@ csharp/src/SuperMetroid.Verification/Enemies/Artwork/EmptyExtendedFrameShotsVeri
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkCommonEmptyVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification.cs	SME6340	22
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkVerification.cs	SME6340	337
-csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6340	194
+csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6340	191
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkBabyMetroidCutsceneColorsVerification.cs	SME6340	2
@@ -996,7 +988,7 @@ csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerif
 csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerification.cs	SME6345	2
 csharp/src/SuperMetroid.Verification/Enemies/EnemyGameplayAcceptanceVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs	SME6340	2
+csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionOwnerCoverageVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/EnemyLinearSpeedsVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Enemies/EnemyMathReferenceData.cs	SME6340	6
@@ -1061,8 +1053,6 @@ csharp/src/SuperMetroid.Verification/Enemies/Metroids/MetroidBehaviorDefinitions
 csharp/src/SuperMetroid.Verification/Enemies/Metroids/MetroidBombPlacementVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Enemies/Metroids/MetroidDeathDropsVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Enemies/Metroids/MetroidInstructionProgramDefinitionsVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Enemies/Metroids/MochtroidInstructionProgramDefinitionsVerification.cs	SME6340	4
-csharp/src/SuperMetroid.Verification/Enemies/MorphBallEye/MorphBallEyeInstructionProgramDefinitionsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/Nuclear/NuclearWaffleDefinitionsVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Enemies/Nuclear/NuclearWaffleProjectileInstructionProgramDefinitionsVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Enemies/Nuclear/NuclearWaffleProjectileInstructionProgramDefinitionsVerification.cs	SME6341	1
@@ -1103,11 +1093,9 @@ csharp/src/SuperMetroid.Verification/Enemies/ShotCallbackDefinitionsVerification
 csharp/src/SuperMetroid.Verification/Enemies/Shutters/GrowingShutterDefinitionsVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Enemies/Shutters/GrowingShutterDefinitionsVerification.cs	SME6345	3
 csharp/src/SuperMetroid.Verification/Enemies/Shutters/ShutterRidingVerification.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeAnimationDefinitionsVerification.cs	SME6340	15
-csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeInstructionProgramDefinitionsVerification.cs	SME6340	10
+csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeAnimationDefinitionsVerification.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeParticleInstructionProgramDefinitionsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeParticleInstructionProgramDefinitionsVerification.cs	SME6341	2
-csharp/src/SuperMetroid.Verification/Enemies/Skultera/SkulteraInstructionProgramDefinitionsVerification.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Enemies/SpacePirates/GoldNinjaDeathDropsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/SpacePirates/NinjaSpacePirateInstructionProgramDefinitionsVerification.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Enemies/SpacePirates/NinjaSpacePiratePaletteArtworkVerification.cs	SME6340	7
@@ -1449,7 +1437,7 @@ csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME634
 csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME6340	210
 csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME6342	3
-csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6340	344
+csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6340	338
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6342	9
 csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6340	538
@@ -1901,7 +1889,6 @@ csharp/test-support/VerificationAccess.Core/Enemies/EnemyRomTablePointersTorizo.
 csharp/test-support/VerificationAccess.Core/Enemies/Magdollite/MagdollitePhaseDefinitionsAccess.cs	SME6340	1
 csharp/test-support/VerificationAccess.Core/Enemies/MamaTurtles/MamaTurtleEnemyDefinitionCatalogAccess.cs	SME6340	64
 csharp/test-support/VerificationAccess.Core/Enemies/Projectiles/EnemyProjectileInstructionMechanicsDefinitionsAccess.cs	SME6341	3
-csharp/test-support/VerificationAccess.Core/Enemies/Skree/SkreeMetareeInstructionProgramDefinitionsAccess.cs	SME6340	1
 csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresExplosionDefinitionsAccess.cs	SME6340	1
 csharp/test-support/VerificationAccess.Core/Frontend/Intro/CinematicCodePointersIndirectData.cs	SME6340	7
 csharp/test-support/VerificationAccess.Core/Frontend/Pause/PauseMenuStateAccess.cs	SME6340	1

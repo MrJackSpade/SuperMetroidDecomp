@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Skultera;
+using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Stoke;
@@ -26,7 +28,6 @@ using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.LowerNorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MochtroidVisualsVerification;
-using static SuperMetroid.Verification.Enemies.MorphBallEye.MorphBallEyeInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.NativeEnemyVisualSelectorsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.NorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoInstructionProgramDefinitionsVerification;
@@ -630,23 +631,9 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyInstalledChootInstructionFrames), () => VerifyInstalledChootInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledHZoomerInstructionFrames), () => VerifyInstalledHZoomerInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(stock));
-        for (int index = 0;
-             index < MorphBallEyeInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = MorphBallEyeInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Eye, operand,
-                    out ushort selected),
-                $"Morph Ball eye visual operand $A8:{operand:X4} is compiled");
-            AssertEqual(ReadMorphBallEyeInstructionWord(rom, operand), selected,
-                $"Morph Ball eye selector $A8:{operand:X4} matches the cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => MorphBallEyeVisualDefinitions.FrameAt(
-                MorphBallEyeInstructionProgramDefinitions.AdjacentProximityDefinitions),
-            "eye visual selector rejects adjacent proximity definitions");
+        AssertTrue(MorphBallEyeVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(
+                MorphBallEyeAnimations.Spritemaps(Enum.GetValues<MorphBallEyeProgram>())),
+            "the installed Morph Ball eye frames are exactly the poses its programs show");
         for (int index = 0;
              index < MetroidInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
@@ -1696,8 +1683,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(unchecked((byte)(stockFaceBlock.LowTable[0] + 1)),
             editedFaceBlock.LowTable[0],
             "face-block authored offset changes installed presentation");
-        ushort morphEyePointer = MorphBallEyeVisualDefinitions.FrameAt(
-            MorphBallEyeInstructionProgramDefinitions.PresentationWordAddress(34));
+        ushort morphEyePointer = MorphBallEyeAnimations.Spritemaps(MorphBallEyeProgram.MountFacingLeft).Single();
         OamBuffer stockMorphEye = DrawEnemy(stock, NewFrameReadGuard(rom),
             morphEyePointer, EnemyDefinitionId.Eye);
         OamBuffer editedMorphEye = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1886,7 +1872,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Atomic Y offset changes live room OAM");
         AssertEqual(stockAtomic.LowTable[0], editedAtomic.LowTable[0],
             "Atomic visual override leaves X unchanged");
-        ushort skulteraPointer = EnemySpritemapDefinitions.SkulteraFrameAt(0x902e);
+        ushort skulteraPointer = SkulteraAnimations.Spritemaps(SkulteraProgram.SwimmingLeftLoop).First();
         var stockSkultera = DrawEnemy(stock, NewFrameReadGuard(rom),
             skulteraPointer, EnemyDefinitionId.Skultera);
         var editedSkultera = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1910,9 +1896,9 @@ internal static class EnemySpritemapArtworkVerification
                  {
                      (ZoaAnimations.Spritemaps(ZoaProgram.FacingLeftShooting).First(),
                          EnemyDefinitionId.Zoa, "Zoa"),
-                     (EnemySpritemapDefinitions.SkreeMetareeFrameAt(true, 0x8912),
+                     (SkreeMetareeAnimations.Spritemaps(SkreeMetareeProgram.MetareeIdling).First(),
                          EnemyDefinitionId.Metaree, "Metaree"),
-                     (EnemySpritemapDefinitions.SkreeMetareeFrameAt(false, 0xc660),
+                     (SkreeMetareeAnimations.Spritemaps(SkreeMetareeProgram.SkreeIdling).First(),
                          EnemyDefinitionId.Skree, "Skree"),
                  })
         {

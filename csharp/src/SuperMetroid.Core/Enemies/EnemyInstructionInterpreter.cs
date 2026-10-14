@@ -392,15 +392,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon)
             return BoyonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Skultera)
-            return SkulteraInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Metaree)
-            return SkreeMetareeInstructionProgramDefinitions.ReadMetareeMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Skree)
-            return SkreeMetareeInstructionProgramDefinitions.ReadSkreeMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite)
             return MagdolliteInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -428,9 +419,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon)
             return EtecoonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid)
-            return MochtroidInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (PlatformsBehavior.IsPlatformDefinition(slot.EnemyDefinitionPointer))
             return PlatformInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -439,9 +427,6 @@ internal sealed class EnemyInstructionInterpreter
 
         if (slot.EnemyDefinitionPointer is EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile)
             return EvirInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Eye)
-            return MorphBallEyeInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw)
             return YappingMawInstructionProgramDefinitions.ReadMechanicsWord(address);

@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Skree.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -19,26 +21,26 @@ internal sealed class MetareeBehavior : IEnemySpecies
         _projectiles = projectiles;
     }
 
-    /// <summary>Publishes attack readiness at the end of the preparation list; main AI consumes it on the following enemy frame.</summary>
-    private bool TryProcessMetareeInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of Metaree's animations: the wind-up's attack-ready flag and the dive's off-screen processing.</summary>
+    private static SkreeMetareeProgram? ApplyMetareeCue(RoomEnemySlot slot, MetareeEnemyState state, SkreeMetareeCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Metaree ||
-            !Enum.IsDefined((MetareeInstruction)word))
-            return false;
-
-        switch ((MetareeInstruction)word)
+        switch (cue.Kind)
         {
-            case MetareeInstruction.SetAttackReadyFlag:
-                // The preparation list sleeps immediately after publishing this flag.
-                // Main AI consumes it on the following enemy frame and installs the
-                // launched list, exactly matching the native instruction/AI hand-off.
-                RequireMetareeState(slot).AttackReady = true;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+            case SkreeMetareeCueKind.SetAttackReady:
+                // The wind-up sleeps immediately after publishing this flag. Main AI consumes it on the following
+                // enemy frame and starts the dive, exactly matching the native instruction/AI hand-off.
+                state.AttackReady = true;
+                break;
+            case SkreeMetareeCueKind.ProcessOffScreen:
+                slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
+                break;
+            case SkreeMetareeCueKind.StopProcessingOffScreen:
+                slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Metaree does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(SkreeMetareeCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Maximum strict horizontal separation for starting a dive, regardless of Samus's vertical side.</summary>
@@ -71,11 +73,10 @@ internal sealed class MetareeBehavior : IEnemySpecies
             YVelocity = 0,
         };
 
-        // The initializer writes the idle pointer directly rather than going through the
-        // change detector, because both requested and installed indexes intentionally start
-        // at zero. InitializeEnemies clears the immediate map afterward; frame one restores
-        // it from this real ROM list through the common instruction interpreter.
-        slot.CurrentInstruction = OrdinaryEnemyInstructionLists.MetareeInitial;
+        // The initializer starts the idle animation directly rather than going through the change detector,
+        // because both requested and installed indexes intentionally start at zero.
+        (_metareeStates[slot.SlotIndex] ?? throw new InvalidOperationException("The Metaree state was not stored.")).Program =
+            AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.MetareeIdling);
     }
 
     /// <summary>Dispatches idle, attack preparation, airborne dive, and burrow phases with required Samus and room data.</summary>
@@ -231,8 +232,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
             return;
 
         state.InstalledInstructionListIndex = requested;
-        slot.CurrentInstruction =
-            SkreeMetareeAnimationDefinitions.MetareeInstructionList(requested);
+        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeAnimationDefinitions.MetareeProgram(requested));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -262,15 +262,19 @@ internal sealed class MetareeBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims the preparation-list ready instruction for Metaree slots and leaves other instructions to the shared interpreter.</summary>
-    internal void RegisterMetareeOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Metaree's animations as typed programs (#641).</summary>
+    internal void RegisterMetareeTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metaree, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessMetareeInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireMetareeState(slot);
+            AnimationProgramCursor<SkreeMetareeProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyMetareeCue(slot, state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Last library-two Metaree dive ($5B) or floor-impact ($5C) sound this enemy pass, using the Max6 queue entry; cleared before the next pass.</summary>
     public ushort? LastMetareeSoundEffect { get; private set; }

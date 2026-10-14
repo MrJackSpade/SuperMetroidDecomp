@@ -23,33 +23,33 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 31838,
-    "PointerDispatch": 708,
+    "RawHexLiteral": 31791,
+    "PointerDispatch": 693,
     "OpaqueWordArray": 1055,
-    "CatalogHexLiteral": 97249,
+    "CatalogHexLiteral": 97287,
     "JustifiedHexLiteral": 148,
     "RawWidthOperation": 44,
     "OwnedWidthOperation": 72,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 19,
-    "class:NumericQuantity": 54623,
-    "class:DomainIdentity": 7475,
-    "class:ComposableBits": 1460,
-    "class:StructuredInstruction": 43494,
-    "class:CartridgeAddress": 23232,
-    "class:Unknown": 855,
-    "storageWidthMembers": 1543
+    "class:NumericQuantity": 54618,
+    "class:DomainIdentity": 7503,
+    "class:ComposableBits": 1459,
+    "class:StructuredInstruction": 43492,
+    "class:CartridgeAddress": 23192,
+    "class:Unknown": 851,
+    "storageWidthMembers": 1542
   },
   "subsystems": [
     {
       "name": "Asset catalogs and decoders",
       "totals": {
-        "CatalogHexLiteral": 9647,
+        "CatalogHexLiteral": 9677,
         "JustifiedHexLiteral": 5,
         "OwnedWidthOperation": 2,
-        "class:NumericQuantity": 497,
-        "class:DomainIdentity": 683,
+        "class:NumericQuantity": 499,
+        "class:DomainIdentity": 711,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 8380,
         "class:Unknown": 73,
@@ -349,9 +349,8 @@
           "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 333,
+            "CatalogHexLiteral": 301,
             "class:NumericQuantity": 32,
-            "class:DomainIdentity": 32,
             "class:CartridgeAddress": 265,
             "class:Unknown": 4
           }
@@ -433,8 +432,8 @@
           "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/MochtroidVisualDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 5,
-            "class:NumericQuantity": 5
+            "CatalogHexLiteral": 3,
+            "class:NumericQuantity": 3
           }
         },
         {
@@ -752,6 +751,24 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Metroids/Artwork/MochtroidFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 7,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 6
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/Artwork/MorphBallEyeFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 23,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 22
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Nuclear/Artwork/NuclearWaffleFrameDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -812,6 +829,24 @@
             "CatalogHexLiteral": 10,
             "class:NumericQuantity": 1,
             "class:DomainIdentity": 9
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Skree/Artwork/SkreeMetareeFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 11,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 10
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Skultera/Artwork/SkulteraFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 23,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 22
           }
         },
         {
@@ -5446,19 +5481,19 @@
       "name": "Enemies: regular AI and instruction programs",
       "totals": {
         "RawHexLiteral": 660,
-        "PointerDispatch": 211,
+        "PointerDispatch": 199,
         "OpaqueWordArray": 5,
-        "CatalogHexLiteral": 21204,
+        "CatalogHexLiteral": 21172,
         "JustifiedHexLiteral": 1,
         "OwnedWidthOperation": 12,
         "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 17614,
+        "class:NumericQuantity": 17587,
         "class:DomainIdentity": 85,
         "class:ComposableBits": 209,
         "class:StructuredInstruction": 488,
-        "class:CartridgeAddress": 3656,
+        "class:CartridgeAddress": 3639,
         "class:Unknown": 47,
-        "storageWidthMembers": 484
+        "storageWidthMembers": 483
       },
       "addressInterpretingTypes": [
         "AlcoonFireballInstructionProgramDefinitions",
@@ -5483,9 +5518,6 @@
         "MagdollitePhaseDefinitions",
         "MamaTurtleInstructionProgramDefinitions",
         "MetroidInstructionProgramDefinitions",
-        "MochtroidInstructionProgramDefinitions",
-        "MorphBallEyeBehavior",
-        "MorphBallEyeInstructionProgramDefinitions",
         "NorfairRioBehavior",
         "NorfairRioInstructionProgramDefinitions",
         "NuclearWaffleProjectileInstructionProgramDefinitions",
@@ -7479,14 +7511,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Metaree/MetareeInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -7543,17 +7567,7 @@
           "path": "csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidEnemyState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "storageWidthMembers": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 2,
-            "CatalogHexLiteral": 2,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 2
+            "storageWidthMembers": 1
           }
         },
         {
@@ -7578,11 +7592,10 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 22,
-            "PointerDispatch": 1,
             "class:NumericQuantity": 13,
             "class:DomainIdentity": 4,
             "class:ComposableBits": 4,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -7598,16 +7611,6 @@
           "totals": {
             "CatalogHexLiteral": 2,
             "class:ComposableBits": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 9,
-            "CatalogHexLiteral": 11,
-            "class:NumericQuantity": 11,
-            "class:CartridgeAddress": 9
           }
         },
         {
@@ -7641,14 +7644,6 @@
             "CatalogHexLiteral": 1,
             "class:NumericQuantity": 1,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/OrdinaryEnemyInstructionLists.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 2,
-            "class:NumericQuantity": 2
           }
         },
         {
@@ -8318,22 +8313,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeMetareeInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 8,
-            "class:NumericQuantity": 8
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeMetareeParticleInstructionProgramDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -8356,22 +8335,6 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "storageWidthMembers": 9
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Skultera/SkulteraInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 3,
-            "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Skultera/SkulteraInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 4,
-            "class:NumericQuantity": 4
           }
         },
         {
@@ -9137,20 +9100,20 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 30210,
-        "PointerDispatch": 248,
+        "RawHexLiteral": 30163,
+        "PointerDispatch": 245,
         "OpaqueWordArray": 924,
-        "CatalogHexLiteral": 1814,
+        "CatalogHexLiteral": 1854,
         "RawWidthOperation": 44,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 10887,
+        "class:NumericQuantity": 10907,
         "class:DomainIdentity": 569,
-        "class:ComposableBits": 543,
-        "class:StructuredInstruction": 13376,
-        "class:CartridgeAddress": 7374,
-        "class:Unknown": 506,
+        "class:ComposableBits": 542,
+        "class:StructuredInstruction": 13374,
+        "class:CartridgeAddress": 7351,
+        "class:Unknown": 502,
         "storageWidthMembers": 84
       },
       "addressInterpretingTypes": [
@@ -9209,7 +9172,6 @@
         "MagdolliteLavaInstructionProgramDefinitionsTooling",
         "MamaTurtleInstructionProgramDefinitionsTooling",
         "MetroidInstructionProgramDefinitionsTooling",
-        "MochtroidInstructionProgramDefinitionsTooling",
         "MotherBrainFakeDeathPlmsVerification",
         "MotherBrainFxRecordPointers",
         "NativeBotwoonHead",
@@ -10165,23 +10127,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Metroids/MochtroidInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 3,
-            "class:CartridgeAddress": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/MorphBallEye/MorphBallEyeInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Nuclear/NuclearWaffleProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
@@ -10287,26 +10232,10 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Skree/SkreeMetareeInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Skree/SkreeMetareeParticleInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
             "PointerDispatch": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Skultera/SkulteraInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
             "class:CartridgeAddress": 1
           }
         },
@@ -13332,13 +13261,13 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 194,
+            "RawHexLiteral": 191,
             "PointerDispatch": 1,
             "OpaqueWordArray": 2,
             "class:NumericQuantity": 91,
             "class:DomainIdentity": 1,
             "class:StructuredInstruction": 15,
-            "class:CartridgeAddress": 90
+            "class:CartridgeAddress": 87
           }
         },
         {
@@ -14198,8 +14127,7 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 1,
+            "RawHexLiteral": 1,
             "class:CartridgeAddress": 1
           }
         },
@@ -14774,22 +14702,27 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Metroids/MochtroidInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Metroids/MochtroidNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 2
+            "CatalogHexLiteral": 3,
+            "class:NumericQuantity": 3
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/MorphBallEye/MorphBallEyeInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/MorphBallEye/MorphBallEyeNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "CatalogHexLiteral": 12,
+            "class:NumericQuantity": 12
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/MorphBallEye/MorphBallEyeNativeValues.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 1,
+            "class:NumericQuantity": 1
           }
         },
         {
@@ -15171,18 +15104,18 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeAnimationDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 15,
-            "class:NumericQuantity": 9,
+            "RawHexLiteral": 14,
+            "class:NumericQuantity": 8,
             "class:CartridgeAddress": 6
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Skree/SkreeMetareeNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 10,
-            "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 7
+            "CatalogHexLiteral": 15,
+            "class:NumericQuantity": 11,
+            "class:CartridgeAddress": 4
           }
         },
         {
@@ -15196,13 +15129,20 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Skultera/SkulteraInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Skultera/SkulteraNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 13,
-            "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 7,
-            "class:Unknown": 2
+            "CatalogHexLiteral": 10,
+            "class:NumericQuantity": 7,
+            "class:CartridgeAddress": 3
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Skultera/SkulteraNativeValues.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 1,
+            "class:NumericQuantity": 1
           }
         },
         {
@@ -17814,15 +17754,15 @@
           "path": "csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 344,
+            "RawHexLiteral": 338,
             "PointerDispatch": 3,
             "OpaqueWordArray": 9,
             "class:NumericQuantity": 63,
             "class:DomainIdentity": 29,
             "class:ComposableBits": 14,
-            "class:StructuredInstruction": 115,
-            "class:CartridgeAddress": 130,
-            "class:Unknown": 5
+            "class:StructuredInstruction": 113,
+            "class:CartridgeAddress": 128,
+            "class:Unknown": 3
           }
         },
         {
@@ -21649,22 +21589,6 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Metroids/MochtroidInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/MorphBallEye/MorphBallEyeInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
           "path": "csharp/test-support/VerificationAccess.Core/Enemies/Nuclear/NuclearWaffleProjectileInstructionProgramDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
@@ -21760,14 +21684,6 @@
           "totals": {
             "CatalogHexLiteral": 6,
             "class:CartridgeAddress": 6
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Skree/SkreeMetareeInstructionProgramDefinitionsAccess.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
           }
         },
         {

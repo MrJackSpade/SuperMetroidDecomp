@@ -1,10 +1,8 @@
-using SuperMetroid.Core.Enemies.MorphBallEye;
-
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// Distinct bank-$A8 OAM compositions for the Morph Ball surveillance eye and
-/// its directional mount. Activation logic and animation cadence remain compiled.
+/// its directional mount. Activation logic and animation cadence live in its typed programs.
 /// </summary>
 internal static class MorphBallEyeVisualDefinitions
 {
@@ -37,14 +35,4 @@ internal static class MorphBallEyeVisualDefinitions
         new(Bank, 0x92b1, "morph_eye_mount_left"),
         new(Bank, 0x92bd, "morph_eye_mount_up"),
     ];
-
-    /// <summary>Only the 36 body and mount visual operands in native eye programs.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        if (MorphBallEyeInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress, out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Morph Ball eye visual operand $A8:{operandAddress:X4} is not compiled.");
-    }
 }

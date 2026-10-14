@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Skultera.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Enemies.Skultera;
 
@@ -14,36 +16,29 @@ internal sealed class SkulteraBehavior : IEnemySpecies
         _terrain = terrain;
     }
 
-    /// <summary>Executes Skultera's private animation instructions.</summary>
-    private bool TryProcessSkulteraInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of Skultera's animations.</summary>
+    private static SkulteraProgram? ApplySkulteraCue(RoomEnemySlot slot, SkulteraEnemyState state, SkulteraCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Skultera ||
-            !Enum.IsDefined((SkulteraInstruction)word))
-            return false;
-
-        switch ((SkulteraInstruction)word)
+        switch (cue.Kind)
         {
-            case SkulteraInstruction.SetLayerTo6:
-                // The right-facing steady list promotes the fish above foreground
-                // scenery only after its first instruction tick, exactly like the ROM.
+            case SkulteraCueKind.DrawAboveScenery:
+                // The right-facing swim promotes the fish above foreground scenery only after its first
+                // instruction tick, exactly like the ROM.
                 slot.Layer = 6;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case SkulteraInstruction.SetLayerTo2:
-                // The left-facing steady list draws below the matching scenery layer.
+                break;
+            case SkulteraCueKind.DrawBelowScenery:
+                // The left-facing swim draws below the matching scenery layer.
                 slot.Layer = 2;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case SkulteraInstruction.SetTurnFinishedFlag:
-                // Turning lists sleep immediately after publishing this flag. Main AI
-                // consumes it on the following frame and installs steady facing art.
-                RequireSkulteraState(slot).TurnFinished = true;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                break;
+            case SkulteraCueKind.FinishTurn:
+                // Turns sleep immediately after publishing this flag. Main AI consumes it on the following frame
+                // and starts the steady swim.
+                state.TurnFinished = true;
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Skultera does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(SkulteraCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Per-slot radius used to turn the sine phase into vertical bob distance.</summary>
@@ -78,9 +73,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies
         // words. Keep the byte offset visible; treating it as an array index is a common
         // source of subtly wrong half-pixel speeds in ports of this AI.
         bool startsLeft = (SnesLittleEndian.HighByteInPlace(slot.Parameter1)) != 0;
-        slot.CurrentInstruction = startsLeft
-            ? SkulteraInstructionProgramDefinitions.SwimmingLeft
-            : SkulteraInstructionProgramDefinitions.SwimmingRight;
+        state.Program = AnimationProgramCursor<SkulteraProgram>.Start(startsLeft
+            ? SkulteraProgram.SwimmingLeft
+            : SkulteraProgram.SwimmingRight);
         state.Function = startsLeft
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
@@ -186,9 +181,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies
             : SkulteraEnemyFunction.TurningLeft;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = currentlyMovingLeft
-            ? SkulteraInstructionProgramDefinitions.TurningRight
-            : SkulteraInstructionProgramDefinitions.TurningLeft;
+        state.Program = AnimationProgramCursor<SkulteraProgram>.Start(currentlyMovingLeft
+            ? SkulteraProgram.TurningRight
+            : SkulteraProgram.TurningLeft);
     }
 
     /// <summary>Ports the mirrored turn completion functions at <c>$A3:9224/$9256</c>.</summary>
@@ -207,9 +202,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies
         state.AngleDelta = unchecked((short)-state.AngleDelta);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = nowMovingLeft
-            ? SkulteraInstructionProgramDefinitions.SwimmingLeft
-            : SkulteraInstructionProgramDefinitions.SwimmingRight;
+        state.Program = AnimationProgramCursor<SkulteraProgram>.Start(nowMovingLeft
+            ? SkulteraProgram.SwimmingLeft
+            : SkulteraProgram.SwimmingRight);
     }
 
     /// <summary>Gets the initialized state for a Skultera slot, rejecting calls before its setup.</summary>
@@ -237,15 +232,19 @@ internal sealed class SkulteraBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers Skultera's layer and turn-finished opcodes with the instruction interpreter.</summary>
-    internal void RegisterSkulteraOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Skultera's swimming and turning animations as typed programs (#641).</summary>
+    internal void RegisterSkulteraTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Skultera, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessSkulteraInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireSkulteraState(slot);
+            AnimationProgramCursor<SkulteraProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, SkulteraAnimations.Programs, ref cursor, SkulteraFrameDefinitions.Spritemap,
+                    (cue, _) => ApplySkulteraCue(slot, state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

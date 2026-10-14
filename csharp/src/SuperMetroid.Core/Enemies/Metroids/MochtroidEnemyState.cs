@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
@@ -43,8 +44,11 @@ public sealed class MochtroidEnemyState
         internal set => _slot.VariableF = (ushort)value;
     }
 
-    /// <summary>$7E:7802 parallel word used by the instruction-list change detector.</summary>
-    public ushort InstalledInstructionList { get; internal set; }
+    /// <summary>$7E:7802 parallel word used by the instruction-list change detector: the installed animation, or none for the cleared word.</summary>
+    internal MochtroidProgram? InstalledProgram { get; set; }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<MochtroidProgram> Program { get; set; }
 
     /// <summary>$7E:8800 parallel word; contact damage occurs when this reaches 80.</summary>
     public ushort AttachmentDamageTimer { get; internal set; }

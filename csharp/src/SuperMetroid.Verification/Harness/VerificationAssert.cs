@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Enemies.Cacatac;
@@ -213,7 +214,6 @@ using static SuperMetroid.Verification.Frontend.Menus.MenuThinBorderPixelsVerifi
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidBehaviorDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.MiscDustProjectileDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Metroids.MochtroidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGeneratedVisualCatalogsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassPlmDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassShardDefinitionsVerification;
@@ -1274,8 +1274,8 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mochtroid oracle revision");
         Suite(nameof(VerifyStream3MochtroidVisuals), () => VerifyStream3MochtroidVisuals(rom));
-        Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions(rom));
-        Console.WriteLine("Mochtroid: six native registrations, eight selectors, address rejection and production instruction checks pass.");
+        Suite(nameof(MochtroidBehaviorVerification.VerifyMochtroidBehavior), () => MochtroidBehaviorVerification.VerifyMochtroidBehavior(rom));
+        Console.WriteLine("Mochtroid: six native registrations and the production animation checks pass.");
         return 0;
     }
 

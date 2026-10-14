@@ -1411,10 +1411,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ZoaBehavior.RegisterZoaTypedAnimations(table);
         MetroidBehavior.RegisterMetroidOwnedInstructions(table);
         CrawlersBehavior.RegisterCrawlerTypedAnimations(table);
-        SkreeBehavior.RegisterSkreeOwnedInstructions(table);
+        SkreeBehavior.RegisterSkreeTypedAnimations(table);
         WaverBehavior.RegisterWaverTypedAnimations(table);
-        MetareeBehavior.RegisterMetareeOwnedInstructions(table);
-        SkulteraBehavior.RegisterSkulteraOwnedInstructions(table);
+        MetareeBehavior.RegisterMetareeTypedAnimations(table);
+        SkulteraBehavior.RegisterSkulteraTypedAnimations(table);
         PlatformsBehavior.RegisterPlatformsOwnedInstructions(table);
         AlcoonBehavior.RegisterAlcoonOwnedInstructions(table);
         KiHunterBehavior.RegisterKiHunterOwnedInstructions(table);
@@ -1439,6 +1439,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        SkulteraBehavior.RegisterSkulteraTypedAnimations(table);
+        MochtroidBehavior.RegisterMochtroidTypedAnimations(table);
+        MetareeBehavior.RegisterMetareeTypedAnimations(table);
+        SkreeBehavior.RegisterSkreeTypedAnimations(table);
+        MorphBallEyeBehavior.RegisterMorphBallEyeTypedAnimations(table);
         CrawlersBehavior.RegisterCrawlerTypedAnimations(table);
         DragonBehavior.RegisterDragonTypedAnimations(table);
         BlueBrinstarFaceBlockBehavior.RegisterBlueBrinstarFaceBlockTypedAnimations(table);

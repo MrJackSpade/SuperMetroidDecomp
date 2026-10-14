@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.MorphBallEye;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -1240,7 +1241,9 @@ internal static class LookupStream5Verification
             var expected = (unchecked((short)ReadVerificationWord(rom, 0xa890ca + direction * 2)),
                 unchecked((short)ReadVerificationWord(rom, 0xa890d2 + direction * 2)),
                 ReadVerificationWord(rom, 0xa890da + direction * 2));
-            AssertEqual(expected, MorphBallEyeGeometryDefinitions.Mount(direction), "Native directional mount tuple");
+            var mount = MorphBallEyeGeometryDefinitions.Mount(direction);
+            AssertEqual(expected, (mount.X, mount.Y, NativeEnemyProgramOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Program)),
+                "Native directional mount tuple");
             foreach (ushort origin in new ushort[] { 0, 65535 })
             {
                 var enemies = new RoomEnemySystem();
@@ -1251,7 +1254,9 @@ internal static class LookupStream5Verification
                 new Action<RoomEnemySlot>(enemies.MorphBallEyeBehavior.InitializeMorphBallEye)(slot);
                 AssertEqual(unchecked((ushort)(origin + expected.Item1)), slot.Position.X.Whole, "Actual mount X with native wrap");
                 AssertEqual(unchecked((ushort)(origin + expected.Item2)), slot.Position.Y.Whole, "Actual mount Y with native wrap");
-                AssertEqual(expected.Item3, slot.CurrentInstruction, "Actual directional mount program");
+                AssertEqual(AnimationProgramCursor<MorphBallEyeProgram>.Start(mount.Program),
+                    (enemies.MorphBallEyeBehavior.MorphBallEyeStates[0] ?? throw new InvalidOperationException("The mount has no state.")).Program,
+                    "Actual directional mount program");
                 AssertEqual(MorphBallEyeAiFunction.MountNoOp, (enemies.MorphBallEyeBehavior.MorphBallEyeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MorphBallEyeBehavior.MorphBallEyeStates[0].")).Function, "Mount remains decorative");
             }
         }

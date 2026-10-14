@@ -62,13 +62,6 @@ internal static class EnemyVisualProgramAudit
                 shape = "single";
                 addresses.Add(single);
             }
-            else if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
-            {
-                shape = "two-families";
-                foreach (bool metaree in new[] { false, true })
-                for (int i = 0; i < SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(); i++)
-                    addresses.Add(SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(metaree, i));
-            }
             else if (type == typeof(EnemyProjectileInstructionMechanicsDefinitions))
             {
                 shape = "typed-projectile-frames";
@@ -78,7 +71,7 @@ internal static class EnemyVisualProgramAudit
             else if (EnemyVisualProgramSpecializations.IsControlOnly(type))
                 shape = "control-only";
 
-            Dictionary<ushort, ushort> words = ReadWords(type, catalog);
+            Dictionary<ushort, ushort> words = ReadWords(catalog);
             // A compiled duration followed by a hole (including at the catalog end)
             // independently exposes interleaved operands, including missing declarations.
             addresses.UnionWith(InterleavedOperands(words));
@@ -134,20 +127,10 @@ internal static class EnemyVisualProgramAudit
         return owners;
     }
 
-    /// <summary>Enumerates a program's compiled mechanics words, accounting for specialized storage layouts.</summary>
-    private static Dictionary<ushort, ushort> ReadWords(Type type, InstructionProgramCatalog catalog)
+    /// <summary>Enumerates a program's compiled mechanics words.</summary>
+    private static Dictionary<ushort, ushort> ReadWords(InstructionProgramCatalog catalog)
     {
         var result = new Dictionary<ushort, ushort>();
-        if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
-        {
-            foreach (bool metaree in new[] { false, true })
-            for (int i = 0; i < SkreeMetareeInstructionProgramDefinitionsTooling.MechanicsWordCount(); i++)
-            {
-                var word = SkreeMetareeInstructionProgramDefinitions.MechanicsWord(metaree, i);
-                result.Add(word.Address, word.Value);
-            }
-            return result;
-        }
         foreach (var word in catalog.MechanicsWords ?? [])
             result.Add(word.Address, word.Value);
         return result;
@@ -187,11 +170,7 @@ internal static class EnemyVisualProgramAudit
             return;
         }
         ushort pointer;
-        if (type == typeof(SkreeMetareeInstructionProgramDefinitions))
-            pointer = EnemySpritemapDefinitions.SkreeMetareeFrameAt(
-                Enumerable.Range(0, SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount())
-                    .Any(i => SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(true, i) == operand), operand);
-        else if (!CompiledEnemyVisualSelectors.TryGet(bank, operand, out pointer))
+        if (!CompiledEnemyVisualSelectors.TryGet(bank, operand, out pointer))
         {
             RequireResolvedOperand(bank, operand, null, owner, source, exports, report);
             return;

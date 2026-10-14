@@ -1,4 +1,4 @@
-using static SuperMetroid.Verification.Enemies.Metroids.MochtroidInstructionProgramDefinitionsVerification;
+using SuperMetroid.Verification.Enemies.Metroids;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
@@ -71,7 +71,7 @@ internal static class LookupRomOraclesVerification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         VerifyMochtroidShakeOffsets(rom);
-        Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions(rom));
+        Suite(nameof(MochtroidBehaviorVerification.VerifyMochtroidBehavior), () => MochtroidBehaviorVerification.VerifyMochtroidBehavior(rom));
         Console.WriteLine("Mochtroid shake: sixteen native masked-timer comparisons pass; amplitude remains required.");
         return 0;
     }

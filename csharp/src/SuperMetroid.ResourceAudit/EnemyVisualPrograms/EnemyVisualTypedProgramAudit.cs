@@ -1,3 +1,11 @@
+using SuperMetroid.Core.Enemies.Skultera.Artwork;
+using SuperMetroid.Core.Enemies.Skultera;
+using SuperMetroid.Core.Enemies.Metroids.Artwork;
+using SuperMetroid.Core.Enemies.Metroids;
+using SuperMetroid.Core.Enemies.Skree.Artwork;
+using SuperMetroid.Core.Enemies.Skree;
+using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
+using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
 using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
@@ -197,6 +205,14 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(DragonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonAnimations.cs");
         RequireTypedFrames(CrawlerAnimations.Programs, CrawlerFrameDefinitions.Spritemap, CrawlerFrameDefinitions.Bank,
             nameof(CrawlerAnimations), "csharp/src/SuperMetroid.Core/Enemies/Crawlers/CrawlerAnimations.cs");
+        RequireTypedFrames(MorphBallEyeAnimations.Programs, MorphBallEyeFrameDefinitions.Spritemap, MorphBallEyeFrameDefinitions.Bank,
+            nameof(MorphBallEyeAnimations), "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeAnimations.cs");
+        RequireTypedFrames(SkreeMetareeAnimations.Programs, SkreeMetareeFrameDefinitions.Spritemap, SkreeMetareeFrameDefinitions.Bank,
+            nameof(SkreeMetareeAnimations), "csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeMetareeAnimations.cs");
+        RequireTypedFrames(MochtroidAnimations.Programs, MochtroidFrameDefinitions.Spritemap, MochtroidFrameDefinitions.Bank,
+            nameof(MochtroidAnimations), "csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidAnimations.cs");
+        RequireTypedFrames(SkulteraAnimations.Programs, SkulteraFrameDefinitions.Spritemap, SkulteraFrameDefinitions.Bank,
+            nameof(SkulteraAnimations), "csharp/src/SuperMetroid.Core/Enemies/Skultera/SkulteraAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

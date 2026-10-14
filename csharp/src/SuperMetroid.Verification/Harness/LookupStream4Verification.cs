@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies.Skree;
+using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -2169,13 +2171,13 @@ internal static class LookupStream4Verification
 
         for (ushort phase = 0; phase < 4; phase++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + 2 * phase)), SkreeMetareeAnimationDefinitions.MetareeInstructionList((SkreeMetareeAnimationPhase)phase), "stream4 native Metaree phase program");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + 2 * phase)), SkreeMetareeAnimationDefinitions.SkreeInstructionList((SkreeMetareeAnimationPhase)phase), "stream4 native Skree phase program");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + 2 * phase)), NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationDefinitions.MetareeProgram((SkreeMetareeAnimationPhase)phase)), "stream4 native Metaree phase program");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + 2 * phase)), NativeEnemyProgramOracle.EntryOf(SkreeMetareeNativeListAddresses.Entries, SkreeMetareeAnimationDefinitions.SkreeProgram((SkreeMetareeAnimationPhase)phase)), "stream4 native Skree phase program");
         }
         foreach (ushort invalid in new ushort[] { 4, ushort.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationDefinitions.MetareeInstructionList((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Metaree phase");
-            AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationDefinitions.SkreeInstructionList((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Skree phase");
+            AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationDefinitions.MetareeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Metaree phase");
+            AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationDefinitions.SkreeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Skree phase");
         }
         int particleMechanics = 0, particlePresentation = 0;
         for (int address = 0x8abd; address < 0x8acd; address += 2)

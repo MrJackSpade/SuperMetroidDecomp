@@ -1750,8 +1750,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Menu => 0,
             EnemyDefinitionId.Kago => 0,
             EnemyDefinitionId.FaceBlock => 0,
-            EnemyDefinitionId.Eye =>
-                MorphBallEyeVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Eye => 0,
             EnemyDefinitionId.Metroid =>
                 MetroidVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Shaktool =>
@@ -1769,8 +1768,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.CorpseTorizo => 0,
             EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree => 0,
             EnemyDefinitionId.CorpseSidehopper => 0,
-            EnemyDefinitionId.Mochtroid =>
-                MochtroidVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Mochtroid => 0,
             EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile =>
                 EvirVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Robot or
@@ -1811,11 +1809,11 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Magdollite => MagdolliteFrameAt(operandAddress),
             EnemyDefinitionId.Boulder => 0,
             EnemyDefinitionId.Atomic => 0,
-            EnemyDefinitionId.Skultera => SkulteraFrameAt(operandAddress),
+            EnemyDefinitionId.Skultera => 0,
             EnemyDefinitionId.Waver => 0,
             EnemyDefinitionId.Zoa => 0,
-            EnemyDefinitionId.Metaree => SkreeMetareeFrameAt(true, operandAddress),
-            EnemyDefinitionId.Skree => SkreeMetareeFrameAt(false, operandAddress),
+            EnemyDefinitionId.Metaree => 0,
+            EnemyDefinitionId.Skree => 0,
             EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo or EnemyDefinitionId.Gamet or EnemyDefinitionId.Geega => 0,
             EnemyDefinitionId.MiniKraid or
                 EnemyDefinitionId.KraidNail or
@@ -1861,13 +1859,11 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle or
             EnemyDefinitionId.CeresDoor or
             EnemyDefinitionId.Boyon or
-            EnemyDefinitionId.Eye or
             EnemyDefinitionId.Metroid or
             EnemyDefinitionId.Shaktool or
             EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or
             EnemyDefinitionId.Chozo or
             EnemyDefinitionId.Rinka or
-            EnemyDefinitionId.Mochtroid or
             EnemyDefinitionId.Evir or
             EnemyDefinitionId.EvirProjectile or
             EnemyDefinitionId.Robot or
@@ -1889,8 +1885,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.KihunterYellowWings or
             EnemyDefinitionId.KihunterRed or
             EnemyDefinitionId.KihunterRedWings or
-            EnemyDefinitionId.Magdollite or EnemyDefinitionId.Skultera or
-            EnemyDefinitionId.Metaree or EnemyDefinitionId.Skree or
+            EnemyDefinitionId.Magdollite or
             EnemyDefinitionId.MiniKraid or
             EnemyDefinitionId.KraidNail or
             EnemyDefinitionId.KraidNailBad;
@@ -2041,42 +2036,6 @@ internal static class EnemySpritemapDefinitions
         }
         throw new InvalidDataException(
             $"Beetom visual operand $A8:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>Compiled Skree and Metaree visual operands; attack phases remain code.</summary>
-    internal static ushort SkreeMetareeFrameAt(bool metaree, ushort operandAddress) =>
-        (ushort)(metaree ? operandAddress switch
-        {
-            0x8912 or 0x8926 or 0x8940 or 0x894a => 0x8b65,
-            0x8916 or 0x8934 => 0x8bb9,
-            0x891a or 0x8938 => 0x8bde,
-            0x891e or 0x893c => 0x8bea,
-            0x892a => 0x8b94,
-            _ => throw new InvalidDataException(
-                $"Metaree visual operand $A3:{operandAddress:X4} is not compiled."),
-        } : operandAddress switch
-        {
-            0xc660 or 0xc674 or 0xc68e or 0xc698 => 0xc842,
-            0xc664 or 0xc682 => 0xc878,
-            0xc668 or 0xc686 => 0xc884,
-            0xc66c or 0xc68a => 0xc89a,
-            0xc678 => 0xc862,
-            _ => throw new InvalidDataException(
-                $"Skree visual operand $A3:{operandAddress:X4} is not compiled."),
-        });
-
-    /// <summary>
-    /// The twenty-two Skultera frame operands are fixed visual identities; control
-    /// durations, turn callbacks, and layer changes remain in the instruction catalog.
-    /// </summary>
-    internal static ushort SkulteraFrameAt(ushort operandAddress)
-    {
-        if (SkulteraInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(SkulteraBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Skultera visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 
     /// <summary>

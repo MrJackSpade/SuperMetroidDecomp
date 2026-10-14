@@ -1,25 +1,25 @@
 namespace SuperMetroid.Core.Enemies.Skree;
 
-/// <summary>Compiled fixed animation-program selectors for Skree and Metaree.</summary>
+/// <summary>Fixed animation selectors for Skree and Metaree.</summary>
 internal static class SkreeMetareeAnimationDefinitions
 {
     /// <summary>$A3:894E: select the Metaree program for its named animation phase.</summary>
-    internal static ushort MetareeInstructionList(SkreeMetareeAnimationPhase phase) => phase switch
+    internal static SkreeMetareeProgram MetareeProgram(SkreeMetareeAnimationPhase phase) => phase switch
     {
-        SkreeMetareeAnimationPhase.Idling => SkreeMetareeInstructionProgramDefinitions.MetareeIdling,
-        SkreeMetareeAnimationPhase.PreparingAttack => SkreeMetareeInstructionProgramDefinitions.MetareePreparingAttack,
-        SkreeMetareeAnimationPhase.Diving => SkreeMetareeInstructionProgramDefinitions.MetareeDiving,
-        SkreeMetareeAnimationPhase.StopAnimating => SkreeMetareeInstructionProgramDefinitions.MetareeStopAnimating,
+        SkreeMetareeAnimationPhase.Idling => SkreeMetareeProgram.MetareeIdling,
+        SkreeMetareeAnimationPhase.PreparingAttack => SkreeMetareeProgram.MetareePreparingAttack,
+        SkreeMetareeAnimationPhase.Diving => SkreeMetareeProgram.MetareeDiving,
+        SkreeMetareeAnimationPhase.StopAnimating => SkreeMetareeProgram.MetareeStopAnimating,
         _ => throw InvalidPhase(phase, "Metaree"),
     };
 
     /// <summary>$A3:C69C: select the Skree program for its named animation phase.</summary>
-    internal static ushort SkreeInstructionList(SkreeMetareeAnimationPhase phase) => phase switch
+    internal static SkreeMetareeProgram SkreeProgram(SkreeMetareeAnimationPhase phase) => phase switch
     {
-        SkreeMetareeAnimationPhase.Idling => SkreeMetareeInstructionProgramDefinitions.SkreeIdling,
-        SkreeMetareeAnimationPhase.PreparingAttack => SkreeMetareeInstructionProgramDefinitions.SkreePreparingAttack,
-        SkreeMetareeAnimationPhase.Diving => SkreeMetareeInstructionProgramDefinitions.SkreeDiving,
-        SkreeMetareeAnimationPhase.StopAnimating => SkreeMetareeInstructionProgramDefinitions.SkreeStopAnimating,
+        SkreeMetareeAnimationPhase.Idling => SkreeMetareeProgram.SkreeIdling,
+        SkreeMetareeAnimationPhase.PreparingAttack => SkreeMetareeProgram.SkreePreparingAttack,
+        SkreeMetareeAnimationPhase.Diving => SkreeMetareeProgram.SkreeDiving,
+        SkreeMetareeAnimationPhase.StopAnimating => SkreeMetareeProgram.SkreeStopAnimating,
         _ => throw InvalidPhase(phase, "Skree"),
     };
 

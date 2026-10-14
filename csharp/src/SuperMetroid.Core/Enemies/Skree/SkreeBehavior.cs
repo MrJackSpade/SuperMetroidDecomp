@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Skree.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -25,23 +27,24 @@ internal sealed class SkreeBehavior : IEnemySpecies
         _projectiles = projectiles;
     }
 
-    /// <summary>Executes Skree's private animation instruction.</summary>
-    private bool TryProcessSkreeInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of Skree's animations: the wind-up's attack-ready flag and the dive's off-screen processing.</summary>
+    private static SkreeMetareeProgram? ApplySkreeCue(RoomEnemySlot slot, SkreeEnemyState state, SkreeMetareeCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Skree ||
-            !Enum.IsDefined((SkreeInstruction)word))
-            return false;
-
-        switch ((SkreeInstruction)word)
+        switch (cue.Kind)
         {
-            case SkreeInstruction.SetAttackReadyFlag:
-                RequireSkreeState(slot).AttackReady = true;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+            case SkreeMetareeCueKind.SetAttackReady:
+                state.AttackReady = true;
+                break;
+            case SkreeMetareeCueKind.ProcessOffScreen:
+                slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
+                break;
+            case SkreeMetareeCueKind.StopProcessingOffScreen:
+                slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Skree does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(SkreeMetareeCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Per-slot Skree state cleared on each room load.</summary>
@@ -59,7 +62,7 @@ internal sealed class SkreeBehavior : IEnemySpecies
             Function = SkreeEnemyFunction.Idling,
         };
         _skreeStates[slot.SlotIndex] = state;
-        slot.CurrentInstruction = OrdinaryEnemyInstructionLists.SkreeInitial;
+        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.SkreeIdling);
     }
 
     /// <summary>Winds up near Samus, dives when the instruction callback is ready, then burrows after floor contact.</summary>
@@ -163,8 +166,8 @@ internal sealed class SkreeBehavior : IEnemySpecies
             return;
 
         state.InstalledInstructionIndex = state.RequestedInstructionIndex;
-        slot.CurrentInstruction = SkreeMetareeAnimationDefinitions.SkreeInstructionList(
-            state.RequestedInstructionIndex);
+        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeAnimationDefinitions.SkreeProgram(
+            state.RequestedInstructionIndex));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -194,15 +197,19 @@ internal sealed class SkreeBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers the private attack-ready instruction consumed by the wind-up phase.</summary>
-    internal void RegisterSkreeOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Skree's animations as typed programs (#641).</summary>
+    internal void RegisterSkreeTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Skree, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessSkreeInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireSkreeState(slot);
+            AnimationProgramCursor<SkreeMetareeProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.Spritemap,
+                    (cue, _) => ApplySkreeCue(slot, state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Last library-two Skree dive ($5B) or burrow-impact ($5C) sound this enemy pass, also queued by its AI through Max6; cleared before the next pass.</summary>
     public ushort? LastSkreeSoundEffect { get; private set; }

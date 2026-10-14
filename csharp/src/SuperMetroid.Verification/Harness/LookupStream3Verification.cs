@@ -8,7 +8,6 @@ using static SuperMetroid.Verification.Enemies.EnemyDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyLegacyOverridesVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleConnectionDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
-using static SuperMetroid.Verification.Enemies.Metroids.MochtroidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainContactHitboxesVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainCorpseArtworkVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEscapeTextArtworkVerification;
@@ -485,7 +484,6 @@ internal static class LookupStream3Verification
         AssertEqual(6, frames.Length, "Mochtroid calculated registration count");
         for (int family = 0; family < 2; family++)
         {
-            int start = family == 0 ? 0xa747 : 0xa75b;
             int pointer = family == 0 ? 0xa9b0 : 0xaa06;
             for (int pose = 0; pose < 3; pose++)
             {
@@ -495,17 +493,6 @@ internal static class LookupStream3Verification
                 AssertEqual($"mochtroid_{(family == 0 ? "flight" : "attached")}_{pose}", frame.Name, "Mochtroid legacy frame name");
                 int count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer);
                 pointer += 2 + 5 * count;
-            }
-            for (int offset = -1; offset <= 16; offset++)
-            {
-                ushort operand = (ushort)(start + offset);
-                if (offset >= 0 && offset <= 12 && offset % 4 == 0)
-                {
-                    ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | operand);
-                    AssertEqual(expected, MochtroidVisualDefinitions.FrameAt(operand), "Mochtroid native ping-pong selector");
-                }
-                else
-                    AssertThrows<InvalidDataException>(() => MochtroidVisualDefinitions.FrameAt(operand), "Mochtroid rejects non-selector address");
             }
         }
     }
@@ -1171,7 +1158,6 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyStream3WorkRobotColors), () => VerifyStream3WorkRobotColors(rom));
         Suite(nameof(VerifyStream3PickupAndFirefleaPrograms), () => VerifyStream3PickupAndFirefleaPrograms(rom));
         Suite(nameof(VerifyStream3ChootControl), () => VerifyStream3ChootControl(rom));
-        Suite(nameof(VerifyStream3UniformEnemyLoops), () => VerifyStream3UniformEnemyLoops(rom));
         Suite(nameof(VerifyStream3MotherBrainFades), () => VerifyStream3MotherBrainFades(rom));
         Suite(nameof(VerifyStream3BabyFade), () => VerifyStream3BabyFade(rom));
         Suite(nameof(VerifyStream3DrainFades), () => VerifyStream3DrainFades(rom));
@@ -2091,53 +2077,6 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 15, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.CorpseColor(0, invalid), "stream 3 corpse fade color bounds");
-    }
-
-    /// <summary>Checks Mochtroid instruction mechanics and visual operands at native addresses.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for uniform enemy loops")]
-    private static void VerifyStream3UniformEnemyLoops(ISnesAddressSpace rom)
-    {
-        Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions());
-        Check(0xa30000, [0xa745, 0xa759],
-            index =>
-            {
-                var word = MochtroidInstructionProgramDefinitionsTooling.MechanicsWord(index);
-                return (word.Address, word.Value);
-            }, MochtroidInstructionProgramDefinitionsTooling.PresentationWordAddress,
-            MochtroidInstructionProgramDefinitions.ReadMechanicsWord,
-            MochtroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
-
-        void Check(int bank, ushort[] starts,
-            Func<int, (ushort Address, ushort Value)> wordAt, Func<int, ushort> visualAt,
-            Func<ushort, ushort> read, Func<int, bool> ownsByte)
-        {
-            var bytes = new HashSet<int>();
-            int wordIndex = 0, visualIndex = 0;
-            foreach (ushort start in starts)
-            {
-                foreach (int offset in new[] { 0, 4, 8, 12, 16, 18 })
-                {
-                    ushort address = (ushort)(start + offset);
-                    ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(bank | address);
-                    AssertEqual((address, value), wordAt(wordIndex++), "stream 3 uniform loop native mechanic");
-                    AssertEqual(value, read(address), "stream 3 uniform loop mechanic dispatch");
-                    bytes.Add(address);
-                    bytes.Add(address + 1);
-                }
-                for (int frame = 0; frame < 4; frame++)
-                {
-                    ushort address = (ushort)(start + 4 * frame + 2);
-                    AssertEqual(address, visualAt(visualIndex++), "stream 3 uniform loop visual order");
-                    AssertThrows<InvalidDataException>(() => read(address), "stream 3 uniform loop visual excluded");
-                }
-            }
-            for (int address = 0; address <= ushort.MaxValue; address++)
-                AssertEqual(bytes.Contains(address), ownsByte(bank | address), "stream 3 uniform loop byte ownership");
-            foreach (int invalid in new[] { -1, starts.Length * 6, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => wordAt(invalid), "stream 3 uniform loop mechanic bounds");
-            foreach (int invalid in new[] { -1, starts.Length * 4, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => visualAt(invalid), "stream 3 uniform loop visual bounds");
-        }
     }
 
     /// <summary>Checks Choot falling patterns, loop distances, and separated mechanics/presentation operands.</summary>

@@ -131,8 +131,8 @@ internal static class AttractDemoSceneVerification
             for (int sceneIndex = 0; sceneIndex < sceneCounts[set]; sceneIndex++)
             {
                 AttractDemoScene scene = (StockAttractDemoScenes.Get(set, sceneIndex) ?? throw new InvalidOperationException("Verification requires StockAttractDemoScenes.Get(set, sceneIndex)."));
-                StockAttractInputPrograms.ObjectDefinition definition =
-                    StockAttractInputPrograms.GetObject((scene ?? throw new InvalidOperationException("Verification requires scene.")).InputObject);
+                StockAttractInputProgramsCatalog.ObjectDefinition definition =
+                    StockAttractInputProgramsCatalog.GetObject((scene ?? throw new InvalidOperationException("Verification requires scene.")).InputObject);
                 int objectAddress = DemoInputRomData.BankBase | scene.InputObject;
                 AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(objectAddress), definition.Initializer, "native attract initializer");
                 AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((objectAddress + 2)), definition.PreInstruction, "native attract callback");
@@ -148,10 +148,10 @@ internal static class AttractDemoSceneVerification
             ushort cursor = root;
             while (visitedCommands.Add(cursor))
             {
-                StockAttractInputPrograms.Command command = StockAttractInputPrograms.GetCommand(cursor);
+                StockAttractInputProgramsCatalog.Command command = StockAttractInputProgramsCatalog.GetCommand(cursor);
                 int address = DemoInputRomData.BankBase | cursor;
                 ushort nativeOperation = CartridgeImportSource.Require(retail).ReadCartridgeWord(address);
-                if (command.Kind == StockAttractInputPrograms.Operation.Input)
+                if (command.Kind == StockAttractInputProgramsCatalog.Operation.Input)
                 {
                     inputCount++;
                     AssertTrue(nativeOperation < DemoInputRomData.Instructions.OpcodeBit,
@@ -164,14 +164,14 @@ internal static class AttractDemoSceneVerification
                     AssertEqual((ushort)(cursor + DemoInputRomData.Instructions.InputRecordBytes), command.Next,
                         $"calculated attract successor ${cursor:X4}");
                 }
-                else if (command.Kind == StockAttractInputPrograms.Operation.Delete)
+                else if (command.Kind == StockAttractInputProgramsCatalog.Operation.Delete)
                 {
                     deleteCount++;
                     AssertEqual((ushort)DemoInputInstruction.Delete, nativeOperation,
                         $"native attract deletion ${cursor:X4}");
                     AssertEqual((ushort)0, command.Next, $"terminal attract successor ${cursor:X4}");
                 }
-                else if (command.Kind == StockAttractInputPrograms.Operation.Goto)
+                else if (command.Kind == StockAttractInputProgramsCatalog.Operation.Goto)
                 {
                     gotoCount++;
                     AssertEqual((ushort)DemoInputInstruction.Goto, nativeOperation,
@@ -179,7 +179,7 @@ internal static class AttractDemoSceneVerification
                     AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), command.Next,
                         $"native attract jump destination ${cursor:X4}");
                 }
-                if (command.Kind == StockAttractInputPrograms.Operation.Delete)
+                if (command.Kind == StockAttractInputProgramsCatalog.Operation.Delete)
                     break;
                 cursor = command.Next;
             }

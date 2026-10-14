@@ -8,7 +8,7 @@ internal static class LibraryBackgroundClosedContractDefinitions
     [
         new("SuperMetroid.Core.Assets.RoomBackgroundTilemapCatalog", "library-background-exact-required-source-keys", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSourceDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSources.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramDefinitions.Generated.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundCommand.cs"),

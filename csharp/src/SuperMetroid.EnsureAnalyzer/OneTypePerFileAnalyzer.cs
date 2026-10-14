@@ -25,7 +25,7 @@ public sealed class OneTypePerFileAnalyzer : DiagnosticAnalyzer
     internal static readonly string[] ThirdPartyGeneratorPrefixes =
     [
         "Microsoft.Interop.", "System.Text.RegularExpressions.Generator", "System.Text.Json.SourceGeneration",
-        "Microsoft.Extensions.", "Microsoft.Gen.", "System.Runtime.InteropServices.Generator",
+        "Microsoft.Extensions.", "Microsoft.Gen.", "System.Runtime.InteropServices.Generator", "__Microsoft.Android.",
     ];
 
     /// <summary>Reports each extra declaration at its identifier.</summary>

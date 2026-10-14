@@ -8,7 +8,7 @@ using static FrontendVerification;
 internal static class AttractInputFixtureVerification
 {
     /// <summary>Interprets cartridge or synthetic demo words as the independent reference input stream.</summary>
-    /// <remarks>Production playback uses <c>StockAttractInputPrograms</c> and <c>StepStock</c>.</remarks>
+    /// <remarks>Production playback uses <c>StockAttractInputProgramsCatalog</c> and <c>StepStock</c>.</remarks>
     internal sealed class ReferenceAttractInput
     {
         /// <summary>Mutable reference script state, including independently authored held and new inputs.</summary>

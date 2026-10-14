@@ -90,3 +90,9 @@ Repository code, including any generator it adds, is analyzed; only the framewor
 file when its usings, namespace, attributes and documentation carry over unambiguously; a file with preprocessor
 directives, statements or file-local types needs manual placement. The analyzer projects and their verifier are
 checked by `SuperMetroid.EnsureVerification`.
+
+**SME6401** requires the file to be named after that type: `Type.cs`, or `Type.Purpose.cs` for a deliberate partial
+part. Files declaring no type (entry-point statements, assembly attributes) are not named by the rule.
+
+Because a file now identifies one type, the production magic-number audit keys each reviewed finding on its declaring
+type rather than its path, so moving or renaming a file keeps the finding's reviewed identity.

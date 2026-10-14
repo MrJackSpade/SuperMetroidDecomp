@@ -66,6 +66,24 @@ internal static class OneTypePerFileAnalyzerTests
         ExpectFix("class A { }\nfile class B { }\n", null);
         ExpectFix("partial class A { }\npartial class A { }\n", null);
 
+        // SME6401: the file is named after its type; a partial part may add its purpose.
+        ExpectName("class Widget { }", "Widget.cs", 0);
+        ExpectName("class Widget<T> { }", "Widget.cs", 0);
+        ExpectName("namespace N;\nenum Mode { A }", "Mode.cs", 0);
+        ExpectName("partial class Widget { }", "Widget.Drawing.cs", 0);
+        ExpectName("delegate void Callback();", "Callback.cs", 0);
+        ExpectName("class Widget { }", "Widgets.cs", 1, "'Widget' is declared in 'Widgets.cs'; name the file 'Widget.cs'");
+        ExpectName("class Widget { }", "Widget.Drawing.cs", 1, "'Widget' is declared in 'Widget.Drawing.cs'");
+        ExpectName("partial class Widget { }", "Program.Widget.cs", 1, "or 'Widget.<Purpose>.cs' for this partial part");
+        ExpectName("partial class Widget { }", "Widget..cs", 1);
+        ExpectName("enum Mode { A }", "ModeCodes.cs", 1, "'Mode'");
+        // Files without a type, several types (SME6400's report) and framework generator output are not named here.
+        ExpectName("[assembly: System.Reflection.AssemblyMetadata(\"k\", \"v\")]", "AssemblyInfo.cs", 0);
+        ExpectName("System.Console.WriteLine();", "Program.cs", 0, kind: OutputKind.ConsoleApplication);
+        ExpectName("class A { } class B { }", "Pair.cs", 0);
+        ExpectName("partial class A { }", "Microsoft.Interop.LibraryImportGenerator/Microsoft.Interop.LibraryImportGenerator/LibraryImports.g.cs", 0);
+        ExpectName("public class Resource { }", "obj/Release/net10.0-android/__Microsoft.Android.Resource.Designer.cs", 0);
+
         VerifyAnalyzerProjectsDeclareOneTypePerFile();
         Console.WriteLine("#626 one type per file: SME6400 reports every extra top-level type in all forms; the fix moves unambiguous declarations.");
     }
@@ -88,6 +106,8 @@ internal static class OneTypePerFileAnalyzerTests
                     throw new InvalidOperationException(
                         $"{file}: declares {string.Join(", ", types.Select(OneTypePerFileAnalyzer.NameOf))}; one top-level type per file (SME6400).");
                 }
+                if (types.Length == 1 && !TypeFileNameAnalyzer.NamesType(Path.GetFileNameWithoutExtension(file), types[0]))
+                    throw new InvalidOperationException($"{file}: declares {OneTypePerFileAnalyzer.NameOf(types[0])}; name the file after it (SME6401).");
             }
         }
     }
@@ -109,6 +129,25 @@ internal static class OneTypePerFileAnalyzerTests
         {
             throw new InvalidOperationException(
                 $"Expected {count} {OneTypePerFileAnalyzer.Id} diagnostic(s) containing '{message}', got [{string.Join("; ", diagnostics.Select(d => d.ToString()))}] in: {source}");
+        }
+    }
+
+    /// <summary>Compiles one source at <paramref name="path"/> and compares the SME6401 count and message fragment.</summary>
+    private static void ExpectName(string source, string path, int count, string? message = null, OutputKind kind = OutputKind.DynamicallyLinkedLibrary)
+    {
+        var tree = CSharpSyntaxTree.ParseText(source, Parse(null), path: path);
+        var compilation = CSharpCompilation.Create("FileNameCase", [tree], AnalyzerTests.References,
+            new CSharpCompilationOptions(kind, nullableContextOptions: NullableContextOptions.Enable));
+        var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+        if (errors.Length != 0)
+            throw new InvalidOperationException($"Invalid file-name fixture: {string.Join("; ", errors.Select(e => e.ToString()))} in: {source}");
+        var diagnostics = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new TypeFileNameAnalyzer()))
+            .GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult();
+        if (diagnostics.Length != count || diagnostics.Any(d => d.Id != TypeFileNameAnalyzer.Id || d.Severity != DiagnosticSeverity.Error) ||
+            (message is not null && !diagnostics.All(d => d.GetMessage().Contains(message, StringComparison.Ordinal))))
+        {
+            throw new InvalidOperationException(
+                $"Expected {count} {TypeFileNameAnalyzer.Id} diagnostic(s) containing '{message}' for {path}, got [{string.Join("; ", diagnostics.Select(d => d.GetMessage()))}] in: {source}");
         }
     }
 

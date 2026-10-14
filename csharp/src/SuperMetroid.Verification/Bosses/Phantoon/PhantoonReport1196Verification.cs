@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonFlameSoundVerification;
-using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonInstructionProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonAnimationsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
@@ -21,7 +21,7 @@ internal static class PhantoonReport1196Verification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = CreatePhantoonInstructionSystem(bus);
+        var enemies = CreatePhantoonSystem(bus);
         var state = enemies.PhantoonBehavior.Phantoon;
         enemies.BeginEnemySoundRequestFrame();
         (state ?? throw new InvalidOperationException("Verification requires state.")).Body.VariableE = 1;
@@ -54,7 +54,7 @@ internal static class PhantoonReport1196Verification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyPhantoonDeathWaveInitialization()
     {
-        var enemies = CreatePhantoonInstructionSystem(NewSlopeHeightNoReadBus());
+        var enemies = CreatePhantoonSystem(NewSlopeHeightNoReadBus());
         var boss = enemies.PhantoonBehavior.Phantoon;
         (boss ?? throw new InvalidOperationException("Verification requires boss.")).Bg2Scroll = boss.Bg2Scroll.WithX(9);
         boss.Mouth.VariableD = 3072;

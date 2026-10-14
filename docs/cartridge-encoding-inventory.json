@@ -23,23 +23,23 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 34318,
-    "PointerDispatch": 1137,
+    "RawHexLiteral": 34228,
+    "PointerDispatch": 1108,
     "OpaqueWordArray": 1125,
-    "CatalogHexLiteral": 96702,
+    "CatalogHexLiteral": 96721,
     "JustifiedHexLiteral": 143,
     "RawWidthOperation": 46,
     "OwnedWidthOperation": 72,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
-    "CountdownSelfDecrement": 32,
-    "class:NumericQuantity": 55558,
-    "class:DomainIdentity": 6675,
-    "class:ComposableBits": 1639,
+    "CountdownSelfDecrement": 26,
+    "class:NumericQuantity": 55536,
+    "class:DomainIdentity": 6671,
+    "class:ComposableBits": 1618,
     "class:StructuredInstruction": 44207,
-    "class:CartridgeAddress": 24584,
-    "class:Unknown": 918,
-    "storageWidthMembers": 1561
+    "class:CartridgeAddress": 24531,
+    "class:Unknown": 912,
+    "storageWidthMembers": 1560
   },
   "subsystems": [
     {
@@ -48,8 +48,8 @@
         "CatalogHexLiteral": 9417,
         "JustifiedHexLiteral": 5,
         "OwnedWidthOperation": 2,
-        "class:NumericQuantity": 530,
-        "class:DomainIdentity": 399,
+        "class:NumericQuantity": 531,
+        "class:DomainIdentity": 398,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 8401,
         "class:Unknown": 73,
@@ -334,8 +334,8 @@
           "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyInstructionBank.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 6,
-            "class:DomainIdentity": 6
+            "CatalogHexLiteral": 5,
+            "class:DomainIdentity": 5
           }
         },
         {
@@ -350,8 +350,8 @@
           "path": "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 416,
-            "class:NumericQuantity": 37,
+            "CatalogHexLiteral": 417,
+            "class:NumericQuantity": 38,
             "class:DomainIdentity": 90,
             "class:CartridgeAddress": 285,
             "class:Unknown": 4
@@ -2979,30 +2979,37 @@
     {
       "name": "Boss: Phantoon",
       "totals": {
-        "RawHexLiteral": 66,
-        "PointerDispatch": 27,
-        "CatalogHexLiteral": 103,
+        "CatalogHexLiteral": 86,
         "OwnedWidthOperation": 1,
-        "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 98,
-        "class:DomainIdentity": 3,
-        "class:ComposableBits": 21,
-        "class:CartridgeAddress": 76,
-        "class:Unknown": 5,
+        "class:NumericQuantity": 43,
+        "class:ComposableBits": 1,
+        "class:CartridgeAddress": 43,
         "storageWidthMembers": 8
       },
-      "addressInterpretingTypes": [
-        "PhantoonInstructionProgramDefinitions",
-        "PhantoonProjectileInstructionProgramDefinitions",
-        "PrePhantoonRoomProjectileInstructionProgramDefinitions"
-      ],
+      "addressInterpretingTypes": [],
       "files": [
         {
           "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/Artwork/PhantoonBg2FrameDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 3
+            "CatalogHexLiteral": 4,
+            "class:NumericQuantity": 4
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/Artwork/PhantoonFlameVisualDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 9,
+            "class:NumericQuantity": 9
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/Artwork/PrePhantoonRoomVisualDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 1,
+            "class:NumericQuantity": 1
           }
         },
         {
@@ -3014,24 +3021,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBehavior.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 66,
-            "CountdownSelfDecrement": 6,
-            "class:NumericQuantity": 43,
-            "class:DomainIdentity": 3,
-            "class:ComposableBits": 20,
-            "class:CartridgeAddress": 1,
-            "class:Unknown": 5
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBlendingRomData.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 2,
-            "class:NumericQuantity": 2
+            "CatalogHexLiteral": 3,
+            "class:NumericQuantity": 3
           }
         },
         {
@@ -3039,6 +3033,14 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "storageWidthMembers": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonCasualFlameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 1,
+            "class:NumericQuantity": 1
           }
         },
         {
@@ -3066,10 +3068,18 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonDeathDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 2,
+            "class:NumericQuantity": 2
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonEnemyState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "storageWidthMembers": 5
+            "storageWidthMembers": 4
           }
         },
         {
@@ -3089,47 +3099,18 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 4,
-            "class:CartridgeAddress": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 13,
-            "CatalogHexLiteral": 19,
-            "class:NumericQuantity": 19,
-            "class:CartridgeAddress": 13
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonMotionDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 6,
-            "class:NumericQuantity": 6
+            "CatalogHexLiteral": 9,
+            "class:NumericQuantity": 9
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonPartInstruction.cs",
+          "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonPartFrame.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonProjectileInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 12,
-            "CatalogHexLiteral": 10,
-            "class:NumericQuantity": 10,
-            "class:CartridgeAddress": 12
+            "storageWidthMembers": 1
           }
         },
         {
@@ -3144,8 +3125,8 @@
           "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonSoundDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 5,
-            "class:NumericQuantity": 5
+            "CatalogHexLiteral": 7,
+            "class:NumericQuantity": 7
           }
         },
         {
@@ -3163,16 +3144,6 @@
             "OwnedWidthOperation": 1,
             "class:NumericQuantity": 3,
             "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PrePhantoonRoomProjectileInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 2,
-            "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 2
           }
         }
       ]
@@ -6070,11 +6041,11 @@
         "RawHexLiteral": 664,
         "PointerDispatch": 325,
         "OpaqueWordArray": 5,
-        "CatalogHexLiteral": 21394,
+        "CatalogHexLiteral": 21395,
         "JustifiedHexLiteral": 1,
         "OwnedWidthOperation": 12,
         "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 17772,
+        "class:NumericQuantity": 17773,
         "class:DomainIdentity": 85,
         "class:ComposableBits": 209,
         "class:StructuredInstruction": 488,
@@ -7333,8 +7304,8 @@
           "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyAiHandlerMasks.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
+            "CatalogHexLiteral": 2,
+            "class:NumericQuantity": 2
           }
         },
         {
@@ -10081,9 +10052,9 @@
         "PointerDispatch": 13,
         "CatalogHexLiteral": 885,
         "OwnedWidthOperation": 1,
-        "class:NumericQuantity": 564,
+        "class:NumericQuantity": 567,
         "class:ComposableBits": 37,
-        "class:CartridgeAddress": 355,
+        "class:CartridgeAddress": 352,
         "storageWidthMembers": 3
       },
       "addressInterpretingTypes": [
@@ -10123,8 +10094,8 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 545,
-            "class:NumericQuantity": 405,
-            "class:CartridgeAddress": 140
+            "class:NumericQuantity": 408,
+            "class:CartridgeAddress": 137
           }
         },
         {
@@ -10317,21 +10288,21 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 31872,
-        "PointerDispatch": 378,
+        "RawHexLiteral": 31848,
+        "PointerDispatch": 376,
         "OpaqueWordArray": 989,
-        "CatalogHexLiteral": 1043,
+        "CatalogHexLiteral": 1078,
         "RawWidthOperation": 46,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 10607,
+        "class:NumericQuantity": 10635,
         "class:DomainIdentity": 635,
-        "class:ComposableBits": 564,
+        "class:ComposableBits": 563,
         "class:StructuredInstruction": 14030,
-        "class:CartridgeAddress": 7990,
-        "class:Unknown": 517,
-        "storageWidthMembers": 83
+        "class:CartridgeAddress": 7973,
+        "class:Unknown": 516,
+        "storageWidthMembers": 82
       },
       "addressInterpretingTypes": [
         "",
@@ -10441,13 +10412,11 @@
         "OldTourianEscapeShaftWallExplosionDefinitionsTooling",
         "OwtchInstructionProgramDefinitionsTooling",
         "PaletteFxInstructionCodesVerification",
-        "PhantoonProjectileInstructionProgramDefinitionsTooling",
         "PlatformInstructionProgramDefinitionsTooling",
         "PolypInstructionProgramDefinitionsVerification",
         "PolypRockInstructionProgramDefinitionsTooling",
         "PolypRockInstructionProgramDefinitionsVerification",
         "PowampSpikeInstructionProgramDefinitionsTooling",
-        "PrePhantoonRoomProjectileInstructionProgramDefinitionsTooling",
         "PuyoInstructionProgramDefinitionsTooling",
         "RetailEndingHandoffTests",
         "RidleyExplosionInstructionProgramDefinitionsTooling",
@@ -11237,31 +11206,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Bosses/Phantoon/PhantoonInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Bosses/Phantoon/PhantoonProjectileInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Bosses/Phantoon/PrePhantoonRoomProjectileInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 1,
-            "storageWidthMembers": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Bosses/Ridley/CeresRidleyProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
@@ -11454,8 +11398,8 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectorsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 17,
-            "class:CartridgeAddress": 17
+            "RawHexLiteral": 16,
+            "class:CartridgeAddress": 16
           }
         },
         {
@@ -14473,16 +14417,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 10,
-            "class:NumericQuantity": 2,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 7
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonMotionDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
@@ -14491,6 +14425,15 @@
             "RawWidthOperation": 3,
             "class:ComposableBits": 3,
             "class:StructuredInstruction": 10,
+            "class:CartridgeAddress": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 36,
+            "class:NumericQuantity": 35,
             "class:CartridgeAddress": 1
           }
         },
@@ -14520,16 +14463,6 @@
           "totals": {
             "RawHexLiteral": 5,
             "class:NumericQuantity": 5
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonProjectileInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 11,
-            "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 7,
-            "class:Unknown": 1
           }
         },
         {
@@ -16279,8 +16212,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 6,
-            "class:NumericQuantity": 5,
+            "RawHexLiteral": 5,
+            "class:NumericQuantity": 4,
             "class:CartridgeAddress": 1
           }
         },
@@ -23550,14 +23483,6 @@
           "totals": {
             "CatalogHexLiteral": 1,
             "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Bosses/Phantoon/PhantoonInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
           }
         },
         {

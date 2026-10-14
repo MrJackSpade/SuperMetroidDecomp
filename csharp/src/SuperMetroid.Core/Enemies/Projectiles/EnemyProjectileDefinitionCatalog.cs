@@ -25,6 +25,7 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -39,7 +40,7 @@ internal static class EnemyProjectileDefinitionCatalog
     {
         RoomEnemyProjectileKind.PrePhantoonRoom => new(
             (ushort)EnemyProjectilePreInstruction.PrePhantoonRoom,
-            PrePhantoonRoomProjectileInstructionProgramDefinitions.Initial,
+            PrePhantoonRoomVisualDefinitions.Program,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.YappingMawBody => new(
 0xEC94, YappingMawBodyProjectileInstructionProgramDefinitions.FacingDown,
@@ -96,14 +97,14 @@ internal static class EnemyProjectileDefinitionCatalog
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.PhantoonDestroyableFlame => new(
 0x9981,
-            PhantoonProjectileInstructionProgramDefinitions.DestroyableIdle,
+            PhantoonFlameVisualDefinitions.DestroyableIdleProgram,
             0x1008, 0x8028, 0x0000,
-            PhantoonProjectileInstructionProgramDefinitions.DestroyableShot),
+            PhantoonFlameVisualDefinitions.DestroyableShotProgram),
         RoomEnemyProjectileKind.PhantoonStartingFlame => new(
 0x9B29,
-            PhantoonProjectileInstructionProgramDefinitions.StartingFlame,
+            PhantoonFlameVisualDefinitions.StartingFlameProgram,
             0x1008, 0x4028, 0x0000,
-            PhantoonProjectileInstructionProgramDefinitions.DestroyableIdle),
+            PhantoonFlameVisualDefinitions.DestroyableIdleProgram),
         RoomEnemyProjectileKind.DraygonGoop => new(
 0x8E0F, 0x8C3A,
             0x0808, 0xD000, 0x8C38, 0x8C58),

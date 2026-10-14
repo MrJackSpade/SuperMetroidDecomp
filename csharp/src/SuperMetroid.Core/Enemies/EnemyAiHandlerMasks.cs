@@ -8,4 +8,7 @@ internal static class EnemyAiHandlerMasks
     /// window, keeping frozen processing and collision-list membership active.
     /// </summary>
     public const ushort Frozen = 0x0004;
+
+    /// <summary>AI-handler bit $0002: the enemy runs its hurt AI, set when a shot damages it.</summary>
+    public const ushort Hurt = 0x0002;
 }

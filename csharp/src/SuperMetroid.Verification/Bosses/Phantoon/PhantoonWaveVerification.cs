@@ -75,7 +75,7 @@ internal static class PhantoonWaveVerification
     private static void VerifyPhantoonBlendingLifecycle(PhantoonEnemyState boss)
     {
         var blend = boss.Blending;
-        boss.SemiTransparencyLayerFlags = PhantoonBlendingRomData.SemiTransparentBit;
+        boss.SemiTransparent = true;
         boss.Mouth.Parameter1 = PhantoonBlendingRomData.DeleteControl;
         for (int i = 0; i < PhantoonBlendingRomData.SetupCalls; i++)
         {
@@ -86,7 +86,7 @@ internal static class PhantoonWaveVerification
         AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.Configuration, "flag takes priority over delete control");
         blend.LatchDisplay(0x42);
         boss.MosaicRegister = 0x52;
-        boss.SemiTransparencyLayerFlags = 0;
+        boss.SemiTransparent = false;
         boss.Mouth.Parameter1 = 0x8001;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "nonzero low byte retains current room default, not previous blend");
@@ -98,7 +98,7 @@ internal static class PhantoonWaveVerification
         boss.Mouth.Parameter1 = 0xffff;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "delete call still publishes hidden configuration");
-        boss.SemiTransparencyLayerFlags = PhantoonBlendingRomData.SemiTransparentBit;
+        boss.SemiTransparent = true;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "deleted owner no longer overrides room");
         using var stream = new MemoryStream();

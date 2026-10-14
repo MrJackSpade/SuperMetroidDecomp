@@ -50,7 +50,6 @@ internal static partial class CompiledEnemyVisualSelectors
         EnemyInstructionBank.BankA3 => ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         EnemyInstructionBank.BankA6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        EnemyInstructionBank.BankA7 => PhantoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         EnemyInstructionBank.BankA8 => BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${SnesAddressMath.BankNumber(address):X2}."),
@@ -88,7 +87,6 @@ internal static partial class CompiledEnemyVisualSelectors
                 EnemyInstructionBank.BankA6 => BoulderInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)
                     : KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operandAddress),
-                EnemyInstructionBank.BankA7 => PhantoonInstructionProgramDefinitions.FrameAt(operandAddress),
                 EnemyInstructionBank.BankA8 => FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)
                     : AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress)

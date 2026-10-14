@@ -31,6 +31,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -175,8 +176,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             NoobTubeProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "nuclear_waffle", NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordCount,
             NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordAddress);
-        Add(frames, "phantoon", PhantoonProjectileInstructionProgramDefinitions.PresentationWordCount,
-            PhantoonProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "phantoon", PhantoonFlameVisualDefinitions.ProjectileFrameCount,
+            index => PhantoonFlameVisualDefinitions.PresentationKey(PhantoonFlameVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "shaktool", ShaktoolProjectileInstructionProgramDefinitions.PresentationWordCount,
             ShaktoolProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "space_pirate", SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount,

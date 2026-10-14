@@ -10,6 +10,12 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal abstract class EnemyProjectileAnimation
 {
     /// <summary>
+    /// The frame key of a frame that shows the empty projectile spritemap ($8D:8000) rather than an installed program
+    /// frame, as a native list operand selecting that spritemap does.
+    /// </summary>
+    internal const ushort EmptyFrameKey = 0;
+
+    /// <summary>
     /// Advances one projectile pass: the frame expires on the update its native timer would. A cue published
     /// on the way may end the animation (deleting the projectile or handing it to another program); the pass
     /// then stops, as the native instruction that did so would.
@@ -39,7 +45,7 @@ internal abstract class EnemyProjectileAnimation
     /// <param name="handlers">The engine's handlers, which carry out published cues.</param>
     /// <param name="samus">Samus, for cues that act on her; null in fixtures without her.</param>
     /// <param name="duration">How many projectile passes the frame lasts.</param>
-    /// <param name="presentationKey">The installed artwork key of the frame.</param>
+    /// <param name="presentationKey">The installed artwork key of the frame, or <see cref="EmptyFrameKey"/>.</param>
     private protected abstract bool TryShowNextFrame(
         RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out ushort presentationKey);
 }

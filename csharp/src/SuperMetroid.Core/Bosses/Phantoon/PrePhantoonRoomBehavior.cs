@@ -39,6 +39,7 @@ internal sealed class PrePhantoonRoomBehavior
         RoomEnemyProjectileSlot projectile = _projectiles.AllocateEnemyProjectile() ?? throw new InvalidOperationException(
             "The pre-Phantoon room projectile found no free slot in a freshly cleared pool.");
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.PrePhantoonRoom, graphicsIndex: 0);
+        projectile.StartAnimation(new PrePhantoonRoomAnimation());
         backgroundScroll.Bg2Offset = backgroundScroll.Bg2Offset.WithY(0);
     }
 
@@ -50,5 +51,16 @@ internal sealed class PrePhantoonRoomBehavior
             BackgroundScrollState scroll = RequireEnemyProjectileBackgroundScroll();
             scroll.Bg2Offset = scroll.Bg2Offset.WithY(0);
         }, EnemyProjectilePreInstruction.PrePhantoonRoom);
+        table.RegisterCue<PrePhantoonRoomCue>((projectile, samus, cue) =>
+        {
+            switch (cue)
+            {
+                case PrePhantoonRoomCue.Delete:
+                    projectile.Clear();
+                    return;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(PrePhantoonRoomCue)} {cue}.");
+            }
+        });
     }
 }

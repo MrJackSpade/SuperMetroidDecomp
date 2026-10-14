@@ -1390,7 +1390,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         MamaTurtleBehavior.RegisterMamaTurtleOwnedInstructions(table);
         DragonBehavior.RegisterDragonOwnedInstructions(table);
         KraidBehavior.RegisterKraidTypedAnimations(table);
-        PhantoonBehavior.RegisterPhantoonOwnedInstructions(table);
+        PhantoonBehavior.RegisterPhantoonTypedAnimations(table);
         MotherBrainBehavior.RegisterMotherBrainTypedAnimations(table);
         MotherBrainBehavior.RegisterMotherBrainTubeTypedAnimations(table);
         DraygonBehavior.RegisterDraygonTypedAnimations(table);

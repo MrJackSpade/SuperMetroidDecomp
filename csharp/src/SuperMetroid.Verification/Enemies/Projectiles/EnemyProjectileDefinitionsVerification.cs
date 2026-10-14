@@ -13,6 +13,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks all compiled enemy projectile definitions and their production collision consumers.</summary>
 internal static class EnemyProjectileDefinitionsVerification
@@ -144,6 +146,17 @@ internal static class EnemyProjectileDefinitionsVerification
                 // The turret bullet's impact is typed (#1285); VerifyMotherBrainProjectileAnimations matches it.
                 AssertTrue(projectile.Animation is MotherBrainTurretAnimation,
                     $"{kind} production shot starts the typed impact program");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+            }
+            else if (kind is RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame)
+            {
+                // Phantoon's flames are typed (#1286); VerifyPhantoonFlameAnimations matches them to the native lists.
+                PhantoonFlameProgram expected = kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame
+                    ? PhantoonFlameProgram.DestroyableShot
+                    : PhantoonFlameProgram.DestroyableIdle;
+                AssertTrue(projectile.Animation is PhantoonFlameAnimation started
+                        && started.Cursor == AnimationProgramCursor<PhantoonFlameProgram>.Start(expected),
+                    $"{kind} production shot starts the typed {expected} program");
                 AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
             }
             else

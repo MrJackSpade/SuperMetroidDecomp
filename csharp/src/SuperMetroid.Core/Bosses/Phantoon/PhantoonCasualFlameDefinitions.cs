@@ -3,6 +3,11 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Phantoon mouth schedules retain the native header and reverse-read timer layout.</summary>
 public static class PhantoonCasualFlameDefinitions
 {
+    /// <summary>
+    /// The mouth's remaining-flame word when no schedule is active (native -1): the next expiry picks a new pattern.
+    /// </summary>
+    public const ushort NoActiveSchedule = 0xffff;
+
     /// <summary>$A7:CD2F's seven irregular reverse-read intervals; independent timing disposition remains required.</summary>
     private static ReadOnlySpan<ushort> IrregularIntervals => [16,64,32,64,32,16,32];
 

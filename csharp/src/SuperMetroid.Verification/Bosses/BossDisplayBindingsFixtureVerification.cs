@@ -19,8 +19,10 @@ internal static class BossDisplayBindingsFixtureVerification
         internal SnesVram Vram { get; } = new();
         /// <summary>Enemy owner whose ordinary queue and presentation path the fixture exercises.</summary>
         internal RoomEnemySystem Enemies { get; }
-        /// <summary>First physical slot, initialized as the selected boss definition.</summary>
-        internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[0];
+        /// <summary>The physical slot initialized as the selected boss definition.</summary>
+        internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[_slot];
+        /// <summary>The actor's physical slot.</summary>
+        private readonly int _slot;
         /// <summary>Bound production instruction interpreter for one actor step.</summary>
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort> instructions;
         /// <summary>Bound extended-hitbox query used by the collision check.</summary>
@@ -29,9 +31,10 @@ internal static class BossDisplayBindingsFixtureVerification
         private delegate bool HitboxQuery(RoomEnemySlot actor, Position16<RoomPixels> position,
             Extent16<RoomPixels> radius, bool shot, out ushort callback);
 
-        /// <summary>Installs one centered boss actor and enqueues it for the production draw path.</summary>
-        internal BossDisplayFixture(EnemyDefinitionId definition, EnemyTileArtworkCatalog artwork)
+        /// <summary>Installs one centered boss actor in <paramref name="slot"/> and enqueues it for the production draw path.</summary>
+        internal BossDisplayFixture(EnemyDefinitionId definition, EnemyTileArtworkCatalog artwork, int slot = 0)
         {
+            _slot = slot;
             Enemies = new RoomEnemySystem { TileArtwork = artwork };
             Enemies.BindFixtureBus(Memory); Enemies.Presentation._vram = Vram; Enemies.Presentation._cgram = new SnesCgram();
             Actor.EnemyDefinitionPointer = definition;

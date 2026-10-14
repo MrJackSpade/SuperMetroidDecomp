@@ -47,6 +47,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Map;
 
+using SuperMetroid.Verification.Bosses.Phantoon;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>
@@ -268,7 +269,7 @@ internal static class LookupStream5Verification
                 }
             }
             AssertEqual((ushort)PhantoonAiFunction.NoOperation, body.VariableF, "Selected duration stops moving phase");
-            AssertEqual(PhantoonInstructionProgramDefinitions.EyeOpen, eye.CurrentInstruction, "Expiration starts exact eye-opening program");
+            AssertEqual(PhantoonPartProgram.EyeOpen, state.PartProgram(eye).Program, "Expiration starts exact eye-opening program");
             AssertEqual((ushort)1, eye.InstructionTimer.RawValue, "Eye-opening program executes on next instruction step");
             AssertEqual((ushort)0, body.Parameter2, "Opening clears flame-rain trigger");
             AssertEqual((ushort)1, mouth.VariableB, "Casual hold still advances on every movement call");
@@ -423,8 +424,8 @@ internal static class LookupStream5Verification
             else
             {
                 AssertEqual((ushort)PhantoonAiFunction.NoOperation, body.VariableF, "Unhit expiration hands off to eye close");
-                AssertEqual(PhantoonInstructionProgramDefinitions.InvulnerableBody, body.CurrentInstruction, "Native invulnerable body handoff");
-                AssertEqual(PhantoonInstructionProgramDefinitions.EyeCloseAndPickNewPattern, eye.CurrentInstruction, "Native close/reselect eye handoff");
+                AssertEqual(PhantoonPartProgram.InvulnerableBody, state.PartProgram(body).Program, "Native invulnerable body handoff");
+                AssertEqual(PhantoonPartProgram.EyeCloseAndPickNewPattern, state.PartProgram(eye).Program, "Native close/reselect eye handoff");
                 AssertTrue((body.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) != 0, "Expiration removes open-eye collision");
                 AssertEqual((ushort)1, body.Parameter2, "Unhit expiration requests next rain branch");
             }
@@ -1500,27 +1501,28 @@ internal static class LookupStream5Verification
         for (ushort direction = 0; direction < 9; direction++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7d40d + direction * 2)),
-                PhantoonPatternDefinitions.EyeInstruction(direction),
+                PhantoonNativeListAddresses.PartEntry(PhantoonPatternDefinitions.EyeProgram(direction)),
                 $"native Phantoon eye direction {direction}");
         }
         var eyeEnemies = new RoomEnemySystem();
         eyeEnemies.BindFixtureBus(NewPhantoonPatternReadGuard(rom));
-        Action<RoomEnemySlot, RoomEnemySlot, SamusState> pointEye = PhantoonBehavior.PointPhantoonEyeAtSamus;
+        Action<RoomEnemySlot, PhantoonEnemyState, SamusState> pointEye = PhantoonBehavior.PointPhantoonEyeAtSamus;
         RoomEnemySlot eyeBody = eyeEnemies.SlotTable.Slots[0];
         RoomEnemySlot trackingEye = eyeEnemies.SlotTable.Slots[1];
+        var eyeState = new PhantoonEnemyState(eyeBody) { Eye = trackingEye, Tentacles = eyeEnemies.SlotTable.Slots[2], Mouth = eyeEnemies.SlotTable.Slots[3] };
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, ushort direction) in eyeTargets)
         {
-            pointEye(eyeBody, trackingEye, new SamusState
+            pointEye(eyeBody, eyeState, new SamusState
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
-            AssertEqual(PhantoonPatternDefinitions.EyeInstruction(direction),
-                trackingEye.CurrentInstruction,
+            AssertEqual(PhantoonPatternDefinitions.EyeProgram(direction),
+                eyeState.PartProgram(trackingEye).Program,
                 $"production Phantoon eye direction {direction}");
         }
         AssertThrows<InvalidDataException>(
-            () => PhantoonPatternDefinitions.EyeInstruction(9),
+            () => PhantoonPatternDefinitions.EyeProgram(9),
             "Phantoon eye direction beyond authored table");
         AssertThrows<IndexOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[-1], "rain pattern lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[8], "rain pattern upper bound");

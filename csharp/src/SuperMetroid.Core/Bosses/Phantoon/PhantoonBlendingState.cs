@@ -31,7 +31,7 @@ public sealed class PhantoonBlendingState
         Configuration = roomDefault;
         if (_deleted) return;
         if (_setupCalls < PhantoonBlendingRomData.SetupCalls) { _setupCalls++; return; }
-        if ((boss.SemiTransparencyLayerFlags & PhantoonBlendingRomData.SemiTransparentBit) != 0)
+        if (boss.SemiTransparent)
             Configuration = LayerBlendingConfiguration.PhantoonSemiTransparent;
         else if ((byte)boss.Mouth.Parameter1 is 0 or PhantoonBlendingRomData.DeleteControl)
         {

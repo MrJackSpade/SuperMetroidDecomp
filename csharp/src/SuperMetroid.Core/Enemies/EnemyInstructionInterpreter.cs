@@ -410,9 +410,6 @@ internal sealed class EnemyInstructionInterpreter
         if (WorkRobotBehavior.IsWorkRobotDefinition(slot.EnemyDefinitionPointer))
             return WorkRobotInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (PhantoonBehavior.IsPhantoonPartDefinition(slot.EnemyDefinitionPointer))
-            return PhantoonInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue)
         {
             return TourianEntranceStatueInstructionProgramDefinitions.ReadMechanicsWord(

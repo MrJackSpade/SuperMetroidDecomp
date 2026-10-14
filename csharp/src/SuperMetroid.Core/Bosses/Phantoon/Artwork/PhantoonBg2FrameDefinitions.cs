@@ -17,6 +17,8 @@ internal static class PhantoonBg2FrameDefinitions
     internal const int MaximumComponents = 2;
     /// <summary>Phantoon's extended frames and BG2 streams reside in bank $A7.</summary>
     internal const byte Bank = 0xa7;
+    /// <summary>The blank BG2 tile word $0338 that fills Phantoon's tilemap before and after its body maps.</summary>
+    internal const ushort BlankTile = 0x0338;
 
     /// <summary>$A7:DEDD, first one-component body/eye frame; sixteen selected roots.</summary>
     private const ushort BodyEyeStart = 0xdedd;

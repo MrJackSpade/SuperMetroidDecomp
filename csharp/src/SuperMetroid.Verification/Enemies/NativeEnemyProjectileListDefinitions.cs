@@ -35,6 +35,12 @@ internal static class NativeEnemyProjectileListDefinitions
         Sleep,
         /// <summary>The deletion.</summary>
         Delete,
+        /// <summary>The general-timer load and its count operand.</summary>
+        SetCounter,
+        /// <summary>The general-timer countdown and its target operand.</summary>
+        RepeatWhileCounting,
+        /// <summary>An owner callback with no operands, recorded rather than run.</summary>
+        Callback,
     }
 
     /// <summary>The bank-$86 opcodes the reader decodes besides frames.</summary>
@@ -47,6 +53,9 @@ internal static class NativeEnemyProjectileListDefinitions
         [(ushort)EnemyProjectileInstruction.GotoY] = WordKind.GoTo,
         [(ushort)EnemyProjectileInstruction.Sleep] = WordKind.Sleep,
         [(ushort)EnemyProjectileInstruction.Delete] = WordKind.Delete,
+        [(ushort)EnemyProjectileInstruction.TimerInY] = WordKind.SetCounter,
+        [(ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = WordKind.RepeatWhileCounting,
+        [(ushort)EnemyProjectileInstruction.SpawnPhantoonDrop] = WordKind.Callback,
     };
 
     /// <summary>Decodes a native projectile list word, rejecting words outside the compared set.</summary>
@@ -74,11 +83,16 @@ internal static class NativeEnemyProjectileListDefinitions
         internal List<int> Calls { get; } = [];
         /// <summary>Whether the list has deleted its projectile.</summary>
         internal bool Deleted { get; private set; }
+        /// <summary>The projectile's general-timer word, which the counter commands count.</summary>
+        internal ushort Counter { get; private set; }
+        /// <summary>The owner callbacks the latest update executed.</summary>
+        internal List<ushort> Callbacks { get; } = [];
 
         /// <summary>Runs one update.</summary>
         internal void Step(IImportCartridgeSource cartridge)
         {
             Calls.Clear();
+            Callbacks.Clear();
             ushort old = Timer;
             Timer = unchecked((ushort)(Timer - 1));
             if (old != 1)
@@ -117,6 +131,20 @@ internal static class NativeEnemyProjectileListDefinitions
                     case WordKind.Delete:
                         Deleted = true;
                         return;
+                    case WordKind.SetCounter:
+                        Counter = cartridge.ReadCartridgeWord(ProjectileBank | (cursor + 2));
+                        cursor = unchecked((ushort)(cursor + 4));
+                        continue;
+                    case WordKind.RepeatWhileCounting:
+                        Counter = unchecked((ushort)(Counter - 1));
+                        cursor = Counter != 0
+                            ? cartridge.ReadCartridgeWord(ProjectileBank | (cursor + 2))
+                            : unchecked((ushort)(cursor + 4));
+                        continue;
+                    case WordKind.Callback:
+                        Callbacks.Add(word);
+                        cursor = unchecked((ushort)(cursor + 2));
+                        continue;
                     default:
                         throw new InvalidOperationException($"Undefined {nameof(WordKind)}.");
                 }

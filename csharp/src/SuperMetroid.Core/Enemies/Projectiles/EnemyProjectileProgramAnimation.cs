@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// A projectile animation that runs programs of an <see cref="AnimationProgramSet{TProgram, TFrame, TCue}"/>: for
 /// families whose native lists run on into, or jump between, one another. Each cue goes to the handler its family
 /// registered with <see cref="EnemyProjectileHandlerTable.RegisterCue{TCue}"/>; projectile programs never redirect.
+/// Counter steps count the projectile's general timer.
 /// </summary>
 /// <typeparam name="TProgram">The family's program identity.</typeparam>
 /// <typeparam name="TFrame">The family's frame identity.</typeparam>
@@ -33,14 +34,18 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
         RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out ushort presentationKey)
     {
         AnimationProgramCursor<TProgram> cursor = Cursor;
-        // The projectile interpreter has no loop timer, so projectile programs hold no counter steps.
-        NativeCountdown counter = NativeCountdown.Start(0);
+        // Counter steps use the projectile's general timer, as the native TimerInY and DecrementTimer_GotoYIfNonZero do.
+        ushort timerBefore = projectile.GeneralTimer;
+        NativeCountdown counter = NativeCountdown.FromRaw(timerBefore);
         AnimationProgramAdvance<TFrame> advance = Programs.Advance(ref cursor, ref counter, (cue, continuation) =>
         {
             handlers.PublishCue(projectile, samus, cue);
             return null;
         });
         Cursor = cursor;
+        // Only a counter step changes the counter; a deleted projectile keeps its cleared timer.
+        if (projectile.Animation == this && counter.RawValue != timerBefore)
+            projectile.GeneralTimer = counter.RawValue;
         duration = advance.Duration;
         switch (advance.Kind)
         {

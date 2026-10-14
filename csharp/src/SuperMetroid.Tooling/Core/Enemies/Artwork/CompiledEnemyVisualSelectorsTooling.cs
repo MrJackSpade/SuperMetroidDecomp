@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Atomic;
@@ -22,7 +21,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
     internal static int CalculatedCount => BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount + BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount + BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount + BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount + GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount + HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount + (VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
         BoulderInstructionProgramDefinitionsTooling.PresentationWordCount +
         FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
-        PhantoonInstructionProgramDefinitions.PresentationWordCount +
         FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount + AtomicInstructionProgramDefinitionsTooling.PresentationWordCount;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
     internal static int Count => CompiledEnemyVisualSelectors.Entries.Length + CalculatedCount;
@@ -124,9 +122,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
             return new(0xa60000 | operand, KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operand));
         }
         index -= FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount;
-        if (index < PhantoonInstructionProgramDefinitions.PresentationWordCount)
-            return new(0xa70000 | PhantoonInstructionProgramDefinitions.PresentationWordAddress(index), PhantoonInstructionProgramDefinitions.PresentationFrame(index));
-        index -= PhantoonInstructionProgramDefinitions.PresentationWordCount;
         if (index < FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount)
         {
             ushort operand = FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordAddress(index);

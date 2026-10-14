@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Harness;
@@ -26,7 +27,8 @@ internal static class PhantoonCasualFlamesVerification
         var enemies = new RoomEnemySystem();
         var body = enemies.SlotTable.Slots[0];
         var mouth = enemies.SlotTable.Slots[3];
-        Action<RoomEnemySlot> step = enemies.PhantoonBehavior.StepPhantoonCasualFlameSchedule;
+        var state = new PhantoonEnemyState(body) { Eye = enemies.SlotTable.Slots[1], Tentacles = enemies.SlotTable.Slots[2], Mouth = mouth };
+        void step(RoomEnemySlot _) => enemies.PhantoonBehavior.StepPhantoonCasualFlameSchedule(state);
         ushort random = 0;
         int calls = 0;
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { calls++; return random; });
@@ -56,7 +58,7 @@ internal static class PhantoonCasualFlamesVerification
             int pointer = 0xa70000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7ccfd + pattern * 2));
             for (int frame = 0; frame < 2048; frame++)
             {
-                mouth.CurrentInstruction = 0;
+                state.PartProgram(mouth) = default;
                 mouth.InstructionTimer = NativeCountdown.Start(0);
                 bool draw = false;
                 timer = NativeWordCounter.Decrement(timer).Value;
@@ -82,7 +84,7 @@ internal static class PhantoonCasualFlamesVerification
                 step(mouth);
                 AssertEqual(timer, mouth.VariableB, "Actual casual frame timer");
                 AssertEqual(count, mouth.VariableC, "Actual casual frame remaining count");
-                AssertEqual(draw ? PhantoonInstructionProgramDefinitions.MouthFollowUp : (ushort)0, mouth.CurrentInstruction, "Exact casual mouth animation trigger frame");
+                AssertEqual(draw ? AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.MouthSpawnFlame) : default, state.PartProgram(mouth), "Exact casual mouth animation trigger frame");
                 AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.InstructionTimer.RawValue, "Exact casual instruction timer reset");
             }
         }

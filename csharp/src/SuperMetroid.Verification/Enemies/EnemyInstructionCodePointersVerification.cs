@@ -4,7 +4,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -89,7 +88,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(MetroidInstruction),
             typeof(NorfairRioInstruction),
             typeof(OwtchInstruction),
-            typeof(PhantoonPartInstruction),
             typeof(PlatformInstruction),
             typeof(RidleyInstruction),
             typeof(RinkaInstruction),
@@ -136,8 +134,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(MotherBrainInstructionCodes),
             typeof(NorfairRioInstruction),
             typeof(OwtchInstruction),
-            typeof(PhantoonInstruction),
-            typeof(PhantoonPartInstruction),
             typeof(PlatformInstruction),
             typeof(RidleyInstruction),
             typeof(RinkaInstruction),
@@ -173,7 +169,6 @@ internal static class EnemyInstructionCodePointersVerification
             (typeof(GunshipInstructionProgramDefinitions), 0xa2),
             (typeof(OrdinaryEnemyInstructionLists), 0xa3),
             (typeof(RidleyInstructionProgramDefinitions), 0xa6),
-            (typeof(PhantoonInstructionProgramDefinitions), 0xa7),
             (typeof(TorizoInstructionLists), 0xaa),
         ];
         foreach ((Type catalog, _) in bankLocalCatalogs)

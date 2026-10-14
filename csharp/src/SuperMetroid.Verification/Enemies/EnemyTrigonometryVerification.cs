@@ -179,11 +179,10 @@ using static SuperMetroid.Verification.Enemies.Owtch.OwtchMovementDefinitionsVer
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonCasualFlamesVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonDeathExplosionsVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonFlameSpawnsVerification;
-using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonInstructionProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonAnimationsVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonMotionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonPathVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonPatternsVerification;
-using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonSoundDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonTimersVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonWaveMathVerification;
@@ -352,7 +351,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyKagoBugProjectileInstructionProgramDefinitions), () => VerifyKagoBugProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyYappingMawBodyProjectileInstructionProgramDefinitions), () => VerifyYappingMawBodyProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCrocomireProjectileAnimations), () => VerifyCrocomireProjectileAnimations(LoadRepositoryRom())),
-        new(nameof(VerifyPhantoonProjectileInstructionProgramDefinitions), () => VerifyPhantoonProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyPhantoonFlameAnimations), () => VerifyPhantoonFlameAnimations(LoadRepositoryRom())),
         new(nameof(VerifyDraygonProjectileAnimations), () => VerifyDraygonProjectileAnimations(LoadRepositoryRom())),
         new(nameof(VerifyCeresRidleyProjectileInstructionProgramDefinitions), () => VerifyCeresRidleyProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySpacePirateProjectileInstructionProgramDefinitions), () => VerifySpacePirateProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -446,7 +445,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyLowerNorfairRioInstructionProgramDefinitions), () => VerifyLowerNorfairRioInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMamaTurtleInstructionProgramDefinitions), () => VerifyMamaTurtleInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyTourianEntranceStatueInstructionProgramDefinitions), () => VerifyTourianEntranceStatueInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyPhantoonInstructionProgramDefinitions), () => VerifyPhantoonInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyPhantoonPartAnimations), () => VerifyPhantoonPartAnimations(LoadRepositoryRom())),
         new(nameof(VerifyWorkRobotInstructionProgramDefinitions), () => VerifyWorkRobotInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyYardInstructionProgramDefinitions), () => VerifyYardInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyNorfairLavaJumpDefinitions), () => VerifyNorfairLavaJumpDefinitions(LoadRepositoryRom())),

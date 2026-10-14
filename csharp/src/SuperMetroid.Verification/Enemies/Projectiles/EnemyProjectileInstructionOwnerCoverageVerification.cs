@@ -36,7 +36,8 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             // Botwoon's, Crocomire's, Draygon's and Kraid's spawners (and Kago's, which shares Kraid's rock pose) start
             // typed animations (#641); their oracles match them to these native lists frame by frame, and no
             // interpreter owns the lists. Crocomire's mouth projectile, Draygon's goop and Kraid's spat rock also start
-            // typed shot programs, and the goop a typed touch program.
+            // typed shot programs, and the goop a typed touch program. Phantoon's flames and the pre-Phantoon room
+            // projectile start typed programs too (#1286), and both flames' shots start typed programs.
             bool typed = kind is RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit or
                 RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces or RoomEnemyProjectileKind.DraygonGoop or
@@ -45,13 +46,16 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.KraidRisingRockRight or RoomEnemyProjectileKind.KagoBug or
                 RoomEnemyProjectileKind.MotherBrainRoomTurret or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainGlassShard or RoomEnemyProjectileKind.MotherBrainGlassSparkle or
-                RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired;
+                RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired or
+                RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
+                RoomEnemyProjectileKind.PrePhantoonRoom;
             if (!typed)
                 VerifyEntry(definition.InitialInstructionList, "initial");
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet))
                 VerifyEntry(definition.TouchInstructionList, "touch");
             if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop or
-                RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet))
+                RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
+                RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame))
                 VerifyEntry(definition.ShotInstructionList, "shot");
 
             void VerifyEntry(ushort address, string role)

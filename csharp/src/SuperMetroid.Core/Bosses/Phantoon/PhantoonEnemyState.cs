@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -22,6 +23,22 @@ public sealed class PhantoonEnemyState
     /// <summary>Gets the native $C0 mouth record, attached by part initialization and also retaining the wave/blending control words.</summary>
     public RoomEnemySlot Mouth { get => field ?? throw new InvalidOperationException("Phantoon's mouth part is not attached; part initialization attaches it."); internal set; }
 
+    /// <summary>Each part's typed program cursor (#641), by its slot offset from the body: body, eye, tentacles, mouth.</summary>
+    internal AnimationProgramCursor<PhantoonPartProgram>[] PartPrograms { get; } = new AnimationProgramCursor<PhantoonPartProgram>[PartCount];
+
+    /// <summary>Phantoon's four consecutive physical records.</summary>
+    private const int PartCount = 4;
+
+    /// <summary>The program cursor of <paramref name="part"/>, one of Phantoon's four consecutive records.</summary>
+    internal ref AnimationProgramCursor<PhantoonPartProgram> PartProgram(RoomEnemySlot part)
+    {
+        Ensure.NotNull(part);
+        int offset = part.SlotIndex - Body.SlotIndex;
+        if ((uint)offset >= PartCount)
+            throw new InvalidOperationException($"Enemy slot {part.SlotIndex} is not one of Phantoon's four records.");
+        return ref PartPrograms[offset];
+    }
+
     /// <summary>Native enemy-BG2 tilemap byte count at WRAM <c>$7E:19F6</c>.</summary>
     public ushort Bg2TilemapSize { get; internal set; }
 
@@ -32,10 +49,10 @@ public sealed class PhantoonEnemyState
     public Position16<Bg2Pixels> Bg2Scroll { get; internal set; }
 
     /// <summary>
-    /// Layer-blending bit <c>$4000</c>. Native HDMA consumes it to choose Phantoon's
-    /// translucent materialization mode; retaining the word also exposes every transition.
+    /// Whether Phantoon draws translucent: the native layer-blending bit <c>$4000</c>, the only bit Phantoon sets or
+    /// clears; $88:E44E tests it to select the translucent blending configuration $1A.
     /// </summary>
-    public ushort SemiTransparencyLayerFlags { get; internal set; }
+    public bool SemiTransparent { get; internal set; }
 
     /// <summary>True once the room's 2048-word enemy BG2 map has been cleared to tile $0338.</summary>
     public bool BackgroundTilemapPrepared { get; internal set; }

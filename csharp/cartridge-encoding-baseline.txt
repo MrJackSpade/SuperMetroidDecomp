@@ -45,11 +45,6 @@ csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainPaletteWorkRam.cs	SME
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRoomPaletteProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaBehavior.cs	SME6340	26
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitions.cs	SME6341	3
-csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBehavior.cs	SME6340	66
-csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBehavior.cs	SME6349	6
-csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonInstructionProgramDefinitions.cs	SME6341	13
-csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonProjectileInstructionProgramDefinitions.cs	SME6341	12
-csharp/src/SuperMetroid.Core/Bosses/Phantoon/PrePhantoonRoomProjectileInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyBehavior.cs	SME6340	52
 csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyBehavior.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyProjectileInstructionProgramDefinitions.cs	SME6341	5
@@ -628,9 +623,6 @@ csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/MotherBrainRoomC
 csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/MotherBrainFxRecordPointers.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitionsTooling.cs	SME6340	2
 csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitionsTooling.cs	SME6341	2
-csharp/src/SuperMetroid.Tooling/Core/Bosses/Phantoon/PhantoonInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Bosses/Phantoon/PhantoonProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
-csharp/src/SuperMetroid.Tooling/Core/Bosses/Phantoon/PrePhantoonRoomProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Ridley/CeresRidleyProjectileInstructionProgramDefinitionsTooling.cs	SME6341	4
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Ridley/RidleyExplosionInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Ridley/RidleyExplosionInstructionProgramDefinitionsTooling.cs	SME6341	2
@@ -653,7 +645,7 @@ csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/AlcoonInstructionProgramDefi
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/AlcoonInstructionProgramDefinitionsTooling.cs	SME6341	4
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/EscapeDachoraInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/EscapeEtecoonInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectorsTooling.cs	SME6340	17
+csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectorsTooling.cs	SME6340	16
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Atomic/AtomicInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Atomic/AtomicInstructionProgramDefinitionsTooling.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Beetom/BeetomInstructionProgramDefinitionsTooling.cs	SME6340	1
@@ -1069,14 +1061,12 @@ csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonCasualFlamesVerific
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonDeathExplosionsVerification.cs	SME6340	15
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonFlameSoundVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonFlameSpawnsVerification.cs	SME6340	16
-csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonInstructionProgramDefinitionsVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonMotionDefinitionsVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonMotionDefinitionsVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonMotionDefinitionsVerification.cs	SME6345	3
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonPathVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonPatternsVerification.cs	SME6340	23
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonPositionVerification.cs	SME6340	5
-csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonProjectileInstructionProgramDefinitionsVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonReport1196Verification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonSoundDefinitionsVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonTimersVerification.cs	SME6340	7
@@ -1316,7 +1306,7 @@ csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerif
 csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerification.cs	SME6345	2
 csharp/src/SuperMetroid.Verification/Enemies/EnemyGameplayAcceptanceVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs	SME6340	6
+csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionOwnerCoverageVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/EnemyLinearSpeedsVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Enemies/EnemyMathReferenceData.cs	SME6340	6

@@ -12,6 +12,12 @@ internal static class PhantoonSoundDefinitions
     /// <summary>$A7:CF68, SpawnCasualFlame: blue flame launch sound in library three.</summary>
     internal static SoundEffectId CasualFlame => SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x1d);
 
+    /// <summary>Library-2 sound $73, queued when a shot hurts or kills Phantoon (<c>Phantoon_Shot</c>, $A7:DD9B).</summary>
+    internal const ushort ShotCry = 0x0073;
+
+    /// <summary>Library-2 sound $7E, queued as the dying Phantoon turns wavy (<c>Phantoon_WavyDyingPhantoonAndCry</c>, $A7:DA51).</summary>
+    internal const ushort DyingCry = 0x007e;
+
     /// <summary>Library-2 sound $24, queued after a big death explosion.</summary>
     internal const ushort BigDeathExplosionSound = 0x0024;
 

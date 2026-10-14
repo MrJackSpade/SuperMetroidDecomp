@@ -1,5 +1,4 @@
 namespace SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Cartridge values of <see cref="RoomEnemySystem"/> that only verification reads.</summary>
@@ -21,8 +20,6 @@ internal static class RoomEnemySystemConstants
     public const ushort NinjaPiratePaletteNormal = 0x0200;
     /// <summary>Sound effect queued for the Ninja Pirate's claw kick or dive.</summary>
     public const ushort NinjaPirateSoundClawKickOrDive = 0x0066;
-    /// <summary>Instruction pointer for Phantoon's body when its eye hitbox is active.</summary>
-    public const ushort PhantoonEyeHitboxBodyInstruction = PhantoonInstructionProgramDefinitions.EyeHitboxBody;
     /// <summary>Pre-instruction selected for Stoke's fireball projectile.</summary>
     public const ushort StokeProjectilePreInstruction = (ushort)EnemyProjectilePreInstruction.StokeFireball;
 
@@ -45,8 +42,6 @@ internal static class RoomEnemySystemConstants
         internal static ushort NinjaPiratePaletteNormal => RoomEnemySystemConstants.NinjaPiratePaletteNormal;
         /// <inheritdoc cref="RoomEnemySystemConstants.NinjaPirateSoundClawKickOrDive"/>
         internal static ushort NinjaPirateSoundClawKickOrDive => RoomEnemySystemConstants.NinjaPirateSoundClawKickOrDive;
-        /// <inheritdoc cref="RoomEnemySystemConstants.PhantoonEyeHitboxBodyInstruction"/>
-        internal static ushort PhantoonEyeHitboxBodyInstruction => RoomEnemySystemConstants.PhantoonEyeHitboxBodyInstruction;
         /// <inheritdoc cref="RoomEnemySystemConstants.StokeProjectilePreInstruction"/>
         internal static ushort StokeProjectilePreInstruction => RoomEnemySystemConstants.StokeProjectilePreInstruction;
     }

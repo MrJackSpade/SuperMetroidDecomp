@@ -18,9 +18,6 @@ internal enum EnemyInstructionBank : byte
     /// <summary>Bank $A6: enemy AI bank (Boulder, Mini-Kraid and others).</summary>
     BankA6 = 0xa6,
 
-    /// <summary>Bank $A7: Phantoon and Kraid's bank.</summary>
-    BankA7 = 0xa7,
-
     /// <summary>Bank $A8: enemy AI bank (face blocks, Beetom, Fune/Namihe, Alcoon, Atomic and others).</summary>
     BankA8 = 0xa8,
 }

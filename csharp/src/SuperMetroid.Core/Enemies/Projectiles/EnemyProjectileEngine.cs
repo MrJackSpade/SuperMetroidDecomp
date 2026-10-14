@@ -1058,9 +1058,6 @@ internal sealed class EnemyProjectileEngine
             return sharedImpactWord;
         }
 
-        if (projectile.Kind == RoomEnemyProjectileKind.PrePhantoonRoom)
-            return PrePhantoonRoomProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind))
             return OldTourianEscapeShaftWallExplosionDefinitions.ReadMechanicsWord(address);
 
@@ -1073,11 +1070,6 @@ internal sealed class EnemyProjectileEngine
         {
             return YappingMawBodyProjectileInstructionProgramDefinitions.ReadMechanicsWord(
                 address);
-        }
-
-        if (PhantoonProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return PhantoonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (CeresRidleyProjectileInstructionProgramDefinitions.Owns(projectile.Kind))

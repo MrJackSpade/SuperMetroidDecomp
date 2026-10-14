@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerifi
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>Checks boss BG2 resource requirements, display bindings, and legacy document inheritance.</summary>
@@ -72,31 +73,44 @@ internal static class BossDisplayBindingsResourcesVerification
     /// <summary>Focused native duration/goto acceptance, not an AI playthrough or read search.</summary>
     internal static void VerifyBossDisplayClocks(BossDisplayDocuments stock, BossDisplayDocuments edits)
     {
-        var programs = new[]
-        {
-            (Definition: EnemyDefinitionId.PhantoonTentacles, Program: PhantoonInstructionProgramDefinitions.InitialTentacles, Duration: 8, Count: 4),
-        };
+        // Phantoon's tentacles: four eight-update poses that loop ($A7:CCD7).
+        const int duration = 8;
+        const int frames = 150;
+        var steps = PhantoonAnimations.Programs.Steps(PhantoonPartProgram.Tentacles);
+        int poseCount = steps.Count - 1;
+        BossDisplayFixture baseline = NewTentacleFixture(stock.Build());
+        BossDisplayFixture changed = NewTentacleFixture(edits.Build());
         int transitions = 0;
-        foreach (var program in programs)
+        for (int frame = 0; frame < frames; frame++)
         {
-            var baseline = new BossDisplayFixture(program.Definition, stock.Build());
-            var changed = new BossDisplayFixture(program.Definition, edits.Build());
-            baseline.SetFrame(0, false); changed.SetFrame(0, false);
-            baseline.SetProgram(program.Program); changed.SetProgram(program.Program);
-            for (int frame = 0; frame < 150; frame++)
-            {
-                baseline.Step(); changed.Step(); baseline.Draw(); changed.Draw();
-                AssertBossDisplayMechanics(baseline, changed, "boss instruction frame " + frame);
-                int index = frame / program.Duration % program.Count;
-                AssertTrue(CompiledEnemyVisualSelectors.TryGet(baseline.Actor.Definition.Bank,
-                    checked((ushort)(program.Program + index * 4 + 2)), out ushort expected), "declared program selector is compiled");
-                AssertEqual(expected, changed.Actor.SpritemapPointer, "exact physical sequence ignores visual remapping");
-                AssertEqual((ushort)(program.Duration - frame % program.Duration), changed.Actor.InstructionTimer.RawValue, "exact native hold/goto clock");
-                bool fresh = frame % program.Duration == 0;
-                AssertEqual(fresh, changed.Actor.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), "exact new-frame schedule");
-                if (fresh) transitions++;
-            }
+            baseline.Step(); changed.Step(); baseline.Draw(); changed.Draw();
+            AssertBossDisplayMechanics(baseline, changed, "boss instruction frame " + frame);
+            int index = frame / duration % poseCount;
+            AssertEqual(steps[index].Frame.Spritemap, changed.Actor.SpritemapPointer, "exact physical sequence ignores visual remapping");
+            AssertEqual((ushort)(duration - frame % duration), changed.Actor.InstructionTimer.RawValue, "exact native hold/goto clock");
+            bool fresh = frame % duration == 0;
+            AssertEqual(fresh, changed.Actor.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), "exact new-frame schedule");
+            if (fresh) transitions++;
         }
-        Console.WriteLine($"PASS boss clocks: {programs.Length * 150} production instruction steps/{transitions} exact native frame admissions; actor state, RAM and sound/music requests unchanged.");
+        Console.WriteLine($"PASS boss clocks: {frames} production animation steps/{transitions} exact native frame admissions; actor state, RAM and sound/music requests unchanged.");
+    }
+
+    /// <summary>Phantoon's tentacles in their own slot beside the body, starting their program on a one-update timer.</summary>
+    private static BossDisplayFixture NewTentacleFixture(EnemyTileArtworkCatalog artwork)
+    {
+        var fixture = new BossDisplayFixture(EnemyDefinitionId.PhantoonTentacles, artwork, slot: 2);
+        RoomEnemySlot body = fixture.Enemies.SlotTable.Slots[0];
+        body.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
+        var state = new PhantoonEnemyState(body)
+        {
+            Eye = fixture.Enemies.SlotTable.Slots[1],
+            Tentacles = fixture.Actor,
+            Mouth = fixture.Enemies.SlotTable.Slots[3],
+        };
+        fixture.Enemies.PhantoonBehavior.Phantoon = state;
+        fixture.SetFrame(0, false);
+        state.PartProgram(fixture.Actor) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.Tentacles);
+        fixture.Actor.InstructionTimer = NativeCountdown.Start(1);
+        return fixture;
     }
 }

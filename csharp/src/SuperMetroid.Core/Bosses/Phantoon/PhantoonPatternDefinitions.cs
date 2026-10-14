@@ -74,18 +74,18 @@ public static class PhantoonPatternDefinitions
     /// code5 retains the native downward selection; all other values name a direction.
     /// </summary>
     /// <param name="direction">Native relative-direction selector, 0..8, with four and the unused five both selecting down.</param>
-    /// <returns>The bank-$A7 eye instruction-list pointer; the caller owns publishing it and resetting its instruction timer.</returns>
+    /// <returns>The eye's gaze program; the caller owns starting it and resetting its instruction timer.</returns>
     /// <exception cref="InvalidDataException">The direction exceeds the nine authored selectors.</exception>
-    public static ushort EyeInstruction(ushort direction) => direction switch
+    internal static PhantoonPartProgram EyeProgram(ushort direction) => direction switch
     {
-        0 => PhantoonInstructionProgramDefinitions.EyeLookingUp,
-        1 => PhantoonInstructionProgramDefinitions.EyeLookingUpRight,
-        2 => PhantoonInstructionProgramDefinitions.EyeLookingRight,
-        3 => PhantoonInstructionProgramDefinitions.EyeLookingDownRight,
-        4 or 5 => PhantoonInstructionProgramDefinitions.EyeLookingDown,
-        6 => PhantoonInstructionProgramDefinitions.EyeLookingDownLeft,
-        7 => PhantoonInstructionProgramDefinitions.EyeLookingLeft,
-        8 => PhantoonInstructionProgramDefinitions.EyeLookingUpLeft,
+        0 => PhantoonPartProgram.EyeLookingUp,
+        1 => PhantoonPartProgram.EyeLookingUpRight,
+        2 => PhantoonPartProgram.EyeLookingRight,
+        3 => PhantoonPartProgram.EyeLookingDownRight,
+        4 or 5 => PhantoonPartProgram.EyeLookingDown,
+        6 => PhantoonPartProgram.EyeLookingDownLeft,
+        7 => PhantoonPartProgram.EyeLookingLeft,
+        8 => PhantoonPartProgram.EyeLookingUpLeft,
         _ => throw new InvalidDataException($"Phantoon eye direction {direction} exceeds nine authored selectors."),
     };
 }

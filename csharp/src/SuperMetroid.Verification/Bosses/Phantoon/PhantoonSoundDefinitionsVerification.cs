@@ -39,15 +39,12 @@ internal static class PhantoonSoundDefinitionsVerification
             Mouth = enemies.SlotTable.Slots[3],
         };
         enemies.PhantoonBehavior.Phantoon = state;
-        Func<RoomEnemySlot, ushort, bool> process = enemies.PhantoonBehavior.ProcessPhantoonInstructionFunction;
+        Action<RoomEnemySlot, PhantoonPartCue> process = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
 
         for (ushort call = 0; call < 6; call++)
         {
             ushort index = (ushort)(call % 3);
-            AssertTrue(!process(
-                    body,
-                    (ushort)PhantoonInstruction.PlayPhantoonMaterializationSFX),
-                $"Phantoon materialization callback {call} resumes instruction stream");
+            process(body, PhantoonPartCue.PlayMaterializationSound);
             AssertEqual(PhantoonSoundDefinitions.MaterializationSound(index),
                 (state.LastMaterializationSound ?? throw new InvalidOperationException("Verification requires state.LastMaterializationSound.")),
                 $"Phantoon materialization callback {call} sound");

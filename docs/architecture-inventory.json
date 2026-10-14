@@ -17870,6 +17870,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonFlameVisualDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/Artwork/PhantoonFlameVisualDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonGazeDirection",
       "kind": "enum",
       "scope": "product",
@@ -17909,6 +17922,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.Artwork.PrePhantoonRoomVisualDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/Artwork/PrePhantoonRoomVisualDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonAiFunction",
       "kind": "enum",
       "scope": "product",
@@ -17920,6 +17946,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior",
@@ -18223,6 +18262,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonDeathDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonDeathDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonDeathExplosionDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -18249,6 +18301,45 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameAnimation",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonFlameAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonFlameAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameCue",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonFlameCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameDropRequest",
       "kind": "record struct",
       "scope": "product",
@@ -18257,6 +18348,32 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonFlameDropRequest.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonFlameFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameFrameKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonFlameFrameKind.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -18273,6 +18390,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameProgram",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonFlameProgram.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameSpawnDefinitions",
@@ -18314,77 +18444,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonInstruction",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonInstruction.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonInstructionProgramDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Phantoon/PhantoonInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonInstructionProgramDefinitionsConstants.extension(SuperMetroid.Core.Bosses.Phantoon.PhantoonInstructionProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Phantoon/PhantoonInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Phantoon/PhantoonInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonMotionDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -18398,14 +18457,53 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonPartInstruction",
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonPartCue",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonPartInstruction.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonPartCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonPartFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonPartFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonPartFrameKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonPartFrameKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonPartProgram",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonPartProgram.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -18448,32 +18546,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonProjectileInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonProjectileInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonProjectileInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Phantoon/PhantoonProjectileInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonRageRomData",
@@ -18625,6 +18697,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PrePhantoonRoomAnimation",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PrePhantoonRoomAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PrePhantoonRoomBehavior",
       "kind": "class",
       "scope": "product",
@@ -18638,30 +18723,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PrePhantoonRoomProjectileInstructionProgramDefinitions",
-      "kind": "static class",
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PrePhantoonRoomCue",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PrePhantoonRoomProjectileInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PrePhantoonRoomCue.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PrePhantoonRoomProjectileInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PrePhantoonRoomFrame",
+      "kind": "record struct",
+      "scope": "product",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Phantoon/PrePhantoonRoomProjectileInstructionProgramDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PrePhantoonRoomFrame.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyAlarmColorDefinitions",
@@ -91675,6 +91760,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.Phantoon.PhantoonAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.Phantoon.PhantoonCasualFlamesVerification",
       "kind": "static class",
       "scope": "test",
@@ -91727,19 +91825,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Bosses.Phantoon.PhantoonInstructionProgramDefinitionsVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonInstructionProgramDefinitionsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Bosses.Phantoon.PhantoonMotionDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -91748,6 +91833,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonMotionDefinitionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.Phantoon.PhantoonNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonNativeListAddresses.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -91787,19 +91885,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonPositionVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Bosses.Phantoon.PhantoonProjectileInstructionProgramDefinitionsVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonProjectileInstructionProgramDefinitionsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

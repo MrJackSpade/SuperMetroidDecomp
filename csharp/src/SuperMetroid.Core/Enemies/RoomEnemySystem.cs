@@ -1421,7 +1421,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         HibashiBehavior.RegisterHibashiOwnedInstructions(table);
         FakeKraidBehavior.RegisterFakeKraidOwnedInstructions(table);
         WalkingSpacePirateBehavior.RegisterWalkingSpacePirateOwnedInstructions(table);
-        RidleyBehavior.RegisterRidleyOwnedInstructions(table);
+        RidleyBehavior.RegisterRidleyTypedAnimations(table);
         CeresSteamBehavior.RegisterCeresSteamOwnedInstructions(table);
         CeresDoorBehavior.RegisterCeresDoorOwnedInstructions(table);
         DeadSidehopperBehavior.RegisterDeadSidehopperOwnedInstructions(table);
@@ -1627,7 +1627,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
         Projectiles.RegisterProbabilityGotoInstruction(table);
 
-        RidleyProjectiles.RegisterAfterburnInstructions(table);
+        RidleyProjectiles.RegisterFireballCues(table);
 
         CrocomireBehavior.RegisterCrocomireDropProjectiles(table);
 

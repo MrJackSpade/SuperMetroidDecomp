@@ -89,7 +89,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(NorfairRioInstruction),
             typeof(OwtchInstruction),
             typeof(PlatformInstruction),
-            typeof(RidleyInstruction),
             typeof(RinkaInstruction),
             typeof(ShaktoolInstruction),
             typeof(SkreeInstruction),
@@ -135,7 +134,6 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(NorfairRioInstruction),
             typeof(OwtchInstruction),
             typeof(PlatformInstruction),
-            typeof(RidleyInstruction),
             typeof(RinkaInstruction),
             typeof(RioInstructionCodes),
             typeof(ShaktoolInstruction),
@@ -168,7 +166,6 @@ internal static class EnemyInstructionCodePointersVerification
         [
             (typeof(GunshipInstructionProgramDefinitions), 0xa2),
             (typeof(OrdinaryEnemyInstructionLists), 0xa3),
-            (typeof(RidleyInstructionProgramDefinitions), 0xa6),
             (typeof(TorizoInstructionLists), 0xaa),
         ];
         foreach ((Type catalog, _) in bankLocalCatalogs)

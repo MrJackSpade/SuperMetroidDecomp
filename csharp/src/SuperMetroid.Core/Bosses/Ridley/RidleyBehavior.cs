@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -64,152 +65,120 @@ internal sealed class RidleyBehavior : IEnemySpecies
         _roomFx = dependencies.RoomFx;
     }
 
-    /// <summary>Executes the private animation instructions shared by Ceres and Lower Norfair Ridley.</summary>
-    private bool TryProcessRidleyInstruction(RoomEnemySlot slot, SamusState? samus, ushort word, ref ushort cursor)
+    /// <summary>
+    /// Runs Ridley's body program where the enemy instruction interpreter would: the frame expires on the update its
+    /// native timer would, and a newly shown frame raises the new-frame flag.
+    /// </summary>
+    internal void AdvanceRidleyBodyAnimation(RoomEnemySlot slot, SamusState? samus)
     {
-        if (!IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
-            !Enum.IsDefined((RidleyInstruction)word))
-            return false;
-
-        switch ((RidleyInstruction)word)
+        ushort oldTimer = slot.InstructionTimer.RawValue;
+        slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        if (oldTimer != 1)
         {
-            case RidleyInstruction.Roar:
-                _ridleyEncounter.RequireRidley(slot).Roaring = true;
-                _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, RidleyInstructionSounds.Roar), maximumQueued: 6);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case RidleyInstruction.ClearRoaringFlag:
-                _ridleyEncounter.RequireRidley(slot).Roaring = false;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case RidleyInstruction.GotoYIfNotNorfairAndSamusHasLowEnergy:
+            slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            return;
+        }
+
+        RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
+        AnimationProgramCursor<RidleyBodyProgram> cursor = state.BodyProgram;
+        // Ridley's body lists load no loop counter.
+        NativeCountdown counter = NativeCountdown.Start(0);
+        AnimationProgramAdvance<RidleyCollisionDefinitions.BodyFrame> advance = RidleyAnimations.Programs.Advance(ref cursor, ref counter,
+            (cue, continuation) => ApplyRidleyBodyCue(slot, state, samus, cue));
+        state.BodyProgram = cursor;
+        switch (advance.Kind)
+        {
+            case AnimationProgramAdvanceKind.Show:
+                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+                slot.SpritemapPointer = (ushort)advance.Frame;
+                slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+                return;
+            case AnimationProgramAdvanceKind.Hold:
+                // The native sleep: the timer wraps from zero and the last frame stays.
+                return;
+            default:
+                throw new InvalidOperationException($"Ridley's body programs have no {advance.Kind} step.");
+        }
+    }
+
+    /// <summary>Carries out one cue of Ridley's body program, returning the program a goto cue continues at.</summary>
+    internal RidleyBodyProgram? ApplyRidleyBodyCue(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, RidleyBodyCue cue)
+    {
+        switch (cue.Kind)
+        {
+            case RidleyBodyCueKind.GoToUnlessFacingLeft:
+                return state.FacingDirection != RidleyFacing.Left ? cue.Target : null;
+            case RidleyBodyCueKind.GoToIfCeresAndSamusLowEnergy:
                 if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley)
-                {
-                    cursor = unchecked((ushort)(cursor + 4));
-                    return true;
-                }
+                    return null;
                 if (samus is null)
                 {
                     throw new InvalidOperationException(
                         "Ceres Ridley fireball branch requires the active Samus actor.");
                 }
-                if (unchecked((short)(samus.Health - 30)) < 0)
-                {
-                    // $A6:E4E2 stores 8 to the Ridley timer at $7E:7800 before the goto,
-                    // cutting the fireball hover short.
-                    _ridleyEncounter.RequireRidley(slot).FunctionTimer = NativeCountdown.Start(8);
-                    cursor = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2)));
-                }
-                else
-                {
-                    cursor = unchecked((ushort)(cursor + 4));
-                }
-                return true;
-            case RidleyInstruction.GotoYIfNotHoldingBaby:
-            {
-                RidleyEnemyState grabbedBranch = _ridleyEncounter.RequireRidley(slot);
-                ushort branchOperand = grabbedBranch.GrabState != 0
-                    ? (ushort)2
-                    : (ushort)4;
-                cursor = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                    slot,
-                    unchecked((ushort)(cursor + branchOperand)));
-                return true;
-            }
-            case RidleyInstruction.GotoYIfHoldingBaby:
-            {
-                RidleyEnemyState carryBranch = _ridleyEncounter.RequireRidley(slot);
-                cursor = carryBranch.GrabState != 0
-                    ? unchecked((ushort)(cursor + 4))
-                    : EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2)));
-                return true;
-            }
-            case RidleyInstruction.CeresFeetDistanceIndexInY:
-                _ridleyEncounter.RequireRidley(slot).FeetDistanceIndex =
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2)));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            case RidleyInstruction.GotoYIfNotFacingLeft:
-            {
-                RidleyEnemyState ridley = _ridleyEncounter.RequireRidley(slot);
-                cursor = ridley.FacingDirection != RidleyFacing.Left
-                    ? EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2)))
-                    : unchecked((ushort)(cursor + 4));
-                return true;
-            }
-            case RidleyInstruction.MoveWithArgsInY:
-                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
-                    slot.Position.X.Whole +
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2))))));
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
-                    slot.Position.Y.Whole +
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 4))))));
-                cursor = unchecked((ushort)(cursor + 6));
-                return true;
-            case RidleyInstruction.FlipLeft:
-                RidleyTail.MirrorRidleyTail(_ridleyEncounter.RequireRidley(slot));
-                _ridleyEncounter.RequireRidley(slot).FacingDirection = RidleyFacing.Left;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case RidleyInstruction.FaceForward:
-                _ridleyEncounter.RequireRidley(slot).FacingDirection = RidleyFacing.Turning;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case RidleyInstruction.FlipRight:
-                RidleyTail.MirrorRidleyTail(_ridleyEncounter.RequireRidley(slot));
-                _ridleyEncounter.RequireRidley(slot).FacingDirection = RidleyFacing.Right;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case RidleyInstruction.CalculateFireballXYVelocities:
+                if (unchecked((short)(samus.Health - 30)) >= 0)
+                    return null;
+                // $A6:E4E2 stores 8 to the Ridley timer at $7E:7800 before the goto,
+                // cutting the fireball hover short.
+                state.FunctionTimer = NativeCountdown.Start(8);
+                return cue.Target;
+            case RidleyBodyCueKind.Roar:
+                state.Roaring = true;
+                _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, RidleySoundDefinitions.Roar), maximumQueued: 6);
+                return null;
+            case RidleyBodyCueKind.ClearRoaringFlag:
+                state.Roaring = false;
+                return null;
+            case RidleyBodyCueKind.SetFeetDistance:
+                state.FeetDistanceIndex = cue.FeetDistanceIndex;
+                return null;
+            case RidleyBodyCueKind.Move:
+                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + cue.Displacement.X)));
+                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + cue.Displacement.Y)));
+                return null;
+            case RidleyBodyCueKind.FaceForward:
+                state.FacingDirection = RidleyFacing.Turning;
+                return null;
+            case RidleyBodyCueKind.FlipLeft:
+                RidleyTail.MirrorRidleyTail(state);
+                state.FacingDirection = RidleyFacing.Left;
+                return null;
+            case RidleyBodyCueKind.FlipRight:
+                RidleyTail.MirrorRidleyTail(state);
+                state.FacingDirection = RidleyFacing.Right;
+                return null;
+            case RidleyBodyCueKind.AimFireball:
                 if (samus is null)
                 {
                     throw new InvalidOperationException(
                         "Ceres Ridley fireball aim requires the active Samus actor.");
                 }
                 _ridleyProjectiles.CalculateRidleyFireballVelocity(slot, samus);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case RidleyInstruction.SpawnFireballWithAfterburn:
+                return null;
+            case RidleyBodyCueKind.SpawnFireballWithAfterburn:
                 _ridleyProjectiles.SpawnRidleyFireball(slot, spawnAfterburn: true);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case RidleyInstruction.SpawnFireballWithoutAfterburn:
+                return null;
+            case RidleyBodyCueKind.SpawnFireballWithoutAfterburn:
                 _ridleyProjectiles.SpawnRidleyFireball(slot, spawnAfterburn: false);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case RidleyInstruction.CeresStartLiftoff:
+                return null;
+            case RidleyBodyCueKind.CeresStartLiftoff:
             {
                 RidleyEnemyState liftoff = _ridleyEncounter.RequireCeresRidley(slot);
                 liftoff.Function = RidleyAiFunction.CeresLiftoffAccelerating;
-                liftoff.Velocity = liftoff.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-352)));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                liftoff.Velocity = liftoff.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(-352));
+                return null;
             }
-            case RidleyInstruction.StartLiftoff:
+            case RidleyBodyCueKind.StartLiftoff:
             {
                 // The shared roar/liftoff list hands control to the real fight at
                 // $B2F3 and supplies the initial upward 8.8 velocity in the same tick.
                 RidleyEnemyState norfairLiftoff = _ridleyEncounter.RequireNorfairRidley(slot);
                 norfairLiftoff.Function = RidleyAiFunction.NorfairEnterArena;
-                norfairLiftoff.Velocity = norfairLiftoff.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-352)));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                norfairLiftoff.Velocity = norfairLiftoff.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(-352));
+                return null;
             }
             default:
-                throw new InvalidOperationException(
-                    $"Ridley does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(RidleyBodyCueKind)} {cue.Kind}.");
         }
     }
 
@@ -241,7 +210,6 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
         slot.Parameter1 = 0;
         slot.Parameter2 = 0;
-        CeresRidleyBehavior.SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Initial);
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
@@ -271,12 +239,13 @@ internal sealed class RidleyBehavior : IEnemySpecies
             TailAngleDelta = 1,
             TailMinimumClockwiseAngle = RidleyTailDefinitions.InitialMinimumClockwise,
             TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
-            TailWhipTargetClockwiseAngle = 0xffff,
-            TailWhipTargetCounterClockwiseAngle = 0xffff,
-            TailExtensionSpeed = 0x00f0,
+            TailWhipTargetClockwiseAngle = RidleyTailDefinitions.IdleWhipTarget,
+            TailWhipTargetCounterClockwiseAngle = RidleyTailDefinitions.IdleWhipTarget,
+            TailExtensionSpeed = 240,
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
+        CeresRidleyBehavior.StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
 
         // WriteColorsToTargetPalette($140, $A6:E1CF, $20) installs both body and manual
         // tail/wing source palettes. The following loops clear the two fifteen-color OBJ
@@ -365,7 +334,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
                 if (state.FunctionTimer.IsNegative)
                 {
-                    CeresRidleyBehavior.SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.OpeningRoar);
+                    CeresRidleyBehavior.StartRidleyProgram(state, slot, RidleyBodyProgram.OpeningRoar);
                     state.FunctionTimer = NativeCountdown.Start(0);
                     state.Function = RidleyAiFunction.WaitBeforeLiftoff;
                 }
@@ -428,7 +397,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (TickNorfairRidleySwoopPhase(
                         state,
                         state.FacingDirection != RidleyFacing.Left ? 320 : -320,
-                        state.FacingDirection != RidleyFacing.Left ? 0x4000 : -0x4000,
+                        state.FacingDirection != RidleyFacing.Left ? 16384 : -16384,
                         1280,
                         RidleyAiFunction.NorfairSwoopAimUp,
                         16))
@@ -441,7 +410,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 TickNorfairRidleySwoopPhase(
                     state,
                     state.FacingDirection != RidleyFacing.Left ? 512 : -512,
-                    state.FacingDirection != RidleyFacing.Left ? 0x7800 : -0x7800,
+                    state.FacingDirection != RidleyFacing.Left ? 30720 : -30720,
                     768,
                     RidleyAiFunction.NorfairSwoopClimb,
                     32);
@@ -451,7 +420,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (TickNorfairRidleySwoopPhase(
                         state,
                         state.FacingDirection != RidleyFacing.Left ? 1024 : -1024,
-                        state.FacingDirection != RidleyFacing.Left ? 0x7800 : -0x7800,
+                        state.FacingDirection != RidleyFacing.Left ? 30720 : -30720,
                         768,
                         RidleyAiFunction.NorfairSwoopRecover,
                         32))
@@ -474,9 +443,9 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
             case RidleyAiFunction.NorfairPogoSetup:
                 state.IdealInterSegmentTailAngle = 11;
-                state.TailExtensionSpeed = 0x180;
+                state.TailExtensionSpeed = 384;
                 state.Function = RidleyAiFunction.NorfairPogoDescending;
-                state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)((_room.Random.Read() & 0x1f) + 32)));
+                state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(_room.Random.Read() % 32 + 32)));
                 TickNorfairRidleyPogo(slot, state, samus, descending: true);
                 return;
 
@@ -620,7 +589,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         _roomFx.PublishRidleyLiquidMotion(state, RidleyLiquidRomData.BattleHeight,
             RidleyLiquidRomData.RiseVelocity, RidleyLiquidRomData.RiseDelay);
         state.FadePaletteOffset = 0;
-        CeresRidleyBehavior.SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.TransitionToFlying);
+        CeresRidleyBehavior.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
         state.WingAnimationTimer = NativeCountdown.Start(8);
         state.WingAnimationTimerDelta = 8;
         foreach (RidleyTailSegment segment in state.TailSegments)
@@ -753,8 +722,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
 
         // $A6:B669 uses the existing RNG byte; it does not advance the generator.
-        if ((SnesLittleEndian.LowByte(_room.Random.Read())) >= 0x80 && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
-            CeresRidleyBehavior.SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Fireballing);
+        if ((SnesLittleEndian.LowByte(_room.Random.Read())) >= 128 && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
+            CeresRidleyBehavior.StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
 
         if (!TickRidleyFunctionTimer(state))
             return;
@@ -769,7 +738,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>Resets tail extension and enters the ground fireball/pogo setup.</summary>
     private static void BeginNorfairRidleyGroundAttack(RidleyEnemyState state)
     {
-        state.TailExtensionSpeed = 0xf0;
+        state.TailExtensionSpeed = 240;
         state.IdealInterSegmentTailAngle = 16;
         state.TailFunctionIndex = RidleyTailFunction.Neutral;
         state.Function = RidleyAiFunction.NorfairFireballMoveToSide;
@@ -808,7 +777,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         _ridleyTail.TickRidleyPogoTail(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Function = RidleyAiFunction.NorfairFireballAttack;
-        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)((_room.Random.Read() & 0x3f) + 128)));
+        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(_room.Random.Read() % 64 + 128)));
     }
 
     /// <summary>Checks claw grab, accelerates downward, and bounces the tail on terrain contact.</summary>
@@ -855,7 +824,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         {
             state.PogoBounceCount = 0;
             if (state.FacingDirection != RidleyFacing.Turning)
-                CeresRidleyBehavior.SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Fireballing);
+                CeresRidleyBehavior.StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
         }
         state.Function = RidleyAiFunction.NorfairFireballRecover;
     }
@@ -1056,14 +1025,15 @@ internal sealed class RidleyBehavior : IEnemySpecies
         // D955 reads the word at Enemy.XPosition-1: its sign is bit 7 of
         // the low X byte, not the sign of the full coordinate. Keep an inward
         // facing actor's current animation and timer untouched.
-        bool rightHalf = (slot.Position.X.Whole & 0x0080) != 0;
+        bool rightHalf = SnesLittleEndian.LowByte(slot.Position.X.Whole) >= 128;
         if (state.FacingDirection == RidleyFacing.Left ? rightHalf : !rightHalf)
             return;
-        CeresRidleyBehavior.SetRidleyInstruction(
+        CeresRidleyBehavior.StartRidleyProgram(
+            state,
             slot,
             state.FacingDirection == RidleyFacing.Left
-                ? RidleyInstructionProgramDefinitions.TurnFromLeftToRight
-                : RidleyInstructionProgramDefinitions.TurnFromRightToLeft);
+                ? RidleyBodyProgram.TurnFromLeftToRight
+                : RidleyBodyProgram.TurnFromRightToLeft);
         slot.InstructionTimer = NativeCountdown.Start(2);
     }
 
@@ -1225,14 +1195,13 @@ internal sealed class RidleyBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Installs Ridley-specific instruction callbacks before shared enemy instructions.</summary>
-    internal void RegisterRidleyOwnedInstructions(EnemyAiTable table)
+    /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed programs in place of their bank-$A6 lists (#641).</summary>
+    internal void RegisterRidleyTypedAnimations(EnemyAiTable table)
     {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
-        {
-            yieldInterpreter = false;
-            return TryProcessRidleyInstruction(slot, context.Samus, word, ref cursor);
-        });
+        table.AddTypedAnimation(slot => IsRidleyDefinition(slot.EnemyDefinitionPointer),
+            (slot, context) => AdvanceRidleyBodyAnimation(slot, context.Samus));
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion,
+            (slot, context) => AdvanceRidleyBreakupAnimation(slot));
     }
     /// <summary>
     /// <c>LungeIfPowerBombActiveAndNotHoldingSamus</c> at $A6:BD2C, run before the function on
@@ -1376,7 +1345,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        CeresRidleyBehavior.SetRidleyInstruction(body, RidleyInstructionProgramDefinitions.DeathRoar);
+        CeresRidleyBehavior.StartRidleyProgram(state, body, RidleyBodyProgram.DeathRoar);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
         state.FunctionTimer = NativeCountdown.Start(32);
     }
@@ -1471,9 +1440,9 @@ internal sealed class RidleyBehavior : IEnemySpecies
             EnemyDefinitionId.Ridley,
             count: 16,
             xBase: 64,
-            xMask: 0x007f,
+            xMask: 127,
             yBase: 320,
-            yMask: 0x3f00);
+            yMask: SnesLittleEndian.Word(0, 63));
         RidleyDeathDropRequested = true;
         state.MusicRequest = MusicCommand.SelectTrack(3);
         body.Properties = body.Properties.With(EnemyProperties.Deleted);
@@ -1499,7 +1468,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         SpawnRidleyDust(
             body.Position.Whole + RidleyExplosionDefinitions.DeathExplosionPlacement(state.DeathExplosionCount),
             variant: 3);
-        state.LastDeathSoundEffect = 0x0024;
+        state.LastDeathSoundEffect = RidleySoundDefinitions.DeathExplosion;
     }
     /// <summary>Allocates the body and tail pieces that continue moving after the intact body hides.</summary>
     internal void SpawnNorfairRidleyBreakupActors(
@@ -1566,7 +1535,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         fragment.VariableF = RidleyExplosionDefinitions.GetPart(fragment.Parameter1).Lifetime;
 
         ushort random = _room.Random.Generate();
-        ushort horizontalMagnitude = unchecked((ushort)(random & 0x0130));
+        ushort horizontalMagnitude = unchecked((ushort)(random & RidleyExplosionDefinitions.FragmentSpeedMask));
         fragment.VariableB = unchecked((short)random) < 0
             ? unchecked((ushort)-horizontalMagnitude)
             : horizontalMagnitude;
@@ -1578,11 +1547,11 @@ internal sealed class RidleyBehavior : IEnemySpecies
             RidleyTailSegment tail = state.TailSegments[tailIndex];
             fragment.Position = fragment.Position.WithWhole(tail.Position);
             int tailTipOrientation =
-                ((unchecked((byte)tail.Angle) +
-                    unchecked((byte)state.TailSegments[5].Angle) + 8) & 0x00f0) >> 4;
-            fragment.CurrentInstruction = RidleyExplosionDefinitions.SelectTailInstructionList(
+                unchecked((byte)(unchecked((byte)tail.Angle) +
+                    unchecked((byte)state.TailSegments[5].Angle) + 8)) / 16;
+            StartRidleyBreakupProgram(state, fragment, RidleyExplosionDefinitions.SelectTailFrame(
                 part,
-                tailTipOrientation);
+                tailTipOrientation));
             return;
         }
 
@@ -1591,7 +1560,47 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 part,
                 facingRight: state.FacingDirection != RidleyFacing.Left);
         fragment.Position = fragment.Position.WithWhole(body.Position.Whole + bodyPart.Offset);
-        fragment.CurrentInstruction = bodyPart.InstructionList;
+        StartRidleyBreakupProgram(state, fragment, bodyPart.Frame);
+    }
+
+    /// <summary>Starts a breakup fragment's typed program for <paramref name="frame"/>.</summary>
+    private static void StartRidleyBreakupProgram(RidleyEnemyState state, RoomEnemySlot fragment, RidleyBreakupFrame frame) =>
+        state.BreakupPrograms[fragment.SlotIndex] = AnimationProgramCursor<RidleyBreakupFrame>.Start(frame);
+
+    /// <summary>
+    /// Runs a breakup fragment's program where the enemy instruction interpreter would: its pose shows for one update
+    /// and then holds, raising the new-frame flag when shown.
+    /// </summary>
+    internal void AdvanceRidleyBreakupAnimation(RoomEnemySlot fragment)
+    {
+        ushort oldTimer = fragment.InstructionTimer.RawValue;
+        fragment.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        if (oldTimer != 1)
+        {
+            fragment.ExtraProperties = fragment.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            return;
+        }
+
+        RidleyEnemyState state = _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
+            $"Ridley breakup fragment in slot {fragment.SlotIndex} requires Ridley's encounter state.");
+        if (!state.BreakupPrograms.TryGetValue(fragment.SlotIndex, out AnimationProgramCursor<RidleyBreakupFrame> cursor))
+            throw new InvalidOperationException($"Ridley breakup fragment in slot {fragment.SlotIndex} has no program.");
+        NativeCountdown counter = NativeCountdown.Start(0);
+        AnimationProgramAdvance<RidleyBreakupFrame> advance = RidleyBreakupAnimations.Programs.Advance(ref cursor, ref counter,
+            (cue, continuation) => throw new InvalidOperationException("Ridley's breakup programs publish no cues."));
+        state.BreakupPrograms[fragment.SlotIndex] = cursor;
+        switch (advance.Kind)
+        {
+            case AnimationProgramAdvanceKind.Show:
+                fragment.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+                fragment.SpritemapPointer = RidleyBreakupFrameDefinitions.Spritemap(advance.Frame);
+                fragment.ExtraProperties = fragment.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+                return;
+            case AnimationProgramAdvanceKind.Hold:
+                return;
+            default:
+                throw new InvalidOperationException($"Ridley's breakup programs have no {advance.Kind} step.");
+        }
     }
 
     /// <summary>Ports main AI $A6:C8D4: flicker, drag, gravity, movement, and lifetime.</summary>
@@ -1609,8 +1618,9 @@ internal sealed class RidleyBehavior : IEnemySpecies
         fragment.VariableC = unchecked((ushort)(fragment.VariableC + 4));
         fragment.Position = fragment.Position.Advance(new(new SnesSignedEightEight(fragment.VariableB).ToSixteenSixteenDelta(), new SnesSignedEightEight(fragment.VariableC).ToSixteenSixteenDelta()));
 
-        fragment.VariableF = unchecked((ushort)(fragment.VariableF - 1));
-        if (unchecked((short)fragment.VariableF) >= 0)
+        NativeWordCounterStep lifetime = NativeWordCounter.Decrement(fragment.VariableF);
+        fragment.VariableF = lifetime.Value;
+        if (lifetime.IsNonNegative)
             return;
 
         // $A6:C90B calls EnemyDeathAnimation(0): clear the slot immediately and
@@ -1657,15 +1667,15 @@ internal sealed class RidleyBehavior : IEnemySpecies
     internal void SetRidleyPogoHorizontalDirection(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
     {
         if (state.Velocity.X.RawValue == 0)
-            state.Velocity = state.Velocity.WithX(new SnesSignedEightEight((slot.Position.X.Whole & 0x80) == 0 ? (ushort)0x00c0 : unchecked((ushort)-0x00c0)));
+            state.Velocity = state.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(SnesLittleEndian.LowByte(slot.Position.X.Whole) < 128 ? (short)192 : (short)-192));
         bool negative = state.Velocity.X.SignedRawValue < 0;
         bool reverse;
         if ((short)(slot.Position.X.Whole - state.MovementMinimum.X) < 0) reverse = negative;
         else if ((short)(slot.Position.X.Whole - state.MovementMaximum.X) >= 0) reverse = !negative;
         else
         {
-            bool oppositeSigns = ((ushort)(slot.Position.X.Whole - (samus?.Position.X.Whole ?? 0)) ^ state.Velocity.X.RawValue) >= 0x8000;
-            reverse = oppositeSigns ? _room.Random.Read() < 0x0555 : _room.Random.Read() >= 0x0555;
+            bool oppositeSigns = ((ushort)(slot.Position.X.Whole - (samus?.Position.X.Whole ?? 0)) ^ state.Velocity.X.RawValue) > short.MaxValue;
+            reverse = oppositeSigns ? _room.Random.Read() < 1365 : _room.Random.Read() >= 1365;
         }
         if (reverse) state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.RawValue)));
     }

@@ -638,10 +638,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam)
             return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer))
-            return RidleyInstructionProgramDefinitions.ReadMechanicsWord(address);
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion)
-            return RidleyExplosionInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         throw new InvalidDataException(
             $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} instruction mechanics pointer " +

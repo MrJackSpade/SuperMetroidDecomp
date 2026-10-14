@@ -28,6 +28,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Verification.Rooms;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
@@ -896,7 +897,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         ?? throw new InvalidOperationException("Ceres Ridley did not allocate its extended state.");
     AssertEqual(0x00ba, ridley.Position.X.Whole, "Ceres Ridley init X");
     AssertEqual(0x00a9, ridley.Position.Y.Whole, "Ceres Ridley init Y overrides population Y");
-    AssertEqual(0xe538, ridley.CurrentInstruction, "Ceres Ridley initial instruction list");
+    AssertEqual(AnimationProgramCursor<RidleyBodyProgram>.Start(RidleyBodyProgram.Initial), state.BodyProgram, "Ceres Ridley starts its initial program");
     AssertEqual(0x0e00, ridley.PaletteIndex, "Ceres Ridley dedicated OBJ palette");
     AssertEqual(0x3c00, ridley.Properties, "Ceres Ridley native initialized properties");
     AssertEqual(0x804f, ridley.SpritemapPointer, "Ceres Ridley post-init empty extended map");
@@ -940,7 +941,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         Path.GetFullPath("Super Metroid.smc"));
     ushort initialRidleyMap = CartridgeImportSource.Require(nativeRidleyRom).ReadCartridgeWord(0xa6e53e);
     AssertEqual(initialRidleyMap, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
-    AssertEqual(0xe540, ridley.CurrentInstruction, "Ceres Ridley initial list sleeps");
+    AssertEqual(0xe540, new SuperMetroid.Verification.Bosses.Ridley.RidleyNativeInstructionPointers(
+        CartridgeImportSource.Require(nativeRidleyRom)).Body(state), "Ceres Ridley initial list sleeps");
 
     for (int frame = 0; frame < 512; frame++)
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });

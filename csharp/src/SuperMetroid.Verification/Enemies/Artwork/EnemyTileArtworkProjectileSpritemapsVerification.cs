@@ -32,6 +32,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Compares installed enemy-projectile drawing compositions with native OAM and guards their runtime visual reads.</summary>
@@ -49,6 +50,13 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         RoomEnemyProjectileKind.MotherBrainHandBeamFired,
         RoomEnemyProjectileKind.MotherBrainRoomTurret,
         RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
+        RoomEnemyProjectileKind.CeresRidleyFireball,
+        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter,
+        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter,
+        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight,
+        RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft,
+        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp,
+        RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown,
     ];
 
     /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
@@ -99,8 +107,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         Suite(nameof(VerifyBurstVisuals), () => VerifyBurstVisuals(stock));
         Suite(nameof(VerifySharedProgramVisuals), () => VerifySharedProgramVisuals(stock));
-        ushort ceresOperand = CeresRidleyProjectileInstructionProgramDefinitions
-            .PresentationWordAddress(0);
+        ushort ceresOperand = RidleyFireballVisualDefinitions.PresentationKey(RidleyFireballVisualDefinitions.ProjectileFrames[0]);
         OamBuffer nativeCeres = DrawReferenceProgramFrame(ceresOperand, bus,
             RoomEnemyProjectileKind.CeresRidleyFireball);
         OamBuffer installedCeres = DrawProgramFrame(stock, ceresOperand,

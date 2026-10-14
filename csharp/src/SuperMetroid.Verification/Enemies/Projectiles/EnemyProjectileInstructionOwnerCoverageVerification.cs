@@ -37,7 +37,8 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             // typed animations (#641); their oracles match them to these native lists frame by frame, and no
             // interpreter owns the lists. Crocomire's mouth projectile, Draygon's goop and Kraid's spat rock also start
             // typed shot programs, and the goop a typed touch program. Phantoon's flames and the pre-Phantoon room
-            // projectile start typed programs too (#1286), and both flames' shots start typed programs.
+            // projectile start typed programs too (#1286), and both flames' shots start typed programs. Ridley's fireballs
+            // and afterburns run typed programs (#1287); their shot lists stay the common native deletion.
             bool typed = kind is RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit or
                 RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces or RoomEnemyProjectileKind.DraygonGoop or
@@ -48,7 +49,10 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.MotherBrainGlassShard or RoomEnemyProjectileKind.MotherBrainGlassSparkle or
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
-                RoomEnemyProjectileKind.PrePhantoonRoom;
+                RoomEnemyProjectileKind.PrePhantoonRoom or RoomEnemyProjectileKind.CeresRidleyFireball or
+                RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter or
+                RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight or RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft or
+                RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown;
             if (!typed)
                 VerifyEntry(definition.InitialInstructionList, "initial");
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet))

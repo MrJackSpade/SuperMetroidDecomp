@@ -155,7 +155,6 @@ internal sealed class CeresRidleyBehavior
         // every actor-owned write that follows is retained below.
         slot.Parameter1 = 0;
         slot.Parameter2 = 0;
-        SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Initial);
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
@@ -164,7 +163,7 @@ internal sealed class CeresRidleyBehavior
         // verified IgnoreSamusCollision identity used by the scheduler.
         slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        slot.Position = slot.Position.WithWhole(new(0x00ba, 0x00a9));
+        slot.Position = slot.Position.WithWhole(new(186, 169));
         _ridleyEncounter.CeresStatus = 0;
 
         _ridleyEncounter.Ridley = new RidleyEnemyState
@@ -177,10 +176,10 @@ internal sealed class CeresRidleyBehavior
             MovementAnimationEnabled = 0,
             FacingDirection = RidleyFacing.Left,
             IdleTailWhipEnabled = 1,
-            TailDamage = 0x000f,
+            TailDamage = 15,
             Velocity = new EightEightVector<RoomPixels>(0, 0),
-            MovementMinimum = new Position16<RoomPixels>(0x0028, 0xffe0),
-            MovementMaximum = new Position16<RoomPixels>(0x00e0, 0x00b0),
+            MovementMinimum = new Position16<RoomPixels>(40, unchecked((ushort)-32)),
+            MovementMaximum = new Position16<RoomPixels>(224, 176),
             BabyInstruction = CeresBabyInstructionProgramDefinitions.Initial,
             BabyInstructionTimer = 1,
             BabyFunction = CeresBabyFunction.CarriedInArms,
@@ -193,13 +192,14 @@ internal sealed class CeresRidleyBehavior
             TailAngleDelta = 1,
             TailMinimumClockwiseAngle = RidleyTailDefinitions.InitialMinimumClockwise,
             TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
-            TailWhipTargetClockwiseAngle = 0xffff,
-            TailWhipTargetCounterClockwiseAngle = 0xffff,
+            TailWhipTargetClockwiseAngle = RidleyTailDefinitions.IdleWhipTarget,
+            TailWhipTargetCounterClockwiseAngle = RidleyTailDefinitions.IdleWhipTarget,
             TailWhipRequest = 0,
-            TailExtensionSpeed = 0x00f0,
+            TailExtensionSpeed = 240,
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
+        StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
         // `$A6:A280` ends Ceres Ridley's initialization by queuing music zero (stop).
         _audio.QueueInitializationMusicDelayed8(MusicCommand.Stop);
 
@@ -227,7 +227,7 @@ internal sealed class CeresRidleyBehavior
         VramWriteQueue? vramWriteQueue)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(slot);
-        slot.Health = 0x7fff;
+        slot.Health = (ushort)short.MaxValue;
 
         // $A6:A29F runs after the boss dispatcher and before movement. None of the
         // translated dispatcher branches mutate the flash timer, so selecting the two
@@ -263,7 +263,7 @@ internal sealed class CeresRidleyBehavior
                 state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
                 if (state.FunctionTimer.IsNegative)
                 {
-                    SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.OpeningRoar);
+                    StartRidleyProgram(state, slot, RidleyBodyProgram.OpeningRoar);
                     state.FunctionTimer = NativeCountdown.Start(252);
                     state.Function = RidleyAiFunction.WaitBeforeLiftoff;
                 }
@@ -274,7 +274,7 @@ internal sealed class CeresRidleyBehavior
                 if (state.FunctionTimer.IsNegative)
                 {
                     state.FadePaletteOffset = 0;
-                    SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.TransitionToFlying);
+                    StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
                     // Function_Ridley_RoarBeforeFly at $A6:A4B4-A4CB primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in
                     // the same transition that installs instruction list $E91D.
@@ -318,7 +318,7 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyAiFunction.CeresLungeSetup:
-                SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.CeresLunge);
+                StartRidleyProgram(state, slot, RidleyBodyProgram.CeresLunge);
                 state.Function = RidleyAiFunction.CeresLungeMain;
                 state.FunctionTimer = NativeCountdown.Start(64);
                 TickCeresRidleyLunge(slot, state, samus);
@@ -402,7 +402,7 @@ internal sealed class CeresRidleyBehavior
                 state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
                 if (state.FunctionTimer.IsNegative)
                 {
-                    SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.RetrieveBabyMetroid);
+                    StartRidleyProgram(state, slot, RidleyBodyProgram.RetrieveBabyMetroid);
                     state.Function = RidleyAiFunction.CeresRetrieveBaby;
                     TickCeresRidleyRetrieveBaby(slot, state);
                 }
@@ -586,7 +586,7 @@ internal sealed class CeresRidleyBehavior
         // Function $A782 installs the complete retail mouth/fireball instruction stream.
         // Its $E84D/$E904/$E909 commands calculate and spawn bank-$86 actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
-        SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Fireballing);
+        StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
         state.Function = RidleyAiFunction.CeresFireballShooting;
         state.FunctionTimer = NativeCountdown.Start(224);
         TickCeresRidleyFireballShooting(slot, state);
@@ -598,7 +598,7 @@ internal sealed class CeresRidleyBehavior
         // $A6:A7F9 reads RandomNumberSeed without generating a number.
         ushort random = _room.Random.Read();
         ushort jitter = (ushort)(random & 7);
-        if ((random & 0x8000) != 0)
+        if (unchecked((short)random) < 0)
             jitter = unchecked((ushort)-jitter);
         // Both targets use ADC without CLC. Carry is clear on entry (the enemy AI dispatcher's
         // CLC/ADC at $A0:9083 and $A6:A7BA's in-range compare), so the X sum carries into Y.
@@ -863,6 +863,11 @@ internal sealed class CeresRidleyBehavior
             new SnesSignedEightEight(AccelerateAxis(state.Velocity.Y.RawValue, slot.Position.Y.Whole, target.Y, divisor)));
     }
 
+    /// <summary>The fastest 8.8 speed the acceleration clamps to toward a lower target: five pixels per update.</summary>
+    private const ushort CeresRidleyMaximumSpeed = 1280;
+    /// <summary>The fastest 8.8 speed toward a higher target, as the native two's-complement word.</summary>
+    private const ushort CeresRidleyMinimumSpeed = unchecked((ushort)-1280);
+
     /// <summary>
     /// One axis of <c>$A6:D62F</c> (Y) / <c>$A6:D6A6</c> (X). The SEC/SBC distance test's
     /// carry feeds the first ADC/SBC of the velocity chain, and each later ADC/SBC consumes
@@ -874,34 +879,34 @@ internal sealed class CeresRidleyBehavior
         if (difference == 0)
             return velocity;
         bool carry = position >= target;
-        bool targetBelow = (difference & 0x8000) != 0;
+        bool targetBelow = unchecked((short)difference) < 0;
         ushort magnitude = targetBelow ? unchecked((ushort)-difference) : difference;
         // Hardware quotient; a zero quotient is promoted to one.
         ushort step = (ushort)Math.Max(1, magnitude / divisor);
 
         if (targetBelow)
         {
-            if ((velocity & 0x8000) != 0)
+            if (unchecked((short)velocity) < 0)
             {
                 Add(step);
                 Add(step);
             }
             Add(step);
             // CMP #$0500 : BMI keeps any value whose signed difference is negative.
-            if (unchecked((short)(velocity - 0x0500)) >= 0)
-                velocity = 0x0500;
+            if (unchecked((short)(velocity - CeresRidleyMaximumSpeed)) >= 0)
+                velocity = CeresRidleyMaximumSpeed;
         }
         else
         {
-            if ((velocity & 0x8000) == 0)
+            if (unchecked((short)velocity) >= 0)
             {
                 Subtract(step);
                 Subtract(step);
             }
             Subtract(step);
             // CMP #$FB00 : BPL keeps any value whose signed difference is non-negative.
-            if (unchecked((short)(velocity - 0xfb00)) < 0)
-                velocity = 0xfb00;
+            if (unchecked((short)(velocity - CeresRidleyMinimumSpeed)) < 0)
+                velocity = CeresRidleyMinimumSpeed;
         }
         return velocity;
 
@@ -1071,9 +1076,9 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>Restarts Ridley's native enemy instruction cursor and frame timer at a selected list.</summary>
-    internal static void SetRidleyInstruction(RoomEnemySlot slot, ushort instruction)
+    internal static void StartRidleyProgram(RidleyEnemyState state, RoomEnemySlot slot, RidleyBodyProgram program)
     {
-        slot.CurrentInstruction = instruction;
+        state.BodyProgram = AnimationProgramCursor<RidleyBodyProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -1112,7 +1117,7 @@ internal sealed class CeresRidleyBehavior
 
     /// <summary>Native wing frame deltas selected from Ridley's movement speed.</summary>
     private static readonly ushort[] CeresRidleyWingAnimationDeltas =
-        [0x000c, 0x000e, 0x0010, 0x0012, 0x001c, 0x0020, 0x0028, 0x0030];
+        [12, 14, 16, 18, 28, 32, 40, 48];
 
     /// <summary>Ports $A6:D97D-$D9EC after the common Ridley movement pass.</summary>
     internal static void TickRidleyWingAnimation(RidleyEnemyState state)
@@ -1128,7 +1133,7 @@ internal sealed class CeresRidleyBehavior
         {
             // $A6:D9CF isolates bits 8..11 after multiplying the 8.8 velocity by four,
             // converts the resulting word-table byte index, and clamps that index to $E.
-            int tableIndex = Math.Min(7, SnesEightEight.WholeOf((largestAxisVelocity << 2) & 0x0f00));
+            int tableIndex = Math.Min(7, SnesEightEight.WholeOf(largestAxisVelocity << 2) % 16);
             ushort delta = CeresRidleyWingAnimationDeltas[tableIndex];
             if (state.Velocity.Y.SignedRawValue >= 0)
                 delta >>= 1;
@@ -1140,7 +1145,7 @@ internal sealed class CeresRidleyBehavior
         if (!state.WingAnimationTimer.IsNegative)
             return;
 
-        state.WingAnimationTimer = NativeCountdown.Start(0x0020);
+        state.WingAnimationTimer = NativeCountdown.Start(32);
         state.WingFrame = unchecked((ushort)((state.WingFrame + 1) % 10));
     }
 
@@ -1158,10 +1163,11 @@ internal sealed class CeresRidleyBehavior
         if (state.TailSegments.Length == 7)
         {
             RidleyTailSegment tip = state.TailSegments[6];
+            // The tip's sixteen poses split the byte angle into sixteenths.
             int tipIndex = unchecked((byte)(
-                tip.Angle + state.TailSegments[5].Angle + 8)) & 0xf0;
+                tip.Angle + state.TailSegments[5].Angle + 8)) / 16;
             ushort tipSpritemap = RidleySupplementalVisualDefinitions.TailTipFrameAt(
-                tipIndex >> 4);
+                tipIndex);
             DrawRidleyWorldSpritemap(
                 oam,
                 state.SpritemapPaletteIndex,
@@ -1186,7 +1192,7 @@ internal sealed class CeresRidleyBehavior
         int wingPointerIndex = (state.FacingDirection == RidleyFacing.Left ? 0 : 10) + state.WingFrame;
         ushort wingSpritemap = RidleySupplementalVisualDefinitions.WingFrameAt(
             wingPointerIndex);
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = wingSpritemap, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 0x0100 });
+        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = wingSpritemap, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 256 });
     }
 
     /// <summary>
@@ -1243,7 +1249,7 @@ internal sealed class CeresRidleyBehavior
             ushort babySpritemap = AdvanceCeresBabyDrawInstruction(state);
             if (babySpritemap != 0)
             {
-                _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresBabyInstructionProgramDefinitions.Bank, Pointer = babySpritemap, Origin = state.BabyPosition.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.ToScreen(camera).Y < 0x0100 });
+                _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresBabyInstructionProgramDefinitions.Bank, Pointer = babySpritemap, Origin = state.BabyPosition.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.ToScreen(camera).Y < 256 });
             }
         }
 
@@ -1271,7 +1277,7 @@ internal sealed class CeresRidleyBehavior
     {
         ushort cursor = state.BabyInstruction;
         ushort current = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(cursor);
-        if ((current & 0x8000) == 0)
+        if ((current & CeresBabyInstructionProgramDefinitions.InstructionBit) == 0)
         {
             // $A6:DBE7 compares the current frame's duration with the elapsed timer. Any
             // other value ticks the timer ($A6:DC0A) and keeps the current map.
@@ -1291,7 +1297,7 @@ internal sealed class CeresRidleyBehavior
         for (int commandCount = 0; commandCount < 64; commandCount++)
         {
             ushort word = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(cursor);
-            if ((word & 0x8000) == 0)
+            if ((word & CeresBabyInstructionProgramDefinitions.InstructionBit) == 0)
             {
                 state.BabyInstruction = cursor;
                 state.BabyInstructionTimer = 1;
@@ -1355,8 +1361,8 @@ internal sealed class CeresRidleyBehavior
         // population records embedded at $A6:AA2F/$AA3F. Keeping these as real slots makes
         // their layer-two OAM order, off-screen processing, and $F7A5 visibility dispatcher
         // flow through the same scheduler as the cartridge instead of painting host panels.
-        SpawnCeresRidleyMode7Wall(xPosition: 0x0008, parameter1: 5);
-        SpawnCeresRidleyMode7Wall(xPosition: 0x00f8, parameter1: 6);
+        SpawnCeresRidleyMode7Wall(xPosition: 8, parameter1: 5);
+        SpawnCeresRidleyMode7Wall(xPosition: 248, parameter1: 6);
     }
 
     /// <summary>Initializes one native wall actor at its authored X coordinate and variant parameter.</summary>
@@ -1370,7 +1376,7 @@ internal sealed class CeresRidleyBehavior
             EnemyDefinitionId.CeresDoor);
         RoomEnemyPopulationRecord population = new(
             EnemyDefinitionId.CeresDoor,
-            Position: new(xPosition, 0x007f),
+            Position: new(xPosition, 127),
             InitializationParameter: 0,
             Properties: (ushort)(
                 EnemyProperties.ProcessInstructions |
@@ -1394,7 +1400,7 @@ internal sealed class CeresRidleyBehavior
         Position16<RoomPixels> camera)
     {
         Position16<ScreenPixels> screen = segment.Position.ToScreen(camera);
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = spritemap, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = screen.Y < 0x0100 });
+        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = spritemap, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = screen.Y < 256 });
     }
 
     /// <summary>Tests Samus against Ridley's extended body and applies contact response after native invincibility gating.</summary>
@@ -1509,13 +1515,13 @@ internal sealed class CeresRidleyBehavior
         state.Mode7Finished = false;
         state.Mode7TableByteIndex = 0;
         state.Mode7Angle = SnesAngle.FromRaw(1);
-        state.Mode7Offset = new Offset16<Mode7Pixels>(-0x0080, 0x0020);
-        state.Mode7Zoom = 0x0800;
-        state.Mode7MatrixA = 0x0100;
-        state.Mode7MatrixB = 0x0100;
-        state.Mode7MatrixC = 0x0100;
-        state.Mode7MatrixD = 0x0100;
-        state.Mode7Center = new Position16<Mode7Pixels>(0x0040, 0x0040);
+        state.Mode7Offset = new Offset16<Mode7Pixels>(-128, 32);
+        state.Mode7Zoom = 2048;
+        state.Mode7MatrixA = 256;
+        state.Mode7MatrixB = 256;
+        state.Mode7MatrixC = 256;
+        state.Mode7MatrixD = 256;
+        state.Mode7Center = new Position16<Mode7Pixels>(64, 64);
         state.Mode7BabyFrame = 0;
         state.Mode7WingFrame = 0;
     }
@@ -1558,7 +1564,7 @@ internal sealed class CeresRidleyBehavior
 
         // At byte index $D0, `$90:E119` replaces Samus's movement/hack handlers so the
         // rotating boss image cannot overlap her from the following frame onward.
-        if (tableByteIndex == 0x00d0 && samus is not null)
+        if (tableByteIndex == 208 && samus is not null)
             samus.CeresRidleyEjection.Request(samus);
 
         var frame = CeresRidleyGetawayDefinitions.FromByteIndex(tableByteIndex);
@@ -1592,7 +1598,7 @@ internal sealed class CeresRidleyBehavior
             unchecked((short)(state.Mode7Offset.Y + frame.Velocity.Y)));
 
         UpdateCeresRidleyMode7Palette(zoom);
-        state.Mode7Angle = state.Mode7Angle.AddRaw(0x0030);
+        state.Mode7Angle = state.Mode7Angle.AddRaw(48);
         UpdateCeresRidleyMode7Matrix(state);
 
         // Both animations queue into this frame's Mode 7 transfer queue, the capsule first, so
@@ -1662,10 +1668,6 @@ internal sealed class CeresRidleyBehavior
                 (ushort)transfer.TileNumbers.Count, transfer.DestinationWord);
         }
     }
-    /// <summary>Bank-$A6 tilemap source for the Japanese warning overlay.</summary>
-    private const ushort CeresJapaneseText = 0xc450;
-    /// <summary>Base character word used by the Ceres warning typewriter.</summary>
-    private const ushort CeresTypewriterTileBase = 0x3582;
 
     /// <summary>
     /// Ports the shared Ridley function at $A6:C04E for the Ceres branch. The phase word
@@ -1722,13 +1724,13 @@ internal sealed class CeresRidleyBehavior
                 if (oldDelay != 1)
                     return;
 
-                state.CeresEscapeTextPointer = CeresJapaneseText;
+                state.CeresEscapeTextPointer = EscapeTypewriterDefinitions.CeresJapaneseText;
                 state.CeresEscapeTextDestination = 0;
                 state.CeresEscapeTextDelayTimer = 0;
                 state.CeresEscapeTextDelay = 0;
                 state.CeresEscapeTextSoundCounter = 0;
                 state.CeresEscapeTypewriter = _presentation.EscapeTypewriterPresentation is { } presentation
-                    ? new(presentation.Get(EscapeTypewriterProgramId.Ceres), CeresTypewriterTileBase)
+                    ? new(presentation.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase)
                     : null;
 
                 // `$A6:C0E3-$A6:C0F1` advances the even-byte dispatch index twice for
@@ -1894,7 +1896,7 @@ internal sealed class CeresRidleyBehavior
             return;
 
         state.CeresEscapePaletteFrame = unchecked((ushort)(
-            (state.CeresEscapePaletteFrame + 1) & 0x000f));
+            (state.CeresEscapePaletteFrame + 1) % 16));
         if (_presentation.CeresRidleyColors is { } colors)
             colors.ApplyAlarm(_presentation.Cgram, state.CeresEscapePaletteFrame);
         else throw new InvalidOperationException(

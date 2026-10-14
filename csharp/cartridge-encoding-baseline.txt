@@ -45,18 +45,7 @@ csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainPaletteWorkRam.cs	SME
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRoomPaletteProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaBehavior.cs	SME6340	26
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitions.cs	SME6341	3
-csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyBehavior.cs	SME6340	52
-csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyBehavior.cs	SME6342	1
-csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyProjectileInstructionProgramDefinitions.cs	SME6341	5
-csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBehavior.cs	SME6340	26
-csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBehavior.cs	SME6349	1
-csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyClawOffsets.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyClawOffsets.cs	SME6342	1
-csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyExplosionInstructionProgramDefinitions.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyInstructionSounds.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyProjectiles.cs	SME6340	13
-csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyTail.cs	SME6340	38
-csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyTail.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnBehavior.cs	SME6340	22
 csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnCeilingPlmProgramDefinitions.cs	SME6341	6
@@ -623,9 +612,6 @@ csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/MotherBrainRoomC
 csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/MotherBrainFxRecordPointers.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitionsTooling.cs	SME6340	2
 csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/RinkaInstructionProgramDefinitionsTooling.cs	SME6341	2
-csharp/src/SuperMetroid.Tooling/Core/Bosses/Ridley/CeresRidleyProjectileInstructionProgramDefinitionsTooling.cs	SME6341	4
-csharp/src/SuperMetroid.Tooling/Core/Bosses/Ridley/RidleyExplosionInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Bosses/Ridley/RidleyExplosionInstructionProgramDefinitionsTooling.cs	SME6341	2
 csharp/src/SuperMetroid.Tooling/Core/Bosses/SporeSpawn/SporeSpawnProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Torizo/BombTorizoDormantInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Torizo/BombTorizoDroolInstructionProgramDefinitionsTooling.cs	SME6341	5
@@ -1074,10 +1060,9 @@ csharp/src/SuperMetroid.Verification/Bosses/Phantoon/PhantoonWaveVerification.cs
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/CeresRidleyEyeFadeDefinitionsVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/CeresRidleyGetawayDefinitionsVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/CeresRidleyMode7ColorsVerification.cs	SME6340	4
-csharp/src/SuperMetroid.Verification/Bosses/Ridley/CeresRidleyProjectileInstructionProgramDefinitionsVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyAcidVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyAttackChoicesVerification.cs	SME6340	3
-csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyBreakupProgramsVerification.cs	SME6340	8
+csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyBreakupProgramsVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyCollisionDefinitionsVerification.cs	SME6340	21
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyDeathAccelerationVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyExplosionDefinitionsVerification.cs	SME6340	95
@@ -1086,8 +1071,6 @@ csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyFlightTailVerification.
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyFullMovieVerification.cs	SME6340	128
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyFullMovieVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyInertiaVerification.cs	SME6340	21
-csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyInstructionProgramDefinitionsVerification.cs	SME6340	8
-csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyInstructionProgramDefinitionsVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyMissedLungeVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyMovementTargetsVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyPlayerOpeningVerification.cs	SME6340	45
@@ -1306,7 +1289,7 @@ csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerif
 csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerification.cs	SME6345	2
 csharp/src/SuperMetroid.Verification/Enemies/EnemyGameplayAcceptanceVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs	SME6340	5
+csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionOwnerCoverageVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/EnemyLinearSpeedsVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Enemies/EnemyMathReferenceData.cs	SME6340	6
@@ -1817,7 +1800,7 @@ csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME634
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6340	390
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6341	4
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6342	14
-csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6340	578
+csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6340	555
 csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6342	5
 csharp/src/SuperMetroid.Verification/Harness/LookupStream5Verification.cs	SME6340	132
@@ -2008,7 +1991,7 @@ csharp/src/SuperMetroid.Verification/Rooms/RoomBackgroundLibraryParityVerificati
 csharp/src/SuperMetroid.Verification/Rooms/RoomCallbackDefinitionsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Rooms/RoomCharacterInstallationVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Rooms/RoomDefinitionIntegrationVerification.cs	SME6341	1
-csharp/src/SuperMetroid.Verification/Rooms/RoomEnemiesVerification.cs	SME6340	523
+csharp/src/SuperMetroid.Verification/Rooms/RoomEnemiesVerification.cs	SME6340	522
 csharp/src/SuperMetroid.Verification/Rooms/RoomEnemiesVerification.cs	SME6342	5
 csharp/src/SuperMetroid.Verification/Rooms/RoomHeaderDefinitionsVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Rooms/RoomHeaderDefinitionsVerification.cs	SME6345	1

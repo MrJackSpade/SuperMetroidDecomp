@@ -14,6 +14,8 @@ internal abstract class CeresBabyInstructionProgramDefinitions
 {
     /// <summary>Bank $A6 owns the Ceres Baby's private draw program and OAM frames.</summary>
     internal const byte Bank = 0xa6;
+    /// <summary>Bit 15 marks an instruction word in the Baby's draw program; a clear bit makes the word a frame duration.</summary>
+    internal const ushort InstructionBit = 0x8000;
     /// <summary>The horizontal-squish Baby OAM frame at $A6:BFFD.</summary>
     internal const ushort HorizontalFrame = 0xbffd;
     /// <summary>The round Baby OAM frame at $A6:C018.</summary>

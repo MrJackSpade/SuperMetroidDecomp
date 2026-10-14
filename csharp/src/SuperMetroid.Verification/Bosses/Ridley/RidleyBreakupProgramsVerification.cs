@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
@@ -40,11 +41,13 @@ internal static class RidleyBreakupProgramsVerification
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 { Angle = index == 6 ? (ushort)0x10 : (ushort)0, Position = new Position16<RoomPixels>(128, 128) }).ToArray(),
         };
+        enemies.RidleyEncounter.Ridley = state;
         death(body, state, new SamusState());
         AssertEqual((ushort)0, state.GrabState, "Ridley death releases Samus before breakup");
         var fragments = enemies.SlotTable.Slots.Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
-        AssertEqual((ushort)0xca9b, fragments[0].CurrentInstruction, "reported tail orientation selects CA9B");
+        AssertEqual(RidleyBreakupFrame.TailTip1, state.BreakupPrograms[fragments[0].SlotIndex].Program,
+            "reported tail orientation selects the second tip pose ($A6:CA9B)");
         foreach (var fragment in fragments)
         {
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, fragment.SpritemapPointer,
@@ -73,24 +76,18 @@ internal static class RidleyBreakupProgramsVerification
         AssertEqual(-11, parts[0].X.SignedOffset, "schema-68 edit survives stock refresh");
         AssertThrows<InvalidDataException>(() => EnemySpritemapCatalog.Load(new MemoryStream(legacyBytes)), "schema-68 incomplete stock requires refresh");
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = merged });
-        for (int index = 0; index < RidleyExplosionInstructionProgramDefinitions.ProgramCount; index++)
+        // VerifyRidleyAnimations matches each typed breakup program to its native list; this draws every pose.
+        foreach (RidleyBreakupFrame frame in Enum.GetValues<RidleyBreakupFrame>())
         {
-            ushort operand = RidleyExplosionInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            ushort start = (ushort)(operand - 2);
-            ushort expectedPointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | operand);
-            foreach (int offset in new[] { 0, 4 })
-            {
-                ushort address = (ushort)(start + offset);
-                ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | address);
-                AssertEqual(native, RidleyExplosionInstructionProgramDefinitions.ReadMechanicsWord(address), "breakup native mechanics");
-            }
+            ushort operand = (ushort)(RidleyAnimationsVerification.BreakupList(frame) + 2);
+            ushort expectedPointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);
             var fragment = fragments[0];
-            fragment.CurrentInstruction = start;
+            state.BreakupPrograms[fragment.SlotIndex] = AnimationProgramCursor<RidleyBreakupFrame>.Start(frame);
             fragment.InstructionTimer = NativeCountdown.Start(1);
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
-            AssertEqual((ushort)(start + 4), fragment.CurrentInstruction, "breakup sleeps after its one frame");
+            AssertEqual(1, state.BreakupPrograms[fragment.SlotIndex].Position, "breakup sleeps after its one frame");
             var actual = new OamBuffer();
             enemies.Presentation.DrawEnemySpritemap(actual, new EnemySpritemapDraw { Bank = 0xa6, Pointer = expectedPointer, Origin = new Position16<OamPixels>((ushort)128, (ushort)112), PaletteBits = 0x0e00, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             var expected = new OamBuffer();

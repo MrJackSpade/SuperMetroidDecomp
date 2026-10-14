@@ -26,6 +26,7 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -189,37 +190,37 @@ internal static class EnemyProjectileDefinitionCatalog
 0xCBE7, MotherBrainTopTubeInstructionProgramDefinitions.TopMiddleRight,
             0x1808, 0x5000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresRidleyFireball => new(
-0x940E, CeresRidleyProjectileInstructionProgramDefinitions.Fireball,
+0x940E, RidleyFireballVisualDefinitions.FireballProgram,
             0x0606, 0x5003, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter => new(
 0x950C,
-            CeresRidleyProjectileInstructionProgramDefinitions.HorizontalCenter,
+            RidleyFireballVisualDefinitions.HorizontalCenterProgram,
             0x0606, 0x5003, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter => new(
 0x950C,
-            CeresRidleyProjectileInstructionProgramDefinitions.VerticalCenter,
+            RidleyFireballVisualDefinitions.VerticalCenterProgram,
             0x0606, 0x5003, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight => new(
 0x950D,
-            CeresRidleyProjectileInstructionProgramDefinitions.DirectionalAfterburn,
+            RidleyFireballVisualDefinitions.DirectionalAfterburnProgram,
             0x0606, 0x5003, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft => new(
 0x950D,
-            CeresRidleyProjectileInstructionProgramDefinitions.DirectionalAfterburn,
+            RidleyFireballVisualDefinitions.DirectionalAfterburnProgram,
             0x0606, 0x5003, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp => new(
 0x9522,
-            CeresRidleyProjectileInstructionProgramDefinitions.DirectionalAfterburn,
+            RidleyFireballVisualDefinitions.DirectionalAfterburnProgram,
             0x0606, 0x5003, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown => new(
 0x9522,
-            CeresRidleyProjectileInstructionProgramDefinitions.DirectionalAfterburn,
+            RidleyFireballVisualDefinitions.DirectionalAfterburnProgram,
             0x0606, 0x5003, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresFallingDebrisLight => new(

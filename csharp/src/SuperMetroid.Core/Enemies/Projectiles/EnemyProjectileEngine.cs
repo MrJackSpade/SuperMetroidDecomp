@@ -1072,12 +1072,6 @@ internal sealed class EnemyProjectileEngine
                 address);
         }
 
-        if (CeresRidleyProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
         if (SpacePirateProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return SpacePirateProjectileInstructionProgramDefinitions.ReadMechanicsWord(

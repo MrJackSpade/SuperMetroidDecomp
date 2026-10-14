@@ -55,6 +55,7 @@ internal static class RidleyFullMovieVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
+        var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         foreach (var sample in new[] { (0x7f, false, RidleyFacing.Right, false), (0x80, false, RidleyFacing.Right, true),
             (0xff, true, RidleyFacing.Right, false), (0xff, false, RidleyFacing.Turning, false), (0x180, false, RidleyFacing.Left, true) })
@@ -62,11 +63,11 @@ internal static class RidleyFullMovieVerification
             runtime.System.SetRandomNumber((ushort)sample.Item1);
             (state ?? throw new InvalidOperationException("Verification requires state.")).Roaring = sample.Item2; state.FacingDirection = sample.Item3;
             state.FunctionTimer = NativeCountdown.Start(20); samus.Pose = SamusPoseId.SpinJumpRightPose;
-            body.CurrentInstruction = NativeSnapshotMemory.RidleyRightFlyingSleep;
+            state.BodyProgram = pointers.BodyCursorAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
             body.InstructionTimer = NativeCountdown.Start(9); body.Timer = NativeCountdown.Start(11);
             runtime.Enemies.RidleyBehavior.TickNorfairRidleyPogo(body, state, samus, true);
-            AssertEqual(sample.Item4 ? RidleyInstructionProgramDefinitions.Fireballing : NativeSnapshotMemory.RidleyRightFlyingSleep,
-                body.CurrentInstruction, "native spin-response fireball threshold/roar/facing gate");
+            AssertEqual(sample.Item4 ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.Fireballing) : NativeSnapshotMemory.RidleyRightFlyingSleep,
+                pointers.Body(state), "native spin-response fireball threshold/roar/facing gate");
             AssertEqual(sample.Item4 ? (ushort)1 : (ushort)9, body.InstructionTimer.RawValue, "native fireball restarts instruction timer only when admitted");
             AssertEqual(sample.Item4 ? (ushort)0 : (ushort)11, body.Timer.RawValue, "native fireball clears loop counter only when admitted");
             AssertEqual((ushort)sample.Item1, runtime.System.RandomNumber, "native fireball admission does not generate random state");
@@ -615,17 +616,19 @@ internal static class RidleyFullMovieVerification
             (0x004a, RidleyFacing.Turning, false), (0x007f, RidleyFacing.Right, false), (0x0080, RidleyFacing.Right, true),
             (0x014a, RidleyFacing.Right, false), // Native tests the low position byte, not full X >= 128.
         ];
+        var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(
+            CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         foreach (var sample in cases)
         {
             var slot = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(sample.X, 0)),
-                CurrentInstruction = NativeSnapshotMemory.RidleyRightFlyingSleep,
                 InstructionTimer = NativeCountdown.Start(7), Timer = NativeCountdown.Start(9) };
             var state = new RidleyEnemyState { FacingDirection = sample.Facing };
+            state.BodyProgram = pointers.BodyCursorAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
             RidleyBehavior.SelectNorfairRidleyFacingInstruction(slot, state);
             ushort expected = !sample.Turn ? NativeSnapshotMemory.RidleyRightFlyingSleep
-                : sample.Facing == RidleyFacing.Left ? RidleyInstructionProgramDefinitions.TurnFromLeftToRight
-                : RidleyInstructionProgramDefinitions.TurnFromRightToLeft;
-            AssertEqual(expected, slot.CurrentInstruction, $"native center-facing instruction at {sample.X:X4}, facing {sample.Facing}");
+                : sample.Facing == RidleyFacing.Left ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.TurnFromLeftToRight)
+                : RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.TurnFromRightToLeft);
+            AssertEqual(expected, pointers.Body(state), $"native center-facing instruction at {sample.X:X4}, facing {sample.Facing}");
             AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, slot.InstructionTimer.RawValue, "turn timer changes only when native condition is met");
             AssertEqual(sample.Turn ? (ushort)0 : (ushort)9, slot.Timer.RawValue, "loop counter is preserved when no turn is needed");
         }
@@ -838,18 +841,19 @@ internal static class RidleyFullMovieVerification
         ushort nmiBeforeNudge = runtime.Nmi.NmiFrameCounter;
         ushort samusAnimation = samus.AnimationFrame;
         var ridley = runtime.Enemies.SlotTable.Slots[0];
-        ushort bodyInstruction = ridley.CurrentInstruction;
+        var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
+        ushort bodyInstruction = pointers.Enemy(runtime.Enemies, ridley);
         game.Step(0);
         AssertEqual(DoorTransitionPhase.BuildDestinationOam, game.DoorTransitionPhaseForVerification, "final nudge returns before first fade");
         AssertEqual(unchecked((ushort)(nmiBeforeNudge + 1)), runtime.Nmi.NmiFrameCounter, "final transition accepts exactly one NMI");
         AssertEqual(samusAnimation, samus.AnimationFrame, "final transition does not animate Samus");
-        AssertEqual(bodyInstruction, ridley.CurrentInstruction, "final transition does not advance destination enemy instructions");
+        AssertEqual(bodyInstruction, pointers.Enemy(runtime.Enemies, ridley), "final transition does not advance destination enemy instructions");
         AssertEqual((byte)0, runtime.Nmi.NmiFrameCounter8, "final door scanout resets the byte before IRQ ownership changes");
         game.Step(0);
         AssertEqual(unchecked((ushort)(nmiBeforeNudge + 2)), runtime.Nmi.NmiFrameCounter, "first fade accepts exactly one additional NMI");
         AssertEqual(samusAnimation, samus.AnimationFrame, "destination fade does not animate Samus");
         AssertEqual((byte)1, runtime.Nmi.NmiFrameCounter8, "first destination drawing frame resumes the byte counter");
-        AssertEqual(NativeSnapshotMemory.RidleyFirstFadeInstruction, ridley.CurrentInstruction, "first fade runs native Ridley instruction list");
+        AssertEqual(NativeSnapshotMemory.RidleyFirstFadeInstruction, pointers.Enemy(runtime.Enemies, ridley), "first fade runs native Ridley instruction list");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
         AssertEqual((ushort)12, ridley.InstructionTimer.RawValue, "first native fade visual duration");
         AssertEqual(RidleyAiFunction.WaitForDoorTransition, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires runtime.Enemies.RidleyEncounter.Ridley.")).Function, "native Ridley AI remains gated during fade visuals");
@@ -926,6 +930,8 @@ internal static class RidleyFullMovieVerification
         NativeCheckpointMemory memory = ReadFrame(0);
         ushort W(int address) => memory.Word(address);
         var (bus, runtime, samus, game) = ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam);
+        // Ridley's body, fragments and fireballs run typed programs (#1287); compare their cursors as native pointers.
+        var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         Array initialPlms = runtime.Plms.SlotTable._slots;
         var checkedProjectileCompositions = new HashSet<(ushort Operand, ushort Direct, ushort Native)>();
         ushort[]? pendingLoadedOwners = null;
@@ -1282,7 +1288,7 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " Y fraction", actor.Position.Y.Fraction, address + 8);
                 Check(owner + " health", actor.Health, address + 20);
                 Check(owner + " spritemap", actor.SpritemapPointer, address + 22);
-                Check(owner + " instruction", actor.CurrentInstruction, address + 26);
+                Check(owner + " instruction", pointers.Enemy(runtime.Enemies, actor), address + 26);
                 Check(owner + " instruction timer", actor.InstructionTimer.RawValue, address + 28);
                 Check(owner + " XRadius", actor.Radius.X, address + 10);
                 Check(owner + " YRadius", actor.Radius.Y, address + 12);
@@ -1519,7 +1525,7 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " YFraction", projectile.Position.Y.Fraction, NativeSnapshotMemory.EnemyProjectileYFraction + index);
                 Check(owner + " XVelocity", projectile.Velocity.X.RawValue, NativeSnapshotMemory.EnemyProjectileXVelocity + index);
                 Check(owner + " YVelocity", projectile.Velocity.Y.RawValue, NativeSnapshotMemory.EnemyProjectileYVelocity + index);
-                Check(owner + " Instruction", projectile.InstructionPointer, NativeSnapshotMemory.EnemyProjectileInstruction + index);
+                Check(owner + " Instruction", pointers.Projectile(projectile), NativeSnapshotMemory.EnemyProjectileInstruction + index);
                 ushort nativeMap = W(NativeSnapshotMemory.EnemyProjectileSpritemap + index);
                 if (checkedProjectileCompositions.Add((projectile.PresentationOperandAddress, projectile.SpritemapPointer, nativeMap)))
                 {

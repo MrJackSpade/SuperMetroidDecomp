@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -76,6 +77,10 @@ public sealed class RidleyEnemyState
     public bool Roaring { get; internal set; }
     /// <summary>Gets the Ceres hover-cycle counter used to choose the next scripted attack.</summary>
     public ushort HoverCounter { get; internal set; }
+    /// <summary>Where Ridley's typed body program resumes (#641).</summary>
+    internal AnimationProgramCursor<RidleyBodyProgram> BodyProgram { get; set; }
+    /// <summary>Where each death-breakup fragment's typed program resumes, by its enemy slot (#641).</summary>
+    internal Dictionary<int, AnimationProgramCursor<RidleyBreakupFrame>> BreakupPrograms { get; } = [];
     /// <summary>Gets the native feet-position table index installed by Ridley's body animation instructions.</summary>
     public ushort FeetDistanceIndex { get; internal set; }
     /// <summary>Gets the Ceres fireball attack's whole-pixel body anchor; firing motion aims at random jitter around this saved position.</summary>

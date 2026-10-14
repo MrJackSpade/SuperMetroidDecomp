@@ -23,22 +23,22 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 34228,
-    "PointerDispatch": 1108,
-    "OpaqueWordArray": 1125,
-    "CatalogHexLiteral": 96721,
-    "JustifiedHexLiteral": 143,
+    "RawHexLiteral": 34045,
+    "PointerDispatch": 1095,
+    "OpaqueWordArray": 1123,
+    "CatalogHexLiteral": 96764,
+    "JustifiedHexLiteral": 148,
     "RawWidthOperation": 46,
     "OwnedWidthOperation": 72,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
-    "CountdownSelfDecrement": 26,
-    "class:NumericQuantity": 55536,
-    "class:DomainIdentity": 6671,
-    "class:ComposableBits": 1618,
-    "class:StructuredInstruction": 44207,
-    "class:CartridgeAddress": 24531,
-    "class:Unknown": 912,
+    "CountdownSelfDecrement": 25,
+    "class:NumericQuantity": 55477,
+    "class:DomainIdentity": 6673,
+    "class:ComposableBits": 1598,
+    "class:StructuredInstruction": 44209,
+    "class:CartridgeAddress": 24471,
+    "class:Unknown": 896,
     "storageWidthMembers": 1560
   },
   "subsystems": [
@@ -3151,30 +3151,41 @@
     {
       "name": "Boss: Ridley",
       "totals": {
-        "RawHexLiteral": 135,
-        "PointerDispatch": 6,
-        "OpaqueWordArray": 3,
-        "CatalogHexLiteral": 286,
-        "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 204,
-        "class:DomainIdentity": 32,
-        "class:ComposableBits": 22,
-        "class:StructuredInstruction": 22,
-        "class:CartridgeAddress": 128,
-        "class:Unknown": 23,
+        "OpaqueWordArray": 1,
+        "CatalogHexLiteral": 255,
+        "JustifiedHexLiteral": 5,
+        "class:NumericQuantity": 97,
+        "class:DomainIdentity": 60,
+        "class:ComposableBits": 2,
+        "class:StructuredInstruction": 6,
+        "class:CartridgeAddress": 89,
+        "class:Unknown": 7,
         "storageWidthMembers": 59
       },
-      "addressInterpretingTypes": [
-        "CeresRidleyProjectileInstructionProgramDefinitions",
-        "RidleyExplosionInstructionProgramDefinitions"
-      ],
+      "addressInterpretingTypes": [],
       "files": [
+        {
+          "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyBreakupFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 29,
+            "class:DomainIdentity": 29
+          }
+        },
         {
           "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyBreakupVisualDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 16,
             "class:NumericQuantity": 16
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyFireballVisualDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 8,
+            "class:NumericQuantity": 8
           }
         },
         {
@@ -3203,19 +3214,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyBehavior.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 52,
-            "OpaqueWordArray": 1,
-            "class:NumericQuantity": 31,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 9,
-            "class:StructuredInstruction": 9,
-            "class:CartridgeAddress": 3
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyGetawayDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -3231,16 +3229,6 @@
             "CatalogHexLiteral": 17,
             "class:NumericQuantity": 9,
             "class:CartridgeAddress": 8
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyProjectileInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 5,
-            "CatalogHexLiteral": 6,
-            "class:NumericQuantity": 6,
-            "class:CartridgeAddress": 5
           }
         },
         {
@@ -3268,23 +3256,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBehavior.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 26,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 11,
-            "class:ComposableBits": 6,
-            "class:CartridgeAddress": 2,
-            "class:Unknown": 8
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyClawOffsets.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 5,
             "OpaqueWordArray": 1,
+            "JustifiedHexLiteral": 5,
             "class:StructuredInstruction": 6
           }
         },
@@ -3315,20 +3291,9 @@
           "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyExplosionDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 17,
-            "class:NumericQuantity": 13,
-            "class:DomainIdentity": 3,
+            "CatalogHexLiteral": 4,
+            "class:NumericQuantity": 3,
             "class:Unknown": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyExplosionInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 1,
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 1
           }
         },
         {
@@ -3357,31 +3322,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 16,
-            "class:CartridgeAddress": 16
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 47,
-            "class:NumericQuantity": 35,
-            "class:CartridgeAddress": 12
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyInstructionSounds.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyPogoDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -3396,31 +3336,24 @@
           "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyProjectiles.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 13,
-            "class:NumericQuantity": 9,
-            "class:Unknown": 4,
             "storageWidthMembers": 1
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyTail.cs",
+          "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleySoundDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 38,
-            "OpaqueWordArray": 1,
-            "class:NumericQuantity": 22,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 5,
-            "class:StructuredInstruction": 7,
-            "class:Unknown": 4
+            "CatalogHexLiteral": 2,
+            "class:NumericQuantity": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyTailDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 13,
-            "class:NumericQuantity": 9,
+            "CatalogHexLiteral": 26,
+            "class:NumericQuantity": 18,
+            "class:DomainIdentity": 4,
             "class:Unknown": 4
           }
         },
@@ -4071,14 +4004,14 @@
         "RawHexLiteral": 446,
         "PointerDispatch": 115,
         "OpaqueWordArray": 3,
-        "CatalogHexLiteral": 1738,
+        "CatalogHexLiteral": 1741,
         "JustifiedHexLiteral": 11,
         "CountdownSelfDecrement": 4,
-        "class:NumericQuantity": 1299,
+        "class:NumericQuantity": 1301,
         "class:DomainIdentity": 307,
         "class:ComposableBits": 209,
         "class:StructuredInstruction": 43,
-        "class:CartridgeAddress": 411,
+        "class:CartridgeAddress": 412,
         "class:Unknown": 48,
         "storageWidthMembers": 97
       },
@@ -4154,10 +4087,10 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "PointerDispatch": 4,
-            "CatalogHexLiteral": 11,
+            "CatalogHexLiteral": 12,
             "class:NumericQuantity": 10,
             "class:DomainIdentity": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 5
           }
         },
         {
@@ -4373,8 +4306,8 @@
           "path": "csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTypewriterDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 4,
-            "class:NumericQuantity": 2,
+            "CatalogHexLiteral": 6,
+            "class:NumericQuantity": 4,
             "class:CartridgeAddress": 2
           }
         },
@@ -10288,19 +10221,19 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 31848,
-        "PointerDispatch": 376,
+        "RawHexLiteral": 31800,
+        "PointerDispatch": 369,
         "OpaqueWordArray": 989,
-        "CatalogHexLiteral": 1078,
+        "CatalogHexLiteral": 1149,
         "RawWidthOperation": 46,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 10635,
-        "class:DomainIdentity": 635,
+        "class:NumericQuantity": 10681,
+        "class:DomainIdentity": 609,
         "class:ComposableBits": 563,
-        "class:StructuredInstruction": 14030,
-        "class:CartridgeAddress": 7973,
+        "class:StructuredInstruction": 14048,
+        "class:CartridgeAddress": 7951,
         "class:Unknown": 516,
         "storageWidthMembers": 82
       },
@@ -10326,7 +10259,6 @@
         "CacatacProjectileInstructionProgramDefinitionsTooling",
         "CeresFallingDebrisInstructionProgramDefinitionsTooling",
         "CeresHazeVerification",
-        "CeresRidleyProjectileInstructionProgramDefinitionsTooling",
         "CeresSteamInstructionProgramDefinitionsTooling",
         "ChootInstructionProgramDefinitionsTooling",
         "ChozoStatueVisualsVerification",
@@ -10419,8 +10351,6 @@
         "PowampSpikeInstructionProgramDefinitionsTooling",
         "PuyoInstructionProgramDefinitionsTooling",
         "RetailEndingHandoffTests",
-        "RidleyExplosionInstructionProgramDefinitionsTooling",
-        "RidleyInstructionProgramDefinitionsVerification",
         "RinkaInstructionProgramDefinitionsTooling",
         "RipperInstructionProgramDefinitionsVerification",
         "RoomDefinitionIntegrationVerification",
@@ -11203,24 +11133,6 @@
             "PointerDispatch": 2,
             "class:ComposableBits": 1,
             "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Bosses/Ridley/CeresRidleyProjectileInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "PointerDispatch": 4,
-            "class:CartridgeAddress": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Bosses/Ridley/RidleyExplosionInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 2,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 2
           }
         },
         {
@@ -14527,15 +14439,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Bosses/Ridley/CeresRidleyProjectileInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 11,
-            "class:NumericQuantity": 7,
-            "class:CartridgeAddress": 4
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyAcidVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
@@ -14555,9 +14458,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyBreakupProgramsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 8,
+            "RawHexLiteral": 5,
             "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 3,
             "class:Unknown": 1
           }
         },
@@ -14625,16 +14527,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyInstructionProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 8,
-            "PointerDispatch": 1,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 7
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyMissedLungeVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
@@ -14649,6 +14541,15 @@
             "RawHexLiteral": 3,
             "class:StructuredInstruction": 1,
             "class:CartridgeAddress": 2
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 71,
+            "class:NumericQuantity": 57,
+            "class:CartridgeAddress": 14
           }
         },
         {
@@ -16212,8 +16113,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 5,
-            "class:NumericQuantity": 4,
+            "RawHexLiteral": 4,
+            "class:NumericQuantity": 3,
             "class:CartridgeAddress": 1
           }
         },
@@ -19959,14 +19860,14 @@
           "path": "csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 578,
+            "RawHexLiteral": 555,
             "PointerDispatch": 3,
             "OpaqueWordArray": 5,
             "class:NumericQuantity": 122,
-            "class:DomainIdentity": 48,
+            "class:DomainIdentity": 22,
             "class:ComposableBits": 27,
-            "class:StructuredInstruction": 32,
-            "class:CartridgeAddress": 320,
+            "class:StructuredInstruction": 50,
+            "class:CartridgeAddress": 305,
             "class:Unknown": 37
           }
         },
@@ -21364,12 +21265,12 @@
           "path": "csharp/src/SuperMetroid.Verification/Rooms/RoomEnemiesVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 523,
+            "RawHexLiteral": 522,
             "OpaqueWordArray": 5,
             "class:NumericQuantity": 260,
             "class:DomainIdentity": 5,
             "class:StructuredInstruction": 37,
-            "class:CartridgeAddress": 226
+            "class:CartridgeAddress": 225
           }
         },
         {

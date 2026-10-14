@@ -2070,11 +2070,11 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), actual.Lifetime, "stream4 native breakup lifetime");
         }
         for (int orientation = 0; orientation < 16; orientation++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + 2 * orientation)), RidleyExplosionDefinitions.SelectTailInstructionList(RidleyExplosionPart.TailTip, orientation), "stream4 native tail-tip orientation program");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + 2 * orientation)), SuperMetroid.Verification.Bosses.Ridley.RidleyAnimationsVerification.BreakupList(RidleyExplosionDefinitions.SelectTailFrame(RidleyExplosionPart.TailTip, orientation)), "stream4 native tail-tip orientation program");
         foreach (ushort invalid in new ushort[] { 1, 23, 24, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyExplosionDefinitions.GetPart(invalid), "stream4 invalid breakup parameter");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyExplosionDefinitions.SelectTailInstructionList(RidleyExplosionPart.TailTip, invalid), "stream4 invalid tail-tip orientation");
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyExplosionDefinitions.SelectTailFrame(RidleyExplosionPart.TailTip, invalid), "stream4 invalid tail-tip orientation");
     }
 
     /// <summary>Checks dark lightning palette rows and their source pointers against native values.</summary>
@@ -2490,38 +2490,18 @@ internal static class LookupStream4Verification
     private static void VerifyLookupStream4KzanCeresPrograms(ISnesAddressSpace rom)
     {
 
-        int mechanical = 0, visual = 0;
-        foreach (var program in new[] { (0x9552, 0x9574), (0x9574, 0x958c), (0x95a0, 0x95ba), (0x95d3, 0x95ed), (0x9606, 0x9620) })
-        {
-            for (int address = program.Item1; address < program.Item2; address += 2)
-            {
-                bool presentation = address is 0x9556 or 0x955e or 0x9562 or 0x9566 or 0x956a or 0x956e
-                    or 0x9578 or 0x957c or 0x9580 or 0x9584 or 0x9588
-                    or 0x95a4 or 0x95aa or 0x95ae or 0x95b2 or 0x95b6
-                    or 0x95d7 or 0x95dd or 0x95e1 or 0x95e5 or 0x95e9
-                    or 0x960a or 0x9610 or 0x9614 or 0x9618 or 0x961c;
-                if (presentation)
-                {
-                    AssertEqual((ushort)address, CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress(visual++), "Ceres ordered presentation operand");
-                    AssertThrows<InvalidDataException>(() => CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Ceres presentation excluded from control");
-                }
-                else
-                {
-                    var word = CeresRidleyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(mechanical++);
-                    AssertEqual((ushort)address, word.Address, "Ceres ordered control word");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | address)), word.Value, "Ceres original control word");
-                    AssertEqual(word.Value, CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Ceres direct control word");
-                }
-                AssertEqual(!presentation, CeresRidleyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address), "Ceres control low byte");
-                AssertEqual(!presentation, CeresRidleyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | (address + 1)), "Ceres control high byte");
-                AssertThrows<InvalidDataException>(() => CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)(address + 1)), "Ceres unaligned control word");
-            }
-            AssertTrue(!CeresRidleyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x850000 | program.Item1), "Ceres wrong bank rejected");
-        }
-        AssertEqual(42, mechanical, "Ceres total control words");
-        AssertEqual(26, visual, "Ceres total presentation words");
-        foreach (int address in new[] { 0x9551, 0x958c, 0x959f, 0x95ba, 0x95d2, 0x95ed, 0x9605, 0x9620 })
-            AssertTrue(!CeresRidleyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address), "Ceres bounded programs exclude adjacent code");
+        // Ridley's fireball programs are typed (#1287); VerifyRidleyAnimations matches them to the native lists, and
+        // their installed frames keep the native operand addresses in list order.
+        ushort[] operands =
+        [
+            0x9556, 0x955e, 0x9562, 0x9566, 0x956a, 0x956e,
+            0x9578, 0x957c, 0x9580, 0x9584, 0x9588,
+            0x95a4, 0x95aa, 0x95ae, 0x95b2, 0x95b6,
+            0x95d7, 0x95dd, 0x95e1, 0x95e5, 0x95e9,
+            0x960a, 0x9610, 0x9614, 0x9618, 0x961c,
+        ];
+        AssertTrue(operands.SequenceEqual(RidleyFireballVisualDefinitions.ProjectileFrames.Select(RidleyFireballVisualDefinitions.PresentationKey)),
+            "Ridley fireball frames keep the native operand order");
         for (int index = 0; index < 2; index++)
         {
             var word = KzanInstructionProgramDefinitionsTooling.MechanicsWord(index);
@@ -2531,10 +2511,6 @@ internal static class LookupStream4Verification
         }
         for (int offset = -1; offset <= 6; offset++)
             AssertEqual(offset is 0 or 1 or 4 or 5, KzanInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa68b29 + offset), "Kzan exact byte coverage");
-        foreach (int invalid in new[] { int.MinValue, -1, 42, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CeresRidleyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Ceres control index bounds");
-        foreach (int invalid in new[] { int.MinValue, -1, 26, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress(invalid), "Ceres presentation index bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Kzan control index bounds");
     }

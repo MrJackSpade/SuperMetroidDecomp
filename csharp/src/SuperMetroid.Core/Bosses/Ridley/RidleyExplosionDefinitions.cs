@@ -8,8 +8,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal static class RidleyExplosionDefinitions
 {
-    /// <summary>$A6:CA95 InstList_RidleyTailTip_PointingDown, first of sixteen orientation programs.</summary>
-    private const ushort TailTipProgramStart = 0xca95;
+    /// <summary>The breakup initializer ($A6:C696) masks a random word to bits 4, 5 and 8 for a fragment's horizontal 8.8 speed.</summary>
+    internal const ushort FragmentSpeedMask = 0x0130;
+    /// <summary>The tail tip's sixteen orientations.</summary>
+    private const int TailTipOrientationCount = 16;
     /// <summary>
     /// Native allocation order encoded by <c>SpawnEnemy_RidleyExplosion</c> at
     /// <c>$A6:C932-$A6:C986</c>. Enemy-slot/OAM order makes this sequence observable.
@@ -60,18 +62,18 @@ internal static class RidleyExplosionDefinitions
         DeathExplosionScatterDefinitions.Offset(index);
 
     /// <summary>
-    /// Selects the fixed tail instruction list loaded by <c>$A6:C6FE-$A6:C7B9</c>. Each of the sixteen tip programs selected at $A6:C7BA occupies six bytes.
-    /// <paramref name="tailTipOrientation"/> is ignored for the first six segments.
+    /// Selects the tail pose loaded by <c>$A6:C6FE-$A6:C7B9</c>; the tip's comes from its orientation, as the sixteen
+    /// tip lists selected at $A6:C7BA do. <paramref name="tailTipOrientation"/> is ignored for the first six segments.
     /// </summary>
-    public static ushort SelectTailInstructionList(
+    public static RidleyBreakupFrame SelectTailFrame(
         RidleyExplosionPart parameter,
         int tailTipOrientation) => parameter switch
     {
-        RidleyExplosionPart.Tail0 or RidleyExplosionPart.Tail1 => 0xca47,
-        RidleyExplosionPart.Tail2 or RidleyExplosionPart.Tail3 => 0xca4d,
-        RidleyExplosionPart.Tail4 or RidleyExplosionPart.Tail5 => 0xca53,
-        RidleyExplosionPart.TailTip when (uint)tailTipOrientation < 16 =>
-            (ushort)(TailTipProgramStart + 6 * tailTipOrientation),
+        RidleyExplosionPart.Tail0 or RidleyExplosionPart.Tail1 => RidleyBreakupFrame.TailSegmentSmall,
+        RidleyExplosionPart.Tail2 or RidleyExplosionPart.Tail3 => RidleyBreakupFrame.TailSegmentMedium,
+        RidleyExplosionPart.Tail4 or RidleyExplosionPart.Tail5 => RidleyBreakupFrame.TailSegmentLarge,
+        RidleyExplosionPart.TailTip when (uint)tailTipOrientation < TailTipOrientationCount =>
+            RidleyBreakupFrame.TailTip0 + tailTipOrientation,
         RidleyExplosionPart.TailTip =>
             throw new ArgumentOutOfRangeException(nameof(tailTipOrientation)),
         RidleyExplosionPart.Wings or RidleyExplosionPart.Legs or RidleyExplosionPart.OpenHeadAndNeck or
@@ -81,23 +83,23 @@ internal static class RidleyExplosionDefinitions
     };
 
     /// <summary>
-    /// Selects the body-relative position and instruction-list pointer loaded by
+    /// Selects the body-relative position and pose loaded by
     /// <c>$A6:C7DA-$A6:C8D3</c>. Facing zero selects the native left-facing record.
     /// </summary>
     public static RidleyExplosionBodyPartDefinition SelectBodyPart(
         RidleyExplosionPart parameter,
         bool facingRight) => (parameter, facingRight) switch
     {
-        (RidleyExplosionPart.Wings, false) => new(new(0, 0), 0xca59),
-        (RidleyExplosionPart.Wings, true) => new(new(0, 0), 0xca5f),
-        (RidleyExplosionPart.Legs, false) => new(new(15, 22), 0xca65),
-        (RidleyExplosionPart.Legs, true) => new(new(-15, 22), 0xca6b),
-        (RidleyExplosionPart.OpenHeadAndNeck, false) => new(new(-3, -24), 0xca71),
-        (RidleyExplosionPart.OpenHeadAndNeck, true) => new(new(3, -24), 0xca77),
-        (RidleyExplosionPart.Torso, false) => new(new(16, 0), 0xca7d),
-        (RidleyExplosionPart.Torso, true) => new(new(-16, 0), 0xca83),
-        (RidleyExplosionPart.Claw, false) => new(new(8, 7), 0xca89),
-        (RidleyExplosionPart.Claw, true) => new(new(-8, 7), 0xca8f),
+        (RidleyExplosionPart.Wings, false) => new(new(0, 0), RidleyBreakupFrame.WingsFacingLeft),
+        (RidleyExplosionPart.Wings, true) => new(new(0, 0), RidleyBreakupFrame.WingsFacingRight),
+        (RidleyExplosionPart.Legs, false) => new(new(15, 22), RidleyBreakupFrame.LegsFacingLeft),
+        (RidleyExplosionPart.Legs, true) => new(new(-15, 22), RidleyBreakupFrame.LegsFacingRight),
+        (RidleyExplosionPart.OpenHeadAndNeck, false) => new(new(-3, -24), RidleyBreakupFrame.OpenHeadAndNeckFacingLeft),
+        (RidleyExplosionPart.OpenHeadAndNeck, true) => new(new(3, -24), RidleyBreakupFrame.OpenHeadAndNeckFacingRight),
+        (RidleyExplosionPart.Torso, false) => new(new(16, 0), RidleyBreakupFrame.TorsoFacingLeft),
+        (RidleyExplosionPart.Torso, true) => new(new(-16, 0), RidleyBreakupFrame.TorsoFacingRight),
+        (RidleyExplosionPart.Claw, false) => new(new(8, 7), RidleyBreakupFrame.ClawFacingLeft),
+        (RidleyExplosionPart.Claw, true) => new(new(-8, 7), RidleyBreakupFrame.ClawFacingRight),
         _ => throw new ArgumentOutOfRangeException(nameof(parameter)),
     };
 }

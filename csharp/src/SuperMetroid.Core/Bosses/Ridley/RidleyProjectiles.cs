@@ -28,6 +28,8 @@ internal sealed class RidleyProjectiles
     }
     /// <summary>OBJ palette row used for fireballs and every afterburn stage.</summary>
     private static readonly ushort FireballGraphicsIndex = EnemyPaletteBits.Palette5;
+    /// <summary>The fireball's 8.8 speed: five pixels per update.</summary>
+    private const ushort FireballSpeed = 1280;
 
     /// <summary>Ports Ridley instruction $A6:E84D and retains its asymmetric aim clamps.</summary>
     internal void CalculateRidleyFireballVelocity(RoomEnemySlot ridley, SamusState samus)
@@ -37,21 +39,21 @@ internal sealed class RidleyProjectiles
         int muzzleY = ridley.Position.Y.Whole - 43;
         byte cartridgeAngle = EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - muzzleX)), unchecked((short)(samus.Position.Y.Whole - muzzleY))));
-        byte angle = unchecked((byte)-(cartridgeAngle + 0x80));
+        byte angle = unchecked((byte)-(cartridgeAngle + 128));
 
         if (state.FacingDirection == RidleyFacing.Left)
         {
-            if (angle is < 0x40 or >= 0xeb)
-                angle = 0xeb;
-            else if (angle < 0xb0)
-                angle = 0xb0;
+            if (angle is < 64 or >= 235)
+                angle = 235;
+            else if (angle < 176)
+                angle = 176;
         }
         else
         {
-            if (angle is < 0x15 or >= 0xc0)
-                angle = 0x15;
-            else if (angle >= 0x50)
-                angle = 0x50;
+            if (angle is < 21 or >= 192)
+                angle = 21;
+            else if (angle >= 80)
+                angle = 80;
         }
 
         // Math_MultBySin/Cos at $86:C26C reads signed words from the shared table at
@@ -63,8 +65,8 @@ internal sealed class RidleyProjectiles
         // shifts by eight, then reapplies the sign. Speed $0500 therefore remains a
         // signed 8.8 velocity whose magnitude never exceeds $0500.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
-            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(0x0500, angle)),
-            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(0x0500, unchecked((byte)(angle + 64)))));
+            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(FireballSpeed, angle)),
+            new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(FireballSpeed, unchecked((byte)(angle + 64)))));
     }
 
     /// <summary>Allocates projectile $86:9642 at Ridley's facing-dependent muzzle with its calculated velocity and optional three-stage afterburn.</summary>
@@ -79,6 +81,7 @@ internal sealed class RidleyProjectiles
             projectile,
             RoomEnemyProjectileKind.CeresRidleyFireball,
             FireballGraphicsIndex);
+        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.Fireball));
         ApplyRidleyProjectileAreaDamage(projectile);
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole +
             (state.FacingDirection == RidleyFacing.Left ? -25 : 25))), unchecked((ushort)(ridley.Position.Y.Whole - 43))));
@@ -105,6 +108,9 @@ internal sealed class RidleyProjectiles
         if (center is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(center, kind, FireballGraphicsIndex);
+        center.StartAnimation(new RidleyFireballAnimation(kind == RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter
+            ? RidleyFireballProgram.VerticalCenter
+            : RidleyFireballProgram.HorizontalCenter));
         center.Position = center.Position.WithWhole(position);
         // $86:9499/$949C explicitly stop the center; allocation retains prior velocities.
         center.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
@@ -136,6 +142,7 @@ internal sealed class RidleyProjectiles
         if (afterburn is null)
             return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(afterburn, kind, FireballGraphicsIndex);
+        afterburn.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.DirectionalAfterburn));
         ApplyRidleyProjectileAreaDamage(afterburn);
         afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);
         afterburn.Velocity = velocity;
@@ -156,12 +163,10 @@ internal sealed class RidleyProjectiles
             source.Velocity);
     }
 
-    /// <summary>Switches a collided branch to its final five-frame list without clearing its velocity or damage fields.</summary>
+    /// <summary>Switches a collided branch to its final five-frame program without clearing its velocity or damage fields.</summary>
     internal static void BeginAfterburnFinalAnimation(RoomEnemyProjectileSlot projectile)
     {
-        projectile.InstructionPointer =
-            CeresRidleyProjectileInstructionProgramDefinitions.AfterburnFinal;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
+        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.AfterburnFinal));
         // $86:950D/$9522 replace the list; its clear-pre-instruction stops motion.
         // Velocity words and contact properties remain unchanged. The final list
         // clears movement, draws five frames, then deletes; it never disables damage.
@@ -211,31 +216,34 @@ internal sealed class RidleyProjectiles
         }, EnemyProjectilePreInstruction.VerticalAfterburn);
     }
 
-    /// <summary>Registers bytecode callbacks that spawn an impact pair or extend a directional afterburn chain.</summary>
-    internal void RegisterAfterburnInstructions(EnemyProjectileHandlerTable table)
+    /// <summary>Carries out the cues of the fireball and afterburn programs: motion, the afterburn spawns and deletion.</summary>
+    internal void RegisterFireballCues(EnemyProjectileHandlerTable table)
     {
-        table.RegisterInstruction(EnemyProjectileInstruction.Spawn_HorizontalAfterburn_EnemyProjectiles, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
+        table.RegisterCue<RidleyFireballCue>((projectile, samus, cue) =>
+        {
+            switch (cue)
             {
-                SpawnAfterburnPair(projectile, horizontal: true);
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
-
-        table.RegisterInstruction(EnemyProjectileInstruction.Spawn_VerticalAfterburn_EnemyProjectiles, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
-                SpawnAfterburnPair(projectile, horizontal: false);
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
-
-        table.RegisterInstruction(EnemyProjectileInstruction.SpawnNext_Afterburn_EnemyProjectile, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
-                SpawnNextAfterburn(projectile);
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
+                case RidleyFireballCue.ClearPreInstruction:
+                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                    return;
+                case RidleyFireballCue.BeginFlight:
+                    projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RidleyFireball;
+                    return;
+                case RidleyFireballCue.SpawnHorizontalAfterburns:
+                    SpawnAfterburnPair(projectile, horizontal: true);
+                    return;
+                case RidleyFireballCue.SpawnVerticalAfterburns:
+                    SpawnAfterburnPair(projectile, horizontal: false);
+                    return;
+                case RidleyFireballCue.SpawnNextAfterburn:
+                    SpawnNextAfterburn(projectile);
+                    return;
+                case RidleyFireballCue.Delete:
+                    projectile.Clear();
+                    return;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(RidleyFireballCue)} {cue}.");
+            }
+        });
     }
 }

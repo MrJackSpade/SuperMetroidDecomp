@@ -21,6 +21,35 @@ internal static class RidleyTailDefinitions
     /// idle target at <c>$FFFF</c> and tests the bit with <c>BIT</c>/<c>BMI</c>, never the whole word.
     /// </summary>
     internal const ushort InactiveWhipTargetBit = 0x8000;
+    /// <summary>The whip target word the cartridge parks in an idle direction (native -1).</summary>
+    internal const ushort IdleWhipTarget = 0xffff;
+    /// <summary>A segment's stagger word once it has activated the next segment (native -1).</summary>
+    internal const ushort StaggerPropagated = 0xffff;
+    /// <summary>Bit 15 of a segment's direction word: set while it moves clockwise, toward decreasing angles.</summary>
+    internal const ushort ClockwiseMovementBit = 0x8000;
+    /// <summary>The whip's extension request while a segment chases a whip target.</summary>
+    internal const ushort WhipDistance = 0x0c00;
+    /// <summary>The axis a facing change reflects tail angles around: half of the 16-bit turn ($A6:D3F9).</summary>
+    internal const ushort MirrorAxisAngle = 0x8000;
+    /// <summary>The first byte angle of the forward interval a whip may not aim through Ridley's body.</summary>
+    internal const byte ForbiddenForwardStart = 0x18;
+    /// <summary>The byte angle past the forbidden forward interval; a left-facing target clamps here.</summary>
+    internal const byte ForbiddenForwardEnd = 0xe8;
+    /// <summary>The bank-$3F expansion of a left-facing whip target's byte angle.</summary>
+    internal const ushort LeftWhipTargetBase = 0x3f00;
+    /// <summary>The bank-$40 expansion of a right-facing whip target's byte angle.</summary>
+    internal const ushort RightWhipTargetBase = 0x4000;
+
+    /// <summary>The longest each segment may extend while whipping, base through tip ($A6:CF5A-$D09E).</summary>
+    internal static ushort MaximumDistance(int segmentIndex) => segmentIndex switch
+    {
+        0 => 0,
+        1 or 2 => 0x1800,
+        3 or 4 => 0x1600,
+        5 => 0x1200,
+        6 => 0x0500,
+        _ => throw new ArgumentOutOfRangeException(nameof(segmentIndex)),
+    };
     /// <summary>$A6:CE08, descending stab extension request.</summary>
     internal const ushort StabDistance = 0x0a00;
     /// <summary>$A6:B76E, bounce extension request.</summary>

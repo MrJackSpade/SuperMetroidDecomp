@@ -32,6 +32,7 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -150,8 +151,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             }
         }
 
-        Add(frames, "ceres_ridley", CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordCount,
-            CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "ceres_ridley", RidleyFireballVisualDefinitions.ProjectileFrameCount,
+            index => RidleyFireballVisualDefinitions.PresentationKey(RidleyFireballVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "old_tourian_escape_wall_explosion", OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordCount,
             OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordAddress);
         Add(frames, "cacatac_spike", CacatacProjectileInstructionProgramDefinitions.PresentationWordCount,

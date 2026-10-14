@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Verification.Enemies.Dragon;
 using SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Core.Fx;
@@ -11,7 +13,6 @@ using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerificati
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareCompositionsVerification;
 using static SuperMetroid.Verification.Areas.Escape.Artwork.EscapeTimerPresentationVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
-using static SuperMetroid.Verification.Enemies.Metroids.MetroidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Artwork.SamusBodyArtworkVerification;
 using static SuperMetroid.Verification.Samus.SamusContentIdentityVerification;
@@ -337,18 +338,25 @@ internal static class LookupStream1Verification
         {
             ushort root = chasing ? (ushort)0xe9cf : (ushort)0xea25;
             int records = chasing ? 20 : 5, randomCalls = 0, calls = 0;
-            var guard = NewMetroidInstructionReadGuard(rom);
-            var (enemies, slot) = NewMetroidInstructionSystem(guard, root, () => { randomCalls++; return 5; });
+            var enemies = new RoomEnemySystem();
+            enemies.BindFixtureBus(rom);
+            enemies.VerificationServices().NextRandom = () => { randomCalls++; return 5; };
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
+            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            enemies.MetroidBehavior._metroidStates[0] = new MetroidEnemyState(slot, new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
+            {
+                Program = AnimationProgramCursor<MetroidProgram>.Start(chasing ? MetroidProgram.ChasingSamus : MetroidProgram.DrainingSamus),
+            };
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int record = 0; record < records; record++)
             {
                 ushort address = (ushort)(root + record * 4);
                 ushort duration = Word(0xa30000 | address), visual = Word(0xa30000 | (address + 2));
-                AssertEqual(duration, MetroidInstructionProgramDefinitions.ReadMechanicsWord(address), "Native Metroid pulse duration");
                 EnemyInstructionRunner.Process(enemies, arguments); calls++;
                 AssertEqual(duration, slot.InstructionTimer.RawValue, "Actual Metroid duration reload");
                 AssertEqual(visual, slot.SpritemapPointer, "Actual native inside-pose identity");
-                AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Metroid selected record ordering");
                 for (int held = 1; held < duration; held++)
                 {
                     EnemyInstructionRunner.Process(enemies, arguments); calls++;
@@ -363,9 +371,8 @@ internal static class LookupStream1Verification
             AssertEqual(chasing ? 1 : 0, randomCalls, "Exact Metroid callback RNG ownership");
             ushort expectedSound = chasing ? Word(0xa3ead6 + 5 * 2) : Word(0xa3eaa8);
             AssertEqual((ushort?)expectedSound, enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2, "Native loop callback sound");
-            AssertEqual((ushort)(root + 4), slot.CurrentInstruction, "Callback loops to first timed record");
+            AssertEqual(Word(0xa30000 | (root + 2)), slot.SpritemapPointer, "Callback loops to first timed record");
             AssertEqual(Word(0xa30000 | root), slot.InstructionTimer.RawValue, "Loop reload preserves first native hold");
-            AssertEqual(0, guard.ForbiddenReadAttempts, "Metroid pulse mechanics use no cartridge reads");
         }
         Console.WriteLine("Metroid pulse:25 native records,320 actual exposure ticks,two callback boundaries and exact sound/RNG ownership pass.");
     }
@@ -2522,36 +2529,6 @@ internal static class LookupStream1Verification
             AssertEqual($"metroid_body_{frame}", frames[frame].Name, "Metroid stable editable name");
             AssertEqual((ushort)(frame == 1 ? 6 : 8), Word(0xa30000 | frames[frame].Pointer), "native Metroid OAM record size");
         }
-        var controls = new HashSet<int>();
-        var visuals = new HashSet<int>();
-        foreach (var (start, count) in new[] { (0xe9cf, 20), (0xea25, 5) })
-        {
-            for (int frame = 0; frame < count; frame++)
-            {
-                controls.Add(start + frame * 4);
-                visuals.Add(start + frame * 4 + 2);
-            }
-            for (int control = 0; control < 3; control++) controls.Add(start + count * 4 + control * 2);
-        }
-        int controlIndex = 0, visualIndex = 0;
-        for (int pointer = 0xe9ce; pointer <= 0xea40; pointer++)
-        {
-            AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
-                MetroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | pointer), "Metroid exact byte guard");
-            AssertEqual(visuals.Contains(pointer), MetroidInstructionProgramDefinitions.IsPresentationWord((ushort)pointer), "Metroid exact visual domain");
-            if (controls.Contains(pointer))
-            {
-                var actual = MetroidInstructionProgramDefinitionsTooling.MechanicsWord(controlIndex++);
-                AssertEqual((ushort)pointer, actual.Address, "Metroid original control order");
-                AssertEqual(Word(0xa30000 | pointer), actual.Value, "Metroid original control value");
-            }
-            else AssertThrows<InvalidDataException>(() => MetroidInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Metroid noncontrol rejection");
-            if (visuals.Contains(pointer)) AssertEqual((ushort)pointer, MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(visualIndex++), "Metroid original visual order");
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 31, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Metroid control index bounds");
-        foreach (int invalid in new[] { int.MinValue, -1, 25, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Metroid visual index bounds");
     }
 
     /// <summary>Reads native Metroid frame and instruction presentation data.</summary>

@@ -99,7 +99,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "walking Pirate common empty frame draws without ROM reads");
         Suite(nameof(VerifySharedEmptyExtendedFrames), () => VerifySharedEmptyExtendedFrames(rom, stock));
         Suite(nameof(VerifyInstalledCeresSteamInstructionFrames), () => VerifyInstalledCeresSteamInstructionFrames(stock));
-        Suite(nameof(VerifyInstalledOumVisualSelectors), () => VerifyInstalledOumVisualSelectors(rom, stock));
+        Suite(nameof(VerifyInstalledOumVisualSelectors), () => VerifyInstalledOumVisualSelectors(stock));
         Suite(nameof(VerifyInstalledCrocomireTongueVisualSelectors), () => VerifyInstalledCrocomireTongueVisualSelectors(stock));
         AssertEqual(EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Length,

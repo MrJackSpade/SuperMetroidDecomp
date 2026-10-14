@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class MaridiaLargeSnailEnemyState
 
     /// <summary>Projects Oum's common words and family-extra state from its live enemy slot.</summary>
     internal MaridiaLargeSnailEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<MaridiaLargeSnailProgram> Program { get; set; }
 
     /// <summary>Extra word $00: requested index into the eight-entry list table at $CB77.</summary>
     public ushort RequestedInstructionListIndex { get; internal set; }

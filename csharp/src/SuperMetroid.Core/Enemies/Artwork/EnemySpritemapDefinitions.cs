@@ -1751,8 +1751,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Kago => 0,
             EnemyDefinitionId.FaceBlock => 0,
             EnemyDefinitionId.Eye => 0,
-            EnemyDefinitionId.Metroid =>
-                MetroidVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Metroid => 0,
             EnemyDefinitionId.Shaktool =>
                 ShaktoolVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 =>
@@ -1858,7 +1857,6 @@ internal static class EnemySpritemapDefinitions
         return enemyDefinition is
             EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle or
             EnemyDefinitionId.CeresDoor or
-            EnemyDefinitionId.Metroid or
             EnemyDefinitionId.Shaktool or
             EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2 or
             EnemyDefinitionId.Chozo or

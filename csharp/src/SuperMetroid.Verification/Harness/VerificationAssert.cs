@@ -212,7 +212,6 @@ using static SuperMetroid.Verification.Frontend.Menus.MenuShoulderHighlightPixel
 using static SuperMetroid.Verification.Frontend.Menus.MenuSmallFontPixelsVerification;
 using static SuperMetroid.Verification.Frontend.Menus.MenuThinBorderPixelsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidBehaviorDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Metroids.MetroidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.MiscDustProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGeneratedVisualCatalogsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassPlmDrawDefinitionsVerification;
@@ -1572,7 +1571,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions());
         Suite(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(rom));
         Suite(nameof(VerifyMetroidsClearedStatePlm), () => VerifyMetroidsClearedStatePlm(new TestAddressSpace()));
-        Suite(nameof(VerifyMetroidInstructionProgramDefinitions), () => VerifyMetroidInstructionProgramDefinitions());
+        Suite(nameof(MetroidBehaviorVerification.VerifyMetroidBehavior), () => MetroidBehaviorVerification.VerifyMetroidBehavior(rom));
         Suite(nameof(VerifySamusAtmosphericEffectDefinitions), () => VerifySamusAtmosphericEffectDefinitions(rom));
         Suite(nameof(VerifySamusHudDefinitions), () => VerifySamusHudDefinitions(rom));
         Suite(nameof(VerifySamusStoredShineAndShinespark), () => VerifySamusStoredShineAndShinespark());

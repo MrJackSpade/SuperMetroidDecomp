@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.MaridiaSnails;
 using SuperMetroid.Verification.Enemies.Sparks;
 using SuperMetroid.Verification.Enemies.Powamp;
 using SuperMetroid.Verification.Enemies.Boyon;
@@ -165,7 +166,6 @@ using static SuperMetroid.Verification.Enemies.Magdollite.MagdolliteLavaInstruct
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailInstructionDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidBehaviorDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Metroids.MetroidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.MiscDustProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBabyMetroidDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainDeathExplosionDefinitionsVerification;
@@ -444,7 +444,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(MorphBallEyeAnimationsVerification.VerifyMorphBallEyeAnimations), () => MorphBallEyeAnimationsVerification.VerifyMorphBallEyeAnimations(LoadRepositoryRom())),
         new(nameof(MorphBallEyeBehaviorVerification.VerifyMorphBallEyeBehavior), () => MorphBallEyeBehaviorVerification.VerifyMorphBallEyeBehavior(LoadRepositoryRom())),
         new(nameof(VerifyYappingMawInstructionProgramDefinitions), () => VerifyYappingMawInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyMetroidInstructionProgramDefinitions), () => VerifyMetroidInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(MetroidAnimationsVerification.VerifyMetroidAnimations), () => MetroidAnimationsVerification.VerifyMetroidAnimations(LoadRepositoryRom())),
+        new(nameof(MetroidBehaviorVerification.VerifyMetroidBehavior), () => MetroidBehaviorVerification.VerifyMetroidBehavior(LoadRepositoryRom())),
         new(nameof(VerifyNorfairRioInstructionProgramDefinitions), () => VerifyNorfairRioInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyLowerNorfairRioInstructionProgramDefinitions), () => VerifyLowerNorfairRioInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMamaTurtleInstructionProgramDefinitions), () => VerifyMamaTurtleInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -489,6 +490,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifySamusEaterPlmDefinitions), () => VerifySamusEaterPlmDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyStationAccessPlmDefinitions), () => VerifyStationAccessPlmDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMaridiaLargeSnailInstructionDefinitions), () => VerifyMaridiaLargeSnailInstructionDefinitions(LoadRepositoryRom())),
+        new(nameof(MaridiaLargeSnailAnimationsVerification.VerifyMaridiaLargeSnailAnimations), () => MaridiaLargeSnailAnimationsVerification.VerifyMaridiaLargeSnailAnimations(LoadRepositoryRom())),
         new(nameof(VerifyEtecoonInstructionProgramDefinitions), () => VerifyEtecoonInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(ElevatorAnimationsVerification.VerifyElevatorAnimations), () => ElevatorAnimationsVerification.VerifyElevatorAnimations(LoadRepositoryRom())),
         new(nameof(ElevatorBehaviorVerification.VerifyElevatorBehavior), () => ElevatorBehaviorVerification.VerifyElevatorBehavior(LoadRepositoryRom())),

@@ -404,9 +404,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Rio)
             return RioInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum)
-            return MaridiaLargeSnailInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon)
             return EtecoonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -421,9 +418,6 @@ internal sealed class EnemyInstructionInterpreter
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw)
             return YappingMawInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid)
-            return MetroidInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Geruta)
             return NorfairRioInstructionProgramDefinitions.ReadMechanicsWord(address);

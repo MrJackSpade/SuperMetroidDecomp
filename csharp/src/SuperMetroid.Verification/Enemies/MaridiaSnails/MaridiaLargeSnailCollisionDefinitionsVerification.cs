@@ -14,41 +14,17 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Oum's extracted display selectors and compiled collision records against ROM and the installed runtime.</summary>
 internal static class MaridiaLargeSnailCollisionDefinitionsVerification
 {
-    /// <summary>Matches each native Oum spritemap operand to an installed editable frame without cartridge reads.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Oum visual selectors")]
-    internal static void VerifyInstalledOumVisualSelectors(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+    /// <summary>Confirms every pose Oum's programs show is one of the extracted frames and has installed editable art.</summary>
+    internal static void VerifyInstalledOumVisualSelectors(EnemyTileArtworkCatalog stock)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var denied = NewOumNoReadBus();
-        var enemies = new RoomEnemySystem { TileArtwork = stock };
-        enemies.BindFixtureBus(denied);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Oum;
-        slot.Definition = default(RoomEnemyDefinition) with
-        { Bank = MaridiaLargeSnailCollisionDefinitions.Bank };
-        var seen = new HashSet<ushort>();
-        for (int index = 0;
-             index < MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = MaridiaLargeSnailInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | operand);
-            ushort selected = (ushort)EnemyInstructionInterpreter.ReadEnemyVisualSelector(slot, operand);
-            AssertEqual(native, selected,
-                $"Oum visual selector $A2:{operand:X4} matches native");
+        var seen = MaridiaLargeSnailAnimations.Spritemaps(Enum.GetValues<MaridiaLargeSnailProgram>()).ToHashSet();
+        foreach (ushort pose in seen)
             AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
-                    MaridiaLargeSnailCollisionDefinitions.Bank, selected, out _),
-                $"Oum visual selector $A2:{operand:X4} has installed art");
-            seen.Add(selected);
-        }
+                    MaridiaLargeSnailCollisionDefinitions.Bank, pose, out _),
+                $"Oum pose ${pose:X4} has installed art");
         AssertTrue(seen.SetEquals(MaridiaLargeSnailCollisionDefinitions.FramePointers.ToArray()),
-            "Oum's 60 operands select exactly the 30 extracted physical frames");
-        AssertEqual(0, denied.ForbiddenReadAttempts,
-            "installed Oum selector path makes no ROM reads");
-        Console.WriteLine("Installed Oum: 60 native visual selectors cover 30 editable " +
-            "frames with no ROM reads.");
+            "Oum's programs show exactly the 30 extracted physical frames");
+        Console.WriteLine("Installed Oum: the 30 poses its programs show are the editable extracted frames.");
     }
 
     /// <summary>Compares Oum frame pointers and hitboxes with ROM, then checks touch and shot overlap at rectangle boundaries.</summary>

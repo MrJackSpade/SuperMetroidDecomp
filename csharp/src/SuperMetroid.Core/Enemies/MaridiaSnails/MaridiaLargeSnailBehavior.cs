@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Input;
+﻿using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
@@ -80,10 +82,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         };
         _maridiaLargeSnailStates[slot.SlotIndex] = state;
 
-        // The initial left-facing list intentionally disagrees with installed selector zero,
+        // The initial left-facing animation intentionally disagrees with installed selector zero,
         // whose table entry is right-facing idle. Because SetOumInstList suppresses equal
         // selectors, this oddity is observable until Samus first selects a different index.
-        slot.CurrentInstruction = MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftIdle;
+        state.Program = AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(MaridiaLargeSnailProgram.FacingLeftIdle);
     }
 
     /// <summary>
@@ -446,42 +448,30 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
             remainingY < slot.Radius.Y;
     }
 
-    /// <summary>Ports all four private no-operand instruction callbacks.</summary>
-    private bool TryProcessMaridiaLargeSnailInstruction(
-        RoomEnemySlot slot,
-        ushort opcode,
-        ref ushort cursor)
+    /// <summary>Carries out one cue of Oum's animations: the splash sound, attack completion and the attack-rotation window.</summary>
+    private MaridiaLargeSnailProgram? ApplyMaridiaLargeSnailCue(MaridiaLargeSnailEnemyState state, MaridiaLargeSnailCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Oum)
-            return false;
-
-        MaridiaLargeSnailEnemyState state = RequireMaridiaLargeSnailState(slot);
-        if (!Enum.IsDefined((MaridiaLargeSnailInstruction)opcode))
-            return false;
-        MaridiaLargeSnailInstruction instruction = (MaridiaLargeSnailInstruction)opcode;
-        switch (instruction)
+        switch (cue.Kind)
         {
-            case MaridiaLargeSnailInstruction.PlaySplashedOutOfWaterSound:
+            case MaridiaLargeSnailCueKind.PlaySplash:
                 LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailSplashSound;
                 break;
-            case MaridiaLargeSnailInstruction.SetAnimationFinished:
+            case MaridiaLargeSnailCueKind.FinishAttack:
                 state.AttackAnimationFinished = true;
                 break;
-            case MaridiaLargeSnailInstruction.AllowAttackRotation:
+            case MaridiaLargeSnailCueKind.AllowAttackRotation:
                 state.AttackAllowsRotation = true;
                 break;
-            case MaridiaLargeSnailInstruction.DisallowAttackRotation:
+            case MaridiaLargeSnailCueKind.DisallowAttackRotation:
                 state.AttackAllowsRotation = false;
                 break;
             default:
-                throw new InvalidOperationException($"Undefined MaridiaLargeSnailInstruction {instruction}.");
+                throw new InvalidOperationException($"Undefined {nameof(MaridiaLargeSnailCueKind)} {cue.Kind}.");
         }
-
-        cursor = unchecked((ushort)(cursor + 2));
-        return true;
+        return null;
     }
 
-    /// <summary>Installs one of eight native Oum lists only when the requested index changes.</summary>
+    /// <summary>Starts one of eight Oum animations only when the requested index changes.</summary>
     internal static void InstallMaridiaLargeSnailInstructionList(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state)
@@ -496,8 +486,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         }
 
         state.InstalledInstructionListIndex = state.RequestedInstructionListIndex;
-        slot.CurrentInstruction = MaridiaLargeSnailInstructionDefinitions
-            .InstructionPointer(state.RequestedInstructionListIndex);
+        state.Program = AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(MaridiaLargeSnailInstructionDefinitions
+            .Program(state.RequestedInstructionListIndex));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -566,15 +556,19 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims Oum's private animation and attack-rotation opcodes.</summary>
-    internal void RegisterMaridiaLargeSnailOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Oum's idle, attack and rolling animations as typed programs (#641).</summary>
+    internal void RegisterMaridiaLargeSnailTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessMaridiaLargeSnailInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireMaridiaLargeSnailState(slot);
+            AnimationProgramCursor<MaridiaLargeSnailProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, MaridiaLargeSnailAnimations.Programs, ref cursor, MaridiaLargeSnailFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyMaridiaLargeSnailCue(state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Preserves protected-shell no-op hits and runs common damage only for vulnerable hitboxes.</summary>
     internal void RegisterMaridiaLargeSnailShotReactions(EnemyAiTable table)

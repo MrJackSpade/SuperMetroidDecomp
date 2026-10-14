@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
+using SuperMetroid.Core.Enemies.MaridiaSnails;
 using SuperMetroid.Core.Enemies.Sparks.Artwork;
 using SuperMetroid.Core.Enemies.Sparks;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;
@@ -225,6 +227,10 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(PowampAnimations), "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampAnimations.cs");
         RequireTypedFrames(SparkAnimations.Programs, SparkFrameDefinitions.Spritemap, SparkFrameDefinitions.Bank,
             nameof(SparkAnimations), "csharp/src/SuperMetroid.Core/Enemies/Sparks/SparkAnimations.cs");
+        RequireTypedFrames(MetroidAnimations.Programs, MetroidFrameDefinitions.Spritemap, MetroidFrameDefinitions.Bank,
+            nameof(MetroidAnimations), "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidAnimations.cs");
+        RequireTypedFrames(MaridiaLargeSnailAnimations.Programs, MaridiaLargeSnailFrameDefinitions.Spritemap, MaridiaLargeSnailFrameDefinitions.Bank,
+            nameof(MaridiaLargeSnailAnimations), "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

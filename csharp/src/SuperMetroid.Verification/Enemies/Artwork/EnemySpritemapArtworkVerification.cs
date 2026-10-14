@@ -27,7 +27,6 @@ using static SuperMetroid.Verification.Enemies.Crawlers.HZoomerArtworkVerificati
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.LowerNorfairRioInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Metroids.MetroidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MochtroidVisualsVerification;
 using static SuperMetroid.Verification.Enemies.NativeEnemyVisualSelectorsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.NorfairRioInstructionProgramDefinitionsVerification;
@@ -635,22 +634,6 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(MorphBallEyeVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(
                 MorphBallEyeAnimations.Spritemaps(Enum.GetValues<MorphBallEyeProgram>())),
             "the installed Morph Ball eye frames are exactly the poses its programs show");
-        for (int index = 0;
-             index < MetroidInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = MetroidInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Metroid, operand, out ushort selected),
-                $"ordinary-Metroid visual operand $A3:{operand:X4} is compiled");
-            AssertEqual(ReadMetroidInstructionWord(rom, operand), selected,
-                $"ordinary-Metroid selector $A3:{operand:X4} matches the cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => MetroidVisualDefinitions.FrameAt(
-                MetroidInstructionProgramDefinitions.AdjacentBombedOffVelocities),
-            "Metroid visual selector rejects neighboring bomb-off physics data");
         HashSet<ushort> shaktoolFrames = ShaktoolVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(15, shaktoolFrames.Count,
@@ -1708,8 +1691,7 @@ internal static class EnemySpritemapArtworkVerification
             AssertEqual(stockShutter.LowTable[1], editedShutter.LowTable[1],
                 $"shutter ${(int)definition:X4} visual edit leaves physical Y unchanged");
         }
-        ushort metroidPointer = MetroidVisualDefinitions.FrameAt(
-            MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
+        ushort metroidPointer = MetroidAnimations.Spritemaps(MetroidProgram.ChasingSamus).First();
         OamBuffer stockMetroid = DrawEnemy(stock, NewFrameReadGuard(rom),
             metroidPointer, EnemyDefinitionId.Metroid);
         OamBuffer editedMetroid = DrawEnemy(edited, NewFrameReadGuard(rom),

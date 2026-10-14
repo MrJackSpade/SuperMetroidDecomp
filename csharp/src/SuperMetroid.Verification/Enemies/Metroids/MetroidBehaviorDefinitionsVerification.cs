@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -51,7 +53,6 @@ internal static class MetroidBehaviorDefinitionsVerification
             var slot = new RoomEnemySlot(0)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0001, 0xffff)),
-                CurrentInstruction = 0x7777,
             };
             var state = new MetroidEnemyState(
                 slot,
@@ -60,6 +61,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             {
                 EscapeTimer = NativeCountdown.FromRaw((ushort)timer),
                 Function = MetroidAiFunction.PowerBombEscape,
+                Program = AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.DrainingSamus),
             };
 
             Offset16<RoomPixels> expected =
@@ -75,11 +77,9 @@ internal static class MetroidBehaviorDefinitionsVerification
                 state.Function,
                 $"production Metroid escape function {timer}");
             AssertEqual(
-                timer == 1
-                    ? MetroidInstructionProgramDefinitions.ChasingSamus
-                    : (ushort)0x7777,
-                slot.CurrentInstruction,
-                $"production Metroid escape instruction {timer}");
+                AnimationProgramCursor<MetroidProgram>.Start(timer == 1 ? MetroidProgram.ChasingSamus : MetroidProgram.DrainingSamus),
+                state.Program,
+                $"production Metroid escape animation {timer}");
         }
     }
 
@@ -98,8 +98,12 @@ internal static class MetroidBehaviorDefinitionsVerification
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.CurrentInstruction =
-                MetroidInstructionProgramDefinitions.ChasingSoundCallback;
+            // Start at the chasing loop's random-cry cue, after its twenty pulse poses.
+            enemies.MetroidBehavior._metroidStates[0] = new MetroidEnemyState(slot, new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
+            {
+                Program = new AnimationProgramCursor<MetroidProgram>(MetroidProgram.ChasingSamus,
+                    MetroidAnimations.Programs.Steps(MetroidProgram.ChasingSamus).ToList().FindIndex(step => step.Kind == AnimationProgramStepKind.Cue)),
+            };
 
             enemies.Instructions.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
 
@@ -110,9 +114,8 @@ internal static class MetroidBehaviorDefinitionsVerification
                 $"production Metroid script timer {random}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e9d1), slot.SpritemapPointer,
                 $"production Metroid script spritemap {random}");
-            AssertEqual(
-                unchecked((ushort)(MetroidInstructionProgramDefinitions.ChasingSamus + 4)),
-                slot.CurrentInstruction,
+            AssertEqual(new AnimationProgramCursor<MetroidProgram>(MetroidProgram.ChasingSamus, 1),
+                (enemies.MetroidBehavior._metroidStates[0] ?? throw new InvalidOperationException("The Metroid has no state.")).Program,
                 $"production Metroid script continuation {random}");
         }
     }

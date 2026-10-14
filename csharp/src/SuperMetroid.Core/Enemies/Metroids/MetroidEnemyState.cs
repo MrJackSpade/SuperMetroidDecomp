@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
@@ -22,6 +23,9 @@ public sealed class MetroidEnemyState
         OuterBodyA = outerBodyA;
         OuterBodyB = outerBodyB;
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<MetroidProgram> Program { get; set; }
 
     /// <summary>
     /// Signed 16.16 velocity in pixels per movement update, positive right and down: variables

@@ -31690,6 +31690,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.Artwork.MaridiaLargeSnailFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/Artwork/MaridiaLargeSnailFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailAnimation",
       "kind": "enum",
       "scope": "product",
@@ -31701,6 +31714,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailBehavior",
@@ -31800,6 +31826,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailEnemyFunction",
       "kind": "enum",
       "scope": "product",
@@ -31826,14 +31878,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailInstruction",
-      "kind": "enum",
+      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailInstruction.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailFrame.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -31852,62 +31904,17 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailProgram",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailProgram.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailInstructionProgramDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/MaridiaSnails/MaridiaLargeSnailInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailInstructionProgramDefinitionsConstants.extension(SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailInstructionProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/MaridiaSnails/MaridiaLargeSnailInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/MaridiaSnails/MaridiaLargeSnailInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Metaree.MetareeBehavior",
@@ -31949,6 +31956,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Metroids.Artwork.MetroidFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Metroids/Artwork/MetroidFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Metroids.Artwork.MochtroidFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -31973,6 +31993,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Metroids.MetroidBehavior",
@@ -32001,6 +32034,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Metroids.MetroidDropRequest",
       "kind": "record struct",
       "scope": "product",
@@ -32027,88 +32086,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidInstruction",
+      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidProgram",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidInstruction.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidProgram.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidInstructionProgramDefinitions.PulseStage",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidInstructionProgramDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Metroids/MetroidInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidInstructionProgramDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Metroids.MetroidInstructionProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Metroids/MetroidInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Metroids/MetroidInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Metroids.MochtroidAnimations",
@@ -94617,6 +94618,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/MaridiaSnails/MaridiaLargeSnailAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailCollisionDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -94643,6 +94657,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/MaridiaSnails/MaridiaLargeSnailNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailNativeValues",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/MaridiaSnails/MaridiaLargeSnailNativeValues.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Metroids.FrozenMetroidShellVerification",
       "kind": "static class",
       "scope": "test",
@@ -94656,6 +94696,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Metroids.MetroidAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Metroids/MetroidAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Metroids.MetroidBehaviorDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -94664,6 +94717,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Metroids/MetroidBehaviorDefinitionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Metroids.MetroidBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Metroids/MetroidBehaviorVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -94695,17 +94761,17 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Metroids.MetroidInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Metroids.MetroidNativeListAddresses",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Metroids/MetroidInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Metroids/MetroidNativeListAddresses.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Metroids.MochtroidAnimationsVerification",

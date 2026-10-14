@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Metroids;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -21,14 +20,5 @@ internal static class MetroidVisualDefinitions
         for (int frame = 0; frame < result.Length; frame++)
             result[frame] = new(Bank, (ushort)(FirstFrame + frame * 42 - (frame >= 2 ? 10 : 0)), $"metroid_body_{frame}");
         return result;
-    }
-    /// <summary>Resolves only the native chasing and draining visual operands.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        if (MetroidInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress, out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Ordinary-Metroid visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 }

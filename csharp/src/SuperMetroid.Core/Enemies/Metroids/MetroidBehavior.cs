@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Metroids.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -34,32 +36,24 @@ internal sealed class MetroidBehavior : IEnemySpecies
         _deathsAndDrops = deathsAndDrops;
     }
 
-    /// <summary>Executes Metroid's private animation instructions.</summary>
-    private bool TryProcessMetroidInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of the Metroid's animations: each pulse loop ends with a sound.</summary>
+    private MetroidProgram? ApplyMetroidCue(MetroidCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Metroid ||
-            !Enum.IsDefined((MetroidInstruction)word))
-            return false;
-
-        switch ((MetroidInstruction)word)
+        switch (cue.Kind)
         {
-            case MetroidInstruction.PlayDrainingSamusSFX:
-                // The attached loop emits library-two sound $50 without consuming
-                // an operand; animation parsing resumes at the following word.
+            case MetroidCueKind.PlayDrainingSound:
+                // The attached loop emits library-two sound $50.
                 LastMetroidSoundEffectLibrary2 = MetroidAnimationSoundEffect;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case MetroidInstruction.PlayRandomMetroidSFX:
-                // GenerateRandomNumber advances exactly once and the low three result
-                // bits choose one of the eight cartridge-defined idle cries.
-                LastMetroidSoundEffectLibrary2 =
-                    MetroidBehaviorDefinitions.RandomCrySoundEffect(_room.Random.Generate());
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                break;
+            case MetroidCueKind.PlayRandomCry:
+                // GenerateRandomNumber advances exactly once and the low three result bits choose one of the eight
+                // cartridge-defined idle cries.
+                LastMetroidSoundEffectLibrary2 = MetroidBehaviorDefinitions.RandomCrySoundEffect(_room.Random.Generate());
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Metroid does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(MetroidCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Frozen instruction list for the Metroid's first outer-body sprite object.</summary>
@@ -116,7 +110,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
             Function = MetroidAiFunction.Homing,
         };
         _metroidStates[slot.SlotIndex] = state;
-        slot.CurrentInstruction = MetroidInstructionProgramDefinitions.ChasingSamus;
+        state.Program = AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.ChasingSamus);
     }
 
     /// <summary>Ports <c>Metroid_Main</c> and its four-entry movement dispatch.</summary>
@@ -239,7 +233,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
             return;
 
         state.Function = MetroidAiFunction.Homing;
-        SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.ChasingSamus);
+        SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
     }
 
     /// <summary>Ports the family-specific tail of <c>Metroid_Frozen</c>.</summary>
@@ -294,9 +288,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
                     state,
                     unchecked((short)(slot.Position.Y.Whole - targetY)) << 14);
                 state.Function = MetroidAiFunction.Homing;
-                SetMetroidInstructionList(
-                    slot,
-                    MetroidInstructionProgramDefinitions.ChasingSamus);
+                SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
             }
             return;
         }
@@ -320,7 +312,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
 
         state.Function = MetroidAiFunction.AttachedToSamus;
         samus.SpecialSuperPaletteFlags = 1;
-        SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.DrainingSamus);
+        SetMetroidProgram(slot, state, MetroidProgram.DrainingSamus);
     }
 
     /// <summary>Subtracts one health at suit-dependent fractional intervals without ordinary hurt flash or knockback.</summary>
@@ -370,7 +362,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
             state,
             unchecked((short)(slot.Position.Y.Whole - recoilOrigin.Y)) << 13);
         state.Function = MetroidAiFunction.Homing;
-        SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.ChasingSamus);
+        SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
 
         if ((collisionProjectileType & 0x0002) != 0)
         {
@@ -397,7 +389,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
     {
         state.EscapeTimer = NativeCountdown.Start(MetroidEscapeDuration);
         state.Function = MetroidAiFunction.PowerBombEscape;
-        SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.ChasingSamus);
+        SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
         if (samus is not null)
             samus.SpecialSuperPaletteFlags = 0;
     }
@@ -475,10 +467,10 @@ internal sealed class MetroidBehavior : IEnemySpecies
             unchecked((ushort)(frozenInstructionList + 2)));
     }
 
-    /// <summary>Restarts a Metroid instruction list at timer one after its function changes.</summary>
-    private static void SetMetroidInstructionList(RoomEnemySlot slot, ushort instructionList)
+    /// <summary>Restarts a Metroid animation at timer one after its function changes.</summary>
+    private static void SetMetroidProgram(RoomEnemySlot slot, MetroidEnemyState state, MetroidProgram program)
     {
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<MetroidProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -524,15 +516,19 @@ internal sealed class MetroidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers the Metroid's private animation instruction words.</summary>
-    internal void RegisterMetroidOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Metroid's chasing and draining pulse loops as typed programs (#641).</summary>
+    internal void RegisterMetroidTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessMetroidInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireMetroidState(slot);
+            AnimationProgramCursor<MetroidProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, MetroidAnimations.Programs, ref cursor, MetroidFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyMetroidCue(cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Registers the Metroid Power Bomb callback that clears its outer body before generic death.</summary>
     internal void RegisterMetroidPowerBombReactions(EnemyAiTable table)

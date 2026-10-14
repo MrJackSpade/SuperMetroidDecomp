@@ -1,3 +1,7 @@
+using SuperMetroid.Core.Enemies.Rios.Artwork;
+using SuperMetroid.Core.Enemies.Rios;
+using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
+using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Enemies.Platforms.Artwork;
@@ -245,6 +249,14 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(PlatformAnimations), "csharp/src/SuperMetroid.Core/Enemies/Platforms/PlatformAnimations.cs");
         RequireTypedFrames(EvirAnimations.Programs, EvirFrameDefinitions.Spritemap, EvirFrameDefinitions.Bank,
             nameof(EvirAnimations), "csharp/src/SuperMetroid.Core/Enemies/Evir/EvirAnimations.cs");
+        RequireTypedFrames(YappingMawAnimations.Programs, YappingMawFrameDefinitions.Spritemap, YappingMawFrameDefinitions.Bank,
+            nameof(YappingMawAnimations), "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawAnimations.cs");
+        RequireTypedFrames(RioAnimations.Programs, RioFrameDefinitions.Spritemap, RioFrameDefinitions.Bank,
+            nameof(RioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/RioAnimations.cs");
+        RequireTypedFrames(NorfairRioAnimations.Programs, NorfairRioFrameDefinitions.Spritemap, NorfairRioFrameDefinitions.Bank,
+            nameof(NorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioAnimations.cs");
+        RequireTypedFrames(LowerNorfairRioAnimations.Programs, LowerNorfairRioFrameDefinitions.Spritemap, LowerNorfairRioFrameDefinitions.Bank,
+            nameof(LowerNorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/LowerNorfairRioAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

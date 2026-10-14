@@ -23,33 +23,33 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 31515,
-    "PointerDispatch": 640,
+    "RawHexLiteral": 31498,
+    "PointerDispatch": 624,
     "OpaqueWordArray": 1049,
-    "CatalogHexLiteral": 97416,
+    "CatalogHexLiteral": 97502,
     "JustifiedHexLiteral": 148,
     "RawWidthOperation": 44,
     "OwnedWidthOperation": 72,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 19,
-    "class:NumericQuantity": 54611,
-    "class:DomainIdentity": 7611,
+    "class:NumericQuantity": 54631,
+    "class:DomainIdentity": 7681,
     "class:ComposableBits": 1455,
     "class:StructuredInstruction": 43329,
-    "class:CartridgeAddress": 23056,
+    "class:CartridgeAddress": 23019,
     "class:Unknown": 847,
-    "storageWidthMembers": 1540
+    "storageWidthMembers": 1538
   },
   "subsystems": [
     {
       "name": "Asset catalogs and decoders",
       "totals": {
-        "CatalogHexLiteral": 9791,
+        "CatalogHexLiteral": 9865,
         "JustifiedHexLiteral": 5,
         "OwnedWidthOperation": 2,
-        "class:NumericQuantity": 508,
-        "class:DomainIdentity": 818,
+        "class:NumericQuantity": 512,
+        "class:DomainIdentity": 888,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 8380,
         "class:Unknown": 71,
@@ -877,6 +877,33 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/Artwork/LowerNorfairRioFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 19,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 18
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/Artwork/NorfairRioFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 21,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 20
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/Artwork/RioFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 9,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 8
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Ripper/Artwork/RipperFrameDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -955,6 +982,15 @@
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 1,
             "class:DomainIdentity": 3
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/Artwork/YappingMawFrameDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 25,
+            "class:NumericQuantity": 1,
+            "class:DomainIdentity": 24
           }
         },
         {
@@ -5543,19 +5579,19 @@
       "name": "Enemies: regular AI and instruction programs",
       "totals": {
         "RawHexLiteral": 660,
-        "PointerDispatch": 172,
+        "PointerDispatch": 158,
         "OpaqueWordArray": 5,
-        "CatalogHexLiteral": 21107,
+        "CatalogHexLiteral": 21057,
         "JustifiedHexLiteral": 1,
         "OwnedWidthOperation": 12,
         "CountdownSelfDecrement": 6,
-        "class:NumericQuantity": 17541,
+        "class:NumericQuantity": 17519,
         "class:DomainIdentity": 85,
         "class:ComposableBits": 209,
         "class:StructuredInstruction": 488,
-        "class:CartridgeAddress": 3593,
+        "class:CartridgeAddress": 3551,
         "class:Unknown": 47,
-        "storageWidthMembers": 481
+        "storageWidthMembers": 479
       },
       "addressInterpretingTypes": [
         "AlcoonFireballInstructionProgramDefinitions",
@@ -5576,13 +5612,9 @@
         "MagdolliteLavaInstructionProgramDefinitions",
         "MagdollitePhaseDefinitions",
         "MamaTurtleInstructionProgramDefinitions",
-        "NorfairRioBehavior",
-        "NorfairRioInstructionProgramDefinitions",
         "NuclearWaffleProjectileInstructionProgramDefinitions",
         "PolypRockInstructionProgramDefinitions",
         "PowampSpikeInstructionProgramDefinitions",
-        "RioBehavior",
-        "RioInstructionProgramDefinitions",
         "ShaktoolBehavior",
         "ShaktoolInstructionDefinitions",
         "ShaktoolInstructionProgramDefinitions",
@@ -5592,8 +5624,7 @@
         "WorkRobotInstructionProgramDefinitions",
         "WorkRobotLaserInstructionProgramDefinitions",
         "WreckedShipAtticPlmRomData",
-        "YappingMawBodyProjectileInstructionProgramDefinitions",
-        "YappingMawInstructionProgramDefinitions"
+        "YappingMawBodyProjectileInstructionProgramDefinitions"
       ],
       "files": [
         {
@@ -7823,38 +7854,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/LowerNorfairRioInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 3,
-            "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/LowerNorfairRioInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/LowerNorfairRioProgram.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 7,
-            "class:CartridgeAddress": 7
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 6,
-            "PointerDispatch": 1,
             "class:NumericQuantity": 3,
-            "class:ComposableBits": 3,
-            "class:CartridgeAddress": 1
+            "class:ComposableBits": 3
           }
         },
         {
@@ -7871,25 +7876,7 @@
           "totals": {
             "RawHexLiteral": 1,
             "class:ComposableBits": 1,
-            "storageWidthMembers": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 11,
-            "class:CartridgeAddress": 11
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 7,
-            "CatalogHexLiteral": 7,
-            "class:NumericQuantity": 7,
-            "class:CartridgeAddress": 7
+            "storageWidthMembers": 1
           }
         },
         {
@@ -7897,9 +7884,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 4,
-            "PointerDispatch": 1,
-            "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 1
+            "class:NumericQuantity": 4
           }
         },
         {
@@ -7914,25 +7899,7 @@
           "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/RioEnemyState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "storageWidthMembers": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/RioInstructionCodes.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/Rios/RioInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 4,
-            "CatalogHexLiteral": 5,
-            "class:NumericQuantity": 5,
-            "class:CartridgeAddress": 4
+            "storageWidthMembers": 1
           }
         },
         {
@@ -8678,24 +8645,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawInstruction.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 7,
-            "class:CartridgeAddress": 7
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawInstructionProgramDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 1,
-            "CatalogHexLiteral": 8,
-            "class:NumericQuantity": 8,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Enemies/Yard/YardEnemyBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -9023,19 +8972,19 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 29887,
-        "PointerDispatch": 222,
+        "RawHexLiteral": 29870,
+        "PointerDispatch": 220,
         "OpaqueWordArray": 918,
-        "CatalogHexLiteral": 1940,
+        "CatalogHexLiteral": 2002,
         "RawWidthOperation": 44,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 10939,
+        "class:NumericQuantity": 10977,
         "class:DomainIdentity": 570,
         "class:ComposableBits": 538,
         "class:StructuredInstruction": 13211,
-        "class:CartridgeAddress": 7268,
+        "class:CartridgeAddress": 7273,
         "class:Unknown": 500,
         "storageWidthMembers": 84
       },
@@ -9089,7 +9038,6 @@
         "LookupStream2Verification",
         "LookupStream3Verification",
         "LookupStream4Verification",
-        "LowerNorfairRioInstructionProgramDefinitionsTooling",
         "MagdolliteLavaInstructionProgramDefinitionsTooling",
         "MamaTurtleInstructionProgramDefinitionsTooling",
         "MotherBrainFakeDeathPlmsVerification",
@@ -10041,31 +9989,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Rios/LowerNorfairRioInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 2,
-            "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Rios/NorfairRioInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Rios/RioInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/Shaktool/ShaktoolInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
@@ -10147,14 +10070,6 @@
           "project": "SuperMetroid.Tooling",
           "totals": {
             "PointerDispatch": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Enemies/YappingMaws/YappingMawInstructionProgramDefinitionsTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawHexLiteral": 1,
             "class:CartridgeAddress": 1
           }
         },
@@ -13115,10 +13030,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 188,
+            "RawHexLiteral": 187,
             "PointerDispatch": 1,
             "OpaqueWordArray": 2,
-            "class:NumericQuantity": 89,
+            "class:NumericQuantity": 88,
             "class:DomainIdentity": 1,
             "class:StructuredInstruction": 15,
             "class:CartridgeAddress": 86
@@ -14847,8 +14762,16 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Rios/LowerNorfairRioInstructionProgramDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 7,
-            "class:NumericQuantity": 4,
+            "RawHexLiteral": 4,
+            "class:NumericQuantity": 4
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Rios/LowerNorfairRioNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 13,
+            "class:NumericQuantity": 10,
             "class:CartridgeAddress": 3
           }
         },
@@ -14856,18 +14779,17 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Rios/NorfairRioInstructionProgramDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 7,
-            "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 3
+            "RawHexLiteral": 4,
+            "class:NumericQuantity": 4
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Enemies/Rios/RioInstructionProgramDefinitionsVerification.cs",
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Rios/NorfairRioNativeListAddresses.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 3
+            "CatalogHexLiteral": 19,
+            "class:NumericQuantity": 8,
+            "class:CartridgeAddress": 11
           }
         },
         {
@@ -14876,6 +14798,15 @@
           "totals": {
             "RawHexLiteral": 6,
             "class:CartridgeAddress": 6
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/Rios/RioNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 7,
+            "class:NumericQuantity": 6,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -15253,9 +15184,17 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/YappingMaws/YappingMawInstructionProgramDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 6,
-            "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 4,
+            "class:NumericQuantity": 4
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Enemies/YappingMaws/YappingMawNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 26,
+            "class:NumericQuantity": 19,
+            "class:CartridgeAddress": 7
           }
         },
         {
@@ -21484,22 +21423,6 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Rios/NorfairRioInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/Rios/RioInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
           "path": "csharp/test-support/VerificationAccess.Core/Enemies/RoomEnemyRomLayoutConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
@@ -21554,14 +21477,6 @@
           "totals": {
             "CatalogHexLiteral": 2,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Enemies/YappingMaws/YappingMawInstructionProgramDefinitionsConstants.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1
           }
         },
         {

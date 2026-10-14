@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
@@ -13,10 +14,13 @@ public sealed class NorfairRioEnemyState
     /// <summary>Binds typed Rio state to its existing enemy slot.</summary>
     internal NorfairRioEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Extra word $00: last instruction list installed by function seven.</summary>
-    public ushort InstalledInstructionList { get; internal set; }
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<NorfairRioProgram> Program { get; set; }
 
-    /// <summary>Extra word $01: no-operand animation handshake set by opcode $C1C9.</summary>
+    /// <summary>Extra word $00: the last animation installed by function seven.</summary>
+    internal NorfairRioProgram InstalledProgram { get; set; }
+
+    /// <summary>Extra word $01: animation handshake set by the swoop-start-finished cue ($C1C9).</summary>
     public bool AnimationSignal { get; internal set; }
 
     /// <summary>

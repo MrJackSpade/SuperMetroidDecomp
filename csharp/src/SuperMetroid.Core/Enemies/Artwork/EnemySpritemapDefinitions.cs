@@ -1773,10 +1773,9 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Yard =>
                 YardVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable or EnemyDefinitionId.ShutterHorizShootable => 0,
-            EnemyDefinitionId.Rio => RioFrameAt(operandAddress),
-            EnemyDefinitionId.Holtz =>
-                LowerNorfairRioFrameAt(operandAddress),
-            EnemyDefinitionId.Geruta => NorfairRioFrameAt(operandAddress),
+            EnemyDefinitionId.Rio => 0,
+            EnemyDefinitionId.Holtz => 0,
+            EnemyDefinitionId.Geruta => 0,
             EnemyDefinitionId.Puyo => 0,
             EnemyDefinitionId.Bull => 0,
             EnemyDefinitionId.Alcoon => AlcoonFrameAt(operandAddress),
@@ -1790,8 +1789,7 @@ internal static class EnemySpritemapDefinitions
                 FuneNamiheFrameAt(operandAddress),
             EnemyDefinitionId.Kamer => 0,
             EnemyDefinitionId.Elevator => 0,
-            EnemyDefinitionId.YappingMaw =>
-                YappingMawVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.YappingMaw => 0,
             EnemyDefinitionId.KihunterGreen or
                 EnemyDefinitionId.KihunterGreenWings or
                 EnemyDefinitionId.KihunterYellow or
@@ -1860,14 +1858,10 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.RobotNoPower or
             EnemyDefinitionId.Yard or
             EnemyDefinitionId.Botwoon or
-            EnemyDefinitionId.Rio or
-            EnemyDefinitionId.Holtz or
-            EnemyDefinitionId.Geruta or
             EnemyDefinitionId.Alcoon or
             EnemyDefinitionId.Beetom or
             EnemyDefinitionId.Fune or
             EnemyDefinitionId.Namihe or
-            EnemyDefinitionId.YappingMaw or
             EnemyDefinitionId.KihunterGreen or
             EnemyDefinitionId.KihunterGreenWings or
             EnemyDefinitionId.KihunterYellow or
@@ -1897,51 +1891,6 @@ internal static class EnemySpritemapDefinitions
             : peak - (local - recovery) / 4;
         return (ushort)((namihe ? 0x97b4 : 0x93f9) + 42 * ((peak + 1) * (offset / stride) + pose));
     }
-    /// <summary>
-    /// Rio's twenty-four fixed presentation operands at $A2:BB4D..BBB5 select
-    /// eight distinct extracted OAM compositions. The instruction timing, swoop
-    /// callbacks, and hitboxes remain compiled gameplay behavior.
-    /// </summary>
-    internal static ushort RioFrameAt(ushort operandAddress)
-    {
-        if (RioInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(RioBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Rio visual operand $A2:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
-    /// Holtz's thirty-two fixed presentation operands at $A2:C61E..C6BA select
-    /// eighteen extracted parent/flame OAM compositions. Swoop callbacks,
-    /// durations, follower visibility, and hitboxes remain engine-owned.
-    /// </summary>
-    internal static ushort LowerNorfairRioFrameAt(ushort operandAddress)
-    {
-        if (LowerNorfairRioInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(LowerNorfairRioBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Lower Norfair Rio visual operand $A2:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
-    /// Geruta's thirty-four fixed presentation operands at $A2:C0F5..C1B1
-    /// select twenty extracted parent/flame OAM compositions. Swoop
-    /// callbacks, durations, follower offsets, and hitboxes stay compiled.
-    /// </summary>
-    internal static ushort NorfairRioFrameAt(ushort operandAddress)
-    {
-        if (NorfairRioInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(NorfairRioBank, operandAddress,
-                out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Norfair Rio visual operand $A2:{operandAddress:X4} is not compiled.");
-    }
-
     /// <summary>
     /// Alcoon's 44 left/right walking, fire-volley, and airborne visual operands
     /// at $A8:DBEB..DCC3 select eighteen editable OAM compositions. Movement,

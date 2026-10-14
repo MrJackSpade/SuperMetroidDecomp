@@ -27,12 +27,9 @@ using static SuperMetroid.Verification.Enemies.Evir.EvirVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.HZoomerArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
-using static SuperMetroid.Verification.Enemies.Rios.LowerNorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MochtroidVisualsVerification;
 using static SuperMetroid.Verification.Enemies.NativeEnemyVisualSelectorsVerification;
-using static SuperMetroid.Verification.Enemies.Rios.NorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleySupplementalArtworkVerification;
-using static SuperMetroid.Verification.Enemies.Rios.RioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.SharedCrawlerArtworkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotVisualsVerification;
@@ -399,27 +396,9 @@ internal static class EnemySpritemapArtworkVerification
             .Where(frame => frame.Name.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
-        for (int index = 0;
-             index < YappingMawInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = YappingMawInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa8, operand);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.YappingMaw, operand, out ushort selected),
-                $"Yapping Maw visual selector $A8:{operand:X4} is installed");
-            AssertEqual(native, selected,
-                $"Yapping Maw visual selector $A8:{operand:X4} matches cartridge");
-            AssertTrue(installedMawPointers.Contains(native),
-                $"Yapping Maw visual target $A8:{native:X4} has installed art");
-        }
-        AssertEqual(24, installedMawPointers.Count,
-            "Yapping Maw's 52 visual operands select 24 distinct frames");
-        AssertThrows<InvalidDataException>(
-            () => YappingMawVisualDefinitions.FrameAt(
-                YappingMawInstructionProgramDefinitions.AttackingFacingUp),
-            "Yapping Maw rejects adjacent instruction mechanics as presentation");
+        AssertTrue(YappingMawAnimations.Spritemaps(Enum.GetValues<YappingMawProgram>()).ToHashSet().SetEquals(installedMawPointers),
+            "every installed Yapping Maw frame is shown by a program, and every shown pose is installed");
+        AssertEqual(24, installedMawPointers.Count, "Yapping Maw's programs show 24 distinct frames");
         AssertEqual(276, EnemySpritemapDefinitions.Frames.Count(
                 frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank),
             "all bank-B4 sprite-object programs select 276 distinct visual frames");
@@ -468,116 +447,15 @@ internal static class EnemySpritemapArtworkVerification
         AssertThrows<InvalidOperationException>(
             () => EnemySpritemapDefinitions.TryFrameAt((EnemyDefinitionId)0xffff, 0xe312, out _),
             "an undefined enemy identity fails instead of resolving no selector");
-        for (int index = 0; index < RioInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = RioInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Rio, operand, out ushort frame),
-                $"Rio presentation operand $A2:{operand:X4} uses the installed selector");
-            AssertEqual(ReadRioInstructionWord(rom, operand), frame,
-                $"Rio selector $A2:{operand:X4} matches the pinned cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.RioFrameAt(
-                RioInstructionProgramDefinitions.FirstAdjacentMechanicsData),
-            "Rio rejects adjacent data as a presentation operand");
-        var rioGuard = NewRioInstructionReadGuard(rom, forbidPresentation: true);
-        var installedRio = new RoomEnemySystem { TileArtwork = stock };
-        installedRio.BindFixtureBus(rioGuard);
-        RoomEnemySlot rioSlot = installedRio.SlotTable.Slots[0];
-        rioSlot.EnemyDefinitionPointer = EnemyDefinitionId.Rio;
-        rioSlot.Definition = default(RoomEnemyDefinition) with
-            { Bank = EnemySpritemapDefinitions.RioBank };
-        new Action<RoomEnemySlot>(installedRio.RioBehavior.InitializeRio)(rioSlot);
-        object?[] rioArguments =
-            [rioSlot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        ExecuteRioProgram(installedRio, rioArguments, rioSlot,
-            RioInstructionProgramDefinitions.Idle, callCount: 13);
-        ExecuteRioProgram(installedRio, rioArguments, rioSlot,
-            RioInstructionProgramDefinitions.SwoopingPart1, callCount: 6);
-        ExecuteRioProgram(installedRio, rioArguments, rioSlot,
-            RioInstructionProgramDefinitions.SwoopingPart2, callCount: 3);
-        ExecuteRioProgram(installedRio, rioArguments, rioSlot,
-            RioInstructionProgramDefinitions.SwoopCooldown, callCount: 6);
-        AssertEqual(0, rioGuard.ObservedWords.Count,
-            "installed Rio programs never read ROM visual selectors");
-        for (int index = 0;
-             index < LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = LowerNorfairRioInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Holtz, operand, out ushort frame),
-                $"Lower Norfair Rio presentation operand $A2:{operand:X4} is compiled");
-            AssertEqual(ReadLowerNorfairRioInstructionWord(rom, operand), frame,
-                $"Lower Norfair Rio selector $A2:{operand:X4} matches the cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.LowerNorfairRioFrameAt(
-                LowerNorfairRioInstructionProgramDefinitions.AdjacentMovementDefinitions),
-            "Lower Norfair Rio rejects adjacent movement data as presentation");
-        var lowerRioGuard = NewLowerNorfairRioInstructionReadGuard(
-            rom, forbidPresentation: true);
-        foreach ((ushort entry, int calls) in new (ushort, int)[]
-                 {
-                     ((ushort)LowerNorfairRioProgram.Idle, 5),
-                     ((ushort)LowerNorfairRioProgram.PrepareToSwoop, 10),
-                     ((ushort)LowerNorfairRioProgram.Descending, 2),
-                     ((ushort)LowerNorfairRioProgram.AscendingPart1, 4),
-                     ((ushort)LowerNorfairRioProgram.AscendingPart2, 4),
-                     ((ushort)LowerNorfairRioProgram.Cooldown, 10),
-                     ((ushort)LowerNorfairRioProgram.Flames, 4),
-                 })
-        {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
-                NewLowerNorfairRioInstructionSystem(lowerRioGuard, entry, stock);
-            object?[] arguments =
-                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-            RunLowerNorfairRioInstructionFrames(
-                enemies, arguments, slot, calls);
-        }
-        AssertEqual(0, lowerRioGuard.ObservedWords.Count,
-            "installed Lower Norfair Rio programs never read ROM visual selectors");
-        for (int index = 0;
-             index < NorfairRioInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = NorfairRioInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Geruta, operand, out ushort frame),
-                $"Norfair Rio presentation operand $A2:{operand:X4} is compiled");
-            AssertEqual(ReadNorfairRioInstructionWord(rom, operand), frame,
-                $"Norfair Rio selector $A2:{operand:X4} matches the cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.NorfairRioFrameAt(
-                NorfairRioInstructionProgramDefinitions.AdjacentMovementDefinitions),
-            "Norfair Rio rejects adjacent movement data as presentation");
-        var norfairRioGuard = NewNorfairRioInstructionReadGuard(
-            rom, forbidPresentation: true);
-        foreach ((ushort entry, int calls) in new (ushort, int)[]
-                 {
-                     (NorfairRioInstructionProgramDefinitions.Idle, 5),
-                     (NorfairRioInstructionProgramDefinitions.StartDescending, 7),
-                     (NorfairRioInstructionProgramDefinitions.Descending, 5),
-                     (NorfairRioInstructionProgramDefinitions.StartAscending, 9),
-                     (NorfairRioInstructionProgramDefinitions.Ascending, 5),
-                     (NorfairRioInstructionProgramDefinitions.FlamesAscending, 5),
-                     (NorfairRioInstructionProgramDefinitions.FlamesDescending, 5),
-                 })
-        {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
-                NewNorfairRioInstructionSystem(norfairRioGuard, entry, stock);
-            object?[] arguments =
-                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-            RunNorfairRioInstructionFrames(
-                enemies, arguments, slot, calls);
-        }
-        AssertEqual(0, norfairRioGuard.ObservedWords.Count,
-            "installed Norfair Rio programs never read ROM visual selectors");
+        AssertTrue(RioAnimations.Spritemaps(Enum.GetValues<RioProgram>()).ToHashSet().SetEquals(
+                EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
+            "the Rio's programs show exactly its eight installed frames");
+        AssertTrue(LowerNorfairRioAnimations.Spritemaps(Enum.GetValues<LowerNorfairRioProgram>()).ToHashSet().SetEquals(
+                EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
+            "the Lower Norfair Rio's programs show exactly its installed frames");
+        AssertTrue(NorfairRioAnimations.Spritemaps(Enum.GetValues<NorfairRioProgram>()).ToHashSet().SetEquals(
+                EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
+            "the Norfair Rio's programs show exactly its installed frames");
         Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledBullInstructionFrames), () => VerifyInstalledBullInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledAlcoonInstructionFrames), () => VerifyInstalledAlcoonInstructionFrames(rom, stock));
@@ -1362,8 +1240,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             OffsetY = sharedSpritePart.OffsetY + 1,
         };
-        ushort mawIdlePointer = YappingMawVisualDefinitions.FrameAt(
-            YappingMawInstructionProgramDefinitions.PresentationWordAddress(0));
+        ushort mawIdlePointer = YappingMawVisualDefinitions.IdleFrame;
         string mawIdleName = $"yapping_maw_a8_{mawIdlePointer:x4}";
         SpriteVisualPart mawPart = document.Frames[mawIdleName][0];
         document.Frames[mawIdleName][0] = mawPart with
@@ -1910,8 +1787,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Magdollite Y offset changes live room OAM");
         AssertEqual(stockMagdollite.LowTable[0], editedMagdollite.LowTable[0],
             "Magdollite visual edit leaves X position unchanged");
-        ushort rioPointer = EnemySpritemapDefinitions.RioFrameAt(
-            RioInstructionProgramDefinitions.PresentationWordAddress(0));
+        ushort rioPointer = RioAnimations.Spritemaps(RioProgram.Idle).First();
         OamBuffer stockRio = DrawEnemy(stock, NewFrameReadGuard(rom),
             rioPointer, EnemyDefinitionId.Rio);
         OamBuffer editedRio = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1921,8 +1797,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Rio Y offset changes installed room OAM");
         AssertEqual(stockRio.LowTable[0], editedRio.LowTable[0],
             "Rio visual edit leaves physical X unchanged");
-        ushort lowerRioPointer = EnemySpritemapDefinitions.LowerNorfairRioFrameAt(
-            LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
+        ushort lowerRioPointer = LowerNorfairRioAnimations.Spritemaps(LowerNorfairRioProgram.IdleLoop).First();
         OamBuffer stockLowerRio = DrawEnemy(stock, NewFrameReadGuard(rom),
             lowerRioPointer, EnemyDefinitionId.Holtz);
         OamBuffer editedLowerRio = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1932,8 +1807,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Lower Norfair Rio Y offset changes installed room OAM");
         AssertEqual(stockLowerRio.LowTable[0], editedLowerRio.LowTable[0],
             "Lower Norfair Rio visual edit leaves physical X unchanged");
-        ushort norfairRioPointer = EnemySpritemapDefinitions.NorfairRioFrameAt(
-            NorfairRioInstructionProgramDefinitions.PresentationWordAddress(0));
+        ushort norfairRioPointer = NorfairRioAnimations.Spritemaps(NorfairRioProgram.Idle).First();
         OamBuffer stockNorfairRio = DrawEnemy(stock, NewFrameReadGuard(rom),
             norfairRioPointer, EnemyDefinitionId.Geruta);
         OamBuffer editedNorfairRio = DrawEnemy(edited, NewFrameReadGuard(rom),

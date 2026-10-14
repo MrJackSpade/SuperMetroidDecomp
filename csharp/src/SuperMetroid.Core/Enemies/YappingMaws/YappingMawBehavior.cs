@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
@@ -28,47 +30,36 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         _scrollCap = scrollCap;
     }
 
-    /// <summary>Executes Yapping Maw's private animation instructions.</summary>
-    private bool TryProcessYappingMawInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of the Yapping Maw's animations: holding a grabbed Samus at a mouth offset, or the bite sound.</summary>
+    private YappingMawProgram? ApplyYappingMawCue(YappingMawEnemyState state, YappingMawCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.YappingMaw ||
-            !Enum.IsDefined((YappingMawInstruction)word))
-            return false;
-
-        switch ((YappingMawInstruction)word)
+        switch (cue.Kind)
         {
-            case YappingMawInstruction.OffsetSamusUpRight:
-                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 1);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case YappingMawInstruction.OffsetSamusUpLeft:
-                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 7);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case YappingMawInstruction.OffsetSamusDownRight:
-                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 3);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case YappingMawInstruction.OffsetSamusDownLeft:
-                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 5);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case YappingMawInstruction.OffsetSamusUp:
-                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 0);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case YappingMawInstruction.OffsetSamusDown:
-                SetYappingMawHeldOffset(RequireYappingMawState(slot), directionIndex: 4);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case YappingMawInstruction.QueueSFXIfOnScreen:
-                PlayYappingMawAttackSound(RequireYappingMawState(slot));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+            case YappingMawCueKind.HoldSamusUpRight:
+                SetYappingMawHeldOffset(state, directionIndex: 1);
+                break;
+            case YappingMawCueKind.HoldSamusUpLeft:
+                SetYappingMawHeldOffset(state, directionIndex: 7);
+                break;
+            case YappingMawCueKind.HoldSamusDownRight:
+                SetYappingMawHeldOffset(state, directionIndex: 3);
+                break;
+            case YappingMawCueKind.HoldSamusDownLeft:
+                SetYappingMawHeldOffset(state, directionIndex: 5);
+                break;
+            case YappingMawCueKind.HoldSamusUp:
+                SetYappingMawHeldOffset(state, directionIndex: 0);
+                break;
+            case YappingMawCueKind.HoldSamusDown:
+                SetYappingMawHeldOffset(state, directionIndex: 4);
+                break;
+            case YappingMawCueKind.PlayBiteSound:
+                PlayYappingMawAttackSound(state);
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Yapping Maw does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(YappingMawCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Minimum separation used before moving Samus to the extended mouth.</summary>
@@ -102,9 +93,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         };
         _yappingMawStates[slot.SlotIndex] = state;
 
-        slot.CurrentInstruction = slot.Parameter2 == 0
-            ? YappingMawInstructionProgramDefinitions.AttackingFacingDown
-            : YappingMawInstructionProgramDefinitions.AttackingFacingUp;
+        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(slot.Parameter2 == 0
+            ? YappingMawProgram.AttackingDown
+            : YappingMawProgram.AttackingUp);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -245,8 +236,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
             2 * (unchecked((byte)(state.AimAngle + 16)) >> 5)));
         state.DirectionTableByteOffset = directionByteOffset;
         int direction = directionByteOffset / 2;
-        slot.CurrentInstruction =
-            YappingMawInstructionProgramDefinitions.AttackForDirection(direction);
+        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(YappingMawAnimationDefinitions.AttackForDirection(direction));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -325,21 +315,21 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         bool skipHeldPlacement = false;
         if (slot.Parameter2 != 0)
         {
-            slot.CurrentInstruction = state.DirectionTableByteOffset switch
+            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.DirectionTableByteOffset switch
             {
-                4 => YappingMawInstructionProgramDefinitions.CooldownFacingUpRight,
-                12 => YappingMawInstructionProgramDefinitions.CooldownFacingUpLeft,
-                _ => YappingMawInstructionProgramDefinitions.CooldownFacingUp,
-            };
+                4 => YappingMawProgram.CooldownUpRight,
+                12 => YappingMawProgram.CooldownUpLeft,
+                _ => YappingMawProgram.CooldownUp,
+            });
         }
         else
         {
-            slot.CurrentInstruction = state.DirectionTableByteOffset switch
+            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.DirectionTableByteOffset switch
             {
-                4 => YappingMawInstructionProgramDefinitions.CooldownFacingDownRight,
-                12 => YappingMawInstructionProgramDefinitions.CooldownFacingDownLeft,
-                _ => YappingMawInstructionProgramDefinitions.CooldownFacingDown,
-            };
+                4 => YappingMawProgram.CooldownDownRight,
+                12 => YappingMawProgram.CooldownDownLeft,
+                _ => YappingMawProgram.CooldownDown,
+            });
             skipHeldPlacement = state.DirectionTableByteOffset is not (4 or 12);
         }
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -643,15 +633,19 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers mouth-offset and conditional sound bytecodes owned by Maw art.</summary>
-    internal void RegisterYappingMawOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Yapping Maw's bites and cooldowns as typed programs (#641).</summary>
+    internal void RegisterYappingMawTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessYappingMawInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireYappingMawState(slot);
+            AnimationProgramCursor<YappingMawProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, YappingMawAnimations.Programs, ref cursor, YappingMawFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyYappingMawCue(state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Handles frozen release and death cleanup after common shot damage.</summary>
     internal void RegisterYappingMawShotReactions(EnemyAiTable table)

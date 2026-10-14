@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -9,7 +11,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Retail-word and guarded-execution checks for Yapping Maw attack and cooldown programs.</summary>
+/// <summary>Checks the Yapping Maw's typed attack and cooldown programs.</summary>
 internal static class YappingMawInstructionProgramDefinitionsVerification
 {
     /// <summary>Loads retail data for the Yapping Maw instruction check.</summary>
@@ -23,75 +25,33 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     internal static void VerifyYappingMawInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        AssertEqual(96, YappingMawInstructionProgramDefinitions.MechanicsWordCount,
-            "Yapping Maw compiled mechanics word count");
-        AssertEqual(52, YappingMawInstructionProgramDefinitions.PresentationWordCount,
-            "Yapping Maw live presentation word count");
-        for (int index = 0;
-             index < YappingMawInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                YappingMawInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | definition.Address),
-                $"Yapping Maw mechanics word $A8:{definition.Address:X4}");
-        }
-
-        var guard = NewYappingMawInstructionReadGuard(rom);
         for (int direction = 0; direction < 8; direction++)
         {
-            ushort entry = YappingMawInstructionProgramDefinitions
-                .AttackForDirection(direction);
+            YappingMawProgram entry = YappingMawAnimationDefinitions.AttackForDirection(direction);
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
-                NewYappingMawInstructionSystem(guard, entry);
+                NewYappingMawInstructionSystem(rom, entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-            RunYappingMawInstructionFrames(enemies, arguments, slot, count: 5);
-            AssertEqual(unchecked((ushort)(entry + 4)), slot.CurrentInstruction,
-                $"Yapping Maw attack direction {direction} completes its loop");
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(YappingMawAnimations.Programs, entry, YappingMawFrameDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(YappingMawAnimations.Programs, entry)),
+                $"Yapping Maw attack direction {direction} loop");
             AssertEqual((ushort?)0x002f, enemies.YappingMawBehavior.LastYappingMawSoundEffect,
                 $"Yapping Maw attack direction {direction} publishes its sound");
         }
 
-        (ushort Entry, int Calls, ushort Final, short X, short Y, string Name)[] cooldowns =
+        (YappingMawProgram Entry, YappingMawProgram Loop, int Calls, short X, short Y, string Name)[] cooldowns =
         [
-            (YappingMawInstructionProgramDefinitions.CooldownFacingUpRight,
-                6,
-                unchecked((ushort)(
-                    YappingMawInstructionProgramDefinitions.CooldownFacingUp + 6)),
-                8, -8, "up-right"),
-            (YappingMawInstructionProgramDefinitions.CooldownFacingUp,
-                5,
-                unchecked((ushort)(
-                    YappingMawInstructionProgramDefinitions.CooldownFacingUp + 6)),
-                0, -16, "up"),
-            (YappingMawInstructionProgramDefinitions.CooldownFacingUpLeft,
-                6,
-                unchecked((ushort)(
-                    YappingMawInstructionProgramDefinitions.CooldownFacingUpLeft + 12)),
-                -8, -8, "up-left"),
-            (YappingMawInstructionProgramDefinitions.CooldownFacingDownRight,
-                6,
-                unchecked((ushort)(
-                    YappingMawInstructionProgramDefinitions.CooldownFacingDown + 6)),
-                8, 8, "down-right"),
-            (YappingMawInstructionProgramDefinitions.CooldownFacingDown,
-                5,
-                unchecked((ushort)(
-                    YappingMawInstructionProgramDefinitions.CooldownFacingDown + 6)),
-                0, 16, "down"),
-            (YappingMawInstructionProgramDefinitions.CooldownFacingDownLeft,
-                6,
-                unchecked((ushort)(
-                    YappingMawInstructionProgramDefinitions.CooldownFacingDownLeft + 12)),
-                -8, 8, "down-left"),
+            (YappingMawProgram.CooldownUpRight, YappingMawProgram.CooldownUpLoop, 6, 8, -8, "up-right"),
+            (YappingMawProgram.CooldownUp, YappingMawProgram.CooldownUpLoop, 5, 0, -16, "up"),
+            (YappingMawProgram.CooldownUpLeft, YappingMawProgram.CooldownUpLeftLoop, 6, -8, -8, "up-left"),
+            (YappingMawProgram.CooldownDownRight, YappingMawProgram.CooldownDownLoop, 6, 8, 8, "down-right"),
+            (YappingMawProgram.CooldownDown, YappingMawProgram.CooldownDownLoop, 5, 0, 16, "down"),
+            (YappingMawProgram.CooldownDownLeft, YappingMawProgram.CooldownDownLeftLoop, 6, -8, 8, "down-left"),
         ];
-        foreach ((ushort entry, int calls, ushort final, short x, short y, string name)
-                 in cooldowns)
+        foreach ((YappingMawProgram entry, YappingMawProgram loop, int calls, short x, short y, string name) in cooldowns)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) =
-                NewYappingMawInstructionSystem(guard, entry);
+                NewYappingMawInstructionSystem(rom, entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             RunYappingMawInstructionFrames(enemies, arguments, slot, count: 1);
@@ -104,48 +64,28 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                 arguments,
                 slot,
                 count: calls - 1);
-            AssertEqual(final, slot.CurrentInstruction,
-                $"Yapping Maw {name} cooldown completes its loop");
+            AssertEqual(YappingMawAnimations.Spritemaps(loop).First(), slot.SpritemapPointer,
+                $"Yapping Maw {name} cooldown loops back to its first pose");
             AssertEqual((ushort?)0x002f, enemies.YappingMawBehavior.LastYappingMawSoundEffect,
                 $"Yapping Maw {name} cooldown publishes its sound");
         }
 
-        Suite(nameof(VerifyYappingMawInitializerSelections), () => VerifyYappingMawInitializerSelections(guard));
-
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids all compiled Yapping Maw mechanics and visual bytes");
-
-        AssertThrows<InvalidDataException>(
-            () => YappingMawInstructionProgramDefinitions.ReadMechanicsWord(
-                YappingMawInstructionProgramDefinitions.PresentationWordAddress(0)),
-            "Yapping Maw spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => YappingMawInstructionProgramDefinitions.ReadMechanicsWord(
-                YappingMawInstructionProgramDefinitions.AdjacentAttackSelectorTable),
-            "adjacent Yapping Maw direction table is rejected as mechanics");
-
-        _ = ProbeYappingMawInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeYappingMawInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "Yapping Maw allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed Yapping Maw mechanics lookups allocate no per-frame storage");
+        Suite(nameof(VerifyYappingMawInitializerSelections), () => VerifyYappingMawInitializerSelections(rom));
+        Suite(nameof(YappingMawAnimationsVerification.VerifyYappingMawAnimations), () => YappingMawAnimationsVerification.VerifyYappingMawAnimations(rom));
 
         Console.WriteLine(
-            "Yapping Maw instruction mechanics: 96 compiled words, all fourteen attack/" +
-            "cooldown entries, seven callbacks, and 52 compiled visual selectors pass.");
+            "Yapping Maw: all eight attack loops, six cooldown programs with their held-Samus offsets and sounds, " +
+            "and the initial facing selection pass.");
     }
 
     /// <summary>Checks native parameter-two facing selection and linked body projectile setup.</summary>
     private static void VerifyYappingMawInitializerSelections(
         ISnesAddressSpace bus)
     {
-        foreach ((ushort parameter2, ushort expected, string name) in new[]
+        foreach ((ushort parameter2, YappingMawProgram expected, string name) in new[]
         {
-            ((ushort)0, YappingMawInstructionProgramDefinitions.AttackingFacingDown,
-                "alternate/down"),
-            ((ushort)1, YappingMawInstructionProgramDefinitions.AttackingFacingUp,
-                "ordinary/up"),
+            ((ushort)0, YappingMawProgram.AttackingDown, "alternate/down"),
+            ((ushort)1, YappingMawProgram.AttackingUp, "ordinary/up"),
         })
         {
             var enemies = new RoomEnemySystem();
@@ -157,11 +97,11 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             slot.Parameter1 = 128;
             slot.Parameter2 = parameter2;
             enemies.YappingMawBehavior.InitializeYappingMaw(slot);
-            AssertEqual(expected, slot.CurrentInstruction,
-                $"Yapping Maw {name} initializer program");
             YappingMawEnemyState state = enemies.YappingMawStates[0] ??
                 throw new InvalidOperationException(
                     $"Yapping Maw {name} initializer did not publish typed state.");
+            AssertEqual(AnimationProgramCursor<YappingMawProgram>.Start(expected), state.Program,
+                $"Yapping Maw {name} initializer program");
             AssertEqual(4, state.BodyProjectiles.Count(projectile => projectile is not null),
                 $"Yapping Maw {name} initializer body links");
             AssertTrue(state.RootSpriteObject is not null,
@@ -169,22 +109,21 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Creates a guarded Yapping Maw slot with a selected instruction entry and typed state.</summary>
+    /// <summary>Creates a Yapping Maw slot running a selected program with typed state.</summary>
     private static (
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
         YappingMawEnemyState State) NewYappingMawInstructionSystem(
             ISnesAddressSpace bus,
-            ushort entry)
+            YappingMawProgram entry)
     {
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(bus);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
-        slot.CurrentInstruction = entry;
         slot.InstructionTimer = NativeCountdown.Start(1);
-        var state = new YappingMawEnemyState(slot);
+        var state = new YappingMawEnemyState(slot) { Program = AnimationProgramCursor<YappingMawProgram>.Start(entry) };
         var states = (YappingMawEnemyState?[])enemies.YappingMawBehavior._yappingMawStates;
         states[0] = state;
         return (enemies, slot, state);
@@ -203,28 +142,6 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
-
-    /// <summary>Alternates warmed attack and cooldown control lookups for allocation accounting.</summary>
-    private static int ProbeYappingMawInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += YappingMawInstructionProgramDefinitions.ReadMechanicsWord(
-                (index & 1) == 0
-                    ? YappingMawInstructionProgramDefinitions.AttackingFacingUp
-                    : YappingMawInstructionProgramDefinitions.CooldownFacingDownLeft);
-        }
-        return checksum;
-    }
-
-    /// <summary>Rejects compiled Yapping Maw control and frame-selector reads during execution.</summary>
-    private static CartridgeReadGuard NewYappingMawInstructionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(YappingMawInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled Yapping Maw mechanics byte ${address:X6}.")
-            .ForbidWords(0xa80000, YappingMawInstructionProgramDefinitions.PresentationWordCount, YappingMawInstructionProgramDefinitions.PresentationWordAddress,
-                address => $"Production read compiled Yapping Maw visual byte ${address:X6}.");
 
     /// <summary>Runs the retail-backed Yapping Maw instruction migration command.</summary>
     [VerificationCommand("--yapping-maw-instruction-program-definitions")]

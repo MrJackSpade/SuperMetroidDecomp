@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Rios.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -24,63 +26,22 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     internal static void VerifyNorfairRioInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        AssertEqual(65, NorfairRioInstructionProgramDefinitions.MechanicsWordCount,
-            "Norfair Rio compiled mechanics word count");
-        AssertEqual(34, NorfairRioInstructionProgramDefinitions.PresentationWordCount,
-            "Norfair Rio live presentation word count");
-        for (int index = 0;
-             index < NorfairRioInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                NorfairRioInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                ReadNorfairRioInstructionWord(rom, definition.Address),
-                $"Norfair Rio mechanics word $A2:{definition.Address:X4}");
-        }
-
-        var guard = NewNorfairRioInstructionReadGuard(rom);
-        (ushort Entry, int Calls, ushort Final, ushort Offset, bool Signal, string Name)[]
-            programs =
+        // Each update shows the next pose; the cues before it place the flames, and a one-shot swoop start ends by
+        // telling main AI it has finished.
+        (NorfairRioProgram Entry, int Calls, ushort Offset, bool Signal, string Name)[] programs =
         [
-            (NorfairRioInstructionProgramDefinitions.Idle,
-                5,
-                unchecked((ushort)(NorfairRioInstructionProgramDefinitions.Idle + 6)),
-                8, false, "idle"),
-            (NorfairRioInstructionProgramDefinitions.StartDescending,
-                7,
-                unchecked((ushort)(
-                    NorfairRioInstructionProgramDefinitions.StartDescending + 38)),
-                unchecked((ushort)-16), true, "start descending"),
-            (NorfairRioInstructionProgramDefinitions.Descending,
-                5,
-                unchecked((ushort)(NorfairRioInstructionProgramDefinitions.Descending + 6)),
-                unchecked((ushort)-12), false, "descending"),
-            (NorfairRioInstructionProgramDefinitions.StartAscending,
-                9,
-                unchecked((ushort)(
-                    NorfairRioInstructionProgramDefinitions.StartAscending + 50)),
-                12, true, "start ascending"),
-            (NorfairRioInstructionProgramDefinitions.Ascending,
-                5,
-                unchecked((ushort)(NorfairRioInstructionProgramDefinitions.Ascending + 6)),
-                12, false, "ascending"),
-            (NorfairRioInstructionProgramDefinitions.FlamesAscending,
-                5,
-                unchecked((ushort)(
-                    NorfairRioInstructionProgramDefinitions.FlamesAscending + 4)),
-                0, false, "ascending flames"),
-            (NorfairRioInstructionProgramDefinitions.FlamesDescending,
-                5,
-                unchecked((ushort)(
-                    NorfairRioInstructionProgramDefinitions.FlamesDescending + 4)),
-                0, false, "descending flames"),
+            (NorfairRioProgram.Idle, 5, 8, false, "idle"),
+            (NorfairRioProgram.StartDescending, 7, unchecked((ushort)-16), true, "start descending"),
+            (NorfairRioProgram.Descending, 5, unchecked((ushort)-12), false, "descending"),
+            (NorfairRioProgram.StartAscending, 9, 12, true, "start ascending"),
+            (NorfairRioProgram.Ascending, 5, 12, false, "ascending"),
+            (NorfairRioProgram.FlamesAscending, 5, 0, false, "ascending flames"),
+            (NorfairRioProgram.FlamesDescending, 5, 0, false, "descending flames"),
         ];
-        foreach ((ushort entry, int calls, ushort final, ushort offset, bool signal,
-                  string name) in programs)
+        foreach ((NorfairRioProgram entry, int calls, ushort offset, bool signal, string name) in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, NorfairRioEnemyState state) =
-                NewNorfairRioInstructionSystem(guard, entry);
+                NewNorfairRioInstructionSystem(rom, entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             RunNorfairRioInstructionFrames(
@@ -88,50 +49,18 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
                 arguments,
                 slot,
                 calls);
-            AssertEqual(final, slot.CurrentInstruction,
-                $"Norfair Rio {name} completes its program");
             AssertEqual(offset, state.FollowerYOffset,
                 $"Norfair Rio {name} publishes its final follower offset");
             AssertEqual(signal, state.AnimationSignal,
                 $"Norfair Rio {name} animation signal");
         }
 
-        Suite(nameof(VerifyNorfairRioInitializerSelections), () => VerifyNorfairRioInitializerSelections(guard));
-
-        AssertEqual(0, guard.ObservedWords.Count,
-            "Norfair Rio presentation selectors are compiled, not ROM reads");
-        for (int index = 0;
-             index < NorfairRioInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                NorfairRioInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertEqual(ReadNorfairRioInstructionWord(rom, address),
-                EnemySpritemapDefinitions.NorfairRioFrameAt(address),
-                $"compiled Norfair Rio selector $A2:{address:X4} matches ROM");
-        }
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Norfair Rio mechanics byte");
-
-        AssertThrows<InvalidDataException>(
-            () => NorfairRioInstructionProgramDefinitions.ReadMechanicsWord(
-                NorfairRioInstructionProgramDefinitions.PresentationWordAddress(0)),
-            "Norfair Rio spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => NorfairRioInstructionProgramDefinitions.ReadMechanicsWord(
-                NorfairRioInstructionProgramDefinitions.AdjacentMovementDefinitions),
-            "adjacent Norfair Rio movement definitions are rejected as mechanics");
-
-        _ = ProbeNorfairRioInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeNorfairRioInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "Norfair Rio allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed Norfair Rio mechanics lookups allocate no per-frame storage");
+        Suite(nameof(VerifyNorfairRioInitializerSelections), () => VerifyNorfairRioInitializerSelections(rom));
+        Suite(nameof(NorfairRioAnimationsVerification.VerifyNorfairRioAnimations), () => NorfairRioAnimationsVerification.VerifyNorfairRioAnimations(rom));
 
         Console.WriteLine(
-            "Norfair Rio instruction mechanics: 65 compiled words, all seven parent/" +
-            "flame programs, eleven callbacks, and 34 compiled spritemap selectors pass.");
+            "Norfair Rio: all seven parent and flame programs with their flame placements and swoop-start handshakes, " +
+            "and the initializer selections pass.");
     }
 
     /// <summary>Checks that parent and follower initialization choose idle and ascending-flames programs respectively.</summary>
@@ -145,8 +74,8 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         parent.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
         parent.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         enemies.NorfairRioBehavior.InitializeNorfairRio(parent);
-        AssertEqual(NorfairRioInstructionProgramDefinitions.Idle,
-            parent.CurrentInstruction,
+        AssertEqual(AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.Idle),
+            ((NorfairRioEnemyState?[])enemies.NorfairRioBehavior._norfairRioStates)[0]?.Program,
             "Norfair Rio parent initializer selects idle");
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
@@ -154,8 +83,8 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         follower.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         follower.Parameter1 = 0x8000;
         enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
-        AssertEqual(NorfairRioInstructionProgramDefinitions.FlamesAscending,
-            follower.CurrentInstruction,
+        AssertEqual(AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.FlamesAscending),
+            ((NorfairRioEnemyState?[])enemies.NorfairRioBehavior._norfairRioStates)[1]?.Program,
             "Norfair Rio follower initializer selects ascending flames");
     }
 
@@ -165,7 +94,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySlot Slot,
         NorfairRioEnemyState State) NewNorfairRioInstructionSystem(
             ISnesAddressSpace bus,
-            ushort entry,
+            NorfairRioProgram entry,
             EnemyTileArtworkCatalog? art = null)
     {
         var enemies = new RoomEnemySystem { TileArtwork = art };
@@ -173,9 +102,8 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
-        slot.CurrentInstruction = entry;
         slot.InstructionTimer = NativeCountdown.Start(1);
-        var state = new NorfairRioEnemyState(slot);
+        var state = new NorfairRioEnemyState(slot) { Program = AnimationProgramCursor<NorfairRioProgram>.Start(entry) };
         var states = (NorfairRioEnemyState?[])enemies.NorfairRioBehavior._norfairRioStates;
         states[0] = state;
         return (enemies, slot, state);
@@ -193,44 +121,6 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             slot.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
         }
-    }
-
-    /// <summary>Repeatedly consumes idle and ascending control words for steady-state allocation measurement.</summary>
-    private static int ProbeNorfairRioInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += NorfairRioInstructionProgramDefinitions.ReadMechanicsWord(
-                (index & 1) == 0
-                    ? NorfairRioInstructionProgramDefinitions.Idle
-                    : NorfairRioInstructionProgramDefinitions.StartAscending);
-        }
-        return checksum;
-    }
-
-    /// <summary>Reads a native bank-$A2 instruction word for the independent cartridge comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair Rio instruction words")]
-    internal static ushort ReadNorfairRioInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa20000 | address);
-
-    /// <summary>Forbids compiled control reads and observes or forbids native spritemap selectors.</summary>
-    internal static CartridgeReadGuard NewNorfairRioInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false)
-    {
-        // Find the visual-selector word containing either byte of a forbidden read.
-        static ushort SelectorWord(int address) => Enumerable.Range(0, NorfairRioInstructionProgramDefinitions.PresentationWordCount)
-            .Select(NorfairRioInstructionProgramDefinitions.PresentationWordAddress)
-            .First(word => unchecked((ushort)address) == word || unchecked((ushort)address) == unchecked((ushort)(word + 1)));
-        CartridgeReadGuard guard = new CartridgeReadGuard(source)
-            .Forbid(NorfairRioInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled Norfair Rio mechanics byte ${address:X6}.");
-        return forbidPresentation
-            ? guard.ForbidWords(0xa20000, NorfairRioInstructionProgramDefinitions.PresentationWordCount, NorfairRioInstructionProgramDefinitions.PresentationWordAddress,
-                address => $"Installed Norfair Rio read visual selector $A2:{SelectorWord(address):X4}.")
-            : guard.ObserveWords(0xa20000, NorfairRioInstructionProgramDefinitions.PresentationWordCount, NorfairRioInstructionProgramDefinitions.PresentationWordAddress);
     }
 
     /// <summary>Runs the retail-cartridge Norfair Rio instruction verification.</summary>

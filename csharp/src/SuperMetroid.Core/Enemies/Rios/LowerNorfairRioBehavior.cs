@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Rios.Artwork;
+using SuperMetroid.Core.Fx;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -56,14 +58,14 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         if (state.IsFollower)
         {
             ValidateLowerNorfairRioParent(slot);
-            state.InstalledInstructionList = LowerNorfairRioProgram.Flames;
-            slot.CurrentInstruction = ListStart(LowerNorfairRioProgram.Flames);
+            state.InstalledProgram = LowerNorfairRioProgram.Flames;
+            state.Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Flames);
             state.Function = LowerNorfairRioEnemyFunction.FollowParent;
             return;
         }
 
-        state.InstalledInstructionList = LowerNorfairRioProgram.Idle;
-        slot.CurrentInstruction = ListStart(LowerNorfairRioProgram.Idle);
+        state.InstalledProgram = LowerNorfairRioProgram.Idle;
+        state.Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Idle);
         state.Function = LowerNorfairRioEnemyFunction.WaitForAttackOpportunity;
     }
 
@@ -187,35 +189,24 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Ports all three private no-operand instructions at $A2:C6D2-$C6F2.</summary>
-    private bool TryProcessLowerNorfairRioInstruction(
-        RoomEnemySlot slot,
-        ushort opcode,
-        ref ushort cursor)
+    /// <summary>Carries out one cue of the Lower Norfair Rio's animations: the finished handshake and flame visibility.</summary>
+    private static LowerNorfairRioProgram? ApplyLowerNorfairRioCue(LowerNorfairRioEnemyState state, LowerNorfairRioCue cue)
     {
-        // The shared interpreter hands every remaining negative word here; only
-        // Holtz's private opcodes belong to this handler.
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Holtz ||
-            !Enum.IsDefined((LowerNorfairRioInstruction)opcode))
-            return false;
-
-        LowerNorfairRioEnemyState state = RequireLowerNorfairRioState(slot);
-        switch ((LowerNorfairRioInstruction)opcode)
+        switch (cue.Kind)
         {
-            case LowerNorfairRioInstruction.SetAnimationFinishedFlag:
+            case LowerNorfairRioCueKind.AnimationFinished:
                 state.AnimationSignal = true;
                 break;
-            case LowerNorfairRioInstruction.HideFlames:
+            case LowerNorfairRioCueKind.HideFlames:
                 state.FollowerVisible = false;
                 break;
-            case LowerNorfairRioInstruction.ShowFlames:
+            case LowerNorfairRioCueKind.ShowFlames:
                 state.FollowerVisible = true;
                 break;
             default:
-                throw new InvalidOperationException($"Undefined Holtz instruction ${opcode:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(LowerNorfairRioCueKind)} {cue.Kind}.");
         }
-        cursor = unchecked((ushort)(cursor + 2));
-        return true;
+        return null;
     }
 
     /// <summary>Mirrors the preceding parent's freeze and visibility, placing live flames twelve pixels below it.</summary>
@@ -282,8 +273,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(
             unchecked((ushort)(state.Velocity.Y.RawValue - LowerNorfairRioGravity))));
 
-    /// <summary>The bank-$A2 address at which <paramref name="program"/> begins, loaded into the enemy's instruction cursor.</summary>
-    private static ushort ListStart(LowerNorfairRioProgram program) => (ushort)program;
 
     /// <summary>Restarts a different Rio animation list while leaving an unchanged list's timer intact.</summary>
     private static void InstallLowerNorfairRioInstructionList(
@@ -291,10 +280,10 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         LowerNorfairRioEnemyState state,
         LowerNorfairRioProgram instructionList)
     {
-        if (state.InstalledInstructionList == instructionList)
+        if (state.InstalledProgram == instructionList)
             return;
-        state.InstalledInstructionList = instructionList;
-        slot.CurrentInstruction = ListStart(instructionList);
+        state.InstalledProgram = instructionList;
+        state.Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(instructionList);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -359,15 +348,19 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Routes Holtz's private animation flags and flame visibility opcodes.</summary>
-    internal void RegisterLowerNorfairRioOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Lower Norfair Rio's and its flames' animations as typed programs (#641).</summary>
+    internal void RegisterLowerNorfairRioTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessLowerNorfairRioInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireLowerNorfairRioState(slot);
+            AnimationProgramCursor<LowerNorfairRioProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, LowerNorfairRioAnimations.Programs, ref cursor, LowerNorfairRioFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyLowerNorfairRioCue(state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

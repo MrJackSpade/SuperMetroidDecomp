@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Rios.Artwork;
+using SuperMetroid.Core.Fx;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -48,14 +50,14 @@ internal sealed class RioBehavior : IEnemySpecies
         var state = new RioEnemyState(slot)
         {
             AnimationFinished = false,
-            InstalledInstructionList = 0,
+            InstalledProgram = null,
             Function = RioEnemyFunction.WaitingForSamus,
         };
         _rioStates[slot.SlotIndex] = state;
 
-        // Rio_Init writes the list directly rather than calling Rio_6. Variable F must
-        // therefore remain zero until the first behavioral transition installs a new list.
-        slot.CurrentInstruction = RioInstructionProgramDefinitions.Idle;
+        // Rio_Init writes the list directly rather than calling Rio_6. The installed animation must
+        // therefore remain none until the first behavioral transition installs a new list.
+        state.Program = AnimationProgramCursor<RioProgram>.Start(RioProgram.Idle);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -92,7 +94,7 @@ internal sealed class RioBehavior : IEnemySpecies
                 InstallRioInstructionList(
                     slot,
                     state,
-                    RioInstructionProgramDefinitions.SwoopingPart1);
+                    RioProgram.SwoopingPart1);
                 state.Function = RioEnemyFunction.Diving;
 
                 // CheckIfEnemyIsOnScreen returns zero for an on-screen origin. The native
@@ -108,7 +110,7 @@ internal sealed class RioBehavior : IEnemySpecies
                 InstallRioInstructionList(
                     slot,
                     state,
-                    RioInstructionProgramDefinitions.PostSwoopIdle);
+                    RioProgram.PostSwoopIdle);
                 state.Function = RioEnemyFunction.WaitingForSamus;
                 return;
 
@@ -145,7 +147,7 @@ internal sealed class RioBehavior : IEnemySpecies
                     InstallRioInstructionList(
                         slot,
                         state,
-                        RioInstructionProgramDefinitions.SwoopingPart2);
+                        RioProgram.SwoopingPart2);
                 }
                 return;
 
@@ -166,7 +168,7 @@ internal sealed class RioBehavior : IEnemySpecies
                     InstallRioInstructionList(
                         slot,
                         state,
-                        RioInstructionProgramDefinitions.SwoopCooldown);
+                        RioProgram.SwoopCooldown);
                     state.Function = RioEnemyFunction.WaitingForLandingAnimation;
                 }
                 else
@@ -212,31 +214,30 @@ internal sealed class RioBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Ports the one private instruction at $A2:BBC3.</summary>
-    private bool TryProcessRioInstruction(
-        RoomEnemySlot slot,
-        ushort opcode,
-        ref ushort cursor)
+    /// <summary>Carries out one cue of the Rio's animations: telling main AI the animation has finished.</summary>
+    private static RioProgram? ApplyRioCue(RioEnemyState state, RioCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Rio ||
-            opcode != RioInstructionCodes.SetAnimationFinished)
-            return false;
-
-        RequireRioState(slot).AnimationFinished = true;
-        cursor = unchecked((ushort)(cursor + 2));
-        return true;
+        switch (cue.Kind)
+        {
+            case RioCueKind.AnimationFinished:
+                state.AnimationFinished = true;
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(RioCueKind)} {cue.Kind}.");
+        }
+        return null;
     }
 
-    /// <summary>Ports Rio_6: install a list only when its address actually changes.</summary>
+    /// <summary>Ports Rio_6: install an animation only when it actually changes.</summary>
     private static void InstallRioInstructionList(
         RoomEnemySlot slot,
         RioEnemyState state,
-        ushort instructionList)
+        RioProgram program)
     {
-        if (state.InstalledInstructionList == instructionList)
+        if (state.InstalledProgram == program)
             return;
-        state.InstalledInstructionList = instructionList;
-        slot.CurrentInstruction = instructionList;
+        state.InstalledProgram = program;
+        state.Program = AnimationProgramCursor<RioProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -292,15 +293,19 @@ internal sealed class RioBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers the Rio-only animation-finished instruction with the interpreter.</summary>
-    internal void RegisterRioOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Rio's animations as typed programs (#641).</summary>
+    internal void RegisterRioTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rio, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessRioInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireRioState(slot);
+            AnimationProgramCursor<RioProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, RioAnimations.Programs, ref cursor, RioFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyRioCue(state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

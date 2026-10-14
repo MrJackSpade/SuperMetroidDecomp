@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
@@ -11,6 +12,9 @@ public sealed class RioEnemyState
 
     /// <summary>Binds typed Rio state to its existing enemy slot.</summary>
     internal RioEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<RioProgram> Program { get; set; }
 
     /// <summary>Horizontal velocity retained while the hovering phase temporarily stops X.</summary>
     public ushort SavedHorizontalVelocity
@@ -37,17 +41,13 @@ public sealed class RioEnemyState
         }
     }
 
-    /// <summary>Handshake set by instruction $A2:BBC3 and consumed by main AI.</summary>
+    /// <summary>Handshake set by the animation-finished cue ($A2:BBC3) and consumed by main AI.</summary>
     public bool AnimationFinished
     {
         get => _slot.VariableE != 0;
         internal set => _slot.VariableE = value ? (ushort)1 : (ushort)0;
     }
 
-    /// <summary>Last instruction-list address installed by Rio_6; zero at room load.</summary>
-    public ushort InstalledInstructionList
-    {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
-    }
+    /// <summary>The last animation installed by Rio_6 (native variable F); none at room load.</summary>
+    internal RioProgram? InstalledProgram { get; set; }
 }

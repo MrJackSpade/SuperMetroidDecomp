@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.YappingMaws;
@@ -12,6 +13,9 @@ public sealed class YappingMawEnemyState
 {
     /// <summary>Binds extended tongue and grab state to the live mouth enemy slot.</summary>
     internal YappingMawEnemyState(RoomEnemySlot owner) => Owner = owner;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<YappingMawProgram> Program { get; set; }
 
     /// <summary>Physical enemy slot representing the moving mouth, distinct from the four body-projectile slots and the stationary root sprite-object slot.</summary>
     public RoomEnemySlot Owner { get; }

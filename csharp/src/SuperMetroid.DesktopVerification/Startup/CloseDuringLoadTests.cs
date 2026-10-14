@@ -15,8 +15,7 @@ internal static class CloseDuringLoadTests
         using var directoryScratch = new TestScratchDirectory("desktop-renderer");
         string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
-        string rom = Path.Combine(directory, "Super Metroid.smc");
-        File.Copy(Path.GetFullPath("Super Metroid.smc"), rom);
+        string rom = PlaceInstalledRom(directory);
         using var form = new GameForm(DesktopAccess.InstallationFor(rom), new SuperMetroidGameOptions { Renderer = RendererSelection.Direct3D11, AudioEnabled = false });
         _ = form.Handle;
         var control = form.gameControl;

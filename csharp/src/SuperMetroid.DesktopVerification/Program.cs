@@ -18,6 +18,25 @@ using SuperMetroid.TestSupport.WindowsConsole;
 /// <summary>Hidden-HWND integration checks: no visible window, native dialog, or player save mutation.</summary>
 internal static class Program
 {
+    /// <summary>
+    /// The default run's checks. Each uses its own scratch installation and hidden window, so the
+    /// no-argument run gives each its own child process and runs them at the same time.
+    /// </summary>
+    private static readonly (string Name, Func<Task> Run)[] defaultChecks =
+    [
+        ("software-capture", () => Verify(RendererSelection.Software)),
+        ("direct3d11-capture", () => Verify(RendererSelection.Direct3D11)),
+        ("auto-capture", () => Verify(RendererSelection.Auto)),
+        ("software-form-close", () => VerifyFormClose(RendererSelection.Software, duringStartup: false)),
+        ("direct3d11-form-close", () => VerifyFormClose(RendererSelection.Direct3D11, duringStartup: false)),
+        ("direct3d11-startup-form-close", () => VerifyFormClose(RendererSelection.Direct3D11, duringStartup: true)),
+        ("close-during-load", () => VerifyCloseDuringLoad(restart: false)),
+        ("close-during-load-restart", () => VerifyCloseDuringLoad(restart: true)),
+        ("auto-startup-failure", () => VerifyRendererStartupFailure(RendererSelection.Auto)),
+        ("direct3d11-startup-failure", () => VerifyRendererStartupFailure(RendererSelection.Direct3D11)),
+        ("host-audio-acknowledgements", () => HostAudioAcknowledgementTests.Verify()),
+    ];
+
     /// <summary>Captures initialization and message-loop failures at the console process boundary.</summary>
     [STAThread]
     private static void Main(string[] args)
@@ -48,6 +67,12 @@ internal static class Program
         if (args is ["--console-startup-boundary"])
         {
             ConsoleStartupBoundaryTests.Run();
+            return;
+        }
+        if (args.Length == 0)
+        {
+            DesktopCheckProcesses.RunAll(defaultChecks.Select(check => check.Name));
+            Console.WriteLine("Desktop capture: software/GPU stepping, resize, paused state restore, generation reset and asynchronous shutdown passed.");
             return;
         }
         if (!Application.SetHighDpiMode(HighDpiMode.PerMonitorV2))
@@ -94,19 +119,17 @@ internal static class Program
                     await VerifyNativeAudioQueueHealth();
                     return;
                 }
-                if (args.Length != 0) throw new ArgumentException("Usage: DesktopVerification [--audio-queue]");
-                await Verify(RendererSelection.Software);
-                await Verify(RendererSelection.Direct3D11);
-                await Verify(RendererSelection.Auto);
-                await VerifyFormClose(RendererSelection.Software, duringStartup: false);
-                await VerifyFormClose(RendererSelection.Direct3D11, duringStartup: false);
-                await VerifyFormClose(RendererSelection.Direct3D11, duringStartup: true);
-                await VerifyCloseDuringLoad(restart: false);
-                await VerifyCloseDuringLoad(restart: true);
-                await VerifyRendererStartupFailure(RendererSelection.Auto);
-                await VerifyRendererStartupFailure(RendererSelection.Direct3D11);
-                await HostAudioAcknowledgementTests.Verify();
-                Console.WriteLine("Desktop capture: software/GPU stepping, resize, paused state restore, generation reset and asynchronous shutdown passed.");
+                if (args is [DesktopCheckProcesses.CheckFlag, var checkName])
+                {
+                    foreach (var check in defaultChecks)
+                        if (check.Name == checkName)
+                        {
+                            await check.Run();
+                            return;
+                        }
+                    throw new ArgumentException($"Unknown desktop check '{checkName}'.");
+                }
+                throw new ArgumentException("Usage: DesktopVerification [--audio-queue | --check NAME]");
             }
             catch (Exception error) { Console.Error.WriteLine(error); Environment.ExitCode = 1; }
             finally { context.ExitThread(); }

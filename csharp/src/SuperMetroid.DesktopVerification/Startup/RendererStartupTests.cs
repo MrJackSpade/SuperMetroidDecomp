@@ -16,8 +16,7 @@ internal static class RendererStartupTests
         using var directoryScratch = new TestScratchDirectory("desktop-renderer");
         string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
-        string rom = Path.Combine(directory, "Super Metroid.smc");
-        File.Copy(Path.GetFullPath("Super Metroid.smc"), rom);
+        string rom = PlaceInstalledRom(directory);
         using var control = DesktopAccess.CreateGameControl(rom, new SuperMetroidGameOptions { Renderer = selection, AudioEnabled = false });
         _ = control.Handle;
         control.SetPlaying(false);

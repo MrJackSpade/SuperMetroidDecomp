@@ -23,8 +23,7 @@ internal static class HostAudioAcknowledgementTests
         using var directoryScratch = new TestScratchDirectory("desktop-audio-acknowledgements");
         string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
-        string rom = Path.Combine(directory, "Super Metroid.smc");
-        File.Copy(Path.GetFullPath("Super Metroid.smc"), rom);
+        string rom = PlaceInstalledRom(directory);
         var options = new SuperMetroidGameOptions { AudioEnabled = false, Renderer = RendererSelection.Software };
         using var form = new Form { ClientSize = new(900, 760), ShowInTaskbar = false };
         using var control = DesktopAccess.CreateGameControl(rom, options);

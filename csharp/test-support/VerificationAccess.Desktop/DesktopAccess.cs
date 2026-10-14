@@ -87,6 +87,9 @@ internal static class DesktopAccess
         string? dataDirectory = null) =>
         new(InstallationFor(romPath, dataDirectory), gameOptions, replay, errorReporter, audioDirectory);
 
+    /// <summary>Directory beside a ROM where <see cref="InstallationFor"/> opens or creates its installation.</summary>
+    internal const string InstallationDirectoryName = "SuperMetroid-installed";
+
     /// <summary>Uses an explicit extracted directory or repairs and opens the installation beside a ROM.</summary>
     internal static GameInstallation InstallationFor(string romPath, string? dataDirectory = null)
     {
@@ -94,7 +97,7 @@ internal static class DesktopAccess
             return new GameInstallation(Path.GetFullPath(dataDirectory));
         string fullRomPath = Path.GetFullPath(romPath);
         string root = Path.Combine(Path.GetDirectoryName(fullRomPath)
-            ?? throw new InvalidOperationException("Cartridge path has no parent directory."), "SuperMetroid-installed");
+            ?? throw new InvalidOperationException("Cartridge path has no parent directory."), InstallationDirectoryName);
         return GameAssetInstaller.OpenOrRepair(root) ?? GameAssetInstaller.Install(fullRomPath, root);
     }
 

@@ -1,18 +1,20 @@
 using SuperMetroid.Core;
-using static SuperMetroid.EnsureVerification.AnalyzerTests;
-using static SuperMetroid.EnsureVerification.MemberDocumentationAnalyzerTests;
-using static SuperMetroid.EnsureVerification.CartridgeEncodingAnalyzerTests;
-using static SuperMetroid.EnsureVerification.CpuBusCodeFixTests;
-using static SuperMetroid.EnsureVerification.EnsureCodeFixTests;
-using static SuperMetroid.EnsureVerification.OwnedReflectionAnalyzerTests;
-using static SuperMetroid.EnsureVerification.PaletteFxContractTests;
-using static SuperMetroid.EnsureVerification.ParameterContractsTests;
-using static SuperMetroid.EnsureVerification.ParameterListAnalyzerTests;
-using static SuperMetroid.EnsureVerification.NullForgivingAnalyzerTests;
-using static SuperMetroid.EnsureVerification.AdapterChainAnalyzerTests;
-using static SuperMetroid.EnsureVerification.OneTypePerFileAnalyzerTests;
-using static SuperMetroid.EnsureVerification.PartialTypeAnalyzerTests;
-using static SuperMetroid.EnsureVerification.WordReadAnalyzerTests;
+using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
+using static SuperMetroid.EnsureVerification.Contracts.MemberDocumentationAnalyzerTests;
+using static SuperMetroid.EnsureVerification.CartridgeEncoding.CartridgeEncodingAnalyzerTests;
+using static SuperMetroid.EnsureVerification.Hardware.CpuBusCodeFixTests;
+using static SuperMetroid.EnsureVerification.Contracts.EnsureCodeFixTests;
+using static SuperMetroid.EnsureVerification.Contracts.OwnedReflectionAnalyzerTests;
+using static SuperMetroid.EnsureVerification.PaletteFx.PaletteFxContractTests;
+using static SuperMetroid.EnsureVerification.Contracts.ParameterContractsTests;
+using static SuperMetroid.EnsureVerification.Contracts.ParameterListAnalyzerTests;
+using static SuperMetroid.EnsureVerification.Contracts.NullForgivingAnalyzerTests;
+using static SuperMetroid.EnsureVerification.Contracts.AdapterChainAnalyzerTests;
+using static SuperMetroid.EnsureVerification.SourceLayout.OneTypePerFileAnalyzerTests;
+using static SuperMetroid.EnsureVerification.SourceLayout.PartialTypeAnalyzerTests;
+using static SuperMetroid.EnsureVerification.Hardware.WordReadAnalyzerTests;
+using SuperMetroid.EnsureVerification.Harness;
+using SuperMetroid.EnsureVerification.Modules;
 
 namespace SuperMetroid.EnsureVerification;
 

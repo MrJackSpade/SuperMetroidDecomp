@@ -58,9 +58,9 @@ internal static class MapAtlasVerification
         AssertTrue(InnerMapChanged(menuBefore, menu.RenderBackgrounds(new(0, 0))), "file-select artwork change reaches map interior, not only frame chrome");
         AssertTrue(InnerMapChanged(pauseBefore, pause.Render()), "pause artwork change reaches map interior, not only frame chrome");
         using var state = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(state, menu);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(state, menu);
         state.Position = 0;
-        menu = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(state);
+        menu = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(state);
         menu.BindMapPresentation(original);
         pause.BindMapPresentation(original);
         AssertTrue(menuBefore.SequenceEqual(menu.RenderBackgrounds(new(0, 0))), "restored menu replaces stale modified atlas pixels");

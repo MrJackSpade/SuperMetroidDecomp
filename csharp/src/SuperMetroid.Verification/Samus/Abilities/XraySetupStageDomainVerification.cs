@@ -2,8 +2,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Diagnostics;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 /// <summary>Checks the closed X-Ray setup-stage order, display rule, and debugger decoding boundary.</summary>

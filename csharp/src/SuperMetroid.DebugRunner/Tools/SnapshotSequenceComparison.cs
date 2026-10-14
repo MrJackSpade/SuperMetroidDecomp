@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Rendering.Direct3D11.Device;
+using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.TestSupport.FrameCapture;
 

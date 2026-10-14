@@ -88,9 +88,9 @@ internal static class EndingTextPresentationVerification
                 EndingCreditsRomData.Rendering.TilemapWords).ToArray(), InstructionPointer = EndingCreditsRomData.Instructions.SeeYouNextMissionText, Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
         saved.Step(new SnesVram());
         using var snapshot = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
         snapshot.Position = 0;
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer
             .Deserialize<EndingBackgroundTextState>(snapshot);
         AssertThrows<InvalidOperationException>(() => restored.Step(new SnesVram()),
             "restored ending text fails loudly until host content is rebound");

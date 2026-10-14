@@ -166,9 +166,9 @@ internal static class NoobTubePlmVerification
             "existing input-lock serialized identity remains unchanged");
         using (var saved = new MemoryStream())
         {
-            SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(saved, samus);
+            SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, samus);
             saved.Position = 0;
-            var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SamusState>(saved);
+            var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SamusState>(saved);
             AssertTrue(restored.InputLocked && restored.ScriptLocks.StationaryScriptControlLocked,
                 "mid-script state retains input and animation ownership");
             restored.InputLocked = false;

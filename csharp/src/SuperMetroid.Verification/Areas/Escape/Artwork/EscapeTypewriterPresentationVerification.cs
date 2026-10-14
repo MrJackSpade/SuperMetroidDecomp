@@ -71,9 +71,9 @@ internal static class EscapeTypewriterPresentationVerification
         var savedVram = new SnesVram();
         saved.Step(savedVram);
         using var snapshot = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
         snapshot.Position = 0;
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer
             .Deserialize<EscapeTypewriterState>(snapshot);
         AssertEqual(EscapeTypewriterProgramId.Zebes, restored.ProgramId,
             "debugger state retains compiled escape program identity");

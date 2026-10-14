@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Diagnostics.SaveStates;
 
 namespace SuperMetroid.Diagnostics.Android;
 

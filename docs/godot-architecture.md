@@ -619,7 +619,7 @@ and rebuild registrations without replaying gameplay initialization or retaining
 callbacks to the replaced session.
 
 The current
-[`DebuggerObjectGraphSerializer`](../csharp/src/SuperMetroid.Diagnostics/DebuggerObjectGraphSerializer.cs)
+[`DebuggerObjectGraphSerializer`](../csharp/src/SuperMetroid.Diagnostics/SaveStates/DebuggerObjectGraphSerializer.cs)
 preserves private fields, reference identity, cycles, and delegates. Moving fields
 or callback owners can change compatibility. Establish a deliberate schema and
 migration policy for debugger states and recordings; ordinary SRAM/save data and

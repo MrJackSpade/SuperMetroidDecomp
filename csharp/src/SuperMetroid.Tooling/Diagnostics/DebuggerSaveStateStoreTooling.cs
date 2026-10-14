@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Diagnostics.SaveStates;
 
 namespace SuperMetroid.Diagnostics;
 

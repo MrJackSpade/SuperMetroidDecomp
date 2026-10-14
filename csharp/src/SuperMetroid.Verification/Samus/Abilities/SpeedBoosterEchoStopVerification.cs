@@ -7,8 +7,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 

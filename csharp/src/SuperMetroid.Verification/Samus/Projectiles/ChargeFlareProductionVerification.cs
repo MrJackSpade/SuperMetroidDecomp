@@ -113,7 +113,7 @@ internal static class ChargeFlareProductionVerification
         byte[] bound = SerializeGraph(game);
         AssertTrue(unbound.SequenceEqual(System.Security.Cryptography.SHA256.HashData(bound)), "Charge-flare compositions are excluded from saved frontend/runtime graphs");
         using var stream = new MemoryStream(bound);
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
         var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ChargeFlareCompositions is null, "Saved state does not retain old composition content");
         roomAssets.Bind(restoredRuntime);

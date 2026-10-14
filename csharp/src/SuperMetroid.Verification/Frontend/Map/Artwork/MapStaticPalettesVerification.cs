@@ -10,8 +10,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Diagnostics;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Diagnostics.SaveStates;
 
 namespace SuperMetroid.Verification.Frontend.Map.Artwork;
 

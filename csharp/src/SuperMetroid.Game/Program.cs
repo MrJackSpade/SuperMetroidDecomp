@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Desktop.Diagnostics;
+using SuperMetroid.Desktop.Window;
 
 namespace SuperMetroid.Game;
 

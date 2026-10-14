@@ -4,7 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Diagnostics;
+using SuperMetroid.Diagnostics.SaveStates;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 

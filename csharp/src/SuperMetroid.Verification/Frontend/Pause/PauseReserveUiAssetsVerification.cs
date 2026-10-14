@@ -75,8 +75,8 @@ internal static class PauseReserveUiAssetsVerification
 
         var cursorBeforeRestore = (editedPause.SelectedCategory, editedPause.SelectedItem);
         using var captured = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
         restored.BindMapPresentation(original);
         AssertEqual(cursorBeforeRestore, (restored.SelectedCategory, restored.SelectedItem),
             "reserve UI content rebind preserves the live equipment cursor");

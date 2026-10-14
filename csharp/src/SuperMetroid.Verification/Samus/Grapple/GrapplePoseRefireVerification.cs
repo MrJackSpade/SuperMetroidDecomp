@@ -5,7 +5,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Diagnostics;
+using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 /// <summary>Checks grapple restart after Samus changes aim while the beam is firing.</summary>

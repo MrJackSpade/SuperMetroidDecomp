@@ -13,10 +13,10 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
 

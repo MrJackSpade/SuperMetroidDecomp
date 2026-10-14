@@ -1,9 +1,8 @@
-﻿using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
-using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Rendering.Direct3D11.Frames;
 
 namespace SuperMetroid.TestSupport.FrameCapture;
 

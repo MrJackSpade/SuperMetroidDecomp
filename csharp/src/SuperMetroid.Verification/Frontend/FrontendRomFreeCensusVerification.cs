@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Diagnostics;
+using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
 

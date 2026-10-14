@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
-using SuperMetroid.Diagnostics;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 

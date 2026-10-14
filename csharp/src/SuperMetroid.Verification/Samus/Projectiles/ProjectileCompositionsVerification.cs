@@ -229,16 +229,16 @@ internal static class ProjectileCompositionsVerification
             ProjectileCompositions = null,
         });
         using var without = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(without, game);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(without, game);
         game.BindArtwork(game.Artwork with
         {
             ProjectileCompositions = stock,
         });
         using var with = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(with, game);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(with, game);
         AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Projectile content excluded from frontend and runtime state graph");
         with.Position = 0;
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ProjectileCompositions is null, "Restored runtime requires external composition rebind");
         roomAssets.Bind(restoredRuntime);
@@ -259,9 +259,9 @@ internal static class ProjectileCompositionsVerification
         SuperMetroid.Core.Frontend.SuperMetroidGame CloneGame()
         {
             using var snapshot = new MemoryStream();
-            SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(snapshot, game);
+            SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, game);
             snapshot.Position = 0;
-            var clone = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer
+            var clone = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer
                 .Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(snapshot);
             var cloneRuntime = clone.GameplayRuntime;
             roomAssets.Bind(cloneRuntime);

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Diagnostics.Recording;
+using SuperMetroid.Diagnostics.SaveStates;
 
 namespace SuperMetroid.Diagnostics.Android;
 

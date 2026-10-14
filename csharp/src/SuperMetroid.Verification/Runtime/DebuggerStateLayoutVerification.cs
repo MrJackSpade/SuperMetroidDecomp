@@ -2,7 +2,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Diagnostics;
+using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 

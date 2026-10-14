@@ -186,16 +186,16 @@ internal static class ChargeFlarePlacementVerification
             ChargeFlarePlacement = null,
         });
         using var without = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(without, game);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(without, game);
         game.BindArtwork(game.Artwork with
         {
             ChargeFlarePlacement = stock,
         });
         using var with = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(with, game);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(with, game);
         AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Flare catalog does not enter frontend/runtime saved graphs");
         with.Position = 0;
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ChargeFlarePlacement is null, "Restored flare catalog requires host rebind");
         BindRetailRuntimeFixture(restoredRuntime);

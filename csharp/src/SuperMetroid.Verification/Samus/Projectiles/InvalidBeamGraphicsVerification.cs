@@ -69,9 +69,9 @@ internal static class InvalidBeamGraphicsVerification
                 SamusProjectileSystem.QueueBeamTilesAndLoadPalette(gameplayBus, writes, cgram, 0x000d, artwork);
                 AssertEqual(1, writes.Entries.Count, "Chainsaw queues one native graphics transfer");
                 using var saved = new MemoryStream();
-                SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(saved, writes);
+                SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, writes);
                 saved.Position = 0;
-                var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(saved);
+                var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(saved);
                 restored.DrainTo(vram, ReferenceMutableMemory.From(bus), artwork);
             }
             else SamusProjectileSystem.LoadBeamTilesAndPalette(gameplayBus, vram, cgram, 0x000d, artwork);

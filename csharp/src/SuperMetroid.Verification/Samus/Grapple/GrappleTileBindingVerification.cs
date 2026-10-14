@@ -64,7 +64,7 @@ internal static class GrappleTileBindingVerification
         runtime.NmiHandler.RunNmi(0, true);
         byte[] nativeVram = runtime.Vram.Bytes.ToArray();
         using var stream = new MemoryStream(legacy);
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
         var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.GrappleArtwork is null, "Restored state requires current host Grapple artwork");
         byte[] retained = restoredRuntime.Vram.Bytes.ToArray();
@@ -82,7 +82,7 @@ internal static class GrappleTileBindingVerification
         Draw(restoredRuntime);
         AssertTrue(restoredRuntime.VramWrites.Entries.All(entry => entry.AssetId != VramAssetId.None), "Actual rebound actor queues typed Grapple resources");
         using var typedState = new MemoryStream(SerializeGraph(restored));
-        var typedRestored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(typedState);
+        var typedRestored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(typedState);
         typedRestored.BindArtwork(typedRestored.Artwork with
         {
             GrappleArtwork = stock,

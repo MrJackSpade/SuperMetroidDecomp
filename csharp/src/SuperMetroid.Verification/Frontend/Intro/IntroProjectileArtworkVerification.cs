@@ -81,16 +81,16 @@ internal static class IntroProjectileArtworkVerification
             TrailArtwork = null,
             ProjectileCompositions = null,
         });         using var without = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(without, game);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(without, game);
         game.BindArtwork(game.Artwork with
         {
             TrailArtwork = trails,
             ProjectileCompositions = stock,
         });         using var with = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(with, game);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(with, game);
         AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Intro snapshot excludes host appearance catalogs");
         with.Position = 0;
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(with);
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(with);
         var restoredIntro = restored.intro;
         AssertTrue((restoredIntro ?? throw new InvalidOperationException("Verification requires restoredIntro.")).TrailArtwork is null && restoredIntro.ProjectileCompositions is null, "Restored intro requires host content rebind");
         BindRestoredIntroDrawFixture(restoredIntro);
@@ -141,9 +141,9 @@ internal static class IntroProjectileArtworkVerification
         changed.Position = 0;
         var edited = ProjectileTrailCatalog.Load(new MemoryStream(json), ProjectileTrailAtlas.Load(changed));
         using var saved = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(saved, game);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, game);
         saved.Position = 0;
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(saved);
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(saved);
         var restoredIntro = restored.intro;
         BindRestoredIntroDrawFixture((restoredIntro ?? throw new InvalidOperationException("Verification requires restoredIntro.")));
         foreach (var pair in new[] { (game, intro), (restored, restoredIntro) })

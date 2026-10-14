@@ -103,9 +103,9 @@ internal static class IntroNarrationPresentationVerification
         saved.StartEnglishPageSix();
         saved.Step(0);
         using var snapshot = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
         snapshot.Position = 0;
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer
             .Deserialize<IntroCinematicObjectSystem>(snapshot);
         AssertThrows<InvalidOperationException>(() => restored.Step(0),
             "restored opening narration fails loudly until host content is rebound");

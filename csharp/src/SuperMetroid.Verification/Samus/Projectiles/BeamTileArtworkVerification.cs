@@ -68,9 +68,9 @@ internal static class BeamTileArtworkVerification
             AssertEqual(nativeQueue.Entries[0].EncodedVramDestination, queue.Entries[0].EncodedVramDestination, "Queued beam retains destination");
             AssertTrue(new CgramPalettes(actualPalette).ImageEquals(new CgramPalettes(expectedPalette)), "PNG selection leaves beam palette behavior unchanged");
             using var state = new MemoryStream();
-            SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(state, queue);
+            SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(state, queue);
             state.Position = 0;
-            var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(state);
+            var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(state);
             var stockVram = new SnesVram();
             queue.DrainTo(stockVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), catalog);
             AssertTrue(stockVram.ImageEquals(native), "Queued PNG publishes native pixels only at drain");
@@ -154,9 +154,9 @@ internal static class BeamTileArtworkVerification
         runtime.SamusPhases.QueueGameplayBeamTilesAndLoadPalette(1);
         AssertEqual(BeamTileCatalog.AssetFor(SamusBeamCombination.Wave), runtime.VramWrites.Entries[0].AssetId, "Runtime equipment upload uses typed beam selection");
         using var saved = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
         saved.Position = 0;
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
         AssertTrue(restored.Artwork.BeamArtwork is null, "Beam artwork is not embedded in runtime state");
         BindRetailRuntimeFixture(restored);
         restored.Player.IntroducedSamus.EquippedBeams = 1;

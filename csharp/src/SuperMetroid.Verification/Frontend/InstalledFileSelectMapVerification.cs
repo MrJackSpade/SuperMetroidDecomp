@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -58,14 +57,14 @@ internal static class InstalledFileSelectMapVerification
         // Preserve a live, scrolled menu with its old delegate closure. The catalog
         // must be rebound, not captured into that closure or the debugger graph.
         using var state = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(state, installed);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(state, installed);
         installed.BindMapPresentation(edited);
         using var reboundState = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(reboundState, installed);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(reboundState, installed);
         AssertTrue(state.WrittenBytes().SequenceEqual(reboundState.WrittenBytes()),
             "catalog-only identity change outside this area is not serialized into menu graph");
         state.Position = 0;
-        installed = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(state);
+        installed = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<FileSelectMapMenuState>(state);
         installed.BindMapPresentation(original);
         AssertTrue(control.Render().SequenceEqual(installed.Render()), "restored room map retains scrolled frame");
         StepBoth((ushort)SnesButton.B);

@@ -1,6 +1,6 @@
 using SuperMetroid.Core;
 using System.Security.Cryptography;
-using SuperMetroid.Diagnostics;
+using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Provides streamed debugger-graph hashes and temporary render rasters for focused state comparisons.</summary>

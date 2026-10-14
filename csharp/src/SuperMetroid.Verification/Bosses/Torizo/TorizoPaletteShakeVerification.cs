@@ -73,9 +73,9 @@ internal static class TorizoPaletteShakeVerification
         AssertEqual((ushort)0x7bde, cgram.Colors[145], "First denominator-12 step toward native normal color 56BA");
         // Save mid-fade: target and numerator must survive, not restart from white.
         using var saved = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(saved, state);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, state);
         saved.Position = 0;
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<TorizoEnemyState>(saved);
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<TorizoEnemyState>(saved);
         var restoredColors = new SnesCgram();
         for (int i = 0; i < 256; i++) restoredColors.SetColor(i, cgram.Colors[i]);
         for (int call = 2; call < 14; call++)

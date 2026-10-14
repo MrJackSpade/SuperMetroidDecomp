@@ -137,7 +137,7 @@ internal static class GrappleFlarePresentationVerification
         static SamusState Clone(SamusState source)
         {
             using var stream = new MemoryStream(SerializeGraph(source));
-            return SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SamusState>(stream);
+            return SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SamusState>(stream);
         }
     }
 
@@ -179,7 +179,7 @@ internal static class GrappleFlarePresentationVerification
         });
         AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real Grapple actor consumes current composition override");
         using var stream = new MemoryStream(SerializeGraph(game));
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
         var restoredRuntime = restored.GameplayRuntime;
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;

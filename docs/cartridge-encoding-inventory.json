@@ -11477,23 +11477,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Desktop/GitHubErrorReporter.cs",
-          "project": "SuperMetroid.Desktop",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Desktop/HostKeyboardInputState.cs",
-          "project": "SuperMetroid.Desktop",
-          "totals": {
-            "CatalogHexLiteral": 4,
-            "class:DomainIdentity": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Desktop/WaveOutAudioDevice.cs",
+          "path": "csharp/src/SuperMetroid.Desktop/Audio/WaveOutAudioDevice.cs",
           "project": "SuperMetroid.Desktop",
           "totals": {
             "RawHexLiteral": 1,
@@ -11502,14 +11486,30 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Desktop/WindowsGamepadInput.cs",
+          "path": "csharp/src/SuperMetroid.Desktop/Diagnostics/GitHubErrorReporter.cs",
+          "project": "SuperMetroid.Desktop",
+          "totals": {
+            "RawHexLiteral": 3,
+            "class:NumericQuantity": 3
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Desktop/Input/HostKeyboardInputState.cs",
+          "project": "SuperMetroid.Desktop",
+          "totals": {
+            "CatalogHexLiteral": 4,
+            "class:DomainIdentity": 4
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Desktop/Input/WindowsGamepadInput.cs",
           "project": "SuperMetroid.Desktop",
           "totals": {
             "storageWidthMembers": 4
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.DesktopVerification/AudioInputReplaySmokeTest.cs",
+          "path": "csharp/src/SuperMetroid.DesktopVerification/Audio/AudioInputReplaySmokeTest.cs",
           "project": "SuperMetroid.DesktopVerification",
           "totals": {
             "RawHexLiteral": 2,
@@ -11518,7 +11518,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.DesktopVerification/CartridgeAudioSmokeTest.cs",
+          "path": "csharp/src/SuperMetroid.DesktopVerification/Audio/CartridgeAudioSmokeTest.cs",
           "project": "SuperMetroid.DesktopVerification",
           "totals": {
             "RawHexLiteral": 2,
@@ -11526,7 +11526,15 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.DesktopVerification/DebuggerSaveStateSmokeTest.cs",
+          "path": "csharp/src/SuperMetroid.DesktopVerification/Audio/ManagedAudioRegressionSmokeTest.cs",
+          "project": "SuperMetroid.DesktopVerification",
+          "totals": {
+            "RawHexLiteral": 2,
+            "class:NumericQuantity": 2
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.DesktopVerification/Diagnostics/DebuggerSaveStateSmokeTest.cs",
           "project": "SuperMetroid.DesktopVerification",
           "totals": {
             "RawHexLiteral": 2,
@@ -11535,7 +11543,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.DesktopVerification/DesktopSessionLogSmokeTest.cs",
+          "path": "csharp/src/SuperMetroid.DesktopVerification/Diagnostics/DesktopSessionLogSmokeTest.cs",
           "project": "SuperMetroid.DesktopVerification",
           "totals": {
             "RawHexLiteral": 2,
@@ -11543,23 +11551,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.DesktopVerification/DraygonTerrainPriorityTests.cs",
-          "project": "SuperMetroid.DesktopVerification",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:ComposableBits": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.DesktopVerification/DraygonTilemapAuditDefinitions.cs",
-          "project": "SuperMetroid.DesktopVerification",
-          "totals": {
-            "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.DesktopVerification/GitHubErrorReporterSmokeTest.cs",
+          "path": "csharp/src/SuperMetroid.DesktopVerification/Diagnostics/GitHubErrorReporterSmokeTest.cs",
           "project": "SuperMetroid.DesktopVerification",
           "totals": {
             "RawHexLiteral": 5,
@@ -11568,7 +11560,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.DesktopVerification/HiddenSoakRooms.cs",
+          "path": "csharp/src/SuperMetroid.DesktopVerification/Soak/HiddenSoakRooms.cs",
           "project": "SuperMetroid.DesktopVerification",
           "totals": {
             "RawHexLiteral": 2,
@@ -11576,15 +11568,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.DesktopVerification/ManagedAudioRegressionSmokeTest.cs",
-          "project": "SuperMetroid.DesktopVerification",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.DesktopVerification/RomPickerStartupVerification.cs",
+          "path": "csharp/src/SuperMetroid.DesktopVerification/Startup/RomPickerStartupVerification.cs",
           "project": "SuperMetroid.DesktopVerification",
           "totals": {
             "RawHexLiteral": 1,
@@ -11592,7 +11576,23 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.EnsureVerification/PaletteFxContractTests.cs",
+          "path": "csharp/src/SuperMetroid.DesktopVerification/Window/DraygonTerrainPriorityTests.cs",
+          "project": "SuperMetroid.DesktopVerification",
+          "totals": {
+            "RawHexLiteral": 3,
+            "class:ComposableBits": 3
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.DesktopVerification/Window/DraygonTilemapAuditDefinitions.cs",
+          "project": "SuperMetroid.DesktopVerification",
+          "totals": {
+            "CatalogHexLiteral": 3,
+            "class:NumericQuantity": 3
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.EnsureVerification/PaletteFx/PaletteFxContractTests.cs",
           "project": "SuperMetroid.EnsureVerification",
           "totals": {
             "RawHexLiteral": 1,
@@ -11616,7 +11616,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.IntegrationVerification/AndroidImportVerification.cs",
+          "path": "csharp/src/SuperMetroid.IntegrationVerification/Android/AndroidImportVerification.cs",
           "project": "SuperMetroid.IntegrationVerification",
           "totals": {
             "RawHexLiteral": 9,
@@ -11626,7 +11626,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.IntegrationVerification/GameplayRenderAllocationVerification.cs",
+          "path": "csharp/src/SuperMetroid.IntegrationVerification/Gameplay/GameplayRenderAllocationVerification.cs",
           "project": "SuperMetroid.IntegrationVerification",
           "totals": {
             "RawHexLiteral": 2,
@@ -11634,7 +11634,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.IntegrationVerification/MaridiaPipeFixtureDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.IntegrationVerification/Gameplay/MaridiaPipeFixtureDefinitions.cs",
           "project": "SuperMetroid.IntegrationVerification",
           "totals": {
             "CatalogHexLiteral": 4,
@@ -11642,7 +11642,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.IntegrationVerification/ProjectileHostBindingVerification.cs",
+          "path": "csharp/src/SuperMetroid.IntegrationVerification/Gameplay/ProjectileHostBindingVerification.cs",
           "project": "SuperMetroid.IntegrationVerification",
           "totals": {
             "RawHexLiteral": 2,
@@ -11650,7 +11650,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.IntegrationVerification/RomDecompressionVerification.cs",
+          "path": "csharp/src/SuperMetroid.IntegrationVerification/Installation/RomDecompressionVerification.cs",
           "project": "SuperMetroid.IntegrationVerification",
           "totals": {
             "RawHexLiteral": 64,
@@ -11662,7 +11662,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.ReachabilityAudit/SymbolRelocator.cs",
+          "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/SymbolRelocator.cs",
           "project": "SuperMetroid.ReachabilityAudit",
           "totals": {
             "RawHexLiteral": 3,
@@ -11670,7 +11670,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.ReachabilityAudit/SymbolRemover.cs",
+          "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/SymbolRemover.cs",
           "project": "SuperMetroid.ReachabilityAudit",
           "totals": {
             "RawHexLiteral": 3,
@@ -11678,7 +11678,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/BackgroundMosaicTests.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/Areas/NorfairGlowFixture.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
             "RawHexLiteral": 1,
@@ -11686,15 +11686,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/ColorWindowSmokeTests.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "RawHexLiteral": 14,
-            "class:NumericQuantity": 14
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/CrocomireCaptureFixture.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/Bosses/CrocomireCaptureFixture.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
             "RawHexLiteral": 5,
@@ -11702,27 +11694,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/EndingShootingStarsTests.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "RawHexLiteral": 7,
-            "OpaqueWordArray": 1,
-            "class:StructuredInstruction": 3,
-            "class:CartridgeAddress": 5
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/EndingWavySamusTests.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "RawHexLiteral": 9,
-            "class:NumericQuantity": 7,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/EyeCaptureFixture.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/Bosses/EyeCaptureFixture.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
             "RawHexLiteral": 2,
@@ -11730,15 +11702,25 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/HardwareWindowTests.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/Bosses/KraidCaptureDefinitions.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 4
+            "CatalogHexLiteral": 3,
+            "class:NumericQuantity": 2,
+            "class:CartridgeAddress": 1
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/InstalledSporesTests.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/Bosses/MotherBrainAscentMaskTests.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "RawHexLiteral": 6,
+            "class:NumericQuantity": 3,
+            "class:Unknown": 3
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.RenderVerification/Enemies/InstalledSporesTests.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
             "RawHexLiteral": 10,
@@ -11749,80 +11731,27 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/KraidCaptureDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/Frontend/EndingShootingStarsTests.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
-            "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 2,
+            "RawHexLiteral": 7,
+            "OpaqueWordArray": 1,
+            "class:StructuredInstruction": 3,
+            "class:CartridgeAddress": 5
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.RenderVerification/Frontend/EndingWavySamusTests.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "RawHexLiteral": 9,
+            "class:NumericQuantity": 7,
+            "class:ComposableBits": 1,
             "class:CartridgeAddress": 1
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/Mode7SmokeTests.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/MotherBrainAscentMaskTests.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "RawHexLiteral": 6,
-            "class:NumericQuantity": 3,
-            "class:Unknown": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/NativeMode7Probe.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/NorfairGlowFixture.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/ObjectSmokeTests.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "RawHexLiteral": 7,
-            "class:NumericQuantity": 7
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/OrdinarySmokeTests.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/OverlayFixtureRooms.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/RetailDoorCase.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "storageWidthMembers": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/RetailEndingHandoffTests.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/Frontend/RetailEndingHandoffTests.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
             "PointerDispatch": 1,
@@ -11830,23 +11759,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/RoomPublicationFixtureDefinitions.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/SamusIsolationArtworkEdits.cs",
-          "project": "SuperMetroid.RenderVerification",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.RenderVerification/SimulationProfileRooms.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/Harness/OverlayFixtureRooms.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
             "RawHexLiteral": 1,
@@ -11854,7 +11767,15 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/SlowConsumerFixture.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/Harness/SimulationProfileRooms.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "RawHexLiteral": 1,
+            "class:NumericQuantity": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.RenderVerification/Harness/SlowConsumerFixture.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
             "RawHexLiteral": 2,
@@ -11862,7 +11783,63 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/TileSmokeTests.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/PpuFeatures/BackgroundMosaicTests.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "RawHexLiteral": 1,
+            "class:NumericQuantity": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.RenderVerification/PpuFeatures/ColorWindowSmokeTests.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "RawHexLiteral": 14,
+            "class:NumericQuantity": 14
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.RenderVerification/PpuFeatures/HardwareWindowTests.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "RawHexLiteral": 4,
+            "class:NumericQuantity": 4
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.RenderVerification/PpuFeatures/Mode7SmokeTests.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "RawHexLiteral": 4,
+            "class:NumericQuantity": 4
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.RenderVerification/PpuFeatures/NativeMode7Probe.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "RawHexLiteral": 1,
+            "class:ComposableBits": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.RenderVerification/PpuFeatures/ObjectSmokeTests.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "RawHexLiteral": 7,
+            "class:NumericQuantity": 7
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.RenderVerification/PpuFeatures/OrdinarySmokeTests.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "RawHexLiteral": 3,
+            "class:NumericQuantity": 3
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.RenderVerification/PpuFeatures/TileSmokeTests.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
             "RawHexLiteral": 17,
@@ -11870,7 +11847,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/WaterfallTests.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/PpuFeatures/WaterfallTests.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
             "RawHexLiteral": 11,
@@ -11879,7 +11856,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/WindowSceneSmokeTests.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/PpuFeatures/WindowSceneSmokeTests.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
             "RawHexLiteral": 2,
@@ -11887,7 +11864,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.RenderVerification/XrayGameplayTests.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/PpuFeatures/XrayGameplayTests.cs",
           "project": "SuperMetroid.RenderVerification",
           "totals": {
             "RawHexLiteral": 7,
@@ -11896,15 +11873,30 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Rendering.Direct3D11/D3D11ConstantPacking.cs",
-          "project": "SuperMetroid.Rendering.Direct3D11",
+          "path": "csharp/src/SuperMetroid.RenderVerification/Rooms/RetailDoorCase.cs",
+          "project": "SuperMetroid.RenderVerification",
           "totals": {
-            "OwnedWidthOperation": 3,
-            "class:ComposableBits": 3
+            "storageWidthMembers": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Rendering.Direct3D11/DxgiDeviceLoss.cs",
+          "path": "csharp/src/SuperMetroid.RenderVerification/Rooms/RoomPublicationFixtureDefinitions.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "CatalogHexLiteral": 3,
+            "class:NumericQuantity": 3
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.RenderVerification/Samus/SamusIsolationArtworkEdits.cs",
+          "project": "SuperMetroid.RenderVerification",
+          "totals": {
+            "RawHexLiteral": 1,
+            "class:ComposableBits": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Rendering.Direct3D11/Device/DxgiDeviceLoss.cs",
           "project": "SuperMetroid.Rendering.Direct3D11",
           "totals": {
             "CatalogHexLiteral": 2,
@@ -11912,7 +11904,15 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Rendering.Direct3D11/DxgiPresentationStatus.cs",
+          "path": "csharp/src/SuperMetroid.Rendering.Direct3D11/Frames/D3D11ConstantPacking.cs",
+          "project": "SuperMetroid.Rendering.Direct3D11",
+          "totals": {
+            "OwnedWidthOperation": 3,
+            "class:ComposableBits": 3
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Rendering.Direct3D11/Presentation/DxgiPresentationStatus.cs",
           "project": "SuperMetroid.Rendering.Direct3D11",
           "totals": {
             "RawHexLiteral": 1,

@@ -82,8 +82,8 @@ internal static class PauseEquipmentBaseAssetsVerification
             "base rebind refreshes ordinary authored cells");
 
         using var captured = new MemoryStream();
-        SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;
-        var restored = SuperMetroid.Diagnostics.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
+        SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;
+        var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);
         restored.BindMapPresentation(original);
         var stockSnapshot = stockPause.CaptureRenderSnapshot();
         var restoredSnapshot = restored.CaptureRenderSnapshot();

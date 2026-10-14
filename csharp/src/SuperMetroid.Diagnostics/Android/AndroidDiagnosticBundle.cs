@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text.Json;
+using SuperMetroid.Diagnostics.SaveStates;
 
 namespace SuperMetroid.Diagnostics.Android;
 

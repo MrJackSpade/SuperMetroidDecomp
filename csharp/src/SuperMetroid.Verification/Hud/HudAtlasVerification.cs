@@ -9,10 +9,10 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Diagnostics;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Hud;
 
 /// <summary>Checks installed HUD artwork against native VRAM transfer bytes and rendered minimap pixels.</summary>

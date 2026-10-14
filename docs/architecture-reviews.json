@@ -1,7 +1,7 @@
 {
   "reviews": [
     {
-      "type": "SuperMetroid.RenderVerification.InstalledSamusIsolationTests.Actor",
+      "type": "SuperMetroid.RenderVerification.Samus.InstalledSamusIsolationTests.Actor",
       "flags": [
         "context-bag"
       ],

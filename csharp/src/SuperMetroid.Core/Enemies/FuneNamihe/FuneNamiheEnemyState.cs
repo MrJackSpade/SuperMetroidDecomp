@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class FuneNamiheEnemyState
 
     /// <summary>Creates a typed view without copying Fune or Namihe's native variable words.</summary>
     internal FuneNamiheEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<FuneNamiheProgram> Program { get; set; }
 
     /// <summary>
     /// Variable A: pointer into the eight-entry table at $A8:96D3, not directly to an

@@ -377,9 +377,6 @@ internal sealed class EnemyInstructionInterpreter
             return MamaTurtleInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
-        if (FuneNamiheBehavior.IsFuneNamiheDefinition(slot.EnemyDefinitionPointer))
-            return FuneNamiheInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi)
             return HibashiInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -388,12 +385,6 @@ internal sealed class EnemyInstructionInterpreter
 
         if (KiHunterBehavior.IsKiHunterDefinition(slot.EnemyDefinitionPointer))
             return KiHunterInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom)
-            return BeetomInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon)
-            return AlcoonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Etecoon)
             return EtecoonInstructionProgramDefinitions.ReadMechanicsWord(address);

@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// <summary>The per-slot Beetom tables shared with the enemy system (#633).</summary>
 internal sealed record BeetomSharedTables
 {
-    /// <summary>Installed instruction lists.</summary>
-    public required ushort[] InstalledInstructionLists { get; init; }
-
     /// <summary>Initial short leap y speed indexes.</summary>
     public required ushort[] InitialShortLeapYSpeedIndexes { get; init; }
 

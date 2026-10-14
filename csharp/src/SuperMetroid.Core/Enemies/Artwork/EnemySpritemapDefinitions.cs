@@ -1778,15 +1778,13 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Geruta => 0,
             EnemyDefinitionId.Puyo => 0,
             EnemyDefinitionId.Bull => 0,
-            EnemyDefinitionId.Alcoon => AlcoonFrameAt(operandAddress),
-            EnemyDefinitionId.Beetom => BeetomFrameAt(operandAddress),
+            EnemyDefinitionId.Alcoon => 0,
+            EnemyDefinitionId.Beetom => 0,
             EnemyDefinitionId.Sidehopper or EnemyDefinitionId.Dessgeega or EnemyDefinitionId.SidehopperLarge or EnemyDefinitionId.SidehopperTourian or EnemyDefinitionId.DessgeegaLarge => 0,
             EnemyDefinitionId.Choot => 0,
             EnemyDefinitionId.HZoomer => 0,
             EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2 => 0,
-            EnemyDefinitionId.Fune or
-                EnemyDefinitionId.Namihe =>
-                FuneNamiheFrameAt(operandAddress),
+            EnemyDefinitionId.Fune or EnemyDefinitionId.Namihe => 0,
             EnemyDefinitionId.Kamer => 0,
             EnemyDefinitionId.Elevator => 0,
             EnemyDefinitionId.YappingMaw => 0,
@@ -1858,10 +1856,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.RobotNoPower or
             EnemyDefinitionId.Yard or
             EnemyDefinitionId.Botwoon or
-            EnemyDefinitionId.Alcoon or
-            EnemyDefinitionId.Beetom or
-            EnemyDefinitionId.Fune or
-            EnemyDefinitionId.Namihe or
             EnemyDefinitionId.KihunterGreen or
             EnemyDefinitionId.KihunterGreenWings or
             EnemyDefinitionId.KihunterYellow or
@@ -1873,95 +1867,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.KraidNail or
             EnemyDefinitionId.KraidNailBad;
     }
-    /// <summary>Selects opening/recovery poses in the two directional sprite strips.
-    /// Every native map has eight five-byte OAM entries and a two-byte count.</summary>
-    internal static ushort FuneNamiheFrameAt(ushort operandAddress)
-    {
-        if (!FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-            throw new InvalidDataException(
-                $"Fune/Namihe visual operand $A8:{operandAddress:X4} is not compiled.");
-        bool namihe = FuneNamiheInstructionProgramDefinitions.IsNamiheOperand(operandAddress);
-        int stride = namihe ? 52 : 48;
-        int offset = operandAddress - (namihe ? FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft
-            : FuneNamiheInstructionProgramDefinitions.FuneIdleLeft);
-        int local = offset % stride;
-        int peak = namihe ? 5 : 4;
-        int recovery = 12 + 4 * peak;
-        int pose = local == 2 ? 0 : local < recovery ? (local - 8) / 4
-            : peak - (local - recovery) / 4;
-        return (ushort)((namihe ? 0x97b4 : 0x93f9) + 42 * ((peak + 1) * (offset / stride) + pose));
-    }
-    /// <summary>
-    /// Alcoon's 44 left/right walking, fire-volley, and airborne visual operands
-    /// at $A8:DBEB..DCC3 select eighteen editable OAM compositions. Movement,
-    /// fireball callbacks, and instruction timing remain compiled gameplay rules.
-    /// </summary>
-    internal static ushort AlcoonFrameAt(ushort operandAddress)
-    {
-        if (AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-        {
-            int offset = AlcoonInstructionProgramDefinitions.OperandOffset(operandAddress);
-            int local = offset % 112;
-            int pose = local switch
-            {
-                < 28 => (local - 4) / 6,
-                < 94 => ((local - 28) % 22) switch
-                {
-                    2 => 4,             // Wing extended before the shot.
-                    6 or 14 => 5,       // Mouth opening, also used for windup.
-                    10 => 6,            // Ready to spit.
-                    _ => 7,             // Recovery after firing.
-                },
-                98 => 7,                // Trailing recovery pose after StartWalking.
-                102 => 8,               // Airborne, looking up.
-                _ => 3,                 // Airborne, looking forward reuses walking pose.
-            };
-            // Nine records per facing. Each has a two-byte count and six five-byte
-            // OAM entries, except poses2/5 have seven and pose6 has nine:313 bytes.
-            return (ushort)(0xdfa2 + 313 * (offset / 112) + 32 * pose +
-                (pose > 2 ? 5 : 0) + (pose > 5 ? 5 : 0) + (pose > 6 ? 15 : 0));
-        }
-        throw new InvalidDataException(
-            $"Alcoon visual operand $A8:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
-    /// Beetom's thirty-two crawl, hop, and drain operands select twenty-two
-    /// editable compositions; physical attachment and drain cadence stay compiled.
-    /// </summary>
-    internal static ushort BeetomFrameAt(ushort operandAddress)
-    {
-        if (BeetomInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-        {
-            int stride = BeetomInstructionProgramDefinitions.FacingProgramsLength;
-            int offset = BeetomInstructionProgramDefinitions.OperandOffset(operandAddress);
-            int local = offset % stride;
-            int pose;
-            if (local < BeetomInstructionProgramDefinitions.HopProgramOffset)
-            {
-                int frame = (local - 4) / 4;
-                pose = 2 - Math.Abs(2 - frame);
-            }
-            else if (local < BeetomInstructionProgramDefinitions.DrainingProgramOffset)
-            {
-                int frame = (local - BeetomInstructionProgramDefinitions.HopProgramOffset - 4) / 4;
-                pose = frame == 3 ? 0 : 4 - Math.Abs(1 - frame);
-            }
-            else
-            {
-                int drain = local - BeetomInstructionProgramDefinitions.DrainingProgramOffset;
-                bool loop = drain >= 20;
-                int frame = (drain - (loop ? 20 : 2)) / 4;
-                pose = (loop ? 8 : 5) + 2 - Math.Abs(2 - frame);
-            }
-            // Each facing owns eight five-entry maps (27 bytes) then three six-entry
-            // maps (32 bytes). Account for the extra entry only after the eighth map.
-            return (ushort)(0xbed3 + 312 * (offset / stride) + 27 * pose + 5 * Math.Max(0, pose - 8));
-        }
-        throw new InvalidDataException(
-            $"Beetom visual operand $A8:{operandAddress:X4} is not compiled.");
-    }
-
     /// <summary>
     /// Magdollite's 53 head, throwing-hand, and pillar selectors at $A8:AC9E..AE0E.
     /// Their attack callbacks, timing, and physical movement remain engine-owned.

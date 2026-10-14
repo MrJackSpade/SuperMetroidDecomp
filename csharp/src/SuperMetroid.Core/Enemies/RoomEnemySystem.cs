@@ -1400,11 +1400,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         WallSpacePirateBehavior.RegisterWallSpacePirateOwnedInstructions(table);
         NinjaSpacePirateBehavior.RegisterNinjaSpacePirateOwnedInstructions(table);
         WorkRobotBehavior.RegisterWorkRobotOwnedInstructions(table);
-        BeetomBehavior.RegisterBeetomOwnedInstructions(table);
+        BeetomBehavior.RegisterBeetomTypedAnimations(table);
         YappingMawBehavior.RegisterYappingMawTypedAnimations(table);
         CacatacBehavior.RegisterCacatacTypedAnimations(table);
         OwtchBehavior.RegisterOwtchTypedAnimations(table);
-        FuneNamiheBehavior.RegisterFuneNamiheOwnedInstructions(table);
+        FuneNamiheBehavior.RegisterFuneNamiheTypedAnimations(table);
         EvirBehavior.RegisterEvirTypedAnimations(table);
         YardBehavior.RegisterYardOwnedInstructions(table);
         HoppersBehavior.RegisterHopperTypedAnimations(table);
@@ -1416,7 +1416,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         MetareeBehavior.RegisterMetareeTypedAnimations(table);
         SkulteraBehavior.RegisterSkulteraTypedAnimations(table);
         PlatformsBehavior.RegisterPlatformTypedAnimations(table);
-        AlcoonBehavior.RegisterAlcoonOwnedInstructions(table);
+        AlcoonBehavior.RegisterAlcoonTypedAnimations(table);
         KiHunterBehavior.RegisterKiHunterOwnedInstructions(table);
         SparkBehavior.RegisterSparkTypedAnimations(table);
         HibashiBehavior.RegisterHibashiOwnedInstructions(table);
@@ -1439,6 +1439,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        FuneNamiheBehavior.RegisterFuneNamiheTypedAnimations(table);
+        AlcoonBehavior.RegisterAlcoonTypedAnimations(table);
+        BeetomBehavior.RegisterBeetomTypedAnimations(table);
         LowerNorfairRioBehavior.RegisterLowerNorfairRioTypedAnimations(table);
         NorfairRioBehavior.RegisterNorfairRioTypedAnimations(table);
         RioBehavior.RegisterRioTypedAnimations(table);

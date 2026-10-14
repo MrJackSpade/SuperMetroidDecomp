@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Alcoon.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -15,118 +17,11 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks compiled Alcoon mechanics and visual selectors through a retail room's movement and fire callbacks.</summary>
+/// <summary>Checks the Alcoon's typed animations through a retail room's movement and fire cues.</summary>
 internal static class AlcoonInstructionProgramDefinitionsVerification
 {
     /// <summary>Retail room containing the Alcoon population used by the instruction audit.</summary>
     private const ushort AlcoonInstructionAuditRoom = 0x93aa;
-
-    /// <summary>Compares every compiled mechanics word and byte-ownership boundary with bank $A8.</summary>
-    internal static void VerifyAlcoonMechanicsMapping(SuperMetroidAddressSpace rom)
-    {
-        ushort[] addresses =
-        [
-            0xdbe7,0xdbe9,0xdbed,0xdbef,0xdbf3,0xdbf5,0xdbf9,0xdbfb,0xdbff,0xdc01,
-            0xdc03,0xdc07,0xdc0b,0xdc0f,0xdc13,0xdc15,0xdc19,0xdc1d,0xdc21,0xdc25,
-            0xdc29,0xdc2b,0xdc2f,0xdc33,0xdc37,0xdc3b,0xdc3f,0xdc41,0xdc45,0xdc47,
-            0xdc4b,0xdc4f,0xdc51,0xdc55,
-            0xdc57,0xdc59,0xdc5d,0xdc5f,0xdc63,0xdc65,0xdc69,0xdc6b,0xdc6f,0xdc71,
-            0xdc73,0xdc77,0xdc7b,0xdc7f,0xdc83,0xdc85,0xdc89,0xdc8d,0xdc91,0xdc95,
-            0xdc99,0xdc9b,0xdc9f,0xdca3,0xdca7,0xdcab,0xdcaf,0xdcb1,0xdcb5,0xdcb7,
-            0xdcbb,0xdcbf,0xdcc1,0xdcc5,
-        ];
-        AssertEqual(addresses.Length, AlcoonInstructionProgramDefinitionsTooling.MechanicsWordCount, "Alcoon word count");
-        var bytes = new HashSet<int>();
-        for (int index = 0; index < addresses.Length; index++)
-        {
-            ushort address = addresses[index];
-            ushort expected = ReadAlcoonInstructionWord(rom, address);
-            var actual = AlcoonInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(address, actual.Address, "Alcoon original word position");
-            AssertEqual(expected, actual.Value, "Alcoon original enumerated word");
-            AssertEqual(expected, AlcoonInstructionProgramDefinitions.ReadMechanicsWord(address), "Alcoon direct word");
-            bytes.Add(address);
-            bytes.Add(address + 1);
-        }
-        for (int address = 0; address <= ushort.MaxValue; address++)
-        {
-            bool expected = bytes.Contains(address);
-            AssertEqual(expected, AlcoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa80000 | address),
-                "Alcoon full bank byte ownership including odd word starts");
-            AssertEqual(expected, AlcoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a80000 | address),
-                "Alcoon preserves high-bit mask");
-            AssertTrue(!AlcoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa70000 | address),
-                "Alcoon rejects other bank");
-        }
-        var words = addresses.ToHashSet();
-        for (int address = 0xdbe5; address <= 0xdcc9; address++)
-            if (!words.Contains((ushort)address))
-                AssertThrows<InvalidDataException>(() => AlcoonInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
-                    "Alcoon rejects presentation words, misalignment and adjacent data");
-        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
-            AssertThrows<InvalidDataException>(() => AlcoonInstructionProgramDefinitions.ReadMechanicsWord(address),
-                "Alcoon rejects distant invalid word");
-        foreach (int index in new[] { int.MinValue, -1, 68, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => AlcoonInstructionProgramDefinitionsTooling.MechanicsWord(index),
-                "Alcoon mechanics ordinal bounds");
-    }
-
-    /// <summary>Lists native visual-operand addresses independently of the compiled selector catalog.</summary>
-    private static ushort[] AlcoonPresentationAddressOracle() =>
-        [
-            0xdbeb,0xdbf1,0xdbf7,0xdbfd,
-            0xdc05,0xdc09,0xdc0d,0xdc11,0xdc17,0xdc1b,0xdc1f,0xdc23,
-            0xdc27,0xdc2d,0xdc31,0xdc35,0xdc39,0xdc3d,0xdc43,0xdc49,0xdc4d,0xdc53,
-            0xdc5b,0xdc61,0xdc67,0xdc6d,
-            0xdc75,0xdc79,0xdc7d,0xdc81,0xdc87,0xdc8b,0xdc8f,0xdc93,
-            0xdc97,0xdc9d,0xdca1,0xdca5,0xdca9,0xdcad,0xdcb3,0xdcb9,0xdcbd,0xdcc3,
-        ];
-
-    /// <summary>Checks all visual-operand addresses and rejects nonpresentation words.</summary>
-    internal static void VerifyAlcoonPresentationAddressMapping()
-    {
-        ushort[] expected = AlcoonPresentationAddressOracle();
-        AssertEqual(expected.Length, AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount, "Alcoon visual count");
-        for (int index = 0; index < expected.Length; index++)
-            AssertEqual(expected[index], AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
-                "Alcoon original presentation operand position");
-        var words = expected.ToHashSet();
-        for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(words.Contains((ushort)address), AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-                "Alcoon full presentation word membership domain");
-        foreach (int index in new[] { int.MinValue, -1, 44, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index),
-                "Alcoon presentation ordinal bounds");
-    }
-
-    /// <summary>Checks Alcoon visual dispatch through actor-specific and shared selectors against native words.</summary>
-    internal static void VerifyAlcoonVisualSelectorMapping(SuperMetroidAddressSpace rom)
-    {
-        ushort[] addresses = AlcoonPresentationAddressOracle();
-        foreach (ushort address in addresses)
-        {
-            ushort expected = ReadAlcoonInstructionWord(rom, address);
-            AssertEqual(expected, EnemySpritemapDefinitions.AlcoonFrameAt(address), "Alcoon direct native visual");
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(EnemyDefinitionId.Alcoon, address, out ushort frame),
-                "Alcoon actor visual dispatch");
-            AssertEqual(expected, frame, "Alcoon actor selected visual");
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, address, out ushort shared), "Alcoon shared visual dispatch");
-            AssertEqual(expected, shared, "Alcoon shared selected visual");
-        }
-        var valid = addresses.ToHashSet();
-        for (int address = 0xdbe5; address <= 0xdcc9; address++)
-            if (!valid.Contains((ushort)address))
-            {
-                AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.AlcoonFrameAt((ushort)address),
-                    "Alcoon rejects control, misaligned and adjacent visual operands");
-                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa8, (ushort)address, out ushort missing),
-                    "Alcoon shared selector rejects holes");
-                AssertEqual((ushort)0, missing, "Alcoon missing shared selector clears output");
-            }
-        foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
-            AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.AlcoonFrameAt(address),
-                "Alcoon distant invalid visual operand");
-    }
 
     /// <summary>Loads the retail cartridge and runs the Alcoon instruction suite.</summary>
     internal static void VerifyAlcoonInstructionProgramDefinitions()
@@ -139,10 +34,6 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
     internal static void VerifyAlcoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? installedArt = null)
     {
-        Suite(nameof(VerifyAlcoonMechanicsMapping), () => VerifyAlcoonMechanicsMapping(rom));
-        Suite(nameof(VerifyAlcoonPresentationAddressMapping), () => VerifyAlcoonPresentationAddressMapping());
-
-        var guard = NewAlcoonInstructionReadGuard(rom, forbidPresentation: true);
         CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, AlcoonInstructionAuditRoom);
         var installation = RepositoryInstallation.Installation;
         CartridgeRoomAssets assets = LoadFixtureRoomAssets(rom, room,
@@ -153,7 +44,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
         var enemies = new RoomEnemySystem { TileArtwork = installedArt ?? InstalledFixtures.EnemyTiles };
-        enemies.Load(new RoomEnemyLoadRequest(guard, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { Level = assets.LevelData });
+        enemies.Load(new RoomEnemyLoadRequest(rom, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { Level = assets.LevelData });
 
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         AlcoonEnemyState state = enemies.AlcoonStates[0] ??
@@ -170,9 +61,9 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
 
         bool sawLeftFireball = false;
         bool sawRightFireball = false;
-        var selectedPresentationOperands = new HashSet<ushort>();
+        var reachedPoses = new HashSet<(AlcoonProgram Program, int Step)>();
         for (int frame = 0; frame < 4_096 &&
-             (installedArt is not null || selectedPresentationOperands.Count < 42 ||
+             (installedArt is not null || reachedPoses.Count < 42 ||
               !sawLeftFireball || !sawRightFireball); frame++)
         {
             int maximumX = Math.Max(0, room.Size.X * 256 - 256);
@@ -180,11 +71,11 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             foreach (RoomEnemySlot slot in enemies.SlotTable.Slots)
             {
-                if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Alcoon)
-                    continue;
-                ushort selectedOperand = unchecked((ushort)(slot.CurrentInstruction - 2));
-                if (AlcoonInstructionProgramDefinitions.IsPresentationWord(selectedOperand))
-                    selectedPresentationOperands.Add(selectedOperand);
+                // A cursor that has just passed a pose step is showing that pose.
+                if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon &&
+                    enemies.AlcoonStates[slot.SlotIndex] is { Program: { Position: > 0 } cursor } &&
+                    AlcoonAnimations.Programs.Steps(cursor.Program)[cursor.Position - 1].Kind == AnimationProgramStepKind.Show)
+                    reachedPoses.Add((cursor.Program, cursor.Position - 1));
             }
 
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
@@ -200,93 +91,26 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
 
         AssertTrue(sawLeftFireball && sawRightFireball,
             "real Alcoon programs execute fire callbacks in both facings");
-        string missedOperands = string.Join(", ", Enumerable.Range(0,
-                AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount)
-            .Select(AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress)
-            .Where(address => !selectedPresentationOperands.Contains(address))
-            .Select(address => $"$A8:{address:X4}"));
-        AssertEqual(42, selectedPresentationOperands.Count,
-            $"real Alcoon visits every reachable presentation operand; missing={missedOperands}");
-        AssertTrue(!selectedPresentationOperands.Contains(0xdc49) &&
-                   !selectedPresentationOperands.Contains(0xdcb9),
-            "native start-walking callbacks skip the two trailing unreachable frames");
-        AssertEqual(0, guard.ObservedWords.Count,
-            "Alcoon reads no cartridge visual selectors");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Alcoon mechanics byte");
-
-        _ = ProbeAlcoonInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeAlcoonInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "Alcoon allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed Alcoon mechanics lookups allocate no per-frame storage");
+        var poses = Enum.GetValues<AlcoonProgram>()
+            .SelectMany(program => AlcoonAnimations.Programs.Steps(program)
+                .Select((step, index) => (Program: program, Step: index, step.Kind)))
+            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .Select(step => (step.Program, step.Step))
+            .ToHashSet();
+        string missed = string.Join(", ", poses.Where(pose => !reachedPoses.Contains(pose)).Select(pose => $"{pose.Program}[{pose.Step}]"));
+        AssertEqual(44, poses.Count, "the Alcoon's programs author 44 poses");
+        AssertEqual(42, reachedPoses.Count, $"real Alcoon reaches every reachable pose; missing={missed}");
+        AssertTrue(poses.Except(reachedPoses).All(pose =>
+                pose.Program is AlcoonProgram.FireLeft or AlcoonProgram.FireRight &&
+                AlcoonAnimations.Programs.Steps(pose.Program)[pose.Step - 1] is { Kind: AnimationProgramStepKind.Cue } cue &&
+                cue.PublishedCue.Kind == AlcoonCueKind.StartWalking),
+            "native start-walking cues skip the two trailing unreachable poses");
+        Suite(nameof(AlcoonAnimationsVerification.VerifyAlcoonAnimations), () => AlcoonAnimationsVerification.VerifyAlcoonAnimations(rom));
 
         Console.WriteLine(installedArt is null
-            ? "Alcoon instruction mechanics: 68 compiled words, all ten authored programs, " +
-              "42 reachable visual operands, both fire directions, and native callback " +
-              "handoffs pass with mechanics bytes forbidden."
-            : "Installed Alcoon: real-room movement and both fire directions pass " +
-              "with mechanics and visual source bytes forbidden.");
-    }
-
-    /// <summary>Cycles ten compiled program entries to detect warmed lookup allocations.</summary>
-    private static int ProbeAlcoonInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += AlcoonInstructionProgramDefinitions.ReadMechanicsWord(
-                (index % 10) switch
-                {
-                    0 => AlcoonInstructionProgramDefinitions.WalkingLeft,
-                    1 => AlcoonInstructionProgramDefinitions.FireLeft,
-                    2 => AlcoonInstructionProgramDefinitions.AirborneLeftLookingUp,
-                    3 => AlcoonInstructionProgramDefinitions.AirborneLeftLookingForward,
-                    4 => AlcoonInstructionProgramDefinitions.WalkingRight,
-                    5 => AlcoonInstructionProgramDefinitions.FireRight,
-                    6 => AlcoonInstructionProgramDefinitions.AirborneRightLookingUp,
-                    7 => AlcoonInstructionProgramDefinitions.AirborneRightLookingForward,
-                    8 => 0xdbff,
-                    _ => 0xdc6f,
-                });
-        }
-        return checksum;
-    }
-
-    /// <summary>Reads one retail bank-$A8 instruction word for the comparison oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Alcoon instruction words")]
-    internal static ushort ReadAlcoonInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa80000 | address);
-
-    /// <summary>Rejects compiled mechanics reads and optionally rejects visual-selector reads as well.</summary>
-    private static CartridgeReadGuard NewAlcoonInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false)
-    {
-        var guard = new CartridgeReadGuard(source).Forbid(
-            AlcoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-            address => $"Production read compiled Alcoon mechanics byte ${address:X6}.");
-        return forbidPresentation
-            ? guard.Forbid(address => PresentationWord(address) is not null,
-                address => $"Installed Alcoon read cartridge visual selector $A8:{(PresentationWord(address) ?? throw new InvalidOperationException("Verification requires PresentationWord(address).")):X4}.")
-            : guard.ObserveWords(0xa80000, AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount,
-                AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress);
-
-        static ushort? PresentationWord(int address)
-        {
-            if ((SnesAddressMath.BankBase(address)) != 0xa80000)
-                return null;
-            ushort bankAddress = unchecked((ushort)address);
-            for (int index = 0; index < AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-            {
-                ushort presentation = AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                if (bankAddress == presentation || bankAddress == unchecked((ushort)(presentation + 1)))
-                    return presentation;
-            }
-            return null;
-        }
+            ? "Alcoon: a real room reaches all 42 reachable poses of the ten programs, fires in both facings, and hands " +
+              "off to walking as the native callbacks do."
+            : "Installed Alcoon: real-room movement and both fire directions pass with the installed artwork.");
     }
 
     /// <summary>Runs the standalone Alcoon instruction mechanics verification command.</summary>

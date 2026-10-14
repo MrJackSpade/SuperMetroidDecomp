@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -39,12 +40,12 @@ internal static class FuneNamiheDefinitionsVerification
                 ? FuneNamiheDefinitions.NamiheIdleLeftCursor
                 : FuneNamiheDefinitions.FuneIdleLeftCursor) +
                 (right ? FuneNamiheDefinitions.FacingRightCursorDelta : 0));
-            AssertEqual(FuneNamiheDefinitions.InstructionList(idleCursor), slot.CurrentInstruction,
+            AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheDefinitions.InstructionList(idleCursor)), state.Program,
                 $"Fune/Namihe production idle list {variant}");
 
             runMain(slot, (state ?? throw new InvalidOperationException("Verification requires state.")), namihe ? new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : null);
             ushort activeCursor = (ushort)(idleCursor - FuneNamiheDefinitions.ActiveCursorDelta);
-            AssertEqual(FuneNamiheDefinitions.InstructionList(activeCursor), slot.CurrentInstruction,
+            AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheDefinitions.InstructionList(activeCursor)), state.Program,
                 $"Fune/Namihe production active list {variant}");
         }
 
@@ -59,7 +60,7 @@ internal static class FuneNamiheDefinitionsVerification
         foreach (ushort cursor in cursors)
         {
             ushort native = (ushort)(SnesLittleEndian.Word(FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | cursor), FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | (cursor + 1))));
-            AssertEqual(native, FuneNamiheDefinitions.InstructionList(cursor),
+            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(FuneNamiheNativeListAddresses.Entries, FuneNamiheDefinitions.InstructionList(cursor)),
                 "Fune/Namihe named species/activity/facing case matches native pointer");
         }
         var valid = cursors.ToHashSet();

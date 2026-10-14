@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Enemies.Powamp;
 using SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Enemies.Crawlers;
@@ -3699,11 +3700,9 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(alcoonOracle.Rom)),
             "Alcoon oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyAlcoonMechanicsMapping), () => VerifyAlcoonMechanicsMapping(alcoonOracle));
-        Suite(nameof(VerifyAlcoonPresentationAddressMapping), () => VerifyAlcoonPresentationAddressMapping());
-        Suite(nameof(VerifyAlcoonVisualSelectorMapping), () => VerifyAlcoonVisualSelectorMapping(alcoonOracle));
+        Suite(nameof(AlcoonAnimationsVerification.VerifyAlcoonAnimations), () => AlcoonAnimationsVerification.VerifyAlcoonAnimations(alcoonOracle));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
-        Console.WriteLine("Alcoon programs: all 68 native words, 44 visual positions, full ownership domains and bounds pass.");
+        Console.WriteLine("Alcoon programs: the typed programs match bank $A8.");
         return 0;
     }
 

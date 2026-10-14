@@ -84,45 +84,17 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed enemy OAM compositions against pinned cartridge frames and drawing paths.</summary>
 internal static class EnemySpritemapArtworkVerification
 {
-    /// <summary>Checks every Alcoon visual operand against bank $A8 and rejects the neighboring control word.</summary>
+    /// <summary>Runs the Alcoon in a real room with the installed artwork.</summary>
     private static void VerifyInstalledAlcoonInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
-        for (int index = 0;
-             index < AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Alcoon, operand, out ushort frame),
-                $"Alcoon visual operand $A8:{operand:X4} is compiled");
-            AssertEqual(ReadAlcoonInstructionWord(rom, operand), frame,
-                $"Alcoon frame selector $A8:{operand:X4} matches the pinned cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.AlcoonFrameAt(0xdcc7),
-            "Alcoon rejects adjacent control data as presentation");
         Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(rom, stock));
     }
 
-    /// <summary>Checks Beetom presentation operands against bank $A8 while excluding its unused hop program.</summary>
+    /// <summary>Runs the Beetom programs with the installed artwork.</summary>
     private static void VerifyInstalledBeetomInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
-        for (int index = 0;
-             index < BeetomInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Beetom, operand, out ushort frame),
-                $"Beetom visual operand $A8:{operand:X4} is compiled");
-            AssertEqual(ReadBeetomInstructionWord(rom, operand), frame,
-                $"Beetom selector $A8:{operand:X4} matches the pinned cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.BeetomFrameAt(0xb6c0),
-            "Beetom rejects the adjacent unused hop program as presentation");
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(rom, stock));
     }
 
@@ -424,24 +396,10 @@ internal static class EnemySpritemapArtworkVerification
                 RoomSpriteObjectDefinitions.InstructionPointer(
                     RoomSpriteObjectKind.DraygonIntroEvir)),
             "room sprite-object mechanics are not presentation selectors");
-        for (int index = 0;
-             index < FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
-        {
-            ushort operand = FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            EnemyDefinitionId definition = operand < FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft
-                ? EnemyDefinitionId.Fune
-                : EnemyDefinitionId.Namihe;
-            ushort native = ReadNativeEnemyVisualSelector(rom, 0xa8, operand);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    definition, operand, out ushort selected),
-                $"Fune/Namihe visual selector $A8:{operand:X4} is installed");
-            AssertEqual(native, selected,
-                $"Fune/Namihe visual selector $A8:{operand:X4} matches cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => EnemySpritemapDefinitions.FuneNamiheFrameAt(
-                FuneNamiheInstructionProgramDefinitions.FuneIdleRight),
-            "Fune/Namihe rejects adjacent mechanics as presentation");
+        AssertTrue(FuneNamiheAnimations.Spritemaps(Enum.GetValues<FuneNamiheProgram>()).ToHashSet().SetEquals(
+                EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("fune_", StringComparison.Ordinal) ||
+                    frame.Name.StartsWith("namihe_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
+            "the Fune's and Namihe's programs show exactly their installed frames");
         AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(EnemyDefinitionId.TourianStatue, 0xe312, out _),
             "an enemy family without a compiled selector keeps its own selector path");
         AssertThrows<InvalidOperationException>(
@@ -1837,8 +1795,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Bull Y offset changes installed room OAM");
         AssertEqual(stockBull.LowTable[0], editedBull.LowTable[0],
             "Bull visual edit leaves physical X unchanged");
-        ushort alcoonPointer = EnemySpritemapDefinitions.AlcoonFrameAt(
-            AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
+        ushort alcoonPointer = AlcoonAnimations.Spritemaps(AlcoonProgram.WalkingLeftLoop).First();
         OamBuffer stockAlcoon = DrawEnemy(stock, NewFrameReadGuard(rom),
             alcoonPointer, EnemyDefinitionId.Alcoon);
         OamBuffer editedAlcoon = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1848,8 +1805,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Alcoon Y offset changes installed room OAM");
         AssertEqual(stockAlcoon.LowTable[0], editedAlcoon.LowTable[0],
             "Alcoon visual edit leaves physical X unchanged");
-        ushort beetomPointer = EnemySpritemapDefinitions.BeetomFrameAt(
-            BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
+        ushort beetomPointer = BeetomAnimations.Spritemaps(BeetomProgram.CrawlingLeftLoop).First();
         OamBuffer stockBeetom = DrawEnemy(stock, NewFrameReadGuard(rom),
             beetomPointer, EnemyDefinitionId.Beetom);
         OamBuffer editedBeetom = DrawEnemy(edited, NewFrameReadGuard(rom),

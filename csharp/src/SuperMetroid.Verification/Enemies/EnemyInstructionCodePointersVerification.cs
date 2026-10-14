@@ -61,11 +61,8 @@ internal static class EnemyInstructionCodePointersVerification
         // reuse a common offset.
         Type[] ownerInstructionSets =
         [
-            typeof(AlcoonInstruction),
-            typeof(BeetomInstruction),
             typeof(ChozoStatueInstruction),
             typeof(FakeKraidInstruction),
-            typeof(FuneNamiheInstruction),
             typeof(HibashiInstruction),
             typeof(KiHunterInstruction),
             typeof(MagdolliteInstruction),
@@ -77,12 +74,9 @@ internal static class EnemyInstructionCodePointersVerification
         ];
         Type[] codeCatalogs =
         [
-            typeof(AlcoonInstruction),
-            typeof(BeetomInstruction),
             typeof(ChozoStatueInstruction),
             typeof(CommonEnemyInstruction),
             typeof(FakeKraidInstruction),
-            typeof(FuneNamiheInstruction),
             typeof(HibashiInstruction),
             typeof(KiHunterInstruction),
             typeof(MagdolliteInstruction),

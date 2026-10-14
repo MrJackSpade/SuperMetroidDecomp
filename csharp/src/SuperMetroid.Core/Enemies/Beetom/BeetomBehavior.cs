@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Beetom.Artwork;
+using SuperMetroid.Core.Fx;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -29,25 +31,25 @@ internal sealed class BeetomBehavior : IEnemySpecies
         _collision = collision;
     }
 
-    /// <summary>Executes Beetom's private animation instruction.</summary>
-    private static bool TryProcessBeetomInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of the Beetom's animations: off-screen processing, or the drain's no-op stub.</summary>
+    private static BeetomProgram? ApplyBeetomCue(RoomEnemySlot slot, BeetomCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Beetom ||
-            !Enum.IsDefined((BeetomInstruction)word))
-            return false;
-
-        switch ((BeetomInstruction)word)
+        switch (cue.Kind)
         {
-            case BeetomInstruction.Nothing:
-                // Beetom's initial drain animation calls a literal RTS stub before it
-                // falls through into the looping blood-spray frames. It consumes no
-                // operand and changes no state beyond advancing the instruction cursor.
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+            case BeetomCueKind.ProcessOffScreen:
+                slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
+                break;
+            case BeetomCueKind.StopProcessingOffScreen:
+                slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+                break;
+            case BeetomCueKind.Nothing:
+                // Beetom's initial drain animation calls a literal RTS stub before it falls through into the looping
+                // blood-spray frames. It changes no state.
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Beetom does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(BeetomCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Strict distance around Samus that changes Beetom's action selection.</summary>
@@ -57,8 +59,6 @@ internal sealed class BeetomBehavior : IEnemySpecies
     /// <summary>Final quadratic speed-table index used in falling phases.</summary>
     private const ushort BeetomMaximumYSpeedIndex = 0x0040;
 
-    /// <summary>Native installed instruction-list words indexed by physical enemy slot.</summary>
-    internal readonly ushort[] _beetomInstalledInstructionLists = new ushort[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Per-slot speed indices for the short hop's target height.</summary>
     internal readonly ushort[] _beetomInitialShortLeapYSpeedIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Per-slot speed indices for the long hop's target height.</summary>
@@ -82,7 +82,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
         if (samus is null)
             throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
 
-        var state = new BeetomEnemyState(slot, new BeetomSharedTables { InstalledInstructionLists = _beetomInstalledInstructionLists, InitialShortLeapYSpeedIndexes = _beetomInitialShortLeapYSpeedIndexes, InitialLongLeapYSpeedIndexes = _beetomInitialLongLeapYSpeedIndexes, InitialLungeYSpeedIndexes = _beetomInitialLungeYSpeedIndexes, FallingFlags = _beetomFallingFlags, AttachedFlags = _beetomAttachedToSamusFlags, Directions = _beetomDirections, InitialAttachmentOffsets = _beetomInitialAttachmentOffsets });
+        var state = new BeetomEnemyState(slot, new BeetomSharedTables { InitialShortLeapYSpeedIndexes = _beetomInitialShortLeapYSpeedIndexes, InitialLongLeapYSpeedIndexes = _beetomInitialLongLeapYSpeedIndexes, InitialLungeYSpeedIndexes = _beetomInitialLungeYSpeedIndexes, FallingFlags = _beetomFallingFlags, AttachedFlags = _beetomAttachedToSamusFlags, Directions = _beetomDirections, InitialAttachmentOffsets = _beetomInitialAttachmentOffsets });
         _beetomStates[slot.SlotIndex] = state;
 
         state.FunctionTimer = NativeCountdown.Start(0);
@@ -108,8 +108,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
             slot,
             state,
             unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
-                ? BeetomInstructionProgramDefinitions.CrawlingLeft
-                : BeetomInstructionProgramDefinitions.CrawlingRight);
+                ? BeetomProgram.CrawlingLeft
+                : BeetomProgram.CrawlingRight);
         state.Function = BeetomEnemyFunction.DecideAction;
     }
 
@@ -255,8 +255,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
             slot,
             state,
             left
-                ? BeetomInstructionProgramDefinitions.CrawlingLeft
-                : BeetomInstructionProgramDefinitions.CrawlingRight);
+                ? BeetomProgram.CrawlingLeft
+                : BeetomProgram.CrawlingRight);
     }
 
     /// <summary>Arms a short or long arc from its precomputed initial speed index.</summary>
@@ -280,8 +280,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
             slot,
             state,
             left
-                ? BeetomInstructionProgramDefinitions.HopLeft
-                : BeetomInstructionProgramDefinitions.HopRight);
+                ? BeetomProgram.HopLeft
+                : BeetomProgram.HopRight);
     }
 
     /// <summary>Aims the lunge toward Samus using the native signed horizontal difference.</summary>
@@ -296,8 +296,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
             slot,
             state,
             left
-                ? BeetomInstructionProgramDefinitions.HopLeft
-                : BeetomInstructionProgramDefinitions.HopRight);
+                ? BeetomProgram.HopLeft
+                : BeetomProgram.HopRight);
     }
 
     /// <summary>Starts the attached blood-drain instruction list for the current facing.</summary>
@@ -307,8 +307,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
             slot,
             state,
             left
-                ? BeetomInstructionProgramDefinitions.DrainingLeft
-                : BeetomInstructionProgramDefinitions.DrainingRight);
+                ? BeetomProgram.DrainingLeft
+                : BeetomProgram.DrainingRight);
         state.Function = left ? BeetomEnemyFunction.DrainingLeft : BeetomEnemyFunction.DrainingRight;
     }
 
@@ -319,8 +319,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
             slot,
             state,
             state.Direction == 0
-                ? BeetomInstructionProgramDefinitions.CrawlingLeft
-                : BeetomInstructionProgramDefinitions.CrawlingRight);
+                ? BeetomProgram.CrawlingLeft
+                : BeetomProgram.CrawlingRight);
         state.Falling = false;
         state.Function = BeetomEnemyFunction.Dropping;
     }
@@ -551,14 +551,13 @@ internal sealed class BeetomBehavior : IEnemySpecies
         state.AttachedToSamus = false;
     }
 
-    /// <summary>Installs a Beetom animation list and primes its instruction timer.</summary>
+    /// <summary>Installs a Beetom animation and primes its instruction timer.</summary>
     private static void SetBeetomInstructionList(
         RoomEnemySlot slot,
         BeetomEnemyState state,
-        ushort instructionList)
+        BeetomProgram program)
     {
-        state.InstalledInstructionList = instructionList;
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<BeetomProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -615,15 +614,19 @@ internal sealed class BeetomBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims Beetom's drain-list no-op instruction in the shared interpreter.</summary>
-    internal static void RegisterBeetomOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Beetom's crawl, hop and drain animations as typed programs (#641).</summary>
+    internal void RegisterBeetomTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessBeetomInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireBeetomState(slot);
+            AnimationProgramCursor<BeetomProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, BeetomAnimations.Programs, ref cursor, BeetomFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyBeetomCue(slot, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
     internal void RegisterBeetomShotReactions(EnemyAiTable table)
@@ -649,7 +652,6 @@ internal sealed class BeetomBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         Array.Clear(_beetomStates);
-        Array.Clear(_beetomInstalledInstructionLists);
         Array.Clear(_beetomInitialShortLeapYSpeedIndexes);
         Array.Clear(_beetomInitialLongLeapYSpeedIndexes);
         Array.Clear(_beetomInitialLungeYSpeedIndexes);

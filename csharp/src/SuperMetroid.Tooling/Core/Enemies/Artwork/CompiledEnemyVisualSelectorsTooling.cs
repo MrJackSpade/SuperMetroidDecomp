@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Atomic;
-using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -17,9 +16,8 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class CompiledEnemyVisualSelectorsTooling
 {
     /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
-    internal static int CalculatedCount => BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount +
-        FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
-        FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
+    internal static int CalculatedCount => AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount +
+        FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
     internal static int Count => CompiledEnemyVisualSelectors.Entries.Length + CalculatedCount;
     /// <summary>Returns one selector from the bank/address-ordered merge of literal and calculated entries.</summary>
@@ -66,24 +64,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
         {
             ushort operand = FakeKraidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             return new(0xa60000 | operand, KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operand));
-        }
-        index -= FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount;
-        if (index < FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount)
-        {
-            ushort operand = FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa80000 | operand, EnemySpritemapDefinitions.FuneNamiheFrameAt(operand));
-        }
-        index -= FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount;
-        if (index < BeetomInstructionProgramDefinitionsTooling.PresentationWordCount)
-        {
-            ushort operand = BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa80000 | operand, EnemySpritemapDefinitions.BeetomFrameAt(operand));
-        }
-        index -= BeetomInstructionProgramDefinitionsTooling.PresentationWordCount;
-        if (index < AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount)
-        {
-            ushort operand = AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa80000 | operand, EnemySpritemapDefinitions.AlcoonFrameAt(operand));
         }
         throw new IndexOutOfRangeException();
     }

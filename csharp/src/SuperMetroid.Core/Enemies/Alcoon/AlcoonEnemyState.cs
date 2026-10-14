@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>
@@ -36,6 +37,9 @@ public sealed class AlcoonEnemyState
         _landingYPositions = landingYPositions;
         _stepCounters = stepCounters;
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<AlcoonProgram> Program { get; set; }
 
     /// <summary>Bank-$A8 indirect AI target, represented by common variable A here and corresponding to native <c>Alcoon.function</c> at $0FA8,x.</summary>
     public AlcoonEnemyFunction Function

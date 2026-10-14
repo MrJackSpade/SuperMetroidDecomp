@@ -22250,6 +22250,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonBehavior",
       "kind": "class",
       "scope": "product",
@@ -22261,6 +22274,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonEnemyFunction",
@@ -22315,43 +22354,43 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonInstruction",
+      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonProgram",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonInstruction.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonProgram.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.Alcoon.Artwork.AlcoonFrameDefinitions",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Alcoon/Artwork/AlcoonFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/AlcoonInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Animals.Artwork.EscapeDachoraFrameDefinitions",
@@ -24951,6 +24990,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Beetom.Artwork.BeetomFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Beetom/Artwork/BeetomFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Beetom.BeetomBehavior",
       "kind": "class",
       "scope": "product",
@@ -24962,6 +25027,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Beetom.BeetomEnemyFunction",
@@ -24990,75 +25081,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomInstruction",
+      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomProgram",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomInstruction.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomProgram.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomInstructionProgramDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Beetom/BeetomInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomInstructionProgramDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Beetom.BeetomInstructionProgramDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Beetom/BeetomInstructionProgramDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Beetom/BeetomInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Beetom.BeetomSharedTables",
@@ -30055,6 +30101,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.FuneNamihe.Artwork.FuneNamiheFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/Artwork/FuneNamiheFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior",
       "kind": "class",
       "scope": "product",
@@ -30066,6 +30138,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheDefinitions",
@@ -30133,43 +30231,30 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheInstruction",
+      "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheProgram",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheInstruction.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheProgram.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/FuneNamihe/FuneNamiheInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.FuneNamihe.NamiFuneFireballFunction",
@@ -91748,6 +91833,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Alcoon.AlcoonAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Alcoon/AlcoonAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Alcoon.AlcoonFireballInstructionProgramDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -91772,6 +91870,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Alcoon.AlcoonNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Alcoon/AlcoonNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Animals.DachoraInstructionProgramDefinitionsVerification",
@@ -92450,6 +92561,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Beetom.BeetomAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Beetom/BeetomAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Beetom.BeetomInstructionProgramDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -92461,6 +92585,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Beetom.BeetomNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Beetom/BeetomNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Boulder.BoulderAnimationsVerification",
@@ -94244,6 +94381,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/FuneNamihe/FuneNamiheAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -94294,6 +94444,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/FuneNamihe/FuneNamiheNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Gunship.GunshipAnimationsVerification",

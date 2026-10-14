@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Enemies.Alcoon.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
@@ -22,52 +24,34 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         _projectiles = projectiles;
     }
 
-    /// <summary>Executes Alcoon's private animation instructions.</summary>
-    private bool TryProcessAlcoonInstruction(RoomEnemySlot slot, RoomLevelData? level, ushort word, ref ushort cursor)
+    /// <summary>
+    /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or stepping. Starting to walk
+    /// always continues at the walk for the Alcoon's facing, and a step that meets a wall turns it round to the other walk.
+    /// </summary>
+    private AlcoonProgram? ApplyAlcoonCue(RoomEnemySlot slot, AlcoonEnemyState state, RoomLevelData? level, AlcoonCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Alcoon ||
-            !Enum.IsDefined((AlcoonInstruction)word))
-            return false;
-
-        switch ((AlcoonInstruction)word)
+        switch (cue.Kind)
         {
-            case AlcoonInstruction.SpawnFireballUpward:
+            case AlcoonCueKind.FireUpward:
                 SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 0);
                 LastAlcoonSoundEffect = AlcoonFireSound;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case AlcoonInstruction.SpawnFireballHorizontally:
+                return null;
+            case AlcoonCueKind.FireHorizontally:
                 SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 2);
                 LastAlcoonSoundEffect = AlcoonFireSound;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case AlcoonInstruction.SpawnFireballDownward:
+                return null;
+            case AlcoonCueKind.FireDownward:
                 SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 4);
                 LastAlcoonSoundEffect = AlcoonFireSound;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case AlcoonInstruction.StartWalking:
-                cursor = StartAlcoonWalking(RequireAlcoonState(slot));
-                return true;
-            case AlcoonInstruction.DecrementStepCounterMoveHorizontally:
-                cursor = MoveAlcoonHorizontally(
-                    slot,
-                    RequireAlcoonState(slot),
-                    level,
-                    unchecked((ushort)(cursor + 2)),
-                    decrementStepCounter: true);
-                return true;
-            case AlcoonInstruction.MoveHorizontallyTurnIfWallCollision:
-                cursor = MoveAlcoonHorizontally(
-                    slot,
-                    RequireAlcoonState(slot),
-                    level,
-                    unchecked((ushort)(cursor + 2)),
-                    decrementStepCounter: false);
-                return true;
+                return null;
+            case AlcoonCueKind.StartWalking:
+                return StartAlcoonWalking(state);
+            case AlcoonCueKind.Step:
+                return MoveAlcoonHorizontally(slot, state, level, decrementStepCounter: true);
+            case AlcoonCueKind.Move:
+                return MoveAlcoonHorizontally(slot, state, level, decrementStepCounter: false);
             default:
-                throw new InvalidOperationException(
-                    $"Alcoon does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(AlcoonCueKind)} {cue.Kind}.");
         }
     }
 
@@ -117,7 +101,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         state.StepCounter = NativeCountdown.Start(0);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.CurrentInstruction = AlcoonInstructionProgramDefinitions.WalkingLeft;
+        state.Program = AnimationProgramCursor<AlcoonProgram>.Start(AlcoonProgram.WalkingLeft);
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
         SetupAlcoonJumpMovement(state);
 
@@ -201,12 +185,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         if (unchecked((short)signedXDistance) < 0)
         {
             state.Velocity = state.Velocity.WithWholeX(-2);
-            InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.AirborneLeftLookingUp);
+            InstallAlcoonInstruction(slot, state, AlcoonProgram.AirborneLeftLookingUp);
         }
         else
         {
             state.Velocity = state.Velocity.WithWholeX(2);
-            InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.AirborneRightLookingUp);
+            InstallAlcoonInstruction(slot, state, AlcoonProgram.AirborneRightLookingUp);
         }
         state.Function = AlcoonEnemyFunction.EmergingRising;
         LastAlcoonSoundEffect = AlcoonEmergeSound;
@@ -223,9 +207,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         state.Function = AlcoonEnemyFunction.EmergingFalling;
         InstallAlcoonInstruction(
             slot,
+            state,
             state.Velocity.X.WholePixels < 0
-                ? AlcoonInstructionProgramDefinitions.AirborneLeftLookingForward
-                : AlcoonInstructionProgramDefinitions.AirborneRightLookingForward);
+                ? AlcoonProgram.AirborneLeftLookingForward
+                : AlcoonProgram.AirborneRightLookingForward);
     }
 
     /// <summary>Applies collision-aware descent, then chooses the initial walking direction toward Samus.</summary>
@@ -251,12 +236,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         if (unchecked((short)signedXDistance) < 0)
         {
             state.Velocity = state.Velocity.WithWholeX(-2);
-            InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.WalkingLeft);
+            InstallAlcoonInstruction(slot, state, AlcoonProgram.WalkingLeft);
         }
         else
         {
             state.Velocity = state.Velocity.WithWholeX(2);
-            InstallAlcoonInstruction(slot, AlcoonInstructionProgramDefinitions.WalkingRight);
+            InstallAlcoonInstruction(slot, state, AlcoonProgram.WalkingRight);
         }
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         state.StepCounter = NativeCountdown.Start(1);
@@ -286,9 +271,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(-4, 0));
             InstallAlcoonInstruction(
                 slot,
+                state,
                 state.Velocity.X.WholePixels < 0
-                    ? AlcoonInstructionProgramDefinitions.AirborneLeftLookingForward
-                    : AlcoonInstructionProgramDefinitions.AirborneRightLookingForward);
+                    ? AlcoonProgram.AirborneLeftLookingForward
+                    : AlcoonProgram.AirborneRightLookingForward);
             return;
         }
 
@@ -302,9 +288,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies
 
         InstallAlcoonInstruction(
             slot,
+            state,
             movingLeft
-                ? AlcoonInstructionProgramDefinitions.FireLeft
-                : AlcoonInstructionProgramDefinitions.FireRight);
+                ? AlcoonProgram.FireLeft
+                : AlcoonProgram.FireRight);
         state.Function = AlcoonEnemyFunction.WaitingForFireAnimation;
     }
 
@@ -368,34 +355,33 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Switches Alcoon's animation list so its first instruction runs on the next interpreter pass.</summary>
-    private static void InstallAlcoonInstruction(RoomEnemySlot slot, ushort instructionList)
+    /// <summary>Switches Alcoon's animation so its first step runs on the next update.</summary>
+    private static void InstallAlcoonInstruction(RoomEnemySlot slot, AlcoonEnemyState state, AlcoonProgram program)
     {
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<AlcoonProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
-    /// <summary>Implements Alcoon instruction <c>$A8:DF3F</c> and returns native Y.</summary>
-    private ushort StartAlcoonWalking(AlcoonEnemyState state)
+    /// <summary>Implements Alcoon instruction <c>$A8:DF3F</c> and returns the walk the animation continues at.</summary>
+    private AlcoonProgram StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         Func<ushort> readRandomNumber = _room.Random.Read;
         ushort count = unchecked((ushort)(readRandomNumber() & 3));
         state.StepCounter = NativeCountdown.FromRaw(count == 0 ? (ushort)2 : count);
         return state.Velocity.X.WholePixels < 0
-            ? AlcoonInstructionProgramDefinitions.WalkingLeft
-            : AlcoonInstructionProgramDefinitions.WalkingRight;
+            ? AlcoonProgram.WalkingLeft
+            : AlcoonProgram.WalkingRight;
     }
 
     /// <summary>
-    /// Implements both movement bytecodes at <c>$A8:DF63/$DF71</c>. The caller passes the
-    /// interpreter cursor already advanced beyond the opcode, matching the native Y register.
+    /// Implements both movement bytecodes at <c>$A8:DF63/$DF71</c>: the animation runs on unless a wall turns the Alcoon
+    /// round, when it continues at the other walk's first pose.
     /// </summary>
-    private ushort MoveAlcoonHorizontally(
+    private AlcoonProgram? MoveAlcoonHorizontally(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
         RoomLevelData? level,
-        ushort nextCursor,
         bool decrementStepCounter)
     {
         if (level is null)
@@ -408,14 +394,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
-            return nextCursor;
+            return null;
         }
 
         short oldVelocity = state.Velocity.X.WholePixels;
         state.Velocity = state.Velocity.WithWholeX(unchecked((short)-oldVelocity));
         return oldVelocity >= 0
-            ? AlcoonInstructionProgramDefinitions.WalkingLeftFirstFrame
-            : AlcoonInstructionProgramDefinitions.WalkingRightFirstFrame;
+            ? AlcoonProgram.WalkingLeftLoop
+            : AlcoonProgram.WalkingRightLoop;
     }
 
     /// <summary>Requires per-slot state created by the Alcoon initializer.</summary>
@@ -452,15 +438,18 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Routes Alcoon's private fireball and walking bytecodes to its instruction interpreter.</summary>
-    internal void RegisterAlcoonOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Alcoon's walking, fireball and airborne animations as typed programs (#641); its steps need the room's collision data.</summary>
+    internal void RegisterAlcoonTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon, (slot, context) =>
         {
-            yieldInterpreter = false;
-            return TryProcessAlcoonInstruction(slot, context.Level, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireAlcoonState(slot);
+            AnimationProgramCursor<AlcoonProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, AlcoonAnimations.Programs, ref cursor, AlcoonFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
+            state.Program = cursor;
         });
-    }
     /// <summary>Initial horizontal fireball speed in native 8.8 units.</summary>
     private const ushort AlcoonFireballGraphicsHorizontalSpeed = 0x0400;
     /// <summary>Horizontal speed at which fireball deceleration stops.</summary>

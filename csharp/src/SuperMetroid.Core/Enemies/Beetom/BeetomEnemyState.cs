@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
@@ -9,8 +10,6 @@ public sealed class BeetomEnemyState
 {
     /// <summary>The owning enemy slot that stores Beetom's common native variables.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Per-slot instruction-list pointers selected by Beetom setup states.</summary>
-    private readonly ushort[] _installedInstructionLists;
     /// <summary>Per-slot starting quadratic-table indices for short hops.</summary>
     private readonly ushort[] _initialShortLeapYSpeedIndexes;
     /// <summary>Per-slot starting quadratic-table indices for long hops.</summary>
@@ -30,7 +29,6 @@ public sealed class BeetomEnemyState
     internal BeetomEnemyState(RoomEnemySlot slot, BeetomSharedTables tables)
     {
         _slot = slot;
-        _installedInstructionLists = tables.InstalledInstructionLists;
         _initialShortLeapYSpeedIndexes = tables.InitialShortLeapYSpeedIndexes;
         _initialLongLeapYSpeedIndexes = tables.InitialLongLeapYSpeedIndexes;
         _initialLungeYSpeedIndexes = tables.InitialLungeYSpeedIndexes;
@@ -50,8 +48,8 @@ public sealed class BeetomEnemyState
     public NativeCountdown ButtonCounter { get => NativeCountdown.FromRaw(_slot.VariableE); internal set => _slot.VariableE = value.RawValue; }
     /// <summary>Native variable F: input word last observed by initialization or the attached counter; any differing word, including releases, decrements <see cref="ButtonCounter"/>.</summary>
     public ushort PreviousController1Input { get => _slot.VariableF; internal set => _slot.VariableF = value; }
-    /// <summary>Native $7E:7800,x cached bank-$A8 list pointer selected by setup; installation also resets the common instruction timer and loop counter.</summary>
-    public ushort InstalledInstructionList { get => _installedInstructionLists[_slot.SlotIndex]; internal set => _installedInstructionLists[_slot.SlotIndex] = value; }
+    /// <summary>Where the typed animation (#641) resumes. Setup installs it in place of the native $7E:7800,x list pointer, which nothing reads back; installation also resets the common instruction timer and loop counter.</summary>
+    internal AnimationProgramCursor<BeetomProgram> Program { get; set; }
     /// <summary>Native $7E:7804,x short-hop starting record index, calculated using unaligned quadratic-table words until the $3000 height accumulator target is reached in steps of four.</summary>
     public ushort InitialShortLeapYSpeedIndex { get => _initialShortLeapYSpeedIndexes[_slot.SlotIndex]; internal set => _initialShortLeapYSpeedIndexes[_slot.SlotIndex] = value; }
     /// <summary>Native $7E:7806,x long-hop starting record index, calculated using unaligned quadratic-table words until the $4000 height accumulator target is reached in steps of five.</summary>

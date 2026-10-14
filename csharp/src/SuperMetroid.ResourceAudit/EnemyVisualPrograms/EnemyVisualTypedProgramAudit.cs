@@ -1,3 +1,9 @@
+using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
+using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Enemies.Alcoon.Artwork;
+using SuperMetroid.Core.Enemies.Alcoon;
+using SuperMetroid.Core.Enemies.Beetom.Artwork;
+using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
 using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
@@ -257,6 +263,12 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(NorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioAnimations.cs");
         RequireTypedFrames(LowerNorfairRioAnimations.Programs, LowerNorfairRioFrameDefinitions.Spritemap, LowerNorfairRioFrameDefinitions.Bank,
             nameof(LowerNorfairRioAnimations), "csharp/src/SuperMetroid.Core/Enemies/Rios/LowerNorfairRioAnimations.cs");
+        RequireTypedFrames(BeetomAnimations.Programs, BeetomFrameDefinitions.Spritemap, BeetomFrameDefinitions.Bank,
+            nameof(BeetomAnimations), "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomAnimations.cs");
+        RequireTypedFrames(AlcoonAnimations.Programs, AlcoonFrameDefinitions.Spritemap, AlcoonFrameDefinitions.Bank,
+            nameof(AlcoonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonAnimations.cs");
+        RequireTypedFrames(FuneNamiheAnimations.Programs, FuneNamiheFrameDefinitions.Spritemap, FuneNamiheFrameDefinitions.Bank,
+            nameof(FuneNamiheAnimations), "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

@@ -1,5 +1,6 @@
+using SuperMetroid.Core.Enemies.Beetom.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -12,7 +13,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Beetom;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks Beetom's compiled instruction controls and visual-selector separation against the retail A8 bank.</summary>
+/// <summary>Checks the Beetom's typed crawl, hop and drain animations and its distant-action choice.</summary>
 internal static class BeetomInstructionProgramDefinitionsVerification
 {
     /// <summary>Loads the retail cartridge oracle and runs the standalone Beetom instruction suite.</summary>
@@ -22,168 +23,75 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Exercises all six live crawl, hop, and drain programs while guarding compiled mechanics and optional installed artwork from cartridge reads.</summary>
+    /// <summary>
+    /// The real initializer starts the left crawl; each crawl and drain program runs into its loop and repeats; each hop
+    /// shows its poses and holds the last; the crawls stop and the hops start off-screen processing; the programs show
+    /// exactly the installed Beetom frames, with optional installed artwork; the program oracle matches bank $A8.
+    /// </summary>
     internal static void VerifyBeetomInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
-            BindingFlags.NonPublic;
-        Suite(nameof(VerifyBeetomMechanicsMapping), () => VerifyBeetomMechanicsMapping(rom));
-        Suite(nameof(VerifyBeetomPresentationMapping), () => VerifyBeetomPresentationMapping());
-        Suite(nameof(VerifyBeetomVisualSelectors), () => VerifyBeetomVisualSelectors(rom));
+        Suite(nameof(VerifyBeetomNativeMaps), () => VerifyBeetomNativeMaps(rom));
         Suite(nameof(VerifyBeetomDistantActionMapping), () => VerifyBeetomDistantActionMapping(rom));
         Suite(nameof(VerifyBeetomDistantDirectionMapping), () => VerifyBeetomDistantDirectionMapping());
 
-        var guard = NewBeetomInstructionReadGuard(rom, forbidPresentation: artwork is not null);
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureBus(rom);
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
-        var initialize = new Action<RoomEnemySlot, SamusState, ushort>(enemies.BeetomBehavior.InitializeBeetom);
-        var startCrawling = new Action<RoomEnemySlot, BeetomEnemyState, bool>(BeetomBehavior.StartBeetomCrawling);
-        var startDraining = new Action<RoomEnemySlot, BeetomEnemyState, bool>(BeetomBehavior.StartBeetomDrain);
-
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Beetom;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.Position = slot.Position.WithWholeX(0x0200);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0)) };
-        initialize(slot, samus, 0);
-        BeetomEnemyState state = (enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BeetomStates[0]."));
-        object?[] processArguments =
-            [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+        enemies.BeetomBehavior.InitializeBeetom(slot, samus, 0);
+        BeetomEnemyState state = enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BeetomStates[0].");
+        object?[] processArguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
-        AssertEqual(BeetomInstructionProgramDefinitions.CrawlingLeft,
-            slot.CurrentInstruction,
-            "real Beetom initializer installs left-crawl program");
-        RunBeetomLoop(
-            enemies,
-            processArguments,
-            slot,
-            BeetomInstructionProgramDefinitions.CrawlingLeft,
-            BeetomInstructionProgramDefinitions.CrawlingLeftLoop,
-            callsThroughGoto: 5);
-        AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
-            "left-crawl program disables off-screen processing");
+        AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(BeetomProgram.CrawlingLeft), state.Program,
+            "real Beetom initializer installs the left crawl");
+        RunBeetomLoop(enemies, processArguments, slot, state, BeetomProgram.CrawlingLeftLoop, callsThroughGoto: 5);
+        AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), "left crawl stops off-screen processing");
 
-        startCrawling(slot, (state ?? throw new InvalidOperationException("Verification requires state.")), false);
-        RunBeetomLoop(
-            enemies,
-            processArguments,
-            slot,
-            BeetomInstructionProgramDefinitions.CrawlingRight,
-            BeetomInstructionProgramDefinitions.CrawlingRightLoop,
-            callsThroughGoto: 5);
-        AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
-            "right-crawl program disables off-screen processing");
+        BeetomBehavior.StartBeetomCrawling(slot, state, false);
+        AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(BeetomProgram.CrawlingRight), state.Program, "right crawl is installed");
+        RunBeetomLoop(enemies, processArguments, slot, state, BeetomProgram.CrawlingRightLoop, callsThroughGoto: 5);
+        AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), "right crawl stops off-screen processing");
 
-        StartBeetomHop(slot, state, left: true);
-        RunBeetomSleepProgram(
-            enemies,
-            processArguments,
-            slot,
-            BeetomInstructionProgramDefinitions.HopLeft,
-            BeetomInstructionProgramDefinitions.HopLeftSleep,
-            timedFrames: 4);
-        AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
-            "left-hop program enables off-screen processing");
+        foreach ((bool left, BeetomProgram hop) in new[] { (true, BeetomProgram.HopLeft), (false, BeetomProgram.HopRight) })
+        {
+            BeetomBehavior.StartBeetomHop(slot, state, 0, left, longHop: false);
+            AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(hop), state.Program, $"{hop} is installed");
+            RunBeetomCalls(enemies, processArguments, slot, 5);
+            AnimationProgramCursor<BeetomProgram> held = state.Program;
+            RunBeetomCalls(enemies, processArguments, slot, 2);
+            AssertEqual(held, state.Program, $"{hop} holds its last pose");
+            AssertEqual(BeetomAnimations.Spritemaps(hop).Last(), slot.SpritemapPointer, $"{hop} ends on its last pose");
+            AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), $"{hop} starts off-screen processing");
+        }
 
-        StartBeetomHop(slot, state, left: false);
-        RunBeetomSleepProgram(
-            enemies,
-            processArguments,
-            slot,
-            BeetomInstructionProgramDefinitions.HopRight,
-            BeetomInstructionProgramDefinitions.HopRightSleep,
-            timedFrames: 4);
-        AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
-            "right-hop program enables off-screen processing");
+        foreach ((bool left, BeetomProgram drain, BeetomProgram loop) in new[]
+                 { (true, BeetomProgram.DrainingLeft, BeetomProgram.DrainingLeftLoop), (false, BeetomProgram.DrainingRight, BeetomProgram.DrainingRightLoop) })
+        {
+            BeetomBehavior.StartBeetomDrain(slot, state, left);
+            AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(drain), state.Program, $"{drain} is installed");
+            RunBeetomLoop(enemies, processArguments, slot, state, loop, callsThroughGoto: 9);
+        }
 
-        startDraining(slot, state, true);
-        RunBeetomLoop(
-            enemies,
-            processArguments,
-            slot,
-            BeetomInstructionProgramDefinitions.DrainingLeft,
-            BeetomInstructionProgramDefinitions.DrainingLeftLoop,
-            callsThroughGoto: 9);
-
-        startDraining(slot, state, false);
-        RunBeetomLoop(
-            enemies,
-            processArguments,
-            slot,
-            BeetomInstructionProgramDefinitions.DrainingRight,
-            BeetomInstructionProgramDefinitions.DrainingRightLoop,
-            callsThroughGoto: 9);
-
-        AssertEqual(0, guard.ObservedWords.Count,
-            "Beetom programs read no cartridge visual selectors");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Beetom mechanics byte");
-        AssertThrows<InvalidDataException>(
-            () => BeetomInstructionProgramDefinitions.ReadMechanicsWord(0xb69a),
-            "Beetom spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => BeetomInstructionProgramDefinitions.ReadMechanicsWord(0xb6c0),
-            "unused Beetom small-hop program is rejected as production mechanics");
-
-        _ = ProbeBeetomInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeBeetomInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "Beetom allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed Beetom mechanics lookups allocate no per-frame storage");
+        AssertTrue(BeetomAnimations.Spritemaps(Enum.GetValues<BeetomProgram>()).ToHashSet().SetEquals(
+                EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("beetom_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
+            "the Beetom's programs show exactly its installed frames");
+        Suite(nameof(BeetomAnimationsVerification.VerifyBeetomAnimations), () => BeetomAnimationsVerification.VerifyBeetomAnimations(rom));
 
         Console.WriteLine(artwork is null
-            ? "Beetom instruction mechanics: 48 compiled words, all six production " +
-              "programs, and 32 compiled visual selectors pass with mechanics bytes forbidden."
-            : "Installed Beetom: all six crawl, hop, and drain programs retain " +
-              "mechanics while visual-selector reads are forbidden.");
-    }
-
-    /// <summary>Compares the 48 compiled control words to bank A8 and checks byte ownership, aliases, bounds, and rejected gaps.</summary>
-    private static void VerifyBeetomMechanicsMapping(SuperMetroidAddressSpace rom)
-    {
-        ushort[] addresses = [0xb696,0xb698,0xb69c,0xb6a0,0xb6a4,0xb6a8,0xb6aa,
-            0xb6ac,0xb6ae,0xb6b2,0xb6b6,0xb6ba,0xb6be,
-            0xb6cc,0xb6d0,0xb6d4,0xb6d8,0xb6dc,0xb6de,0xb6e2,0xb6e6,0xb6ea,0xb6ee,0xb6f0,
-            0xb6f2,0xb6f4,0xb6f8,0xb6fc,0xb700,0xb704,0xb706,
-            0xb708,0xb70a,0xb70e,0xb712,0xb716,0xb71a,
-            0xb728,0xb72c,0xb730,0xb734,0xb738,0xb73a,0xb73e,0xb742,0xb746,0xb74a,0xb74c];
-        AssertEqual(addresses.Length, BeetomInstructionProgramDefinitionsTooling.MechanicsWordCount, "Beetom native control count");
-        var bytes = new HashSet<int>();
-        for (int i = 0; i < addresses.Length; i++)
-        {
-            ushort address = addresses[i];
-            var actual = BeetomInstructionProgramDefinitionsTooling.MechanicsWord(i);
-            AssertEqual(address, actual.Address, "Beetom native control address order");
-            ushort expected = ReadBeetomInstructionWord(rom, address);
-            AssertEqual(expected, actual.Value, "Beetom enumerated native control word");
-            AssertEqual(expected, BeetomInstructionProgramDefinitions.ReadMechanicsWord(address), "Beetom direct native control word");
-            bytes.Add(address); bytes.Add(address + 1);
-        }
-        for (int address = 0; address <= ushort.MaxValue; address++)
-        {
-            AssertEqual(bytes.Contains(address), BeetomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa80000 | address), "Beetom full native byte ownership");
-            AssertEqual(bytes.Contains(address), BeetomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x1a80000 | address), "Beetom existing high-bit alias");
-            AssertTrue(!BeetomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa90000 | address), "Beetom rejects other bank");
-        }
-        var words = addresses.ToHashSet();
-        for (int address = 0xb694; address <= 0xb750; address++)
-            if (!words.Contains((ushort)address))
-                AssertThrows<InvalidDataException>(() => BeetomInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Beetom rejects presentation, odd bytes, unused small-hop programs and adjacent data");
-        foreach (ushort address in new ushort[] {0, 0x7fff, 0xffff})
-            AssertThrows<InvalidDataException>(() => BeetomInstructionProgramDefinitions.ReadMechanicsWord(address), "Beetom rejects distant pointers");
-        foreach (int index in new[] {int.MinValue, -1, 48, int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitionsTooling.MechanicsWord(index), "Beetom mechanics ordinal bounds");
+            ? "Beetom: the real initializer, both crawl loops, both held hops and both drain loops with their off-screen " +
+              "cues pass."
+            : "Installed Beetom: all six crawl, hop, and drain programs run with the installed artwork.");
     }
 
     /// <summary>Initializes a Beetom with an injected RNG so distant-action selection can be checked for each seed.</summary>
     private static (RoomEnemySystem Enemies, BeetomEnemyState State, Action<BeetomEnemyState> Choose)
         CreateBeetomDistantSelectionFixture(Func<ushort> nextRandom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         enemies.VerificationServices().NextRandom = nextRandom;
@@ -208,12 +116,12 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             random = (ushort)value;
             fixture.State.Function = BeetomEnemyFunction.DecideActionSamusNotInProximity;
             fixture.State.FunctionTimer = NativeCountdown.Start(0x1234);
-            ushort instruction = fixture.Enemies.SlotTable.Slots[0].CurrentInstruction;
+            AnimationProgramCursor<BeetomProgram> program = fixture.State.Program;
             fixture.Choose(fixture.State);
             ushort expected = ReadBeetomInstructionWord(rom, (ushort)(0xb74e + 2 * (value & 7)));
             AssertEqual(expected, (ushort)fixture.State.Function, "Beetom distant action matches native pointer for every RNG word");
             AssertEqual((ushort)0x1234, fixture.State.FunctionTimer.RawValue, "Beetom choice preserves timer until setup runs");
-            AssertEqual(instruction, fixture.Enemies.SlotTable.Slots[0].CurrentInstruction, "Beetom choice preserves program until setup runs");
+            AssertEqual(program, fixture.State.Program, "Beetom choice preserves program until setup runs");
             AssertEqual(value + 1, randomCalls, "Beetom consumes exactly one random value per choice");
         }
     }
@@ -232,118 +140,39 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             AssertEqual((ushort)(value % 2), fixture.State.Direction, "Beetom direction preserves native low-bit mapping independently of selected action");
         }
     }
-    /// <summary>Checks all 32 spritemap operands against bank A8 and rejects control words, small-hop gaps, and adjacent data.</summary>
-    private static void VerifyBeetomVisualSelectors(SuperMetroidAddressSpace rom)
+    /// <summary>Checks the native entry counts of the Beetom's five- and six-entry maps.</summary>
+    private static void VerifyBeetomNativeMaps(SuperMetroidAddressSpace rom)
     {
-        ushort[] operands = [0xb69a,0xb69e,0xb6a2,0xb6a6,0xb6b0,0xb6b4,0xb6b8,0xb6bc,
-            0xb6ce,0xb6d2,0xb6d6,0xb6da,0xb6e0,0xb6e4,0xb6e8,0xb6ec,
-            0xb6f6,0xb6fa,0xb6fe,0xb702,0xb70c,0xb710,0xb714,0xb718,
-            0xb72a,0xb72e,0xb732,0xb736,0xb73c,0xb740,0xb744,0xb748];
-        foreach (ushort operand in operands)
-        {
-            ushort expected = ReadBeetomInstructionWord(rom, operand);
-            AssertEqual(expected, EnemySpritemapDefinitions.BeetomFrameAt(operand), "Beetom native visual pointer");
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, operand, out ushort shared), "Beetom shared selector found");
-            AssertEqual(expected, shared, "Beetom shared selector value");
-            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xa80000 | operand), "Beetom excluded from literal regeneration");
-        }
         foreach (ushort pointer in new ushort[] {0xbed3,0xbeee,0xbf09,0xbf24,0xbf3f,0xbf5a,0xbf75,0xbf90,
             0xc00b,0xc026,0xc041,0xc05c,0xc077,0xc092,0xc0ad,0xc0c8})
             AssertEqual((ushort)5, ReadBeetomInstructionWord(rom, pointer), "Beetom five-entry native map");
         foreach (ushort pointer in new ushort[] {0xbfab,0xbfcb,0xbfeb,0xc0e3,0xc103,0xc123})
             AssertEqual((ushort)6, ReadBeetomInstructionWord(rom, pointer), "Beetom six-entry native map");
-        var known = operands.ToHashSet();
-        for (int address = 0xb694; address <= 0xb750; address++)
-            if (!known.Contains((ushort)address))
-            {
-                AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BeetomFrameAt((ushort)address), "Beetom visual resolver rejects controls, small-hop gaps and adjacent data");
-                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0xa8, (ushort)address, out ushort missing), "Beetom shared holes rejected");
-                AssertEqual((ushort)0, missing, "Beetom missing output cleared");
-            }
-        foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
-            AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BeetomFrameAt(address), "Beetom distant invalid operand");
     }
-    /// <summary>Checks the ordered visual-operand catalog and exact membership across the full 16-bit address range.</summary>
-    private static void VerifyBeetomPresentationMapping()
-    {
-        ushort[] expected = [0xb69a,0xb69e,0xb6a2,0xb6a6,0xb6b0,0xb6b4,0xb6b8,0xb6bc,
-            0xb6ce,0xb6d2,0xb6d6,0xb6da,0xb6e0,0xb6e4,0xb6e8,0xb6ec,
-            0xb6f6,0xb6fa,0xb6fe,0xb702,0xb70c,0xb710,0xb714,0xb718,
-            0xb72a,0xb72e,0xb732,0xb736,0xb73c,0xb740,0xb744,0xb748];
-        AssertEqual(expected.Length, BeetomInstructionProgramDefinitionsTooling.PresentationWordCount, "Beetom native operand count");
-        for (int i = 0; i < expected.Length; i++)
-            AssertEqual(expected[i], BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(i), "Beetom native operand order");
-        var words = expected.ToHashSet();
-        for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(words.Contains((ushort)address), BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Beetom full operand membership");
-        foreach (int index in new[] {int.MinValue, -1, 32, int.MaxValue})
-            AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Beetom operand ordinal bounds");
-    }
-    /// <summary>Starts the short-hop variant used by the instruction sleep checks, with the requested horizontal direction.</summary>
-    private static void StartBeetomHop(
-        RoomEnemySlot slot,
-        BeetomEnemyState state,
-        bool left) =>
-        BeetomBehavior.StartBeetomHop(slot, state, 0, left, longHop: false);
 
-    /// <summary>Advances a crawl or drain program through its goto and first repeated frame, checking the resulting pointer.</summary>
+    /// <summary>Forces the requested number of animation updates.</summary>
+    private static void RunBeetomCalls(RoomEnemySystem enemies, object?[] arguments, RoomEnemySlot slot, int calls)
+    {
+        for (int call = 0; call < calls; call++)
+        {
+            slot.InstructionTimer = NativeCountdown.Start(1);
+            EnemyInstructionRunner.Process(enemies, arguments);
+        }
+    }
+
+    /// <summary>Advances a crawl or drain program through its loop's restart and checks it shows the loop's first pose again.</summary>
     private static void RunBeetomLoop(
         RoomEnemySystem enemies,
         object?[] arguments,
         RoomEnemySlot slot,
-        ushort entry,
-        ushort loop,
+        BeetomEnemyState state,
+        BeetomProgram loop,
         int callsThroughGoto)
     {
-        AssertEqual(entry, slot.CurrentInstruction, "Beetom compiled loop entry");
-        for (int call = 0; call < callsThroughGoto; call++)
-        {
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, arguments);
-        }
-        AssertEqual(unchecked((ushort)(loop + 4)), slot.CurrentInstruction,
-            "Beetom program completes its native goto and first repeated frame");
-    }
-
-    /// <summary>Advances a hop through its timed frames and checks that the terminal sleep instruction is reached.</summary>
-    private static void RunBeetomSleepProgram(
-        RoomEnemySystem enemies,
-        object?[] arguments,
-        RoomEnemySlot slot,
-        ushort entry,
-        ushort sleep,
-        int timedFrames)
-    {
-        AssertEqual(entry, slot.CurrentInstruction, "Beetom compiled sleep-program entry");
-        for (int frame = 0; frame < timedFrames; frame++)
-        {
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, arguments);
-        }
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        EnemyInstructionRunner.Process(enemies, arguments);
-        AssertEqual(sleep, slot.CurrentInstruction,
-            "Beetom hop program reaches terminal sleep");
-    }
-
-    /// <summary>Repeatedly reads the six live mechanics entries to measure warmed per-thread allocation without a dead-code result.</summary>
-    private static int ProbeBeetomInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += BeetomInstructionProgramDefinitions.ReadMechanicsWord(
-                (index % 6) switch
-                {
-                    0 => BeetomInstructionProgramDefinitions.CrawlingLeft,
-                    1 => BeetomInstructionProgramDefinitions.HopLeft,
-                    2 => BeetomInstructionProgramDefinitions.DrainingLeft,
-                    3 => BeetomInstructionProgramDefinitions.CrawlingRight,
-                    4 => BeetomInstructionProgramDefinitions.HopRight,
-                    _ => BeetomInstructionProgramDefinitions.DrainingRight,
-                });
-        }
-        return checksum;
+        RunBeetomCalls(enemies, arguments, slot, callsThroughGoto);
+        AssertEqual(new AnimationProgramCursor<BeetomProgram>(loop, 1), state.Program,
+            $"Beetom {loop} restarts and shows its first pose");
+        AssertEqual(BeetomAnimations.Spritemaps(loop).First(), slot.SpritemapPointer, $"Beetom {loop} first pose");
     }
 
     /// <summary>Reads a native Beetom instruction word from bank A8 solely for comparison with compiled definitions.</summary>
@@ -352,21 +181,6 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa80000 | address);
-
-    /// <summary>Forbids compiled mechanics reads and either observes or forbids visual-operand reads according to artwork installation.</summary>
-    private static CartridgeReadGuard NewBeetomInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false)
-    {
-        var guard = new CartridgeReadGuard(source).Forbid(
-            BeetomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-            address => $"Production read compiled Beetom mechanics byte ${address:X6}.");
-        return forbidPresentation
-            ? guard.ForbidWords(0xa80000, BeetomInstructionProgramDefinitionsTooling.PresentationWordCount,
-                BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress,
-                address => $"Installed Beetom read visual-selector byte ${address:X6}.")
-            : guard.ObserveWords(0xa80000, BeetomInstructionProgramDefinitionsTooling.PresentationWordCount,
-                BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress);
-    }
 
     /// <summary>Runs the retail Beetom instruction suite from the verification command line.</summary>
     [VerificationCommand("--beetom-instruction-mechanics")]

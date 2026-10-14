@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
-/// <summary>Compiled cartridge identities and instruction selectors for Fune/Namihe.</summary>
+/// <summary>Compiled cartridge identities and animation selection for Fune/Namihe.</summary>
 internal static class FuneNamiheDefinitions
 {
 
@@ -20,7 +20,7 @@ internal static class FuneNamiheDefinitions
 
     /// <summary>$A8:96D3-$A8:96E2 selects species, activity and facing.
     /// The cursor advances by two for right-facing and four for idle programs.</summary>
-    internal static ushort InstructionList(ushort cursor)
+    internal static FuneNamiheProgram InstructionList(ushort cursor)
     {
         int offset = cursor - (FuneIdleLeftCursor - ActiveCursorDelta);
         if ((uint)offset >= 16 || (offset & 1) != 0)
@@ -31,14 +31,14 @@ internal static class FuneNamiheDefinitions
         bool right = (offset & FacingRightCursorDelta) != 0;
         return (namihe, idle, right) switch
         {
-            (false, false, false) => FuneNamiheInstructionProgramDefinitions.FuneActiveLeft,
-            (false, false, true) => FuneNamiheInstructionProgramDefinitions.FuneActiveRight,
-            (false, true, false) => FuneNamiheInstructionProgramDefinitions.FuneIdleLeft,
-            (false, true, true) => FuneNamiheInstructionProgramDefinitions.FuneIdleRight,
-            (true, false, false) => FuneNamiheInstructionProgramDefinitions.NamiheActiveLeft,
-            (true, false, true) => FuneNamiheInstructionProgramDefinitions.NamiheActiveRight,
-            (true, true, false) => FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft,
-            (true, true, true) => FuneNamiheInstructionProgramDefinitions.NamiheIdleRight,
+            (false, false, false) => FuneNamiheProgram.FuneActiveLeft,
+            (false, false, true) => FuneNamiheProgram.FuneActiveRight,
+            (false, true, false) => FuneNamiheProgram.FuneIdleLeft,
+            (false, true, true) => FuneNamiheProgram.FuneIdleRight,
+            (true, false, false) => FuneNamiheProgram.NamiheActiveLeft,
+            (true, false, true) => FuneNamiheProgram.NamiheActiveRight,
+            (true, true, false) => FuneNamiheProgram.NamiheIdleLeft,
+            (true, true, true) => FuneNamiheProgram.NamiheIdleRight,
         };
     }
 }

@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Cacatac;
+﻿using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
@@ -17,46 +19,35 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         _projectiles = projectiles;
     }
 
-    /// <summary>Handles private sound, fireball-spawn, and activity-finish opcodes while advancing the mixed-list cursor past each command.</summary>
-    private bool TryProcessFuneNamiheInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of the Fune's and Namihe's animations: the spit sound, a fireball, or finishing the spit.</summary>
+    private FuneNamiheProgram? ApplyFuneNamiheCue(RoomEnemySlot slot, FuneNamiheEnemyState state, FuneNamiheCue cue)
     {
-        if (!IsFuneNamiheDefinition(slot.EnemyDefinitionPointer) ||
-            !Enum.IsDefined((FuneNamiheInstruction)word))
-            return false;
-
-        switch ((FuneNamiheInstruction)word)
+        switch (cue.Kind)
         {
-            case FuneNamiheInstruction.QueueSpitSFX:
+            case FuneNamiheCueKind.SpitSound:
                 // Shared mouth animation queues library-two sound $1F.
                 QueueFuneNamiheSpitSound();
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case FuneNamiheInstruction.NamiheSpawnFireballFacingLeft:
+                break;
+            case FuneNamiheCueKind.NamiheFireLeft:
                 SpawnFuneNamiheFireball(slot, movingRight: false, RoomEnemyProjectileKind.NamiheFireball);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case FuneNamiheInstruction.NamiheSpawnFireballFacingRight:
+                break;
+            case FuneNamiheCueKind.NamiheFireRight:
                 SpawnFuneNamiheFireball(slot, movingRight: true, RoomEnemyProjectileKind.NamiheFireball);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case FuneNamiheInstruction.FuneSpawnFireballFacingLeft:
+                break;
+            case FuneNamiheCueKind.FuneFireLeft:
                 SpawnFuneNamiheFireball(slot, movingRight: false, RoomEnemyProjectileKind.FuneFireball);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case FuneNamiheInstruction.FuneSpawnFireballFacingRight:
+                break;
+            case FuneNamiheCueKind.FuneFireRight:
                 SpawnFuneNamiheFireball(slot, movingRight: true, RoomEnemyProjectileKind.FuneFireball);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case FuneNamiheInstruction.FinishActivity:
-            case FuneNamiheInstruction.FinishActivityDuplicate:
-                // Left/right lists use duplicate opcodes with byte-for-byte state effects.
-                FinishFuneNamiheActivity(RequireFuneNamiheState(slot));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                break;
+            case FuneNamiheCueKind.FinishActivity:
+                // Left/right lists use duplicate native opcodes with byte-for-byte state effects.
+                FinishFuneNamiheActivity(state);
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Fune/Namihe does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(FuneNamiheCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Cooldown, proximity, list-cursor, and species state indexed by native enemy slot.</summary>
@@ -176,15 +167,15 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
     {
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = ReadFuneNamiheInstructionList(
-            state.InstructionListPointerTableCursor);
+        state.Program = AnimationProgramCursor<FuneNamiheProgram>.Start(ReadFuneNamiheInstructionList(
+            state.InstructionListPointerTableCursor));
     }
 
     /// <summary>
     /// The table lives at $A8:96D3; callers carry a same-bank cursor. This overload makes
     /// that two-stage address explicit without allowing a host addition to cross banks.
     /// </summary>
-    private static ushort ReadFuneNamiheInstructionList(ushort tableCursor) =>
+    private static FuneNamiheProgram ReadFuneNamiheInstructionList(ushort tableCursor) =>
         FuneNamiheDefinitions.InstructionList(tableCursor);
 
     /// <summary>Publishes the shared library-two spit cue for the outer enemy audio queue.</summary>
@@ -236,15 +227,19 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims the family's private animation opcodes while yielding unrelated words to the common enemy interpreter.</summary>
-    internal void RegisterFuneNamiheOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the Fune's and Namihe's animations as typed programs (#641).</summary>
+    internal void RegisterFuneNamiheTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => IsFuneNamiheDefinition(slot.EnemyDefinitionPointer), (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessFuneNamiheInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireFuneNamiheState(slot);
+            AnimationProgramCursor<FuneNamiheProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, FuneNamiheAnimations.Programs, ref cursor, FuneNamiheFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyFuneNamiheCue(slot, state, cue));
+            state.Program = cursor;
         });
-    }
+
     /// <summary>Shared projectile movement callback installed for both Fune and Namihe fireballs.</summary>
     private const ushort NamiFuneFireballPreInstruction =
         (ushort)EnemyProjectilePreInstruction.NamiFuneFireball;

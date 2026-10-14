@@ -1749,8 +1749,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or
             EnemyDefinitionId.Menu => 0,
             EnemyDefinitionId.Kago => 0,
-            EnemyDefinitionId.FaceBlock =>
-                BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.FaceBlock => 0,
             EnemyDefinitionId.Eye =>
                 MorphBallEyeVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Metroid =>
@@ -1813,7 +1812,7 @@ internal static class EnemySpritemapDefinitions
                 EnemyDefinitionId.Zoomer or
                 EnemyDefinitionId.MZoomer =>
                 SharedCrawlerFrameAt(operandAddress),
-            EnemyDefinitionId.Cacatac => CacatacFrameAt(operandAddress),
+            EnemyDefinitionId.Cacatac => 0,
             EnemyDefinitionId.Fireflea => 0,
             EnemyDefinitionId.Magdollite => MagdolliteFrameAt(operandAddress),
             EnemyDefinitionId.Boulder => 0,
@@ -1828,8 +1827,7 @@ internal static class EnemySpritemapDefinitions
                 EnemyDefinitionId.KraidNail or
                 EnemyDefinitionId.KraidNailBad =>
                 KraidVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
-            EnemyDefinitionId.Owtch or EnemyDefinitionId.Stoke =>
-                OwtchStokeVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
+            EnemyDefinitionId.Owtch or EnemyDefinitionId.Stoke => 0,
             EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or
                 EnemyDefinitionId.Ripper => 0,
             EnemyDefinitionId.None or EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance or
@@ -1871,7 +1869,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Boyon or
             EnemyDefinitionId.Sciser or
             EnemyDefinitionId.Zero or
-            EnemyDefinitionId.FaceBlock or
             EnemyDefinitionId.Eye or
             EnemyDefinitionId.Metroid or
             EnemyDefinitionId.Shaktool or
@@ -1907,13 +1904,11 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Sova or
             EnemyDefinitionId.Zoomer or
             EnemyDefinitionId.MZoomer or
-            EnemyDefinitionId.Cacatac or
             EnemyDefinitionId.Magdollite or EnemyDefinitionId.Skultera or
             EnemyDefinitionId.Metaree or EnemyDefinitionId.Skree or
             EnemyDefinitionId.MiniKraid or
             EnemyDefinitionId.KraidNail or
-            EnemyDefinitionId.KraidNailBad or
-            EnemyDefinitionId.Owtch or EnemyDefinitionId.Stoke;
+            EnemyDefinitionId.KraidNailBad;
     }
     /// <summary>Selects opening/recovery poses in the two directional sprite strips.
     /// Every native map has eight five-byte OAM entries and a two-byte count.</summary>
@@ -2146,32 +2141,6 @@ internal static class EnemySpritemapDefinitions
         }
         throw new InvalidDataException(
             $"Boyon visual operand $A2:{operandAddress:X4} is not compiled.");
-    }
-
-    /// <summary>
-    /// Four native Cacatac programs: eight idle frames and four attack selectors
-    /// per orientation. Attack poses zero and three reuse idle zero and attack one.
-    /// The lookup cannot alter attack timings or spike-spawn callbacks.
-    /// </summary>
-    internal static ushort CacatacFrameAt(ushort operandAddress)
-    {
-        if (operandAddress >= 0x9e8e && operandAddress <= 0x9eaa &&
-            (operandAddress - 0x9e8e) % 4 == 0)
-            return unchecked((ushort)(0xa0bb + (operandAddress - 0x9e8e) * 8));
-        if (operandAddress >= 0x9ede && operandAddress <= 0x9efa &&
-            (operandAddress - 0x9ede) % 4 == 0)
-            return unchecked((ushort)(0xa223 + (operandAddress - 0x9ede) * 8));
-        return operandAddress switch
-        {
-            0x9eb2 => 0xa0bb,
-            0x9eb6 or 0x9ebe => 0xa1bb,
-            0x9eba => 0xa1ef,
-            0x9f02 => 0xa223,
-            0x9f06 or 0x9f0e => 0xa323,
-            0x9f0a => 0xa357,
-            _ => throw new InvalidDataException(
-                $"Cacatac visual operand $A2:{operandAddress:X4} is not compiled."),
-        };
     }
 
     /// <summary>

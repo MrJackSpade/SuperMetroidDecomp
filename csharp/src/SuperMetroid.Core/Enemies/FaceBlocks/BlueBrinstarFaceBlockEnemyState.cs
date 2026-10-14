@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class BlueBrinstarFaceBlockEnemyState
 
     /// <summary>Binds debugger-facing state to the original physical enemy slot.</summary>
     internal BlueBrinstarFaceBlockEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<BlueBrinstarFaceBlockProgram> Program { get; set; }
 
     /// <summary>
     /// Native variable A. Once set, the face has selected its directional animation and the

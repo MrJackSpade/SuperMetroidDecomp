@@ -3,39 +3,26 @@ using SuperMetroid.Core.Enemies.FaceBlocks;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The five distinct bank-$A8 OAM compositions selected by the face block's
-/// idle, Samus-left and Samus-right programs. Activation and frame timing stay
-/// in the compiled enemy implementation.
+/// The five distinct bank-$A8 OAM compositions shown by the face block's neutral, Samus-left and Samus-right
+/// animations. Activation and frame timing stay in the enemy's typed programs.
 /// </summary>
 internal static class BlueBrinstarFaceBlockVisualDefinitions
 {
     /// <summary>Native bank of the face-block enemy and its OAM maps.</summary>
     internal const byte Bank = 0xa8;
 
-    /// <summary>Publishes the neutral pose and two distinct turning poses for each approach direction.</summary>
-    internal static EnemySpritemapDefinition[] Frames() =>
-    [
-        new(Bank, MapPointer(0), "face_block_neutral"),
-        new(Bank, MapPointer(1), "face_block_samus_left_1"),
-        new(Bank, MapPointer(2), "face_block_samus_left_2"),
-        new(Bank, MapPointer(3), "face_block_samus_right_1"),
-        new(Bank, MapPointer(4), "face_block_samus_right_2"),
-    ];
-
-    /// <summary>Maps only the seven native visual operands to the five distinct OAM poses.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
+    /// <summary>Publishes the neutral pose and the two turning poses each approach direction shows after it.</summary>
+    internal static EnemySpritemapDefinition[] Frames()
     {
-        if (BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-        {
-            int offset = BlueBrinstarFaceBlockInstructionProgramDefinitions.OperandOffset(operandAddress);
-            if (offset >= 28) return MapPointer(0);
-            int frame = (offset % 14 - 2) / 4;
-            return MapPointer(frame == 0 ? 0 : frame + 2 * (offset / 14));
-        }
-        throw new InvalidDataException(
-            $"Face-block visual operand $A8:{operandAddress:X4} is not compiled.");
+        ushort[] left = [.. BlueBrinstarFaceBlockAnimations.Spritemaps(BlueBrinstarFaceBlockProgram.SamusLeft)];
+        ushort[] right = [.. BlueBrinstarFaceBlockAnimations.Spritemaps(BlueBrinstarFaceBlockProgram.SamusRight)];
+        return
+        [
+            new(Bank, BlueBrinstarFaceBlockAnimations.Spritemaps(BlueBrinstarFaceBlockProgram.Initial).Single(), "face_block_neutral"),
+            new(Bank, left[1], "face_block_samus_left_1"),
+            new(Bank, left[2], "face_block_samus_left_2"),
+            new(Bank, right[1], "face_block_samus_right_1"),
+            new(Bank, right[2], "face_block_samus_right_2"),
+        ];
     }
-    // Two-byte count plus four five-byte OAM records per map.
-    /// <summary>Calculates one four-part OAM record address from the 22-byte native stride.</summary>
-    private static ushort MapPointer(int pose) => (ushort)(0xe92c + 22 * pose);
 }

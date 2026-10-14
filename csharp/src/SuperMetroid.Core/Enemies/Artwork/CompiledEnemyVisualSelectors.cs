@@ -6,7 +6,6 @@ using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Elevator;
-using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Enemies.Polyp;
@@ -48,7 +47,7 @@ internal static partial class CompiledEnemyVisualSelectors
         EnemyInstructionBank.BankA2 => BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         EnemyInstructionBank.BankA3 => PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         EnemyInstructionBank.BankA6 => FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        EnemyInstructionBank.BankA8 => BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        EnemyInstructionBank.BankA8 => BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${SnesAddressMath.BankNumber(address):X2}."),
     };
     /// <summary>Resolves special and calculated sprite operands, then searches literal bank entries.</summary>
@@ -74,9 +73,7 @@ internal static partial class CompiledEnemyVisualSelectors
                     ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)
                     : AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.AlcoonFrameAt(operandAddress)
-                    : BeetomInstructionProgramDefinitions.IsPresentationWord(operandAddress)
-                    ? EnemySpritemapDefinitions.BeetomFrameAt(operandAddress)
-                    : BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operandAddress),
+                    : EnemySpritemapDefinitions.BeetomFrameAt(operandAddress),
                 _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${bank:X2}."),
             };
             return true;

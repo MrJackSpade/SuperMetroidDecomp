@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class CacatacEnemyState
 
     /// <summary>Projects a live Cacatac slot into typed patrol and spike-facing state.</summary>
     internal CacatacEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<CacatacProgram> Program { get; set; }
 
     /// <summary>Native <c>$0FA8,x</c>, the fractional half of rightward velocity.</summary>
     public ushort RightSubvelocity { get; internal set; }

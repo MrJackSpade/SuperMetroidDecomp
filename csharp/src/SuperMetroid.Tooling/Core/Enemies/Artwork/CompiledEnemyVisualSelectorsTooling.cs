@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class CompiledEnemyVisualSelectorsTooling
 {
     /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
-    internal static int CalculatedCount => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount + BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
+    internal static int CalculatedCount => BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
         FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
         FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
@@ -96,12 +96,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
         {
             ushort operand = AlcoonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             return new(0xa80000 | operand, EnemySpritemapDefinitions.AlcoonFrameAt(operand));
-        }
-        index -= AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount;
-        if (index < BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount)
-        {
-            ushort operand = BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa80000 | operand, BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operand));
         }
         throw new IndexOutOfRangeException();
     }

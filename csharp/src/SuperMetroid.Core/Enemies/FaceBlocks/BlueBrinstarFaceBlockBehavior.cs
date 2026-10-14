@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Samus;
@@ -67,7 +69,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
 
         // `$E828` is a one-frame neutral map followed by the common sleep instruction. All
         // authored directional lists use the same neutral map as their first frame.
-        slot.CurrentInstruction = BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial;
+        state.Program = AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(BlueBrinstarFaceBlockProgram.Initial);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -119,9 +121,9 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         if (horizontalSign == slot.Parameter2)
             return;
 
-        slot.CurrentInstruction = horizontalSign != 0
-            ? BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusLeft
-            : BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusRight;
+        state.Program = AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(horizontalSign != 0
+            ? BlueBrinstarFaceBlockProgram.SamusLeft
+            : BlueBrinstarFaceBlockProgram.SamusRight);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         state.Activated = true;
@@ -194,6 +196,19 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         RoomEnemySlot slot) =>
         _blueBrinstarFaceBlockStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Blue Brinstar face-block state.");
+
+    /// <summary>Runs the face block's neutral and turning animations as typed programs (#641).</summary>
+    internal void RegisterBlueBrinstarFaceBlockTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireBlueBrinstarFaceBlockState(slot);
+            AnimationProgramCursor<BlueBrinstarFaceBlockProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, BlueBrinstarFaceBlockAnimations.Programs, ref cursor, BlueBrinstarFaceBlockFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
+
 
     /// <summary>Registers the face-block initializer for matching enemy-definition slots.</summary>
     internal void RegisterBlueBrinstarFaceBlockInitializationAi(EnemyAiTable table)

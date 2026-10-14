@@ -1387,7 +1387,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     {
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneTypedAnimations(table);
         BoyonBehavior.RegisterBoyonOwnedInstructions(table);
-        StokeBehavior.RegisterStokeOwnedInstructions(table);
+        StokeBehavior.RegisterStokeTypedAnimations(table);
         MamaTurtleBehavior.RegisterMamaTurtleOwnedInstructions(table);
         DragonBehavior.RegisterDragonOwnedInstructions(table);
         KraidBehavior.RegisterKraidTypedAnimations(table);
@@ -1402,8 +1402,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         WorkRobotBehavior.RegisterWorkRobotOwnedInstructions(table);
         BeetomBehavior.RegisterBeetomOwnedInstructions(table);
         YappingMawBehavior.RegisterYappingMawOwnedInstructions(table);
-        CacatacBehavior.RegisterCacatacOwnedInstructions(table);
-        OwtchBehavior.RegisterOwtchOwnedInstructions(table);
+        CacatacBehavior.RegisterCacatacTypedAnimations(table);
+        OwtchBehavior.RegisterOwtchTypedAnimations(table);
         FuneNamiheBehavior.RegisterFuneNamiheOwnedInstructions(table);
         EvirBehavior.RegisterEvirOwnedInstructions(table);
         YardBehavior.RegisterYardOwnedInstructions(table);
@@ -1439,6 +1439,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         RipperBehavior.RegisterRipperTypedAnimations(table);
+        BlueBrinstarFaceBlockBehavior.RegisterBlueBrinstarFaceBlockTypedAnimations(table);
+        CacatacBehavior.RegisterCacatacTypedAnimations(table);
+        StokeBehavior.RegisterStokeTypedAnimations(table);
+        OwtchBehavior.RegisterOwtchTypedAnimations(table);
         PipeBugsBehavior.RegisterPipeBugTypedAnimations(table);
         MultiviolaBehavior.RegisterMultiviolaTypedAnimations(table);
         DeadTorizoBehavior.RegisterDeadTorizoTypedAnimations(table);

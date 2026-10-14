@@ -1992,7 +1992,6 @@ internal static class LookupStream1Verification
         Suite(nameof(VerifyLookupStream1SamusPolicyDomains), () => VerifyLookupStream1SamusPolicyDomains(rom));
         Suite(nameof(VerifyLookupStream1MetroidLayout), () => VerifyLookupStream1MetroidLayout(rom));
         Suite(nameof(VerifyLookupStream1PuyoAndQuota), () => VerifyLookupStream1PuyoAndQuota(rom));
-        Suite(nameof(VerifyLookupStream1OwtchStoke), () => VerifyLookupStream1OwtchStoke(rom));
         Suite(nameof(VerifyLookupStream1VisualCatalogs), () => VerifyLookupStream1VisualCatalogs(rom));
         Suite(nameof(VerifyLookupStream1NuclearWaffle), () => VerifyLookupStream1NuclearWaffle(rom));
         Suite(nameof(VerifyLookupStream1DeathDefinitions), () => VerifyLookupStream1DeathDefinitions(rom));
@@ -2527,50 +2526,6 @@ internal static class LookupStream1Verification
     /// <summary>Reads native charge-flare visual selector and sprite data.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 visual catalogs")]
     private static byte LookupStream1VisualCatalogsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    /// <summary>Checks Owtch and Stoke instruction control/visual address classification.</summary>
-    private static void VerifyLookupStream1OwtchStoke(ISnesAddressSpace rom)
-    {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1OwtchStokeRomByte(rom, address), LookupStream1OwtchStokeRomByte(rom, address + 1)));
-        var controls = new HashSet<int>();
-        var visuals = new HashSet<int>();
-        for (int side = 0; side < 2; side++)
-        {
-            foreach (int offset in new[] { 0, 2, 6, 10, 14, 16 }) controls.Add(0xa3ab + side * 18 + offset);
-            foreach (int offset in new[] { 4, 8, 12 }) visuals.Add(0xa3ab + side * 18 + offset);
-        }
-        int controlIndex = 0, visualIndex = 0;
-        for (int pointer = 0xa3aa; pointer <= 0xa3d0; pointer++)
-        {
-            AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
-                OwtchInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | pointer), "Owtch exact byte guard domain");
-            if (controls.Contains(pointer))
-            {
-                var actual = OwtchInstructionProgramDefinitionsTooling.MechanicsWord(controlIndex++);
-                AssertEqual((ushort)pointer, actual.Address, "Owtch native control order");
-                AssertEqual(Word(0xa20000 | pointer), actual.Value, "Owtch native controls");
-            }
-            else AssertThrows<InvalidDataException>(() => OwtchInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Owtch noncontrol rejection");
-            if (visuals.Contains(pointer))
-                AssertEqual((ushort)pointer, OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(visualIndex++), "Owtch native visual order");
-            else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Owtch, (ushort)pointer), "Owtch nonvisual rejection");
-        }
-        var stokeVisuals = new HashSet<int>();
-        for (int side = 0; side < 2; side++)
-            foreach (int offset in new[] { 4, 8, 12, 16, 24, 32 }) stokeVisuals.Add(0x8932 + side * 38 + offset);
-        for (int pointer = 0x8931; pointer <= 0x897f; pointer++)
-            if (stokeVisuals.Contains(pointer))
-                AssertEqual(Word(0xa20000 | pointer), OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Stoke, (ushort)pointer), "Stoke native visual selection");
-            else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Stoke, (ushort)pointer), "Stoke nonvisual rejection");
-        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Owtch control bounds");
-        foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "Owtch visual bounds");
-        AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(0, 0xa3af), "unknown visual owner rejected");
-    }
-
-    /// <summary>Reads native Owtch and Stoke instruction bytes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Owtch Stoke")]
-    private static byte LookupStream1OwtchStokeRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks Puyo program data and the native projectile quota selector table.</summary>
     private static void VerifyLookupStream1PuyoAndQuota(ISnesAddressSpace rom)
     {

@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Enemies.Owtch;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Owtch.Artwork;
+namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The Owtch species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class OwtchBehavior : IEnemySpecies
@@ -12,27 +14,21 @@ internal sealed class OwtchBehavior : IEnemySpecies
         _room = room;
     }
 
-    /// <summary>Executes Owtch's private animation instructions.</summary>
-    private bool TryProcessOwtchInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of Owtch's animations: each sets the walking direction main AI applies.</summary>
+    private static OwtchProgram? ApplyOwtchCue(OwtchEnemyState state, OwtchCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Owtch ||
-            !Enum.IsDefined((OwtchInstruction)word))
-            return false;
-
-        switch ((OwtchInstruction)word)
+        switch (cue.Kind)
         {
-            case OwtchInstruction.SetMovingLeft:
-                SetOwtchMovingLeft(RequireOwtchState(slot));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case OwtchInstruction.SetMovingRight:
-                SetOwtchMovingRight(RequireOwtchState(slot));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+            case OwtchCueKind.SetMovingLeft:
+                SetOwtchMovingLeft(state);
+                break;
+            case OwtchCueKind.SetMovingRight:
+                SetOwtchMovingRight(state);
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Owtch does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(OwtchCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
@@ -68,11 +64,7 @@ internal sealed class OwtchBehavior : IEnemySpecies
 
         // The initializer masks the raw state only for its two-entry facing table. Thus
         // states two and four begin with the left list, while state three begins right.
-        SetOwtchInstructionList(
-            slot,
-            (initialState & 1) == 0
-                ? OwtchInstructionProgramDefinitions.MovingLeft
-                : OwtchInstructionProgramDefinitions.MovingRight);
+        OwtchProgram initialProgram = (initialState & 1) == 0 ? OwtchProgram.MovingLeft : OwtchProgram.MovingRight;
 
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
@@ -90,6 +82,7 @@ internal sealed class OwtchBehavior : IEnemySpecies
             MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + travelDistance)),
         };
         _owtchStates[slot.SlotIndex] = state;
+        SetOwtchProgram(slot, state, initialProgram);
 
         // State two is the cartridge's special initially-buried form. It moves only the
         // whole coordinate and records the same sixteen-pixel depth used by normal sinking.
@@ -151,9 +144,7 @@ internal sealed class OwtchBehavior : IEnemySpecies
                 // The moving-left routine decrements zero instead of incrementing it. On
                 // the next frame, direction $FFFF indexes two bytes before the function
                 // table and accidentally calls the right-list initializer at $A2:A49D.
-                SetOwtchInstructionList(
-                    slot,
-                    OwtchInstructionProgramDefinitions.MovingRight);
+                SetOwtchProgram(slot, state, OwtchProgram.MovingRight);
                 return;
 
             default:
@@ -226,10 +217,10 @@ internal sealed class OwtchBehavior : IEnemySpecies
     private static bool OwtchAcceptsOrdinaryShot(OwtchEnemyState state) =>
         unchecked((short)((ushort)state.Behavior - 1)) < 0;
 
-    /// <summary>Restarts the selected facing animation at its first instruction.</summary>
-    private static void SetOwtchInstructionList(RoomEnemySlot slot, ushort instructionList)
+    /// <summary>Restarts the selected facing animation at its first step.</summary>
+    private static void SetOwtchProgram(RoomEnemySlot slot, OwtchEnemyState state, OwtchProgram program)
     {
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<OwtchProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -270,15 +261,19 @@ internal sealed class OwtchBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Routes Owtch's two private animation callbacks to its movement-state setter.</summary>
-    internal void RegisterOwtchOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Owtch's shell-cycling animations as typed programs (#641).</summary>
+    internal void RegisterOwtchTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessOwtchInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireOwtchState(slot);
+            AnimationProgramCursor<OwtchProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, OwtchAnimations.Programs, ref cursor, OwtchFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyOwtchCue(state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
     internal void RegisterOwtchShotReactions(EnemyAiTable table)

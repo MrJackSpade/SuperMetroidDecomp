@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class OwtchEnemyState
 
     /// <summary>Attaches the typed Owtch view to its physical enemy slot.</summary>
     internal OwtchEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<OwtchProgram> Program { get; set; }
 
     /// <summary>Native <c>$0FA8,x</c>, fractional half of positive 16.16 speed.</summary>
     public ushort RightSubvelocity { get; internal set; }

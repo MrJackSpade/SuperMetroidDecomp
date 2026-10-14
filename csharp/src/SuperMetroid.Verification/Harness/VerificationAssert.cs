@@ -1,3 +1,6 @@
+using SuperMetroid.Verification.Enemies.Cacatac;
+using SuperMetroid.Verification.Enemies.Stoke;
+using SuperMetroid.Verification.Enemies.Owtch;
 using SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Enemies.Shutters;
@@ -12,7 +15,6 @@ using static SuperMetroid.Verification.Audio.AudioUploadCatalogVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerification;
 using static SuperMetroid.Verification.Enemies.Beetom.BeetomInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.BlockReactionSelectorsVerification;
-using static SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.BlueDoorPlmDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.BombBlockProgramsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoAttackDefinitionsVerification;
@@ -25,7 +27,6 @@ using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonSpeedsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallPlmsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Boyon.BoyonInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Cacatac.CacatacInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresBlastPlacementVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionFrameCatalogVerification;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeVramTransferDefinitionsVerification;
@@ -219,7 +220,6 @@ using static SuperMetroid.Verification.Rooms.Plms.NoobTubePlmDrawDefinitionsVeri
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Menus.OptionsGeometryLookupsVerification;
-using static SuperMetroid.Verification.Enemies.Owtch.OwtchInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Owtch.OwtchMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.PaletteFxInstructionCodesVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseButtonSpansVerification;
@@ -290,7 +290,6 @@ using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterPlmProgramsVe
 using static SuperMetroid.Verification.Samus.Movement.SquareSlopeDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.StationAccessPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.StatueWalkDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Stoke.StokeInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SuitPickupBeamCurveDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Waver.WaverAnimationDefinitionsVerification;
@@ -1568,8 +1567,8 @@ internal static class VerificationAssert
         Suite(nameof(VerifySamusDeathSequence), () => VerifySamusDeathSequence());
         Suite(nameof(VerifyNuclearWaffleProjectileInstructionProgramDefinitions), () => VerifyNuclearWaffleProjectileInstructionProgramDefinitions());
         Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(rom));
-        Suite(nameof(VerifyOwtchInstructionProgramDefinitions), () => VerifyOwtchInstructionProgramDefinitions());
-        Suite(nameof(VerifyStokeInstructionProgramDefinitions), () => VerifyStokeInstructionProgramDefinitions());
+        Suite(nameof(OwtchBehaviorVerification.VerifyOwtchBehavior), () => OwtchBehaviorVerification.VerifyOwtchBehavior(rom));
+        Suite(nameof(StokeBehaviorVerification.VerifyStokeBehavior), () => StokeBehaviorVerification.VerifyStokeBehavior(rom));
         Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions());
         Suite(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(rom));
         Suite(nameof(VerifyMetroidsClearedStatePlm), () => VerifyMetroidsClearedStatePlm(new TestAddressSpace()));
@@ -1589,7 +1588,7 @@ internal static class VerificationAssert
         Suite(nameof(VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions), () => VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(rom));
         Suite(nameof(VerifyDragonFireballInstructionProgramDefinitions), () => VerifyDragonFireballInstructionProgramDefinitions());
         Suite(nameof(VerifyDragonInstructionProgramDefinitions), () => VerifyDragonInstructionProgramDefinitions());
-        Suite(nameof(VerifyCacatacInstructionProgramDefinitions), () => VerifyCacatacInstructionProgramDefinitions());
+        Suite(nameof(CacatacBehaviorVerification.VerifyCacatacBehavior), () => CacatacBehaviorVerification.VerifyCacatacBehavior(rom));
         Suite(nameof(BullBehaviorVerification.VerifyBullBehavior), () => BullBehaviorVerification.VerifyBullBehavior(rom));
         Suite(nameof(BullAnimationsVerification.VerifyBullAnimations), () => BullAnimationsVerification.VerifyBullAnimations(rom));
         Suite(nameof(VerifyChargeFlareDefinitions), () => VerifyChargeFlareDefinitions(rom));
@@ -3535,18 +3534,6 @@ internal static class VerificationAssert
         var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Bomb Torizo NTSC J/U v1.0 oracle");
-        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
-        return 0;
-    }
-
-    /// <summary>Checks Blue Brinstar face-block animation lists.</summary>
-    [VerificationCommand("--lookup-face-block-programs")]
-    internal static int LookupFaceBlockProgramsCommand()
-    {
-        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Face block NTSC J/U v1.0 oracle");
-        Suite(nameof(VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions), () => VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(oracle));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
         return 0;
     }

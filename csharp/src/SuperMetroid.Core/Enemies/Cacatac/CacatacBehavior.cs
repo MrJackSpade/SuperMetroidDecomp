@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Cacatac.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
@@ -17,31 +19,24 @@ internal sealed class CacatacBehavior : IEnemySpecies
         _projectiles = projectiles;
     }
 
-    /// <summary>Executes Cacatac's private animation instructions.</summary>
-    private bool TryProcessCacatacInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of Cacatac's animations.</summary>
+    private CacatacProgram? ApplyCacatacCue(RoomEnemySlot slot, CacatacEnemyState state, CacatacCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Cacatac ||
-            !Enum.IsDefined((CacatacInstruction)word))
-            return false;
-
-        switch ((CacatacInstruction)word)
+        switch (cue.Kind)
         {
-            case CacatacInstruction.SetFunctionMovingLeftRight:
-                RestoreCacatacPatrol(RequireCacatacState(slot));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case CacatacInstruction.PlaySpikesSFX:
+            case CacatacCueKind.RestorePatrol:
+                RestoreCacatacPatrol(state);
+                break;
+            case CacatacCueKind.PlaySpikeSound:
                 PlayCacatacSpikeSound();
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case CacatacInstruction.SpawnSpikeProjectileWithParameterInY:
-                SpawnCacatacSpike(slot, EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2))));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
+                break;
+            case CacatacCueKind.SpawnSpike:
+                SpawnCacatacSpike(slot, cue.Value);
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Cacatac does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(CacatacCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Library-two request emitted by the spike-release animation command.</summary>
@@ -81,11 +76,6 @@ internal sealed class CacatacBehavior : IEnemySpecies
 
         bool upsideUp = (SnesLittleEndian.HighByteInPlace(slot.Parameter1)) != 0;
         slot.SpritemapPointer = 0x804d;
-        SetCacatacInstructionList(
-            slot,
-            upsideUp
-                ? CacatacInstructionProgramDefinitions.UpsideUpIdle
-                : CacatacInstructionProgramDefinitions.UpsideDownIdle);
 
         ushort distance = CacatacMovementDefinitions.TravelDistance((byte)distanceIndex);
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
@@ -110,6 +100,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
             UpsideUp = upsideUp,
         };
         _cacatacStates[slot.SlotIndex] = state;
+        SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdle);
     }
 
     /// <summary>Ports <c>MainAI_Cacatac</c> and its three indirect targets.</summary>
@@ -175,11 +166,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
             return;
 
         state.Function = CacatacEnemyFunction.Stopped;
-        SetCacatacInstructionList(
-            slot,
-            state.UpsideUp
-                ? CacatacInstructionProgramDefinitions.UpsideUpAttack
-                : CacatacInstructionProgramDefinitions.UpsideDownAttack);
+        SetCacatacProgram(slot, state, state.UpsideUp ? CacatacProgram.UpsideUpAttack : CacatacProgram.UpsideDownAttack);
     }
 
     /// <summary>Animation instruction $A2:A095: restore patrol from the direction word.</summary>
@@ -195,10 +182,10 @@ internal sealed class CacatacBehavior : IEnemySpecies
     /// <summary>Animation instruction $A2:9F2A: publish library-two sound $34.</summary>
     private void PlayCacatacSpikeSound() => LastCacatacSoundEffect = CacatacSpikeSound;
 
-    /// <summary>Installs a patrol or attack list for execution on the next instruction tick.</summary>
-    internal static void SetCacatacInstructionList(RoomEnemySlot slot, ushort instructionList)
+    /// <summary>Starts a patrol or attack animation on the next instruction tick.</summary>
+    internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)
     {
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<CacatacProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -238,15 +225,19 @@ internal sealed class CacatacBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Handles Cacatac's patrol restore, spike sound and projectile spawn opcodes.</summary>
-    internal void RegisterCacatacOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Cacatac's idle and spike-attack animations as typed programs (#641).</summary>
+    internal void RegisterCacatacTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessCacatacInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireCacatacState(slot);
+            AnimationProgramCursor<CacatacProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, CacatacAnimations.Programs, ref cursor, CacatacFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyCacatacCue(slot, state, cue));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> and initializer $86:D992.

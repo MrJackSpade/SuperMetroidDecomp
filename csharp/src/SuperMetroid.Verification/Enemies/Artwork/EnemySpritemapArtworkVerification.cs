@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Enemies.Cacatac;
+using SuperMetroid.Core.Enemies.Stoke;
+using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Verification.Enemies.Choot;
@@ -13,7 +16,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Beetom.BeetomInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Corpses.DeadTorizoArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Evir.EvirVisualsVerification;
@@ -643,23 +645,6 @@ internal static class EnemySpritemapArtworkVerification
         AssertThrows<InvalidDataException>(
             () => SciserVisualDefinitions.FrameAt(SciserInstructionProgramDefinitions.UpsideUp),
             "Sciser rejects adjacent mechanics as a visual selector");
-        for (int index = 0;
-             index < BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling
-                .PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.FaceBlock, operand,
-                    out ushort selected),
-                $"face-block visual operand $A8:{operand:X4} is compiled");
-            AssertEqual(ReadBlueBrinstarFaceBlockWord(rom, 0xa80000 | operand), selected,
-                $"face-block selector $A8:{operand:X4} matches the cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => BlueBrinstarFaceBlockVisualDefinitions.FrameAt(
-                BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial),
-            "face block rejects adjacent timing as presentation");
         for (int index = 0;
              index < MorphBallEyeInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -1762,8 +1747,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(unchecked((byte)(stockKago.LowTable[0] + 1)),
             editedKago.LowTable[0],
             "Kago authored offset changes installed presentation");
-        ushort faceBlockPointer = BlueBrinstarFaceBlockVisualDefinitions.FrameAt(
-            BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(6));
+        ushort faceBlockPointer = BlueBrinstarFaceBlockAnimations.Spritemaps(BlueBrinstarFaceBlockProgram.Initial).Single();
         OamBuffer stockFaceBlock = DrawEnemy(stock, NewFrameReadGuard(rom),
             faceBlockPointer, EnemyDefinitionId.FaceBlock);
         OamBuffer editedFaceBlock = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1931,7 +1915,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(unchecked((byte)(stockCeresBaby.LowTable[1] + 1)),
             editedCeresBaby.LowTable[1],
             "authored Ceres Baby Y offset changes installed OAM");
-        ushort cacatacPointer = EnemySpritemapDefinitions.CacatacFrameAt(0x9e8e);
+        ushort cacatacPointer = CacatacAnimations.Spritemaps(CacatacProgram.UpsideUpIdle).First();
         var stockCacatac = DrawEnemy(stock, NewFrameReadGuard(rom),
             cacatacPointer, EnemyDefinitionId.Cacatac);
         var editedCacatac = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -2038,13 +2022,12 @@ internal static class EnemySpritemapArtworkVerification
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
-        foreach ((EnemyDefinitionId definition, ushort operand, string name) in new[]
+        foreach ((EnemyDefinitionId definition, ushort pointer, string name) in new[]
                  {
-                     (EnemyDefinitionId.Owtch, (ushort)0xa3af, "Owtch"),
-                     (EnemyDefinitionId.Stoke, (ushort)0x8936, "Stoke"),
+                     (EnemyDefinitionId.Owtch, OwtchAnimations.Spritemaps(OwtchProgram.MovingLeftLoop).First(), "Owtch"),
+                     (EnemyDefinitionId.Stoke, StokeAnimations.Spritemaps(StokeProgram.MovingLeftLoop).First(), "Stoke"),
                  })
         {
-            ushort pointer = OwtchStokeVisualDefinitions.FrameAt(definition, operand);
             OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
                 pointer, definition);
             OamBuffer editedFrame = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -3170,8 +3153,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preOwtchStokeFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preOwtchStokeUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
-        ushort owtchPointer = OwtchStokeVisualDefinitions.FrameAt(
-            EnemyDefinitionId.Owtch, 0xa3af);
+        ushort owtchPointer = OwtchAnimations.Spritemaps(OwtchProgram.MovingLeftLoop).First();
         OamBuffer stockOwtch = DrawEnemy(stock, NewFrameReadGuard(rom),
             owtchPointer, EnemyDefinitionId.Owtch);
         OamBuffer upgradedOwtch = DrawEnemy(preOwtchStokeUpgraded,

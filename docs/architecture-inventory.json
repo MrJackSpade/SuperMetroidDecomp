@@ -24399,19 +24399,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.OwtchStokeVisualDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/OwtchStokeVisualDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.PirateArtworkNameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -25360,6 +25347,32 @@
       "disposition": "constructor-parameters"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Cacatac.Artwork.CacatacFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Cacatac/Artwork/CacatacFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacBehavior",
       "kind": "class",
       "scope": "product",
@@ -25371,6 +25384,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacDirection",
@@ -25412,43 +25451,17 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacInstruction",
-      "kind": "enum",
+      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacInstruction.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacFrame.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Cacatac/CacatacInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacMovementDefinitions",
@@ -25462,6 +25475,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacProgram",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacProgram.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacProjectileDefinitions",
@@ -29747,6 +29773,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.Artwork.BlueBrinstarFaceBlockFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/Artwork/BlueBrinstarFaceBlockFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockBehavior",
       "kind": "class",
       "scope": "product",
@@ -29773,30 +29825,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockFrame.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockProgram",
+      "kind": "enum",
+      "scope": "product",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockProgram.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.FallingSparks.FallingSparkInstructionProgramDefinitions",
@@ -32679,6 +32731,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Owtch.Artwork.OwtchFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Owtch/Artwork/OwtchFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Owtch.OwtchAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Owtch.OwtchBehavior",
       "kind": "class",
       "scope": "product",
@@ -32705,6 +32783,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Owtch.OwtchCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Owtch.OwtchCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Owtch.OwtchEnemyState",
       "kind": "class",
       "scope": "product",
@@ -32718,43 +32822,17 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Owtch.OwtchInstruction",
-      "kind": "enum",
+      "type": "SuperMetroid.Core.Enemies.Owtch.OwtchFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchInstruction.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchFrame.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Owtch.OwtchInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Owtch.OwtchInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Owtch/OwtchInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Owtch.OwtchMovementDefinitions",
@@ -32800,6 +32878,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Owtch.OwtchProgram",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchProgram.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.PipeBugs.Artwork.PipeBugFrameDefinitions",
@@ -36380,6 +36471,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Stoke.Artwork.StokeFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Stoke/Artwork/StokeFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Stoke.StokeAiFunction",
       "kind": "enum",
       "scope": "product",
@@ -36393,6 +36497,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Stoke.StokeAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Stoke.StokeBehavior",
       "kind": "class",
       "scope": "product",
@@ -36404,6 +36521,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Stoke.StokeCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Stoke.StokeCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Stoke.StokeDirection",
@@ -36432,43 +36575,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Stoke.StokeInstruction",
+      "type": "SuperMetroid.Core.Enemies.Stoke.StokeFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Stoke.StokeProgram",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeInstruction.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeProgram.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Stoke.StokeInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Stoke.StokeInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Stoke/StokeInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Stoke.StokeProjectileFunction",
@@ -92435,14 +92565,27 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Cacatac.CacatacInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Cacatac.CacatacAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Cacatac/CacatacInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Cacatac/CacatacAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Cacatac.CacatacBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Cacatac/CacatacBehaviorVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -92459,6 +92602,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Cacatac.CacatacNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Cacatac/CacatacNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Cacatac.CacatacNativeValues",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Cacatac/CacatacNativeValues.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Cacatac.CacatacProjectileDefinitionsVerification",
@@ -93774,17 +93943,56 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/FaceBlocks/BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/FaceBlocks/BlueBrinstarFaceBlockAnimationsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/FaceBlocks/BlueBrinstarFaceBlockBehaviorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/FaceBlocks/BlueBrinstarFaceBlockNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockNativeValues",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/FaceBlocks/BlueBrinstarFaceBlockNativeValues.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.FallingSparks.FallingSparkInstructionProgramDefinitionsVerification",
@@ -94840,14 +95048,27 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Owtch.OwtchInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Owtch.OwtchAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Owtch/OwtchInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Owtch/OwtchAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Owtch.OwtchBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Owtch/OwtchBehaviorVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -94864,6 +95085,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Owtch.OwtchNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Owtch/OwtchNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.PipeBugs.PipeBugAnimationDefinitionsVerification",
@@ -94903,6 +95137,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.PipeBugs.PipeBugNativeInstructionPointers",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/PipeBugs/PipeBugNativeInstructionPointers.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.PipeBugs.PipeBugNativeListAddresses",
@@ -95763,17 +96010,43 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Stoke.StokeInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Stoke.StokeAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Stoke/StokeInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Stoke/StokeAnimationsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Stoke.StokeBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Stoke/StokeBehaviorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Stoke.StokeNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Stoke/StokeNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Stoke.StokeProjectileInstructionProgramDefinitionsVerification",

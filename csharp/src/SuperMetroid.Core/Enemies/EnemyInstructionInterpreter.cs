@@ -389,12 +389,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi)
             return HibashiInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock)
-        {
-            return BlueBrinstarFaceBlockInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon)
             return BoyonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -410,20 +404,11 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon)
             return DragonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac)
-            return CacatacInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite)
             return MagdolliteInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (KiHunterBehavior.IsKiHunterDefinition(slot.EnemyDefinitionPointer))
             return KiHunterInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch)
-            return OwtchInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke)
-            return StokeInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom)
             return BeetomInstructionProgramDefinitions.ReadMechanicsWord(address);

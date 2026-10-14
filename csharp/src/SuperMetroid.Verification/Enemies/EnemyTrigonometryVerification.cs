@@ -1,3 +1,7 @@
+using SuperMetroid.Verification.Enemies.FaceBlocks;
+using SuperMetroid.Verification.Enemies.Cacatac;
+using SuperMetroid.Verification.Enemies.Stoke;
+using SuperMetroid.Verification.Enemies.Owtch;
 using SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Enemies.Hoppers;
@@ -23,7 +27,6 @@ using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonInstructionProgramDe
 using static SuperMetroid.Verification.Enemies.Atomic.AtomicMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerification;
 using static SuperMetroid.Verification.Enemies.Beetom.BeetomInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.FaceBlocks.BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.BlueDoorPlmDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BombSpreadLaunchDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoAttackDefinitionsVerification;
@@ -38,7 +41,6 @@ using static SuperMetroid.Verification.Enemies.Boulder.BoulderBounceDefinitionsV
 using static SuperMetroid.Verification.Enemies.Boyon.BoyonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Boyon.BoyonSpeedDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Bull.BullMovementDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Cacatac.CacatacInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Cacatac.CacatacMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Cacatac.CacatacProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Cacatac.CacatacProjectileInstructionProgramDefinitionsVerification;
@@ -177,7 +179,6 @@ using static SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumpDefini
 using static SuperMetroid.Verification.Enemies.Rios.NorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleProjectileInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Owtch.OwtchInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Owtch.OwtchMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonCasualFlamesVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonDeathExplosionsVerification;
@@ -264,7 +265,6 @@ using static SuperMetroid.Verification.Bosses.Torizo.TorizoProjectileAnimationsV
 using static SuperMetroid.Verification.Samus.Movement.SquareSlopeDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.StationAccessPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.StatueWalkDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Stoke.StokeInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Stoke.StokeProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SuitPickupBeamCurveDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
@@ -376,11 +376,14 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyNoobTubeProjectileInstructionProgramDefinitions), () => VerifyNoobTubeProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainTopTubeInstructionProgramDefinitions), () => VerifyMotherBrainTopTubeInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyGunshipDustAnimations), () => VerifyGunshipDustAnimations(LoadRepositoryRom())),
-        new(nameof(VerifyCacatacInstructionProgramDefinitions), () => VerifyCacatacInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(CacatacAnimationsVerification.VerifyCacatacAnimations), () => CacatacAnimationsVerification.VerifyCacatacAnimations(LoadRepositoryRom())),
+        new(nameof(CacatacBehaviorVerification.VerifyCacatacBehavior), () => CacatacBehaviorVerification.VerifyCacatacBehavior(LoadRepositoryRom())),
         new(nameof(VerifyMagdolliteInstructionProgramDefinitions), () => VerifyMagdolliteInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyKiHunterInstructionProgramDefinitions), () => VerifyKiHunterInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyOwtchInstructionProgramDefinitions), () => VerifyOwtchInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyStokeInstructionProgramDefinitions), () => VerifyStokeInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(OwtchAnimationsVerification.VerifyOwtchAnimations), () => OwtchAnimationsVerification.VerifyOwtchAnimations(LoadRepositoryRom())),
+        new(nameof(OwtchBehaviorVerification.VerifyOwtchBehavior), () => OwtchBehaviorVerification.VerifyOwtchBehavior(LoadRepositoryRom())),
+        new(nameof(StokeAnimationsVerification.VerifyStokeAnimations), () => StokeAnimationsVerification.VerifyStokeAnimations(LoadRepositoryRom())),
+        new(nameof(StokeBehaviorVerification.VerifyStokeBehavior), () => StokeBehaviorVerification.VerifyStokeBehavior(LoadRepositoryRom())),
         new(nameof(VerifyRipperAnimations), () => VerifyRipperAnimations(LoadRepositoryRom())),
         new(nameof(VerifyRipperBehavior), () => VerifyRipperBehavior(LoadRepositoryRom())),
         new(nameof(VerifyKzanAnimations), () => VerifyKzanAnimations(LoadRepositoryRom())),
@@ -425,7 +428,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(LoadRepositoryRom())),
         new(nameof(NuclearWaffleAnimationsVerification.VerifyNuclearWaffleAnimations), () => NuclearWaffleAnimationsVerification.VerifyNuclearWaffleAnimations(LoadRepositoryRom())),
         new(nameof(VerifyHibashiDefinitions), () => VerifyHibashiDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions), () => VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(BlueBrinstarFaceBlockAnimationsVerification.VerifyBlueBrinstarFaceBlockAnimations), () => BlueBrinstarFaceBlockAnimationsVerification.VerifyBlueBrinstarFaceBlockAnimations(LoadRepositoryRom())),
+        new(nameof(BlueBrinstarFaceBlockBehaviorVerification.VerifyBlueBrinstarFaceBlockBehavior), () => BlueBrinstarFaceBlockBehaviorVerification.VerifyBlueBrinstarFaceBlockBehavior(LoadRepositoryRom())),
         new(nameof(VerifyFuneNamiheDefinitions), () => VerifyFuneNamiheDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyFuneNamiheInstructionProgramDefinitions), () => VerifyFuneNamiheInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(LoadRepositoryRom())),

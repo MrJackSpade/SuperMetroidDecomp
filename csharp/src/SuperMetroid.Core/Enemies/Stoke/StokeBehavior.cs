@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Cacatac;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Stoke.Artwork;
+using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -23,31 +25,24 @@ internal sealed class StokeBehavior : IEnemySpecies
         _projectiles = projectiles;
     }
 
-    /// <summary>Executes Stoke's private animation instructions.</summary>
-    private bool TryProcessStokeInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Carries out one cue of Stoke's animations.</summary>
+    private StokeProgram? ApplyStokeCue(RoomEnemySlot slot, StokeEnemyState state, StokeCue cue)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Stoke ||
-            !Enum.IsDefined((StokeInstruction)word))
-            return false;
-
-        switch ((StokeInstruction)word)
+        switch (cue.Kind)
         {
-            case StokeInstruction.SpawnFireball:
-                SpawnStokeProjectile(slot, EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2))));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            case StokeInstruction.SetMovingLeft:
-                SetStokeMovingLeft(RequireStokeState(slot));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case StokeInstruction.SetMovingRight:
-                SetStokeMovingRight(RequireStokeState(slot));
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+            case StokeCueKind.SpawnFireball:
+                SpawnStokeProjectile(slot, cue.Value);
+                break;
+            case StokeCueKind.SetMovingLeft:
+                SetStokeMovingLeft(state);
+                break;
+            case StokeCueKind.SetMovingRight:
+                SetStokeMovingRight(state);
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Stoke does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(StokeCueKind)} {cue.Kind}.");
         }
+        return null;
     }
 
     /// <summary>Two-pixel downward probe used to test for a solid floor without moving Stoke.</summary>
@@ -87,10 +82,10 @@ internal sealed class StokeBehavior : IEnemySpecies
         // A nonzero init0 takes the native right-facing branch. The room-loader tail later
         // restores the transient empty map, and the first instruction tick supplies art.
         slot.SpritemapPointer = 0x804d;
-        SetStokeInstructionList(slot, StokeInstructionProgramDefinitions.MovingLeft);
+        SetStokeProgram(slot, state, StokeProgram.MovingLeft);
         if (slot.Parameter1 != 0)
         {
-            SetStokeInstructionList(slot, StokeInstructionProgramDefinitions.MovingRight);
+            SetStokeProgram(slot, state, StokeProgram.MovingRight);
             state.Function = StokeAiFunction.MovingRight;
         }
     }
@@ -112,7 +107,7 @@ internal sealed class StokeBehavior : IEnemySpecies
                     state,
                     level,
                     (SnesSixteenSixteen.FromWhole((int)(short)state.LeftVelocity)) | state.LeftSubvelocity,
-                    StokeInstructionProgramDefinitions.AttackingLeft);
+                    StokeProgram.AttackingLeft);
                 return;
 
             case StokeAiFunction.MovingRight:
@@ -121,7 +116,7 @@ internal sealed class StokeBehavior : IEnemySpecies
                     state,
                     level,
                     (SnesSixteenSixteen.FromWhole((int)(short)state.RightVelocity)) | state.RightSubvelocity,
-                    StokeInstructionProgramDefinitions.AttackingRight);
+                    StokeProgram.AttackingRight);
                 return;
 
             default:
@@ -136,7 +131,7 @@ internal sealed class StokeBehavior : IEnemySpecies
         StokeEnemyState state,
         RoomLevelData level,
         int horizontalDisplacement,
-        ushort attackingInstructionList)
+        StokeProgram attackingProgram)
     {
         MoveStokeAndTurnAtTerrain(slot, state, level, horizontalDisplacement);
 
@@ -150,7 +145,7 @@ internal sealed class StokeBehavior : IEnemySpecies
         // The attack list owns Stoke until its trailing goto reaches $8932/$8958 and that
         // wrapper's command installs the corresponding moving function again.
         state.Function = StokeAiFunction.IdleDuringAttack;
-        SetStokeInstructionList(slot, attackingInstructionList);
+        SetStokeProgram(slot, state, attackingProgram);
     }
 
     /// <summary>Ports <c>StokeMovement</c> at <c>$A2:8A76</c>.</summary>
@@ -183,15 +178,15 @@ internal sealed class StokeBehavior : IEnemySpecies
         // The routine always selects the left wrapper first, then replaces it with right
         // only when the old direction was not one. It does not update direction/function;
         // the wrapper command executes later in this same enemy instruction phase.
-        SetStokeInstructionList(slot, StokeInstructionProgramDefinitions.MovingLeft);
+        SetStokeProgram(slot, state, StokeProgram.MovingLeft);
         if (state.Direction != StokeDirection.Right)
-            SetStokeInstructionList(slot, StokeInstructionProgramDefinitions.MovingRight);
+            SetStokeProgram(slot, state, StokeProgram.MovingRight);
     }
 
-    /// <summary>Switches the active animation list so its first command executes on the next instruction tick.</summary>
-    private static void SetStokeInstructionList(RoomEnemySlot slot, ushort instructionList)
+    /// <summary>Switches the active animation so its first step runs on the next instruction tick.</summary>
+    private static void SetStokeProgram(RoomEnemySlot slot, StokeEnemyState state, StokeProgram program)
     {
-        slot.CurrentInstruction = instructionList;
+        state.Program = AnimationProgramCursor<StokeProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -245,15 +240,19 @@ internal sealed class StokeBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Routes fireball spawn and movement-resume opcodes to Stoke's private instruction interpreter.</summary>
-    internal void RegisterStokeOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Stoke's walking and fire-spitting animations as typed programs (#641).</summary>
+    internal void RegisterStokeTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke, (slot, _) =>
         {
-            yieldInterpreter = false;
-            return TryProcessStokeInstruction(slot, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireStokeState(slot);
+            AnimationProgramCursor<StokeProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, StokeAnimations.Programs, ref cursor, StokeFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyStokeCue(slot, state, cue));
+            state.Program = cursor;
         });
-    }
+
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> followed by Stoke projectile
     /// initializer <c>$86:DB18</c>. Direction zero selects the intentionally odd left branch,

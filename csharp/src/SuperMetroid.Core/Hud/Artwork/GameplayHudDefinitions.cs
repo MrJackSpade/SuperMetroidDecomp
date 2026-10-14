@@ -216,4 +216,16 @@ public static class GameplayHudDefinitions
     public static string IconName(int itemIndex) => (uint)itemIndex < IconNames.Length
         ? IconNames[itemIndex]
         : throw new ArgumentOutOfRangeException(nameof(itemIndex));
+
+    /// <summary>$8C: byte offset of the energy digits' anchor in the HUD tilemap.</summary>
+    public const int HealthAnchorByteOffset = 0x8c;
+
+    /// <summary>$94: byte offset of the missile count's anchor in the HUD tilemap.</summary>
+    public const int MissileAnchorByteOffset = 0x94;
+
+    /// <summary>$9C: byte offset of the super missile count's anchor in the HUD tilemap.</summary>
+    public const int SuperMissileAnchorByteOffset = 0x9c;
+
+    /// <summary>$A2: byte offset of the power bomb count's anchor in the HUD tilemap.</summary>
+    public const int PowerBombAnchorByteOffset = 0xa2;
 }

@@ -23,32 +23,32 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 34544,
-    "PointerDispatch": 1139,
+    "RawHexLiteral": 34454,
+    "PointerDispatch": 1137,
     "OpaqueWordArray": 1125,
-    "CatalogHexLiteral": 96599,
-    "JustifiedHexLiteral": 88,
+    "CatalogHexLiteral": 96620,
+    "JustifiedHexLiteral": 98,
     "RawWidthOperation": 46,
     "OwnedWidthOperation": 72,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 4,
     "CountdownSelfDecrement": 54,
-    "class:NumericQuantity": 55600,
-    "class:DomainIdentity": 6679,
-    "class:ComposableBits": 1673,
+    "class:NumericQuantity": 55587,
+    "class:DomainIdentity": 6675,
+    "class:ComposableBits": 1642,
     "class:StructuredInstruction": 44207,
-    "class:CartridgeAddress": 24595,
-    "class:Unknown": 920,
+    "class:CartridgeAddress": 24584,
+    "class:Unknown": 918,
     "storageWidthMembers": 1561
   },
   "subsystems": [
     {
       "name": "Asset catalogs and decoders",
       "totals": {
-        "CatalogHexLiteral": 9413,
+        "CatalogHexLiteral": 9417,
         "JustifiedHexLiteral": 5,
         "OwnedWidthOperation": 2,
-        "class:NumericQuantity": 526,
+        "class:NumericQuantity": 530,
         "class:DomainIdentity": 399,
         "class:ComposableBits": 21,
         "class:CartridgeAddress": 8401,
@@ -893,8 +893,8 @@
           "path": "csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayHudDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 23,
-            "class:NumericQuantity": 12,
+            "CatalogHexLiteral": 27,
+            "class:NumericQuantity": 16,
             "class:ComposableBits": 5,
             "class:CartridgeAddress": 6
           }
@@ -966,142 +966,48 @@
     {
       "name": "Asset extraction (encoded boundary)",
       "totals": {
-        "RawHexLiteral": 90,
-        "PointerDispatch": 9,
-        "CatalogHexLiteral": 24,
+        "CatalogHexLiteral": 39,
+        "JustifiedHexLiteral": 10,
         "OwnedWidthOperation": 3,
-        "class:NumericQuantity": 31,
-        "class:DomainIdentity": 12,
-        "class:ComposableBits": 44,
-        "class:CartridgeAddress": 37,
-        "class:Unknown": 2,
+        "class:NumericQuantity": 12,
+        "class:DomainIdentity": 8,
+        "class:ComposableBits": 13,
+        "class:CartridgeAddress": 19,
         "storageWidthMembers": 1
       },
-      "addressInterpretingTypes": [
-        "GameplayMessageNoticeExtractor",
-        "GameplayMessagePanelExtractor",
-        "GameplayMessageTitleExtractor",
-        "HyperBeamFxColorExtractor",
-        "IntroCinematicArtworkFiles",
-        "XrayRevealVisualFiles"
-      ],
+      "addressInterpretingTypes": [],
       "files": [
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/CeresDoorVisualFiles.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Areas/Ceres/CeresFlightArtworkExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 1
-          }
-        },
         {
           "path": "csharp/src/SuperMetroid.AssetExtraction/Audio/SpcAudioAssetExtractor.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 1,
+            "JustifiedHexLiteral": 2,
             "class:ComposableBits": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Audio/SpcExtractionData.cs",
+          "path": "csharp/src/SuperMetroid.AssetExtraction/Audio/SpcExtractionAddresses.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
-            "RawHexLiteral": 1,
+            "CatalogHexLiteral": 1,
             "class:NumericQuantity": 1
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Bosses/CrocomireColorExtractor.cs",
+          "path": "csharp/src/SuperMetroid.AssetExtraction/Cartridge/CartridgeFormatDefinitions.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Bosses/DraygonColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/BabyMetroidCutsceneColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/MotherBrainDeathColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/MotherBrainRainbowPaletteExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/ShitroidColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Bosses/PhantoonColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Bosses/Ridley/NorfairRidleyColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Bosses/SporeSpawnColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
+            "CatalogHexLiteral": 7,
+            "class:NumericQuantity": 4,
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.AssetExtraction/Cartridge/CartridgeImportAddressSpace.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
-            "RawHexLiteral": 11,
-            "class:NumericQuantity": 2,
-            "class:DomainIdentity": 2,
-            "class:ComposableBits": 5,
-            "class:CartridgeAddress": 2
+            "JustifiedHexLiteral": 4,
+            "class:ComposableBits": 4
           }
         },
         {
@@ -1110,16 +1016,6 @@
           "totals": {
             "OwnedWidthOperation": 3,
             "class:ComposableBits": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Cartridge/RomDataReader.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 6,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 4,
-            "class:Unknown": 1
           }
         },
         {
@@ -1158,8 +1054,17 @@
           "path": "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/SamusCartridgeTables.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
-            "CatalogHexLiteral": 4,
+            "CatalogHexLiteral": 5,
+            "class:NumericQuantity": 1,
             "class:CartridgeAddress": 4
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompressionCodes.cs",
+          "project": "SuperMetroid.AssetExtraction",
+          "totals": {
+            "CatalogHexLiteral": 6,
+            "class:NumericQuantity": 6
           }
         },
         {
@@ -1171,14 +1076,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompressionFormat.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 6,
-            "class:NumericQuantity": 6
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompressionHeader.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
@@ -1186,219 +1083,18 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/ChozoAndTubeColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/DachoraColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyBg2FrameFiles.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:DomainIdentity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyExtendedFrameFiles.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:Unknown": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyProjectileSpritemapFiles.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyTileArtworkFiles.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 7,
-            "class:NumericQuantity": 1,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 4,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/MagdollitePaletteCycleExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Enemies/WorkRobotPaletteCycleExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/CreditsPresentationExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:ComposableBits": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/EndingPaletteArtworkFiles.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Frontend/FileSelectPresentationExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Frontend/Intro/IntroCinematicArtworkFiles.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "PointerDispatch": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/TitleGradientDecoder.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
-            "RawHexLiteral": 4,
-            "class:ComposableBits": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/TitleSpriteExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxLayer3TilemapExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Hud/GameplayHudPresentationExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Hud/GameplayMessageNoticeExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Hud/GameplayMessagePanelExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Hud/GameplayMessageTitleExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "PointerDispatch": 2,
-            "class:CartridgeAddress": 2
+            "JustifiedHexLiteral": 3,
+            "class:ComposableBits": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomPlmDoorVisualFileCodec.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomVisualLayoutFiles.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:ComposableBits": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/HyperBeamFxColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBodyArtworkFiles.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 5,
-            "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusDeathPaletteArtworkFiles.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/Samus/XrayRevealVisualFiles.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 10,
-            "PointerDispatch": 3,
-            "class:NumericQuantity": 7,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/TourianStatueColorExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
+            "JustifiedHexLiteral": 1,
             "class:ComposableBits": 1
           }
         }
@@ -1762,8 +1458,8 @@
       "totals": {
         "RawHexLiteral": 7,
         "PointerDispatch": 2,
-        "CatalogHexLiteral": 654,
-        "class:NumericQuantity": 570,
+        "CatalogHexLiteral": 655,
+        "class:NumericQuantity": 571,
         "class:DomainIdentity": 17,
         "class:ComposableBits": 9,
         "class:CartridgeAddress": 61,
@@ -1943,6 +1639,14 @@
             "RawHexLiteral": 4,
             "class:NumericQuantity": 2,
             "class:Unknown": 2
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireMeltingDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 1,
+            "class:NumericQuantity": 1
           }
         },
         {
@@ -4407,16 +4111,16 @@
       "name": "Cinematics and scripted sequences",
       "totals": {
         "RawHexLiteral": 446,
-        "PointerDispatch": 114,
+        "PointerDispatch": 115,
         "OpaqueWordArray": 3,
-        "CatalogHexLiteral": 1737,
+        "CatalogHexLiteral": 1738,
         "JustifiedHexLiteral": 11,
         "CountdownSelfDecrement": 4,
-        "class:NumericQuantity": 1298,
+        "class:NumericQuantity": 1299,
         "class:DomainIdentity": 307,
         "class:ComposableBits": 209,
         "class:StructuredInstruction": 43,
-        "class:CartridgeAddress": 410,
+        "class:CartridgeAddress": 411,
         "class:Unknown": 48,
         "storageWidthMembers": 97
       },
@@ -4429,6 +4133,7 @@
         "CeresFallingDebrisInstructionProgramDefinitions",
         "CeresFlightSpriteInstructionDefinitions",
         "CeresSteamInstructionProgramDefinitions",
+        "CinematicCodePointers",
         "EndingCloudInstructionDefinitions",
         "EndingCompletionTextInstructionDefinitions",
         "EndingExplosionInstructionDefinitions",
@@ -4636,6 +4341,14 @@
           "totals": {
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 4
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 1,
+            "class:NumericQuantity": 1
           }
         },
         {
@@ -5978,9 +5691,10 @@
           "path": "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicCodePointers.cs",
           "project": "SuperMetroid.Core",
           "totals": {
+            "PointerDispatch": 1,
             "CatalogHexLiteral": 25,
             "class:NumericQuantity": 19,
-            "class:CartridgeAddress": 6
+            "class:CartridgeAddress": 7
           }
         },
         {
@@ -25854,16 +25568,17 @@
       "name": "Menus, map, HUD and messages",
       "totals": {
         "RawHexLiteral": 84,
-        "PointerDispatch": 2,
+        "PointerDispatch": 5,
         "CatalogHexLiteral": 432,
         "class:NumericQuantity": 336,
         "class:DomainIdentity": 77,
         "class:ComposableBits": 8,
-        "class:CartridgeAddress": 94,
+        "class:CartridgeAddress": 97,
         "class:Unknown": 3,
         "storageWidthMembers": 34
       },
       "addressInterpretingTypes": [
+        "GameplayMessageRomData",
         "TitleSequenceInstructionDefinitions"
       ],
       "files": [
@@ -26275,10 +25990,11 @@
           "path": "csharp/src/SuperMetroid.Core/Hud/GameplayMessageRomData.cs",
           "project": "SuperMetroid.Core",
           "totals": {
+            "PointerDispatch": 3,
             "CatalogHexLiteral": 25,
             "class:NumericQuantity": 17,
             "class:DomainIdentity": 3,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 8
           }
         },
         {
@@ -27858,7 +27574,7 @@
       "name": "Room FX, palette FX and HDMA",
       "totals": {
         "RawHexLiteral": 15,
-        "PointerDispatch": 62,
+        "PointerDispatch": 63,
         "OpaqueWordArray": 1,
         "CatalogHexLiteral": 4711,
         "OwnedWidthOperation": 1,
@@ -27866,7 +27582,7 @@
         "class:DomainIdentity": 465,
         "class:ComposableBits": 11,
         "class:StructuredInstruction": 5,
-        "class:CartridgeAddress": 226,
+        "class:CartridgeAddress": 227,
         "class:Unknown": 8,
         "storageWidthMembers": 32
       },
@@ -28073,9 +27789,9 @@
           "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 2,
+            "PointerDispatch": 3,
             "CatalogHexLiteral": 3,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 6
           }
         },
         {
@@ -29241,7 +28957,7 @@
       "name": "Samus: movement, poses and projectiles",
       "totals": {
         "RawHexLiteral": 261,
-        "PointerDispatch": 21,
+        "PointerDispatch": 23,
         "OpaqueWordArray": 111,
         "CatalogHexLiteral": 31618,
         "JustifiedHexLiteral": 3,
@@ -29251,7 +28967,7 @@
         "class:DomainIdentity": 604,
         "class:ComposableBits": 158,
         "class:StructuredInstruction": 29440,
-        "class:CartridgeAddress": 781,
+        "class:CartridgeAddress": 783,
         "class:Unknown": 47,
         "storageWidthMembers": 204
       },
@@ -29259,7 +28975,8 @@
         "HyperBeamPaletteFxState",
         "ProjectileAnimation",
         "SamusChargePalettePointerDefinitions",
-        "SamusProjectileInstructionDefinitions"
+        "SamusProjectileInstructionDefinitions",
+        "XrayRevealCodePointers"
       ],
       "files": [
         {
@@ -29408,9 +29125,10 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealCodePointers.cs",
           "project": "SuperMetroid.Core",
           "totals": {
+            "PointerDispatch": 2,
             "CatalogHexLiteral": 5,
             "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 1
+            "class:CartridgeAddress": 3
           }
         },
         {

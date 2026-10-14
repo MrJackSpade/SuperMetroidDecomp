@@ -19,7 +19,7 @@ internal static class RomDecompressionVerification
             encoded.Add(0xff);
             encoded.AddRange(Enumerable.Repeat((byte)0xff, 1024));
         }
-        encoded.Add(SmCompressionFormat.Terminator);
+        encoded.Add(SmCompressionCodes.Terminator);
         byte[] bytes = encoded.ToArray();
         var bus = new StreamBus(bytes);
         RomDataReader.Decompress(new StreamBus([0, 1, 0xff]), StreamBus.Start, 3);

@@ -50,4 +50,7 @@ internal static class CrocomireMeltingDefinitions
             throw new ArgumentOutOfRangeException(nameof(cursor));
         return (byte)~(128 >> (cursor & 7));
     }
+
+    /// <summary>VRAM word $4000: where the melting copies' destination words begin.</summary>
+    public const int DestinationWordBase = 0x4000;
 }

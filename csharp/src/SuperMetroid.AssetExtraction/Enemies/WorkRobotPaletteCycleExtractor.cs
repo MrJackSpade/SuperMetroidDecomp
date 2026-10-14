@@ -32,7 +32,7 @@ public static class WorkRobotPaletteCycleExtractor
                     frame * WorkRobotPaletteTimingDefinitions.RecordByteCount +
                     color * sizeof(ushort);
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
-                if ((native & 0x8000) != 0)
+                if (!Bgr555.IsColorWord(native))
                     throw new InvalidDataException(
                         $"Work Robot color ${source:X6} has an unrepresentable high bit.");
                 frames[frame][color] = new PaletteRgb5

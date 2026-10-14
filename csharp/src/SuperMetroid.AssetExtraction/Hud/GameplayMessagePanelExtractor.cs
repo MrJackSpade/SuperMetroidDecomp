@@ -38,7 +38,7 @@ public static class GameplayMessagePanelExtractor
                     $"Gameplay-message panel {id} lacks a compiled button binding."),
             };
             if (setup != expectedSetup ||
-                draw != GameplayMessageRomData.Routines.DrawLargeTilemap ||
+                !GameplayMessageRomData.IsLargeTilemapDraw(draw) ||
                 next - pointer != GameplayMessagePanelDefinitions.ContentWords * sizeof(ushort))
             {
                 throw new InvalidDataException(

@@ -57,7 +57,7 @@ internal static class EnemyBg2FrameFiles
                 {
                     int address = ((int)new SnesAddress(bank, cursor));
                     ushort destination = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-                    if (destination == 0xffff)
+                    if (destination == CartridgeFormatDefinitions.ListTerminator)
                     {
                         terminated = true;
                         break;

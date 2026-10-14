@@ -24,7 +24,7 @@ internal static class CeresFlightArtworkExtractor
         byte[] objectCharacters = Read(CeresFlightRomData.Assets.ObjectCharacters,
             CeresFlightArtworkFormat.ObjectByteCount, "OBJ characters");
         byte[] decompressedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresFlightRomData.Assets.Mode7Maps,
-            maximumOutputBytes: 0x1000);
+            maximumOutputBytes: 4096);
         if (decompressedMap.Length < CeresFlightRomData.Vram.Mode7MapByteCount)
             throw new InvalidDataException("Ceres flight lacks its front and rear Mode-7 map slices.");
         byte[] map = decompressedMap.AsSpan(0, CeresFlightRomData.Vram.Mode7MapByteCount).ToArray();
@@ -61,7 +61,7 @@ internal static class CeresFlightArtworkExtractor
         {
             ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
                 nativePalette.AsSpan(index * sizeof(ushort)));
-            if ((word & 0x8000) != 0)
+            if (!Bgr555.IsColorWord(word))
                 throw new InvalidDataException(
                     $"Ceres flight palette color {index} has an unrepresentable high bit.");
             colors[index] = new PaletteRgb5

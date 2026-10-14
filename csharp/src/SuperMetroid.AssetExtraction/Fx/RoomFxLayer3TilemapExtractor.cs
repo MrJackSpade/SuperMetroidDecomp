@@ -39,7 +39,7 @@ public static class RoomFxLayer3TilemapExtractor
             {
                 ushort raw = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * sizeof(ushort)));
                 if (type == RoomFxType.Spores)
-                    raw = (ushort)((raw & 0x03ff) | RoomFxSporeTilemapDefinitions.Attributes(index));
+                    raw = (ushort)(new SnesBgTilemapWord(raw).CharacterIndex | RoomFxSporeTilemapDefinitions.Attributes(index));
                 if (type is RoomFxType.Rain or RoomFxType.Fog)
                     raw = (ushort)((raw & ~RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type)) |
                         RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, index));

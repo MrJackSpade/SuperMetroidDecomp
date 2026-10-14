@@ -33,4 +33,7 @@ public static class CeresSteamDefinitions
         _ => throw new InvalidDataException(
             $"Ceres steam variant ${(ushort)variant:X4} exceeds its six-entry tables."),
     };
+
+    /// <summary>$10: the high byte the Ceres steam OAM entries carry as native presentation metadata after their low-byte component.</summary>
+    public const byte OamPadding = 0x10;
 }

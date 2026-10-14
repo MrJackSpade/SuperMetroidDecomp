@@ -54,10 +54,10 @@ public static class GameplayHudPresentationExtractor
             {
                 Health = ReadCells(bus, GameplayHudDefinitions.HealthDigitsAddress, 10),
                 Ammo = ReadCells(bus, GameplayHudDefinitions.AmmoDigitsAddress, 10),
-                HealthAnchor = Point(0x8c / sizeof(ushort)),
-                MissileAnchor = Point(0x94 / sizeof(ushort)),
-                SuperMissileAnchor = Point(0x9c / sizeof(ushort)),
-                PowerBombAnchor = Point(0xa2 / sizeof(ushort)),
+                HealthAnchor = Point(GameplayHudDefinitions.HealthAnchorByteOffset / sizeof(ushort)),
+                MissileAnchor = Point(GameplayHudDefinitions.MissileAnchorByteOffset / sizeof(ushort)),
+                SuperMissileAnchor = Point(GameplayHudDefinitions.SuperMissileAnchorByteOffset / sizeof(ushort)),
+                PowerBombAnchor = Point(GameplayHudDefinitions.PowerBombAnchorByteOffset / sizeof(ushort)),
             },
             AutoReserve = new()
             {

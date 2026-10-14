@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -187,12 +188,12 @@ public static class RoomVisualLayoutFiles
             throw new InvalidDataException($"Room level ${sourceAddress:X6} ends inside a BG2 word.");
         for (int index = 0; index < blockCount; index++)
         {
-            foreground[index] = unchecked((ushort)(
-                BinaryPrimitives.ReadUInt16LittleEndian(stream.AsSpan(2 + index * 2)) & 0x0fff));
+            foreground[index] = new RoomLevelWord(
+                BinaryPrimitives.ReadUInt16LittleEndian(stream.AsSpan(2 + index * 2))).VisualWord;
             int offset = backgroundOffset + index * 2;
             if (offset + 2 <= backgroundOffset + availableBackgroundBytes)
-                background[index] = unchecked((ushort)(
-                    BinaryPrimitives.ReadUInt16LittleEndian(stream.AsSpan(offset)) & 0x0fff));
+                background[index] = new RoomLevelWord(
+                    BinaryPrimitives.ReadUInt16LittleEndian(stream.AsSpan(offset))).VisualWord;
         }
         return new RoomVisualLayoutDocument(FormatVersion, sourceAddress,
             widthInBlocks, blockCount / widthInBlocks, foreground, background);

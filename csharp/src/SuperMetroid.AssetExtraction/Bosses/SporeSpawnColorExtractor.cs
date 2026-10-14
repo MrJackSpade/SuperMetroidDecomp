@@ -50,7 +50,7 @@ public static class SporeSpawnColorExtractor
             {
                 int address = source + color * sizeof(ushort);
                 ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                if ((native & 0x8000) != 0)
+                if (!Bgr555.IsColorWord(native))
                     throw new InvalidDataException(
                         $"Spore Spawn color ${address:X6} has an unrepresentable high bit.");
                 colors[color] = new PaletteRgb5

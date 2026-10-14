@@ -72,4 +72,7 @@ internal static class HyperBeamPaletteFxProgramDefinitions
             FrameDuration,
             unchecked((ushort)(framePointer + FrameByteCount)));
     }
+
+    /// <summary>The first color word of <paramref name="frame"/>, after the frame's leading command word.</summary>
+    internal static ushort FrameColorsPointer(int frame) => (ushort)(FirstFramePointer + frame * FrameByteCount + sizeof(ushort));
 }

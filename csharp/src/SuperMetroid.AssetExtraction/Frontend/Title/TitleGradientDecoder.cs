@@ -15,7 +15,7 @@ public static class TitleGradientDecoder
     /// <returns>The decoded title gradient scanlines.</returns>
     public static TitleGradientLine[] Decode(IImportCartridgeSource cartridge, ushort zoom)
     {
-        int pointer = TitleGradientRomData.FixedColorPointers + ((zoom & 0xf0) >> 3);
+        int pointer = TitleGradientRomData.FixedColorPointers + (zoom >> 4) % 16 * sizeof(ushort);
         int table = TitleGradientRomData.FixedColorBank |
             cartridge.ReadCartridgeWord(pointer);
         byte[] fixedWrites = Expand(cartridge, table);
@@ -25,9 +25,9 @@ public static class TitleGradientDecoder
         for (int line = 0; line < result.Length; line++)
         {
             byte write = fixedWrites[line], component = (byte)(write & 31);
-            if ((write & 0x20) != 0) red = component;
-            if ((write & 0x40) != 0) green = component;
-            if ((write & 0x80) != 0) blue = component;
+            if ((write & 0x20) != 0) red = component; // cartridge-encoding: allow(Register) - COLDATA red-select bit
+            if ((write & 0x40) != 0) green = component; // cartridge-encoding: allow(Register) - COLDATA green-select bit
+            if ((write & 0x80) != 0) blue = component; // cartridge-encoding: allow(Register) - COLDATA blue-select bit
             result[line] = new(red, green, blue, control[line]);
         }
         return result;

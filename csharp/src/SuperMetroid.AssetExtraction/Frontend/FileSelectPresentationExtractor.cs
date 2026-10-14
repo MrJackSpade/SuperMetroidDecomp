@@ -277,7 +277,7 @@ public static class FileSelectPresentationExtractor
     private static FileSelectSlotFieldDocument Slot(int energyOffset, int timeOffset) => new()
     {
         EnergyAnchor = Point(energyOffset),
-        HealthAnchor = Point(energyOffset + 0x42),
+        HealthAnchor = Point(energyOffset + FileSelectLayout.NextTilemapRowByteOffset + sizeof(ushort)),
         NoDataAnchor = Point(energyOffset + FileSelectLayout.NextTilemapRowByteOffset),
         TimeValueAnchor = Point(timeOffset),
     };

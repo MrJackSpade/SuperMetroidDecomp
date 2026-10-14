@@ -23,13 +23,13 @@ public static class EnemyProjectileSpritemapFiles
         Ensure.NotNull(bus);
         var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
         foreach ((ushort pointer, string name) in EnemyProjectileSpritemapDefinitions.Frames)
-            frames.Add(name, EnemySpritemapFiles.ExtractParts(bus, 0x8d, pointer));
+            frames.Add(name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank, pointer));
         var programFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
         foreach (EnemyProjectilePresentationFrameDefinition frame in
                  EnemyProjectilePresentationFrameDefinitions.All)
         {
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemyCartridgeTables.ProjectileInstructionBank, frame.OperandAddress));
-            programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractParts(bus, 0x8d, pointer));
+            programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank, pointer));
         }
         return EnemyProjectileSpritemapCatalog.Write(new EnemyProjectileSpritemapDocument
         {

@@ -61,7 +61,7 @@ public static class CreditsPresentationExtractor
             if ((instruction & CreditsPresentationDefinitions.Native.CommandBit) == 0)
             {
                 ushort offset = ReadWord(bus, Add(pointer, 2));
-                if ((offset & 0x3f) != 0 ||
+                if (offset % (CreditsPresentationDefinitions.TilemapWidth * sizeof(ushort)) != 0 ||
                     offset + CreditsPresentationDefinitions.TilemapWidth * sizeof(ushort) > source.Length)
                 {
                     throw new InvalidDataException(
@@ -190,7 +190,7 @@ public static class CreditsPresentationExtractor
 
     /// <summary>Recognizes the credits blank tile while ignoring its palette attribute bits.</summary>
     private static bool IsBlank(ushort word) =>
-        (word & 0x03ff) == CreditsPresentationDefinitions.BlankWord;
+        new SnesBgTilemapWord(word).CharacterIndex == CreditsPresentationDefinitions.BlankWord;
 
     /// <summary>Reads one instruction word from the credits program's native bank.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>

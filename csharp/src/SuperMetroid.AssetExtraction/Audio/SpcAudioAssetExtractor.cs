@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.AssetExtraction.Audio.SpcExtractionData;
+using static SuperMetroid.AssetExtraction.Audio.SpcExtractionAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction.Audio;
@@ -306,10 +306,10 @@ public static class SpcAudioAssetExtractor
             for (int sampleIndex = 0; sampleIndex < PcmSampleFormat.StreamingWindowSampleCount; sampleIndex++)
             {
                 byte packed = ram[address + 1 + sampleIndex / 2];
-                int sample = (sampleIndex & 1) == 0 ? packed >> 4 : packed & 0x0f;
+                int sample = (sampleIndex & 1) == 0 ? packed >> 4 : packed & 0x0f; // cartridge-encoding: allow(Codec) - BRR low sample nibble
                 if (sample > 7)
                     sample -= 16;
-                sample = shift <= 0x0c ? (sample << shift) >> 1 : (sample >> 3) << 12;
+                sample = shift <= 12 ? (sample << shift) >> 1 : (sample >> 3) << 12;
                 sample += filter switch
                 {
                     0 => 0,
@@ -319,7 +319,7 @@ public static class SpcAudioAssetExtractor
                     _ => throw new InvalidDataException($"Impossible BRR filter {filter}."),
                 };
                 sample = Math.Clamp(sample, short.MinValue, short.MaxValue);
-                sample = unchecked((short)((sample & 0x7fff) << 1)) >> 1;
+                sample = unchecked((short)((sample & 0x7fff) << 1)) >> 1; // cartridge-encoding: allow(Codec) - BRR fifteen-bit sample wrap
                 older = old;
                 old = sample;
                 samples.Add(unchecked((short)sample));

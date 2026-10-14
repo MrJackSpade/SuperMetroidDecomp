@@ -12,7 +12,7 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     IImportCartridgeSource, IRestoredSharedContent
 {
     /// <summary>Size in bytes of the unheadered retail Super Metroid ROM image: 3 MiB.</summary>
-    public const int RetailRomByteCount = 0x300000;
+    public const int RetailRomByteCount = CartridgeFormatDefinitions.RetailRomByteCount;
 
     /// <summary>Immutable image shared through the cartridge cache and reattached after debugger restore.</summary>
     [NonSerialized] internal byte[] _rom;
@@ -24,8 +24,8 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     /// <exception cref="ArgumentException">The image is empty, exceeds 4 MiB, or is not a multiple of 32 KiB.</exception>
     public CartridgeImportAddressSpace(ReadOnlySpan<byte> unheaderedRom)
     {
-        if (unheaderedRom.IsEmpty || unheaderedRom.Length > 0x400000 ||
-            (unheaderedRom.Length & 0x7fff) != 0)
+        if (unheaderedRom.IsEmpty || unheaderedRom.Length > CartridgeFormatDefinitions.MaximumRomByteCount ||
+            unheaderedRom.Length % CartridgeFormatDefinitions.LoRomBankByteCount != 0)
             throw new ArgumentException(
                 "ROM must contain one to 128 complete 32 KiB LoROM banks.",
                 nameof(unheaderedRom));
@@ -44,8 +44,8 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     public byte ReadCartridgeByte(int cpuAddress)
     {
         int bank = SnesAddressMath.BankNumber(cpuAddress);
-        if ((uint)cpuAddress > 0x00ff_ffff || bank is 0x7e or 0x7f ||
-            (cpuAddress & 0x8000) == 0)
+        if ((uint)cpuAddress > CartridgeFormatDefinitions.HighestCpuAddress || bank is >= LoRomMemoryBankLayout.FirstWorkRamBank and <= LoRomMemoryBankLayout.LastWorkRamBank ||
+            (cpuAddress & 0x8000) == 0) // cartridge-encoding: allow(Mapping) - LoROM upper-window bit
             throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
                 "Cartridge reads require an upper-window LoROM address outside WRAM banks.");
 
@@ -63,10 +63,10 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     /// <exception cref="ArgumentOutOfRangeException">The address is not 24-bit or selects the lower bank window.</exception>
     public static int ToRomOffset(int address)
     {
-        if ((uint)address > 0x00ff_ffff || (address & 0x8000) == 0)
+        if ((uint)address > CartridgeFormatDefinitions.HighestCpuAddress || (address & 0x8000) == 0) // cartridge-encoding: allow(Mapping) - LoROM upper-window bit
             throw new ArgumentOutOfRangeException(nameof(address), address,
                 "Address is outside the upper LoROM window.");
         int bank = SnesAddressMath.BankNumber(address);
-        return ((bank << 15) | (address & 0x7fff)) & 0x3f_ffff;
+        return ((bank << 15) | (address & 0x7fff)) & 0x3f_ffff; // cartridge-encoding: allow(Mapping) - LoROM bank and window offset to a 4 MiB image offset
     }
 }

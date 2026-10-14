@@ -56,7 +56,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 192,
+      "files": 193,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -1282,7 +1282,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Audio/SpcExtractionData.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Audio/SpcExtractionAddresses.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Audio",
@@ -1583,6 +1583,15 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Cartridge/CartridgeFormatDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Cartridge",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Cartridge/CartridgeImageCache.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -1784,7 +1793,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompressionCommand.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompressionCodes.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Compression",
@@ -1793,7 +1802,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompressionFormat.cs",
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompressionCommand.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
       "namespace": "SuperMetroid.AssetExtraction.Compression",
@@ -1881,6 +1890,7 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Enemies",
         "csharp/src/SuperMetroid.Core/Hardware"
@@ -83504,7 +83514,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Assets/SmCompressionFormatConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Assets/SmCompressionCodesConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Assets",

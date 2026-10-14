@@ -78,4 +78,7 @@ internal static class CinematicCodePointers
         /// <summary>$8C:D613, blinking-eye background list installed when the intro reaches page six.</summary>
         public const ushort SamusBlinkingPage6 = 0xd613;
     }
+
+    /// <summary>Whether an indirect instruction's function is <see cref="IndirectInstruction_DrawToPortraitTilemap"/>.</summary>
+    internal static bool IsDrawToPortraitTilemap(ushort function) => function == IndirectInstruction_DrawToPortraitTilemap;
 }

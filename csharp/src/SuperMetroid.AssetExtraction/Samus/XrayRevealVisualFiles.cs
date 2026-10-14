@@ -85,9 +85,9 @@ public static class XrayRevealVisualFiles
             .Select(slot =>
             {
                 ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemDrawPointers + slot * sizeof(ushort)));
-                if (pointer is < 0x8000 or > (ushort.MaxValue - 3))
+                if (pointer is < LoRomExpansionReadMap.RomStart or > ushort.MaxValue - 3)
                     throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
-                return (ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemBank | (pointer + 2))) & 0x0fff);
+                return new RoomLevelWord(CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemBank | (pointer + 2)))).VisualWord;
             }).ToArray();
         XrayRoomOverlayEntry[] rooms = RoomStateDefinitions.All
             .Select(state => state.XrayPointer).Where(pointer => pointer != 0)
@@ -186,7 +186,7 @@ public static class XrayRevealVisualFiles
         if (document.Version != FormatVersion || document.Entries is null ||
             document.ItemMetatiles is null || document.Rooms is null ||
             document.ItemMetatiles.Length != XrayOverlayRomData.DynamicGraphicsSlots * 2 ||
-            document.ItemMetatiles.Any(word => word > 0x0fff) ||
+            document.ItemMetatiles.Any(word => !RoomLevelWord.IsValidVisualWord(word)) ||
             document.Rooms.Any(room => room is null))
             throw new InvalidDataException($"X-ray visuals {path} have an incompatible format.");
         ushort[] nativePointers = RoomStateDefinitions.All.Select(state => state.XrayPointer)
@@ -196,7 +196,7 @@ public static class XrayRevealVisualFiles
         foreach (XrayRoomOverlayEntry room in document.Rooms)
         {
             if (room.Tiles is null || room.Tiles.Length == 0 ||
-                room.Tiles.Any(tile => tile is null || tile.Word > 0x0fff))
+                room.Tiles.Any(tile => tile is null || !RoomLevelWord.IsValidVisualWord(tile.Word)))
                 throw new InvalidDataException(
                     $"X-ray visuals {path} contain an invalid room overlay ${room.Pointer:X4}.");
         }
@@ -209,8 +209,8 @@ public static class XrayRevealVisualFiles
                 !XrayRevealVisualCatalog.IsDrawable(rule.Command) || entry.Shape != NameOf(rule.Command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
             XrayRevealCommand command = rule.Command;
-            if (entry.TopLeft > 0x0fff || entry.TopRight > 0x0fff ||
-                entry.BottomLeft > 0x0fff || entry.BottomRight > 0x0fff)
+            if (!RoomLevelWord.IsValidVisualWord(entry.TopLeft) || !RoomLevelWord.IsValidVisualWord(entry.TopRight) ||
+                !RoomLevelWord.IsValidVisualWord(entry.BottomLeft) || !RoomLevelWord.IsValidVisualWord(entry.BottomRight))
                 throw new InvalidDataException($"X-ray visuals {path} contain a nonvisual metatile index.");
             if ((command is XrayRevealCommand.CopyOne or XrayRevealCommand.CopyBrinstar &&
                     (entry.TopRight != 0 || entry.BottomLeft != 0 || entry.BottomRight != 0)) ||
@@ -256,13 +256,13 @@ public static class XrayRevealVisualFiles
         for (int entry = XrayRevealCodePointers.BlockTypeTable; ; entry += 4)
         {
             ushort key = ReadWord(bus, entry);
-            if (key == XrayRevealCodePointers.End) return null;
+            if (XrayRevealCodePointers.IsEnd(key)) return null;
             if (key != typeWord) continue;
             for (int match = ReadWord(bus, entry + 2); ; match += 4)
             {
                 ushort value = ReadWord(bus, match);
-                if (value == XrayRevealCodePointers.End) return null;
-                if (value != XrayRevealCodePointers.AnyBts && value != bts) continue;
+                if (XrayRevealCodePointers.IsEnd(value)) return null;
+                if (!XrayRevealCodePointers.MatchesBts(value, bts)) continue;
                 int pointer = ReadWord(bus, match + 2);
                 XrayRevealCommand command = ClosedNativeWords.Decode<XrayRevealCommand>(
                     ReadWord(bus, pointer), "native X-ray reveal command");
@@ -288,7 +288,7 @@ public static class XrayRevealVisualFiles
     /// <summary>Reads one fixed-bank $91 word only after rejecting addresses outside the native table bank.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer)
     {
-        if (pointer is < 0x8000 or >= ushort.MaxValue)
+        if (pointer is < LoRomExpansionReadMap.RomStart or >= ushort.MaxValue)
             throw new InvalidDataException($"X-ray reveal table crossed bank $91 at ${pointer:X}.");
         return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealCodePointers.Bank | pointer);
     }
@@ -307,7 +307,7 @@ public static class XrayRevealVisualFiles
                 return new XrayRoomOverlayEntry(pointer, tiles.ToArray());
             }
             ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.RoomBank | (cursor + 2)));
-            if (word > 0x0fff)
+            if (!RoomLevelWord.IsValidVisualWord(word))
                 throw new InvalidDataException(
                     $"X-ray room overlay ${pointer:X4} has nonvisual bits ${word:X4}.");
             tiles.Add(new XrayRoomOverlayTileDocument((byte)coordinate,

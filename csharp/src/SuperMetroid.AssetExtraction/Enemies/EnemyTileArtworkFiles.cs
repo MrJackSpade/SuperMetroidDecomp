@@ -66,14 +66,14 @@ public static class EnemyTileArtworkFiles
             for (int slot = 0; slot <= 4; slot++, cursor += 4)
             {
                 ushort headerWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
-                if (headerWord == 0xffff) break;
+                if (headerWord == CartridgeFormatDefinitions.ListTerminator) break;
                 if (slot == 4)
                     throw new InvalidDataException($"Enemy graphics set ${graphicsSetPointer:X4} exceeds four entries.");
                 if (entries.ContainsKey(headerWord)) continue;
                 EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(headerWord);
 
                 RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus, definitionPointer);
-                int byteCount = definition.TileDataSize & 0x7fff;
+                int byteCount = definition.TileDataSize & EnemyTileArtworkFormat.TileByteCountMask;
                 int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
                 byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
                 int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
@@ -95,7 +95,7 @@ public static class EnemyTileArtworkFiles
                 for (int color = 0; color < colors.Length; color++)
                 {
                     ushort word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
-                    if ((word & 0x8000) != 0)
+                    if (!Bgr555.IsColorWord(word))
                         throw new InvalidDataException($"Enemy ${headerWord:X4} palette has an unrepresentable high bit.");
                     colors[color] = new PaletteRgb5
                     {
@@ -497,7 +497,7 @@ public static class EnemyTileArtworkFiles
         {
             EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(manifestKey);
             RoomEnemyDefinition definition = RoomEnemyDefinitionCatalog.Get(definitionPointer);
-            if (entry.NativeByteCount != (definition.TileDataSize & 0x7fff))
+            if (entry.NativeByteCount != (definition.TileDataSize & EnemyTileArtworkFormat.TileByteCountMask))
                 throw new InvalidDataException(
                     $"Enemy ${manifestKey:X4} manifest DMA size differs from retail.");
             dmaSources.Add(definitionPointer, definition.TileDataAddress);
@@ -1183,7 +1183,7 @@ public static class EnemyTileArtworkFiles
         var planar = new byte[encodedByteCount];
         foreach (CrocomireMeltingCopy copy in pass.Copies)
         {
-            int destination = copy.DestinationWord - 0x4000;
+            int destination = copy.DestinationWord - CrocomireMeltingDefinitions.DestinationWordBase;
             for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
             {
                 planar[destination + index] = bus.ReadCartridgeByte(
@@ -1283,7 +1283,7 @@ public static class EnemyTileArtworkFiles
         for (int index = 0; index < count; index++)
         {
             ushort word = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * 2));
-            if ((word & 0x8000) != 0)
+            if (!Bgr555.IsColorWord(word))
                 throw new InvalidDataException(
                     $"Kraid {source} color {index} has an unrepresentable high bit.");
             colors[index] = new PaletteRgb5
@@ -1317,7 +1317,7 @@ public static class EnemyTileArtworkFiles
             };
         }
         int terminator = sourceAddress + cells.Length * 2;
-        if (CartridgeImportSource.Require(bus).ReadCartridgeWord(terminator) != 0xffff)
+        if (CartridgeImportSource.Require(bus).ReadCartridgeWord(terminator) != CartridgeFormatDefinitions.ListTerminator)
             throw new InvalidDataException(
                 $"Crocomire melt tilemap ${sourceAddress:X6} lacks its native terminator.");
         using var json = new MemoryStream();

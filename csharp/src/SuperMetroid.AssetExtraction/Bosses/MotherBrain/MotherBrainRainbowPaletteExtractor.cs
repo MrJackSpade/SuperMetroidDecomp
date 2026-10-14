@@ -108,7 +108,7 @@ internal static class MotherBrainRainbowPaletteExtractor
             {
                 ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainBeamRomData.ColorTable +
                     index * MotherBrainBeamRomData.ColorStride));
-                if ((word & 0x8000) != 0)
+                if (!Bgr555.IsColorWord(word))
                     throw new InvalidDataException($"Mother Brain beam cycle ends before color {index}.");
                 colors[index] = ToColor(word);
             }

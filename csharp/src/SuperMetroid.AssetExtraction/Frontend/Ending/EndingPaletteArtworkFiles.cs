@@ -40,7 +40,7 @@ public static class EndingPaletteArtworkFiles
             {
                 ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
                     native.AsSpan(index * sizeof(ushort)));
-                if ((word & 0x8000) != 0)
+                if (!Bgr555.IsColorWord(word))
                     throw new InvalidDataException(
                         $"Ending {id} palette color {index} has an unrepresentable high bit.");
                 colors[index] = new PaletteRgb5

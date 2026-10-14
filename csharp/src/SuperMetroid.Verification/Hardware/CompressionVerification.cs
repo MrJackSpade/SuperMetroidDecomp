@@ -22,17 +22,17 @@ internal static class CompressionVerification
             if (code != 7)
             {
                 byte shortHeader = unchecked((byte)(
-                    (byte)command | (SmCompressionFormat.MaximumShortLength - 1)));
+                    (byte)command | (SmCompressionCodes.MaximumShortLength - 1)));
                 SmCompressionHeader shortDecoded = SmCompressionHeader.Decode(shortHeader);
                 AssertEqual(command, shortDecoded.Command, $"{command} short command field");
-                AssertEqual(SmCompressionFormat.MaximumShortLength, shortDecoded.Length,
+                AssertEqual(SmCompressionCodes.MaximumShortLength, shortDecoded.Length,
                     $"{command} short maximum length");
             }
 
             const int longLength = 33;
             int encodedLength = longLength - 1;
             byte longHeader = unchecked((byte)(
-                SmCompressionFormat.LongHeaderMarker |
+                SmCompressionCodes.LongHeaderMarker |
                 ((byte)command >> 5 << 2) |
                 SnesLittleEndian.HighByte(unchecked((ushort)encodedLength))));
             SmCompressionHeader longDecoded = SmCompressionHeader.Decode(
@@ -43,9 +43,9 @@ internal static class CompressionVerification
         }
 
         SmCompressionHeader maximum = SmCompressionHeader.Decode(0xe3, 0xff);
-        AssertEqual(SmCompressionFormat.MaximumLongLength, maximum.Length,
+        AssertEqual(SmCompressionCodes.MaximumLongLength, maximum.Length,
             "long compression header maximum length");
-        SmCompressionHeader terminator = SmCompressionHeader.Decode(SmCompressionFormat.Terminator);
+        SmCompressionHeader terminator = SmCompressionHeader.Decode(SmCompressionCodes.Terminator);
         AssertTrue(terminator.IsTerminator, "compression terminator is distinct from command-seven long header");
         AssertEqual(0, terminator.PayloadByteCount, "terminator reads no payload");
         AssertThrows<InvalidOperationException>(() => _ = terminator.Command, "terminator has no command");
@@ -64,7 +64,7 @@ internal static class CompressionVerification
         })
         {
             SmCompressionHeader header = SmCompressionHeader.Decode(
-                unchecked((byte)(SmCompressionFormat.LongHeaderMarker | ((byte)command >> 5 << 2))), 32);
+                unchecked((byte)(SmCompressionCodes.LongHeaderMarker | ((byte)command >> 5 << 2))), 32);
             AssertEqual(command, header.Command, $"{command} long header");
             AssertEqual(payload, header.PayloadByteCount, $"{command} payload bytes");
             if (copy)
@@ -89,7 +89,7 @@ internal static class CompressionVerification
             0xa1, 0x00, 0x00,                   // inverted absolute copy two
             0xc2, 0x04,                         // relative copy three
             0xfc, 0x01, 0x01,                   // long inverted relative copy two
-            SmCompressionFormat.Terminator,
+            SmCompressionCodes.Terminator,
         ];
         AssertSequenceEqual(
             new byte[]
@@ -110,11 +110,11 @@ internal static class CompressionVerification
             () => SmCompression.Decompress([0xe0]),
             "truncated long header fails loudly");
         AssertThrows<InvalidDataException>(
-            () => SmCompression.Decompress([0xc0, 0x00, SmCompressionFormat.Terminator]),
+            () => SmCompression.Decompress([0xc0, 0x00, SmCompressionCodes.Terminator]),
             "zero-distance relative copy fails loudly");
         AssertThrows<InvalidDataException>(
             () => SmCompression.Decompress(
-                [0x20, 0xaa, SmCompressionFormat.Terminator],
+                [0x20, 0xaa, SmCompressionCodes.Terminator],
                 maximumOutputBytes: 0),
             "compression output ceiling fails loudly");
 

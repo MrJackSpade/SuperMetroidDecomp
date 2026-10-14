@@ -165,4 +165,13 @@ public static class GameplayMessageRomData
             };
         }
     }
+
+    /// <summary>Whether a message definition's setup routine is the small-box setup.</summary>
+    public static bool IsSmallSetup(ushort routine) => routine == Routines.SetupSmall;
+
+    /// <summary>Whether a message definition's draw routine draws the small tilemap.</summary>
+    public static bool IsSmallTilemapDraw(ushort routine) => routine == Routines.DrawSmallTilemap;
+
+    /// <summary>Whether a message definition's draw routine draws the large tilemap.</summary>
+    public static bool IsLargeTilemapDraw(ushort routine) => routine == Routines.DrawLargeTilemap;
 }

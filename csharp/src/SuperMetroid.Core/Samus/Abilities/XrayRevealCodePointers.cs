@@ -13,4 +13,10 @@ public static class XrayRevealCodePointers
     public const ushort End = 0xffff;
     /// <summary>Native BTS wildcard; matches any byte BTS in the selected block family.</summary>
     public const ushort AnyBts = 0xff00;
+
+    /// <summary>Whether <paramref name="word"/> is the reveal tables' end marker.</summary>
+    public static bool IsEnd(ushort word) => word == End;
+
+    /// <summary>Whether a reveal table's BTS key <paramref name="value"/> selects <paramref name="bts"/>, directly or as the any-BTS wildcard.</summary>
+    public static bool MatchesBts(ushort value, int bts) => value == AnyBts || value == bts;
 }

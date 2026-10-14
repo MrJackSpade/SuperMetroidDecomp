@@ -32,7 +32,7 @@ public static class RomDataReader
         if (!sourceAddress.IsUpperLoRomWindow)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress));
         Ensure.AtLeastZero(byteCount);
-        if (byteCount > 0x10000 - sourceAddress.Offset)
+        if (byteCount > CartridgeFormatDefinitions.BankByteCount - sourceAddress.Offset)
             throw new ArgumentOutOfRangeException(nameof(byteCount),
                 "A cartridge import cannot continue through the bank's low memory window.");
 
@@ -52,7 +52,7 @@ public static class RomDataReader
     public static ushort ReadWordFixedBank(IImportCartridgeSource cartridge, SnesAddress address)
     {
         Ensure.NotNull(cartridge);
-        if (!address.IsUpperLoRomWindow || address.Offset == 0xffff)
+        if (!address.IsUpperLoRomWindow || address.Offset == ushort.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(address),
                 "A cartridge word must remain in the upper bank window.");
         return cartridge.ReadCartridgeWordFixedBank((int)address);
@@ -68,7 +68,7 @@ public static class RomDataReader
     public static int ReadLongFixedBank(IImportCartridgeSource cartridge, SnesAddress address)
     {
         Ensure.NotNull(cartridge);
-        if (!address.IsUpperLoRomWindow || address.Offset > 0xfffd)
+        if (!address.IsUpperLoRomWindow || address.Offset > ushort.MaxValue - 2)
             throw new ArgumentOutOfRangeException(nameof(address),
                 "A 24-bit cartridge pointer must remain in the upper bank window.");
         return cartridge.ReadCartridgeLongFixedBank((int)address);
@@ -87,7 +87,7 @@ public static class RomDataReader
     public static byte[] Decompress(
         IImportCartridgeSource cartridge,
         int sourceAddress,
-        int maximumCompressedBytes = 0x8000,
+        int maximumCompressedBytes = CartridgeFormatDefinitions.LoRomBankByteCount,
         int maximumOutputBytes = 4 * 1024 * 1024)
     {
         return Decompress(
@@ -101,7 +101,7 @@ public static class RomDataReader
     public static byte[] Decompress(
         IImportCartridgeSource cartridge,
         SnesAddress sourceAddress,
-        int maximumCompressedBytes = 0x8000,
+        int maximumCompressedBytes = CartridgeFormatDefinitions.LoRomBankByteCount,
         int maximumOutputBytes = 4 * 1024 * 1024)
     {
         Ensure.NotNull(cartridge);
@@ -112,7 +112,7 @@ public static class RomDataReader
                 sourceAddress,
                 "Compressed ROM data must begin in an upper LoROM window.");
         }
-        if (maximumCompressedBytes is <= 0 or > 0x8000)
+        if (maximumCompressedBytes is <= 0 or > CartridgeFormatDefinitions.LoRomBankByteCount)
             throw new ArgumentOutOfRangeException(nameof(maximumCompressedBytes));
 
         // Walk command boundaries once; payload bytes (including $FF) are not headers.
@@ -133,9 +133,9 @@ public static class RomDataReader
         while (true)
         {
             byte first = Next();
-            if (first == SmCompressionFormat.Terminator)
+            if (first == SmCompressionCodes.Terminator)
                 return SmCompression.Decompress(stored.AsSpan(0, length), maximumOutputBytes);
-            byte? second = SmCompressionFormat.IsLongHeader(first) ? Next() : null;
+            byte? second = SmCompressionCodes.IsLongHeader(first) ? Next() : null;
             SmCompressionHeader header = SmCompressionHeader.Decode(first, second);
             for (int operand = 0; operand < header.PayloadByteCount; operand++)
                 Next();

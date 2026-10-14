@@ -84,7 +84,7 @@ public static class CeresDoorVisualFiles
         for (int index = 0; index < count; index++)
         {
             ushort word = BinaryPrimitives.ReadUInt16LittleEndian(source.AsSpan(index * 2));
-            if ((word & 0x8000) != 0)
+            if (!Bgr555.IsColorWord(word))
                 throw new InvalidDataException(
                     $"Ceres-door color ${sourceAddress + index * 2:X6} has an unrepresentable high bit.");
             colors[index] = new PaletteRgb5

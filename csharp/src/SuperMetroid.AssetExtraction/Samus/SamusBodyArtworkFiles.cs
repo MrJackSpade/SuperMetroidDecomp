@@ -179,7 +179,7 @@ public static class SamusBodyArtworkFiles
             int start = pointers[set];
             int order = Array.IndexOf(sortedPointers, pointers[set]);
             int end = order + 1 == sortedPointers.Length ? SamusBodyDefinitionLayout.EndOffset : sortedPointers[order + 1];
-            if (start < 0x8000 || end <= start || (end - start) % 7 != 0)
+            if (start < LoRomExpansionReadMap.RomStart || end <= start || (end - start) % 7 != 0)
                 throw new InvalidDataException($"Samus body set {set:X2} has invalid native bounds.");
             int count = (end - start) / 7;
             byte[] planar = new byte[count * SamusBodyArtworkCatalog.BytesPerDefinitionSlot];
@@ -192,9 +192,9 @@ public static class SamusBodyArtworkFiles
                 ushort firstSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 3));
                 ushort secondSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 5));
                 int byteCount = firstSize + secondSize;
-                if (sourceOffset < 0x8000 || firstSize == 0 || byteCount >
+                if (sourceOffset < LoRomExpansionReadMap.RomStart || firstSize == 0 || byteCount >
                     SamusBodyArtworkCatalog.BytesPerDefinitionSlot || byteCount % 32 != 0 ||
-                    sourceOffset + byteCount > 0x10000)
+                    sourceOffset + byteCount > CartridgeFormatDefinitions.BankByteCount)
                     throw new InvalidDataException($"Invalid Samus body DMA at ${definitionAddress:X6}.");
                 int sourceAddress = ((int)new SnesAddress(sourceBank, sourceOffset));
                 for (int i = 0; i < byteCount; i++)
@@ -313,7 +313,7 @@ public static class SamusBodyArtworkFiles
     {
         int address = CartridgeBankWindow.At(SamusCartridgeTables.AnimationBank, pointer);
         ushort count = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-        if (pointer < 0x90ED || count > 128 || pointer + 2 + count * 5 > 0x10000)
+        if (pointer < SamusCartridgeTables.FirstSpritemap || count > 128 || pointer + 2 + count * 5 > CartridgeFormatDefinitions.BankByteCount)
             throw new InvalidDataException($"Invalid Samus spritemap at $92:{pointer:X4}.");
         var parts = new SamusSpritePart[count];
         for (int i = 0; i < count; i++)

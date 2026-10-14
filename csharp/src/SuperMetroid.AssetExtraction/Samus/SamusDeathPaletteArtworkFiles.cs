@@ -121,7 +121,7 @@ public static class SamusDeathPaletteArtworkFiles
     private static Bgr555[] Colors(ushort[]? words) => words is null
         ? throw new InvalidDataException("Samus death-palette artwork is missing a palette.")
         : Array.ConvertAll(words, word =>
-        (word & 0x8000) == 0 ? Bgr555.FromWord(word)
+        Bgr555.IsColorWord(word) ? Bgr555.FromWord(word)
             : throw new InvalidDataException($"Samus death-palette color ${word:X4} sets bit 15."));
 
     /// <summary>Imports all colors in one native sixteen-entry death palette row.</summary>

@@ -413,14 +413,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Audio.SpcExtractionData",
+      "type": "SuperMetroid.AssetExtraction.Audio.SpcExtractionAddresses",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Audio/SpcExtractionData.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Audio/SpcExtractionAddresses.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -684,6 +684,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Cartridge.CartridgeFormatDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Cartridge/CartridgeFormatDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Cartridge.CartridgeImageCache",
@@ -959,6 +972,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Compression.SmCompressionCodes",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompressionCodes.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Compression.SmCompressionCommand",
       "kind": "enum",
       "scope": "product",
@@ -970,19 +996,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Compression.SmCompressionFormat",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Compression/SmCompressionFormat.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Compression.SmCompressionHeader",
@@ -6593,7 +6606,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Assets.SmCompressionFormatConstants",
+      "type": "SuperMetroid.Core.Assets.SmCompressionCodesConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -6603,13 +6616,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Assets/SmCompressionFormatConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Assets/SmCompressionCodesConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Assets.SmCompressionFormatConstants.extension(SuperMetroid.AssetExtraction.Compression.SmCompressionFormat)",
+      "type": "SuperMetroid.Core.Assets.SmCompressionCodesConstants.extension(SuperMetroid.AssetExtraction.Compression.SmCompressionCodes)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -6619,7 +6632,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Assets/SmCompressionFormatConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Assets/SmCompressionCodesConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -45428,7 +45441,7 @@
         "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicCodePointers.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.CinematicCodePointers.BackgroundLists",
@@ -58460,7 +58473,7 @@
         "csharp/src/SuperMetroid.Core/Hud/GameplayMessageRomData.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Hud.GameplayMessageRomData.Assets",
@@ -71497,7 +71510,7 @@
         "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealCodePointers.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealCommand",

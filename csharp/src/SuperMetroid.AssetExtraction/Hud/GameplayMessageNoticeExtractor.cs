@@ -32,7 +32,7 @@ public static class GameplayMessageNoticeExtractor
                 ? GameplayMessageRomData.Routines.SetupLarge
                 : GameplayMessageRomData.Routines.SetupSmall;
             if (setup != expectedSetup ||
-                draw != GameplayMessageRomData.Routines.DrawSmallTilemap)
+                !GameplayMessageRomData.IsSmallTilemapDraw(draw))
             {
                 throw new InvalidDataException(
                     $"Gameplay message {id} is not the expected completion/save notice.");

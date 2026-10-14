@@ -28,8 +28,8 @@ public static class GameplayMessageTitleExtractor
             ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
             ushort next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + GameplayMessageRomData.Layout.DefinitionBytes + 4));
-            if (setup != GameplayMessageRomData.Routines.SetupSmall ||
-                draw != GameplayMessageRomData.Routines.DrawSmallTilemap ||
+            if (!GameplayMessageRomData.IsSmallSetup(setup) ||
+                !GameplayMessageRomData.IsSmallTilemapDraw(draw) ||
                 next - pointer != GameplayMessageRomData.Layout.TilemapWidth * sizeof(ushort))
             {
                 throw new InvalidDataException(

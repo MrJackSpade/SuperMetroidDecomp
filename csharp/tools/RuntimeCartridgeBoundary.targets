@@ -15,7 +15,7 @@
                    '%(Compile.Filename)' == 'ImportedSpritemapOracle' or
                    '%(Compile.Filename)' == 'RoomRenderer' or
                    '%(Compile.Filename)' == 'SmCompression' or
-                   '%(Compile.Filename)' == 'SmCompressionFormat' or
+                   '%(Compile.Filename)' == 'SmCompressionCodes' or
                    '%(Compile.Filename)' == 'SmCompressionCommand'" />
       <!-- ROM-extracted payloads are produced by installation-time extraction, never embedded.
            The host defaults file is the only resource Core may carry. -->

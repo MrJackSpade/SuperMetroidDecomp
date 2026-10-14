@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -59,7 +60,7 @@ internal static class EnemyExtendedFrameFiles
         // walkers consume its low byte as one component and retain the
         // high byte as native presentation metadata.
         byte expectedPadding = definition.Name.StartsWith("ceres_steam_oam_",
-            StringComparison.Ordinal) ? (byte)0x10 : (byte)0;
+            StringComparison.Ordinal) ? CeresSteamDefinitions.OamPadding : (byte)0;
         bool motherBrainMixed = bank == MotherBrainBodyVisualDefinitions.Bank &&
             MotherBrainBodyVisualDefinitions.HasBg2(pointer);
         bool bg2Only = EnemyExtendedFrameDefinitions.IsBg2Only(definition);

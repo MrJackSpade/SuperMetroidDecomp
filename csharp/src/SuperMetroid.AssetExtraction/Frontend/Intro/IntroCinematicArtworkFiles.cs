@@ -135,7 +135,7 @@ public static class IntroCinematicArtworkFiles
             {
                 ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
                     native.AsSpan(index * sizeof(ushort)));
-                if ((word & 0x8000) != 0)
+                if (!Bgr555.IsColorWord(word))
                     throw new InvalidDataException($"Opening palette color {index} has an unrepresentable high bit.");
                 colors[index] = new PaletteRgb5
                 {
@@ -205,7 +205,7 @@ public static class IntroCinematicArtworkFiles
                     frame * IntroEyeAnimationDefinitions.FrameStride);
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer);
                 ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
-                if (function != CinematicCodePointers.IndirectInstruction_DrawToPortraitTilemap ||
+                if (!CinematicCodePointers.IsDrawToPortraitTilemap(function) ||
                     bus.ReadCartridgeByte(source + 2) != IntroEyeTilemapFormat.Columns ||
                     bus.ReadCartridgeByte(source + 3) != IntroEyeTilemapFormat.Rows)
                     throw new InvalidDataException($"Opening eye frame {frame} changed its native draw shape.");

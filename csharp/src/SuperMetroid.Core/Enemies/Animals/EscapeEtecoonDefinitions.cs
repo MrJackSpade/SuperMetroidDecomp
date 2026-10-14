@@ -12,11 +12,11 @@ internal static class EscapeEtecoonDefinitions
         (EscapeEtecoonRole)(parameter1 & 0xfffe) switch
         {
             EscapeEtecoonRole.LeftWalker => new(new(128, 200), EscapeEtecoonPreInstruction.WalkAndFall,
-                EscapeEtecoonInstructionProgramDefinitions.RunningLeftLowTide, unchecked((ushort)-512)),
+                EscapeEtecoonProgram.RunningLeftLowTide, unchecked((ushort)-512)),
             EscapeEtecoonRole.RightWalker => new(new(160, 200), EscapeEtecoonPreInstruction.WalkAndFall,
-                EscapeEtecoonInstructionProgramDefinitions.RunningRightLowTide, 640),
+                EscapeEtecoonProgram.RunningRightLowTide, 640),
             EscapeEtecoonRole.WaitForEscapeEvent => new(new(232, 200), EscapeEtecoonPreInstruction.WaitForEscapeEvent,
-                EscapeEtecoonInstructionProgramDefinitions.Stationary, 0),
+                EscapeEtecoonProgram.Stationary, 0),
             _ => throw new ArgumentOutOfRangeException(nameof(parameter1), parameter1,
                 "Escape Etecoon parameter must select one of the three authored roles."),
         };

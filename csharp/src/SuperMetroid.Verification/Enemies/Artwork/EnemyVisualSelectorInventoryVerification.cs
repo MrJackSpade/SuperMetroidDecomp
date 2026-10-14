@@ -77,16 +77,6 @@ internal static class EnemyVisualSelectorInventoryVerification
         }
         AssertTrue(!CompiledEnemyVisualSelectors.TryGet(0x80, 0x8000, out _),
             "uncatalogued visual selector is not invented");
-        for (int index = 0;
-             index < CeresBabyInstructionProgramDefinitions.PaletteOperandCount;
-             index++)
-        {
-            ushort address = CeresBabyInstructionProgramDefinitions
-                .PaletteOperandAddress(index);
-            AssertTrue(!CompiledEnemyVisualSelectors.TryGet(
-                    CeresBabyInstructionProgramDefinitions.Bank, address, out _),
-                $"Ceres Baby palette operand $A6:{address:X4} is not a sprite selector");
-        }
         Console.WriteLine(
             $"Compiled enemy visuals: {CompiledEnemyVisualSelectorsTooling.Count:N0} distinct sprite selectors match the cartridge; " +
             "sorted lookup and unknown-key rejection pass.");

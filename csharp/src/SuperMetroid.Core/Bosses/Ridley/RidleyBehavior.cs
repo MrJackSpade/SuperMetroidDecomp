@@ -77,7 +77,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         AnimationProgramCursor<RidleyBodyProgram> cursor = state.BodyProgram;
         // Ridley's body lists load no loop counter.
         EnemyProgramAnimation.Run(slot, RidleyAnimations.Programs, ref cursor, frame => (ushort)frame,
-            (cue, continuation) => ApplyRidleyBodyCue(slot, state, samus, cue), EnemyProgramCounter.None);
+            (cue, continuation) => ApplyRidleyBodyCue(slot, state, samus, cue));
         state.BodyProgram = cursor;
     }
 
@@ -1560,7 +1560,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         if (!state.BreakupPrograms.TryGetValue(fragment.SlotIndex, out AnimationProgramCursor<RidleyBreakupFrame> cursor))
             throw new InvalidOperationException($"Ridley breakup fragment in slot {fragment.SlotIndex} has no program.");
         EnemyProgramAnimation.Run(fragment, RidleyBreakupAnimations.Programs, ref cursor, RidleyBreakupFrameDefinitions.Spritemap,
-            (cue, continuation) => throw new InvalidOperationException("Ridley's breakup programs publish no cues."), EnemyProgramCounter.None);
+            (cue, continuation) => throw new InvalidOperationException("Ridley's breakup programs publish no cues."));
         state.BreakupPrograms[fragment.SlotIndex] = cursor;
     }
 

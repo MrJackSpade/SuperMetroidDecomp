@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Gunship.Artwork;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -73,6 +75,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         RoomEnemyProjectileKind.GoldenTorizoEgg,
         RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
         RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
+        RoomEnemyProjectileKind.CeresFallingDebrisLight,
+        RoomEnemyProjectileKind.CeresFallingDebrisDark,
+        RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
     ];
 
     /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
@@ -251,14 +256,14 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             int Count, Func<int, ushort> AddressAt)[]
         {
             ("Ceres falling debris", RoomEnemyProjectileKind.CeresFallingDebrisLight,
-                CeresFallingDebrisInstructionProgramDefinitions.PresentationWordCount,
-                CeresFallingDebrisInstructionProgramDefinitions.PresentationWordAddress),
+                CeresFallingDebrisVisualDefinitions.Frames.Count,
+                index => CeresFallingDebrisVisualDefinitions.PresentationKey(CeresFallingDebrisVisualDefinitions.Frames[index])),
             ("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity,
                 SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount,
                 SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress),
             ("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
-                GunshipDustInstructionProgramDefinitions.PresentationWordCount,
-                GunshipDustInstructionProgramDefinitions.PresentationWordAddress),
+                GunshipDustVisualDefinitions.Frames.Count,
+                index => GunshipDustVisualDefinitions.PresentationKey(GunshipDustVisualDefinitions.Frames[index])),
             ("falling spark", RoomEnemyProjectileKind.FallingSpark,
                 FallingSparkInstructionProgramDefinitions.PresentationWordCount,
                 FallingSparkInstructionProgramDefinitions.PresentationWordAddress),

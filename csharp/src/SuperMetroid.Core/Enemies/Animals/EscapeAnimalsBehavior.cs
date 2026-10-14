@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Progression;
+﻿using SuperMetroid.Core.Enemies.Animals.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
@@ -35,7 +37,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
     internal readonly EscapeEtecoonEnemyState?[] _escapeEtecoonStates =
         new EscapeEtecoonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Typed Dachora state indexed by stable enemy slot, cleared on room load.</summary>
-    private readonly EscapeDachoraEnemyState?[] _escapeDachoraStates =
+    internal readonly EscapeDachoraEnemyState?[] _escapeDachoraStates =
         new EscapeDachoraEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Clears family-local typed views at the ordinary room-load boundary.</summary>
@@ -75,7 +77,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
             EscapeEtecoonDefinitions.Initialization(slot.Parameter1);
         slot.Position = slot.Position.WithWhole(initialization.Position);
         state.PreInstruction = initialization.PreInstruction;
-        slot.CurrentInstruction = initialization.InstructionList;
+        state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(initialization.Program);
         state.HorizontalSpeed = initialization.HorizontalSpeed;
     }
 
@@ -96,8 +98,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         slot.SpritemapPointer = EmptyBankB3Spritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction =
-            EscapeDachoraInstructionProgramDefinitions.RunningAroundLowTide;
+        RequireEscapeDachoraState(slot).Program = AnimationProgramCursor<EscapeDachoraProgram>.Start(EscapeDachoraProgram.RunningAroundLowTide);
     }
 
     /// <summary>Ports <c>EscapeEtecoon_Main</c> and its complete indirect dispatch.</summary>
@@ -120,8 +121,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
                 // existing instruction timer intact, so the new list begins on the same
                 // scheduler boundary the SNES would observe.
                 if (HasCrittersEscaped())
-                    slot.CurrentInstruction =
-                        EscapeEtecoonInstructionProgramDefinitions.ExpressGratitudeThenEscape;
+                    state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(EscapeEtecoonProgram.ExpressGratitudeThenEscape);
                 return;
 
             case EscapeEtecoonPreInstruction.WalkAndFall:
@@ -152,12 +152,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         {
             slot.InstructionTimer = NativeCountdown.Start(1);
             state.HorizontalSpeed = unchecked((ushort)-state.HorizontalSpeed);
-            slot.CurrentInstruction = unchecked((short)state.HorizontalSpeed) < 0
-                ? EscapeEtecoonInstructionProgramDefinitions.RunningLeftLowTide
-                : EscapeEtecoonInstructionProgramDefinitions.RunningRightLowTide;
-            if (HasCrittersEscaped())
-                slot.CurrentInstruction =
-                    EscapeEtecoonInstructionProgramDefinitions.RunningForEscape;
+            state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(HasCrittersEscaped()
+                ? EscapeEtecoonProgram.RunningForEscape
+                : unchecked((short)state.HorizontalSpeed) < 0
+                    ? EscapeEtecoonProgram.RunningLeftLowTide
+                    : EscapeEtecoonProgram.RunningRightLowTide);
         }
 
         // Enemy_MoveDown is called even after horizontal collision, and its carry result is
@@ -166,86 +165,66 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         _ = _terrain.MoveEnemyVertically(level, slot, EscapeEtecoonGravity);
     }
 
-    /// <summary>
-    /// Handles every family-specific command referenced by the retail Etecoon and Dachora
-    /// lists. Common frame, timer, goto, and sleep commands remain in the shared interpreter.
-    /// </summary>
-    private bool TryProcessEscapeAnimalInstruction(
-        RoomEnemySlot slot,
-        SamusState? samus,
-        ushort opcode,
-        ref ushort cursor)
+    /// <summary>Runs an escaping Etecoon's or Dachora's typed program where the enemy instruction interpreter would.</summary>
+    private void AdvanceEscapeAnimal(RoomEnemySlot slot, SamusState? samus)
     {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape)
         {
-            if (!Enum.IsDefined((EscapeEtecoonInstruction)opcode))
-                return false;
             EscapeEtecoonEnemyState state = RequireEscapeEtecoonState(slot);
-            switch ((EscapeEtecoonInstruction)opcode)
-            {
-                case EscapeEtecoonInstruction.SetPreInstruction:
-                    state.PreInstruction = (EscapeEtecoonPreInstruction)
-                        ReadEscapeAnimalOperand(slot, cursor);
-                    cursor = unchecked((ushort)(cursor + 4));
-                    return true;
-
-                case EscapeEtecoonInstruction.ClearPreInstruction:
-                    state.PreInstruction = EscapeEtecoonPreInstruction.Cleared;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    return true;
-
-                case EscapeEtecoonInstruction.GotoIfAcidYLessThanCE:
-                    cursor = EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY
-                        ? unchecked((ushort)(cursor + 4))
-                        : ReadEscapeAnimalOperand(slot, cursor);
-                    return true;
-
-                case EscapeEtecoonInstruction.AddXPosition:
-                    slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
-                        slot.Position.X.Whole + ReadEscapeAnimalOperand(slot, cursor))));
-                    cursor = unchecked((ushort)(cursor + 4));
-                    return true;
-
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonInstruction)} {opcode:X4}.");
-            }
+            AnimationProgramCursor<EscapeEtecoonProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, EscapeEtecoonAnimations.Programs, ref cursor, EscapeEtecoonFrameDefinitions.Spritemap,
+                (cue, _) => ApplyEscapeEtecoonCue(slot, state, samus, cue));
+            state.Program = cursor;
+            return;
         }
-        else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.DachoraEscape)
+        EscapeDachoraEnemyState dachora = RequireEscapeDachoraState(slot);
+        AnimationProgramCursor<EscapeDachoraProgram> dachoraCursor = dachora.Program;
+        EnemyProgramAnimation.Run(slot, EscapeDachoraAnimations.Programs, ref dachoraCursor, EscapeDachoraFrameDefinitions.Spritemap,
+            (cue, _) => ApplyEscapeDachoraCue(slot, samus, cue));
+        dachora.Program = dachoraCursor;
+    }
+
+    /// <summary>Carries out one cue of an Etecoon's program, returning the program a branch continues at, or null to run on.</summary>
+    private static EscapeEtecoonProgram? ApplyEscapeEtecoonCue(RoomEnemySlot slot, EscapeEtecoonEnemyState state, SamusState? samus, EscapeEtecoonCue cue)
+    {
+        switch (cue.Kind)
         {
-            if (!Enum.IsDefined((EscapeDachoraInstruction)opcode))
-                return false;
-            switch ((EscapeDachoraInstruction)opcode)
-            {
-                case EscapeDachoraInstruction.GotoIfAcidYLessThanCE:
-                    cursor = EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY
-                        ? unchecked((ushort)(cursor + 4))
-                        : ReadEscapeAnimalOperand(slot, cursor);
-                    return true;
-
-                case EscapeDachoraInstruction.GotoIfCrittersEscaped:
-                    cursor = HasCrittersEscaped()
-                        ? ReadEscapeAnimalOperand(slot, cursor)
-                        : unchecked((ushort)(cursor + 4));
-                    return true;
-
-                case EscapeDachoraInstruction.MoveLeft:
-                    slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
-                        slot.Position.X.Whole - EscapeDachoraPixelsPerCallback)));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    return true;
-
-                case EscapeDachoraInstruction.MoveRight:
-                    slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
-                        slot.Position.X.Whole + EscapeDachoraPixelsPerCallback)));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    return true;
-
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraInstruction)} {opcode:X4}.");
-            }
+            case EscapeEtecoonCueKind.SetPreInstruction:
+                state.PreInstruction = cue.PreInstruction;
+                return null;
+            case EscapeEtecoonCueKind.ClearPreInstruction:
+                state.PreInstruction = EscapeEtecoonPreInstruction.Cleared;
+                return null;
+            case EscapeEtecoonCueKind.GoToIfAcidHigh:
+                return EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY ? null : cue.Target;
+            case EscapeEtecoonCueKind.Move:
+                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + cue.Offset)));
+                return null;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCueKind)} {cue.Kind}.");
         }
+    }
 
-        return false;
+    /// <summary>Carries out one cue of the Dachora's program, returning the program a branch continues at, or null to run on.</summary>
+    private EscapeDachoraProgram? ApplyEscapeDachoraCue(RoomEnemySlot slot, SamusState? samus, EscapeDachoraCue cue)
+    {
+        switch (cue.Kind)
+        {
+            case EscapeDachoraCueKind.GoToIfAcidHigh:
+                return EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY ? null : cue.Target;
+            case EscapeDachoraCueKind.GoToIfCrittersEscaped:
+                return HasCrittersEscaped() ? cue.Target : null;
+            case EscapeDachoraCueKind.MoveLeft:
+                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole - EscapeDachoraPixelsPerCallback)));
+                return null;
+            case EscapeDachoraCueKind.MoveRight:
+                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + EscapeDachoraPixelsPerCallback)));
+                return null;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraCueKind)} {cue.Kind}.");
+        }
     }
 
     /// <summary>Samples event $0F for Dachora's instruction-list branch and room revisit handling.</summary>
@@ -255,12 +234,6 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
     private static ushort EscapeAnimalLavaY(SamusState? samus) =>
         samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;
 
-    /// <summary>Reads the word immediately after a family-owned bank-$B3 instruction opcode.</summary>
-    private static ushort ReadEscapeAnimalOperand(RoomEnemySlot slot, ushort instructionCursor) =>
-        EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-            slot,
-            unchecked((ushort)(instructionCursor + 2)));
-
     /// <summary>Adds a signed 16.16 displacement with native 32-bit wraparound to the actor's X position.</summary>
     private static void AddEscapeAnimalX(RoomEnemySlot slot, int displacement)
     {
@@ -268,6 +241,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         fixedPosition = unchecked(fixedPosition + (uint)displacement);
         slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition)));
     }
+
+    /// <summary>Fetches the typed Dachora state after initialization, failing for an uninitialized slot.</summary>
+    private EscapeDachoraEnemyState RequireEscapeDachoraState(RoomEnemySlot slot) =>
+        _escapeDachoraStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} has no initialized escape-Dachora state.");
 
     /// <summary>Fetches the typed Etecoon dispatch state after initialization, failing for an uninitialized slot.</summary>
     private EscapeEtecoonEnemyState RequireEscapeEtecoonState(RoomEnemySlot slot) =>
@@ -302,15 +280,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Routes only the escape families' private branch and movement opcodes into their interpreter.</summary>
-    internal void RegisterEscapeAnimalsOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
-        {
-            yieldInterpreter = false;
-            return TryProcessEscapeAnimalInstruction(slot, context.Samus, word, ref cursor);
-        });
-    }
+    /// <summary>Runs the escaping Etecoons and Dachora as typed programs (#641).</summary>
+    internal void RegisterEscapeAnimalsTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.EtecoonEscape or EnemyDefinitionId.DachoraEscape,
+            (slot, context) => AdvanceEscapeAnimal(slot, context.Samus));
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

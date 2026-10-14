@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
@@ -8,6 +9,9 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 public sealed class EscapeDachoraEnemyState
 {
+    /// <summary>The actor's typed program cursor, in place of its native instruction-list pointer.</summary>
+    internal AnimationProgramCursor<EscapeDachoraProgram> Program { get; set; }
+
     /// <summary>Native Dachora enemy slot; movement remains in its bank-$B3 instruction lists.</summary>
     private readonly RoomEnemySlot _slot;
 

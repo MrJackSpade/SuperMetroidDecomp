@@ -136,9 +136,11 @@ public sealed class RidleyEnemyState
     public MusicCommand? MusicRequest { get; internal set; }
 
     // Ceres's private Baby actor and Mode-7 getaway reuse Ridley's extended workspaces.
-    /// <summary>Gets the Ceres Baby's bank-$A6 animation-list offset, owned separately from Ridley's body instruction list.</summary>
-    public ushort BabyInstruction { get; internal set; }
-    /// <summary>Gets the Ceres Baby's elapsed draw-frame counter, compared with the current animation duration and restarted at one.</summary>
+    /// <summary>The Ceres Baby's typed cutscene program, positioned after its current pose; owned separately from Ridley's body.</summary>
+    internal AnimationProgramCursor<CeresBabyProgram> BabyProgram { get; set; }
+    /// <summary>How many draw updates the Baby's current pose lasts; zero before its program shows the first pose.</summary>
+    internal int BabyPoseDuration { get; set; }
+    /// <summary>Gets the Ceres Baby's elapsed draw-frame counter, compared with the current pose's duration and restarted at one.</summary>
     public ushort BabyInstructionTimer { get; internal set; }
     /// <summary>Gets the Ceres Baby's native bank-$A6 behavior pointer selecting hand attachment, falling setup, falling motion, or idle.</summary>
     public CeresBabyFunction BabyFunction { get; internal set; }

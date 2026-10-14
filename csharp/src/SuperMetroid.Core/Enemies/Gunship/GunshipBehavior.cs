@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Gunship.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -61,11 +63,39 @@ internal sealed class GunshipBehavior
         GunshipSavePromptPending = false;
         GunshipSaveRequested = save;
         top.VariableF = (ushort)GunshipFunction.WaitForExitPadToOpen;
-        pad.InstructionTimer = NativeCountdown.Start(1);
-        pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
+        StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.SavePromptAnswered;
     }
+
+    /// <summary>
+    /// Each hull and pad slot's typed program cursor. Initialization sets a slot's cursor before its program runs, so a
+    /// slot's entry always belongs to its current piece.
+    /// </summary>
+    private readonly Dictionary<int, AnimationProgramCursor<GunshipProgram>> _shipPrograms = [];
+
+    /// <summary>Starts <paramref name="program"/> on <paramref name="slot"/> from the next update.</summary>
+    private void StartGunshipProgram(RoomEnemySlot slot, GunshipProgram program)
+    {
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(program);
+    }
+
+    /// <summary>Runs a hull or pad piece's typed program where the enemy instruction interpreter would.</summary>
+    private void AdvanceGunshipAnimation(RoomEnemySlot slot)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        AnimationProgramCursor<GunshipProgram> cursor = _shipPrograms[slot.SlotIndex];
+        EnemyProgramAnimation.Run(slot, GunshipAnimations.Programs, ref cursor, GunshipFrameDefinitions.Spritemap,
+            (cue, _) => throw new InvalidOperationException($"The gunship's programs publish no cue; got {cue}."));
+        _shipPrograms[slot.SlotIndex] = cursor;
+    }
+
+    /// <summary>Runs the hull and entrance pad as typed programs (#641).</summary>
+    internal void RegisterGunshipTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance,
+            (slot, _) => AdvanceGunshipAnimation(slot));
 
     /// <summary>Initializes the top hull and selects ordinary idle or post-Ceres descent.</summary>
     internal void InitializeGunshipTop(RoomEnemySlot slot)
@@ -74,7 +104,7 @@ internal sealed class GunshipBehavior
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = GunshipInstructionProgramDefinitions.TopHull;
+        _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(GunshipProgram.TopHull);
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
         {
@@ -103,9 +133,9 @@ internal sealed class GunshipBehavior
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.CurrentInstruction = slot.Parameter2 != 0
-            ? GunshipInstructionProgramDefinitions.BottomEntrancePad
-            : GunshipInstructionProgramDefinitions.BottomHull;
+        _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(slot.Parameter2 != 0
+            ? GunshipProgram.BottomEntrancePad
+            : GunshipProgram.BottomHull);
 
         // $A2:A6F1 reads enemy_drawing_queue[(cur_enemy_index >> 1) + 106].
         // For the two Landing Site bottom slots those WRAM addresses alias the preceding
@@ -305,8 +335,7 @@ internal sealed class GunshipBehavior
         top.VariableC = 0;
         samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.Position.X.Whole + 1)));
         samus.WritePreviousXPosition(samus.Position.X.Whole);
-        pad.InstructionTimer = NativeCountdown.Start(1);
-        pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
+        StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.LandingPadOpened;
         _audio.QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
@@ -325,8 +354,7 @@ internal sealed class GunshipBehavior
 
         RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
         top.VariableF = (ushort)GunshipFunction.FinishLanding;
-        pad.InstructionTimer = NativeCountdown.Start(1);
-        pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
+        StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.LandingPadClosed;
     }
@@ -400,8 +428,7 @@ internal sealed class GunshipBehavior
             samus.InputLocked = true;
             samus.Presentation.PrimeGraphics(_room.LoadedBus);
             pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
-            pad.InstructionTimer = NativeCountdown.Start(1);
-            pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
+            StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
             top.VariableA = 144;
             LastGunshipEvent = GunshipFrameEvent.EntryStarted;
             _audio.QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
@@ -427,8 +454,7 @@ internal sealed class GunshipBehavior
 
         RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
         top.VariableF = (ushort)GunshipFunction.WaitForEntranceToClose;
-        pad.InstructionTimer = NativeCountdown.Start(1);
-        pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
+        StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.EntryPadClosing;
     }
@@ -479,8 +505,7 @@ internal sealed class GunshipBehavior
 
         RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
         top.VariableF = (ushort)GunshipFunction.FinishSamusExit;
-        pad.InstructionTimer = NativeCountdown.Start(1);
-        pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadClosing;
+        StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.ExitPadClosing;
         _audio.QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePadClosing, maximumQueued: 6);

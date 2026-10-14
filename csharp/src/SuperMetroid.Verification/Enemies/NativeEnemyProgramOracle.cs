@@ -1,0 +1,173 @@
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.Verification.Enemies;
+
+/// <summary>
+/// The shared #641 ROM oracle for typed enemy programs: walks each owner's native list beside its typed program and
+/// requires every frame's duration and spritemap, every common command and every owner instruction's cue to match.
+/// The owner supplies its instructions' operand counts and its cue comparison.
+/// </summary>
+internal static class NativeEnemyProgramOracle
+{
+    /// <summary>Compares every program with its native list and returns the total step count.</summary>
+    /// <param name="cartridge">The pinned cartridge.</param>
+    /// <param name="bank">The lists' bank.</param>
+    /// <param name="entries">Each program's native entry, in authored order.</param>
+    /// <param name="programs">The typed programs.</param>
+    /// <param name="spritemap">The spritemap a frame shows.</param>
+    /// <param name="operandWords">An owner instruction's operand word count, or null for a word the owner does not use.</param>
+    /// <param name="compareCue">Compares an owner instruction's operands with the cue it became.</param>
+    internal static int CompareAll<TProgram, TFrame, TCue>(
+        IImportCartridgeSource cartridge,
+        byte bank,
+        (TProgram Program, ushort Entry)[] entries,
+        AnimationProgramSet<TProgram, TFrame, TCue> programs,
+        Func<TFrame, ushort> spritemap,
+        Func<ushort, int?> operandWords,
+        Action<ushort, ushort[], TCue, string> compareCue)
+        where TProgram : struct, Enum
+        where TFrame : struct
+        where TCue : notnull
+    {
+        AssertEqual(Enum.GetValues<TProgram>().Length, entries.Length, $"every typed {typeof(TProgram).Name} has a native entry");
+        for (int index = 0; index < entries.Length; index++)
+            AssertEqual(Enum.GetValues<TProgram>()[index], entries[index].Program, $"the {typeof(TProgram).Name} values are declared in authored order");
+        AssertTrue(entries.Zip(entries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry), $"native {typeof(TProgram).Name} entries ascend");
+        var family = new Family<TProgram, TFrame, TCue>(cartridge, bank, entries, programs, spritemap, operandWords, compareCue);
+        int steps = 0;
+        foreach ((TProgram program, ushort entry) in entries)
+            steps += Compare(family, program, entry);
+        return steps;
+    }
+
+    /// <summary>One owner's programs and how its native lists are read and compared.</summary>
+    /// <param name="Cartridge">The pinned cartridge.</param>
+    /// <param name="Bank">The lists' bank.</param>
+    /// <param name="Entries">Each program's native entry, in authored order.</param>
+    /// <param name="Programs">The typed programs.</param>
+    /// <param name="Spritemap">The spritemap a frame shows.</param>
+    /// <param name="OperandWords">An owner instruction's operand word count, or null for a word the owner does not use.</param>
+    /// <param name="CompareCue">Compares an owner instruction's operands with the cue it became.</param>
+    private sealed record Family<TProgram, TFrame, TCue>(
+        IImportCartridgeSource Cartridge,
+        byte Bank,
+        (TProgram Program, ushort Entry)[] Entries,
+        AnimationProgramSet<TProgram, TFrame, TCue> Programs,
+        Func<TFrame, ushort> Spritemap,
+        Func<ushort, int?> OperandWords,
+        Action<ushort, ushort[], TCue, string> CompareCue)
+        where TProgram : struct, Enum
+        where TFrame : struct
+        where TCue : notnull;
+
+    /// <summary>The native entry of <paramref name="program"/>.</summary>
+    internal static ushort EntryOf<TProgram>((TProgram Program, ushort Entry)[] entries, TProgram program)
+        where TProgram : struct, Enum =>
+        entries.Single(item => EqualityComparer<TProgram>.Default.Equals(item.Program, program)).Entry;
+
+    /// <summary>The program whose native list starts at <paramref name="address"/>, if one does.</summary>
+    private static TProgram? ProgramAt<TProgram>((TProgram Program, ushort Entry)[] entries, ushort address)
+        where TProgram : struct, Enum =>
+        entries.Any(item => item.Entry == address) ? entries.Single(item => item.Entry == address).Program : null;
+
+    /// <summary>Compares one program with its native list and returns its step count.</summary>
+    private static int Compare<TProgram, TFrame, TCue>(Family<TProgram, TFrame, TCue> family, TProgram program, ushort entry)
+        where TProgram : struct, Enum
+        where TFrame : struct
+        where TCue : notnull
+    {
+        (IImportCartridgeSource cartridge, byte bank, (TProgram Program, ushort Entry)[] entries, AnimationProgramSet<TProgram, TFrame, TCue> programs,
+            Func<TFrame, ushort> spritemap, Func<ushort, int?> operandWords, Action<ushort, ushort[], TCue, string> compareCue) = family;
+        var steps = programs.Steps(program);
+        ushort cursor = entry;
+        int index = 0;
+        AnimationProgramStep<TProgram, TFrame, TCue> Next(string what)
+        {
+            AssertTrue(index < steps.Count, $"{program} has a step for native {what} at ${bank:X2}:{cursor:X4}");
+            return steps[index++];
+        }
+        while (true)
+        {
+            string at = $"{program} at ${bank:X2}:{cursor:X4}";
+            if (cursor != entry && ProgramAt(entries, cursor) is { } following)
+            {
+                var fall = Next("fall-through");
+                AssertEqual(AnimationProgramStepKind.FallInto, fall.Kind, $"{at}: runs on into the next authored program");
+                AssertEqual(following, fall.Target, $"{at}: fall-through target");
+                break;
+            }
+            int address = (int)new SnesAddress(bank, cursor);
+            ushort word = cartridge.ReadCartridgeWord(address);
+            ushort operand = cartridge.ReadCartridgeWord(address + 2);
+            NativeEnemyListDefinitions.WordKind kind = NativeEnemyListDefinitions.Classify(word);
+            if (kind == NativeEnemyListDefinitions.WordKind.Frame)
+            {
+                var show = Next("frame");
+                AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: frame");
+                AssertEqual((int)word, show.Duration, $"{at}: duration");
+                AssertEqual(operand, spritemap(show.Frame), $"{at}: spritemap");
+                cursor = unchecked((ushort)(cursor + 4));
+                continue;
+            }
+            switch (kind)
+            {
+                case NativeEnemyListDefinitions.WordKind.Sleep:
+                    AssertEqual(AnimationProgramStepKind.Hold, Next("sleep").Kind, $"{at}: sleep");
+                    break;
+                case NativeEnemyListDefinitions.WordKind.Stop:
+                    AssertEqual(AnimationProgramStepKind.Stop, Next("stop").Kind, $"{at}: stop");
+                    break;
+                case NativeEnemyListDefinitions.WordKind.GoTo:
+                {
+                    var jump = Next("goto");
+                    AssertEqual(AnimationProgramStepKind.GoTo, jump.Kind, $"{at}: goto");
+                    AssertEqual(operand, EntryOf(entries, jump.Target), $"{at}: goto target");
+                    break;
+                }
+                case NativeEnemyListDefinitions.WordKind.SetCounter:
+                {
+                    var load = Next("counter load");
+                    AssertEqual(AnimationProgramStepKind.SetCounter, load.Kind, $"{at}: counter load");
+                    AssertEqual((int)operand, load.Duration, $"{at}: counter");
+                    cursor = unchecked((ushort)(cursor + 4));
+                    continue;
+                }
+                case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
+                {
+                    var repeat = Next("counted repeat");
+                    AssertEqual(AnimationProgramStepKind.RepeatWhileCounting, repeat.Kind, $"{at}: counted repeat");
+                    AssertEqual(operand, EntryOf(entries, repeat.Target), $"{at}: repeat target");
+                    cursor = unchecked((ushort)(cursor + 4));
+                    continue;
+                }
+                case NativeEnemyListDefinitions.WordKind.Wait:
+                {
+                    var wait = Next("wait");
+                    AssertEqual(AnimationProgramStepKind.Wait, wait.Kind, $"{at}: wait");
+                    AssertEqual((int)operand, wait.Duration, $"{at}: wait length");
+                    cursor = unchecked((ushort)(cursor + 4));
+                    continue;
+                }
+                case NativeEnemyListDefinitions.WordKind.Callback:
+                {
+                    AssertTrue(operandWords(word) is not null, $"{at}: native instruction ${word:X4} is known");
+                    int count = operandWords(word) ?? 0;
+                    var step = Next("instruction");
+                    AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: instruction");
+                    ushort[] operands = [.. Enumerable.Range(0, count).Select(item => cartridge.ReadCartridgeWord(address + 2 + 2 * item))];
+                    compareCue(word, operands, step.PublishedCue, at);
+                    cursor = unchecked((ushort)(cursor + 2 + 2 * count));
+                    continue;
+                }
+                case NativeEnemyListDefinitions.WordKind.Frame:
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(NativeEnemyListDefinitions.WordKind)} {kind}.");
+            }
+            break;
+        }
+        AssertEqual(steps.Count, index, $"{program} ends where its native list does");
+        return steps.Count;
+    }
+}

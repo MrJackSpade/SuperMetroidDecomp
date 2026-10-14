@@ -7,6 +7,8 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Verification.Enemies;
 
 /// <summary>Checks Ceres steam selector definitions against native words and actual enemy initialization.</summary>
 internal static class CeresSteamDefinitionsVerification
@@ -25,7 +27,7 @@ internal static class CeresSteamDefinitionsVerification
             CeresSteamInitialization definition =
                 CeresSteamDefinitions.Initialization(variant);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2)),
-                definition.InstructionList,
+                NativeEnemyProgramOracle.EntryOf(CeresSteamNativeListAddresses.Entries, definition.Program),
                 $"Ceres steam {variant} instruction list");
             AssertEqual((CeresSteamFunction)CartridgeImportSource.Require(rom).ReadCartridgeWord((functionTable + index * 2)),
                 definition.Function,
@@ -38,8 +40,8 @@ internal static class CeresSteamDefinitionsVerification
             slot.Parameter1 = (ushort)variant;
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
 
-            AssertEqual(definition.InstructionList, slot.CurrentInstruction,
-                $"production Ceres steam {variant} instruction list");
+            AssertEqual(AnimationProgramCursor<CeresSteamProgram>.Start(definition.Program), enemies.CeresSteamPrograms[slot.SlotIndex],
+                $"production Ceres steam {variant} program");
             AssertEqual(definition.Function, (CeresSteamFunction)slot.VariableA,
                 $"production Ceres steam {variant} function");
             AssertEqual(0x0020, slot.VariableD,

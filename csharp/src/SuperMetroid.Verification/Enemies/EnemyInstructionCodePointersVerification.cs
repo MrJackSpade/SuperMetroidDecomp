@@ -65,14 +65,10 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(BeetomInstruction),
             typeof(BoyonInstruction),
             typeof(CacatacInstruction),
-            typeof(CeresDoorInstruction),
-            typeof(CeresSteamInstruction),
             typeof(ChozoStatueInstruction),
             typeof(CrawlerInstruction),
             typeof(DeadSidehopperInstruction),
             typeof(DragonInstruction),
-            typeof(EscapeEtecoonInstruction),
-            typeof(EscapeDachoraInstruction),
             typeof(EvirInstruction),
             typeof(FakeKraidInstruction),
             typeof(FuneNamiheInstruction),
@@ -108,15 +104,11 @@ internal static class EnemyInstructionCodePointersVerification
             typeof(BeetomInstruction),
             typeof(BoyonInstruction),
             typeof(CacatacInstruction),
-            typeof(CeresDoorInstruction),
-            typeof(CeresSteamInstruction),
             typeof(ChozoStatueInstruction),
             typeof(CommonEnemyInstruction),
             typeof(CrawlerInstruction),
             typeof(DeadSidehopperInstruction),
             typeof(DragonInstruction),
-            typeof(EscapeDachoraInstruction),
-            typeof(EscapeEtecoonInstruction),
             typeof(EvirInstruction),
             typeof(FakeKraidInstruction),
             typeof(FuneNamiheInstruction),
@@ -160,7 +152,6 @@ internal static class EnemyInstructionCodePointersVerification
 
         (Type Catalog, byte Bank)[] bankLocalCatalogs =
         [
-            (typeof(GunshipInstructionProgramDefinitions), 0xa2),
             (typeof(OrdinaryEnemyInstructionLists), 0xa3),
         ];
         foreach ((Type catalog, _) in bankLocalCatalogs)

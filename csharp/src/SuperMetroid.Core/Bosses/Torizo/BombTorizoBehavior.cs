@@ -916,7 +916,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         AnimationProgramCursor<TorizoBodyProgram> cursor = state.BodyProgram;
         // The death and wake repeats count the body's timer word, as the native timer commands do.
         EnemyProgramAnimation.RunTo(torizo, TorizoAnimations.Programs, ref cursor, TorizoFrameDefinitions.Spritemap,
-            (cue, continuation) => ApplyTorizoCue(torizo, state, inputs, cue, continuation), EnemyProgramCounter.SlotTimer);
+            (cue, continuation) => ApplyTorizoCue(torizo, state, inputs, cue, continuation));
         state.BodyProgram = cursor;
     }
 

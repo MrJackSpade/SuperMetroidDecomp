@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -80,11 +82,11 @@ internal static class CeresElevatorArrivalVerification
             "  Ceres elevator: definitions/programs match cartridge data, run without bank-$86 reads, and retain native graphics/landing behavior.");
     }
 
-    /// <summary>Matches compiled arrival projectiles and their instruction words to the retail bank-$86 source.</summary>
+    /// <summary>Matches the arrival projectiles' definitions and typed programs (#641) to the retail bank-$86 lists.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres elevator arrival definitions")]
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
-
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         foreach (CeresElevatorProjectileDefinition definition in new[]
         {
             CeresElevatorArrivalDefinitions.MovingPad,
@@ -92,37 +94,41 @@ internal static class CeresElevatorArrivalVerification
         })
         {
             int address = CeresElevatorArrivalDefinitions.BankBase | definition.DefinitionPointer;
-            VerificationAssert.AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), definition.InitialInstruction,
-                "Ceres elevator compiled instruction-list identity");
+            VerificationAssert.AssertEqual(cartridge.ReadCartridgeWord(address + 4),
+                NativeEnemyProgramOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, definition.Program),
+                "Ceres elevator definition names its program's native list");
         }
 
-        ushort[] pointers = [0xa28b, 0xa28d, 0xa291, 0xa295, 0xa299, 0xa29d];
-        foreach (ushort pointer in pointers)
+        foreach ((CeresElevatorArrivalProgram program, ushort entry) in CeresElevatorArrivalNativeListAddresses.Entries)
         {
-            CeresElevatorProjectileInstruction instruction =
-                CeresElevatorArrivalDefinitions.ReadInstruction(pointer);
-            int address = CeresElevatorArrivalDefinitions.BankBase | pointer;
-            switch (instruction.Operation)
+            var steps = CeresElevatorArrivalAnimations.Programs.Steps(program);
+            ushort cursor = entry;
+            int index = 0;
+            while (true)
             {
-                case CeresElevatorProjectileOperation.Frame:
-                    VerificationAssert.AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), instruction.Duration,
-                        "Ceres elevator compiled frame duration");
-                    VerificationAssert.AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), instruction.SpritemapPointer,
-                        "Ceres elevator compiled spritemap identity");
-                    VerificationAssert.AssertEqual(unchecked((ushort)(pointer + 4)), instruction.NextInstruction,
-                        "Ceres elevator compiled frame continuation");
+                int address = CeresElevatorArrivalDefinitions.BankBase | cursor;
+                ushort word = cartridge.ReadCartridgeWord(address);
+                ushort operand = cartridge.ReadCartridgeWord(address + 2);
+                var step = steps[index++];
+                string at = $"Ceres elevator {program} at $86:{cursor:X4}";
+                if (word == CeresElevatorArrivalDefinitions.DeleteOpcode)
+                {
+                    VerificationAssert.AssertEqual(AnimationProgramStepKind.Stop, step.Kind, $"{at}: delete");
                     break;
-                case CeresElevatorProjectileOperation.Delete:
-                    VerificationAssert.AssertEqual(CeresElevatorArrivalDefinitions.DeleteOpcode, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                        "Ceres elevator compiled delete opcode");
+                }
+                if (word == CeresElevatorArrivalDefinitions.GotoOpcode)
+                {
+                    VerificationAssert.AssertEqual(AnimationProgramStepKind.GoTo, step.Kind, $"{at}: goto");
+                    VerificationAssert.AssertEqual(operand,
+                        NativeEnemyProgramOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, step.Target), $"{at}: goto target");
                     break;
-                case CeresElevatorProjectileOperation.Goto:
-                    VerificationAssert.AssertEqual(CeresElevatorArrivalDefinitions.GotoOpcode, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                        "Ceres elevator compiled goto opcode");
-                    VerificationAssert.AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), instruction.NextInstruction,
-                        "Ceres elevator compiled goto target");
-                    break;
+                }
+                VerificationAssert.AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
+                VerificationAssert.AssertEqual((int)word, step.Duration, $"{at}: duration");
+                VerificationAssert.AssertEqual(operand, CeresElevatorArrivalDefinitions.Spritemap(step.Frame), $"{at}: spritemap");
+                cursor = unchecked((ushort)(cursor + 4));
             }
+            VerificationAssert.AssertEqual(steps.Count, index, $"Ceres elevator {program} ends where its native list does");
         }
     }
 

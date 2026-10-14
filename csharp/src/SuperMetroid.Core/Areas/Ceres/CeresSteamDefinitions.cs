@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <summary>Compiled fixed initialization records for the Ceres steam actor.</summary>
 public static class CeresSteamDefinitions
 {
+    /// <summary>The live random bits $A6:EFD9 keeps for a vent's activation delay, before adding one.</summary>
+    internal const ushort ActivationDelayMask = 0x001f;
+
 
     /// <summary>
     /// The parallel instruction/function tables at <c>$A6:EFF5-$A6:F00C</c>, indexed
@@ -22,13 +25,13 @@ public static class CeresSteamDefinitions
     /// </summary>
     internal static CeresSteamInitialization Initialization(CeresSteamVariant variant) => variant switch
     {
-        CeresSteamVariant.Up => new(CeresSteamInstructionProgramDefinitions.Up, CeresSteamFunction.None),
-        CeresSteamVariant.Left => new(CeresSteamInstructionProgramDefinitions.Left, CeresSteamFunction.None),
-        CeresSteamVariant.Down => new(CeresSteamInstructionProgramDefinitions.Down, CeresSteamFunction.None),
-        CeresSteamVariant.Right => new(CeresSteamInstructionProgramDefinitions.Right, CeresSteamFunction.None),
-        CeresSteamVariant.RotatingElevatorLeft => new(CeresSteamInstructionProgramDefinitions.Left,
+        CeresSteamVariant.Up => new(CeresSteamProgram.Up, CeresSteamFunction.None),
+        CeresSteamVariant.Left => new(CeresSteamProgram.Left, CeresSteamFunction.None),
+        CeresSteamVariant.Down => new(CeresSteamProgram.Down, CeresSteamFunction.None),
+        CeresSteamVariant.Right => new(CeresSteamProgram.Right, CeresSteamFunction.None),
+        CeresSteamVariant.RotatingElevatorLeft => new(CeresSteamProgram.Left,
             CeresSteamFunction.ApplyRotatingElevatorOffset),
-        CeresSteamVariant.RotatingElevatorRight => new(CeresSteamInstructionProgramDefinitions.Right,
+        CeresSteamVariant.RotatingElevatorRight => new(CeresSteamProgram.Right,
             CeresSteamFunction.ApplyRotatingElevatorOffset),
         _ => throw new InvalidDataException(
             $"Ceres steam variant ${(ushort)variant:X4} exceeds its six-entry tables."),

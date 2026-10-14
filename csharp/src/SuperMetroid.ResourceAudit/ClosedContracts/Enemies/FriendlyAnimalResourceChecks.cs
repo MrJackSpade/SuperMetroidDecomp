@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
@@ -5,26 +6,37 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 /// <summary>Confirms each specifically identified friendly-animal artwork omission.</summary>
 internal static class FriendlyAnimalResourceChecks
 {
-    /// <summary>Selects each friendly-animal family's bank, operands, and appended schema range for composition checks.</summary>
+    /// <summary>Selects each friendly-animal family's bank, poses, and appended schema range for composition checks.</summary>
     public static void Run(string family)
     {
         int previousCount = EnemySpritemapDefinitions.PreFriendlyAnimalFrameCount;
         int previousVersion = (int)EnemySpritemapSchema.PreFriendlyAnimal;
-        (byte bank, ushort[] operands, int count, int offset) = family switch
+        int escapeStart = previousCount + FriendlyAnimalVisualDefinitions.EtecoonFrameCount + FriendlyAnimalVisualDefinitions.DachoraFrameCount;
+        switch (family)
         {
-            "Etecoon" => (FriendlyAnimalVisualDefinitions.NormalBank, FriendlyAnimalVisualDefinitions.EtecoonOperands(),
-                FriendlyAnimalVisualDefinitions.EtecoonFrameCount, 0),
-            "Dachora" => (FriendlyAnimalVisualDefinitions.NormalBank, FriendlyAnimalVisualDefinitions.DachoraOperands(),
-                FriendlyAnimalVisualDefinitions.DachoraFrameCount, FriendlyAnimalVisualDefinitions.EtecoonFrameCount),
-            "EscapeEtecoon" => (FriendlyAnimalVisualDefinitions.EscapeBank, FriendlyAnimalVisualDefinitions.EscapeEtecoonOperands(),
-                FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount, FriendlyAnimalVisualDefinitions.EtecoonFrameCount +
-                    FriendlyAnimalVisualDefinitions.DachoraFrameCount),
-            "EscapeDachora" => (FriendlyAnimalVisualDefinitions.EscapeBank, FriendlyAnimalVisualDefinitions.EscapeDachoraOperands(),
-                FriendlyAnimalVisualDefinitions.EscapeDachoraFrameCount, FriendlyAnimalVisualDefinitions.EtecoonFrameCount +
-                    FriendlyAnimalVisualDefinitions.DachoraFrameCount + FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount),
-            _ => throw new ArgumentException("Expected Etecoon, Dachora, EscapeEtecoon or EscapeDachora.", nameof(family)),
-        };
-        EnemyCompositionResourceChecks.Run(family, bank, operands, count,
-            previousVersion, previousCount, previousCount + offset);
+            case "Etecoon":
+                EnemyCompositionResourceChecks.Run(family, FriendlyAnimalVisualDefinitions.NormalBank, FriendlyAnimalVisualDefinitions.EtecoonOperands(),
+                    FriendlyAnimalVisualDefinitions.EtecoonFrameCount, previousVersion, previousCount, previousCount);
+                return;
+            case "Dachora":
+                EnemyCompositionResourceChecks.Run(family, FriendlyAnimalVisualDefinitions.NormalBank, FriendlyAnimalVisualDefinitions.DachoraOperands(),
+                    FriendlyAnimalVisualDefinitions.DachoraFrameCount, previousVersion, previousCount,
+                    previousCount + FriendlyAnimalVisualDefinitions.EtecoonFrameCount);
+                return;
+            // The rescue-sequence animals are typed programs (#641); their poses come from the programs.
+            case "EscapeEtecoon":
+                EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.EscapeBank,
+                    EscapeEtecoonAnimations.Spritemaps(Enum.GetValues<EscapeEtecoonProgram>()),
+                    FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount, previousVersion, previousCount, escapeStart);
+                return;
+            case "EscapeDachora":
+                EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.EscapeBank,
+                    EscapeDachoraAnimations.Spritemaps(Enum.GetValues<EscapeDachoraProgram>()),
+                    FriendlyAnimalVisualDefinitions.EscapeDachoraFrameCount, previousVersion, previousCount,
+                    escapeStart + FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount);
+                return;
+            default:
+                throw new ArgumentException("Expected Etecoon, Dachora, EscapeEtecoon or EscapeDachora.", nameof(family));
+        }
     }
 }

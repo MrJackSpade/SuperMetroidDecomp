@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>Named, proven sound sequences in cartridge SFX library two.</summary>
 public static class SoundEffectLibrary2Sounds
 {
+    /// <summary>Library-two $25, queued (Max6) with each explosion by the Ceres escape door's destruction routine at $A6:F7DC.</summary>
+    public static readonly SoundEffectId CeresDoorExplosion = new(SoundEffectLibrary.Library2, 0x25); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$A6:B74F queues library-two $76 when Ridley's tail hits terrain.</summary>
     public static SoundEffectId RidleyTailTerrainImpact => SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x76); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

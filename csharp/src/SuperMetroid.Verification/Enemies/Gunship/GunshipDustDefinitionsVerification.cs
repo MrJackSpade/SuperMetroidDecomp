@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
@@ -28,7 +29,7 @@ internal static class GunshipDustDefinitionsVerification
             ushort instruction = Word(EnemyRomTablePointersGunship.DustInstructionPointers + parameter);
             var definition = GunshipDustDefinitions.ForParameter(parameter);
             AssertEqual(dx, definition.XOffset, "All native dust signed X offsets");
-            AssertEqual(instruction, definition.Instruction, "All native dust instruction selections");
+            AssertEqual(instruction, GunshipDustNativeListAddresses.Entry(definition.Program), "All native dust instruction selections");
             for (int origin = 0; origin <= ushort.MaxValue; origin++)
             {
                 slot.Clear();
@@ -41,7 +42,8 @@ internal static class GunshipDustDefinitionsVerification
                 AssertEqual(RoomEnemyProjectileKind.GunshipLiftoffDustCloud, slot.Kind, "Native reverse allocation chooses last free slot");
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + dx)), slot.Position.X.Whole, "Actual dust signed X placement and wrap");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word(0x86a2c5))), slot.Position.Y.Whole, "Actual dust Y placement and wrap");
-                AssertEqual(instruction, slot.InstructionPointer, "Actual dust program selection");
+                AssertTrue(slot.Animation is GunshipDustAnimation started &&
+                    started.Cursor == AnimationProgramCursor<GunshipDustProgram>.Start(definition.Program), "Actual dust program selection");
                 AssertEqual(parameter, slot.Variable0, "Dust retains native even parameter");
                 AssertEqual((ushort)1, slot.InstructionTimer.RawValue, "Dust begins on first program tick");
                 AssertEqual((ushort)0, slot.Position.X.Fraction, "Dust clears stale X fraction");

@@ -48,6 +48,9 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Map;
 
 using SuperMetroid.Verification.Bosses.Phantoon;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Verification.Areas.Ceres;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Cartridge-oracle checks for Ceres, boss, projectile and map visual definitions in lookup stream five.</summary>
@@ -1738,13 +1741,13 @@ internal static class LookupStream5Verification
         for (ushort variant = 0; variant < 7; variant++)
         {
             var actual = CeresDoorInitializationDefinitions.For(variant);
-            AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), actual.InstructionList, "Ceres door original instruction dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), NativeEnemyProgramOracle.EntryOf(CeresDoorNativeListAddresses.Entries, actual.Program), "Ceres door original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), (ushort)actual.MainFunction, "Ceres door original function dispatch");
         }
         for (ushort variant = 0; variant < 6; variant++)
         {
             var actual = CeresSteamDefinitions.Initialization((CeresSteamVariant)variant);
-            AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), actual.InstructionList, "Ceres steam original instruction dispatch");
+            AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyProgramOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Program), "Ceres steam original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), (ushort)actual.Function, "Ceres steam original function dispatch");
         }
         for (int index = 0; index < 9; index++)
@@ -1880,7 +1883,7 @@ internal static class LookupStream5Verification
             AssertEqual(native & 0x1ff, CeresDoorQuakeDefinitions.XOffset(phase) & 0x1ff,
                 "Native overlapping high byte retains the same ninth coordinate bit");
             var expected = new OamBuffer(); expected.BeginFrame();
-            DrawImportedEnemySpritemap(rom, expected, new EnemySpritemapDraw { Bank = CeresDoorInstructionProgramDefinitions.Bank, Pointer = CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(x - camera + native)), 80), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(rom, expected, new EnemySpritemapDraw { Bank = CeresDoorFrameDefinitions.Bank, Pointer = CeresDoorFrameDefinitions.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(x - camera + native)), 80), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
             expected.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual),
                 "Byte-decoded quake preserves actual low/high OAM through coordinate wrap");

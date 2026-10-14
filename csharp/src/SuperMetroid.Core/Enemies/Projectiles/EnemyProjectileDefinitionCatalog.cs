@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Gunship.Artwork;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -226,17 +228,17 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0606, 0x5003, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresFallingDebrisLight => new(
-0x9701, CeresFallingDebrisInstructionProgramDefinitions.Light,
+0x9701, CeresFallingDebrisVisualDefinitions.LightDefinitionList,
             0x0808, 0x4000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CeresFallingDebrisDark => new(
-0x9701, CeresFallingDebrisInstructionProgramDefinitions.Dark,
+0x9701, CeresFallingDebrisVisualDefinitions.DarkDefinitionList,
             0x0808, 0x4000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.GunshipLiftoffDustCloud => new(
-0xA327, GunshipDustInstructionProgramDefinitions.Index0,
+0xA327, GunshipDustVisualDefinitions.DefinitionList,
             0x0808, 0x3000, 0x0000,
-            GunshipDustInstructionProgramDefinitions.Index0),
+            GunshipDustVisualDefinitions.DefinitionList),
         RoomEnemyProjectileKind.AlcoonFireball => new(
 0x9EFF, AlcoonFireballInstructionProgramDefinitions.Initial,
             0x0404, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),

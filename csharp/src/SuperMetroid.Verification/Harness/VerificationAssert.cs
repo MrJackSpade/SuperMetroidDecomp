@@ -1244,17 +1244,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Checks Dachora animation program control words against native lists.</summary>
-    [VerificationCommand("--lookup-stream-1-dachora-programs")]
-    internal static int LookupStream1DachoraProgramsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Dachora program oracle revision");
-        Suite(nameof(VerifyLookupStream1EscapeDachoraPrograms), () => VerifyLookupStream1EscapeDachoraPrograms(rom));
-        return 0;
-    }
-
     /// <summary>Checks Powamp instruction programs and their frame selections.</summary>
     [VerificationCommand("--lookup-stream-1-powamp-programs")]
     internal static int LookupStream1PowampProgramsCommand()
@@ -1609,7 +1598,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifyMetroidBehaviorDefinitions), () => VerifyMetroidBehaviorDefinitions(rom));
         Suite(nameof(VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions), () => VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(rom));
         Suite(nameof(VerifyDragonFireballInstructionProgramDefinitions), () => VerifyDragonFireballInstructionProgramDefinitions());
-        Suite(nameof(VerifyEscapeEtecoonInstructionProgramDefinitions), () => VerifyEscapeEtecoonInstructionProgramDefinitions());
         Suite(nameof(VerifyDragonInstructionProgramDefinitions), () => VerifyDragonInstructionProgramDefinitions());
         Suite(nameof(VerifyCacatacInstructionProgramDefinitions), () => VerifyCacatacInstructionProgramDefinitions());
         Suite(nameof(VerifyBullInstructionProgramDefinitions), () => VerifyBullInstructionProgramDefinitions(rom));

@@ -2,17 +2,9 @@
 # A file may only lose occurrences. Regenerate after a migration with
 #   dotnet run --project csharp/src/SuperMetroid.CartridgeEncodingAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write
 # path<TAB>rule<TAB>count
-csharp/src/SuperMetroid.Core/Areas/Ceres/CeresBabyInstructionProgramDefinitions.cs	SME6341	4
-csharp/src/SuperMetroid.Core/Areas/Ceres/CeresDoorBehavior.cs	SME6340	11
 csharp/src/SuperMetroid.Core/Areas/Ceres/CeresDoorBehavior.cs	SME6349	3
-csharp/src/SuperMetroid.Core/Areas/Ceres/CeresDoorInstructionProgramDefinitions.cs	SME6341	16
-csharp/src/SuperMetroid.Core/Areas/Ceres/CeresDoorInstructionSounds.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Areas/Ceres/CeresElevatorArrivalState.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Areas/Ceres/CeresElevatorShaftRoomMainState.cs	SME6340	8
-csharp/src/SuperMetroid.Core/Areas/Ceres/CeresFallingDebrisInstructionProgramDefinitions.cs	SME6341	2
-csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamBehavior.cs	SME6340	2
-csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamBehavior.cs	SME6349	1
-csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamInstructionProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTimerPresentation.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTimerTileAtlasFormat.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTypewriterPresentation.cs	SME6340	1
@@ -56,8 +48,6 @@ csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonFireballInstructionProgramDefi
 csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraBehavior.cs	SME6340	20
 csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeAnimalsBehavior.cs	SME6340	3
-csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeDachoraInstructionProgramDefinitions.cs	SME6341	3
-csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeEtecoonInstructionProgramDefinitions.cs	SME6341	6
 csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonBehavior.cs	SME6340	22
 csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/Atomic/AtomicInstructionProgramDefinitions.cs	SME6341	2
@@ -130,9 +120,6 @@ csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheFireballInstructionPro
 csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipBehavior.cs	SME6340	15
 csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipBehavior.cs	SME6349	3
-csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipDustInstructionProgramDefinitions.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipHealthBehavior.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipInstructionProgramDefinitions.cs	SME6341	6
 csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiInstructionLayout.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Enemies/Hoppers/HoppersBehavior.cs	SME6340	4
@@ -583,11 +570,6 @@ csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaDomainGeometry.cs	SME6340	4
 csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaOwnership.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/AssetExtraction/Cartridge/CartridgeImportAddressSpaceTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/AssetExtraction/Rooms/CartridgeRoomStateImporter.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/CeresBabyInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/CeresDoorInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/CeresFallingDebrisInstructionProgramDefinitionsTooling.cs	SME6341	1
-csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/CeresSteamInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Areas/Ceres/CeresSteamInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Areas/Tourian/TourianStatueProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Kraid/FakeKraidInstructionProgramDefinitionsTooling.cs	SME6340	5
@@ -601,8 +583,6 @@ csharp/src/SuperMetroid.Tooling/Core/Bosses/Torizo/BombTorizoHandPlmProgramDefin
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/AlcoonFireballInstructionProgramDefinitionsTooling.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/AlcoonInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/AlcoonInstructionProgramDefinitionsTooling.cs	SME6341	4
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/EscapeDachoraInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/EscapeEtecoonInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectorsTooling.cs	SME6340	14
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Atomic/AtomicInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Atomic/AtomicInstructionProgramDefinitionsTooling.cs	SME6341	3
@@ -650,8 +630,6 @@ csharp/src/SuperMetroid.Tooling/Core/Enemies/Flies/FlyInstructionProgramDefiniti
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Flies/FlyInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/FuneNamihe/FuneNamiheFireballInstructionProgramDefinitionsTooling.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Enemies/FuneNamihe/FuneNamiheInstructionProgramDefinitionsTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Gunship/GunshipDustInstructionProgramDefinitionsTooling.cs	SME6341	1
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Gunship/GunshipInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Hibashi/HibashiInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Hibashi/HibashiInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Hoppers/HopperInstructionProgramDefinitionsTooling.cs	SME6340	1
@@ -740,23 +718,18 @@ csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/SaveStationElectricityInstructio
 csharp/src/SuperMetroid.Tooling/Core/Rooms/RoomAssetRomDataGraphicsLayoutTooling.cs	SME6340	2
 csharp/src/SuperMetroid.Tooling/Core/Rooms/RoomHeaderPointersTooling.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Areas/Ceres/Artwork/CeresEscapeTileArtworkVerification.cs	SME6340	5
-csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresBabyInstructionProgramDefinitionsVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresDoorInitializationDefinitionsVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresDoorInstructionProgramDefinitionsVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresDoorQuakeDefinitionsVerification.cs	SME6340	7
-csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresElevatorArrivalVerification.cs	SME6340	19
-csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresElevatorArrivalVerification.cs	SME6342	1
+csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresElevatorArrivalVerification.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresEscapeHandoffVerification.cs	SME6340	38
 csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresEscapeHandoffVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresEscapeOverlayTilemapsVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresEscapeVramTransferDefinitionsVerification.cs	SME6340	12
-csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresFallingDebrisInstructionProgramDefinitionsVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresHazeVerification.cs	SME6340	19
 csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresHazeVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresShaftRotationVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresSteamCollisionDefinitionsVerification.cs	SME6340	18
 csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresSteamDefinitionsVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Areas/Ceres/CeresSteamInstructionProgramDefinitionsVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Areas/Ceres/LookupCeresDefaultTintsVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Areas/Ceres/LookupCeresHazeRampVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Areas/Ceres/PostCeresLandingHandOffVerification.cs	SME6340	6
@@ -1091,8 +1064,7 @@ csharp/src/SuperMetroid.Verification/Enemies/Alcoon/AlcoonInstructionProgramDefi
 csharp/src/SuperMetroid.Verification/Enemies/Alcoon/AlcoonInstructionProgramDefinitionsVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Enemies/Animals/DachoraInstructionProgramDefinitionsVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Enemies/Animals/EscapeAnimalBlocksVerification.cs	SME6340	8
-csharp/src/SuperMetroid.Verification/Enemies/Animals/EscapeDachoraInstructionProgramDefinitionsVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Enemies/Animals/EscapeEtecoonDefinitionsVerification.cs	SME6340	15
+csharp/src/SuperMetroid.Verification/Enemies/Animals/EscapeEtecoonDefinitionsVerification.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Enemies/Animals/EtecoonFanfareVerification.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Enemies/Animals/EtecoonInstructionProgramDefinitionsVerification.cs	SME6340	23
 csharp/src/SuperMetroid.Verification/Enemies/Animals/EtecoonInstructionProgramDefinitionsVerification.cs	SME6341	1
@@ -1221,7 +1193,7 @@ csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerif
 csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerification.cs	SME6345	2
 csharp/src/SuperMetroid.Verification/Enemies/EnemyGameplayAcceptanceVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs	SME6340	3
+csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionCodePointersVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Enemies/EnemyInstructionOwnerCoverageVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/EnemyLinearSpeedsVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Enemies/EnemyMathReferenceData.cs	SME6340	6
@@ -1261,10 +1233,8 @@ csharp/src/SuperMetroid.Verification/Enemies/FuneNamihe/FuneNamiheInstructionPro
 csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipDustDefinitionsVerification.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipDustDefinitionsVerification.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipDustDefinitionsVerification.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipDustInstructionProgramDefinitionsVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipEscapeTimerVerification.cs	SME6340	14
-csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipInstructionProgramDefinitionsVerification.cs	SME6340	23
-csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipLandingVerification.cs	SME6340	59
+csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipLandingVerification.cs	SME6340	57
 csharp/src/SuperMetroid.Verification/Enemies/Gunship/GunshipMotionDefinitionsVerification.cs	SME6340	21
 csharp/src/SuperMetroid.Verification/Enemies/Hibashi/HibashiDefinitionsVerification.cs	SME6340	18
 csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperAnimationDefinitionsVerification.cs	SME6340	14
@@ -1722,9 +1692,9 @@ csharp/src/SuperMetroid.Verification/Harness/FixtureRoomHeaders.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Harness/FullMovieReplayVerification.cs	SME6340	63
 csharp/src/SuperMetroid.Verification/Harness/LookupRomOraclesVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Harness/LookupRomOraclesVerification.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6340	958
-csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6341	9
-csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6342	21
+csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6340	946
+csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6341	2
+csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6342	20
 csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME6340	222
 csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME6342	3
@@ -2148,14 +2118,13 @@ csharp/src/SuperMetroid.Verification/Samus/SamusTurnsAndKnockbackVerification.cs
 csharp/src/SuperMetroid.Verification/Samus/SamusTurnsAndKnockbackVerification.cs	SME6342	33
 csharp/src/SuperMetroid.Verification/Saves/SaveSchemaTranslationVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Spatial/SpatialValuesVerification.cs	SME6340	50
-csharp/test-support/CatalogInventories/EnemyVisualSelectorInventory.cs	SME6340	3
+csharp/test-support/CatalogInventories/EnemyVisualSelectorInventory.cs	SME6340	2
 csharp/test-support/CatalogInventories/RoomFxRecordCatalogSource.cs	SME6340	1
 csharp/test-support/RenderFixtures/DoorTransitionAuditPositions.cs	SME6340	10
 csharp/test-support/RenderFixtures/DoorTransitionAuditVram.cs	SME6340	2
 csharp/test-support/RenderFixtures/MapCrossViewAudit.cs	SME6340	4
 csharp/test-support/RoomHeaderImport/CartridgeRoomHeaderImporter.cs	SME6340	4
 csharp/test-support/ScenarioFixtures/ShallowWaterJumpScenario.cs	SME6340	1
-csharp/test-support/VerificationAccess.Core/Areas/Ceres/CeresBabyInstructionProgramDefinitionsAccess.cs	SME6340	2
 csharp/test-support/VerificationAccess.Core/Areas/Ceres/CeresEscapeVramTransferDefinitionsAccess.cs	SME6340	1
 csharp/test-support/VerificationAccess.Core/Areas/Tourian/TourianAccessPlmProgramDefinitionsAccess.cs	SME6341	2
 csharp/test-support/VerificationAccess.Core/Audio/AudioRomDataMusicTracks.cs	SME6340	1

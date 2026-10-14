@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Atomic;
@@ -1421,22 +1422,22 @@ internal static class EnemySpritemapDefinitions
             NamedFrameId.magdollite_pillar_phase_5 => (MagdolliteBank, (ushort)0xb5ef),
             NamedFrameId.magdollite_pillar_phase_6 => (MagdolliteBank, (ushort)0xb60f),
             NamedFrameId.magdollite_pillar_phase_7 => (MagdolliteBank, (ushort)0xb634),
-            NamedFrameId.ceres_door_rotating_overlay => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xf921),
-            NamedFrameId.ceres_door_left_hold => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xf95f),
-            NamedFrameId.ceres_door_left_transition_0 => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xf989),
+            NamedFrameId.ceres_door_rotating_overlay => (CeresDoorFrameDefinitions.Bank, (ushort)0xf921),
+            NamedFrameId.ceres_door_left_hold => (CeresDoorFrameDefinitions.Bank, (ushort)0xf95f),
+            NamedFrameId.ceres_door_left_transition_0 => (CeresDoorFrameDefinitions.Bank, (ushort)0xf989),
             >= NamedFrameId.ceres_door_left_transition_1 and <= NamedFrameId.ceres_door_left_transition_3 =>
-                (CeresDoorInstructionProgramDefinitions.Bank, (ushort)(0xf9b3 + ((int)frame - (int)NamedFrameId.ceres_door_left_transition_1) * NativeFrameBytes(6))),
-            NamedFrameId.ceres_door_right_hold => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xfa13),
-            NamedFrameId.ceres_door_right_transition_0 => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xfa3d),
+                (CeresDoorFrameDefinitions.Bank, (ushort)(0xf9b3 + ((int)frame - (int)NamedFrameId.ceres_door_left_transition_1) * NativeFrameBytes(6))),
+            NamedFrameId.ceres_door_right_hold => (CeresDoorFrameDefinitions.Bank, (ushort)0xfa13),
+            NamedFrameId.ceres_door_right_transition_0 => (CeresDoorFrameDefinitions.Bank, (ushort)0xfa3d),
             >= NamedFrameId.ceres_door_right_transition_1 and <= NamedFrameId.ceres_door_right_transition_3 =>
-                (CeresDoorInstructionProgramDefinitions.Bank, (ushort)(0xfa67 + ((int)frame - (int)NamedFrameId.ceres_door_right_transition_1) * NativeFrameBytes(6))),
-            NamedFrameId.ceres_door_initial => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)CeresDoorInstructionProgramDefinitions.InitialSpritemap),
-            NamedFrameId.ceres_door_mode7_left_wall => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xface),
-            NamedFrameId.ceres_door_mode7_right_wall => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)0xfb2f),
-            NamedFrameId.ceres_door_ridley_private_overlay => (CeresDoorInstructionProgramDefinitions.Bank, (ushort)CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap),
-            NamedFrameId.ceres_baby_horizontal => (CeresBabyInstructionProgramDefinitions.Bank, (ushort)CeresBabyInstructionProgramDefinitions.HorizontalFrame),
-            NamedFrameId.ceres_baby_round => (CeresBabyInstructionProgramDefinitions.Bank, (ushort)CeresBabyInstructionProgramDefinitions.RoundFrame),
-            NamedFrameId.ceres_baby_vertical => (CeresBabyInstructionProgramDefinitions.Bank, (ushort)CeresBabyInstructionProgramDefinitions.VerticalFrame),
+                (CeresDoorFrameDefinitions.Bank, (ushort)(0xfa67 + ((int)frame - (int)NamedFrameId.ceres_door_right_transition_1) * NativeFrameBytes(6))),
+            NamedFrameId.ceres_door_initial => (CeresDoorFrameDefinitions.Bank, CeresDoorFrameDefinitions.InitialSpritemap),
+            NamedFrameId.ceres_door_mode7_left_wall => (CeresDoorFrameDefinitions.Bank, (ushort)0xface),
+            NamedFrameId.ceres_door_mode7_right_wall => (CeresDoorFrameDefinitions.Bank, (ushort)0xfb2f),
+            NamedFrameId.ceres_door_ridley_private_overlay => (CeresDoorFrameDefinitions.Bank, CeresDoorFrameDefinitions.RidleyPrivateOverlaySpritemap),
+            NamedFrameId.ceres_baby_horizontal => (CeresBabyFrameDefinitions.Bank, CeresBabyFrameDefinitions.HorizontalFrame),
+            NamedFrameId.ceres_baby_round => (CeresBabyFrameDefinitions.Bank, CeresBabyFrameDefinitions.RoundFrame),
+            NamedFrameId.ceres_baby_vertical => (CeresBabyFrameDefinitions.Bank, CeresBabyFrameDefinitions.VerticalFrame),
             NamedFrameId.rio_bd6c => (RioBank, (ushort)0xbd6c),
             NamedFrameId.rio_bd82 => (RioBank, (ushort)0xbd82),
             NamedFrameId.rio_bd98 => (RioBank, (ushort)0xbd98),
@@ -1742,8 +1743,6 @@ internal static class EnemySpritemapDefinitions
         {
             EnemyDefinitionId.MamaTurtle or EnemyDefinitionId.BabyTurtle =>
                 MamaTurtleVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.CeresDoor =>
-                CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(operandAddress),
             EnemyDefinitionId.Boyon => BoyonFrameAt(operandAddress),
             EnemyDefinitionId.Sciser => SciserVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Zero => ZeroVisualDefinitions.FrameAt(operandAddress),

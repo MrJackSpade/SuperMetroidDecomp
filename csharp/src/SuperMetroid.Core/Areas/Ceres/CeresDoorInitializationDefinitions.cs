@@ -5,46 +5,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresDoorInitializationDefinitions
 {
-    /// <summary><c>InstList_CeresDoor_Normal_FacingRight</c> at <c>$A6:F56C</c>.</summary>
-    private const ushort NormalFacingRightInstructionList =
-        CeresDoorInstructionProgramDefinitions.NormalFacingRight;
-
-    /// <summary><c>InstList_CeresDoor_Normal_FacingLeft_0</c> at <c>$A6:F5BE</c>.</summary>
-    private const ushort NormalFacingLeftInstructionList =
-        CeresDoorInstructionProgramDefinitions.NormalFacingLeft;
-
-    /// <summary>
-    /// <c>InstList_CeresDoor_RotatingElevRoom_PreExploDoorOverlay_0</c> at
-    /// <c>$A6:F610</c>.
-    /// </summary>
-    private const ushort RotatingElevatorPreExplosionOverlayInstructionList =
-        CeresDoorInstructionProgramDefinitions.RotatingElevatorPreExplosionOverlay;
-
-    /// <summary>
-    /// <c>InstList_CeresDoor_RidleysRoom_FacingRight_0</c> at <c>$A6:F53A</c>.
-    /// </summary>
-    private const ushort RidleyRoomFacingRightInstructionList =
-        CeresDoorInstructionProgramDefinitions.RidleyRoomFacingRight;
-
-    /// <summary>
-    /// <c>InstList_CeresDoor_RotatingElevatorRoom_InvisibleWall_0</c> at
-    /// <c>$A6:F61A</c>.
-    /// </summary>
-    private const ushort RotatingElevatorInvisibleWallInstructionList =
-        CeresDoorInstructionProgramDefinitions.RotatingElevatorInvisibleWall;
-
-    /// <summary>
-    /// <c>InstList_CeresDoor_RidleyEscapeMode7LeftWall_0</c> at <c>$A6:F62A</c>.
-    /// </summary>
-    private const ushort RidleyEscapeMode7LeftWallInstructionList =
-        CeresDoorInstructionProgramDefinitions.RidleyEscapeMode7LeftWall;
-
-    /// <summary>
-    /// <c>InstList_CeresDoor_RidleyEscapeMode7RightWall_0</c> at <c>$A6:F634</c>.
-    /// </summary>
-    private const ushort RidleyEscapeMode7RightWallInstructionList =
-        CeresDoorInstructionProgramDefinitions.RidleyEscapeMode7RightWall;
-
     /// <summary>
     /// <c>InitAI_CeresDoor.functionPointers</c> at <c>$A6:F72B-$A6:F738</c> paired
     /// with <c>InstListPointers_CeresDoor</c> at <c>$A6:F52C-$A6:F539</c>.
@@ -63,25 +23,25 @@ internal static class CeresDoorInitializationDefinitions
         {
             CeresDoorVariant.NormalFacingRight => new(
                 CeresDoorFunction.HandleEarthquakeDuringEscape,
-                NormalFacingRightInstructionList),
+                CeresDoorProgram.NormalFacingRight),
             CeresDoorVariant.NormalFacingLeft => new(
                 CeresDoorFunction.HandleEarthquakeDuringEscape,
-                NormalFacingLeftInstructionList),
+                CeresDoorProgram.NormalFacingLeft),
             CeresDoorVariant.RotatingElevatorPreExplosionOverlay => new(
                 CeresDoorFunction.RotatingElevatorRoomDefault,
-                RotatingElevatorPreExplosionOverlayInstructionList),
+                CeresDoorProgram.RotatingElevatorPreExplosionOverlay),
             CeresDoorVariant.RidleyRoomFacingRight => new(
                 CeresDoorFunction.HandleEarthquakeDuringEscapeInRidleysRoom,
-                RidleyRoomFacingRightInstructionList),
+                CeresDoorProgram.RidleyRoomFacingRight),
             CeresDoorVariant.RotatingElevatorInvisibleWall => new(
                 CeresDoorFunction.HandleEarthquakeDuringEscape,
-                RotatingElevatorInvisibleWallInstructionList),
+                CeresDoorProgram.RotatingElevatorInvisibleWall),
             CeresDoorVariant.RidleyEscapeMode7LeftWall => new(
                 CeresDoorFunction.RidleyEscapeMode7Wall,
-                RidleyEscapeMode7LeftWallInstructionList),
+                CeresDoorProgram.RidleyEscapeMode7LeftWall),
             CeresDoorVariant.RidleyEscapeMode7RightWall => new(
                 CeresDoorFunction.RidleyEscapeMode7Wall,
-                RidleyEscapeMode7RightWallInstructionList),
+                CeresDoorProgram.RidleyEscapeMode7RightWall),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(variant), variant, "Ceres door initialization variant must be zero through six."),
         };

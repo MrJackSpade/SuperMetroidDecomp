@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Gunship.Artwork;
+using SuperMetroid.Core.Fx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipMotionDefinitionsVerification;
@@ -12,6 +14,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Gunship;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Programs;
 
 /// <summary>Post-Ceres gunship descent, landing, entry-sound, and escape-takeoff fixtures.</summary>
 internal static class GunshipLandingVerification
@@ -116,22 +119,16 @@ internal static class GunshipLandingVerification
                 AssertTrue(enemies.Audio.SoundRequests.Contains(new EnemySoundRequest(
                         SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6)),
                     "landing queues QueueSound_Lib3_Max6($14)");
-                // EnemyMain installs $A5BE, then this same slot's ordinary instruction
-                // phase consumes its first four-byte timed frame before StepFrame returns.
-                AssertEqual(
-                    unchecked((ushort)(
-                        GunshipInstructionProgramDefinitions.EntrancePadOpening + 4)),
-                    pad.CurrentInstruction,
-                    "bounce completion advances the cartridge pad-open list once");
+                // EnemyMain starts the pad-opening program, then this same slot's ordinary
+                // instruction phase shows its first timed frame before StepFrame returns.
+                AssertPadShowsFirstFrame(pad, GunshipProgram.EntrancePadOpening,
+                    "bounce completion advances the pad-opening program once");
             }
             observedPadClose |= enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.LandingPadClosed;
             if (enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.LandingPadClosed)
             {
-                AssertEqual(
-                    unchecked((ushort)(
-                        GunshipInstructionProgramDefinitions.EntrancePadClosing + 4)),
-                    pad.CurrentInstruction,
-                    "Samus lift advances the cartridge pad-close list once");
+                AssertPadShowsFirstFrame(pad, GunshipProgram.EntrancePadClosing,
+                    "Samus lift advances the pad-closing program once");
             }
         }
 
@@ -265,19 +262,6 @@ internal static class GunshipLandingVerification
         SeedEnemyDefinitionWord(bus, bottomDefinition, 18, 0xa6d2);
         SeedEnemyDefinitionWord(bus, bottomDefinition, 24, 0x804c);
 
-        // Gunship control words are compiled engine data. This synthetic address space
-        // supplies only the interleaved spritemap operands that remain presentation-owned.
-        for (int index = 0;
-             index < GunshipInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            WriteTestWord(
-                bus,
-                0xa20000 |
-                    GunshipInstructionProgramDefinitions.PresentationWordAddress(index),
-                0xa700);
-        }
-
         // Function 17 uploads five consecutive $400-byte dust-cloud chunks from bank $94.
         for (int index = 0; index < 5; index++)
         {
@@ -300,5 +284,13 @@ internal static class GunshipLandingVerification
     {
         Suite(nameof(VerifyPostCeresGunshipLanding), () => VerifyPostCeresGunshipLanding(entrySoundOnly: true));
         return 0;
+    }
+
+    /// <summary>Asserts that <paramref name="pad"/> shows <paramref name="program"/>'s first pose for its first duration.</summary>
+    private static void AssertPadShowsFirstFrame(RoomEnemySlot pad, GunshipProgram program, string message)
+    {
+        AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue> first = GunshipAnimations.Programs.Steps(program)[0];
+        AssertEqual(GunshipFrameDefinitions.Spritemap(first.Frame), pad.SpritemapPointer, message + " (pose)");
+        AssertEqual(NativeCountdown.FromRaw((ushort)first.Duration), pad.InstructionTimer, message + " (duration)");
     }
 }

@@ -1788,7 +1788,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             {
                 ApplyPhantoonPartCue(part, cue);
                 return null;
-            }, EnemyProgramCounter.None);
+            });
         state.PartProgram(part) = cursor;
     }
 

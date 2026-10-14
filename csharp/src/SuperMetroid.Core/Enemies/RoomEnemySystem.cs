@@ -1365,6 +1365,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CrocomireBehavior.RegisterCrocomireTongueMainAi(table);
 
         GunshipBehavior.RegisterGunshipMainAi(table);
+        GunshipBehavior.RegisterGunshipTypedAnimations(table);
 
         table.RegisterMain(EnemyAiRoutine.RTL_A2804C, null, (slot, frame, nmiFrameCounter8) =>
         { });
@@ -1422,8 +1423,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         FakeKraidBehavior.RegisterFakeKraidOwnedInstructions(table);
         WalkingSpacePirateBehavior.RegisterWalkingSpacePirateOwnedInstructions(table);
         RidleyBehavior.RegisterRidleyTypedAnimations(table);
-        CeresSteamBehavior.RegisterCeresSteamOwnedInstructions(table);
-        CeresDoorBehavior.RegisterCeresDoorOwnedInstructions(table);
+        CeresSteamBehavior.RegisterCeresSteamTypedAnimations(table);
+        CeresDoorBehavior.RegisterCeresDoorTypedAnimations(table);
         DeadSidehopperBehavior.RegisterDeadSidehopperOwnedInstructions(table);
         ShitroidBehavior.RegisterShitroidTypedAnimations(table);
         SporeSpawnBehavior.RegisterSporeSpawnTypedAnimations(table);
@@ -1436,7 +1437,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         MagdolliteBehavior.RegisterMagdolliteOwnedInstructions(table);
         ShaktoolBehavior.RegisterShaktoolOwnedInstructions(table);
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
-        EscapeAnimalsBehavior.RegisterEscapeAnimalsOwnedInstructions(table);
+        EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
         BombTorizoBehavior.RegisterBombTorizoTypedAnimations(table);
 }
 
@@ -1618,6 +1619,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         KraidBehavior.RegisterKraidRockSpitPreInstruction(table);
 
         Projectiles.RegisterCeresFallingTilePreInstruction(table);
+
+        EnemyProjectileEngine.RegisterGunshipDustCues(table);
 
 
         OldTourianEscapeShaftWallBehavior.RegisterWallExplosionSoundInstruction(table);

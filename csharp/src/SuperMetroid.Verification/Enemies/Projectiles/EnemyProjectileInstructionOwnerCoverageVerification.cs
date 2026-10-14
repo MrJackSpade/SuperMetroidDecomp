@@ -40,7 +40,9 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             // projectile start typed programs too (#1286), and both flames' shots start typed programs. Ridley's fireballs
             // and afterburns run typed programs (#1287); their shot lists stay the common native deletion. Spore Spawn's
             // stalk, spores and emitters run typed programs, shots included (#1288). Every Torizo projectile runs typed
-            // programs (#1289); the orbs', egg's and super missile's shots start typed programs too.
+            // programs (#1289); the orbs', egg's and super missile's shots start typed programs too. Ceres's falling tiles
+            // and the gunship's liftoff dust run typed programs (#1290); the tiles' shots stay the common native deletion,
+            // and the dust never blocks shots, so its shot list is never entered.
             bool typed = kind is RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit or
                 RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces or RoomEnemyProjectileKind.DraygonGoop or
@@ -71,7 +73,10 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.BombTorizoLeftFootDust or
                 RoomEnemyProjectileKind.GoldenTorizoEgg or
                 RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
-                RoomEnemyProjectileKind.GoldenTorizoEyeBeam;
+                RoomEnemyProjectileKind.GoldenTorizoEyeBeam or
+                RoomEnemyProjectileKind.CeresFallingDebrisLight or
+                RoomEnemyProjectileKind.CeresFallingDebrisDark or
+                RoomEnemyProjectileKind.GunshipLiftoffDustCloud;
             if (!typed)
                 VerifyEntry(definition.InitialInstructionList, "initial");
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet))
@@ -80,7 +85,8 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
                 RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or
-                RoomEnemyProjectileKind.SporeSpawnSpawner or RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile))
+                RoomEnemyProjectileKind.SporeSpawnSpawner or RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
+                RoomEnemyProjectileKind.GunshipLiftoffDustCloud))
                 VerifyEntry(definition.ShotInstructionList, "shot");
 
             void VerifyEntry(ushort address, string role)

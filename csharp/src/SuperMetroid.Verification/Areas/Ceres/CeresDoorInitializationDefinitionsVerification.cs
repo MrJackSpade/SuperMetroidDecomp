@@ -9,6 +9,8 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Verification.Enemies;
 
 /// <summary>Checks seven Ceres door initializer variants against their native selectors.</summary>
 internal static class CeresDoorInitializationDefinitionsVerification
@@ -30,7 +32,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 (ushort)definition.MainFunction,
                 $"Ceres door function selector {variant}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + variant * 2)),
-                definition.InstructionList,
+                NativeEnemyProgramOracle.EntryOf(CeresDoorNativeListAddresses.Entries, definition.Program),
                 $"Ceres door instruction selector {variant}");
 
             var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
@@ -44,8 +46,8 @@ internal static class CeresDoorInitializationDefinitionsVerification
 
             AssertEqual((ushort)definition.MainFunction, slot.VariableA,
                 $"production Ceres door function selector {variant}");
-            AssertEqual(definition.InstructionList, slot.CurrentInstruction,
-                $"production Ceres door instruction selector {variant}");
+            AssertEqual(AnimationProgramCursor<CeresDoorProgram>.Start(definition.Program), enemies.CeresDoorPrograms[slot.SlotIndex],
+                $"production Ceres door program selector {variant}");
             AssertEqual((ushort)1, slot.InstructionTimer.RawValue,
                 $"production Ceres door instruction timer {variant}");
             AssertEqual((ushort)0, slot.Timer.RawValue,

@@ -34,22 +34,19 @@ internal static class EnemyProgramAnimation
     /// <param name="cursor">Where the program resumes; updated in place.</param>
     /// <param name="spritemap">The spritemap a frame shows.</param>
     /// <param name="publish">Carries out a cue, returning the program a goto cue continues at.</param>
-    /// <param name="counter">Where the program's loop counter lives.</param>
     internal static void Run<TProgram, TFrame, TCue>(
         RoomEnemySlot slot,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         ref AnimationProgramCursor<TProgram> cursor,
         Func<TFrame, ushort> spritemap,
-        Func<TCue, AnimationProgramCursor<TProgram>, TProgram?> publish,
-        EnemyProgramCounter counter)
+        Func<TCue, AnimationProgramCursor<TProgram>, TProgram?> publish)
         where TProgram : struct, Enum
         where TFrame : struct
         where TCue : notnull
     {
         Ensure.NotNull(publish);
         RunTo(slot, programs, ref cursor, spritemap,
-            (cue, continuation) => publish(cue, continuation) is { } program ? AnimationProgramCursor<TProgram>.Start(program) : null,
-            counter);
+            (cue, continuation) => publish(cue, continuation) is { } program ? AnimationProgramCursor<TProgram>.Start(program) : null);
     }
 
     /// <summary>
@@ -61,8 +58,7 @@ internal static class EnemyProgramAnimation
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         ref AnimationProgramCursor<TProgram> cursor,
         Func<TFrame, ushort> spritemap,
-        Func<TCue, AnimationProgramCursor<TProgram>, AnimationProgramCursor<TProgram>?> publish,
-        EnemyProgramCounter counter)
+        Func<TCue, AnimationProgramCursor<TProgram>, AnimationProgramCursor<TProgram>?> publish)
         where TProgram : struct, Enum
         where TFrame : struct
         where TCue : notnull
@@ -70,14 +66,11 @@ internal static class EnemyProgramAnimation
         Ensure.NotNull(slot);
         Ensure.NotNull(programs);
         Ensure.NotNull(spritemap);
-        NativeCountdown loopCounter = counter switch
-        {
-            EnemyProgramCounter.None => NativeCountdown.Start(0),
-            EnemyProgramCounter.SlotTimer => slot.Timer,
-            _ => throw new InvalidOperationException($"Undefined {nameof(EnemyProgramCounter)} {counter}."),
-        };
+        // A counting set keeps its loop counter in the enemy's timer word, as the native timer-load and countdown
+        // commands do; a set that never counts leaves that word to its owner.
+        NativeCountdown loopCounter = programs.CountsLoops ? slot.Timer : NativeCountdown.Start(0);
         AnimationProgramAdvance<TFrame> advance = programs.AdvanceTo(ref cursor, ref loopCounter, publish);
-        if (counter == EnemyProgramCounter.SlotTimer)
+        if (programs.CountsLoops)
             slot.Timer = loopCounter;
         switch (advance.Kind)
         {

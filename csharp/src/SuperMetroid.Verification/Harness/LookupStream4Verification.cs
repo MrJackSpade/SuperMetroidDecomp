@@ -3463,10 +3463,11 @@ internal static class LookupStream4Verification
             {
                 int cursor = 0xbf5d + phase * 8;
                 int row = (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 2)) - 0xe1f1) / 30;
-                var state = new RidleyEnemyState { BabyInstruction = (ushort)cursor, BabyInstructionTimer = 1, BabyVerticalVelocity = 1 };
+                // The expressive loop's palette command for this phase is step 1 + 2 * phase, its pose the next step.
+                var state = new RidleyEnemyState { BabyProgram = new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 1 + 2 * phase), BabyInstructionTimer = 1, BabyVerticalVelocity = 1 };
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
-                AssertEqual((ushort)(cursor + 4), state.BabyInstruction, "Palette instruction preserves native frame cursor");
-                AssertEqual((ushort)2, state.BabyInstructionTimer, "Paint calculation preserves frame timer");
+                AssertEqual(new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 3 + 2 * phase), state.BabyProgram, "Palette instruction runs on to its pose");
+                AssertEqual((ushort)1, state.BabyInstructionTimer, "The new pose starts its elapsed count at one");
                 for (int color = 0; color < 15; color++)
                     AssertEqual((ushort)(Native(row, color) ^ (variation == 0 && row == 2 && color == 0 ? 1 : 0)), cgram.Colors[177 + color], "Actual pose-selected palette preserves independent edits");
             }

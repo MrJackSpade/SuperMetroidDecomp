@@ -38,7 +38,7 @@ internal static class RidleyAcidVerification
         ridleyOam.FinalizeFrame();
         AssertTrue(ridleyOam.ImageEquals(expectedEmptyOam),
             "Norfair Ridley does not draw the Ceres Baby or arena-door overlay");
-        AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).BabyInstruction,
+        AssertEqual(0, (state ?? throw new InvalidOperationException("Verification requires state.")).BabyPoseDuration,
             "Norfair Ridley never advances an uninitialized Ceres Baby program");
         // Enter the native palette-reveal phase, then let its real ROM table reach
         // the terminator. This does not inject a liquid command into the fixture.

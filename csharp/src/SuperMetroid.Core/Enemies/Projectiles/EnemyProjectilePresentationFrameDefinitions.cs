@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Gunship.Artwork;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -231,15 +233,13 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         }
         if (generation >= CatalogGeneration.PreMotherBrainAndStatue)
         {
-            Add(frames, "ceres_falling_debris",
-                CeresFallingDebrisInstructionProgramDefinitions.PresentationWordCount,
-                CeresFallingDebrisInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "ceres_falling_debris", CeresFallingDebrisVisualDefinitions.Frames.Count,
+                index => CeresFallingDebrisVisualDefinitions.PresentationKey(CeresFallingDebrisVisualDefinitions.Frames[index]));
             Add(frames, "save_station_electricity",
                 SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount,
                 SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress);
-            Add(frames, "gunship_dust",
-                GunshipDustInstructionProgramDefinitions.PresentationWordCount,
-                GunshipDustInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "gunship_dust", GunshipDustVisualDefinitions.Frames.Count,
+                index => GunshipDustVisualDefinitions.PresentationKey(GunshipDustVisualDefinitions.Frames[index]));
             Add(frames, "falling_spark",
                 FallingSparkInstructionProgramDefinitions.PresentationWordCount,
                 FallingSparkInstructionProgramDefinitions.PresentationWordAddress);

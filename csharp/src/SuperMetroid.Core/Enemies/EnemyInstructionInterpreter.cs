@@ -331,30 +331,14 @@ internal sealed class EnemyInstructionInterpreter
     /// </summary>
     internal static ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
-        if (slot.EnemyDefinitionPointer is
-            EnemyDefinitionId.ShipTop or
-            EnemyDefinitionId.ShipBottomEntrance)
-        {
-            return GunshipInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool)
             return ShaktoolInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape)
-            return EscapeEtecoonInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.DachoraEscape)
-            return EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo)
             return ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid)
             return FakeKraidInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.CeresDoor)
-            return CeresDoorInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard)
             return YardInstructionProgramDefinitions.ReadMechanicsWord(address);
@@ -601,9 +585,6 @@ internal sealed class EnemyInstructionInterpreter
         {
             return HorizontalShutterInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam)
-            return CeresSteamInstructionProgramDefinitions.ReadMechanicsWord(address);
 
 
         throw new InvalidDataException(

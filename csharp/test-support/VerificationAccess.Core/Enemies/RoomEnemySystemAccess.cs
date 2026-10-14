@@ -56,6 +56,8 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>Verification access to <see cref="RoomEnemySystem"/> members production does not use.</summary>
 internal static class RoomEnemySystemAccess
@@ -185,6 +187,18 @@ internal static class RoomEnemySystemAccess
         /// <summary>Typed state for each physical escape-Etecoon slot.</summary>
         internal IReadOnlyList<EscapeEtecoonEnemyState?> EscapeEtecoonStates =>
             self.EscapeAnimalsBehavior._escapeEtecoonStates;
+
+        /// <summary>Each Ceres door slot's typed program cursor.</summary>
+        internal IReadOnlyDictionary<int, AnimationProgramCursor<CeresDoorProgram>> CeresDoorPrograms =>
+            self.CeresDoorBehavior._doorPrograms;
+
+        /// <summary>Each Ceres steam vent slot's typed program cursor.</summary>
+        internal IReadOnlyDictionary<int, AnimationProgramCursor<CeresSteamProgram>> CeresSteamPrograms =>
+            self.CeresSteamBehavior._ventPrograms;
+
+        /// <summary>Typed state for each physical escape-Dachora slot.</summary>
+        internal IReadOnlyList<EscapeDachoraEnemyState?> EscapeDachoraStates =>
+            self.EscapeAnimalsBehavior._escapeDachoraStates;
 
         /// <summary>Nuclear Waffle extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<NuclearWaffleEnemyState?> NuclearWaffleStates =>

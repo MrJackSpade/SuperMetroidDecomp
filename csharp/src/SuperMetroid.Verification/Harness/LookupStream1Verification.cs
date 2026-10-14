@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies.Animals;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Samus.SamusAtmosphereArtworkBoundaryVerification;
@@ -6,7 +8,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareCompositionsVerification;
-using static SuperMetroid.Verification.Enemies.Animals.EscapeDachoraInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Escape.Artwork.EscapeTimerPresentationVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidInstructionProgramDefinitionsVerification;
@@ -51,6 +52,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Cartridge-oracle checks for the first group of compiled gameplay and presentation catalogs.</summary>
 internal static class LookupStream1Verification
@@ -187,18 +189,16 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1EscapeDachoraCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1EscapeDachoraCadenceRomByte(rom, address), LookupStream1EscapeDachoraCadenceRomByte(rom, address + 1)));
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        for (int index = 0; index < EscapeDachoraInstructionProgramDefinitions.MechanicsWordCount; index++)
-        {
-            var word = EscapeDachoraInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(Word(0xb30000 | word.Address), word.Value, "Every native escape Dachora control/value word");
-        }
         foreach (int program in new[] { 0, 1, 2 })
         {
-            var guard = NewEscapeDachoraInstructionReadGuard(rom);
+            var guard = new CartridgeReadGuard(rom).Forbid(address => address is >= 0xb3e964 and < 0xb3eaa8,
+                address => $"Production read a native escape-Dachora list byte ${address:X6}.");
             var enemies = CreateEscapeDachoraProgramSystem(guard);
             var slot = enemies.SlotTable.Slots[0];
-            slot.CurrentInstruction = program == 0 ? (ushort)0xe964 : program == 1 ? (ushort)0xe9d0 : (ushort)0xea34;
+            // The typed programs (#641) replacing the native lists at $B3:E964, $B3:E9D0 and $B3:EA34.
+            EscapeDachoraEnemyState state = enemies.EscapeDachoraStates[0] ?? throw new InvalidOperationException("The Dachora fixture has no state.");
+            state.Program = AnimationProgramCursor<EscapeDachoraProgram>.Start(program == 0 ? EscapeDachoraProgram.RunningAroundLowTide
+                : program == 1 ? EscapeDachoraProgram.RunningAroundHighTide : EscapeDachoraProgram.RunningForEscape);
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             int records = program == 2 ? 19 : 60, expectedX = slot.Position.X.Whole, calls = 0;
             for (int record = 0; record < records; record++)
@@ -217,13 +217,11 @@ internal static class LookupStream1Verification
                     if (record != 0) expectedX += (record <= 30 ? -1 : 1) * Word(0xb3eadf);
                 }
                 ushort duration = Word(0xb30000 | address), visual = Word(0xb30000 | (address + 2));
-                AssertEqual(duration, EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Native escape Dachora timing");
                 for (int held = 0; held < duration; held++)
                 {
                     EnemyInstructionRunner.Process(enemies, arguments); calls++;
                     AssertEqual((ushort)(duration - held), slot.InstructionTimer.RawValue, "Every uninterrupted escape Dachora exposure tick");
                     AssertEqual(visual, slot.SpritemapPointer, "Native escape Dachora pose order");
-                    AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Escape Dachora exact timed cursor");
                     AssertEqual(unchecked((ushort)expectedX), slot.Position.X.Whole, "Native callback displacement occurs only at pose completion");
                 }
             }
@@ -232,11 +230,25 @@ internal static class LookupStream1Verification
             expectedX += Word(0xb3eadf);
             AssertEqual(unchecked((ushort)expectedX), slot.Position.X.Whole, "Final movement callback is preserved");
             ushort next = program == 0 ? (ushort)0xe968 : program == 1 ? (ushort)0xe9d4 : (ushort)0xea80;
-            AssertEqual((ushort)(next + 4), slot.CurrentInstruction, "Pacing reversal/maximum speed loop selects exact native record");
+            AssertEqual(Word(0xb30000 | (next + 2)), slot.SpritemapPointer, "Pacing reversal/maximum speed loop shows the native record's pose");
             AssertEqual(Word(0xb30000 | next), slot.InstructionTimer.RawValue, "Loop reload keeps native cadence");
             AssertEqual(0, guard.ForbiddenReadAttempts, "Escape Dachora mechanics avoid cartridge reads");
         }
         Console.WriteLine("Escape Dachora cadence:139 native records,463 uninterrupted ticks,two complete pacing round trips and full accelerating departure pass.");
+    }
+
+    /// <summary>A room enemy system holding one initialized escape Dachora in slot zero.</summary>
+    private static RoomEnemySystem CreateEscapeDachoraProgramSystem(ISnesAddressSpace bus)
+    {
+        var enemies = new RoomEnemySystem();
+        enemies.BindFixtureBus(bus);
+        enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
+        RoomEnemySlot dachora = enemies.SlotTable.Slots[0];
+        dachora.EnemyDefinitionPointer = EnemyDefinitionId.DachoraEscape;
+        dachora.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
+        dachora.Position = dachora.Position.WithWhole(new(256, 200));
+        enemies.EscapeAnimalsBehavior.InitializeEscapeDachora(dachora);
+        return enemies;
     }
 
     /// <summary>Reads a native escape Dachora timing or movement byte for the cadence oracle.</summary>
@@ -1714,53 +1726,6 @@ internal static class LookupStream1Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 HUD posture")]
     private static byte LookupStream1HudPostureRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Traverses Dachora's bank-$B3 controls and visual operands, checking order and rejection bounds.</summary>
-    internal static void VerifyLookupStream1EscapeDachoraPrograms(ISnesAddressSpace rom)
-    {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1EscapeDachoraProgramsRomByte(rom, 0xb30000 | address), LookupStream1EscapeDachoraProgramsRomByte(rom, 0xb30000 | address + 1)));
-        var controls = new List<ushort>(); var visuals = new List<ushort>();
-        for (int cursor = 0xe964; cursor < 0xeaa8;)
-        {
-            ushort value = Word(cursor); controls.Add((ushort)cursor); cursor += 2;
-            if ((value & 0x8000) == 0) { visuals.Add((ushort)cursor); cursor += 2; }
-            else if (value is (ushort)CommonEnemyInstruction.Goto or (ushort)CommonEnemyInstruction.SetTimer or (ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate
-                or (ushort)EscapeDachoraInstruction.GotoIfAcidYLessThanCE or (ushort)EscapeDachoraInstruction.GotoIfCrittersEscaped)
-            { controls.Add((ushort)cursor); cursor += 2; }
-            else AssertTrue(value is (ushort)EscapeDachoraInstruction.MoveLeft
-                or (ushort)EscapeDachoraInstruction.MoveRight, "Dachora native operand-free movement callback");
-        }
-        AssertEqual(controls.Count, EscapeDachoraInstructionProgramDefinitions.MechanicsWordCount, "Dachora native control count");
-        AssertEqual(visuals.Count, EscapeDachoraInstructionProgramDefinitions.PresentationWordCount, "Dachora native visual count");
-        for (int index = 0; index < controls.Count; index++)
-        {
-            var actual = EscapeDachoraInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(controls[index], actual.Address, "Dachora ordered native control identity");
-            AssertEqual(Word(actual.Address), actual.Value, "Dachora native branch target/callback/required duration");
-            AssertEqual(actual.Value, EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(actual.Address), "Dachora calculated reader");
-        }
-        for (int index = 0; index < visuals.Count; index++)
-        {
-            AssertEqual(visuals[index], EscapeDachoraInstructionProgramDefinitions.PresentationWordAddress(index), "Dachora native visual operand location");
-            AssertThrows<InvalidDataException>(() => EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(visuals[index]), "Dachora visual operands are not controls");
-        }
-        for (int address = 0xe963; address <= 0xeaa9; address++)
-        {
-            AssertEqual(controls.Any(word => address == word || address == word + 1),
-                EscapeDachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xb30000 | address), "Dachora exact control byte coverage");
-            AssertTrue(!EscapeDachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xb20000 | address), "Dachora wrong bank rejects");
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, controls.Count, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => EscapeDachoraInstructionProgramDefinitions.MechanicsWord(invalid), "Dachora control bounds");
-        foreach (int invalid in new[] { int.MinValue, -1, visuals.Count, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => EscapeDachoraInstructionProgramDefinitions.PresentationWordAddress(invalid), "Dachora visual bounds");
-        foreach (ushort invalid in new ushort[] { 0xe963, 0xe965, 0xeaa8, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(invalid), "Dachora odd/adjacent control pointers reject");
-        Console.WriteLine("Escape Dachora:119 controls/43 visual operands match independent native traversal; exact branches/order/domains pass; selected holds and acceleration cadence remain required.");
-    }
-
-    /// <summary>Reads native Dachora program words for independent layout traversal.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 escape Dachora programs")]
-    private static byte LookupStream1EscapeDachoraProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks Powamp instruction control and visual operand addresses across all four programs.</summary>
     internal static void VerifyLookupStream1PowampPrograms(ISnesAddressSpace rom)
     {
@@ -2260,7 +2225,7 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0xb3e718 + offset), role.Position.X, "Etecoon native role X");
             AssertEqual(Word(0xb3e71e + offset), role.Position.Y, "Etecoon native role Y");
             AssertEqual(Word(0xb3e724 + offset), (ushort)role.PreInstruction, "Etecoon native role action");
-            AssertEqual(Word(0xb3e72a + offset), role.InstructionList, "Etecoon native role program");
+            AssertEqual(Word(0xb3e72a + offset), EscapeEtecoonNativeListAddresses.Entries.Single(entry => entry.Program == role.Program).Entry, "Etecoon native role program");
             AssertEqual(Word(0xb3e730 + offset), role.HorizontalSpeed, "Etecoon native role speed");
         }
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })

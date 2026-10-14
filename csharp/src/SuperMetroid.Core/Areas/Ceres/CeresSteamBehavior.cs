@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Samus.Drawing;
 
@@ -19,52 +21,56 @@ internal sealed class CeresSteamBehavior
         _collision = collision;
     }
 
-    /// <summary>Executes the Ceres steam's private animation instructions.</summary>
-    private static bool TryProcessCeresSteamInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
-    {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Steam ||
-            !Enum.IsDefined((CeresSteamInstruction)word))
-            return false;
+    /// <summary>
+    /// Each vent slot's typed program cursor. Initialization sets a slot's cursor before its program runs, so a slot's
+    /// entry always belongs to its current vent.
+    /// </summary>
+    internal readonly Dictionary<int, AnimationProgramCursor<CeresSteamProgram>> _ventPrograms = [];
 
-        switch ((CeresSteamInstruction)word)
+    /// <summary>Runs a vent's typed program where the enemy instruction interpreter would.</summary>
+    private void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        AnimationProgramCursor<CeresSteamProgram> cursor = _ventPrograms[slot.SlotIndex];
+        EnemyProgramAnimation.Run(slot, CeresSteamAnimations.Programs, ref cursor, CeresSteamFrameDefinitions.Spritemap,
+            (cue, _) => ApplyCeresSteamCue(slot, cue));
+        _ventPrograms[slot.SlotIndex] = cursor;
+    }
+
+    /// <summary>Carries out one cue of a vent's program, returning the program a branch continues at, or null to run on.</summary>
+    private static CeresSteamProgram? ApplyCeresSteamCue(RoomEnemySlot slot, CeresSteamCue cue)
+    {
+        switch (cue.Kind)
         {
-            case CeresSteamInstruction.SetToIntangibleAndInvisible:
+            case CeresSteamCueKind.Vanish:
                 slot.Properties = slot.Properties.With(
                     EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case CeresSteamInstruction.DecrementActivationTimerGotoYOrY2:
-                slot.VariableD = unchecked((ushort)(slot.VariableD - 1));
-                if (slot.VariableD != 0)
-                {
-                    cursor = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2)));
-                }
-                else
-                {
-                    cursor = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 4)));
-                    slot.Properties = slot.Properties.Without(
-                        EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
-                }
-                return true;
-            case CeresSteamInstruction.SetToTangibleAndVisible:
+                return null;
+            case CeresSteamCueKind.CountDownToActivation:
+            {
+                // Variable D holds the vent's activation delay, which initialization staggers.
+                NativeWordCounterStep step = NativeCountdown.FromRaw(slot.VariableD).Decrement();
+                slot.VariableD = step.Value;
+                if (!step.IsZero)
+                    return cue.Target;
                 slot.Properties = slot.Properties.Without(
                     EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return cue.Alternate;
+            }
+            case CeresSteamCueKind.Appear:
+                slot.Properties = slot.Properties.Without(
+                    EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+                return null;
             default:
-                throw new InvalidOperationException(
-                    $"Ceres steam does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(CeresSteamCueKind)} {cue.Kind}.");
         }
     }
 
     /// <summary>Preloaded Ceres palette selected by the steam initializer.</summary>
     private static readonly ushort CeresSteamPaletteIndex = EnemyPaletteBits.Palette5;
     /// <summary>Health restored by steam's main and touch routines so the vent cannot be destroyed.</summary>
-    private const ushort CeresSteamIndestructibleHealth = 0x7fff;
+    private const ushort CeresSteamIndestructibleHealth = 32767;
 
     /// <summary>Ports <c>CeresSteam_Init</c> at <c>$A6:EFB1</c>.</summary>
     internal void InitializeCeresSteam(RoomEnemySlot slot)
@@ -86,9 +92,9 @@ internal sealed class CeresSteamBehavior
 
         // `$A6:EFD9-$EFE0` masks the live RNG to 0..31 and adds one. Variable D is then
         // consumed by instruction `$F127`, giving each vent a cartridge-authored stagger.
-        slot.VariableD = unchecked((ushort)((_room.Random.Generate() & 0x001f) + 1));
+        slot.VariableD = unchecked((ushort)((_room.Random.Generate() & CeresSteamDefinitions.ActivationDelayMask) + 1));
 
-        slot.CurrentInstruction = initialization.InstructionList;
+        _ventPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresSteamProgram>.Start(initialization.Program);
         slot.VariableA = (ushort)initialization.Function;
     }
 
@@ -150,15 +156,10 @@ internal sealed class CeresSteamBehavior
         });
     }
 
-    /// <summary>Registers steam's visibility and activation-timer instruction words with the interpreter.</summary>
-    internal static void RegisterCeresSteamOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
-        {
-            yieldInterpreter = false;
-            return TryProcessCeresSteamInstruction(slot, word, ref cursor);
-        });
-    }
+    /// <summary>Runs the vents as typed programs (#641).</summary>
+    internal void RegisterCeresSteamTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam,
+            (slot, _) => AdvanceCeresSteamAnimation(slot));
 
     /// <summary>Registers contact handling only for steam's authored extended hitbox callback.</summary>
     internal void RegisterCeresSteamTouch(EnemyAiTable table)

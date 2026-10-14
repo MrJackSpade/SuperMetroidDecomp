@@ -488,7 +488,7 @@ internal sealed class KraidBehavior : IEnemySpecies
         KraidPartState partState = RequireKraidState(part).Parts[part.SlotIndex];
         AnimationProgramCursor<KraidPartProgram> cursor = partState.Cursor;
         EnemyProgramAnimation.Run(part, KraidAnimations.Programs, ref cursor, frame => frame.Spritemap,
-            (cue, continuation) => ApplyKraidPartCue(cue), EnemyProgramCounter.SlotTimer);
+            (cue, continuation) => ApplyKraidPartCue(cue));
         partState.Cursor = cursor;
     }
 

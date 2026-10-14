@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
@@ -7,6 +8,9 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 public sealed class EscapeEtecoonEnemyState
 {
+    /// <summary>The actor's typed program cursor, in place of its native instruction-list pointer.</summary>
+    internal AnimationProgramCursor<EscapeEtecoonProgram> Program { get; set; }
+
     /// <summary>Underlying enemy slot whose common variables A and F carry Etecoon's speed and bank-$B3 callback.</summary>
     private readonly RoomEnemySlot _slot;
 

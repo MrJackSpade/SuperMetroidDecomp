@@ -79,6 +79,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -2156,10 +2157,10 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(stockCeresDoor.LowTable[0], editedCeresDoor.LowTable[0],
             "Ceres door visual edit leaves physical X unchanged");
         OamBuffer stockCeresBaby = DrawEnemy(stock, NewFrameReadGuard(rom),
-            CeresBabyInstructionProgramDefinitions.RoundFrame,
+            CeresBabyFrameDefinitions.RoundFrame,
             EnemyDefinitionId.CeresDoor);
         OamBuffer editedCeresBaby = DrawEnemy(edited, NewFrameReadGuard(rom),
-            CeresBabyInstructionProgramDefinitions.RoundFrame,
+            CeresBabyFrameDefinitions.RoundFrame,
             EnemyDefinitionId.CeresDoor);
         AssertEqual(unchecked((byte)(stockCeresBaby.LowTable[1] + 1)),
             editedCeresBaby.LowTable[1],
@@ -3285,8 +3286,8 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(priorCeresSelected.LowTable.SequenceEqual(priorCeresRemap.LowTable),
             "version-fifteen override retains its Ceres door display binding");
         AssertTrue((preCeresBabyUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preCeresBabyUpgraded.Spritemaps.")).TryGet(
-                CeresBabyInstructionProgramDefinitions.Bank,
-                CeresBabyInstructionProgramDefinitions.RoundFrame, out _),
+                CeresBabyFrameDefinitions.Bank,
+                CeresBabyFrameDefinitions.RoundFrame, out _),
             "version-fifteen override gains stock Ceres Baby artwork");
 
         var preCeresDoorFrames = preCeresBabyFrames
@@ -3317,7 +3318,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(editedCacatac.LowTable.SequenceEqual(priorEditedCacatac.LowTable),
             "version-fourteen override also retains its edited frame parts");
         AssertTrue((preCeresDoorUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preCeresDoorUpgraded.Spritemaps.")).TryGet(
-                CeresDoorInstructionProgramDefinitions.Bank, 0xfa13, out _),
+                CeresDoorFrameDefinitions.Bank, 0xfa13, out _),
             "version-fourteen override gains stock Ceres door artwork");
         preCeresDoorBindings.Remove("boyon_idle_0");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -3642,7 +3643,7 @@ internal static class EnemySpritemapArtworkVerification
                     EnemyDefinitionId.Geega
                     ? EnemySpritemapDefinitions.PipeBugBank
                     : definition == EnemyDefinitionId.CeresDoor
-                        ? CeresDoorInstructionProgramDefinitions.Bank
+                        ? CeresDoorFrameDefinitions.Bank
                     : definition == EnemyDefinitionId.Boulder
                     ? EnemySpritemapDefinitions.BoulderBank
                     : definition == EnemyDefinitionId.Atomic

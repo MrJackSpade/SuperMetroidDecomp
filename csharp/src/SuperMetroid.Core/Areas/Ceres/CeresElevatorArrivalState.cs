@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -86,8 +87,7 @@ public sealed class CeresElevatorArrivalState
                     samus.Position.Y.Whole - CeresElevatorArrivalDefinitions.LandingThresholdY)) >= 0)
                 {
                     samus.Position = samus.Position.WithWholeY(CeresElevatorArrivalDefinitions.LandingSamusY);
-                    pad.InstructionTimer = NativeCountdown.Start(1);
-                    pad.InstructionPointer = CeresElevatorArrivalDefinitions.DeleteInstructionPointer;
+                    pad.Start(CeresElevatorArrivalProgram.Delete);
                 }
             }
             ProcessInstructionList(pad);
@@ -97,8 +97,7 @@ public sealed class CeresElevatorArrivalState
         {
             if (samus.Position.Y.Whole == CeresElevatorArrivalDefinitions.LandingSamusY)
             {
-                platform.InstructionTimer = NativeCountdown.Start(1);
-                platform.InstructionPointer = CeresElevatorArrivalDefinitions.DeleteInstructionPointer;
+                platform.Start(CeresElevatorArrivalProgram.Delete);
             }
             ProcessInstructionList(platform);
         }
@@ -127,12 +126,12 @@ public sealed class CeresElevatorArrivalState
     {
         return new CeresElevatorProjectile(
             definition.DefinitionPointer,
-            definition.InitialInstruction,
+            definition.Program,
             position,
             CeresElevatorArrivalDefinitions.NativeGraphicsIndex);
     }
 
-    /// <summary>Advances a projectile's timed frame, delete, or branch commands with a bounded interpreter pass.</summary>
+    /// <summary>Runs a projectile's typed program (#641) when its frame expires: a new pose, or the delete.</summary>
     private static void ProcessInstructionList(CeresElevatorProjectile projectile)
     {
         ushort oldTimer = projectile.InstructionTimer.RawValue;
@@ -140,35 +139,24 @@ public sealed class CeresElevatorArrivalState
         if (oldTimer != 1)
             return;
 
-        ushort cursor = projectile.InstructionPointer;
-        for (int commandCount = 0;
-            commandCount < CeresElevatorArrivalDefinitions.MaximumCommandsPerStep;
-            commandCount++)
+        AnimationProgramCursor<CeresElevatorArrivalProgram> cursor = projectile.Program;
+        // The arrival lists use no counted loops; their counter is never loaded.
+        NativeCountdown counter = NativeCountdown.Start(0);
+        AnimationProgramAdvance<CeresElevatorArrivalPose> advance = CeresElevatorArrivalAnimations.Programs.Advance(ref cursor, ref counter,
+            (cue, _) => throw new InvalidOperationException($"The Ceres elevator arrival programs publish no cue; got {cue}."));
+        projectile.Program = cursor;
+        switch (advance.Kind)
         {
-            CeresElevatorProjectileInstruction instruction =
-                CeresElevatorArrivalDefinitions.ReadInstruction(cursor);
-            switch (instruction.Operation)
-            {
-                case CeresElevatorProjectileOperation.Frame:
-                    projectile.InstructionTimer = NativeCountdown.FromRaw(instruction.Duration);
-                    projectile.SpritemapPointer = instruction.SpritemapPointer;
-                    projectile.InstructionPointer = instruction.NextInstruction;
-                    return;
-                case CeresElevatorProjectileOperation.Delete:
-                    projectile.Active = false;
-                    return;
-                case CeresElevatorProjectileOperation.Goto:
-                    cursor = instruction.NextInstruction;
-                    break;
-                default:
-                    throw new InvalidDataException(
-                        $"Ceres elevator eproj $86:{projectile.DefinitionPointer:X4} " +
-                        $"instruction $86:{cursor:X4} has invalid operation {instruction.Operation}.");
-            }
+            case AnimationProgramAdvanceKind.Show:
+                projectile.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+                projectile.SpritemapPointer = CeresElevatorArrivalDefinitions.Spritemap(advance.Frame);
+                return;
+            case AnimationProgramAdvanceKind.Stop:
+                projectile.Active = false;
+                return;
+            default:
+                throw new InvalidOperationException($"A Ceres elevator arrival program ended an update with {advance.Kind}.");
         }
-
-        throw new InvalidDataException(
-            $"Ceres elevator eproj $86:{projectile.DefinitionPointer:X4} exceeded its command guard.");
     }
 
     /// <summary>Draws an active on-screen projectile through its installed bank-8D composition.</summary>
@@ -201,20 +189,20 @@ public sealed class CeresElevatorArrivalState
     /// <summary>Small per-slot state for the two Ceres arrival enemy projectiles.</summary>
     internal sealed class CeresElevatorProjectile
     {
-        /// <summary>Initializes a projectile's definition, instruction entry, position, and graphics index.</summary>
+        /// <summary>Initializes a projectile's definition, program, position, and graphics index.</summary>
         public CeresElevatorProjectile(
             ushort definitionPointer,
-            ushort instructionPointer,
+            CeresElevatorArrivalProgram program,
             Position16<RoomPixels> position,
             ushort graphicsIndex)
         {
             DefinitionPointer = definitionPointer;
-            InstructionPointer = instructionPointer;
+            Program = AnimationProgramCursor<CeresElevatorArrivalProgram>.Start(program);
             Position = position;
             GraphicsIndex = graphicsIndex;
         }
 
-        /// <summary>Bank-86 definition identity used to report malformed instruction programs.</summary>
+        /// <summary>The projectile's bank-$86 definition identity.</summary>
         public ushort DefinitionPointer { get; }
         /// <summary>Native graphics word supplying palette and tile-base bits for drawing.</summary>
         public ushort GraphicsIndex { get; }
@@ -224,8 +212,15 @@ public sealed class CeresElevatorArrivalState
         public Position16<RoomPixels> Position { get; set; }
         /// <summary>Pad-only startup delay before it begins moving Samus toward the platform.</summary>
         public NativeCountdown WaitTimer { get; set; }
-        /// <summary>Next bank-86 program word to interpret when the timer expires.</summary>
-        public ushort InstructionPointer { get; set; }
+        /// <summary>Where the projectile's typed program resumes when its frame expires.</summary>
+        internal AnimationProgramCursor<CeresElevatorArrivalProgram> Program { get; set; }
+
+        /// <summary>Starts <paramref name="program"/> on the next update.</summary>
+        internal void Start(CeresElevatorArrivalProgram program)
+        {
+            InstructionTimer = NativeCountdown.Start(1);
+            Program = AnimationProgramCursor<CeresElevatorArrivalProgram>.Start(program);
+        }
         /// <summary>Frames until this projectile's next instruction pass.</summary>
         public NativeCountdown InstructionTimer { get; set; } = NativeCountdown.Start(1);
         /// <summary>Current bank-8D visual identity or the no-spritemap sentinel.</summary>

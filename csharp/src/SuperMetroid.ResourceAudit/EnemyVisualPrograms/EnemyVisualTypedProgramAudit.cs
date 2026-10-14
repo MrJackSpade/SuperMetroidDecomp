@@ -1,6 +1,3 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -22,26 +19,17 @@ namespace SuperMetroid.ResourceAudit.EnemyVisualPrograms;
 /// <summary>Typed custom programs whose frame fields bypass the common operand interpreter.</summary>
 internal static class EnemyVisualTypedProgramAudit
 {
-    /// <summary>Finds frame arms in Ceres elevator's typed instruction reader and audits Botwoon and Kraid typed frame domains against installed resources.</summary>
-    internal static void Inspect(CSharpCompilation compilation, ResourceIndex exports,
+    /// <summary>Requires each Ceres elevator arrival pose's spritemap and audits Botwoon and Kraid typed frame domains against installed resources.</summary>
+    internal static void Inspect(ResourceIndex exports,
         AuditReport report, List<EnemyVisualProgramAudit.ProgramRow> rows)
     {
+        // The Ceres elevator arrival's typed programs (#641) draw these poses.
         const string ceresSource = "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresElevatorArrivalDefinitions.cs";
-        SyntaxTree tree = compilation.SyntaxTrees.Single(tree => tree.FilePath == ceresSource);
-        SemanticModel model = compilation.GetSemanticModel(tree);
-        MethodDeclarationSyntax reader = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
-            .Single(method => method.Identifier.ValueText == "ReadInstruction");
-        int ceresFrames = 0, records = 0;
-        foreach (SwitchExpressionArmSyntax arm in reader.DescendantNodes().OfType<SwitchExpressionArmSyntax>())
+        int ceresFrames = 0;
+        foreach (CeresElevatorArrivalPose pose in Enum.GetValues<CeresElevatorArrivalPose>())
         {
-            if (arm.Pattern is DiscardPatternSyntax && arm.Expression is ThrowExpressionSyntax) continue;
-            if (arm.Pattern is not ConstantPatternSyntax pattern || model.GetConstantValue(pattern.Expression) is not { HasValue: true, Value: not null } constant)
-                throw new InvalidDataException("Ceres elevator static instruction domain changed.");
-            var instruction = CeresElevatorArrivalDefinitions.ReadInstruction(Convert.ToUInt16(constant.Value));
-            records++;
-            if (instruction.Operation != CeresElevatorProjectileOperation.Frame) continue;
             report.Require(ResourceDomains.EnemyProjectileSprite, nameof(CeresElevatorArrivalDefinitions),
-                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, instruction.SpritemapPointer), ceresSource, exports);
+                ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, CeresElevatorArrivalDefinitions.Spritemap(pose)), ceresSource, exports);
             ceresFrames++;
         }
         rows.Add(new(ceresFrames));

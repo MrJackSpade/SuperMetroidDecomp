@@ -24,7 +24,8 @@ internal sealed class GunshipHealthBehavior
             for (int i = 0; i < _slotTable.EnemyCount; i++)
             {
                 var slot = _slotTable._slots[i];
-                if ((((int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer))) != (int)EnemyAiRoutine.InitAI_ShipTop) continue;
+                // The ship's top is the only enemy whose initialization is InitAI_ShipTop.
+                if (slot.EnemyDefinitionPointer != EnemyDefinitionId.ShipTop) continue;
                 return (GunshipFunction)slot.VariableF is GunshipFunction.WaitForEntranceToOpen or GunshipFunction.LowerSamus
                     or GunshipFunction.WaitForEntranceToClose or GunshipFunction.BeginLiftoffOrRestoreSamus
                     or GunshipFunction.HandleSaveConfirmation or GunshipFunction.WaitForExitPadToOpen

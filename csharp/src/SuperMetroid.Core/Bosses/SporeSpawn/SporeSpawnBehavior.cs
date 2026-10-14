@@ -417,7 +417,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             {
                 ApplySporeSpawnCue(body, state, cue);
                 return null;
-            }, EnemyProgramCounter.SlotTimer);
+            });
         state.BodyProgram = cursor;
     }
 

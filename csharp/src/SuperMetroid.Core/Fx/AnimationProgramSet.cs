@@ -17,6 +17,9 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
     /// <summary>The most steps one advance may visit before it must show a frame, wait, hold or stop.</summary>
     private readonly int stepLimit;
 
+    /// <summary>Whether any program loads or counts the owner's loop counter, so the owner must keep it between advances.</summary>
+    internal bool CountsLoops { get; }
+
     /// <summary>
     /// Creates a set; every program of <typeparamref name="TProgram"/> must be present and end in a hold, stop, goto
     /// or fall-through, and only those steps may end a program.
@@ -35,6 +38,8 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
         }
         this.programs = programs.ToDictionary(pair => pair.Key, pair => pair.Value);
         stepLimit = this.programs.Values.Sum(steps => steps.Length) + 1;
+        CountsLoops = this.programs.Values.Any(steps => steps.Any(step =>
+            step.Kind is AnimationProgramStepKind.SetCounter or AnimationProgramStepKind.RepeatWhileCounting));
     }
 
     /// <summary>Whether a step of <paramref name="kind"/> ends its program.</summary>

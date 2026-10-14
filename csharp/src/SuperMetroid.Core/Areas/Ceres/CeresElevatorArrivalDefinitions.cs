@@ -10,12 +10,12 @@ internal static class CeresElevatorArrivalDefinitions
     /// <summary>$86:A387, moving pad spawned first into enemy-projectile slot $22.</summary>
     internal static readonly CeresElevatorProjectileDefinition MovingPad = new(
         DefinitionPointer: 0xa387,
-        InitialInstruction: 0xa28d);
+        Program: CeresElevatorArrivalProgram.Pad);
 
     /// <summary>$86:A395, stationary level-data concealer spawned into slot $20.</summary>
     internal static readonly CeresElevatorProjectileDefinition StationaryPlatform = new(
         DefinitionPointer: 0xa395,
-        InitialInstruction: 0xa299);
+        Program: CeresElevatorArrivalProgram.Platform);
 
     /// <summary>$86:A301 clears the transient enemy graphics word in both projectiles.</summary>
     internal const ushort NativeGraphicsIndex = 0;
@@ -35,55 +35,18 @@ internal static class CeresElevatorArrivalDefinitions
     /// <summary>$86:A345 compares the incremented Samus Y against 73 before clamping.</summary>
     internal const ushort LandingThresholdY = 73;
 
-    /// <summary>$86:A28B, common enemy-projectile delete instruction.</summary>
-    internal const ushort DeleteInstructionPointer = 0xa28b;
-
     /// <summary>$8000 is the inactive/no-spritemap sentinel used before the first frame.</summary>
     internal const ushort NoSpritemap = 0x8000;
 
-    /// <summary>Host corruption guard; valid programs resolve a frame/delete within two commands.</summary>
-    internal const int MaximumCommandsPerStep = 16;
-
-    /// <summary>Resolves the complete reachable instruction program for both projectiles.</summary>
-    /// <remarks>
-    /// The moving pad begins at <c>$86:A28D</c>: two one-tick frames at $A28D
-    /// and $A291, then the $81AB goto at $A295 returns to $A28D. Landing
-    /// redirects to the shared $8154 delete at $A28B. All five mechanics
-    /// words match the pinned NTSC J/U v1.0 ROM; the reachable pointer set is
-    /// $A28D, $A291, $A295, and $A28B. Other pointers fail descriptively.
-    /// Spritemap operands at $A28F/$A293 are separate presentation values.
-    /// The two pinned-ROM operands are $B1BA and $B1D0. Bank-$8D record
-    /// $B1BA has four five-byte OBJ components after its two-byte count,
-    /// so its exact next-record address is <c>$B1BA + 2 + 5 * 4 = $B1D0</c>.
-    /// Both authored four-component spritemaps remain live draw data and are
-    /// also referenced by dust-cloud/explosion instruction lists.
-    /// The stationary level-data concealer begins at $A299, holds its one
-    /// frame for one tick, and follows the $81AB goto at $A29D back to $A299.
-    /// Landing redirects it to the same $A28B delete. All four mechanics
-    /// words match the pinned ROM; only $A299, $A29D, and $A28B are reachable
-    /// instruction pointers for this projectile. Its $A29B presentation
-    /// operand is independent of the control flow. That sole pinned-ROM
-    /// operand is the authored bank-$8D pointer $846D, whose payload remains
-    /// a live cartridge read during drawing. Its four-component record has X offsets
-    /// <c>8 - 8 * i</c> for i=0..3, Y=-4, and attribute $3A20 in each
-    /// component; no indexed pointer algorithm is needed for one pose.
-    /// </remarks>
-    internal static CeresElevatorProjectileInstruction ReadInstruction(ushort pointer) =>
-        pointer switch
-        {
-            // $86:A28B, Instruction_Delete.
-            0xa28b => new(CeresElevatorProjectileOperation.Delete),
-            // $86:A28D, one frame using Spritemap_CeresElevatorPad_0.
-            0xa28d => new(CeresElevatorProjectileOperation.Frame, 0xa291, 1, 0xb1ba),
-            // $86:A291, one frame using Spritemap_CeresElevatorPad_1.
-            0xa291 => new(CeresElevatorProjectileOperation.Frame, 0xa295, 1, 0xb1d0),
-            // $86:A295, Instruction_Goto $A28D.
-            0xa295 => new(CeresElevatorProjectileOperation.Goto, 0xa28d),
-            // $86:A299, one frame using Spritemap_CeresElevatorPlatform.
-            0xa299 => new(CeresElevatorProjectileOperation.Frame, 0xa29d, 1, 0x846d),
-            // $86:A29D, Instruction_Goto $A299.
-            0xa29d => new(CeresElevatorProjectileOperation.Goto, 0xa299),
-            _ => throw new InvalidDataException(
-                $"Unknown Ceres elevator projectile instruction $86:{pointer:X4}."),
-        };
+    /// <summary>The bank-$8D spritemap each arrival pose shows.</summary>
+    internal static ushort Spritemap(CeresElevatorArrivalPose pose) => pose switch
+    {
+        // Spritemap_CeresElevatorPad_0, shown by $86:A28D.
+        CeresElevatorArrivalPose.PadFirst => 0xb1ba,
+        // Spritemap_CeresElevatorPad_1, shown by $86:A291.
+        CeresElevatorArrivalPose.PadSecond => 0xb1d0,
+        // Spritemap_CeresElevatorPlatform, shown by $86:A299.
+        CeresElevatorArrivalPose.Platform => 0x846d,
+        _ => throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined Ceres elevator arrival pose."),
+    };
 }

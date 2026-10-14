@@ -1045,11 +1045,6 @@ internal sealed class EnemyProjectileEngine
                 address);
         }
 
-        if (CeresFallingDebrisInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return CeresFallingDebrisInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity)
         {
             return SaveStationElectricityInstructionProgramDefinitions.ReadMechanicsWord(
@@ -1070,11 +1065,6 @@ internal sealed class EnemyProjectileEngine
         if (MotherBrainTopTubeInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return MotherBrainTopTubeInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud)
-        {
-            return GunshipDustInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
@@ -1324,7 +1314,22 @@ internal sealed class EnemyProjectileEngine
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0x0010));
         projectile.Variable0 = 0;
         projectile.Variable1 = 0;
+        projectile.StartAnimation(new CeresFallingDebrisAnimation(dark ? CeresFallingDebrisProgram.Dark : CeresFallingDebrisProgram.Light));
     }
+
+    /// <summary>Deletes a gunship dust cloud when its program ends.</summary>
+    internal static void RegisterGunshipDustCues(EnemyProjectileHandlerTable table) =>
+        table.RegisterCue<GunshipDustCue>((projectile, _, cue) =>
+        {
+            switch (cue)
+            {
+                case GunshipDustCue.Delete:
+                    projectile.Clear();
+                    return;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(GunshipDustCue)} {cue}.");
+            }
+        });
 
     /// <summary>
     /// Ports <c>SpawnEprojWithRoomGfx($E6D2, 0)</c> and initializer $86:E6AD.
@@ -1374,8 +1379,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + definition.XOffset)), unchecked((ushort)(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset))));
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         projectile.Variable0 = parameter;
-        projectile.InstructionPointer = definition.Instruction;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
+        projectile.StartAnimation(new GunshipDustAnimation(definition.Program));
     }
 
     /// <summary>Spawns the four bank-$86 particles emitted by a dying/burrowing Skree.</summary>

@@ -29,14 +29,6 @@ internal static class FriendlyAnimalVisualDefinitions
     internal static ushort[] DachoraOperands() => Enumerable.Range(0,
         DachoraInstructionProgramDefinitions.PresentationWordCount)
         .Select(DachoraInstructionProgramDefinitions.PresentationWordAddress).ToArray();
-    /// <summary>Collects rescue-sequence Etecoon pose operands from the escape program.</summary>
-    internal static ushort[] EscapeEtecoonOperands() => Enumerable.Range(0,
-        EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount)
-        .Select(EscapeEtecoonInstructionProgramDefinitions.PresentationWordAddress).ToArray();
-    /// <summary>Collects rescue-sequence Dachora pose operands from the escape program.</summary>
-    internal static ushort[] EscapeDachoraOperands() => Enumerable.Range(0,
-        EscapeDachoraInstructionProgramDefinitions.PresentationWordCount)
-        .Select(EscapeDachoraInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
     /// <summary>Compiles the four animal frame groups with their respective native sprite banks.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
@@ -45,9 +37,10 @@ internal static class FriendlyAnimalVisualDefinitions
             EtecoonFrameCount, "etecoon"),
         .. CompiledEnemyCompositionDefinitions.Frames(NormalBank, DachoraOperands(),
             DachoraFrameCount, "dachora"),
-        .. CompiledEnemyCompositionDefinitions.Frames(EscapeBank, EscapeEtecoonOperands(),
-            EscapeEtecoonFrameCount, "escape_etecoon"),
-        .. CompiledEnemyCompositionDefinitions.Frames(EscapeBank, EscapeDachoraOperands(),
-            EscapeDachoraFrameCount, "escape_dachora"),
+        // The rescue-sequence animals are typed programs (#641): their poses in first-shown order.
+        .. CompiledEnemyCompositionDefinitions.FramesFromSpritemaps(EscapeBank,
+            EscapeEtecoonAnimations.Spritemaps(Enum.GetValues<EscapeEtecoonProgram>()), EscapeEtecoonFrameCount, "escape_etecoon"),
+        .. CompiledEnemyCompositionDefinitions.FramesFromSpritemaps(EscapeBank,
+            EscapeDachoraAnimations.Spritemaps(Enum.GetValues<EscapeDachoraProgram>()), EscapeDachoraFrameCount, "escape_dachora"),
     ];
 }

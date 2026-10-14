@@ -75,12 +75,6 @@ internal static class EnemyVisualProgramAudit
                 for (int i = 0; i < SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(); i++)
                     addresses.Add(SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(metaree, i));
             }
-            else if (type == typeof(CeresBabyInstructionProgramDefinitions))
-            {
-                shape = "typed-sprites-and-palettes";
-                for (int i = 0; i < CeresBabyInstructionProgramDefinitions.SpritemapOperandCount; i++)
-                    addresses.Add(CeresBabyInstructionProgramDefinitions.SpritemapOperandAddress(i));
-            }
             else if (type == typeof(EnemyProjectileInstructionMechanicsDefinitions))
             {
                 shape = "typed-projectile-frames";
@@ -106,7 +100,7 @@ internal static class EnemyVisualProgramAudit
                     Require(type, (byte)bank.Value, operand, source, exports, report);
             rows.Add(new(addresses.Count));
         }
-        EnemyVisualTypedProgramAudit.Inspect(compilation, exports, report, rows);
+        EnemyVisualTypedProgramAudit.Inspect(exports, report, rows);
         report.Sort();
         string destination = Path.GetFullPath(output);
         Directory.CreateDirectory((Path.GetDirectoryName(destination) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(destination).")));

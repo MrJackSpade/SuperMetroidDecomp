@@ -1,3 +1,6 @@
+using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.Animals.Artwork;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -36,7 +39,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 initialization.PreInstruction,
                 $"escape Etecoon role {role} pre-instruction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + parameter)),
-                initialization.InstructionList,
+                NativeEnemyProgramOracle.EntryOf(EscapeEtecoonNativeListAddresses.Entries, initialization.Program),
                 $"escape Etecoon role {role} instruction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((speedTable + parameter)),
                 initialization.HorizontalSpeed,
@@ -72,8 +75,8 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"production escape Etecoon selector {parameter} Y");
             AssertEqual(expected.PreInstruction, state.PreInstruction,
                 $"production escape Etecoon selector {parameter} pre-instruction");
-            AssertEqual(expected.InstructionList, slot.CurrentInstruction,
-                $"production escape Etecoon selector {parameter} instruction");
+            AssertEqual(AnimationProgramCursor<EscapeEtecoonProgram>.Start(expected.Program), state.Program,
+                $"production escape Etecoon selector {parameter} program");
             AssertEqual(expected.HorizontalSpeed, state.HorizontalSpeed,
                 $"production escape Etecoon selector {parameter} speed");
             AssertEqual((EscapeEtecoonRole)(role * 2), (EscapeEtecoonRole)(parameter & 0xfffe),
@@ -84,93 +87,61 @@ internal static class EscapeEtecoonDefinitionsVerification
             "Escape Etecoon definitions: fifteen native values and all six masked retail selectors pass with the authored tables forbidden during production initialization; malformed restored selectors fail explicitly.");
     }
 
-    /// <summary>Loads retail data for the escape Etecoon instruction check.</summary>
-    internal static void VerifyEscapeEtecoonInstructionProgramDefinitions()
-    {
-        Suite(nameof(VerifyEscapeEtecoonInstructionProgramDefinitions), () => VerifyEscapeEtecoonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
-    }
+    /// <summary>Loads retail data for the escape Etecoon program behavior check.</summary>
+    internal static void VerifyEscapeEtecoonProgramBehavior() =>
+        VerifyEscapeEtecoonProgramBehavior(
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 
-    /// <summary>Runs all seven Etecoon programs, including gratitude displacement and escape handoff, with migrated reads forbidden.</summary>
-    internal static void VerifyEscapeEtecoonInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom)
+    /// <summary>
+    /// Runs every Etecoon program through the production instruction runner with its native lists forbidden: together
+    /// they show all of the escape Etecoon's poses, and the gratitude program moves the Etecoon left before handing off
+    /// to the rightward escape.
+    /// </summary>
+    internal static void VerifyEscapeEtecoonProgramBehavior(SuperMetroidAddressSpace rom)
     {
-        for (int index = 0;
-             index < EscapeEtecoonInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                EscapeEtecoonInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | definition.Address)),
-                $"escape Etecoon mechanics word $B3:{definition.Address:X4}");
-        }
-
-        var guard = NewEscapeEtecoonDefinitionGuard(rom);
+        CartridgeReadGuard guard = NewEscapeEtecoonDefinitionGuard(rom);
         RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem(guard);
         RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
-        var selectedPresentation = new HashSet<ushort>();
-        ushort[] programs =
-        [
-            EscapeEtecoonInstructionProgramDefinitions.RunningLeftLowTide,
-            EscapeEtecoonInstructionProgramDefinitions.RunningLeftHighTide,
-            EscapeEtecoonInstructionProgramDefinitions.RunningRightLowTide,
-            EscapeEtecoonInstructionProgramDefinitions.RunningRightHighTide,
-            EscapeEtecoonInstructionProgramDefinitions.RunningForEscape,
-            EscapeEtecoonInstructionProgramDefinitions.Stationary,
-        ];
-        foreach (ushort program in programs)
-        {
-            etecoon.CurrentInstruction = program;
-            RunForcedEscapeEtecoonInstructions(enemies, etecoon, 7, rom, selectedPresentation);
-        }
-
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
             throw new InvalidDataException("Escape Etecoon test lost typed state.");
+        var shown = new HashSet<ushort>();
+        EscapeEtecoonProgram[] programs =
+        [
+            EscapeEtecoonProgram.RunningLeftLowTide,
+            EscapeEtecoonProgram.RunningLeftHighTide,
+            EscapeEtecoonProgram.RunningRightLowTide,
+            EscapeEtecoonProgram.RunningRightHighTide,
+            EscapeEtecoonProgram.RunningForEscape,
+            EscapeEtecoonProgram.Stationary,
+        ];
+        foreach (EscapeEtecoonProgram program in programs)
+        {
+            state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(program);
+            RunForcedEscapeEtecoonUpdates(enemies, etecoon, 7, shown);
+        }
+
         ushort xBeforeGratitude = etecoon.Position.X.Whole;
-        etecoon.CurrentInstruction =
-            EscapeEtecoonInstructionProgramDefinitions.ExpressGratitudeThenEscape;
-        RunForcedEscapeEtecoonInstructions(enemies, etecoon, 40, rom, selectedPresentation);
+        state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(EscapeEtecoonProgram.ExpressGratitudeThenEscape);
+        RunForcedEscapeEtecoonUpdates(enemies, etecoon, 40, shown);
         AssertTrue(unchecked((short)(etecoon.Position.X.Whole - xBeforeGratitude)) < 0,
             "escape Etecoon gratitude program applies its repeated left displacement");
         AssertEqual(EscapeEtecoonPreInstruction.EscapeRight, state.PreInstruction,
             "escape Etecoon gratitude program hands off to rightward escape");
 
-        AssertEqual(EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount,
-            selectedPresentation.Count,
-            "all escape-Etecoon native presentation operands execute");
-        AssertEqual(0, guard.ObservedWords.Count,
-            "escape-Etecoon uses compiled presentation without ROM reads");
-        for (int index = 0;
-             index < EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                EscapeEtecoonInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(selectedPresentation.Contains(address),
-                $"production selects escape-Etecoon presentation operand $B3:{address:X4}");
-            AssertThrows<InvalidDataException>(
-                () => EscapeEtecoonInstructionProgramDefinitions.ReadMechanicsWord(address),
-                $"escape-Etecoon spritemap $B3:{address:X4} is rejected as mechanics");
-        }
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production avoids every compiled escape-Etecoon mechanics byte");
-        AssertThrows<InvalidDataException>(
-            () => EscapeEtecoonInstructionProgramDefinitions.ReadMechanicsWord(
-                EscapeEtecoonInstructionProgramDefinitions.FirstAdjacentCodeRoutine),
-            "adjacent escape-Etecoon callback code is rejected as mechanics");
-
-        _ = ProbeEscapeEtecoonInstructionMechanicsAllocation();
-        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeEscapeEtecoonInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "escape-Etecoon allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - allocatedBefore,
-            "warmed escape-Etecoon mechanics lookups allocate no per-frame storage");
-
-        Console.WriteLine(
-            "Escape Etecoon instruction mechanics: 63 compiled words, all seven live " +
-            "programs and 30 installed native selectors pass with source reads forbidden.");
+        var poses = Enumerable.Range(0, EscapeEtecoonFrameDefinitions.PoseCount)
+            .Select(pose => EscapeEtecoonFrameDefinitions.Spritemap(new(pose))).ToHashSet();
+        AssertTrue(shown.SetEquals(poses), "the escape Etecoon programs show every pose");
+        AssertEqual(0, guard.ForbiddenReadAttempts, "production avoids every native escape-Etecoon list byte");
+        Console.WriteLine($"Escape Etecoon programs: all seven run through production, showing {shown.Count} poses, with native lists forbidden.");
     }
+
+    /// <summary>Rejects production reads of the escape Etecoon's migrated setup tables and native lists.</summary>
+    private static CartridgeReadGuard NewEscapeEtecoonDefinitionGuard(ISnesAddressSpace rom) =>
+        new CartridgeReadGuard(rom)
+            .Forbid(address => address is >= 0xb3e556 and < 0xb3e718,
+                address => $"Production read a native escape-Etecoon list byte ${address:X6}.")
+            .Forbid(address => address is >= 0xb3e718 and < 0xb3e736,
+                address => $"Escape Etecoon attempted migrated definition read ${address:X6}.");
 
     /// <summary>Initializes an Etecoon in a guarded bank-$B3 enemy system.</summary>
     private static RoomEnemySystem CreateEscapeEtecoonProgramSystem(
@@ -187,13 +158,12 @@ internal static class EscapeEtecoonDefinitionsVerification
         return enemies;
     }
 
-    /// <summary>Forces instruction calls and matches each selected spritemap to its retail operand.</summary>
-    private static void RunForcedEscapeEtecoonInstructions(
+    /// <summary>Forces <paramref name="steps"/> program updates, recording each pose shown.</summary>
+    private static void RunForcedEscapeEtecoonUpdates(
         RoomEnemySystem enemies,
         RoomEnemySlot etecoon,
         int steps,
-        SuperMetroidAddressSpace rom,
-        HashSet<ushort> selectedPresentation)
+        HashSet<ushort> shown)
     {
         object?[] arguments =
             [etecoon, null, null, Position16<RoomPixels>.Zero, (ushort)0];
@@ -201,35 +171,9 @@ internal static class EscapeEtecoonDefinitionsVerification
         {
             etecoon.InstructionTimer = NativeCountdown.Start(1);
             EnemyInstructionRunner.Process(enemies, arguments);
-            ushort operand = unchecked((ushort)(etecoon.CurrentInstruction - 2));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | operand)),
-                etecoon.SpritemapPointer, "escape-Etecoon actual installed native visual selector");
-            selectedPresentation.Add(operand);
+            shown.Add(etecoon.SpritemapPointer);
         }
     }
-
-    /// <summary>Repeats a warmed stationary control lookup for allocation accounting.</summary>
-    private static int ProbeEscapeEtecoonInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += EscapeEtecoonInstructionProgramDefinitions.ReadMechanicsWord(
-                EscapeEtecoonInstructionProgramDefinitions.Stationary);
-        }
-        return checksum;
-    }
-
-    /// <summary>Rejects migrated setup and control reads while observing visual-operand accesses.</summary>
-    private static CartridgeReadGuard NewEscapeEtecoonDefinitionGuard(ISnesAddressSpace rom) =>
-        new CartridgeReadGuard(rom)
-            .Forbid(EscapeEtecoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled escape-Etecoon mechanics byte ${address:X6}.")
-            .Forbid(address => address is >= 0xb3e718 and < 0xb3e736,
-                address => $"Escape Etecoon attempted migrated definition read ${address:X6}.")
-            .ObserveWords(0xb30000,
-                EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount,
-                EscapeEtecoonInstructionProgramDefinitions.PresentationWordAddress);
 
     /// <summary>Runs the retail-backed Etecoon setup-definition command.</summary>
     [VerificationCommand("--escape-etecoon-definitions")]
@@ -244,7 +188,7 @@ internal static class EscapeEtecoonDefinitionsVerification
     [VerificationCommand("--escape-etecoon-instruction-mechanics")]
     internal static int EscapeEtecoonInstructionMechanicsCommand()
     {
-        Suite(nameof(VerifyEscapeEtecoonInstructionProgramDefinitions), () => VerifyEscapeEtecoonInstructionProgramDefinitions());
+        Suite(nameof(VerifyEscapeEtecoonProgramBehavior), () => VerifyEscapeEtecoonProgramBehavior());
         return 0;
     }
 }

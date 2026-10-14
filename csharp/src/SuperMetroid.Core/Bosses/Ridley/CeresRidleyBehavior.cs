@@ -180,7 +180,7 @@ internal sealed class CeresRidleyBehavior
             Velocity = new EightEightVector<RoomPixels>(0, 0),
             MovementMinimum = new Position16<RoomPixels>(40, unchecked((ushort)-32)),
             MovementMaximum = new Position16<RoomPixels>(224, 176),
-            BabyInstruction = CeresBabyInstructionProgramDefinitions.Initial,
+            BabyProgram = AnimationProgramCursor<CeresBabyProgram>.Start(CeresBabyProgram.Initial),
             BabyInstructionTimer = 1,
             BabyFunction = CeresBabyFunction.CarriedInArms,
             BabyCurrentSpritemap = 0,
@@ -1249,7 +1249,7 @@ internal sealed class CeresRidleyBehavior
             ushort babySpritemap = AdvanceCeresBabyDrawInstruction(state);
             if (babySpritemap != 0)
             {
-                _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresBabyInstructionProgramDefinitions.Bank, Pointer = babySpritemap, Origin = state.BabyPosition.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.ToScreen(camera).Y < 256 });
+                _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresBabyFrameDefinitions.Bank, Pointer = babySpritemap, Origin = state.BabyPosition.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.ToScreen(camera).Y < 256 });
             }
         }
 
@@ -1268,90 +1268,59 @@ internal sealed class CeresRidleyBehavior
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
             int quakeXOffset = CeresDoorQuakeDefinitions.XOffset(_earthquake.EarthquakeTimer.RawValue);
-            _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresDoorInstructionProgramDefinitions.Bank, Pointer = CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
+            _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresDoorFrameDefinitions.Bank, Pointer = CeresDoorFrameDefinitions.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
         }
     }
 
-    /// <summary>Runs the Baby's timed private instruction list and returns its current spritemap pointer.</summary>
+    /// <summary>
+    /// Runs the Baby's typed cutscene program one draw update and returns its current spritemap. $A6:DBE7 counts the
+    /// elapsed updates up and advances once they reach the pose's duration; the next pose starts at one.
+    /// </summary>
     internal ushort AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
     {
-        ushort cursor = state.BabyInstruction;
-        ushort current = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(cursor);
-        if ((current & CeresBabyInstructionProgramDefinitions.InstructionBit) == 0)
+        if (state.BabyPoseDuration != 0 && state.BabyPoseDuration != state.BabyInstructionTimer)
         {
-            // $A6:DBE7 compares the current frame's duration with the elapsed timer. Any
-            // other value ticks the timer ($A6:DC0A) and keeps the current map.
-            if (current != state.BabyInstructionTimer)
-            {
-                state.BabyInstructionTimer = unchecked((ushort)(state.BabyInstructionTimer + 1));
-                state.BabyCurrentSpritemap =
-                    CeresBabyInstructionProgramDefinitions.ReadSpritemapOperand(
-                        unchecked((ushort)(cursor + 2)));
-                return state.BabyCurrentSpritemap;
-            }
-            cursor = unchecked((ushort)(cursor + 4));
+            state.BabyInstructionTimer = unchecked((ushort)(state.BabyInstructionTimer + 1));
+            return state.BabyCurrentSpritemap;
         }
 
-        // $A6:DBEF: run ASM instructions until the next frame, which `.specialInstruction`
-        // installs with an elapsed timer of one and returns without comparing its duration.
-        for (int commandCount = 0; commandCount < 64; commandCount++)
+        AnimationProgramCursor<CeresBabyProgram> cursor = state.BabyProgram;
+        NativeCountdown counter = NativeCountdown.Start(0);
+        AnimationProgramAdvance<CeresBabyPose> advance = CeresBabyAnimations.Programs.Advance(ref cursor, ref counter,
+            (cue, _) => ApplyCeresBabyCue(state, cue));
+        state.BabyProgram = cursor;
+        if (advance.Kind != AnimationProgramAdvanceKind.Show)
+            throw new InvalidOperationException($"The Ceres Baby's program ended a draw update with {advance.Kind}.");
+        state.BabyPoseDuration = advance.Duration;
+        state.BabyInstructionTimer = 1;
+        state.BabyCurrentSpritemap = CeresBabyFrameDefinitions.Spritemap(advance.Frame);
+        return state.BabyCurrentSpritemap;
+    }
+
+    /// <summary>Carries out one cue of the Baby's program, returning the program a branch continues at, or null to run on.</summary>
+    private CeresBabyProgram? ApplyCeresBabyCue(RidleyEnemyState state, CeresBabyCue cue)
+    {
+        switch (cue.Kind)
         {
-            ushort word = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(cursor);
-            if ((word & CeresBabyInstructionProgramDefinitions.InstructionBit) == 0)
-            {
-                state.BabyInstruction = cursor;
-                state.BabyInstructionTimer = 1;
-                state.BabyCurrentSpritemap =
-                    CeresBabyInstructionProgramDefinitions.ReadSpritemapOperand(
-                        unchecked((ushort)(cursor + 2)));
-                return state.BabyCurrentSpritemap;
-            }
-
-            ushort argument = unchecked((ushort)(cursor + 2));
-            switch (ClosedNativeWords.Decode<CeresBabyInstruction>(word, "Ceres Baby draw instruction"))
-            {
-                case CeresBabyInstruction.PlayCrySfxOrGoto:
-                    // $A6:BFC9: while the baby is falling ($880C nonzero) it always cries and
-                    // continues. Otherwise it samples the live RNG word's low bit without
-                    // calling GenerateRandomNumber; a set bit jumps silently ($A6:BFD5).
-                    if (state.BabyVerticalVelocity == 0 && (_room.Random.Read() & 1) != 0)
-                    {
-                        cursor = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument);
-                        break;
-                    }
-                    _audio.QueueEnemySound(SoundEffectLibrary3Sounds.CeresBabyCry, maximumQueued: 6);
-                    cursor = unchecked((ushort)(argument + 2));
-                    break;
-
-                case CeresBabyInstruction.UpdateColors:
-                    int babyPaletteRow = CeresBabyInstructionProgramDefinitions.ReadPaletteRow(argument);
-                    if (_presentation.CeresRidleyColors is { } babyColors)
-                        babyColors.ApplyBaby(_presentation.Cgram, babyPaletteRow);
-                    else throw new InvalidOperationException(
-                        "Ceres Ridley requires installed Baby Metroid colors.");
-                    cursor = unchecked((ushort)(argument + 2));
-                    break;
-
-                case CeresBabyInstruction.GotoIfNotFalling:
-                    cursor = state.BabyVerticalVelocity != 0
-                        ? CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument)
-                        : unchecked((ushort)(argument + 2));
-                    break;
-
-                case CeresBabyInstruction.Goto:
-                    cursor = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument);
-                    break;
-
-                default:
-                    throw new InvalidOperationException(
-                        $"Undefined {nameof(CeresBabyInstruction)} {word:X4} at $A6:{cursor:X4}.");
-            }
-
-            state.BabyInstruction = cursor;
+            case CeresBabyCueKind.CryOrGoTo:
+                // $A6:BFC9: while the baby is falling ($880C nonzero) it always cries and
+                // continues. Otherwise it samples the live RNG word's low bit without
+                // calling GenerateRandomNumber; a set bit jumps silently ($A6:BFD5).
+                if (state.BabyVerticalVelocity == 0 && (_room.Random.Read() & 1) != 0)
+                    return cue.Target;
+                _audio.QueueEnemySound(SoundEffectLibrary3Sounds.CeresBabyCry, maximumQueued: 6);
+                return null;
+            case CeresBabyCueKind.UpdateColors:
+                if (_presentation.CeresRidleyColors is { } babyColors)
+                    babyColors.ApplyBaby(_presentation.Cgram, cue.PaletteRow);
+                else throw new InvalidOperationException(
+                    "Ceres Ridley requires installed Baby Metroid colors.");
+                return null;
+            case CeresBabyCueKind.GoToIfMoving:
+                return state.BabyVerticalVelocity != 0 ? cue.Target : null;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CeresBabyCueKind)} {cue.Kind}.");
         }
-
-        throw new InvalidDataException(
-            "Ceres Baby draw instruction list exceeded 64 commands without selecting a frame.");
     }
 
     /// <summary>Allocates two real enemy records for the OBJ wall strips shown during Mode 7.</summary>

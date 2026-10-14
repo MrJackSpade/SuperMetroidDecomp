@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The Landing Site gunship's two hull and eleven entrance-pad compositions.
-/// These identities follow the compiled bank-$A2 instruction selectors; opening,
+/// These identities follow the typed bank-$A2 programs' poses; opening,
 /// closing, flight timing and actor positions remain gameplay-owned.
 /// </summary>
 internal static class GunshipVisualDefinitions
@@ -28,11 +28,9 @@ internal static class GunshipVisualDefinitions
         var frames = new List<EnemySpritemapDefinition>(FrameCount);
         var seen = new HashSet<ushort>();
         int padIndex = 0;
-        for (int index = 0; index < GunshipInstructionProgramDefinitions.PresentationWordCount; index++)
+        // The typed programs (#641) in declaration order show the pad poses first, then the two hulls.
+        foreach (ushort pointer in GunshipAnimations.Spritemaps(Enum.GetValues<GunshipProgram>()))
         {
-            ushort operand = GunshipInstructionProgramDefinitions.PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(Bank, operand, out ushort pointer))
-                throw new InvalidDataException($"Gunship visual selector $A2:{operand:X4} is not compiled.");
             // The closing program reuses the opening frames in reverse. Export
             // each native identity once, keeping the actual timing in the program.
             if (!seen.Add(pointer)) continue;

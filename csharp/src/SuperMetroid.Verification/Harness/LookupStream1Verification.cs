@@ -2434,13 +2434,9 @@ internal static class LookupStream1Verification
     /// <summary>Reads native Samus death-sequence selection data.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 death definitions")]
     private static byte LookupStream1DeathDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    /// <summary>Checks Nuclear Waffle instruction controls, presentation operands, and exact byte ownership.</summary>
+    /// <summary>Checks Nuclear Waffle projectile instruction controls, presentation operands, and exact byte ownership.</summary>
     private static void VerifyLookupStream1NuclearWaffle(ISnesAddressSpace rom)
     {
-        Confirm(0xa6, 0x9490, NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord,
-            NuclearWaffleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-            index => { var word = NuclearWaffleInstructionProgramDefinitionsTooling.MechanicsWord(index); return (word.Address, word.Value); },
-            NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress);
         Confirm(0x86, 0xbb5e, NuclearWaffleProjectileInstructionProgramDefinitions.ReadMechanicsWord,
             NuclearWaffleProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
             index => { var word = NuclearWaffleProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index); return (word.Address, word.Value); },

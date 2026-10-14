@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Flies;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -21,14 +20,4 @@ internal static class FlyVisualDefinitions
         for (int frame = 0; frame < frames.Length; frame++)
             frames[frame] = new(Bank, (ushort)(FirstFrame + frame * 7), $"fly_shared_{frame}");
         return frames;
-    }
-    /// <summary>Accepts only a visual operand in the native shared flight loop.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        if (FlyInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress, out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Fly-family visual operand $A2:{operandAddress:X4} is not compiled.");
-    }
-}
+    }}

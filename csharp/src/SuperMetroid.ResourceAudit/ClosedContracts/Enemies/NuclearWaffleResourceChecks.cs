@@ -6,8 +6,8 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 internal static class NuclearWaffleResourceChecks
 {
     /// <summary>Checks the omitted head compositions against the compiled visual operands and pre-Nuclear-Waffle schema boundary.</summary>
-    internal static void Run() => EnemyCompositionResourceChecks.Run("Nuclear Waffle/Puromi",
-        NuclearWaffleVisualDefinitions.Bank, NuclearWaffleVisualDefinitions.Operands(),
+    internal static void Run() => EnemyCompositionResourceChecks.RunSpritemaps("Nuclear Waffle/Puromi",
+        NuclearWaffleVisualDefinitions.Bank, NuclearWaffleVisualDefinitions.Spritemaps(),
         NuclearWaffleVisualDefinitions.FrameCount, (int)EnemySpritemapSchema.PreNuclearWaffle,
         EnemySpritemapDefinitions.PreNuclearWaffleFrameCount);
 }

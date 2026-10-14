@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Enemies;
@@ -48,6 +49,17 @@ internal static class EnemyProgramAnimation
         RunTo(slot, programs, ref cursor, spritemap,
             (cue, continuation) => publish(cue, continuation) is { } program ? AnimationProgramCursor<TProgram>.Start(program) : null);
     }
+
+    /// <summary>Runs a program set whose lists publish no cues, after the slot's frame expired.</summary>
+    internal static void Run<TProgram, TFrame>(
+        RoomEnemySlot slot,
+        AnimationProgramSet<TProgram, TFrame, NoAnimationCue> programs,
+        ref AnimationProgramCursor<TProgram> cursor,
+        Func<TFrame, ushort> spritemap)
+        where TProgram : struct, Enum
+        where TFrame : struct =>
+        Run(slot, programs, ref cursor, spritemap,
+            static (cue, _) => throw new InvalidOperationException($"A cue-free program published {cue}."));
 
     /// <summary>
     /// Like <see cref="Run"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the program

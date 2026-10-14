@@ -303,7 +303,7 @@ using static SuperMetroid.Verification.Enemies.Yard.YardDirectionDefinitionsVeri
 using static SuperMetroid.Verification.Enemies.Yard.YardTurnDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.ZebesPlanetBandPartsVerification;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaAnimationDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Zoa.ZoaInstructionProgramDefinitionsVerification;
+using SuperMetroid.Verification.Enemies.Zoa;
 using static SuperMetroid.Verification.Enemies.Zoa.ZoaSpeedDefinitionsVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -4321,9 +4321,7 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(programOracle.Rom)),
             "Zoa program oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyZoaMechanicsDispatch), () => VerifyZoaMechanicsDispatch(programOracle));
-        Suite(nameof(VerifyZoaPresentationPositions), () => VerifyZoaPresentationPositions(programOracle));
-        Console.WriteLine("Zoa programs: 26 original control words, 12 presentation positions, byte ownership and bounds pass.");
+        Suite(nameof(ZoaAnimationsVerification.VerifyZoaAnimations), () => ZoaAnimationsVerification.VerifyZoaAnimations(programOracle));
         return 0;
     }
 

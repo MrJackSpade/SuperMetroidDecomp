@@ -54,13 +54,13 @@ internal static class SingleFrameEnemyVisualsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = merged }),
         };
-        foreach (var (definition, operand, count) in new[]
+        foreach (var (definition, spritemap, count) in new[]
         {
-            (SingleFrameEnemyVisualDefinitions.Kzan, KzanInstructionProgramDefinitionsTooling.PresentationWord, 4),
-            (SingleFrameEnemyVisualDefinitions.Polyp, PolypInstructionProgramDefinitions.PresentationWord, 1),
+            (SingleFrameEnemyVisualDefinitions.Kzan, KzanAnimations.Spritemaps(KzanProgram.Idle).Single(), 4),
+            (SingleFrameEnemyVisualDefinitions.Polyp, PolypAnimations.Spritemaps(PolypProgram.Stationary).Single(), 1),
         })
         {
-            AssertCompiledEnemyVisualSelector(rom, definition.Bank, operand, definition.Name);
+            AssertEqual(definition.Pointer, spritemap, definition.Name + " is the frame its typed program shows");
             AssertTrue(merged.TryGetDisplay(definition.Bank, definition.Pointer, out var parts),
                 definition.Name + " inherits installed stock");
             AssertEqual(count, parts.Length, definition.Name + " native sprite count");

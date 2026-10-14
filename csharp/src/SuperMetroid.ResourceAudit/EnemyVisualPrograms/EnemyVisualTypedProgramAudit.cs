@@ -1,3 +1,17 @@
+using SuperMetroid.Core.Enemies.Polyp.Artwork;
+using SuperMetroid.Core.Enemies.Polyp;
+using SuperMetroid.Core.Enemies.Kzan.Artwork;
+using SuperMetroid.Core.Enemies.Kzan;
+using SuperMetroid.Core.Enemies.Kago.Artwork;
+using SuperMetroid.Core.Enemies.Kago;
+using SuperMetroid.Core.Enemies.Flies.Artwork;
+using SuperMetroid.Core.Enemies.Flies;
+using SuperMetroid.Core.Enemies.Nuclear.Artwork;
+using SuperMetroid.Core.Enemies.Nuclear;
+using SuperMetroid.Core.Enemies.Zoa.Artwork;
+using SuperMetroid.Core.Enemies.Zoa;
+using SuperMetroid.Core.Enemies.Ripper.Artwork;
+using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -85,6 +99,20 @@ internal static class EnemyVisualTypedProgramAudit
         RequireTypedFrames(ZebetiteAnimations.Programs, frame => frame.Spritemap, ZebetiteVisualDefinitions.Bank,
             nameof(ZebetiteAnimations), "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ZebetiteAnimations.cs");
 
+        RequireTypedFrames(RipperAnimations.Programs, RipperFrameDefinitions.Spritemap, RipperFrameDefinitions.Bank,
+            nameof(RipperAnimations), "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperAnimations.cs");
+        RequireTypedFrames(ZoaAnimations.Programs, ZoaFrameDefinitions.Spritemap, ZoaFrameDefinitions.Bank,
+            nameof(ZoaAnimations), "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaAnimations.cs");
+        RequireTypedFrames(NuclearWaffleAnimations.Programs, NuclearWaffleFrameDefinitions.Spritemap, NuclearWaffleFrameDefinitions.Bank,
+            nameof(NuclearWaffleAnimations), "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleAnimations.cs");
+        RequireTypedFrames(FlyAnimations.Programs, FlyFrameDefinitions.Spritemap, FlyFrameDefinitions.Bank,
+            nameof(FlyAnimations), "csharp/src/SuperMetroid.Core/Enemies/Flies/FlyAnimations.cs");
+        RequireTypedFrames(KagoAnimations.Programs, KagoFrameDefinitions.Spritemap, KagoFrameDefinitions.Bank,
+            nameof(KagoAnimations), "csharp/src/SuperMetroid.Core/Enemies/Kago/KagoAnimations.cs");
+        RequireTypedFrames(KzanAnimations.Programs, KzanFrameDefinitions.Spritemap, KzanFrameDefinitions.Bank,
+            nameof(KzanAnimations), "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanAnimations.cs");
+        RequireTypedFrames(PolypAnimations.Programs, PolypFrameDefinitions.Spritemap, PolypFrameDefinitions.Bank,
+            nameof(PolypAnimations), "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

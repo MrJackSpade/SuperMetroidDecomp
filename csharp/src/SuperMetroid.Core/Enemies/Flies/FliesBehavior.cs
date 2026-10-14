@@ -1,4 +1,7 @@
-﻿using SuperMetroid.Core.Samus;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Flies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Flies;
 
@@ -28,8 +31,8 @@ internal sealed class FliesBehavior : IEnemySpecies
             Function = FlyEnemyFunction.ClockwiseCircle,
         };
         _flyStates[slot.SlotIndex] = state;
-        slot.CurrentInstruction = FlyInstructionProgramDefinitions.Flight;
-        slot.SpritemapPointer = 0x804d;
+        state.Program = AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight);
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -154,6 +157,19 @@ internal sealed class FliesBehavior : IEnemySpecies
     private FlyEnemyState RequireFlyState(RoomEnemySlot slot) =>
         _flyStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized fly state.");
+
+    /// <summary>Runs the shared flight loop as a typed program (#641).</summary>
+    internal void RegisterFliesTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or EnemyDefinitionId.Menu,
+            (slot, _) =>
+            {
+                if (!EnemyProgramAnimation.Expire(slot))
+                    return;
+                FlyEnemyState state = RequireFlyState(slot);
+                AnimationProgramCursor<FlyProgram> cursor = state.Program;
+                EnemyProgramAnimation.Run(slot, FlyAnimations.Programs, ref cursor, FlyFrameDefinitions.Spritemap);
+                state.Program = cursor;
+            });
 
     /// <summary>Registers shared initialization for Mellow, Mella, and Menu definitions.</summary>
     internal void RegisterFliesInitializationAi(EnemyAiTable table)

@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Kzan;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.ResourceAudit.Reports;
 
@@ -12,6 +11,15 @@ namespace SuperMetroid.ResourceAudit.EnemyVisualPrograms;
 /// <summary>Negative fixtures for #1166's requested static completeness gate.</summary>
 internal static class EnemyVisualProgramAuditChecks
 {
+    /// <summary>A one-frame list laid out as Kzan's native list at $A6:8B29: its frame's duration word.</summary>
+    private const ushort FixtureFrame = 35625;
+
+    /// <summary>The fixture frame's visual operand, two bytes after its duration.</summary>
+    private const ushort FixtureOperand = FixtureFrame + 2;
+
+    /// <summary>The fixture list's terminal sleep, after the four-byte frame.</summary>
+    private const ushort FixtureSleep = FixtureFrame + 4;
+
     /// <summary>Checks owner discovery and independently reports missing selector, artwork, bank, or projectile binding.</summary>
     internal static void Run()
     {
@@ -32,19 +40,19 @@ internal static class EnemyVisualProgramAuditChecks
             "single-operand, unknown and renamed interpreter owners must all be inventoried");
         var missingDeclarations = new Dictionary<ushort, ushort>
         {
-            [KzanInstructionProgramDefinitions.Idle] = 1,
-            [unchecked((ushort)(KzanInstructionProgramDefinitions.Idle + 4))] = (ushort)CommonEnemyInstruction.Sleep,
+            [FixtureFrame] = 1,
+            [FixtureSleep] = (ushort)CommonEnemyInstruction.Sleep,
         };
         Require(EnemyVisualProgramAudit.InterleavedOperands(missingDeclarations)
-                .SequenceEqual([KzanInstructionProgramDefinitionsTooling.PresentationWord]),
+                .SequenceEqual([FixtureOperand]),
             "mechanics gaps expose Kzan's operand even without its presentation declaration");
-        missingDeclarations.Remove(unchecked((ushort)(KzanInstructionProgramDefinitions.Idle + 4)));
+        missingDeclarations.Remove(FixtureSleep);
         Require(EnemyVisualProgramAudit.InterleavedOperands(missingDeclarations)
-                .SequenceEqual([KzanInstructionProgramDefinitionsTooling.PresentationWord]),
+                .SequenceEqual([FixtureOperand]),
             "terminal frame operands cannot escape the independent inventory");
 
         var frame = SingleFrameEnemyVisualDefinitions.Kzan;
-        ushort operand = KzanInstructionProgramDefinitionsTooling.PresentationWord;
+        ushort operand = FixtureOperand;
         var exports = new ResourceIndex();
         exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(frame.Bank, frame.Pointer));
         var missingSelector = new AuditReport();

@@ -26,7 +26,6 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.Fireflea;
-using SuperMetroid.Core.Enemies.Flies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Hibashi;
@@ -48,7 +47,6 @@ using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Enemies.Puyo;
 using SuperMetroid.Core.Enemies.Rios;
-using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Shutters;
@@ -62,7 +60,6 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Enemies.Yard;
-using SuperMetroid.Core.Enemies.Zoa;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -271,9 +268,12 @@ internal sealed class EnemyInstructionInterpreter
         ushort controllerInput)
     {
         // Migrated owners run typed animations in place of their native instruction lists (#641).
-        if (_dispatch.Ai.TryAdvanceTypedAnimation(slot, new EnemyInstructionContext
-            { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput }))
+        if (_dispatch.Ai.HasTypedAnimation(slot))
+        {
+            _dispatch.Ai.AdvanceTypedAnimation(slot, new EnemyInstructionContext
+                { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput });
             return;
+        }
 
         ushort oldTimer = slot.InstructionTimer.RawValue;
         slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
@@ -392,9 +392,6 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Spark)
             return SparkInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Puromi)
-            return NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi)
             return HibashiInstructionProgramDefinitions.ReadMechanicsWord(address);
 
@@ -421,9 +418,6 @@ internal sealed class EnemyInstructionInterpreter
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Skree)
             return SkreeMetareeInstructionProgramDefinitions.ReadSkreeMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Zoa)
-            return ZoaInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon)
             return DragonInstructionProgramDefinitions.ReadMechanicsWord(address);
@@ -452,26 +446,8 @@ internal sealed class EnemyInstructionInterpreter
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke)
             return StokeInstructionProgramDefinitions.ReadMechanicsWord(address);
 
-        if (slot.EnemyDefinitionPointer is
-            EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or EnemyDefinitionId.Ripper)
-        {
-            return RipperInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanTop)
-            return KzanInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer is
-            EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or EnemyDefinitionId.Menu)
-        {
-            return FlyInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Bull)
             return BullInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago)
-            return KagoInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Choot)
             return ChootInstructionProgramDefinitions.ReadMechanicsWord(address);
@@ -487,9 +463,6 @@ internal sealed class EnemyInstructionInterpreter
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Multiviola)
             return MultiviolaInstructionProgramDefinitions.ReadMechanicsWord(address);
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks)
-            return PolypInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp)
             return PowampInstructionProgramDefinitions.ReadMechanicsWord(address);

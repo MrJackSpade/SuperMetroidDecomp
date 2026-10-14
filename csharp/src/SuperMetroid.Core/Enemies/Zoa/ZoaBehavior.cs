@@ -1,35 +1,35 @@
-﻿using SuperMetroid.Core.Samus;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Zoa.Artwork;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>The Zoa species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ZoaBehavior : IEnemySpecies
 {
-    /// <summary>Consumes Zoa's three instruction words that change horizontal shot speed, advancing past each operand.</summary>
-    private bool TryProcessZoaInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    /// <summary>Advances Zoa's typed animation (#641) where the interpreter would run its native list.</summary>
+    private void AdvanceZoaAnimation(RoomEnemySlot slot)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Zoa ||
-            !Enum.IsDefined((ZoaInstruction)word))
-            return false;
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        ZoaEnemyState state = RequireZoaState(slot);
+        AnimationProgramCursor<ZoaProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, ZoaAnimations.Programs, ref cursor, ZoaFrameDefinitions.Spritemap,
+            (cue, _) => ApplyZoaCue(state, cue));
+        state.Program = cursor;
+    }
 
-        switch ((ZoaInstruction)word)
+    /// <summary>Carries out one cue of Zoa's animation: each selects the horizontal shot speed.</summary>
+    private static ZoaProgram? ApplyZoaCue(ZoaEnemyState state, ZoaCue cue)
+    {
+        state.XSpeedTableIndex = cue.Kind switch
         {
-            case ZoaInstruction.SetXSpeedTableIndexTo4:
-                RequireZoaState(slot).XSpeedTableIndex = 4;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case ZoaInstruction.SetXSpeedTableIndexTo8:
-                RequireZoaState(slot).XSpeedTableIndex = 8;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case ZoaInstruction.SetXSpeedTableIndexToC:
-                RequireZoaState(slot).XSpeedTableIndex = 12;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            default:
-                throw new InvalidOperationException(
-                    $"Zoa does not own instruction ${word:X4}.");
-        }
+            ZoaCueKind.SetSpeedIndex4 => 4,
+            ZoaCueKind.SetSpeedIndex8 => 8,
+            ZoaCueKind.SetSpeedIndex12 => 12,
+            _ => throw new InvalidOperationException($"Undefined {nameof(ZoaCueKind)} {cue.Kind}."),
+        };
+        return null;
     }
 
 
@@ -56,8 +56,7 @@ internal sealed class ZoaBehavior : IEnemySpecies
 
         // The initializer installs list zero directly while also setting “previous” to
         // zero. Consequently the later change detector is deliberately a no-op at rest.
-        slot.CurrentInstruction = ZoaAnimationDefinitions.InstructionList(
-            ZoaAnimationSelector.None);
+        state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaAnimationDefinitions.Program(ZoaAnimationSelector.None));
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
@@ -107,7 +106,7 @@ internal sealed class ZoaBehavior : IEnemySpecies
             (unchecked((short)signedDistance) < 0
                 ? ZoaAnimationSelector.None
                 : ZoaAnimationSelector.FacingRight);
-        SetZoaInstructionList(slot, state);
+        SetZoaProgram(slot, state);
         state.Function = ZoaEnemyFunction.Rising;
     }
 
@@ -127,7 +126,7 @@ internal sealed class ZoaBehavior : IEnemySpecies
         }
 
         state.InstructionListTableIndex &= ZoaAnimationSelector.FacingRight;
-        SetZoaInstructionList(slot, state);
+        SetZoaProgram(slot, state);
         slot.VariableE = 0; // Native Enemy.var5; shared instruction-loop scratch word.
         state.Function = ZoaEnemyFunction.Shooting;
     }
@@ -148,7 +147,7 @@ internal sealed class ZoaBehavior : IEnemySpecies
         slot.Position = slot.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(slot, camera))
         {
-            SetZoaInstructionList(slot, state);
+            SetZoaProgram(slot, state);
             return;
         }
 
@@ -159,18 +158,17 @@ internal sealed class ZoaBehavior : IEnemySpecies
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
         state.InstructionListTableIndex = ZoaAnimationSelector.None;
-        SetZoaInstructionList(slot, state);
+        SetZoaProgram(slot, state);
         state.Function = ZoaEnemyFunction.WaitForSamus;
     }
 
-    /// <summary>Restarts animation timers only when the selected Zoa instruction list differs from the previous one.</summary>
-    internal static void SetZoaInstructionList(RoomEnemySlot slot, ZoaEnemyState state)
+    /// <summary>Starts the selected animation, restarting its timers, only when it differs from the previous one.</summary>
+    internal static void SetZoaProgram(RoomEnemySlot slot, ZoaEnemyState state)
     {
         if (state.InstructionListTableIndex == state.PreviousInstructionListTableIndex)
             return;
         state.PreviousInstructionListTableIndex = state.InstructionListTableIndex;
-        slot.CurrentInstruction = ZoaAnimationDefinitions.InstructionList(
-            state.InstructionListTableIndex);
+        state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaAnimationDefinitions.Program(state.InstructionListTableIndex));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -200,15 +198,9 @@ internal sealed class ZoaBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers Zoa's speed-change instruction words with the common enemy interpreter.</summary>
-    internal void RegisterZoaOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
-        {
-            yieldInterpreter = false;
-            return TryProcessZoaInstruction(slot, word, ref cursor);
-        });
-    }
+    /// <summary>Runs Zoa's animation as a typed program (#641).</summary>
+    internal void RegisterZoaTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zoa, (slot, _) => AdvanceZoaAnimation(slot));
 
     /// <summary>Discards state tied to enemy slots before a new room population is initialized.</summary>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

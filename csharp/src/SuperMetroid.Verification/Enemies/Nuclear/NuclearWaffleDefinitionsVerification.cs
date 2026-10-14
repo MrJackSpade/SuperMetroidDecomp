@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -67,8 +68,8 @@ internal static class NuclearWaffleDefinitionsVerification
                 $"Nuclear Waffle production second threshold {direction}");
             AssertEqual(definition.FirstTurnThreshold, state.FirstTurnThreshold,
                 $"Nuclear Waffle production first threshold {direction}");
-            AssertEqual(NuclearWaffleDefinitions.InitialInstructionList, slot.CurrentInstruction,
-                $"Nuclear Waffle production initial instruction {direction}");
+            AssertEqual(AnimationProgramCursor<NuclearWaffleProgram>.Start(NuclearWaffleProgram.BodyLoop), state.Program,
+                $"Nuclear Waffle production initial animation {direction}");
             AssertEqual(4, state.ProjectileSegments.Count(segment => segment is not null),
                 $"Nuclear Waffle production projectile links {direction}");
             AssertEqual(3, state.SpriteSegments.Count(segment => segment is not null),
@@ -80,92 +81,9 @@ internal static class NuclearWaffleDefinitionsVerification
         AssertThrows<InvalidDataException>(() => NuclearWaffleDefinitions.Sweep(byte.MaxValue),
             "Nuclear Waffle restored direction does not read adjacent enemy code");
 
-        for (int index = 0;
-             index < NuclearWaffleInstructionProgramDefinitionsTooling.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                NuclearWaffleInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(
-                definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | definition.Address)),
-                $"Nuclear Waffle mechanics word $A6:{definition.Address:X4}");
-        }
-
-        var executedOperands = new HashSet<ushort>();
-        var programGuard = NewNuclearWaffleProgramReadGuard(rom);
-        var programSystem = new RoomEnemySystem();
-        programSystem.BindFixtureBus(programGuard);
-        RoomEnemySlot programSlot = programSystem.SlotTable.Slots[0];
-        programSlot.EnemyDefinitionPointer = EnemyDefinitionId.Puromi;
-        programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
-        programSlot.CurrentInstruction = NuclearWaffleInstructionProgramDefinitions.BodyLoop;
-        programSlot.InstructionTimer = NativeCountdown.Start(1);
-        object?[] arguments =
-            [programSlot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-
-        // Twelve three-frame entries total 36 frames; the margin proves the terminal goto
-        // restarts the production stream rather than merely reaching its target.
-        var installed = new HashSet<ushort>();
-        for (int frame = 0; frame < 40; frame++)
-        {
-            EnemyInstructionRunner.Process(programSystem, arguments);
-            VerifyExecutedEnemySelector(rom, programSlot, executedOperands);
-            ushort operand = unchecked((ushort)(programSlot.CurrentInstruction - 2));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | operand)), programSlot.SpritemapPointer,
-                "actual installed Nuclear Waffle native visual selector");
-            installed.Add(operand);
-        }
-
-        AssertEqual(
-            NuclearWaffleInstructionProgramDefinitions.PresentationWordCount,
-            executedOperands.Count,
-            "all Nuclear Waffle selectors execute and match cartridge operands");
-        for (int index = 0;
-             index < NuclearWaffleInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(executedOperands.Contains(address),
-                $"production execution covers Nuclear Waffle presentation word $A6:{address:X4}");
-        }
-        AssertEqual(0, programGuard.ObservedWords.Count,
-            "compiled presentation selectors require no runtime ROM reads");
-        AssertEqual(0, programGuard.ForbiddenReadAttempts,
-            "production execution avoids every compiled Nuclear Waffle mechanics byte");
-
-        AssertThrows<InvalidDataException>(
-            () => NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord(0x9492),
-            "interleaved Nuclear Waffle spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord(0x94c4),
-            "adjacent Nuclear Waffle initialization code is rejected as mechanics");
-
-        _ = ProbeNuclearWaffleInstructionMechanicsAllocation();
-        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeNuclearWaffleInstructionMechanicsAllocation();
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
-        AssertTrue(checksum != 0, "Nuclear Waffle allocation probe consumes live data");
-        AssertEqual(0L, allocated,
-            "warmed Nuclear Waffle mechanics lookups allocate no per-frame storage");
-
         Console.WriteLine(
-            "Nuclear Waffle definitions: twelve geometry words, both complete production " +
-            "initializers, 14 compiled instruction words, and the full body loop pass with " +
-            "runtime ROM reads forbidden; 12 executed selectors match the cartridge.");
-    }
-
-    /// <summary>Repeatedly reads the compiled body loop to check warmed mechanics lookup allocates no memory.</summary>
-    private static int ProbeNuclearWaffleInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord(
-                NuclearWaffleInstructionProgramDefinitions.BodyLoop);
-        }
-        return checksum;
+            "Nuclear Waffle definitions: twelve geometry words and both complete production " +
+            "initializers pass with runtime ROM reads forbidden.");
     }
 
     /// <summary>Rejects live reads from the migrated bank-$A6 sweep endpoint, spacing, and threshold tables.</summary>
@@ -174,19 +92,15 @@ internal static class NuclearWaffleDefinitionsVerification
             .Forbid(address => address is >= 0xa695f6 and < 0xa6960e,
                 address => $"Nuclear Waffle attempted migrated geometry read ${address:X6}.");
 
-    /// <summary>Rejects compiled program reads and observes attempted visual-selector reads in the body loop.</summary>
-    private static CartridgeReadGuard NewNuclearWaffleProgramReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => NuclearWaffleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
-                address => $"Production read compiled Nuclear Waffle mechanics byte ${address:X6}.")
-            .ObserveWords(0xa60000, NuclearWaffleInstructionProgramDefinitions.PresentationWordCount, NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress);
-
-    /// <summary>Runs the Nuclear Waffle geometry and instruction verification command.</summary>
+    /// <summary>Runs the Nuclear Waffle geometry and body-animation verification command.</summary>
     [VerificationCommand("--nuclear-waffle-instruction-mechanics")]
     internal static int NuclearWaffleInstructionMechanicsCommand()
     {
-        Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        SuperMetroidAddressSpace rom =
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(rom));
+        Suite(nameof(NuclearWaffleAnimationsVerification.VerifyNuclearWaffleAnimations),
+            () => NuclearWaffleAnimationsVerification.VerifyNuclearWaffleAnimations(rom));
         return 0;
     }
 }

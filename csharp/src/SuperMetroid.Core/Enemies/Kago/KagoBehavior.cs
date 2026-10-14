@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.Kraid;
+﻿using SuperMetroid.Core.Enemies.Kago.Artwork;
+using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -49,7 +50,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.VariableE = 0;
-        slot.CurrentInstruction = KagoInstructionProgramDefinitions.Slow;
+        state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow);
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
         state.HitCounter = NativeCountdown.FromRaw(slot.Parameter1);
@@ -84,7 +85,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         if (!state.UsesFastAnimation)
         {
             state.UsesFastAnimation = true;
-            slot.CurrentInstruction = KagoInstructionProgramDefinitions.Fast;
+            state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Fast);
             slot.InstructionTimer = NativeCountdown.Start(1);
         }
 
@@ -165,6 +166,18 @@ internal sealed class KagoBehavior : IEnemySpecies
                 return EnemyProjectileInstructionOutcome.Continue;
             });
     }
+
+    /// <summary>Runs Kago's shell animation as a typed program (#641).</summary>
+    internal void RegisterKagoTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            KagoEnemyState state = RequireKagoState(slot);
+            AnimationProgramCursor<KagoProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, KagoAnimations.Programs, ref cursor, KagoFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Runs Kago shell initialization only for slots bearing the Kago definition.</summary>
     internal void RegisterKagoInitializationAi(EnemyAiTable table)

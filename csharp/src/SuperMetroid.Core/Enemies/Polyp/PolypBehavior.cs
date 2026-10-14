@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Cacatac;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Polyp.Artwork;
+using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
@@ -34,11 +36,11 @@ internal sealed class PolypBehavior : IEnemySpecies
     {
         Action<ushort> setRandomNumber = _room.Random.Seed;
 
-        slot.CurrentInstruction = PolypInstructionProgramDefinitions.Stationary;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         _polypStates[slot.SlotIndex] = new PolypEnemyState(slot)
         {
+            Program = AnimationProgramCursor<PolypProgram>.Start(PolypProgram.Stationary),
             Function = PolypEnemyFunction.WaitingForSamus,
             CooldownTimer = NativeCountdown.Start(0),
         };
@@ -130,6 +132,18 @@ internal sealed class PolypBehavior : IEnemySpecies
             RunPolypRockPreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.PolypRock);
     }
+
+    /// <summary>Runs Polyp's stationary pose as a typed program (#641).</summary>
+    internal void RegisterPolypTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequirePolypState(slot);
+            AnimationProgramCursor<PolypProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, PolypAnimations.Programs, ref cursor, PolypFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Associates the lava-rock enemy definition with Polyp slot initialization.</summary>
     internal void RegisterPolypInitializationAi(EnemyAiTable table)

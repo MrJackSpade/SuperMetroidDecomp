@@ -24451,19 +24451,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.RipperVisualDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/RipperVisualDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.SciserVisualDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -29997,6 +29984,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Flies.Artwork.FlyFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Flies/Artwork/FlyFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Flies.FliesBehavior",
       "kind": "class",
       "scope": "product",
@@ -30008,6 +30008,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Flies.FlyAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Flies/FlyAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Flies.FlyEnemyFunction",
@@ -30036,30 +30049,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Flies.FlyInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.Flies.FlyFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Flies/FlyInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Flies/FlyFrame.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Flies.FlyInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
+      "type": "SuperMetroid.Core.Enemies.Flies.FlyProgram",
+      "kind": "enum",
+      "scope": "product",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Flies/FlyInstructionProgramDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Flies/FlyProgram.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior",
@@ -30854,6 +30867,32 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Kago.Artwork.KagoFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Kago/Artwork/KagoFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Kago.KagoAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Kago/KagoAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Kago.KagoBehavior",
       "kind": "class",
       "scope": "product",
@@ -30932,30 +30971,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Kago.KagoInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.Kago.KagoFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Kago/KagoInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Kago/KagoFrame.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Kago.KagoInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
+      "type": "SuperMetroid.Core.Enemies.Kago.KagoProgram",
+      "kind": "enum",
+      "scope": "product",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Kago/KagoInstructionProgramDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Kago/KagoProgram.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.KiHunters.KiHunterAcidSpitInstructionProgramDefinitions",
@@ -31088,6 +31127,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Kzan.Artwork.KzanFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Kzan/Artwork/KzanFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Kzan.KzanAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Kzan.KzanBehavior",
       "kind": "class",
       "scope": "product",
@@ -31127,30 +31192,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Kzan.KzanInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.Kzan.KzanFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanFrame.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Kzan.KzanInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
+      "type": "SuperMetroid.Core.Enemies.Kzan.KzanProgram",
+      "kind": "enum",
+      "scope": "product",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Kzan/KzanInstructionProgramDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanProgram.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.LargerPoseCollisionOutcome",
@@ -32325,6 +32390,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Nuclear.Artwork.NuclearWaffleFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Nuclear/Artwork/NuclearWaffleFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleBehavior",
       "kind": "class",
       "scope": "product",
@@ -32377,30 +32468,17 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleFrame.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Nuclear/NuclearWaffleInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleOrientation",
@@ -32411,6 +32489,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleOrientation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleProgram",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleProgram.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -32915,6 +33006,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Polyp.Artwork.PolypFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Polyp/Artwork/PolypFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Polyp.PolypAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Polyp.PolypBehavior",
       "kind": "class",
       "scope": "product",
@@ -32954,30 +33071,17 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Polyp.PolypInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.Polyp.PolypFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypFrame.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Polyp.PolypInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Polyp/PolypInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Polyp.PolypLaunchDefinitions",
@@ -32991,6 +33095,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Polyp.PolypProgram",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypProgram.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Polyp.PolypRockFunction",
@@ -34158,6 +34275,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Ripper.Artwork.RipperFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Ripper/Artwork/RipperFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Ripper.RipperAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Ripper.RipperBehavior",
       "kind": "class",
       "scope": "product",
@@ -34171,30 +34314,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Ripper.RipperInstructionProgramDefinitions",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.Ripper.RipperFrame",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperInstructionProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperFrame.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Ripper.RipperInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
+      "type": "SuperMetroid.Core.Enemies.Ripper.RipperProgram",
+      "kind": "enum",
+      "scope": "product",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Ripper/RipperInstructionProgramDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperProgram.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Ripper.RipperVariantEnemyState",
@@ -37399,6 +37542,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Zoa.Artwork.ZoaFrameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Zoa/Artwork/ZoaFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Zoa.ZoaAnimationDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -37457,6 +37613,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Zoa.ZoaBehavior",
       "kind": "class",
       "scope": "product",
@@ -37468,6 +37637,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Zoa.ZoaEnemyFunction",
@@ -37496,43 +37691,30 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaInstruction",
+      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaProgram",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaInstruction.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaProgram.cs"
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaInstructionProgramDefinitions",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaInstructionProgramDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaInstructionProgramDefinitionsTooling",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Zoa/ZoaInstructionProgramDefinitionsTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Zoa.ZoaSpeedDefinitions",
@@ -93483,17 +93665,43 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Flies.FlyInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Flies.FlyAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Flies/FlyInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Flies/FlyAnimationsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Flies.FlyBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Flies/FlyBehaviorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Flies.FlyNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Flies/FlyNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheDefinitionsVerification",
@@ -93704,6 +93912,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Kago.KagoAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Kago/KagoAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Kago.KagoBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Kago/KagoBehaviorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Kago.KagoBugProjectileInstructionProgramDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -93717,17 +93951,17 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Kago.KagoInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Kago.KagoNativeListAddresses",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Kago/KagoInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Kago/KagoNativeListAddresses.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.KiHunters.KiHunterAcidSpitInstructionProgramDefinitionsVerification",
@@ -93782,17 +94016,43 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Kzan.KzanInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Kzan.KzanAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Kzan/KzanInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Kzan/KzanAnimationsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Kzan.KzanBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Kzan/KzanBehaviorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Kzan.KzanNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Kzan/KzanNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumpDefinitionsVerification",
@@ -94224,6 +94484,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleAnimationsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Nuclear/NuclearWaffleAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -94235,6 +94508,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Nuclear/NuclearWaffleNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleProjectileInstructionProgramDefinitionsVerification",
@@ -94354,14 +94640,27 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Polyp.PolypInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Polyp.PolypAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Polyp/PolypInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Polyp/PolypAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Polyp.PolypBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Polyp/PolypBehaviorVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -94378,6 +94677,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Polyp.PolypNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Polyp/PolypNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Polyp.PolypRockInstructionProgramDefinitionsVerification",
@@ -94640,17 +94952,43 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Ripper.RipperInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Ripper.RipperAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Ripper/RipperInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Ripper/RipperAnimationsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Ripper.RipperBehaviorVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Ripper/RipperBehaviorVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Ripper.RipperNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Ripper/RipperNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.RoomEnemyLoadContractsVerification",
@@ -95381,17 +95719,30 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Zoa.ZoaInstructionProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Enemies.Zoa.ZoaAnimationsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Zoa/ZoaInstructionProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Zoa/ZoaAnimationsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Zoa.ZoaNativeListAddresses",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Zoa/ZoaNativeListAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Zoa.ZoaSpeedDefinitionsVerification",

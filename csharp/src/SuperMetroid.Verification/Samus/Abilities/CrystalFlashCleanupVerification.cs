@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -99,7 +100,8 @@ internal static class CrystalFlashCleanupVerification
                 contactEnemy.VariableC = contactEnemy.VariableD = 0;
                 // Contact runs before AI publishes its first map. Seed that same
                 // authored map so this fixture tests contact on this exact frame.
-                contactEnemy.SpritemapPointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CrystalFlashContactDefinitions.AiBank | (contactEnemy.CurrentInstruction + 2));
+                contactEnemy.SpritemapPointer = RipperAnimations.Spritemaps(
+                    runtime.Enemies.RipperBehavior._ripperPrograms[contactEnemy.SlotIndex].Program).First();
             }
             ushort beforeHealth = samus.Health;
             // Later projectile processing can delete the actor and clear its header.

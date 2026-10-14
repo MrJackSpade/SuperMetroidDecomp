@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>
@@ -51,4 +52,7 @@ public sealed class ZoaEnemyState
 
     /// <summary>Byte offset zero, four, eight, or twelve into the five-row X-speed table.</summary>
     public ushort XSpeedTableIndex { get; internal set; }
+
+    /// <summary>Where Zoa's typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<ZoaProgram> Program { get; set; }
 }

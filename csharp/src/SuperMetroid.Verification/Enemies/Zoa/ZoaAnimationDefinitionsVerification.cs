@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -19,13 +20,13 @@ internal static class ZoaAnimationDefinitionsVerification
         {
             var selector = (ZoaAnimationSelector)index;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((ZoaAnimationDefinitions.ReferenceAddress + index * 2)),
-                ZoaAnimationDefinitions.InstructionList(selector),
+                NativeEnemyProgramOracle.EntryOf(ZoaNativeListAddresses.Entries, ZoaAnimationDefinitions.Program(selector)),
                 $"Zoa animation selector {selector}");
         }
 
         foreach (ushort invalid in new ushort[] { 4, 5, 0x8000, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() =>
-                ZoaAnimationDefinitions.InstructionList((ZoaAnimationSelector)invalid),
+                ZoaAnimationDefinitions.Program((ZoaAnimationSelector)invalid),
                 "Zoa animation rejects unsupported flag combinations");
         if (definitionsOnly)
         {
@@ -37,7 +38,7 @@ internal static class ZoaAnimationDefinitionsVerification
         Suite(nameof(VerifyLiveZoaAnimationHandoffs), () => VerifyLiveZoaAnimationHandoffs(rom, facingRight: true));
 
         AssertThrows<InvalidDataException>(
-            () => ZoaAnimationDefinitions.InstructionList((ZoaAnimationSelector)4),
+            () => ZoaAnimationDefinitions.Program((ZoaAnimationSelector)4),
             "Zoa animation selector past table");
         Console.WriteLine(
             "Zoa animation definitions: four native selectors, all four installs, and both complete live facing/rise/shoot handoffs pass with the pointer table forbidden.");
@@ -57,7 +58,7 @@ internal static class ZoaAnimationDefinitionsVerification
                     ? ZoaAnimationSelector.Rising
                     : ZoaAnimationSelector.None,
             };
-            ZoaBehavior.SetZoaInstructionList(slot, state);
+            ZoaBehavior.SetZoaProgram(slot, state);
             AssertZoaAnimationHandoff(slot, state, selector, $"Zoa {selector}");
         }
     }
@@ -106,7 +107,7 @@ internal static class ZoaAnimationDefinitionsVerification
         Timer = NativeCountdown.Start(0x3333),
     };
 
-    /// <summary>Checks requested and installed selectors, instruction pointer, and reset timers.</summary>
+    /// <summary>Checks requested and installed selectors, the started animation, and reset timers.</summary>
     private static void AssertZoaAnimationHandoff(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -117,9 +118,9 @@ internal static class ZoaAnimationDefinitionsVerification
             $"{context} requested selector");
         AssertEqual(expected, state.PreviousInstructionListTableIndex,
             $"{context} installed selector");
-        AssertEqual(ZoaAnimationDefinitions.InstructionList(expected),
-            slot.CurrentInstruction,
-            $"{context} instruction");
+        AssertEqual(AnimationProgramCursor<ZoaProgram>.Start(ZoaAnimationDefinitions.Program(expected)),
+            state.Program,
+            $"{context} animation");
         AssertEqual(1, slot.InstructionTimer.RawValue, $"{context} instruction timer");
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }

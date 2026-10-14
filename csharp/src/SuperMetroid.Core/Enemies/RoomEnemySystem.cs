@@ -1408,7 +1408,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         EvirBehavior.RegisterEvirOwnedInstructions(table);
         YardBehavior.RegisterYardOwnedInstructions(table);
         HoppersBehavior.RegisterHoppersOwnedInstructions(table);
-        ZoaBehavior.RegisterZoaOwnedInstructions(table);
+        ZoaBehavior.RegisterZoaTypedAnimations(table);
         MetroidBehavior.RegisterMetroidOwnedInstructions(table);
         CrawlersBehavior.RegisterCrawlersOwnedInstructions(table);
         SkreeBehavior.RegisterSkreeOwnedInstructions(table);
@@ -1438,6 +1438,12 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         ShaktoolBehavior.RegisterShaktoolOwnedInstructions(table);
         ChozoStatueBehavior.RegisterChozoStatueOwnedInstructions(table);
         EscapeAnimalsBehavior.RegisterEscapeAnimalsTypedAnimations(table);
+        RipperBehavior.RegisterRipperTypedAnimations(table);
+        PolypBehavior.RegisterPolypTypedAnimations(table);
+        KzanBehavior.RegisterKzanTypedAnimations(table);
+        KagoBehavior.RegisterKagoTypedAnimations(table);
+        FliesBehavior.RegisterFliesTypedAnimations(table);
+        NuclearWaffleBehavior.RegisterNuclearWaffleTypedAnimations(table);
         BombTorizoBehavior.RegisterBombTorizoTypedAnimations(table);
 }
 

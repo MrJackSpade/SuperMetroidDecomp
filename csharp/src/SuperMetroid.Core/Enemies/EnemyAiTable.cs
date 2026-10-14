@@ -26,18 +26,26 @@ internal sealed class EnemyAiTable
     internal void AddTypedAnimation(Func<RoomEnemySlot, bool> matches, Action<RoomEnemySlot, EnemyInstructionContext> advance) =>
         _typedAnimations.Add((Ensure.NotNull(matches), Ensure.NotNull(advance)));
 
-    /// <summary>Advances <paramref name="slot"/>'s typed animation; false when its owner has none and the interpreter runs its list.</summary>
-    internal bool TryAdvanceTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    /// <summary>Whether <paramref name="slot"/>'s owner runs a typed animation, so the interpreter does not run its list.</summary>
+    internal bool HasTypedAnimation(RoomEnemySlot slot) => FindTypedAnimation(slot) is not null;
+
+    /// <summary>Advances <paramref name="slot"/>'s typed animation, which its owner must have.</summary>
+    internal void AdvanceTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        Action<RoomEnemySlot, EnemyInstructionContext> advance = FindTypedAnimation(slot) ?? throw new InvalidOperationException(
+            $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} has no typed animation.");
+        advance(slot, context);
+    }
+
+    /// <summary>The first registered typed animation whose owner matches <paramref name="slot"/>, or null.</summary>
+    private Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation(RoomEnemySlot slot)
     {
         foreach ((Func<RoomEnemySlot, bool> matches, Action<RoomEnemySlot, EnemyInstructionContext> advance) in _typedAnimations)
         {
             if (matches(slot))
-            {
-                advance(slot, context);
-                return true;
-            }
+                return advance;
         }
-        return false;
+        return null;
     }
 
     /// <summary>Species-specific hurt handlers, with first matching entry taking precedence.</summary>

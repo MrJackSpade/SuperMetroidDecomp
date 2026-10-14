@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>
@@ -11,6 +12,9 @@ public sealed class FlyEnemyState
 
     /// <summary>Projects Mellow-family private words from the occupied enemy slot.</summary>
     internal FlyEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the fly's typed flight loop (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<FlyProgram> Program { get; set; }
 
     /// <summary>Native <c>Flies.retreatTimer</c> in variable A at <c>$0FA8,x</c>; counts up per attack update, down through signed underflow during retreat, and then down from 24 to gate another idle attack.</summary>
     public NativeCountdown RetreatTimer

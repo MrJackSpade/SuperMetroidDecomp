@@ -56,11 +56,6 @@ internal static partial class CompiledEnemyVisualSelectors
     /// <summary>Resolves special and calculated sprite operands, then searches literal bank entries.</summary>
     internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)
     {
-        if ((EnemyInstructionBank)bank == EnemyInstructionBank.BankA2 && PolypInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-        {
-            pointer = PolypInstructionProgramDefinitions.FrameAt(operandAddress);
-            return true;
-        }
         if ((EnemyInstructionBank)bank == EnemyInstructionBank.Bank86 && PolypRockInstructionProgramDefinitions.IsPresentationWord(operandAddress))
         {
             pointer = PolypRockInstructionProgramDefinitions.FrameAt(operandAddress);

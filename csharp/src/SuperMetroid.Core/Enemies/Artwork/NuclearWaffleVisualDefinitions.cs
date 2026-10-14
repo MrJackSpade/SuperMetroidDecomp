@@ -10,12 +10,10 @@ internal static class NuclearWaffleVisualDefinitions
     /// <summary>Eight distinct head frames at $A6:9954..9985 selected by the twelve-frame loop.</summary>
     internal const int FrameCount = 8;
 
-    /// <summary>Collects Puromi's presentation operands from its compiled instruction sequence, preserving operand order and duplicates.</summary>
-    internal static ushort[] Operands() => Enumerable.Range(0,
-        NuclearWaffleInstructionProgramDefinitions.PresentationWordCount)
-        .Select(NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress).ToArray();
+    /// <summary>The head compositions Puromi's typed body animation (#641) shows, in order with repeats.</summary>
+    internal static IEnumerable<ushort> Spritemaps() => NuclearWaffleAnimations.Spritemaps(NuclearWaffleProgram.BodyLoop);
 
     /// <summary>Resolves the eight bank-$A6 head compositions used by Puromi's twelve-step animation loop.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
-        CompiledEnemyCompositionDefinitions.Frames(Bank, Operands(), FrameCount, "nuclear_waffle");
+        CompiledEnemyCompositionDefinitions.FramesFromSpritemaps(Bank, Spritemaps(), FrameCount, "nuclear_waffle");
 }

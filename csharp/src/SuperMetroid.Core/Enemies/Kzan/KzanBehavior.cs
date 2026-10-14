@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Samus;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Kzan.Artwork;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Kzan;
 
@@ -46,7 +48,7 @@ internal sealed class KzanBehavior : IEnemySpecies
             _kzanRiseWaitTimers);
         _kzanStates[slot.SlotIndex] = state;
 
-        slot.CurrentInstruction = KzanInstructionProgramDefinitions.Idle;
+        state.Program = AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         state.Function = KzanEnemyFunction.WaitingToFall;
@@ -263,6 +265,18 @@ internal sealed class KzanBehavior : IEnemySpecies
     private KzanEnemyState RequireKzanState(RoomEnemySlot slot) =>
         _kzanStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kzan-top state.");
+
+    /// <summary>Runs the top's idle pose as a typed program (#641).</summary>
+    internal void RegisterKzanTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanTop, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireKzanState(slot);
+            AnimationProgramCursor<KzanProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, KzanAnimations.Programs, ref cursor, KzanFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Binds top and bottom initialization routines to their own enemy-definition IDs.</summary>
     internal void RegisterKzanInitializationAi(EnemyAiTable table)

@@ -2013,7 +2013,7 @@ internal static class LookupStream4Verification
         Suite(nameof(VerifyLookupStream4LightningColors), () => VerifyLookupStream4LightningColors(rom));
         Suite(nameof(VerifyLookupStream4BotwoonColors), () => VerifyLookupStream4BotwoonColors(rom));
         Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
-        Suite(nameof(VerifyLookupStream4KzanCeresPrograms), () => VerifyLookupStream4KzanCeresPrograms(rom));
+        Suite(nameof(VerifyLookupStream4RidleyFireballOperands), () => VerifyLookupStream4RidleyFireballOperands());
         Suite(nameof(VerifyLookupStream4GeometryLayout), () => VerifyLookupStream4GeometryLayout(rom));
         Suite(nameof(VerifyLookupStream4PowerBombColors), () => VerifyLookupStream4PowerBombColors(rom));
         Suite(nameof(VerifyLookupStream4SporeAndFly), () => VerifyLookupStream4SporeAndFly(rom));
@@ -2369,11 +2369,7 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectileDefinitions.StalkYOffset(invalid), "stream4 stalk spawn domain");
             AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectileDefinitions.SpawnerX(invalid), "stream4 emitter spawn domain");
         }
-        Check(0xa20000, 0xb013, 0xb027, FlyInstructionProgramDefinitions.MechanicsWordCount, FlyInstructionProgramDefinitionsTooling.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = FlyInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: FlyInstructionProgramDefinitionsTooling.PresentationWordAddress, Read: FlyInstructionProgramDefinitions.ReadMechanicsWord, Owns: FlyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a is 0xb015 or 0xb019 or 0xb01d or 0xb021));
         Check(0x860000, 0xb615, 0xb62d, EyeDoorSweatInstructionProgramDefinitions.MechanicsWordCount, EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = EyeDoorSweatInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress, Read: EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord, Owns: EyeDoorSweatInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a is 0xb617 or 0xb621 or 0xb625 or 0xb629));
-        for (int address = 0xb012; address <= 0xb027; address++)
-            AssertEqual(address is 0xb015 or 0xb019 or 0xb01d or 0xb021,
-                FlyInstructionProgramDefinitions.IsPresentationWord((ushort)address), "stream4 exact fly presentation classification");
 
         void Check(int bank, int first, int end, int mechanicsCount, int presentationCount, CompiledProgramSplit split)
         {
@@ -2486,11 +2482,9 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => MaridiaLargeSnailInstructionDefinitions.InstructionPointer(invalid), "Oum animation exact domain");
     }
 
-    /// <summary>Checks Kzan and Ceres instruction lists against their cartridge program words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kzan Ceres programs")]
-    private static void VerifyLookupStream4KzanCeresPrograms(ISnesAddressSpace rom)
+    /// <summary>Checks Ridley's fireball frames keep their native operand order.</summary>
+    private static void VerifyLookupStream4RidleyFireballOperands()
     {
-
         // Ridley's fireball programs are typed (#1287); VerifyRidleyAnimations matches them to the native lists, and
         // their installed frames keep the native operand addresses in list order.
         ushort[] operands =
@@ -2503,17 +2497,6 @@ internal static class LookupStream4Verification
         ];
         AssertTrue(operands.SequenceEqual(RidleyFireballVisualDefinitions.ProjectileFrames.Select(RidleyFireballVisualDefinitions.PresentationKey)),
             "Ridley fireball frames keep the native operand order");
-        for (int index = 0; index < 2; index++)
-        {
-            var word = KzanInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual((ushort)(0x8b29 + index * 4), word.Address, "Kzan draw then sleep addresses");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | word.Address)), word.Value, "Kzan original control word");
-            AssertEqual(word.Value, KzanInstructionProgramDefinitions.ReadMechanicsWord(word.Address), "Kzan direct control word");
-        }
-        for (int offset = -1; offset <= 6; offset++)
-            AssertEqual(offset is 0 or 1 or 4 or 5, KzanInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa68b29 + offset), "Kzan exact byte coverage");
-        foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "Kzan control index bounds");
     }
 
     /// <summary>Checks Draygon palette and presentation table boundaries against cartridge layout.</summary>

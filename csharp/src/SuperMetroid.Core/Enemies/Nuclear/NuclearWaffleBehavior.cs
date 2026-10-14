@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Nuclear.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;
@@ -31,7 +33,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         var state = new NuclearWaffleEnemyState(slot);
         _nuclearWaffleStates[slot.SlotIndex] = state;
 
-        slot.CurrentInstruction = NuclearWaffleDefinitions.InitialInstructionList;
+        state.Program = AnimationProgramCursor<NuclearWaffleProgram>.Start(NuclearWaffleProgram.BodyLoop);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -341,6 +343,19 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
     private NuclearWaffleEnemyState RequireNuclearWaffleState(RoomEnemySlot slot) =>
         _nuclearWaffleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
+
+    /// <summary>Runs the body's animation as a typed program (#641).</summary>
+    internal void RegisterNuclearWaffleTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Puromi, (slot, _) =>
+        {
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            NuclearWaffleEnemyState state = _nuclearWaffleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+                $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
+            AnimationProgramCursor<NuclearWaffleProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, NuclearWaffleAnimations.Programs, ref cursor, NuclearWaffleFrameDefinitions.Spritemap);
+            state.Program = cursor;
+        });
 
     /// <summary>Registers the Puromi initialization routine that creates the full articulated body.</summary>
     internal void RegisterNuclearWaffleInitializationAi(EnemyAiTable table)

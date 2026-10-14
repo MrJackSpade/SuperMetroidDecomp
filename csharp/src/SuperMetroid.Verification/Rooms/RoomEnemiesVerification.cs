@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Ripper;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
@@ -536,7 +537,8 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         Console.WriteLine("X-Plasma timer prerequisite: invincibility expires while movement/flash/Ice remain frozen.");
         return;
     }
-    AssertEqual(0xe477, ripper.CurrentInstruction, "Ripper init right animation list");
+    AssertEqual(AnimationProgramCursor<RipperProgram>.Start(RipperProgram.RipperMovingRight),
+        enemies.RipperBehavior._ripperPrograms[ripper.SlotIndex], "Ripper init right animation");
     AssertEqual(1, ripper.VariableD, "Ripper init signed whole X velocity");
     AssertEqual(0, ripper.VariableC, "Ripper init X subvelocity");
 

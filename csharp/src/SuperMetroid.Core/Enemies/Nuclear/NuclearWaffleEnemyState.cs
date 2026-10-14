@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;
@@ -14,6 +15,9 @@ public sealed class NuclearWaffleEnemyState
 
     /// <summary>Attaches the articulated actor state to its room enemy slot.</summary>
     internal NuclearWaffleEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the body's typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<NuclearWaffleProgram> Program { get; set; }
 
     /// <summary>Native variable A ($0FA8 plus slot byte index): current bank-$A6 inactive/active dispatcher pointer.</summary>
     public NuclearWaffleEnemyFunction Function

@@ -105,6 +105,12 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 definitionTranslated = true;
                 bool processesInstructions =
                     (slot.Properties & (ushort)EnemyProperties.ProcessInstructions) != 0;
+                // A typed owner (#641) animates its enemies itself; the interpreter never reads their lists.
+                if (processesInstructions && enemies.Ai.HasTypedAnimation(slot))
+                {
+                    definitionNeedsOwner = definitionHasOwner = true;
+                    continue;
+                }
                 if (!processesInstructions || slot.CurrentInstruction == 0)
                     continue;
 

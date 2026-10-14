@@ -14,7 +14,6 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainCorpseArtwo
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEscapeTextArtworkVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTurretDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.PaletteFxInstructionCodesVerification;
-using static SuperMetroid.Verification.Enemies.Ripper.RipperInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotLaserInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.PipeBugs.YellowPipeBugInstructionProgramDefinitionsVerification;
@@ -26,7 +25,6 @@ using SuperMetroid.Core.Enemies.Fireflea;
 using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.PipeBugs;
-using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Sparks;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -1198,7 +1196,6 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyStream3WorkRobotColors), () => VerifyStream3WorkRobotColors(rom));
         Suite(nameof(VerifyStream3PickupAndFirefleaPrograms), () => VerifyStream3PickupAndFirefleaPrograms(rom));
         Suite(nameof(VerifyStream3ChootControl), () => VerifyStream3ChootControl(rom));
-        Suite(nameof(VerifyStream3RipperMappings), () => VerifyStream3RipperMappings(rom));
         Suite(nameof(VerifyStream3UniformEnemyLoops), () => VerifyStream3UniformEnemyLoops(rom));
         Suite(nameof(VerifyStream3MotherBrainFades), () => VerifyStream3MotherBrainFades(rom));
         Suite(nameof(VerifyStream3BabyFade), () => VerifyStream3BabyFade(rom));
@@ -2175,56 +2172,6 @@ internal static class LookupStream3Verification
             foreach (int invalid in new[] { -1, starts.Length * 4, int.MaxValue })
                 AssertThrows<IndexOutOfRangeException>(() => visualAt(invalid), "stream 3 uniform loop visual bounds");
         }
-    }
-
-    /// <summary>Checks six Ripper programs' mechanics words, visual operands, and compiled-byte coverage.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ripper mappings")]
-    private static void VerifyStream3RipperMappings(ISnesAddressSpace rom)
-    {
-        Suite(nameof(VerifyRipperInstructionProgramDefinitions), () => VerifyRipperInstructionProgramDefinitions());
-        ushort[] programs = [0xe19b, 0xe1af, 0xe2e0, 0xe2f4, 0xe477, 0xe48b];
-        var bytes = new HashSet<int>();
-        int wordIndex = 0, visualIndex = 0;
-        foreach (ushort start in programs)
-        {
-            foreach (int offset in new[] { 0, 4, 8, 12, 16, 18 })
-            {
-                ushort address = (ushort)(start + offset);
-                ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | address);
-                AssertEqual(new InstructionMechanicsWord(address, value), RipperInstructionProgramDefinitionsTooling.MechanicsWord(wordIndex++),
-                    "stream 3 Ripper mechanic order and value");
-                bytes.Add(address);
-                bytes.Add(address + 1);
-            }
-            for (int frame = 0; frame < 4; frame++)
-            {
-                ushort address = (ushort)(start + 4 * frame + 2);
-                AssertEqual(address, RipperInstructionProgramDefinitionsTooling.PresentationWordAddress(visualIndex++),
-                    "stream 3 Ripper visual operand order");
-                if (start < 0xe477)
-                {
-                    ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | address);
-                    AssertEqual(expected, RipperVisualDefinitions.FrameAt(EnemyDefinitionId.GRipper, address),
-                        "stream 3 GRipper preserves shared operand domain");
-                    AssertEqual(expected, RipperVisualDefinitions.FrameAt(EnemyDefinitionId.Ripper2, address),
-                        "stream 3 Ripper II preserves shared operand domain");
-                }
-            }
-        }
-        for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(bytes.Contains(address), RipperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa20000 | address),
-                "stream 3 Ripper byte ownership domain");
-        foreach (int invalid in new[] { -1, 36, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => RipperInstructionProgramDefinitionsTooling.MechanicsWord(invalid),
-                "stream 3 Ripper mechanic bounds");
-        foreach (int invalid in new[] { -1, 24, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => RipperInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),
-                "stream 3 Ripper visual bounds");
-        foreach (ushort invalid in new ushort[] { 0xe19b, 0xe1ad, 0xe1bf, 0xe477, 0xffff })
-            AssertThrows<InvalidDataException>(() => RipperVisualDefinitions.FrameAt(EnemyDefinitionId.GRipper, invalid),
-                "stream 3 Ripper rejects nonvisual and foreign-family operands");
-        AssertThrows<InvalidDataException>(() => RipperVisualDefinitions.FrameAt(0, 0xe19d),
-            "stream 3 Ripper rejects foreign enemy");
     }
 
     /// <summary>Checks Choot falling patterns, loop distances, and separated mechanics/presentation operands.</summary>

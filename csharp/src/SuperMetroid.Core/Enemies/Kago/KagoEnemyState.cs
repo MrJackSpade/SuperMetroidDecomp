@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class KagoEnemyState
 
     /// <summary>Projects Kago's native variables from its occupied enemy slot.</summary>
     internal KagoEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<KagoProgram> Program { get; set; }
 
     /// <summary>Common variable A ($7E:0FA8 plus physical slot offset), holding the native bank-$A8 indirect main-AI word; initialized to $AB7B and changed to $AB81 on the first AI update.</summary>
     public KagoEnemyFunction Function

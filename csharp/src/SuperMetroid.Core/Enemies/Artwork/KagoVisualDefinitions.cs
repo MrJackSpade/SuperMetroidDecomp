@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Kago;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -19,15 +18,5 @@ internal static class KagoVisualDefinitions
     {
         for (int phase = 0; phase < 3; phase++)
             yield return new(Bank, (ushort)(FirstFrame + phase * (2 + 4 * 5)), $"kago_cycle_{phase}");
-    }
-
-    /// <summary>Accepts only visual operands in Kago's two native loops.</summary>
-    internal static ushort FrameAt(ushort operandAddress)
-    {
-        if (KagoInstructionProgramDefinitions.IsPresentationWord(operandAddress) &&
-            CompiledEnemyVisualSelectors.TryGet(Bank, operandAddress, out ushort frame))
-            return frame;
-        throw new InvalidDataException(
-            $"Kago visual operand $A8:{operandAddress:X4} is not compiled.");
     }
 }

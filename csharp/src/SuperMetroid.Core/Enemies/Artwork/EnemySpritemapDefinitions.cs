@@ -1747,8 +1747,8 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Sciser => SciserVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Zero => ZeroVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or
-            EnemyDefinitionId.Menu => FlyVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.Kago => KagoVisualDefinitions.FrameAt(operandAddress),
+            EnemyDefinitionId.Menu => 0,
+            EnemyDefinitionId.Kago => 0,
             EnemyDefinitionId.FaceBlock =>
                 BlueBrinstarFaceBlockVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Eye =>
@@ -1837,7 +1837,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Atomic => AtomicFrameAt(operandAddress),
             EnemyDefinitionId.Skultera => SkulteraFrameAt(operandAddress),
             EnemyDefinitionId.Waver => WaverFrameAt(operandAddress),
-            EnemyDefinitionId.Zoa => ZoaFrameAt(operandAddress),
+            EnemyDefinitionId.Zoa => 0,
             EnemyDefinitionId.Metaree => SkreeMetareeFrameAt(true, operandAddress),
             EnemyDefinitionId.Skree => SkreeMetareeFrameAt(false, operandAddress),
             EnemyDefinitionId.Zeb or
@@ -1852,8 +1852,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Owtch or EnemyDefinitionId.Stoke =>
                 OwtchStokeVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
             EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or
-                EnemyDefinitionId.Ripper =>
-                RipperVisualDefinitions.FrameAt(enemyDefinition, operandAddress),
+                EnemyDefinitionId.Ripper => 0,
             EnemyDefinitionId.None or EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance or
                 EnemyDefinitionId.LavaRocks or EnemyDefinitionId.Oum or EnemyDefinitionId.Respawn or
                 EnemyDefinitionId.Bang or EnemyDefinitionId.Reflec or EnemyDefinitionId.Crocomire or
@@ -1893,9 +1892,6 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Boyon or
             EnemyDefinitionId.Sciser or
             EnemyDefinitionId.Zero or
-            EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella or
-            EnemyDefinitionId.Menu or
-            EnemyDefinitionId.Kago or
             EnemyDefinitionId.FaceBlock or
             EnemyDefinitionId.Eye or
             EnemyDefinitionId.Metroid or
@@ -1957,7 +1953,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.Magdollite or
             EnemyDefinitionId.Boulder or
             EnemyDefinitionId.Atomic or EnemyDefinitionId.Skultera or
-            EnemyDefinitionId.Waver or EnemyDefinitionId.Zoa or
+            EnemyDefinitionId.Waver or
             EnemyDefinitionId.Metaree or EnemyDefinitionId.Skree or
             EnemyDefinitionId.Zeb or
             EnemyDefinitionId.Zebbo or
@@ -1966,9 +1962,7 @@ internal static class EnemySpritemapDefinitions
             EnemyDefinitionId.MiniKraid or
             EnemyDefinitionId.KraidNail or
             EnemyDefinitionId.KraidNailBad or
-            EnemyDefinitionId.Owtch or EnemyDefinitionId.Stoke or
-            EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or
-            EnemyDefinitionId.Ripper;
+            EnemyDefinitionId.Owtch or EnemyDefinitionId.Stoke;
     }
 
     /// <summary>Selects opening/recovery poses in the two directional sprite strips.
@@ -2232,24 +2226,6 @@ internal static class EnemySpritemapDefinitions
             $"Shared-crawler visual operand $A3:{operandAddress:X4} is not compiled.");
     }
 
-    /// <summary>Compiled Zoa visual operands; shot speed changes remain gameplay callbacks.</summary>
-    internal static ushort ZoaFrameAt(ushort operandAddress) => operandAddress switch
-    {
-        0xb3c5 => 0xb55f,
-        0xb3cb => 0xb566,
-        0xb3d1 => 0xb56d,
-        0xb3d9 => 0xb57b,
-        0xb3dd => 0xb574,
-        0xb3e1 => 0xb582,
-        0xb3eb => 0xb589,
-        0xb3f1 => 0xb590,
-        0xb3f7 => 0xb597,
-        0xb3ff => 0xb5a5,
-        0xb403 => 0xb59e,
-        0xb407 => 0xb5ac,
-        _ => throw new InvalidDataException(
-            $"Zoa visual operand $A3:{operandAddress:X4} is not compiled."),
-    };
 
     /// <summary>Compiled Skree and Metaree visual operands; attack phases remain code.</summary>
     internal static ushort SkreeMetareeFrameAt(bool metaree, ushort operandAddress) =>

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Zoa;
+using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core;
 using System.Reflection;
@@ -12,14 +14,12 @@ using static SuperMetroid.Verification.Enemies.Bull.BullInstructionProgramDefini
 using static SuperMetroid.Verification.Enemies.Choot.ChootInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Corpses.DeadTorizoArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Evir.EvirVisualsVerification;
-using static SuperMetroid.Verification.Enemies.Flies.FlyInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.GrowingShutterInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.HZoomerArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.HZoomerInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shutters.HorizontalShutterInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
-using static SuperMetroid.Verification.Enemies.Kago.KagoInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.LowerNorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MochtroidVisualsVerification;
@@ -752,38 +752,6 @@ internal static class EnemySpritemapArtworkVerification
         AssertThrows<InvalidDataException>(
             () => SciserVisualDefinitions.FrameAt(SciserInstructionProgramDefinitions.UpsideUp),
             "Sciser rejects adjacent mechanics as a visual selector");
-        for (int index = 0; index < FlyInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            ushort expected = ReadFlyInstructionWord(rom, 0xa20000 | operand);
-            foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
-                     { EnemyDefinitionId.Mellow, EnemyDefinitionId.Mella,
-                       EnemyDefinitionId.Menu })
-            {
-                AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                        definition, operand, out ushort selected),
-                    $"fly ${(int)definition:X4} visual operand $A2:{operand:X4} is compiled");
-                AssertEqual(expected, selected,
-                    $"fly ${(int)definition:X4} selector $A2:{operand:X4} matches the cartridge");
-            }
-        }
-        AssertThrows<InvalidDataException>(
-            () => FlyVisualDefinitions.FrameAt(FlyInstructionProgramDefinitions.Flight),
-            "fly family rejects adjacent mechanics as presentation");
-        for (int index = 0; index < KagoInstructionProgramDefinitionsTooling.PresentationWordCount;
-             index++)
-        {
-            ushort operand = KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Kago, operand, out ushort selected),
-                $"Kago visual operand $A8:{operand:X4} is compiled");
-            AssertEqual(ReadKagoInstructionWord(rom, 0xa80000 | operand), selected,
-                $"Kago selector $A8:{operand:X4} matches the cartridge");
-        }
-        AssertThrows<InvalidDataException>(
-            () => KagoVisualDefinitions.FrameAt(KagoInstructionProgramDefinitions.Slow),
-            "Kago rejects adjacent mechanics as presentation");
         for (int index = 0;
              index < BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
@@ -1974,22 +1942,18 @@ internal static class EnemySpritemapArtworkVerification
                    EnemyDefinitionId.Menu })
         {
             OamBuffer stockFly = DrawEnemy(stock, NewFrameReadGuard(rom),
-                FlyVisualDefinitions.FrameAt(
-                    FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(0)), definition);
+                FlyAnimations.Spritemaps(FlyProgram.Flight).First(), definition);
             OamBuffer editedFly = DrawEnemy(edited, NewFrameReadGuard(rom),
-                FlyVisualDefinitions.FrameAt(
-                    FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(0)), definition);
+                FlyAnimations.Spritemaps(FlyProgram.Flight).First(), definition);
             AssertEqual(unchecked((byte)(stockFly.LowTable[0] + 1)),
                 editedFly.LowTable[0],
                 $"fly ${(int)definition:X4} uses edited shared presentation");
         }
         OamBuffer stockKago = DrawEnemy(stock, NewFrameReadGuard(rom),
-            KagoVisualDefinitions.FrameAt(
-                KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
+            KagoAnimations.Spritemaps(KagoProgram.Slow).First(),
             EnemyDefinitionId.Kago);
         OamBuffer editedKago = DrawEnemy(edited, NewFrameReadGuard(rom),
-            KagoVisualDefinitions.FrameAt(
-                KagoInstructionProgramDefinitionsTooling.PresentationWordAddress(0)),
+            KagoAnimations.Spritemaps(KagoProgram.Slow).First(),
             EnemyDefinitionId.Kago);
         AssertEqual(unchecked((byte)(stockKago.LowTable[0] + 1)),
             editedKago.LowTable[0],
@@ -2217,7 +2181,7 @@ internal static class EnemySpritemapArtworkVerification
             "Waver visual override leaves X unchanged");
         foreach ((ushort pointer, EnemyDefinitionId definition, string name) in new[]
                  {
-                     (EnemySpritemapDefinitions.ZoaFrameAt(0xb3c5),
+                     (ZoaAnimations.Spritemaps(ZoaProgram.FacingLeftShooting).First(),
                          EnemyDefinitionId.Zoa, "Zoa"),
                      (EnemySpritemapDefinitions.SkreeMetareeFrameAt(true, 0x8912),
                          EnemyDefinitionId.Metaree, "Metaree"),
@@ -2293,14 +2257,14 @@ internal static class EnemySpritemapArtworkVerification
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
-        foreach ((EnemyDefinitionId definition, ushort operand, string name) in new[]
+        foreach ((EnemyDefinitionId definition, RipperProgram program, string name) in new[]
                  {
-                     (EnemyDefinitionId.GRipper, (ushort)0xe19d, "GRipper"),
-                     (EnemyDefinitionId.Ripper2, (ushort)0xe2e2, "Ripper II"),
-                     (EnemyDefinitionId.Ripper, (ushort)0xe479, "Ripper"),
+                     (EnemyDefinitionId.GRipper, RipperProgram.GRipperMovingLeft, "GRipper"),
+                     (EnemyDefinitionId.Ripper2, RipperProgram.Ripper2MovingRight, "Ripper II"),
+                     (EnemyDefinitionId.Ripper, RipperProgram.RipperMovingRight, "Ripper"),
                  })
         {
-            ushort pointer = RipperVisualDefinitions.FrameAt(definition, operand);
+            ushort pointer = RipperAnimations.Spritemaps(program).First();
             OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
                 pointer, definition);
             OamBuffer editedFrame = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -2312,10 +2276,10 @@ internal static class EnemySpritemapArtworkVerification
                 $"{name} visual override leaves X unchanged");
         }
         OamBuffer stockFrozen = DrawEnemy(stock, NewFrameReadGuard(rom),
-            RipperInstructionProgramDefinitions.FrozenFacingLeftSpritemap,
+            RipperFrameDefinitions.FrozenFacingLeftSpritemap,
             EnemyDefinitionId.GRipper);
         OamBuffer editedFrozen = DrawEnemy(edited, NewFrameReadGuard(rom),
-            RipperInstructionProgramDefinitions.FrozenFacingLeftSpritemap,
+            RipperFrameDefinitions.FrozenFacingLeftSpritemap,
             EnemyDefinitionId.GRipper);
         AssertEqual(unchecked((byte)(stockFrozen.LowTable[1] + 1)),
             editedFrozen.LowTable[1], "authored frozen GRipper Y offset changes live room OAM");
@@ -3499,7 +3463,7 @@ internal static class EnemySpritemapArtworkVerification
             waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(editedWaver.LowTable[1], upgradedWaver.LowTable[1],
             "previous-version override retains edited Waver composition");
-        ushort zoaPointer = EnemySpritemapDefinitions.ZoaFrameAt(0xb3c5);
+        ushort zoaPointer = ZoaAnimations.Spritemaps(ZoaProgram.FacingLeftShooting).First();
         var stockZoa = DrawEnemy(stock, NewFrameReadGuard(rom),
             zoaPointer, EnemyDefinitionId.Zoa);
         var upgradedZoa = DrawEnemy(earlierUpgraded, NewFrameReadGuard(rom),

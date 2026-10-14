@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>
@@ -32,6 +33,9 @@ public sealed class KzanEnemyState
         _fallingYSpeedTableIndexes = fallingYSpeedTableIndexes;
         _riseWaitTimers = riseWaitTimers;
     }
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<KzanProgram> Program { get; set; }
 
     /// <summary>Current bank-$A6 AI entry, backed by enemy variable A at native <c>$0FA8,x</c>; this view reads the owning top slot directly.</summary>
     public KzanEnemyFunction Function

@@ -383,11 +383,6 @@ internal static class EnemySpritemapArtworkVerification
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("fune_", StringComparison.Ordinal) ||
                     frame.Name.StartsWith("namihe_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Fune's and Namihe's programs show exactly their installed frames");
-        AssertTrue(!EnemySpritemapDefinitions.TryFrameAt(EnemyDefinitionId.TourianStatue, 0xe312, out _),
-            "an enemy family without a compiled selector keeps its own selector path");
-        AssertThrows<InvalidOperationException>(
-            () => EnemySpritemapDefinitions.TryFrameAt((EnemyDefinitionId)0xffff, 0xe312, out _),
-            "an undefined enemy identity fails instead of resolving no selector");
         AssertTrue(RioAnimations.Spritemaps(Enum.GetValues<RioProgram>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Rio's programs show exactly its eight installed frames");
@@ -1603,10 +1598,10 @@ internal static class EnemySpritemapArtworkVerification
             AssertEqual(nativeFrame.LowTable[0], editedFrame.LowTable[0],
                 $"{name} visual override leaves X unchanged");
         }
-        // The fingernail's frame comes from its typed program (#641); Fake Kraid still selects by operand.
+        // Fake Kraid's and the fingernail's frames come from their typed programs (#641).
         foreach ((EnemyDefinitionId definition, ushort pointer, string name) in new[]
                  {
-                     (EnemyDefinitionId.MiniKraid, KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, 0x99b0), "Fake Kraid"),
+                     (EnemyDefinitionId.MiniKraid, FakeKraidAnimations.Spritemaps(FakeKraidProgram.StepForwardsFacingLeft).First(), "Fake Kraid"),
                      (EnemyDefinitionId.KraidNail, new KraidPartFrame(KraidPartFrameKind.Nail, 0).Spritemap,
                          "Kraid fingernail"),
                  })

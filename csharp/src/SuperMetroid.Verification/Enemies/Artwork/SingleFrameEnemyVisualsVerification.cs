@@ -2,7 +2,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Enemies.Artwork.CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuperMetroid.Verification.Enemies.Polyp.PolypRockInstructionProgramDefinitionsVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;

@@ -97,7 +97,6 @@ using static SuperMetroid.Verification.Areas.Escape.EscapeGateVisualsVerificatio
 using static SuperMetroid.Verification.Enemies.Artwork.ExtendedFrameSequenceVerification;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorPlmDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorProjectileInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProgramMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileProgramMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidSpitVelocitiesVerification;
@@ -164,7 +163,6 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidRockLaunchDefinitionsVe
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomProgramMappingVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualSelectionVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidSinkScheduleVerification;
-using static SuperMetroid.Verification.Bosses.Kraid.KraidVisualSelectorsVerification;
 using static SuperMetroid.Verification.Areas.Ceres.LookupCeresHazeRampVerification;
 using static SuperMetroid.Verification.Enemies.Animals.LookupDachoraColorsVerification;
 using static SuperMetroid.Verification.Fx.LookupHorizontalHeatWaveVerification;
@@ -3802,20 +3800,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Checks Fake Kraid enemy instruction lists and phase controls.</summary>
-    [VerificationCommand("--lookup-fake-kraid-programs")]
-    internal static int LookupFakeKraidProgramsCommand()
-    {
-        var programOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(programOracle.Rom)),
-            "Fake Kraid program oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyFakeKraidMechanicsMapping), () => VerifyFakeKraidMechanicsMapping(programOracle));
-        Suite(nameof(VerifyFakeKraidPresentationAddresses), () => VerifyFakeKraidPresentationAddresses());
-        Console.WriteLine("Fake Kraid programs: 48 native control words, complete bank ownership, 24 visual operand positions and bounds pass.");
-        return 0;
-    }
-
     /// <summary>Checks Kraid part frame selectors against native spritemap pointers.</summary>
     [VerificationCommand("--lookup-kraid-visual-selectors")]
     internal static int LookupKraidVisualSelectorsCommand()
@@ -3824,9 +3808,8 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(visualOracle.Rom)),
             "Kraid visual oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyFakeKraidVisualSelectors), () => VerifyFakeKraidVisualSelectors(visualOracle));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
-        Console.WriteLine("Kraid visual selectors: 24 Fake Kraid operands, holes and bounds pass.");
+        Console.WriteLine("Kraid visual selectors: the compiled selector inventory passes; Mini-Kraid's frames come from its typed programs.");
         return 0;
     }
 

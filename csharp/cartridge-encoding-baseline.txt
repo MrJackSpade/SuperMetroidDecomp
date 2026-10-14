@@ -428,7 +428,7 @@ csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/MotherBrainRoomC
 csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/MotherBrainFxRecordPointers.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Torizo/BombTorizoHandPlmProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/AlcoonFireballInstructionProgramDefinitionsTooling.cs	SME6341	3
-csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectorsTooling.cs	SME6340	3
+csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectorsTooling.cs	SME6340	2
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Cacatac/CacatacProjectileInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Cacatac/CacatacProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Chozo/ChozoStatueInstructionProgramDefinitionsTooling.cs	SME6340	1
@@ -621,7 +621,7 @@ csharp/src/SuperMetroid.Verification/Bosses/Draygon/LookupCannonProgramVerificat
 csharp/src/SuperMetroid.Verification/Bosses/Draygon/LookupDraygonCannonStockVerification.cs	SME6340	22
 csharp/src/SuperMetroid.Verification/Bosses/Draygon/ReleasedSamusFallsOffDraygonVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Bosses/GeneratedBossBg2CatalogsVerification.cs	SME6340	59
-csharp/src/SuperMetroid.Verification/Bosses/Kraid/FakeKraidInstructionProgramDefinitionsVerification.cs	SME6340	17
+csharp/src/SuperMetroid.Verification/Bosses/Kraid/FakeKraidInstructionProgramDefinitionsVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/FakeKraidProgramMappingsVerification.cs	SME6340	78
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/FakeKraidProgramMappingsVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/FakeKraidProjectileDefinitionsVerification.cs	SME6340	16
@@ -829,7 +829,7 @@ csharp/src/SuperMetroid.Verification/Enemies/Artwork/EmptyExtendedFrameShotsVeri
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkCommonEmptyVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification.cs	SME6340	22
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyExtendedFrameArtworkVerification.cs	SME6340	337
-csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6340	181
+csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6340	177
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemySpritemapArtworkVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkBabyMetroidCutsceneColorsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkBotwoonColorsVerification.cs	SME6340	3

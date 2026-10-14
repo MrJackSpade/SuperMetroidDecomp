@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Atomic;
@@ -7,7 +6,6 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Shutters;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -41,7 +39,6 @@ internal static partial class CompiledEnemyVisualSelectors
         (EnemyInstructionBank)SnesAddressMath.BankNumber(address) switch
     {
         EnemyInstructionBank.Bank86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        EnemyInstructionBank.BankA6 => FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${SnesAddressMath.BankNumber(address):X2}."),
     };
     /// <summary>Resolves special and calculated sprite operands, then searches literal bank entries.</summary>
@@ -60,7 +57,6 @@ internal static partial class CompiledEnemyVisualSelectors
                 EnemyInstructionBank.Bank86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(operandAddress)
                     : EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operandAddress),
-                EnemyInstructionBank.BankA6 => KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operandAddress),
                 _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${bank:X2}."),
             };
             return true;

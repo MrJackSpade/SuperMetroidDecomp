@@ -311,6 +311,8 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(MamaTurtleAnimations), "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/MamaTurtleAnimations.cs");
         RequireTypedFrames(ChozoStatueAnimations.Programs, ChozoStatueFrameDefinitions.Spritemap, ChozoStatueFrameDefinitions.Bank,
             nameof(ChozoStatueAnimations), "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueAnimations.cs");
+        RequireTypedFrames(FakeKraidAnimations.Programs, FakeKraidFrameDefinitions.Spritemap, FakeKraidFrameDefinitions.Bank,
+            nameof(FakeKraidAnimations), "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

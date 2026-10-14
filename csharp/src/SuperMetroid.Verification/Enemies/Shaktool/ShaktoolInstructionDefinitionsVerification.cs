@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Enemies.Artwork.CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Boulder;
@@ -8,7 +7,6 @@ using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Enemies.Shutters;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
@@ -16,8 +14,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class CompiledEnemyVisualSelectorsTooling
 {
     /// <summary>Presentation operands calculated by the individual projectile and enemy instruction catalogs.</summary>
-    internal static int CalculatedCount => AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount +
-        FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount;
+    internal static int CalculatedCount => AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount;
     /// <summary>Total visual selector entries across literal and calculated sources.</summary>
     internal static int Count => CompiledEnemyVisualSelectors.Entries.Length + CalculatedCount;
     /// <summary>Returns one selector from the bank/address-ordered merge of literal and calculated entries.</summary>
@@ -58,12 +55,6 @@ internal static class CompiledEnemyVisualSelectorsTooling
         {
             ushort operand = FuneNamiheFireballInstructionProgramDefinitions.PresentationWordAddress(index);
             return new(0x860000 | operand, EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operand));
-        }
-        index -= FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount;
-        if (index < FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount)
-        {
-            ushort operand = FakeKraidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            return new(0xa60000 | operand, KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operand));
         }
         throw new IndexOutOfRangeException();
     }

@@ -245,12 +245,9 @@ internal sealed class EnemyInstructionInterpreter
         new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words, destinationWord);
     }
 
-    /// <summary>Resolves a frame operand through its enemy family's compiled visual selector catalog.</summary>
+    /// <summary>Resolves a frame operand through the compiled visual selector catalog of its enemy's bank.</summary>
     internal static ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
-        if (EnemySpritemapDefinitions.TryFrameAt(
-                slot.EnemyDefinitionPointer, operandAddress, out ushort frame))
-            return frame;
         if (CompiledEnemyVisualSelectors.TryGet(slot.Definition.Bank,
                 operandAddress, out ushort selected))
             return selected;
@@ -331,9 +328,6 @@ internal sealed class EnemyInstructionInterpreter
     /// </summary>
     internal static ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid)
-            return FakeKraidInstructionProgramDefinitions.ReadMechanicsWord(address);
-
         if (WalkingSpacePirateBehavior.IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer))
         {
             return WalkingSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(

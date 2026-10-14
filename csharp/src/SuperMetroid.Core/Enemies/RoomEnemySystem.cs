@@ -1420,7 +1420,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         KiHunterBehavior.RegisterKiHunterTypedAnimations(table);
         SparkBehavior.RegisterSparkTypedAnimations(table);
         HibashiBehavior.RegisterHibashiTypedAnimations(table);
-        FakeKraidBehavior.RegisterFakeKraidOwnedInstructions(table);
+        FakeKraidBehavior.RegisterFakeKraidTypedAnimations(table);
         WalkingSpacePirateBehavior.RegisterWalkingSpacePirateOwnedInstructions(table);
         RidleyBehavior.RegisterRidleyTypedAnimations(table);
         CeresSteamBehavior.RegisterCeresSteamTypedAnimations(table);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
@@ -14,6 +15,9 @@ public sealed class FakeKraidEnemyState
 
     /// <summary>Projects Mini-Kraid's ordinary enemy variables from its occupied slot.</summary>
     internal FakeKraidEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<FakeKraidProgram> Program { get; set; }
 
     /// <summary>Signed whole-pixel walk delta in native variable B.</summary>
     public short WalkDelta

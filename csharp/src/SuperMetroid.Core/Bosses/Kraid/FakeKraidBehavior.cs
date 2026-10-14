@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -29,44 +31,35 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         _deathsAndDrops = deathsAndDrops;
     }
 
-    /// <summary>Executes Mini-Kraid's private animation instructions.</summary>
-    private bool TryProcessFakeKraidInstruction(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level, ushort word, ref ushort cursor, Position16<RoomPixels> camera)
+    /// <summary>
+    /// Carries out one cue of Mini-Kraid's animations. The action choice continues at the step or spit animation it
+    /// selects, as the native opcode returns that list; every other cue runs on.
+    /// </summary>
+    private FakeKraidProgram? ApplyFakeKraidCue(RoomEnemySlot slot, FakeKraidCue cue, SamusState? samus, RoomLevelData? level, Position16<RoomPixels> camera)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.MiniKraid ||
-            !Enum.IsDefined((FakeKraidInstruction)word))
-            return false;
-
-        switch ((FakeKraidInstruction)word)
+        switch (cue.Kind)
         {
-            case FakeKraidInstruction.Move:
+            case FakeKraidCueKind.Move:
                 // Walk opcode: advance one four-pixel step unless its random reversal
                 // clock expires, then refresh the live facing marker from Samus.
                 ProcessFakeKraidWalkInstruction(slot, RequireFakeKraidState(slot), samus, level);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case FakeKraidInstruction.ChooseAction:
-                // Decision opcode returns a direct same-bank address. Several targets
-                // deliberately begin two bytes inside a named list to skip this opcode.
-                cursor = SelectFakeKraidInstruction(RequireFakeKraidState(slot));
-                return true;
-            case FakeKraidInstruction.PlayCrySFX:
+                return null;
+            case FakeKraidCueKind.ChooseAction:
+                return SelectFakeKraidAction(RequireFakeKraidState(slot));
+            case FakeKraidCueKind.PlayCrySound:
                 // `$A6:9BB2` queues sound $16 only while the actor origin is inside the
                 // inclusive 256x256 native screen rectangle.
                 if (FakeKraidOriginIsOnScreen(slot, camera))
                     LastFakeKraidSoundEffect = FakeKraidSpitSound;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case FakeKraidInstruction.FireSpitLeft:
+                return null;
+            case FakeKraidCueKind.SpitLeft:
                 SpawnFakeKraidSpitPair(slot, RequireFakeKraidState(slot), movingRight: false);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case FakeKraidInstruction.FireSpitRight:
+                return null;
+            case FakeKraidCueKind.SpitRight:
                 SpawnFakeKraidSpitPair(slot, RequireFakeKraidState(slot), movingRight: true);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return null;
             default:
-                throw new InvalidOperationException(
-                    $"Mini-Kraid does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"Mini-Kraid's animations have no {cue.Kind} cue.");
         }
     }
 
@@ -114,14 +107,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
         state.WalkDelta = -4;
         state.FacingDelta = -4;
-        slot.CurrentInstruction =
-            FakeKraidInstructionProgramDefinitions.StepForwardsFacingLeft;
+        state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(FakeKraidProgram.StepForwardsFacingLeft);
         if (unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0)
         {
             state.WalkDelta = 4;
             state.FacingDelta = 4;
-            slot.CurrentInstruction =
-                FakeKraidInstructionProgramDefinitions.StepForwardsFacingRight;
+            state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(FakeKraidProgram.StepForwardsFacingRight);
         }
     }
 
@@ -202,8 +193,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
             : (short)-4;
     }
 
-    /// <summary>Ports animation opcode <c>$A6:9B74</c> and returns its direct list target.</summary>
-    private ushort SelectFakeKraidInstruction(
+    /// <summary>Ports animation opcode <c>$A6:9B74</c> and returns the animation it continues at.</summary>
+    private FakeKraidProgram SelectFakeKraidAction(
         FakeKraidEnemyState state)
     {
         if (!state.SpitDecisionTimer.IsZero)
@@ -211,20 +202,20 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
             if (state.FacingDelta < 0)
             {
                 return state.WalkDelta >= 0
-                    ? FakeKraidInstructionProgramDefinitions.StepBackwardsFacingLeft
-                    : FakeKraidInstructionProgramDefinitions.StepForwardsFacingLeft;
+                    ? FakeKraidProgram.StepBackwardsFacingLeft
+                    : FakeKraidProgram.StepForwardsFacingLeft;
             }
 
             return state.WalkDelta < 0
-                ? FakeKraidInstructionProgramDefinitions.StepBackwardsFacingRight
-                : FakeKraidInstructionProgramDefinitions.StepForwardsFacingRight;
+                ? FakeKraidProgram.StepBackwardsFacingRight
+                : FakeKraidProgram.StepForwardsFacingRight;
         }
 
         state.SpitDecisionTimer = NativeCountdown.FromRaw(unchecked((ushort)(
             (ReadFakeKraidRandomNumber() & 3) + 3)));
         return state.FacingDelta < 0
-            ? FakeKraidInstructionProgramDefinitions.FireSpitFacingLeft
-            : FakeKraidInstructionProgramDefinitions.FireSpitFacingRight;
+            ? FakeKraidProgram.FireSpitFacingLeft
+            : FakeKraidProgram.FireSpitFacingRight;
     }
 
     /// <summary>Ports animation opcodes <c>$A6:9BC4</c>/<c>$A6:9C02</c>.</summary>
@@ -417,15 +408,19 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims Mini-Kraid's walk, action choice, cry, and spit opcodes before common animation dispatch.</summary>
-    internal void RegisterFakeKraidOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs Mini-Kraid's animations as typed programs (#641).</summary>
+    internal void RegisterFakeKraidTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid, (slot, context) =>
         {
-            yieldInterpreter = false;
-            return TryProcessFakeKraidInstruction(slot, context.Samus, context.Level, word, ref cursor, context.Camera);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireFakeKraidState(slot);
+            AnimationProgramCursor<FakeKraidProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, FakeKraidAnimations.Programs, ref cursor, FakeKraidFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyFakeKraidCue(slot, cue, context.Samus, context.Level, context.Camera));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Spawns Mini-Kraid's own explosion and four drops after a lethal power bomb.</summary>
     internal void RegisterFakeKraidPowerBombReactions(EnemyAiTable table)

@@ -62,11 +62,14 @@ def transcript_directories():
             if name.lower() == prefix.lower() or name.lower().startswith(prefix.lower() + "-")]
 
 
-def load_records(transcript_dirs, start):
-    """All transcript records from the start time on, in time order, across every session file."""
-    records = []
+def load_sessions(transcript_dirs, start):
+    """Each session file's transcript records from the start time on, in time order. Sessions stay separate: several
+    agents can work in one repository at once, and merging their timelines would charge one agent with another's
+    waits and let one session's pending tool swallow the other's gaps."""
+    sessions = {}
     paths = [path for directory in transcript_dirs for path in glob.glob(os.path.join(directory, "*.jsonl"))]
     for path in paths:
+        records = []
         with open(path, encoding="utf-8") as handle:
             for line in handle:
                 record = json.loads(line)
@@ -78,8 +81,33 @@ def load_records(transcript_dirs, start):
                 when = parse_time(stamp)
                 if when >= start - timedelta(hours=6):
                     records.append((when, record))
-    records.sort(key=lambda item: item[0])
-    return records
+        if records:
+            records.sort(key=lambda item: item[0])
+            sessions[path] = records
+    return sessions
+
+
+def committing_session(sessions, previous, when):
+    """The session that made the commit at `when`: the one whose latest `git commit` tool call between the previous
+    commit and this one is closest before it, or None when no session recorded the commit."""
+    best = None
+    # Git records commit times in whole seconds, so the tool call can carry a later fraction of the commit's second.
+    latest = when + timedelta(seconds=1)
+    for path, records in sessions.items():
+        for stamp, record in records:
+            if not previous <= stamp < latest:
+                continue
+            for part in content_parts(record):
+                if (isinstance(part, dict) and part.get("type") == "tool_use" and
+                        "git commit" in str(part.get("input", {}).get("command", ""))):
+                    if best is None or stamp > best[0]:
+                        best = (stamp, path)
+    return None if best is None else best[1]
+
+
+def session_gaps(records):
+    """Every gap of one session's timeline."""
+    return list(classify_gaps(records, background_jobs(records)))
 
 
 def content_parts(record):
@@ -204,8 +232,12 @@ def head_check(revision):
     if not directories:
         print("agent time check: no agent session transcripts for this repository on this machine.", file=sys.stderr)
         return
-    records = load_records(directories, previous)
-    kinds, waits = split_interval(list(classify_gaps(records, background_jobs(records))), previous, when)
+    sessions = load_sessions(directories, previous)
+    session = committing_session(sessions, previous, when)
+    if session is None:
+        print("agent time check: no agent session recorded this commit.", file=sys.stderr)
+        return
+    kinds, waits = split_interval(session_gaps(sessions[session]), previous, when)
     share = waiting_share(kinds)
     if share is None:
         print("agent time check: no agent activity since the previous commit.", file=sys.stderr)
@@ -250,8 +282,8 @@ def main():
     directories = transcript_directories()
     if not directories:
         raise SystemExit("No agent session transcripts for this repository on this machine.")
-    records = load_records(directories, edges[0][0])
-    gaps = list(classify_gaps(records, background_jobs(records)))
+    sessions = load_sessions(directories, edges[0][0])
+    gaps_by_session = {path: session_gaps(records) for path, records in sessions.items()}
 
     def minutes(seconds):
         return f"{seconds / 60:6.1f}"
@@ -262,7 +294,9 @@ def main():
     totals = collections.Counter()
     wait_totals = collections.Counter()
     for (previous, _, _), (when, short, subject) in zip(edges, edges[1:]):
-        kinds, waits = split_interval(gaps, previous, when)
+        # Each commit is measured against the session that made it; a commit no session recorded shows no agent time.
+        session = committing_session(sessions, previous, when)
+        kinds, waits = split_interval(gaps_by_session[session] if session else [], previous, when)
         totals.update(kinds)
         wait_totals.update(waits)
         share = waiting_share(kinds) or 0

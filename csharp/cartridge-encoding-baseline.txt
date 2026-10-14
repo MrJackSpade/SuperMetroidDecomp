@@ -593,7 +593,6 @@ csharp/src/SuperMetroid.Core/Rooms/CollectiblePlms.cs	SME6340	6
 csharp/src/SuperMetroid.Core/Rooms/ColoredDoorPlmProgramDefinitions.cs	SME6341	9
 csharp/src/SuperMetroid.Core/Rooms/CrocomireArenaPlmProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Rooms/DoorPlms.cs	SME6340	7
-csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs	SME6340	144
 csharp/src/SuperMetroid.Core/Rooms/DownwardGatePlmProgramDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Rooms/DownwardGateShotBlockDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Rooms/DraygonCannonPlmProgramDefinitions.cs	SME6341	1

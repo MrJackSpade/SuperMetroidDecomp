@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
@@ -66,9 +68,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         bool startsOnRight = (flags & WallSpacePirateParameterFlags.StartsOnRightWall) != 0;
         bool slowJump = (flags & WallSpacePirateParameterFlags.SlowJumpAndLaser) != 0;
 
-        slot.CurrentInstruction = startsOnRight
-            ? WallSpacePirateInstructionProgramDefinitions.MovingDownRightWall
-            : WallSpacePirateInstructionProgramDefinitions.MovingDownLeftWall;
+        state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(startsOnRight
+            ? WallSpacePirateProgram.MovingDownRightWall
+            : WallSpacePirateProgram.MovingDownLeftWall);
         state.Function = startsOnRight
             ? WallSpacePirateFunction.ClimbingRightWall
             : WallSpacePirateFunction.ClimbingLeftWall;
@@ -97,7 +99,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
                 {
                     InstallWallSpacePirateInstruction(
                         slot,
-                        WallSpacePirateInstructionProgramDefinitions.FireAndJumpRight);
+                        state,
+                        WallSpacePirateProgram.FireAndJumpRight);
                 }
                 return;
 
@@ -106,7 +109,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
                 {
                     InstallWallSpacePirateInstruction(
                         slot,
-                        WallSpacePirateInstructionProgramDefinitions.FireAndJumpLeft);
+                        state,
+                        WallSpacePirateProgram.FireAndJumpLeft);
                 }
                 return;
 
@@ -146,7 +150,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
 
         InstallWallSpacePirateInstruction(
             slot,
-            WallSpacePirateInstructionProgramDefinitions.LandedOnRightWall);
+            state,
+            WallSpacePirateProgram.LandedOnRightWall);
         SnapWallSpacePirateXToTile(slot);
     }
 
@@ -163,7 +168,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
 
         InstallWallSpacePirateInstruction(
             slot,
-            WallSpacePirateInstructionProgramDefinitions.LandedOnLeftWall);
+            state,
+            WallSpacePirateProgram.LandedOnLeftWall);
         SnapWallSpacePirateXToTile(slot);
     }
 
@@ -203,20 +209,20 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
     /// <summary>Starts a selected wall-Pirate list on its first instruction frame.</summary>
     private static void InstallWallSpacePirateInstruction(
         RoomEnemySlot slot,
-        ushort instructionPointer)
+        WallSpacePirateEnemyState state,
+        WallSpacePirateProgram program)
     {
-        slot.CurrentInstruction = instructionPointer;
+        state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
-    /// <summary>Advances a climbing opcode or redirects its cursor to the opposite list after terrain contact.</summary>
-    private void MoveWallSpacePirateAndReverseOnCollision(
+    /// <summary>Climbs, or after terrain contact returns the opposite climb to continue at; null runs on.</summary>
+    private WallSpacePirateProgram? MoveWallSpacePirateAndReverseOnCollision(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
         RoomLevelData? level,
         ushort signedPixelDisplacement,
-        bool onRightWall,
-        ref ushort cursor)
+        bool onRightWall)
     {
         if (level is null)
         {
@@ -226,44 +232,40 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
 
         int displacement = SnesSixteenSixteen.FromWhole((short)signedPixelDisplacement);
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
-        {
-            cursor = unchecked((ushort)(cursor + 4));
-            return;
-        }
+            return null;
 
         // A collision retains the collision helper's clamped position, flips only bit zero,
-        // and returns a fresh list pointer. It does not resume after the opcode operand.
+        // and continues at a fresh climb. It does not resume after the opcode operand.
         state.ClimbDirection = state.ClimbDirection == WallSpacePirateClimbDirection.Down
             ? WallSpacePirateClimbDirection.Up
             : WallSpacePirateClimbDirection.Down;
-        cursor = SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
+        return SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
     }
 
-    /// <summary>Consumes one random value and jumps directly to the chosen up or down climbing list.</summary>
-    private void RandomizeWallSpacePirateClimbDirection(
+    /// <summary>Consumes one random value and returns the chosen up or down climb to continue at.</summary>
+    private WallSpacePirateProgram RandomizeWallSpacePirateClimbDirection(
         WallSpacePirateEnemyState state,
-        bool onRightWall,
-        ref ushort cursor)
+        bool onRightWall)
     {
         state.ClimbDirection = (_room.Random.Generate() & 1) == 0
             ? WallSpacePirateClimbDirection.Down
             : WallSpacePirateClimbDirection.Up;
-        cursor = SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
+        return SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
     }
 
-    /// <summary>Selects the native animation list for a wall side and vertical climb direction.</summary>
-    private static ushort SelectWallSpacePirateClimbList(
+    /// <summary>Selects the climb animation for a wall side and vertical climb direction.</summary>
+    private static WallSpacePirateProgram SelectWallSpacePirateClimbList(
         bool onRightWall,
         WallSpacePirateClimbDirection direction) => (onRightWall, direction) switch
     {
         (false, WallSpacePirateClimbDirection.Down) =>
-            WallSpacePirateInstructionProgramDefinitions.MovingDownLeftWall,
+            WallSpacePirateProgram.MovingDownLeftWall,
         (false, WallSpacePirateClimbDirection.Up) =>
-            WallSpacePirateInstructionProgramDefinitions.MovingUpLeftWall,
+            WallSpacePirateProgram.MovingUpLeftWall,
         (true, WallSpacePirateClimbDirection.Down) =>
-            WallSpacePirateInstructionProgramDefinitions.MovingDownRightWall,
+            WallSpacePirateProgram.MovingDownRightWall,
         (true, WallSpacePirateClimbDirection.Up) =>
-            WallSpacePirateInstructionProgramDefinitions.MovingUpRightWall,
+            WallSpacePirateProgram.MovingUpRightWall,
         _ => throw new InvalidOperationException(
             $"Wall Pirate climb direction ${(ushort)direction} is not binary."),
     };
@@ -301,102 +303,43 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
     }
 
     /// <summary>
-    /// Executes the nine wall-Pirate-specific instruction opcodes. Keeping family bytecode
-    /// here prevents the common interpreter from becoming a second monolithic AI switch.
+    /// Carries out one cue of the wall Space Pirates' animations. A climb continues at the opposite climb after terrain
+    /// contact and a random direction choice always continues at the chosen climb, as the native opcodes return those
+    /// lists; every other cue runs on.
     /// </summary>
-    private bool TryProcessWallSpacePirateInstruction(
-        RoomEnemySlot slot,
-        RoomLevelData? level,
-        ushort opcode,
-        ref ushort cursor)
+    private WallSpacePirateProgram? ApplyWallSpacePirateCue(RoomEnemySlot slot, WallSpacePirateCue cue, RoomLevelData? level)
     {
-        if (!IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer))
-            return false;
-
-        // The shared interpreter hands every remaining negative word here; only
-        // these wall-Pirate opcodes belong to this handler.
-        if ((SpacePirateInstruction)opcode is not (
-            SpacePirateInstruction.PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Left or
-            SpacePirateInstruction.PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Right or
-            SpacePirateInstruction.PirateWall_RandomlyChooseADirection_LeftWall or
-            SpacePirateInstruction.PirateWall_RandomlyChooseADirection_RightWall or
-            SpacePirateInstruction.PirateWall_PrepareWallJumpToRight or
-            SpacePirateInstruction.PirateWall_PrepareWallJumpToLeft or
-            SpacePirateInstruction.PirateWall_FireLaserLeft or
-            SpacePirateInstruction.PirateWall_FireLaserRight or
-            SpacePirateInstruction.PirateWall_FunctionInY or
-            SpacePirateInstruction.PirateWall_QueueSpacePirateAttackSFX))
-            return false;
-
         WallSpacePirateEnemyState state = RequireWallSpacePirateState(slot);
-        switch ((SpacePirateInstruction)opcode)
+        switch (cue.Kind)
         {
-            case SpacePirateInstruction.PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Left:
-                MoveWallSpacePirateAndReverseOnCollision(
-                    slot,
-                    state,
-                    level,
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2))),
-                    onRightWall: false,
-                    ref cursor);
-                return true;
-
-            case SpacePirateInstruction.PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Right:
-                MoveWallSpacePirateAndReverseOnCollision(
-                    slot,
-                    state,
-                    level,
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                        slot,
-                        unchecked((ushort)(cursor + 2))),
-                    onRightWall: true,
-                    ref cursor);
-                return true;
-
-            case SpacePirateInstruction.PirateWall_RandomlyChooseADirection_LeftWall:
-                RandomizeWallSpacePirateClimbDirection(state, onRightWall: false, ref cursor);
-                return true;
-
-            case SpacePirateInstruction.PirateWall_RandomlyChooseADirection_RightWall:
-                RandomizeWallSpacePirateClimbDirection(state, onRightWall: true, ref cursor);
-                return true;
-
-            case SpacePirateInstruction.PirateWall_PrepareWallJumpToRight:
+            case WallSpacePirateCueKind.ClimbLeftWall:
+                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.Value, onRightWall: false);
+            case WallSpacePirateCueKind.ClimbRightWall:
+                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.Value, onRightWall: true);
+            case WallSpacePirateCueKind.ChooseLeftWallDirection:
+                return RandomizeWallSpacePirateClimbDirection(state, onRightWall: false);
+            case WallSpacePirateCueKind.ChooseRightWallDirection:
+                return RandomizeWallSpacePirateClimbDirection(state, onRightWall: true);
+            case WallSpacePirateCueKind.PrepareJumpRight:
                 PrepareWallSpacePirateJump(slot, state, jumpingRight: true);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case SpacePirateInstruction.PirateWall_PrepareWallJumpToLeft:
+                return null;
+            case WallSpacePirateCueKind.PrepareJumpLeft:
                 PrepareWallSpacePirateJump(slot, state, jumpingRight: false);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case SpacePirateInstruction.PirateWall_FireLaserLeft:
+                return null;
+            case WallSpacePirateCueKind.FireLaserLeft:
                 FireWallSpacePirateLaser(slot, state, movingRight: false);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case SpacePirateInstruction.PirateWall_FireLaserRight:
+                return null;
+            case WallSpacePirateCueKind.FireLaserRight:
                 FireWallSpacePirateLaser(slot, state, movingRight: true);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case SpacePirateInstruction.PirateWall_FunctionInY:
-                state.Function = (WallSpacePirateFunction)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                    slot,
-                    unchecked((ushort)(cursor + 2)));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-
-            case SpacePirateInstruction.PirateWall_QueueSpacePirateAttackSFX:
+                return null;
+            case WallSpacePirateCueKind.SetFunction:
+                state.Function = cue.Function;
+                return null;
+            case WallSpacePirateCueKind.PlayAttackSound:
                 _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = WallPirateJumpSound;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-
+                return null;
             default:
-                throw new InvalidOperationException($"Wall Space Pirate does not own instruction ${opcode:X4}.");
+                throw new InvalidOperationException($"The wall Space Pirates' animations have no {cue.Kind} cue.");
         }
     }
 
@@ -428,15 +371,19 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims wall-Pirate climbing, laser, and jump opcodes before common animation dispatch.</summary>
-    internal void RegisterWallSpacePirateOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the wall Space Pirates' animations as typed programs (#641).</summary>
+    internal void RegisterWallSpacePirateTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, context) =>
         {
-            yieldInterpreter = false;
-            return TryProcessWallSpacePirateInstruction(slot, context.Level, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireWallSpacePirateState(slot);
+            AnimationProgramCursor<WallSpacePirateProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, WallSpacePirateAnimations.Programs, ref cursor, WallSpacePirateFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyWallSpacePirateCue(slot, cue, context.Level));
+            state.Program = cursor;
         });
-    }
+
 
     /// <summary>Applies the ordinary Pirate power-bomb callback across wall, walking, and Ninja variants.</summary>
     internal static void RegisterWallSpacePiratePowerBombReactions(EnemyAiTable table)

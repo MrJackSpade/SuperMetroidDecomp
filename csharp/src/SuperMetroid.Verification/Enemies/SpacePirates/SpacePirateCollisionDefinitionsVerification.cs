@@ -72,30 +72,14 @@ internal static class SpacePirateCollisionDefinitionsVerification
             AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(frame.Pointer).Length > 0,
                 $"installed Pirate frame {frame.Name} has fixed collision");
         }
-        for (int index = 0;
-             index < WallSpacePirateInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort operand = WallSpacePirateInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xb2, operand,
-                    out ushort pointer),
-                $"wall-Pirate selector $B2:{operand:X4} is compiled");
+        foreach (ushort pointer in WallSpacePirateAnimations.Spritemaps(Enum.GetValues<WallSpacePirateProgram>()))
             AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(pointer).Length > 0,
-                $"wall-Pirate selected frame $B2:{pointer:X4} has fixed collision");
-        }
-        for (int index = 0;
-             index < NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+                $"wall-Pirate shown frame $B2:{pointer:X4} has fixed collision");
+        foreach (ushort pointer in NinjaSpacePirateAnimations.Spritemaps(Enum.GetValues<NinjaSpacePirateProgram>()))
         {
-            ushort operand = NinjaSpacePirateInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xb2, operand,
-                    out ushort pointer),
-                $"ninja-Pirate selector $B2:{operand:X4} is compiled");
             ninjaFramePointers.Add(pointer);
             AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(pointer).Length > 0,
-                $"ninja-Pirate selected frame $B2:{pointer:X4} has fixed collision");
+                $"ninja-Pirate shown frame $B2:{pointer:X4} has fixed collision");
         }
         AssertEqual(76, ninjaFramePointers.Count,
             "distinct ninja-Pirate collision-frame identities");

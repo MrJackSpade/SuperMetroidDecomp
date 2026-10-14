@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class WallSpacePirateEnemyState
 
     /// <summary>Projects one wall Pirate slot into typed debugger state.</summary>
     internal WallSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<WallSpacePirateProgram> Program { get; set; }
 
     /// <summary>Bank-$B2 AI entry stored in slot variable A, initialized for the starting wall and replaced by instruction $B2:EF83 as attack, jump, and landing lists advance.</summary>
     public WallSpacePirateFunction Function

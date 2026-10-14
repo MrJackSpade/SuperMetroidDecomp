@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -21,51 +23,29 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         _projectiles = projectiles;
     }
 
-    /// <summary>Executes the walking Space Pirates' private animation instructions.</summary>
-    private bool TryProcessWalkingSpacePirateInstruction(RoomEnemySlot slot, SamusState? samus, ushort word, ref ushort cursor)
+    /// <summary>
+    /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
+    /// animation it selects, as the native opcode returns that list; every other cue runs on.
+    /// </summary>
+    private WalkingSpacePirateProgram? ApplyWalkingSpacePirateCue(RoomEnemySlot slot, WalkingSpacePirateCue cue, SamusState? samus)
     {
-        if (!IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer) ||
-            (SpacePirateInstruction)word is not (
-                SpacePirateInstruction.PirateWalking_FunctionInY or
-                SpacePirateInstruction.PirateWalking_FireLaserLeftWithYOffsetInY or
-                SpacePirateInstruction.PirateWalking_FireLaserRightWithYOffsetInY or
-                SpacePirateInstruction.PirateWalking_ChooseAMovement))
-            return false;
-
-        switch ((SpacePirateInstruction)word)
+        switch (cue.Kind)
         {
-            case SpacePirateInstruction.PirateWalking_FunctionInY:
-                // Pirate bytecode does not jump to the operand. It stores that bank-$B2
-                // function address in native variable A for main AI to dispatch next
-                // frame, then resumes immediately after the two-byte operand.
-                RequireWalkingSpacePirateState(slot).Function =
-                    (WalkingSpacePirateFunction)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2)));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            case SpacePirateInstruction.PirateWalking_FireLaserLeftWithYOffsetInY:
-                SpawnWalkingSpacePirateLaser(
-                    slot,
-                    RequireWalkingSpacePirateState(slot),
-                    movingRight: false,
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2))));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            case SpacePirateInstruction.PirateWalking_FireLaserRightWithYOffsetInY:
-                SpawnWalkingSpacePirateLaser(
-                    slot,
-                    RequireWalkingSpacePirateState(slot),
-                    movingRight: true,
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2))));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            case SpacePirateInstruction.PirateWalking_ChooseAMovement:
-                // Unlike common goto, this opcode returns a direct instruction-list
-                // pointer chosen from Samus's current side and vertical proximity.
-                cursor = SelectWalkingSpacePirateMovement(slot, samus);
-                return true;
+            case WalkingSpacePirateCueKind.SetFunction:
+                // Pirate bytecode does not jump to the operand. It stores that bank-$B2 function
+                // for main AI to dispatch next frame, then runs on.
+                RequireWalkingSpacePirateState(slot).Function = cue.Function;
+                return null;
+            case WalkingSpacePirateCueKind.FireLaserLeft:
+                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), movingRight: false, cue.Value);
+                return null;
+            case WalkingSpacePirateCueKind.FireLaserRight:
+                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), movingRight: true, cue.Value);
+                return null;
+            case WalkingSpacePirateCueKind.ChooseMovement:
+                return SelectWalkingSpacePirateMovement(slot, samus);
             default:
-                throw new InvalidOperationException(
-                    $"Walking Space Pirate does not own instruction ${word:X4}.");
+                throw new InvalidOperationException($"The walking Space Pirates' animations have no {cue.Kind} cue.");
         }
     }
 
@@ -120,10 +100,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         // Parameter-one bit zero is the only initial-facing selector. Bit fifteen is an
         // independent projectile-flinch option and must not accidentally select right art.
         var parameterFlags = (WalkingSpacePirateParameterFlags)slot.Parameter1;
-        slot.CurrentInstruction =
+        state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(
             (parameterFlags & WalkingSpacePirateParameterFlags.StartsFacingRight) != 0
-            ? WalkingSpacePirateInstructionProgramDefinitions.WalkingRight
-            : WalkingSpacePirateInstructionProgramDefinitions.WalkingLeft;
+            ? WalkingSpacePirateProgram.WalkingRight
+            : WalkingSpacePirateProgram.WalkingLeft);
         state.Function = WalkingSpacePirateFunction.NoOperation;
 
         // Native ADC/SBC wrap at 16 bits. A modded patrol radius can therefore straddle the
@@ -164,7 +144,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         if ((((WalkingSpacePirateParameterFlags)slot.Parameter1 &
                 WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != 0) &&
             samus is not null)
-            TryTriggerWalkingSpacePirateFlinch(slot, samus, samusProjectiles);
+            TryTriggerWalkingSpacePirateFlinch(slot, state, samus, samusProjectiles);
 
         SamusState RequireSamus() => samus ?? throw new InvalidOperationException(
             "Walking Space Pirate movement requires the active Samus position.");
@@ -181,7 +161,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
     {
         if (WalkingSpacePirateIsVerticallyClose(slot, samus))
         {
-            InstallWalkingSpacePirateAttack(slot, samus);
+            InstallWalkingSpacePirateAttack(slot, state, samus);
             return;
         }
 
@@ -217,7 +197,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
 
         InstallWalkingSpacePirateInstruction(
             slot,
-            WalkingSpacePirateInstructionProgramDefinitions.LookingFacingLeft);
+            state,
+            WalkingSpacePirateProgram.LookingFacingLeft);
     }
 
     /// <summary>Ports the right-walk function at <c>$B2:FDCE</c>.</summary>
@@ -229,7 +210,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
     {
         if (WalkingSpacePirateIsVerticallyClose(slot, samus))
         {
-            InstallWalkingSpacePirateAttack(slot, samus);
+            InstallWalkingSpacePirateAttack(slot, state, samus);
             return;
         }
 
@@ -254,12 +235,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
 
         InstallWalkingSpacePirateInstruction(
             slot,
-            WalkingSpacePirateInstructionProgramDefinitions.LookingFacingRight);
+            state,
+            WalkingSpacePirateProgram.LookingFacingRight);
     }
 
     /// <summary>Ports <c>PirateWalking_FlinchTrigger</c> at <c>$B2:FE4B</c>.</summary>
     private static void TryTriggerWalkingSpacePirateFlinch(
         RoomEnemySlot slot,
+        WalkingSpacePirateEnemyState state,
         SamusState samus,
         SamusProjectileSystem? projectiles)
     {
@@ -287,14 +270,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
             return;
         }
 
-        ushort list = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
-            ? WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingRight
-            : WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingLeft;
-        InstallWalkingSpacePirateInstruction(slot, list);
+        WalkingSpacePirateProgram list = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
+            ? WalkingSpacePirateProgram.FlinchFacingRight
+            : WalkingSpacePirateProgram.FlinchFacingLeft;
+        InstallWalkingSpacePirateInstruction(slot, state, list);
     }
 
     /// <summary>Ports instruction <c>$B2:FCC8</c>'s direct-list selection.</summary>
-    private static ushort SelectWalkingSpacePirateMovement(
+    private static WalkingSpacePirateProgram SelectWalkingSpacePirateMovement(
         RoomEnemySlot slot,
         SamusState? samus)
     {
@@ -309,15 +292,15 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         if (WalkingSpacePirateIsVerticallyClose(slot, samus))
         {
             return samusIsRightOrAligned
-                ? WalkingSpacePirateInstructionProgramDefinitions.FireLasersRight
-                : WalkingSpacePirateInstructionProgramDefinitions.FireLasersLeft;
+                ? WalkingSpacePirateProgram.FireLasersRight
+                : WalkingSpacePirateProgram.FireLasersLeft;
         }
 
         // When Samus is not in the firing band, the Pirate walks toward the opposite side:
         // Samus right selects leftward walking, Samus left selects rightward walking.
         return samusIsRightOrAligned
-            ? WalkingSpacePirateInstructionProgramDefinitions.WalkingLeft
-            : WalkingSpacePirateInstructionProgramDefinitions.WalkingRight;
+            ? WalkingSpacePirateProgram.WalkingLeft
+            : WalkingSpacePirateProgram.WalkingRight;
     }
 
     /// <summary>Tests signed vertical separation against the native sixteen-pixel firing band.</summary>
@@ -330,19 +313,22 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
     /// <summary>Chooses a left or right laser instruction list from Samus's current side.</summary>
     private static void InstallWalkingSpacePirateAttack(
         RoomEnemySlot slot,
+        WalkingSpacePirateEnemyState state,
         SamusState samus) =>
         InstallWalkingSpacePirateInstruction(
             slot,
+            state,
             unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0
-                ? WalkingSpacePirateInstructionProgramDefinitions.FireLasersRight
-                : WalkingSpacePirateInstructionProgramDefinitions.FireLasersLeft);
+                ? WalkingSpacePirateProgram.FireLasersRight
+                : WalkingSpacePirateProgram.FireLasersLeft);
 
     /// <summary>Arms a newly selected instruction list for processing on the next tick.</summary>
     private static void InstallWalkingSpacePirateInstruction(
         RoomEnemySlot slot,
-        ushort instructionPointer)
+        WalkingSpacePirateEnemyState state,
+        WalkingSpacePirateProgram program)
     {
-        slot.CurrentInstruction = instructionPointer;
+        state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -525,15 +511,19 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Claims only the walking pirate's private function, laser, and movement opcodes.</summary>
-    internal void RegisterWalkingSpacePirateOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the walking Space Pirates' animations as typed programs (#641).</summary>
+    internal void RegisterWalkingSpacePirateTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, context) =>
         {
-            yieldInterpreter = false;
-            return TryProcessWalkingSpacePirateInstruction(slot, context.Samus, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireWalkingSpacePirateState(slot);
+            AnimationProgramCursor<WalkingSpacePirateProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, WalkingSpacePirateAnimations.Programs, ref cursor, WalkingSpacePirateFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyWalkingSpacePirateCue(slot, cue, context.Samus));
+            state.Program = cursor;
         });
-    }
+
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

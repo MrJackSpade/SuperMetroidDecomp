@@ -176,15 +176,8 @@ internal static class EnemyExtendedFrameDefinitions
             if (frame.Bank == TorizoFrameDefinitions.Bank) torizoFrames.Add(frame.Pointer);
             return frame;
         }
-        for (int index = 0;
-             index < WalkingSpacePirateInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in WalkingSpacePirateAnimations.Spritemaps(Enum.GetValues<WalkingSpacePirateProgram>()))
         {
-            ushort operand = WalkingSpacePirateInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(Bank, operand, out ushort pointer))
-                throw new InvalidDataException(
-                    $"Walking Pirate frame selector $B2:{operand:X4} is not compiled.");
             if (!seen.Add(pointer))
                 continue;
             if (count == WalkingFrameCount)
@@ -196,15 +189,8 @@ internal static class EnemyExtendedFrameDefinitions
             throw new InvalidDataException(
                 $"Walking Pirate has {count} distinct frames; expected {WalkingFrameCount}.");
         int wallCount = 0;
-        for (int index = 0;
-             index < WallSpacePirateInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in WallSpacePirateAnimations.Spritemaps(Enum.GetValues<WallSpacePirateProgram>()))
         {
-            ushort operand = WallSpacePirateInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(Bank, operand, out ushort pointer))
-                throw new InvalidDataException(
-                    $"Wall Pirate frame selector $B2:{operand:X4} is not compiled.");
             if (!seen.Add(pointer))
                 continue;
             if (wallCount == WallFrameCount)
@@ -217,15 +203,8 @@ internal static class EnemyExtendedFrameDefinitions
             throw new InvalidDataException(
                 $"Wall Pirate has {wallCount} distinct frames; expected {WallFrameCount}.");
         int ninjaCount = 0;
-        for (int index = 0;
-             index < NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (ushort pointer in NinjaSpacePirateAnimations.Spritemaps(Enum.GetValues<NinjaSpacePirateProgram>()))
         {
-            ushort operand = NinjaSpacePirateInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            if (!CompiledEnemyVisualSelectors.TryGet(Bank, operand, out ushort pointer))
-                throw new InvalidDataException(
-                    $"Ninja Pirate frame selector $B2:{operand:X4} is not compiled.");
             if (!seen.Add(pointer))
                 continue;
             // Ninja programs reuse many selected frames in different attacks.

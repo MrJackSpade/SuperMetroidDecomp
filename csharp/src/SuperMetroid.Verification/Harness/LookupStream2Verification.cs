@@ -262,29 +262,9 @@ internal static class LookupStream2Verification
         AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Duration(15), "Accent duration upper domain");
         Console.WriteLine("Old Tourian accent cadence:30 native durations,90 repeated color words,68 mechanics words and130 actual per-tick CGRAM/loop states pass with mechanics reads blocked.");
     }
-    /// <summary>Checks Ninja Space Pirate mechanics/visual word counts, ordering, and exact instruction bounds.</summary>
+    /// <summary>Checks the ninja Space Pirates' typed programs, which carry the native list layout.</summary>
     internal static void VerifyLookupStream2NinjaProgramLayout()
     {
-        AssertEqual(308, NinjaSpacePirateInstructionProgramDefinitions.MechanicsWordCount, "Complete native Ninja mechanics count");
-        AssertEqual(140, NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount, "Complete native Ninja visual count");
-        ushort previous = 0;
-        for (int index = 0; index < 308; index++)
-        {
-            ushort address = NinjaSpacePirateInstructionProgramDefinitions.MechanicsWord(index).Address;
-            AssertTrue(address > previous, "Calculated Ninja controls preserve strict unique native order");
-            previous = address;
-        }
-        previous = 0;
-        for (int index = 0; index < 140; index++)
-        {
-            ushort address = NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(address > previous, "Calculated Ninja selectors preserve strict unique native order");
-            previous = address;
-        }
-        AssertThrows<IndexOutOfRangeException>(() => NinjaSpacePirateInstructionProgramDefinitions.MechanicsWord(-1), "Ninja control lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => NinjaSpacePirateInstructionProgramDefinitions.MechanicsWord(308), "Ninja control upper bound");
-        AssertThrows<IndexOutOfRangeException>(() => NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(-1), "Ninja selector lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(140), "Ninja selector upper bound");
         Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions());
     }
 

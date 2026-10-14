@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
@@ -12,6 +13,9 @@ public sealed class WalkingSpacePirateEnemyState
 
     /// <summary>Binds the typed walking-Pirate view to its existing enemy slot.</summary>
     internal WalkingSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    internal AnimationProgramCursor<WalkingSpacePirateProgram> Program { get; set; }
 
     /// <summary>Bank-$B2 function address stored in native enemy variable A.</summary>
     public WalkingSpacePirateFunction Function

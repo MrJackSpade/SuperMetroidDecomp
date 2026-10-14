@@ -1397,8 +1397,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         DraygonBehavior.RegisterDraygonTypedAnimations(table);
         BotwoonBehavior.RegisterBotwoonTypedAnimations(table);
         CrocomireBehavior.RegisterCrocomireTypedAnimations(table);
-        WallSpacePirateBehavior.RegisterWallSpacePirateOwnedInstructions(table);
-        NinjaSpacePirateBehavior.RegisterNinjaSpacePirateOwnedInstructions(table);
+        WallSpacePirateBehavior.RegisterWallSpacePirateTypedAnimations(table);
+        NinjaSpacePirateBehavior.RegisterNinjaSpacePirateTypedAnimations(table);
         WorkRobotBehavior.RegisterWorkRobotTypedAnimations(table);
         BeetomBehavior.RegisterBeetomTypedAnimations(table);
         YappingMawBehavior.RegisterYappingMawTypedAnimations(table);
@@ -1421,7 +1421,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         SparkBehavior.RegisterSparkTypedAnimations(table);
         HibashiBehavior.RegisterHibashiTypedAnimations(table);
         FakeKraidBehavior.RegisterFakeKraidTypedAnimations(table);
-        WalkingSpacePirateBehavior.RegisterWalkingSpacePirateOwnedInstructions(table);
+        WalkingSpacePirateBehavior.RegisterWalkingSpacePirateTypedAnimations(table);
         RidleyBehavior.RegisterRidleyTypedAnimations(table);
         CeresSteamBehavior.RegisterCeresSteamTypedAnimations(table);
         CeresDoorBehavior.RegisterCeresDoorTypedAnimations(table);

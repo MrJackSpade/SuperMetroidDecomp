@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -24,21 +25,12 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Checks all twenty guarded programs, claw/dive effects, native frame selectors, and allocation-free lookups.</summary>
+    /// <summary>Checks the typed programs against the cartridge and exercises all twenty programs and the claw and dive effects.</summary>
     internal static void VerifyNinjaSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        for (int index = 0;
-             index < NinjaSpacePirateInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                NinjaSpacePirateInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | definition.Address)),
-                $"ninja Pirate mechanics word $B2:{definition.Address:X4}");
-        }
+        Suite(nameof(NinjaSpacePirateAnimationsVerification.VerifyNinjaSpacePirateAnimations), () => NinjaSpacePirateAnimationsVerification.VerifyNinjaSpacePirateAnimations(rom));
 
         // The initializer requires the installed shared gold-Pirate palette.
         // Import its exact native colors into this bounded instruction fixture.
@@ -63,124 +55,93 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 [EnemyDefinitionId.PirateGoldWall] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = colors }))),
             } });
-        var guard = NewNinjaSpacePirateInstructionReadGuard(rom);
-        ushort[] programs =
+        NinjaSpacePirateProgram[] programs =
         [
-            NinjaSpacePirateInstructionProgramDefinitions.ClawAttackLeft,
-            NinjaSpacePirateInstructionProgramDefinitions.SpinJumpLeft,
-            NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingLeft,
-            NinjaSpacePirateInstructionProgramDefinitions.FlinchFacingLeft,
-            NinjaSpacePirateInstructionProgramDefinitions.DivekickLeftJump,
-            NinjaSpacePirateInstructionProgramDefinitions.DivekickLeftDive,
-            NinjaSpacePirateInstructionProgramDefinitions.WalkToLeftPost,
-            NinjaSpacePirateInstructionProgramDefinitions.InitialFacingLeft,
-            NinjaSpacePirateInstructionProgramDefinitions.LandFacingLeft,
-            NinjaSpacePirateInstructionProgramDefinitions.KickFacingLeft,
-            NinjaSpacePirateInstructionProgramDefinitions.ClawAttackRight,
-            NinjaSpacePirateInstructionProgramDefinitions.SpinJumpRight,
-            NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingRight,
-            NinjaSpacePirateInstructionProgramDefinitions.FlinchFacingRight,
-            NinjaSpacePirateInstructionProgramDefinitions.DivekickRightJump,
-            NinjaSpacePirateInstructionProgramDefinitions.DivekickRightDive,
-            NinjaSpacePirateInstructionProgramDefinitions.WalkToRightPost,
-            NinjaSpacePirateInstructionProgramDefinitions.InitialFacingRight,
-            NinjaSpacePirateInstructionProgramDefinitions.LandFacingRight,
-            NinjaSpacePirateInstructionProgramDefinitions.KickFacingRight,
+            NinjaSpacePirateProgram.ClawAttackLeft,
+            NinjaSpacePirateProgram.SpinJumpLeft,
+            NinjaSpacePirateProgram.ActiveFacingLeft,
+            NinjaSpacePirateProgram.FlinchFacingLeft,
+            NinjaSpacePirateProgram.DivekickLeftJump,
+            NinjaSpacePirateProgram.DivekickLeftDive,
+            NinjaSpacePirateProgram.WalkToLeftPost,
+            NinjaSpacePirateProgram.InitialFacingLeft,
+            NinjaSpacePirateProgram.LandFacingLeft,
+            NinjaSpacePirateProgram.KickFacingLeft,
+            NinjaSpacePirateProgram.ClawAttackRight,
+            NinjaSpacePirateProgram.SpinJumpRight,
+            NinjaSpacePirateProgram.ActiveFacingRight,
+            NinjaSpacePirateProgram.FlinchFacingRight,
+            NinjaSpacePirateProgram.DivekickRightJump,
+            NinjaSpacePirateProgram.DivekickRightDive,
+            NinjaSpacePirateProgram.WalkToRightPost,
+            NinjaSpacePirateProgram.InitialFacingRight,
+            NinjaSpacePirateProgram.LandFacingRight,
+            NinjaSpacePirateProgram.KickFacingRight,
         ];
 
-        foreach (ushort program in programs)
+        foreach (NinjaSpacePirateProgram program in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
-            slot.CurrentInstruction = program;
+            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program =
+                AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, 140);
         }
 
         Suite(nameof(VerifyClawAttack), () => VerifyClawAttack(
-            NinjaSpacePirateInstructionProgramDefinitions.ClawAttackLeft,
+            NinjaSpacePirateProgram.ClawAttackLeft,
             expectedFirstXOffset: -32));
         Suite(nameof(VerifyClawAttack), () => VerifyClawAttack(
-            NinjaSpacePirateInstructionProgramDefinitions.ClawAttackRight,
+            NinjaSpacePirateProgram.ClawAttackRight,
             expectedFirstXOffset: 32));
         Suite(nameof(VerifyDive), () => VerifyDive(
-            NinjaSpacePirateInstructionProgramDefinitions.DivekickLeftDive,
+            NinjaSpacePirateProgram.DivekickLeftDive,
             NinjaSpacePirateFunction.DivekickLeftDive));
         Suite(nameof(VerifyDive), () => VerifyDive(
-            NinjaSpacePirateInstructionProgramDefinitions.DivekickRightDive,
+            NinjaSpacePirateProgram.DivekickRightDive,
             NinjaSpacePirateFunction.DivekickRightDive));
 
-        for (int index = 0;
-             index < NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
-            var (enemies, slot, samus) = CreateSystem();
-            slot.CurrentInstruction = unchecked((ushort)(address - 2));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0]);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | address)),
-                slot.SpritemapPointer,
-                $"production execution selects ninja Pirate frame $B2:{address:X4}");
-        }
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids compiled ninja Pirate mechanics and visual bytes");
-        AssertThrows<InvalidDataException>(
-            () => NinjaSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(0xf162),
-            "ninja Pirate spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => NinjaSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(0xf536),
-            "adjacent ninja Pirate callback code is rejected as mechanics");
-
-        _ = ProbeNinjaSpacePirateInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeNinjaSpacePirateInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "ninja Pirate allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed ninja Pirate mechanics lookups allocate no per-frame storage");
-
-        Console.WriteLine(
-            "Ninja Space Pirate instruction mechanics: 308 compiled words, all twenty " +
-            "production programs, claw/palette/sound/function callbacks, and 140 " +
-            "compiled frame selectors pass with source bytes forbidden.");
+        Console.WriteLine("Ninja space pirate: programs and their cues pass through real behavior.");
 
         // Checks that a left or right claw attack spawns its first projectile at the correct horizontal offset.
-        void VerifyClawAttack(ushort program, int expectedFirstXOffset)
+        void VerifyClawAttack(NinjaSpacePirateProgram program, int expectedFirstXOffset)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
-            slot.CurrentInstruction = program;
+            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program =
+                AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, 40);
             NinjaSpacePirateEnemyState state = (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0]."));
             AssertEqual(1, (state ?? throw new InvalidOperationException("Verification requires state.")).SpawnedClawCount,
-                $"ninja Pirate claw program $B2:{program:X4} first spawn count");
+                $"ninja Pirate claw program {program} first spawn count");
             RoomEnemyProjectileSlot claw = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             AssertEqual(
                 unchecked((ushort)(slot.Position.X.Whole + expectedFirstXOffset)),
                 claw.Position.X.Whole,
-                $"ninja Pirate claw program $B2:{program:X4} first spawn X");
+                $"ninja Pirate claw program {program} first spawn X");
         }
 
         // Checks the dive's function switch, shared gold palette, and attack sound.
-        void VerifyDive(ushort program, NinjaSpacePirateFunction function)
+        void VerifyDive(NinjaSpacePirateProgram program, NinjaSpacePirateFunction function)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
-            slot.CurrentInstruction = program;
+            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Program =
+                AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, 3);
             AssertEqual(function, (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0].")).Function,
-                $"ninja Pirate dive program $B2:{program:X4} function");
+                $"ninja Pirate dive program {program} function");
             AssertEqual((ushort)0x0e00, slot.PaletteIndex,
-                $"ninja Pirate dive program $B2:{program:X4} palette");
+                $"ninja Pirate dive program {program} palette");
             AssertEqual((ushort)0x0066, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
-                $"ninja Pirate dive program $B2:{program:X4} sound");
+                $"ninja Pirate dive program {program} sound");
         }
 
-        // Initializes a ninja Pirate actor with installed shared palette and guarded instruction bytes.
+        // Initializes a ninja Pirate actor with the installed shared palette.
         (RoomEnemySystem Enemies, RoomEnemySlot Slot, SamusState Samus) CreateSystem()
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            enemies.BindFixtureBus(guard);
+            enemies.BindFixtureBus(rom);
             enemies.Presentation._cgram = new SnesCgram();
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -205,28 +166,6 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             for (int frame = 0; frame < frames; frame++) EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
-
-    /// <summary>Repeatedly consumes a compiled control word for steady-state allocation measurement.</summary>
-    private static int ProbeNinjaSpacePirateInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += NinjaSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(
-                NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingLeft);
-        }
-        return checksum;
-    }
-
-    /// <summary>Forbids reads of compiled control bytes and native frame-selector words during production execution.</summary>
-    private static CartridgeReadGuard NewNinjaSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(NinjaSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled ninja Pirate mechanics ${address:X6}.")
-            .ForbidWords(0xb20000, NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount,
-                NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress,
-                address => $"Production read compiled ninja Pirate frame selector " +
-                    $"${address:X6}.");
 
     /// <summary>Runs the retail-cartridge ninja Pirate instruction verification.</summary>
     [VerificationCommand("--ninja-space-pirate-instruction-mechanics")]

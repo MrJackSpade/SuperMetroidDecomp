@@ -328,24 +328,6 @@ internal sealed class EnemyInstructionInterpreter
     /// </summary>
     internal static ushort ReadEnemyInstructionMechanicsWord(RoomEnemySlot slot, ushort address)
     {
-        if (WalkingSpacePirateBehavior.IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer))
-        {
-            return WalkingSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
-        if (WallSpacePirateBehavior.IsWallSpacePirateDefinition(slot.EnemyDefinitionPointer))
-        {
-            return WallSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
-        if (NinjaSpacePirateBehavior.IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer))
-        {
-            return NinjaSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
 
         throw new InvalidDataException(
             $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} instruction mechanics pointer " +

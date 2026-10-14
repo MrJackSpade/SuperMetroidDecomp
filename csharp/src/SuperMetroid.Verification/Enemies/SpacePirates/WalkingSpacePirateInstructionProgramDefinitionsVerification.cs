@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -21,105 +22,62 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Exercises all eight lists, both three-laser attacks, and fifty installed visual selectors.</summary>
+    /// <summary>Checks the typed programs against the cartridge and exercises every program and both three-laser attacks.</summary>
     internal static void VerifyWalkingSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        for (int index = 0;
-             index < WalkingSpacePirateInstructionProgramDefinitions.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                WalkingSpacePirateInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | definition.Address)),
-                $"walking Pirate mechanics word $B2:{definition.Address:X4}");
-        }
-
-        var guard = NewWalkingSpacePirateInstructionReadGuard(rom);
+        Suite(nameof(WalkingSpacePirateAnimationsVerification.VerifyWalkingSpacePirateAnimations), () => WalkingSpacePirateAnimationsVerification.VerifyWalkingSpacePirateAnimations(rom));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
-            WalkingSpacePirateInstructionProgramDefinitions.WalkingLeft,
+            WalkingSpacePirateProgram.WalkingLeft,
             frames: 81,
-            expectedCursor: 0xfb6c,
+            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingLeftLoop, 1),
             expectedFunction: WalkingSpacePirateFunction.WalkingLeft));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
-            WalkingSpacePirateInstructionProgramDefinitions.WalkingRight,
+            WalkingSpacePirateProgram.WalkingRight,
             frames: 81,
-            expectedCursor: 0xfbee,
+            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingRightLoop, 1),
             expectedFunction: WalkingSpacePirateFunction.WalkingRight));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
-            WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingLeft,
+            WalkingSpacePirateProgram.FlinchFacingLeft,
             frames: 17,
-            expectedCursor: 0xfb6c,
+            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingLeftLoop, 1),
             expectedFunction: WalkingSpacePirateFunction.WalkingLeft));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
-            WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingRight,
+            WalkingSpacePirateProgram.FlinchFacingRight,
             frames: 17,
-            expectedCursor: 0xfbee,
+            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingRightLoop, 1),
             expectedFunction: WalkingSpacePirateFunction.WalkingRight));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
-            WalkingSpacePirateInstructionProgramDefinitions.LookingFacingLeft,
+            WalkingSpacePirateProgram.LookingFacingLeft,
             frames: 125,
-            expectedCursor: 0xfbee,
+            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingRightLoop, 1),
             expectedFunction: WalkingSpacePirateFunction.WalkingRight));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
-            WalkingSpacePirateInstructionProgramDefinitions.LookingFacingRight,
+            WalkingSpacePirateProgram.LookingFacingRight,
             frames: 125,
-            expectedCursor: 0xfb6c,
+            expectedCursor: new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.WalkingLeftLoop, 1),
             expectedFunction: WalkingSpacePirateFunction.WalkingLeft));
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: false));
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: true));
 
-        for (int index = 0;
-             index < WalkingSpacePirateInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                WalkingSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
-            var (enemies, slot, _, samus) = CreateSystem();
-            slot.CurrentInstruction = unchecked((ushort)(address - 2));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0]);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | address)),
-                slot.SpritemapPointer,
-                $"production execution selects walking Pirate frame $B2:{address:X4}");
-        }
-
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids compiled walking Pirate mechanics and visual bytes");
-        AssertThrows<InvalidDataException>(
-            () => WalkingSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(0xfb52),
-            "walking Pirate spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => WalkingSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(0xfc68),
-            "adjacent walking Pirate callback code is rejected as mechanics");
-
-        _ = ProbeWalkingSpacePirateInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeWalkingSpacePirateInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "walking Pirate allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed walking Pirate mechanics lookups allocate no per-frame storage");
-
-        Console.WriteLine(
-            "Walking Space Pirate instruction mechanics: 92 compiled words, all eight " +
-            "production programs, both three-laser attacks, and fifty compiled frame " +
-            "selectors pass with source bytes forbidden.");
+        Console.WriteLine("Walking space pirate: programs and their cues pass through real behavior.");
 
         void VerifyAttack(bool movingRight)
         {
-            ushort program = movingRight
-                ? WalkingSpacePirateInstructionProgramDefinitions.FireLasersRight
-                : WalkingSpacePirateInstructionProgramDefinitions.FireLasersLeft;
-            ushort expectedCursor = movingRight ? (ushort)0xfc16 : (ushort)0xfb94;
+            WalkingSpacePirateProgram program = movingRight
+                ? WalkingSpacePirateProgram.FireLasersRight
+                : WalkingSpacePirateProgram.FireLasersLeft;
+            var expectedCursor = movingRight
+                ? new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FireLasersRight, 2)
+                : new AnimationProgramCursor<WalkingSpacePirateProgram>(WalkingSpacePirateProgram.FireLasersLeft, 2);
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             samus.Position = samus.Position.WithWholeX(movingRight ? (ushort)0x0180 : (ushort)0x0080);
-            slot.CurrentInstruction = program;
+            state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, 113);
-            AssertEqual(expectedCursor, slot.CurrentInstruction,
+            AssertEqual(expectedCursor, state.Program,
                 $"walking Pirate {(movingRight ? "right" : "left")} attack loops");
             AssertEqual(3, state.SpawnedLaserCount,
                 $"walking Pirate {(movingRight ? "right" : "left")} laser count");
@@ -128,27 +86,27 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
         }
 
         void VerifyProgram(
-            ushort program,
+            WalkingSpacePirateProgram program,
             int frames,
-            ushort expectedCursor,
+            AnimationProgramCursor<WalkingSpacePirateProgram> expectedCursor,
             WalkingSpacePirateFunction expectedFunction)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
-            slot.CurrentInstruction = program;
+            state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, frames);
-            AssertEqual(expectedCursor, slot.CurrentInstruction,
-                $"walking Pirate program $B2:{program:X4} cursor");
+            AssertEqual(expectedCursor, state.Program,
+                $"walking Pirate program {program} cursor");
             AssertEqual(expectedFunction, state.Function,
-                $"walking Pirate program $B2:{program:X4} function");
+                $"walking Pirate program {program} function");
         }
 
         (RoomEnemySystem Enemies, RoomEnemySlot Slot,
             WalkingSpacePirateEnemyState State, SamusState Samus) CreateSystem()
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guard);
+            enemies.BindFixtureBus(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyWalking;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
@@ -173,26 +131,6 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
                 EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
-
-    /// <summary>Repeatedly resolves the left-walking word to expose allocations in mechanics lookup.</summary>
-    private static int ProbeWalkingSpacePirateInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += WalkingSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(
-                WalkingSpacePirateInstructionProgramDefinitions.WalkingLeft);
-        }
-        return checksum;
-    }
-
-    /// <summary>Rejects runtime reads of compiled Pirate mechanics and frame selectors.</summary>
-    private static CartridgeReadGuard NewWalkingSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(WalkingSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled walking Pirate mechanics ${address:X6}.")
-            .ForbidWords(0xb20000, WalkingSpacePirateInstructionProgramDefinitions.PresentationWordCount, WalkingSpacePirateInstructionProgramDefinitions.PresentationWordAddress,
-                address => $"Production read compiled walking Pirate frame selector ${address:X6}.");
 
     /// <summary>Runs walking Pirate instruction checks from the verification command dispatcher.</summary>
     [VerificationCommand("--walking-space-pirate-instruction-mechanics")]

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;
@@ -313,6 +315,12 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(ChozoStatueAnimations), "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueAnimations.cs");
         RequireTypedFrames(FakeKraidAnimations.Programs, FakeKraidFrameDefinitions.Spritemap, FakeKraidFrameDefinitions.Bank,
             nameof(FakeKraidAnimations), "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidAnimations.cs");
+        RequireTypedFrames(WalkingSpacePirateAnimations.Programs, WalkingSpacePirateFrameDefinitions.Spritemap, WalkingSpacePirateFrameDefinitions.Bank,
+            nameof(WalkingSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WalkingSpacePirateAnimations.cs");
+        RequireTypedFrames(WallSpacePirateAnimations.Programs, WallSpacePirateFrameDefinitions.Spritemap, WallSpacePirateFrameDefinitions.Bank,
+            nameof(WallSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WallSpacePirateAnimations.cs");
+        RequireTypedFrames(NinjaSpacePirateAnimations.Programs, NinjaSpacePirateFrameDefinitions.Spritemap, NinjaSpacePirateFrameDefinitions.Bank,
+            nameof(NinjaSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateAnimations.cs");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -27,99 +28,56 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        for (int index = 0;
-             index < WallSpacePirateInstructionProgramDefinitionsTooling.MechanicsWordCount;
-             index++)
-        {
-            InstructionMechanicsWord definition =
-                WallSpacePirateInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(definition.Value,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | definition.Address)),
-                $"wall Pirate mechanics word $B2:{definition.Address:X4}");
-        }
-
-        var guard = NewWallSpacePirateInstructionReadGuard(rom);
+        Suite(nameof(WallSpacePirateAnimationsVerification.VerifyWallSpacePirateAnimations), () => WallSpacePirateAnimationsVerification.VerifyWallSpacePirateAnimations(rom));
         RoomLevelData level = CreateOpenWallPirateRoom();
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: false));
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: true));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateInstructionProgramDefinitions.LandedOnLeftWall,
+            WallSpacePirateProgram.LandedOnLeftWall,
             expectedFunction: WallSpacePirateFunction.ClimbingLeftWall,
             frames: 12));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateInstructionProgramDefinitions.MovingUpLeftWall,
+            WallSpacePirateProgram.MovingUpLeftWall,
             expectedFunction: WallSpacePirateFunction.ClimbingLeftWall,
             frames: 260));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateInstructionProgramDefinitions.MovingDownLeftWall,
+            WallSpacePirateProgram.MovingDownLeftWall,
             expectedFunction: WallSpacePirateFunction.ClimbingLeftWall,
             frames: 260));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateInstructionProgramDefinitions.LandedOnRightWall,
+            WallSpacePirateProgram.LandedOnRightWall,
             expectedFunction: WallSpacePirateFunction.ClimbingRightWall,
             frames: 12));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateInstructionProgramDefinitions.MovingDownRightWall,
+            WallSpacePirateProgram.MovingDownRightWall,
             expectedFunction: WallSpacePirateFunction.ClimbingRightWall,
             frames: 260));
         Suite(nameof(VerifyClimb), () => VerifyClimb(
-            WallSpacePirateInstructionProgramDefinitions.MovingUpRightWall,
+            WallSpacePirateProgram.MovingUpRightWall,
             expectedFunction: WallSpacePirateFunction.ClimbingRightWall,
             frames: 260));
         Suite(nameof(VerifyCollisionReversal), () => VerifyCollisionReversal(onRightWall: false));
         Suite(nameof(VerifyCollisionReversal), () => VerifyCollisionReversal(onRightWall: true));
 
-        for (int index = 0;
-             index < WallSpacePirateInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort address =
-                WallSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
-            var (enemies, slot, _, samus) = CreateSystem();
-            slot.CurrentInstruction = unchecked((ushort)(address - 2));
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, [slot, samus, level, Position16<RoomPixels>.Zero, (ushort)0]);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | address)),
-                slot.SpritemapPointer,
-                $"production execution selects wall Pirate frame $B2:{address:X4}");
-        }
-
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "production execution avoids compiled wall Pirate mechanics and visual bytes");
-        AssertThrows<InvalidDataException>(
-            () => WallSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(0xecc6),
-            "wall Pirate spritemap pointer is rejected as mechanics");
-        AssertThrows<InvalidDataException>(
-            () => WallSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(0xee40),
-            "adjacent wall Pirate callback code is rejected as mechanics");
-
-        _ = ProbeWallSpacePirateInstructionMechanicsAllocation();
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = ProbeWallSpacePirateInstructionMechanicsAllocation();
-        AssertTrue(checksum != 0, "wall Pirate allocation probe consumes live data");
-        AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before,
-            "warmed wall Pirate mechanics lookups allocate no per-frame storage");
-
-        Console.WriteLine(
-            "Wall Space Pirate instruction mechanics: 150 compiled words, all eight " +
-            "production programs, both attack/jump handoffs, four climb directions, and " +
-            "42 compiled frame selectors pass with source bytes forbidden.");
+        Console.WriteLine("Wall space pirate: programs and their cues pass through real behavior.");
 
         void VerifyAttack(bool movingRight)
         {
-            ushort program = movingRight
-                ? WallSpacePirateInstructionProgramDefinitions.FireAndJumpRight
-                : WallSpacePirateInstructionProgramDefinitions.FireAndJumpLeft;
-            ushort expectedCursor = movingRight ? (ushort)0xeda2 : (ushort)0xece2;
+            WallSpacePirateProgram program = movingRight
+                ? WallSpacePirateProgram.FireAndJumpRight
+                : WallSpacePirateProgram.FireAndJumpLeft;
+            var expectedCursor = movingRight
+                ? new AnimationProgramCursor<WallSpacePirateProgram>(WallSpacePirateProgram.FireAndJumpRight, 10)
+                : new AnimationProgramCursor<WallSpacePirateProgram>(WallSpacePirateProgram.FireAndJumpLeft, 10);
             WallSpacePirateFunction expectedFunction = movingRight
                 ? WallSpacePirateFunction.WallJumpingRight
                 : WallSpacePirateFunction.WallJumpingLeft;
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
-            slot.CurrentInstruction = program;
+            state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, level, 70);
-            AssertEqual(expectedCursor, slot.CurrentInstruction,
+            AssertEqual(expectedCursor, state.Program,
                 $"wall Pirate {(movingRight ? "right" : "left")} attack sleeps");
             AssertEqual(expectedFunction, state.Function,
                 $"wall Pirate {(movingRight ? "right" : "left")} attack jump handoff");
@@ -130,22 +88,22 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         }
 
         void VerifyClimb(
-            ushort program,
+            WallSpacePirateProgram program,
             WallSpacePirateFunction expectedFunction,
             int frames)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             ushort initialY = slot.Position.Y.Whole;
-            slot.CurrentInstruction = program;
+            state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(enemies, slot, samus, level, frames);
             AssertEqual(expectedFunction, state.Function,
-                $"wall Pirate program $B2:{program:X4} climb function");
+                $"wall Pirate program {program} climb function");
             if (frames > 12)
             {
                 AssertTrue(slot.Position.Y.Whole != initialY,
-                    $"wall Pirate program $B2:{program:X4} applies climb displacement");
+                    $"wall Pirate program {program} applies climb displacement");
             }
         }
 
@@ -153,9 +111,9 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
-            slot.CurrentInstruction = onRightWall
-                ? WallSpacePirateInstructionProgramDefinitions.MovingDownRightWall
-                : WallSpacePirateInstructionProgramDefinitions.MovingDownLeftWall;
+            state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(onRightWall
+                ? WallSpacePirateProgram.MovingDownRightWall
+                : WallSpacePirateProgram.MovingDownLeftWall);
             slot.InstructionTimer = NativeCountdown.Start(1);
             RunFrames(
                 enemies,
@@ -166,8 +124,10 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             AssertEqual(WallSpacePirateClimbDirection.Up, state.ClimbDirection,
                 $"wall Pirate {(onRightWall ? "right" : "left")} collision reverses direction");
             AssertEqual(
-                onRightWall ? (ushort)0xee02 : (ushort)0xecf8,
-                slot.CurrentInstruction,
+                onRightWall
+                    ? new AnimationProgramCursor<WallSpacePirateProgram>(WallSpacePirateProgram.MovingUpRightWallLoop, 1)
+                    : new AnimationProgramCursor<WallSpacePirateProgram>(WallSpacePirateProgram.MovingUpLeftWallLoop, 1),
+                state.Program,
                 $"wall Pirate {(onRightWall ? "right" : "left")} collision installs upward list");
         }
 
@@ -175,7 +135,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             WallSpacePirateEnemyState State, SamusState Samus) CreateSystem()
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guard);
+            enemies.BindFixtureBus(rom);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyWall;
@@ -228,26 +188,6 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             foreground[17 * width + column] = 0x8000;
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[foreground.Length], new ushort[foreground.Length]), new byte[8]);
     }
-
-    /// <summary>Repeatedly resolves a compiled climb word to detect warmed lookup allocations.</summary>
-    private static int ProbeWallSpacePirateInstructionMechanicsAllocation()
-    {
-        int checksum = 0;
-        for (int index = 0; index < 65536; index++)
-        {
-            checksum += WallSpacePirateInstructionProgramDefinitions.ReadMechanicsWord(
-                WallSpacePirateInstructionProgramDefinitions.MovingDownLeftWall);
-        }
-        return checksum;
-    }
-
-    /// <summary>Rejects runtime reads of compiled mechanics and visual-selector bytes in bank $B2.</summary>
-    private static CartridgeReadGuard NewWallSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(WallSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-                address => $"Production read compiled wall Pirate mechanics ${address:X6}.")
-            .ForbidWords(0xb20000, WallSpacePirateInstructionProgramDefinitions.PresentationWordCount, WallSpacePirateInstructionProgramDefinitions.PresentationWordAddress,
-                address => $"Production read compiled wall Pirate frame selector ${address:X6}.");
 
     /// <summary>Runs the standalone wall Space Pirate instruction verification command.</summary>
     [VerificationCommand("--wall-space-pirate-instruction-mechanics")]

@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.SpriteObjects;
@@ -74,10 +76,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
 
         bool startsAtLeft = ((NinjaSpacePirateParameterFlags)slot.Parameter1 &
             NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight) != 0;
-        slot.CurrentInstruction = startsAtLeft
-            ? NinjaSpacePirateInstructionProgramDefinitions.InitialFacingRight
-            : NinjaSpacePirateInstructionProgramDefinitions.InitialFacingLeft;
-        state.ActiveInstruction = slot.CurrentInstruction;
+        NinjaSpacePirateProgram initial = startsAtLeft
+            ? NinjaSpacePirateProgram.InitialFacingRight
+            : NinjaSpacePirateProgram.InitialFacingLeft;
+        state.Program = AnimationProgramCursor<NinjaSpacePirateProgram>.Start(initial);
+        state.ActiveProgram = initial;
 
         // Parameter two describes the requested distance between posts. The native setup
         // first establishes those requested posts around the population X coordinate, then
@@ -195,15 +198,15 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         if (Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) >=
             NinjaPirateActivationDistance)
         {
-            _ = TryNinjaPirateProjectileFlinch(slot, samus, samusProjectiles);
+            _ = TryNinjaPirateProjectileFlinch(slot, state, samus, samusProjectiles);
             return;
         }
 
-        ushort active = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
-            ? NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingRight
-            : NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingLeft;
-        state.ActiveInstruction = active;
-        InstallNinjaPirateInstruction(slot, active);
+        NinjaSpacePirateProgram active = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
+            ? NinjaSpacePirateProgram.ActiveFacingRight
+            : NinjaSpacePirateProgram.ActiveFacingLeft;
+        state.ActiveProgram = active;
+        InstallNinjaPirateInstruction(slot, state, active);
     }
 
     /// <summary>Checks flinch, standing kick, spin jump, then periodic claw attack in native priority order.</summary>
@@ -213,8 +216,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         SamusState samus,
         SamusProjectileSystem? samusProjectiles)
     {
-        if (TryNinjaPirateProjectileFlinch(slot, samus, samusProjectiles) ||
-            TryNinjaPirateStandingKick(slot, samus) ||
+        if (TryNinjaPirateProjectileFlinch(slot, state, samus, samusProjectiles) ||
+            TryNinjaPirateStandingKick(slot, state, samus) ||
             TryNinjaPirateSpinJump(slot, state, samus))
         {
             return;
@@ -226,6 +229,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
     /// <summary>Flinches only for the highest occupied Samus projectile when it is close on both axes.</summary>
     private static bool TryNinjaPirateProjectileFlinch(
         RoomEnemySlot slot,
+        NinjaSpacePirateEnemyState state,
         SamusState samus,
         SamusProjectileSystem? samusProjectiles)
     {
@@ -256,14 +260,15 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
 
         InstallNinjaPirateInstruction(
             slot,
+            state,
             unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
-                ? NinjaSpacePirateInstructionProgramDefinitions.FlinchFacingRight
-                : NinjaSpacePirateInstructionProgramDefinitions.FlinchFacingLeft);
+                ? NinjaSpacePirateProgram.FlinchFacingRight
+                : NinjaSpacePirateProgram.FlinchFacingLeft);
         return true;
     }
 
     /// <summary>Starts a facing kick when Samus is within the strict contact range.</summary>
-    private static bool TryNinjaPirateStandingKick(RoomEnemySlot slot, SamusState samus)
+    private static bool TryNinjaPirateStandingKick(RoomEnemySlot slot, NinjaSpacePirateEnemyState state, SamusState samus)
     {
         if (Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole))) >=
                 NinjaPirateKickDistance ||
@@ -275,9 +280,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
 
         InstallNinjaPirateInstruction(
             slot,
+            state,
             unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
-                ? NinjaSpacePirateInstructionProgramDefinitions.KickFacingRight
-                : NinjaSpacePirateInstructionProgramDefinitions.KickFacingLeft);
+                ? NinjaSpacePirateProgram.KickFacingRight
+                : NinjaSpacePirateProgram.KickFacingLeft);
         return true;
     }
 
@@ -295,9 +301,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
 
         InstallNinjaPirateInstruction(
             slot,
+            state,
             slot.Position.X.Whole == state.LeftPostX
-                ? NinjaSpacePirateInstructionProgramDefinitions.SpinJumpRight
-                : NinjaSpacePirateInstructionProgramDefinitions.SpinJumpLeft);
+                ? NinjaSpacePirateProgram.SpinJumpRight
+                : NinjaSpacePirateProgram.SpinJumpLeft);
         return true;
     }
 
@@ -316,7 +323,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
                 return;
             InstallNinjaPirateInstruction(
                 slot,
-                NinjaSpacePirateInstructionProgramDefinitions.ClawAttackLeft);
+                state,
+                NinjaSpacePirateProgram.ClawAttackLeft);
             return;
         }
 
@@ -324,7 +332,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
             return;
         InstallNinjaPirateInstruction(
             slot,
-            NinjaSpacePirateInstructionProgramDefinitions.ClawAttackRight);
+            state,
+            NinjaSpacePirateProgram.ClawAttackRight);
     }
 
     /// <summary>Retries native RNG until a nonzero dive choice after higher-priority reactions fail.</summary>
@@ -334,8 +343,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         SamusState samus,
         SamusProjectileSystem? samusProjectiles)
     {
-        if (TryNinjaPirateProjectileFlinch(slot, samus, samusProjectiles) ||
-            TryNinjaPirateStandingKick(slot, samus))
+        if (TryNinjaPirateProjectileFlinch(slot, state, samus, samusProjectiles) ||
+            TryNinjaPirateStandingKick(slot, state, samus))
         {
             return;
         }
@@ -356,9 +365,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
 
         InstallNinjaPirateInstruction(
             slot,
+            state,
             slot.Position.X.Whole == state.LeftPostX
-                ? NinjaSpacePirateInstructionProgramDefinitions.DivekickRightJump
-                : NinjaSpacePirateInstructionProgramDefinitions.DivekickLeftJump);
+                ? NinjaSpacePirateProgram.DivekickRightJump
+                : NinjaSpacePirateProgram.DivekickLeftJump);
     }
 
     /// <summary>Moves through a rising and falling arc between patrol posts, then emits landing dust.</summary>
@@ -396,9 +406,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         slot.Position = slot.Position.WithWholeX(movingRight ? state.RightPostX : state.LeftPostX);
         InstallNinjaPirateInstruction(
             slot,
+            state,
             movingRight
-                ? NinjaSpacePirateInstructionProgramDefinitions.LandFacingRight
-                : NinjaSpacePirateInstructionProgramDefinitions.LandFacingLeft);
+                ? NinjaSpacePirateProgram.LandFacingRight
+                : NinjaSpacePirateProgram.LandFacingLeft);
         SpawnNinjaPirateLandingDust(slot, state);
     }
 
@@ -431,9 +442,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
             : NinjaSpacePirateFunction.DivekickLeftDive;
         InstallNinjaPirateInstruction(
             slot,
+            state,
             movingRight
-                ? NinjaSpacePirateInstructionProgramDefinitions.DivekickRightDive
-                : NinjaSpacePirateInstructionProgramDefinitions.DivekickLeftDive);
+                ? NinjaSpacePirateProgram.DivekickRightDive
+                : NinjaSpacePirateProgram.DivekickLeftDive);
         state.Speed = NinjaPirateInitialDiveSpeed;
     }
 
@@ -472,9 +484,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
             : NinjaSpacePirateFunction.DivekickLeftWalkToPost;
         InstallNinjaPirateInstruction(
             slot,
+            state,
             movingRight
-                ? NinjaSpacePirateInstructionProgramDefinitions.WalkToRightPost
-                : NinjaSpacePirateInstructionProgramDefinitions.WalkToLeftPost);
+                ? NinjaSpacePirateProgram.WalkToRightPost
+                : NinjaSpacePirateProgram.WalkToLeftPost);
         slot.Position = slot.Position.WithY(new(state.SpawnY, 0));
         SpawnNinjaPirateLandingDust(slot, state);
     }
@@ -496,9 +509,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         slot.Position = slot.Position.WithWholeX(movingRight ? state.RightPostX : state.LeftPostX);
         InstallNinjaPirateInstruction(
             slot,
+            state,
             movingRight
-                ? NinjaSpacePirateInstructionProgramDefinitions.LandFacingRight
-                : NinjaSpacePirateInstructionProgramDefinitions.LandFacingLeft);
+                ? NinjaSpacePirateProgram.LandFacingRight
+                : NinjaSpacePirateProgram.LandFacingLeft);
         state.Function = NinjaSpacePirateFunction.NoOperation;
     }
 
@@ -584,98 +598,62 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
             projectile.Clear();
     }
 
-    /// <summary>Executes all cartridge opcodes reachable from retail ninja lists.</summary>
-    private bool TryProcessNinjaSpacePirateInstruction(
-        RoomEnemySlot slot,
-        SamusState? samus,
-        ushort opcode,
-        ref ushort cursor)
+    /// <summary>
+    /// Carries out one cue of the ninja Space Pirates' animations. Becoming active continues at the active stance facing
+    /// Samus, as the native opcode returns that list; every other cue runs on.
+    /// </summary>
+    private NinjaSpacePirateProgram? ApplyNinjaSpacePirateCue(RoomEnemySlot slot, NinjaSpacePirateCue cue, SamusState? samus)
     {
-        if (!IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer))
-            return false;
-
-        // The shared interpreter hands every remaining negative word here; only
-        // these ninja opcodes belong to this handler.
-        if ((SpacePirateInstruction)opcode is not (
-            SpacePirateInstruction.PirateWall_FunctionInY or
-            SpacePirateInstruction.PirateNinja_PaletteIndexInY or
-            SpacePirateInstruction.PirateNinja_QueueSoundInY_Lib2_Max6 or
-            SpacePirateInstruction.PirateNinja_SpawnClawProjWithThrowDirSpawnOffset or
-            SpacePirateInstruction.PirateNinja_SetFunction0FAC_Active or
-            SpacePirateInstruction.PirateNinja_ResetSpeed or
-            SpacePirateInstruction.PirateNinja_SetLeftDivekickJumpInitialYSpeed or
-            SpacePirateInstruction.PirateNinja_SetRightDivekickJumpInitialYSpeed))
-            return false;
-
         NinjaSpacePirateEnemyState state = RequireNinjaSpacePirateState(slot);
-        switch ((SpacePirateInstruction)opcode)
+        switch (cue.Kind)
         {
-            case SpacePirateInstruction.PirateWall_FunctionInY:
-                state.Function = (NinjaSpacePirateFunction)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                    slot,
-                    unchecked((ushort)(cursor + 2)));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            case SpacePirateInstruction.PirateNinja_PaletteIndexInY:
-                slot.PaletteIndex = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                    slot,
-                    unchecked((ushort)(cursor + 2)));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            case SpacePirateInstruction.PirateNinja_QueueSoundInY_Lib2_Max6:
-                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
-                    slot,
-                    unchecked((ushort)(cursor + 2)));
-                cursor = unchecked((ushort)(cursor + 4));
-                return true;
-            case SpacePirateInstruction.PirateNinja_SpawnClawProjWithThrowDirSpawnOffset:
-                SpawnNinjaPirateClaw(
-                    slot,
-                    state,
-                    EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2))),
-                    new Offset16<RoomPixels>(
-                        unchecked((short)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 4)))),
-                        unchecked((short)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 6))))));
-                cursor = unchecked((ushort)(cursor + 8));
-                return true;
-            case SpacePirateInstruction.PirateNinja_SetFunction0FAC_Active:
+            case NinjaSpacePirateCueKind.SetFunction:
+                state.Function = cue.Function;
+                return null;
+            case NinjaSpacePirateCueKind.SetPalette:
+                slot.PaletteIndex = cue.Value;
+                return null;
+            case NinjaSpacePirateCueKind.PlaySound:
+                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = cue.Value;
+                return null;
+            case NinjaSpacePirateCueKind.ThrowClaw:
+                SpawnNinjaPirateClaw(slot, state, cue.Value, new Offset16<RoomPixels>(cue.Offset, cue.OffsetY));
+                return null;
+            case NinjaSpacePirateCueKind.StartActive:
                 if (samus is null)
                 {
                     throw new InvalidOperationException(
                         "Ninja Space Pirate facing selection requires the active Samus actor.");
                 }
-                state.ActiveInstruction = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
-                    ? NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingRight
-                    : NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingLeft;
+                state.ActiveProgram = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
+                    ? NinjaSpacePirateProgram.ActiveFacingRight
+                    : NinjaSpacePirateProgram.ActiveFacingLeft;
                 slot.InstructionTimer = NativeCountdown.Start(1);
                 // The native instruction returns the selected list, not its next word.
-                // Re-entering that list executes FunctionInY and restores decision AI
+                // Re-entering that list runs its function cue and restores decision AI
                 // after the idle animation explicitly installed the no-op function.
-                cursor = state.ActiveInstruction;
-                return true;
-            case SpacePirateInstruction.PirateNinja_ResetSpeed:
+                return state.ActiveProgram;
+            case NinjaSpacePirateCueKind.ResetSpeed:
                 state.Speed = 0;
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case SpacePirateInstruction.PirateNinja_SetLeftDivekickJumpInitialYSpeed:
+                return null;
+            case NinjaSpacePirateCueKind.StartLeftDivekick:
                 InitializeNinjaPirateDive(state, movingRight: false);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
-            case SpacePirateInstruction.PirateNinja_SetRightDivekickJumpInitialYSpeed:
+                return null;
+            case NinjaSpacePirateCueKind.StartRightDivekick:
                 InitializeNinjaPirateDive(state, movingRight: true);
-                cursor = unchecked((ushort)(cursor + 2));
-                return true;
+                return null;
             default:
-                throw new InvalidOperationException($"Ninja Space Pirate does not own instruction ${opcode:X4}.");
+                throw new InvalidOperationException($"The ninja Space Pirates' animations have no {cue.Kind} cue.");
         }
     }
 
-    /// <summary>Installs an animation list and restarts its frame timer.</summary>
+    /// <summary>Installs an animation and restarts its frame timer.</summary>
     private static void InstallNinjaPirateInstruction(
         RoomEnemySlot slot,
-        ushort instructionPointer)
+        NinjaSpacePirateEnemyState state,
+        NinjaSpacePirateProgram program)
     {
-        slot.CurrentInstruction = instructionPointer;
+        state.Program = AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -718,15 +696,19 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers ninja-owned function, palette, sound, claw, and dive setup opcodes.</summary>
-    internal void RegisterNinjaSpacePirateOwnedInstructions(EnemyAiTable table)
-    {
-        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+    /// <summary>Runs the ninja Space Pirates' animations as typed programs (#641).</summary>
+    internal void RegisterNinjaSpacePirateTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, context) =>
         {
-            yieldInterpreter = false;
-            return TryProcessNinjaSpacePirateInstruction(slot, context.Samus, word, ref cursor);
+            if (!EnemyProgramAnimation.Expire(slot))
+                return;
+            var state = RequireNinjaSpacePirateState(slot);
+            AnimationProgramCursor<NinjaSpacePirateProgram> cursor = state.Program;
+            EnemyProgramAnimation.Run(slot, NinjaSpacePirateAnimations.Programs, ref cursor, NinjaSpacePirateFrameDefinitions.Spritemap,
+                    (cue, _) => ApplyNinjaSpacePirateCue(slot, cue, context.Samus));
+            state.Program = cursor;
         });
-    }
+
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

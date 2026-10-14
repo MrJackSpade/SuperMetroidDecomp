@@ -23,7 +23,7 @@ internal static class SpcCommandPortsVerification
         "5D07590F2219F6AC6C69D61BF3B9BFDB69E988A2C0E34AD8C4037FD35C6B8633";
 
     /// <summary>Audio data bank index of the Green Brinstar music upload.</summary>
-    private static byte GreenBrinstarDataIndex => AudioAssetCatalogData.Music
+    private static byte GreenBrinstarDataIndex => AudioAssetCatalogDefinitions.Music
         .Single(bank => bank.Name == "Music_GreenBrinstar").DataIndex;
 
     /// <summary>

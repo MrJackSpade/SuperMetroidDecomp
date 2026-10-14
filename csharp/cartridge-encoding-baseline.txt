@@ -23,15 +23,6 @@ csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueSequence.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueSequence.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Areas/Tourian/TourianUnlockBehavior.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Areas/Tourian/TourianUnlockBehavior.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Audio/AudioAssetCatalogData.cs	SME6340	25
-csharp/src/SuperMetroid.Core/Audio/CartridgeAudioState.cs	SME6348	1
-csharp/src/SuperMetroid.Core/Audio/CartridgeAudioState.cs	SME6349	3
-csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs	SME6340	17
-csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs	SME6349	1
-csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.cs	SME6340	46
-csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.cs	SME6349	18
-csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterMap.cs	SME6340	16
-csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs	SME6340	32
 csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonWallPlmProgramDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireArenaPlmProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireMeltingCopySequence.cs	SME6340	4

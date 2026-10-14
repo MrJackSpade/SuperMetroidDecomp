@@ -11,5 +11,5 @@ internal readonly struct SnesDspControls(ManagedSnesDsp dsp)
     public SnesDspVoiceControls Voice(int index) => new(dsp, index);
 
     /// <summary>The EDL ($7D) echo delay steps a stored EDL byte selects (its low four bits).</summary>
-    public static int EchoDelayOf(byte echoDelay) => echoDelay & SnesDspRegisterMap.Fields.EchoDelayMask;
+    public static int EchoDelayOf(byte echoDelay) => echoDelay & SnesDspRegisterLayout.Fields.EchoDelayMask;
 }

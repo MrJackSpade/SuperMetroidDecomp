@@ -16,7 +16,7 @@ internal static class SpcSoundEffectProgramCodec
     {
         var instructions = new List<AudioSoundInstructionMetadata>();
         int cursor = address;
-        for (int count = 0; count < SpcDriverData.ApuRamSize; count++)
+        for (int count = 0; count < SpcDriverDefinitions.ApuRamSize; count++)
         {
             byte opcode = ReadByte(ram, written, ref cursor, address);
             var command = (SpcSoundEffectOpcode)opcode;

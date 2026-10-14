@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// register it is handling instead of scattering raw addresses through control flow.
 /// </summary>
 [DspRegisterAccess]
-internal static class SnesDspRegisterMap
+internal static class SnesDspRegisterLayout
 {
     /// <summary>The S-DSP exposes 128 byte-addressed registers.</summary>
     internal const int RegisterFileSize = 0x80;
@@ -80,4 +80,28 @@ internal static class SnesDspRegisterMap
         /// <summary>EDL low nibble selecting echo-buffer delay.</summary>
         internal const int EchoDelayMask = 0x0f;
     }
+
+    /// <summary>$7FF: the largest eleven-bit envelope level.</summary>
+    internal const int EnvelopeMaximum = 0x7ff;
+
+    /// <summary>$7E0: the attack level at which the envelope begins its decay.</summary>
+    internal const int AttackEndLevel = 0x7e0;
+
+    /// <summary>$600: the bent-line gain level above which the increase slows from 32 to 8.</summary>
+    internal const int BentLineThreshold = 0x600;
+
+    /// <summary>$100: the envelope level per sustain-level step.</summary>
+    internal const int SustainLevelStep = 0x100;
+
+    /// <summary>$400: the neutral pitch-modulation factor, added to the previous voice's output.</summary>
+    internal const int PitchModulationBias = 0x400;
+
+    /// <summary>-$4000: the noise generator's reset sample.</summary>
+    internal const int NoiseResetSample = -0x4000;
+
+    /// <summary>$3FFF: the noise shift register bits kept as it shifts right.</summary>
+    internal const int NoiseShiftMask = 0x3fff;
+
+    /// <summary>$7FFF: the noise register's fifteen sample bits.</summary>
+    internal const int NoiseSampleMask = 0x7fff;
 }

@@ -19,7 +19,7 @@ internal static class AudioInstrumentsVerification
     {
         string sourceDirectory = RepositoryInstallation.Installation.AudioDirectory;
         ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
-        foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogData.All)
+        foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogDefinitions.All)
         {
             var rawPlayer = new ManagedSpcPlayer();
             rawPlayer.Upload(stock.GetUpload(AudioUploadAddresses.SpcEngine).Span);
@@ -29,13 +29,13 @@ internal static class AudioInstrumentsVerification
             IReadOnlyList<AudioInstrumentMetadata> definitions =
                 stock.GetInstrumentBank(bank.SnesAddress);
             AssertEqual(
-                SpcDriverData.Ram.InstrumentCount,
+                SpcDriverDefinitions.Ram.InstrumentCount,
                 definitions.Count,
                 $"{bank.Name} instrument count");
             foreach (AudioInstrumentMetadata instrument in definitions)
             {
-                int address = SpcDriverData.Ram.InstrumentTable +
-                    instrument.Instrument * SpcDriverData.Ram.InstrumentRecordSize;
+                int address = SpcDriverDefinitions.Ram.InstrumentTable +
+                    instrument.Instrument * SpcDriverDefinitions.Ram.InstrumentRecordSize;
                 AssertEqual(instrument.SourceOrNoiseRate,
                     rawPlayer.ReadApuByteForVerification(address),
                     $"{bank.Name} instrument {instrument.Instrument} source/noise");
@@ -105,8 +105,8 @@ internal static class AudioInstrumentsVerification
                 edited.GetInstrumentBank(AudioUploadAddresses.TitleSequence);
             for (int index = 0; index < installed.Count; index++)
             {
-                int address = SpcDriverData.Ram.InstrumentTable +
-                    index * SpcDriverData.Ram.InstrumentRecordSize;
+                int address = SpcDriverDefinitions.Ram.InstrumentTable +
+                    index * SpcDriverDefinitions.Ram.InstrumentRecordSize;
                 AssertEqual(SnesLittleEndian.HighByte(installed[index].PitchBase),
                     editedRenderer.player.ReadApuByteForVerification(address + 4),
                     $"edited title instrument {index} pitch high");
@@ -135,7 +135,7 @@ internal static class AudioInstrumentsVerification
                 Banks = editedManifest.Banks
                     .Select(bank => bank.SnesAddress == editedTitle.SnesAddress
                         ? bank with { Instruments = bank.Instruments.Take(
-                            SpcDriverData.Ram.InstrumentCount - 1).ToArray() }
+                            SpcDriverDefinitions.Ram.InstrumentCount - 1).ToArray() }
                         : bank)
                     .ToArray(),
             });

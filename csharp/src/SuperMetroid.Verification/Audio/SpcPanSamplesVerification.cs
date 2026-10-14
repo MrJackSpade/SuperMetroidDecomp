@@ -14,7 +14,7 @@ internal static class SpcPanSamplesVerification
         for (int index = 0; index < 22; index++)
             AssertEqual(rom.ReadCartridgeByte(0xcf8a25 + index), SpcMusicTables.PanVolume(index),
                 "original local interpolation view including adjacent FIR byte");
-        AssertEqual(0x1e32, (int)SpcDriverData.Echo.FirCoefficientTableAddress, "native adjacent FIR base");
+        AssertEqual(0x1e32, (int)SpcDriverDefinitions.Echo.FirCoefficientTableAddress, "native adjacent FIR base");
         // The neighboring sharp-echo preset is an impulse: maximal signed positive
         // first tap followed by seven zeros, not an additional pan sampling interval.
         AssertEqual((byte)127, rom.ReadCartridgeByte(0xcf8a3a), "sharp-echo first tap");

@@ -51,10 +51,10 @@ public static class ManagedAudioRegressionSmokeTest
 
         RunMusicScenario(
             "title-long",
-            AudioAssetCatalogData.Music[0],
+            AudioAssetCatalogDefinitions.Music[0],
             TitleScenarioFrames,
             tally);
-        foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogData.Music)
+        foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogDefinitions.Music)
         {
             RunMusicScenario(
                 bank.Name,
@@ -119,7 +119,7 @@ public static class ManagedAudioRegressionSmokeTest
             IReadOnlyList<CartridgeAudioCommand> commands = frame == 0
                 ?
                 [
-                    CartridgeAudioCommand.Upload(AudioAssetCatalogData.Common.SnesAddress),
+                    CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.SnesAddress),
                     CartridgeAudioCommand.Upload(bank.SnesAddress),
                     CartridgeAudioCommand.WritePort(ApuPort.Music, 1),
                 ]
@@ -142,7 +142,7 @@ public static class ManagedAudioRegressionSmokeTest
             List<CartridgeAudioCommand> commands = [];
             if (frame == 0)
             {
-                commands.Add(CartridgeAudioCommand.Upload(AudioAssetCatalogData.Common.SnesAddress));
+                commands.Add(CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.SnesAddress));
                 commands.AddRange(startCommands.Select(command =>
                     CartridgeAudioCommand.WritePort(command.Port, command.Command)));
             }
@@ -164,15 +164,15 @@ public static class ManagedAudioRegressionSmokeTest
     private static void RunLifecycleScenario(
         AudioCorpusTally tally)
     {
-        AudioUploadAssetDefinition first = AudioAssetCatalogData.Music[3];
-        AudioUploadAssetDefinition second = AudioAssetCatalogData.Music[4];
+        AudioUploadAssetDefinition first = AudioAssetCatalogDefinitions.Music[3];
+        AudioUploadAssetDefinition second = AudioAssetCatalogDefinitions.Music[4];
         var engine = DesktopAccess.CreateAudioRenderer();
         for (int frame = 0; frame < LifecycleScenarioFrames; frame++)
         {
             List<CartridgeAudioCommand> commands = [];
             if (frame == 0)
             {
-                commands.Add(CartridgeAudioCommand.Upload(AudioAssetCatalogData.Common.SnesAddress));
+                commands.Add(CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.SnesAddress));
                 commands.Add(CartridgeAudioCommand.Upload(first.SnesAddress));
                 commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }

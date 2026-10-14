@@ -13,9 +13,9 @@ internal readonly struct SnesDspVoiceControls
     public SnesDspVoiceControls(ManagedSnesDsp dsp, int index)
     {
         this.dsp = Ensure.NotNull(dsp);
-        if ((uint)index > SnesDspRegisterMap.VoiceIndexMask)
+        if ((uint)index > SnesDspRegisterLayout.VoiceIndexMask)
             throw new ArgumentOutOfRangeException(nameof(index), index, "The S-DSP has eight voices.");
-        block = unchecked((byte)(index * SnesDspRegisterMap.VoiceStride));
+        block = unchecked((byte)(index * SnesDspRegisterLayout.VoiceStride));
     }
 
     /// <summary>VxVOLL ($x0) / VxVOLR ($x1): signed voice volume.</summary>

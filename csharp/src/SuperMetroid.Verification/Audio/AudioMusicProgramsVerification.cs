@@ -19,7 +19,7 @@ internal static class AudioMusicProgramsVerification
         int phraseCount = 0;
         int programCount = 0;
         int instructionCount = 0;
-        foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogData.All)
+        foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogDefinitions.All)
         {
             AudioBankMetadata bank = stock.GetMusicBank(definition.SnesAddress);
             trackCount += bank.MusicTracks.Count;
@@ -39,7 +39,7 @@ internal static class AudioMusicProgramsVerification
             }
             for (int track = 0; track < bank.MusicTracks.Count; track++)
             {
-                int pointer = SpcDriverData.Ram.DefaultMusicPointer + track * 2;
+                int pointer = SpcDriverDefinitions.Ram.DefaultMusicPointer + track * 2;
                 ushort actual = unchecked((ushort)(
                     SnesLittleEndian.Word(raw.ReadApuByteForVerification(pointer), raw.ReadApuByteForVerification(pointer + 1))));
                 AssertEqual(bank.MusicTracks[track].Address, actual, $"{bank.Name} track {track} route");
@@ -79,7 +79,7 @@ internal static class AudioMusicProgramsVerification
                     program => program.Id == candidateId);
                 int noteIndex = candidate.Instructions.ToList().FindIndex(instruction =>
                     instruction.Operation == AudioMusicInstructionOperations.Note &&
-                    instruction.Opcode <= SpcDriverData.Music.TieNote - 0x0d);
+                    instruction.Opcode <= SpcDriverDefinitions.Music.TieNote - 0x0d);
                 if (noteIndex < 0)
                     continue;
                 AudioMusicInstructionMetadata[] instructions = [.. candidate.Instructions];

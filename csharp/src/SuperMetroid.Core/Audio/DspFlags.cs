@@ -10,5 +10,5 @@ namespace SuperMetroid.Core.Audio;
 internal readonly record struct DspFlags(byte Value)
 {
     /// <summary>The noise rate an instrument's flag byte selects (its low five bits).</summary>
-    public static int NoiseRateOf(byte instrumentFlags) => instrumentFlags & SnesDspRegisterMap.Fields.NoiseRateMask;
+    public static int NoiseRateOf(byte instrumentFlags) => instrumentFlags & SnesDspRegisterLayout.Fields.NoiseRateMask;
 }

@@ -50,7 +50,7 @@ internal static class ManagedAudioVerification
             }));
         ConfigureAudibleVoiceZero(dsp);
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
-        byte outputRegister = SnesDspRegisterMap.Voice.SampleOutput;
+        byte outputRegister = SnesDspRegisterLayout.Voice.SampleOutput;
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) > 0, "initial source is positive");
         // SRCN is not a key-on operation. The existing interpolation window remains
         // audible until END/LOOP resolves the live directory entry (native dsp_decodeBrr).
@@ -76,10 +76,10 @@ internal static class ManagedAudioVerification
         ConfigureAudibleVoiceZero(dsp);
         for (int tick = 0; tick < 32; tick++) dsp.Cycle();
         dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 1);
-        AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterMap.Voice.SampleOutput)) > 0,
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterLayout.Voice.SampleOutput)) > 0,
             "source change retains current interpolation window");
         for (int tick = 0; tick < 32; tick++) dsp.Cycle();
-        AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterMap.Voice.SampleOutput)) < 0,
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterLayout.Voice.SampleOutput)) < 0,
             "END/LOOP uses the independent directory loop address, not the selected source start");
 
         var keyOn = new ManagedSnesDsp(new byte[65536]);
@@ -87,7 +87,7 @@ internal static class ManagedAudioVerification
             new Dictionary<byte, byte> { [1] = 2 }));
         ConfigureAudibleVoiceZero(keyOn, sourceNumber: 1);
         for (int tick = 0; tick < 32; tick++) keyOn.Cycle();
-        AssertTrue(unchecked((sbyte)keyOn.ReadRegister(SnesDspRegisterMap.Voice.SampleOutput)) > 0,
+        AssertTrue(unchecked((sbyte)keyOn.ReadRegister(SnesDspRegisterLayout.Voice.SampleOutput)) > 0,
             "key-on uses directory start rather than its independent loop destination");
         AssertThrows<InvalidDataException>(() => new ManagedPcmSampleBank("invalid-loop", 0, sources,
             new Dictionary<byte, byte> { [1] = 3 }), "loop aliases require a mapped destination");
@@ -150,9 +150,9 @@ internal static class ManagedAudioVerification
         byte[] expectedCoefficients = [0x56, 0x65, 0x72, 0x20, 0x53, 0x31, 0x2e, 0x32];
         var upload = new List<byte>();
 
-        AddSpcUploadRecord(upload, SpcDriverData.Ram.DefaultMusicPointer,
+        AddSpcUploadRecord(upload, SpcDriverDefinitions.Ram.DefaultMusicPointer,
             [unchecked((byte)topLevel), SnesLittleEndian.HighByte(topLevel)]);
-        AddSpcUploadRecord(upload, SpcDriverDataRamConstants.MusicTrackPointerTable,
+        AddSpcUploadRecord(upload, SpcDriverDefinitionsRamConstants.MusicTrackPointerTable,
             [unchecked((byte)topLevel), SnesLittleEndian.HighByte(topLevel)]);
         AddSpcUploadRecord(upload, topLevel,
             [unchecked((byte)patternTable), SnesLittleEndian.HighByte(patternTable)]);
@@ -162,10 +162,10 @@ internal static class ManagedAudioVerification
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             ]);
         AddSpcUploadRecord(upload, channelPattern,
-            [(byte)SpcMusicEffect.ConfigureEcho, 0x02, 0x0a, 0x0a, 1, SpcDriverData.Music.RestNote]);
+            [(byte)SpcMusicEffect.ConfigureEcho, 0x02, 0x0a, 0x0a, 1, SpcDriverDefinitions.Music.RestNote]);
         AddSpcUploadRecord(
             upload,
-            SpcDriverData.Echo.FirCoefficientTableAddress + 10 * SpcDriverData.Echo.FirTapCount,
+            SpcDriverDefinitions.Echo.FirCoefficientTableAddress + 10 * SpcDriverDefinitions.Echo.FirTapCount,
             expectedCoefficients);
         upload.Add(0);
         upload.Add(0);
@@ -173,7 +173,7 @@ internal static class ManagedAudioVerification
         var player = new ManagedSpcPlayer();
         player.Upload(CollectionsMarshal.AsSpan(upload));
         player.WritePort(ApuPort.Music, 1);
-        short[] pcm = new short[SpcDriverData.HostStereoFramesPerVideoFrame * 2];
+        short[] pcm = new short[SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2];
         // The SPC starts at tempo $10 and requires multiple 64-cycle timer carries before
         // the two-tick track startup handshake reaches the first pattern command.
         for (int frame = 0; frame < 60; frame++)
@@ -181,8 +181,8 @@ internal static class ManagedAudioVerification
 
         for (int tap = 0; tap < expectedCoefficients.Length; tap++)
         {
-            byte register = unchecked((byte)(SnesDspRegisterMap.FirstFirCoefficient +
-                tap * SnesDspRegisterMap.VoiceStride));
+            byte register = unchecked((byte)(SnesDspRegisterLayout.FirstFirCoefficient +
+                tap * SnesDspRegisterLayout.VoiceStride));
             AssertEqual(
                 expectedCoefficients[tap],
                 player.ReadDspRegisterForVerification(register),
@@ -261,7 +261,7 @@ internal static class ManagedAudioVerification
             source[frame * 2] = unchecked((short)((frame - 267) * 100));
             source[frame * 2 + 1] = unchecked((short)((267 - frame) * 100));
         }
-        short[] output = new short[SpcDriverData.HostStereoFramesPerVideoFrame * 2];
+        short[] output = new short[SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2];
         PcmFrameResampler.ResampleStereoLinear(source, output);
 
         int repeatedStereoFrames = 0;

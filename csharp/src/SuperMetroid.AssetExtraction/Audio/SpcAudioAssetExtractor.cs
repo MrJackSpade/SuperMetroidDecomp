@@ -42,7 +42,7 @@ public static class SpcAudioAssetExtractor
 
         List<AudioUploadManifestEntry> uploads = [];
         Dictionary<int, byte[]> sourceStreams = [];
-        foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogData.All)
+        foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogDefinitions.All)
         {
             byte[] stream = readStream(definition);
             ValidateUploadStream(stream, definition.Name);
@@ -58,21 +58,21 @@ public static class SpcAudioAssetExtractor
                 Convert.ToHexString(SHA256.HashData(stream))));
         }
 
-        byte[] commonRam = new byte[SpcDriverData.ApuRamSize];
-        bool[] commonWritten = new bool[SpcDriverData.ApuRamSize];
-        ApplyUpload(commonRam, commonWritten, sourceStreams[AudioAssetCatalogData.Common.SnesAddress]);
+        byte[] commonRam = new byte[SpcDriverDefinitions.ApuRamSize];
+        bool[] commonWritten = new bool[SpcDriverDefinitions.ApuRamSize];
+        ApplyUpload(commonRam, commonWritten, sourceStreams[AudioAssetCatalogDefinitions.Common.SnesAddress]);
 
         var canonicalSamples = new CanonicalSampleBuilder(audioDirectory, samplesDirectory);
         List<AudioBankMetadata> banks =
         [
             ExtractBankMetadata(
-                AudioAssetCatalogData.Common,
+                AudioAssetCatalogDefinitions.Common,
                 commonRam,
                 commonWritten,
                 canonicalSamples,
                 includeTrackPointers: false),
         ];
-        foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogData.Music)
+        foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogDefinitions.Music)
         {
             byte[] ram = (byte[])commonRam.Clone();
             bool[] written = (bool[])commonWritten.Clone();
@@ -114,8 +114,8 @@ public static class SpcAudioAssetExtractor
         List<ushort> trackPointers = [];
         if (includeTrackPointers)
         {
-            int tableAddress = SpcDriverData.Ram.DefaultMusicPointer;
-            int firstFollowingContent = SpcDriverData.ApuRamSize;
+            int tableAddress = SpcDriverDefinitions.Ram.DefaultMusicPointer;
+            int firstFollowingContent = SpcDriverDefinitions.ApuRamSize;
             for (int track = 0; track < MaximumTrackPointerCount; track++)
             {
                 int entryAddress = tableAddress + track * 2;
@@ -132,7 +132,7 @@ public static class SpcAudioAssetExtractor
                 if (pointer >= tableAddress && pointer < firstFollowingContent)
                     firstFollowingContent = pointer;
             }
-            if (firstFollowingContent == SpcDriverData.ApuRamSize)
+            if (firstFollowingContent == SpcDriverDefinitions.ApuRamSize)
                 throw new InvalidDataException($"{definition.Name} track table has no following-content boundary.");
         }
         SpcMusicDefinitionBundle music = includeTrackPointers
@@ -144,15 +144,15 @@ public static class SpcAudioAssetExtractor
             : new([], [], []);
 
         List<AudioInstrumentMetadata> instruments = [];
-        int instrumentCount = SpcDriverData.Ram.InstrumentCount;
+        int instrumentCount = SpcDriverDefinitions.Ram.InstrumentCount;
         for (int instrument = 0; instrument < instrumentCount; instrument++)
         {
-            int address = SpcDriverData.Ram.InstrumentTable +
-                instrument * SpcDriverData.Ram.InstrumentRecordSize;
+            int address = SpcDriverDefinitions.Ram.InstrumentTable +
+                instrument * SpcDriverDefinitions.Ram.InstrumentRecordSize;
             byte source = ram[address];
             instruments.Add(new AudioInstrumentMetadata(
                 instrument,
-                (source & SpcDriverData.Instruments.NoiseMarker) != 0,
+                (source & SpcDriverDefinitions.Instruments.NoiseMarker) != 0,
                 source,
                 ram[address + 1],
                 ram[address + 2],
@@ -209,7 +209,7 @@ public static class SpcAudioAssetExtractor
     {
         List<AudioSoundLibraryMetadata> libraries = [];
         Dictionary<ushort, AudioSoundProgramMetadata> programsByAddress = [];
-        for (int library = 0; library < SpcDriverData.SoundEffects.LibraryCount; library++)
+        for (int library = 0; library < SpcDriverDefinitions.SoundEffects.LibraryCount; library++)
         {
             int commandCount = SpcSoundEffectTables.CommandCount(library);
             List<AudioSoundEffectMetadata> effects = [];
@@ -358,8 +358,8 @@ public static class SpcAudioAssetExtractor
     /// <summary>Rejects malformed SPC upload records before publishing a raw stream asset.</summary>
     private static void ValidateUploadStream(ReadOnlySpan<byte> stream, string name)
     {
-        byte[] scratch = new byte[SpcDriverData.ApuRamSize];
-        bool[] written = new bool[SpcDriverData.ApuRamSize];
+        byte[] scratch = new byte[SpcDriverDefinitions.ApuRamSize];
+        bool[] written = new bool[SpcDriverDefinitions.ApuRamSize];
         try
         {
             ApplyUpload(scratch, written, stream);

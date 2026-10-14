@@ -5761,7 +5761,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Audio/AudioAssetCatalogData.cs",
+      "path": "csharp/src/SuperMetroid.Core/Audio/AudioAssetCatalogDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
       "namespace": "SuperMetroid.Core.Audio",
@@ -6419,7 +6419,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterMap.cs",
+      "path": "csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterLayout.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
       "namespace": "SuperMetroid.Core.Audio",
@@ -6533,7 +6533,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs",
+      "path": "csharp/src/SuperMetroid.Core/Audio/SpcDriverDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
       "namespace": "SuperMetroid.Core.Audio",
@@ -83671,7 +83671,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Audio/SpcDriverDataRamConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Audio/SpcDriverDefinitionsRamConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Audio",

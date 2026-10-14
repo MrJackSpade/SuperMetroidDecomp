@@ -23,19 +23,19 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 34454,
+    "RawHexLiteral": 34318,
     "PointerDispatch": 1137,
     "OpaqueWordArray": 1125,
-    "CatalogHexLiteral": 96620,
-    "JustifiedHexLiteral": 98,
+    "CatalogHexLiteral": 96702,
+    "JustifiedHexLiteral": 143,
     "RawWidthOperation": 46,
     "OwnedWidthOperation": 72,
     "JustifiedWidthOperation": 3,
-    "CountdownSignTest": 4,
-    "CountdownSelfDecrement": 54,
-    "class:NumericQuantity": 55587,
+    "CountdownSignTest": 3,
+    "CountdownSelfDecrement": 32,
+    "class:NumericQuantity": 55558,
     "class:DomainIdentity": 6675,
-    "class:ComposableBits": 1642,
+    "class:ComposableBits": 1639,
     "class:StructuredInstruction": 44207,
     "class:CartridgeAddress": 24584,
     "class:Unknown": 918,
@@ -1103,15 +1103,12 @@
     {
       "name": "Audio",
       "totals": {
-        "RawHexLiteral": 136,
-        "CatalogHexLiteral": 820,
-        "JustifiedHexLiteral": 65,
+        "CatalogHexLiteral": 902,
+        "JustifiedHexLiteral": 110,
         "OwnedWidthOperation": 1,
-        "CountdownSignTest": 1,
-        "CountdownSelfDecrement": 22,
-        "class:NumericQuantity": 419,
+        "class:NumericQuantity": 390,
         "class:DomainIdentity": 571,
-        "class:ComposableBits": 24,
+        "class:ComposableBits": 21,
         "class:CartridgeAddress": 29,
         "class:Unknown": 2,
         "storageWidthMembers": 163
@@ -1119,10 +1116,10 @@
       "addressInterpretingTypes": [],
       "files": [
         {
-          "path": "csharp/src/SuperMetroid.Core/Audio/AudioAssetCatalogData.cs",
+          "path": "csharp/src/SuperMetroid.Core/Audio/AudioAssetCatalogDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 25,
+            "CatalogHexLiteral": 25,
             "class:NumericQuantity": 1,
             "class:DomainIdentity": 24
           }
@@ -1148,10 +1145,6 @@
           "path": "csharp/src/SuperMetroid.Core/Audio/CartridgeAudioState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CountdownSignTest": 1,
-            "CountdownSelfDecrement": 3,
-            "class:NumericQuantity": 3,
-            "class:ComposableBits": 1,
             "storageWidthMembers": 6
           }
         },
@@ -1167,10 +1160,6 @@
           "path": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 17,
-            "CountdownSelfDecrement": 1,
-            "class:NumericQuantity": 16,
-            "class:ComposableBits": 2,
             "storageWidthMembers": 26
           }
         },
@@ -1185,9 +1174,8 @@
           "path": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 46,
-            "CountdownSelfDecrement": 18,
-            "class:NumericQuantity": 30,
+            "JustifiedHexLiteral": 46,
+            "class:NumericQuantity": 12,
             "class:DomainIdentity": 12,
             "class:ComposableBits": 20,
             "class:Unknown": 2,
@@ -1247,11 +1235,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterMap.cs",
+          "path": "csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterLayout.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 16,
-            "class:NumericQuantity": 16
+            "CatalogHexLiteral": 24,
+            "class:NumericQuantity": 24
           }
         },
         {
@@ -1308,11 +1296,10 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs",
+          "path": "csharp/src/SuperMetroid.Core/Audio/SpcDriverDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 32,
-            "JustifiedHexLiteral": 1,
+            "CatalogHexLiteral": 33,
             "class:NumericQuantity": 33
           }
         },
@@ -23326,7 +23313,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Audio/SpcDriverDataRamConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Audio/SpcDriverDefinitionsRamConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,

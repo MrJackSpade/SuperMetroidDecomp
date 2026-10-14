@@ -55,7 +55,7 @@ internal static class SpcMusicDefinitionCodec
             switch (instruction.Operation)
             {
                 case AudioMusicInstructionOperations.PlayPhrase:
-                    if ((SnesLittleEndian.HighByte(instruction.Value)) < SpcDriverData.Music.PatternPointerHighByteMinimum ||
+                    if ((SnesLittleEndian.HighByte(instruction.Value)) < SpcDriverDefinitions.Music.PatternPointerHighByteMinimum ||
                         instruction.Target is not null)
                         throw InvalidTrackInstruction(track, instruction);
                     WriteWord(bytes, instruction.Value);
@@ -125,9 +125,9 @@ internal static class SpcMusicDefinitionCodec
                 ended = true;
                 continue;
             }
-            if (instruction.Opcode >= SpcDriverData.Music.FirstEffect)
+            if (instruction.Opcode >= SpcDriverDefinitions.Music.FirstEffect)
             {
-                int effectIndex = instruction.Opcode - SpcDriverData.Music.FirstEffect;
+                int effectIndex = instruction.Opcode - SpcDriverDefinitions.Music.FirstEffect;
                 if ((uint)effectIndex >= SpcMusicTables.EffectCount ||
                     instruction.Operation != AudioMusicInstructionOperations.ForEffect(
                         (SpcMusicEffect)instruction.Opcode) ||
@@ -139,7 +139,7 @@ internal static class SpcMusicDefinitionCodec
                 continue;
             }
             string expected = GetNoteOperation(instruction.Opcode);
-            if (instruction.Operation != expected || instruction.Opcode < SpcDriverData.Music.CommandMarker ||
+            if (instruction.Operation != expected || instruction.Opcode < SpcDriverDefinitions.Music.CommandMarker ||
                 instruction.Arguments.Count != 0)
                 throw InvalidProgramInstruction(program, instruction);
             bytes.Add(instruction.Opcode);
@@ -156,7 +156,7 @@ internal static class SpcMusicDefinitionCodec
         Dictionary<string, AudioMusicProgramMetadata> programs = bank.MusicPrograms
             .ToDictionary(program => program.Id, StringComparer.Ordinal);
         // Programs dominate the image; size the table once rather than rehashing as it grows.
-        int expectedBytes = bank.MusicPhrases.Count * SpcDriverData.ChannelCount * 2;
+        int expectedBytes = bank.MusicPhrases.Count * SpcDriverDefinitions.ChannelCount * 2;
         foreach (AudioMusicProgramMetadata program in bank.MusicPrograms) expectedBytes += program.ByteCapacity;
         var writes = new Dictionary<int, byte>(expectedBytes);
         foreach (AudioMusicTrackMetadata track in bank.MusicTracks)
@@ -167,9 +167,9 @@ internal static class SpcMusicDefinitionCodec
         }
         foreach (AudioMusicPhraseMetadata phrase in bank.MusicPhrases)
         {
-            if (phrase.ChannelPrograms is null || phrase.ChannelPrograms.Count != SpcDriverData.ChannelCount)
+            if (phrase.ChannelPrograms is null || phrase.ChannelPrograms.Count != SpcDriverDefinitions.ChannelCount)
                 throw new InvalidDataException($"Music phrase '{phrase.Id}' must route eight channels.");
-            byte[] bytes = new byte[SpcDriverData.ChannelCount * 2];
+            byte[] bytes = new byte[SpcDriverDefinitions.ChannelCount * 2];
             for (int channel = 0; channel < phrase.ChannelPrograms.Count; channel++)
             {
                 string? programId = phrase.ChannelPrograms[channel];
@@ -211,10 +211,10 @@ internal static class SpcMusicDefinitionCodec
         var instructions = new List<AudioMusicTrackInstructionMetadata>();
         var phrases = new List<ushort>();
         int cursor = address;
-        for (int count = 0; count < SpcDriverData.ApuRamSize; count++)
+        for (int count = 0; count < SpcDriverDefinitions.ApuRamSize; count++)
         {
             ushort value = ReadWord(ram, written, ref cursor, id);
-            if ((SnesLittleEndian.HighByte(value)) >= SpcDriverData.Music.PatternPointerHighByteMinimum)
+            if ((SnesLittleEndian.HighByte(value)) >= SpcDriverDefinitions.Music.PatternPointerHighByteMinimum)
             {
                 instructions.Add(new(AudioMusicInstructionOperations.PlayPhrase, value, null));
                 phrases.Add(value);
@@ -255,7 +255,7 @@ internal static class SpcMusicDefinitionCodec
             return;
         string id = $"music-{dataIndex:x2}-phrase-{address:x4}";
         int cursor = address;
-        var channelPrograms = new string?[SpcDriverData.ChannelCount];
+        var channelPrograms = new string?[SpcDriverDefinitions.ChannelCount];
         var programAddresses = new List<ushort>();
         for (int channel = 0; channel < channelPrograms.Length; channel++)
         {
@@ -291,7 +291,7 @@ internal static class SpcMusicDefinitionCodec
         var instructions = new List<AudioMusicInstructionMetadata>();
         var callTargets = new List<ushort>();
         int cursor = address;
-        for (int count = 0; count < SpcDriverData.ApuRamSize; count++)
+        for (int count = 0; count < SpcDriverDefinitions.ApuRamSize; count++)
         {
             byte command = ReadByte(ram, written, ref cursor, id);
             if (command == 0)
@@ -304,19 +304,19 @@ internal static class SpcMusicDefinitionCodec
             }
 
             var timing = new List<byte>(2);
-            if ((command & SpcDriverData.Music.CommandMarker) == 0)
+            if ((command & SpcDriverDefinitions.Music.CommandMarker) == 0)
             {
                 timing.Add(command);
                 command = ReadByte(ram, written, ref cursor, id);
-                if ((command & SpcDriverData.Music.CommandMarker) == 0)
+                if ((command & SpcDriverDefinitions.Music.CommandMarker) == 0)
                 {
                     timing.Add(command);
                     command = ReadByte(ram, written, ref cursor, id);
                 }
             }
-            if (command >= SpcDriverData.Music.FirstEffect)
+            if (command >= SpcDriverDefinitions.Music.FirstEffect)
             {
-                int effectIndex = command - SpcDriverData.Music.FirstEffect;
+                int effectIndex = command - SpcDriverDefinitions.Music.FirstEffect;
                 if ((uint)effectIndex >= SpcMusicTables.EffectCount)
                     throw new InvalidDataException($"Music program '{id}' uses unknown effect ${command:X2}.");
                 int argumentCount = SpcMusicTables.EffectByteLength(effectIndex);
@@ -355,7 +355,7 @@ internal static class SpcMusicDefinitionCodec
                 _ => throw new InvalidOperationException($"Undefined {nameof(NoteCommand)} {opcode:X2}."),
             };
         }
-        return opcode >= SpcDriverData.Music.FirstPercussionNote
+        return opcode >= SpcDriverDefinitions.Music.FirstPercussionNote
             ? AudioMusicInstructionOperations.Percussion
             : AudioMusicInstructionOperations.Note;
     }
@@ -364,23 +364,23 @@ internal static class SpcMusicDefinitionCodec
     private enum NoteCommand : byte
     {
         /// <summary>Extends the previous note.</summary>
-        Tie = SpcDriverData.Music.TieNote,
+        Tie = SpcDriverDefinitions.Music.TieNote,
         /// <summary>Silences the track for the note duration.</summary>
-        Rest = SpcDriverData.Music.RestNote,
+        Rest = SpcDriverDefinitions.Music.RestNote,
     }
 
     /// <summary>Allows at most two nonzero timing bytes below the SPC command marker.</summary>
     private static void ValidateTiming(string id, IReadOnlyList<byte> timing)
     {
         if (timing.Count > 2 || timing.Any(value =>
-                value is 0 or >= SpcDriverData.Music.CommandMarker))
+                value is 0 or >= SpcDriverDefinitions.Music.CommandMarker))
             throw new InvalidDataException($"Music program '{id}' has an invalid timing prefix.");
     }
 
     /// <summary>Writes an authored object into APU RAM without overruns or conflicting shared bytes.</summary>
     private static void Merge(Dictionary<int, byte> writes, int address, byte[] bytes, string owner)
     {
-        if (address < 0 || address > SpcDriverData.ApuRamSize - bytes.Length)
+        if (address < 0 || address > SpcDriverDefinitions.ApuRamSize - bytes.Length)
             throw new InvalidDataException($"Music definition '{owner}' overruns APU RAM at ${address:X4}.");
         for (int index = 0; index < bytes.Length; index++)
         {

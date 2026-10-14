@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Audio;
 /// The data-index values are byte offsets into the ROM's three-byte pointer table, matching
 /// the values stored in room headers; they are deliberately not renumbered host indexes.
 /// </summary>
-public static class AudioAssetCatalogData
+public static class AudioAssetCatalogDefinitions
 {
     /// <summary>The resident driver, sound effects, BRR directory, and shared samples.</summary>
     public static readonly AudioUploadAssetDefinition Common =

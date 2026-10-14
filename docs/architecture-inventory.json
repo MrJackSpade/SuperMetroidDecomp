@@ -6768,27 +6768,27 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Audio.AudioAssetCatalogData",
+      "type": "SuperMetroid.Core.Audio.AudioAssetCatalogDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Audio/AudioAssetCatalogData.cs"
+        "csharp/src/SuperMetroid.Core/Audio/AudioAssetCatalogDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Audio.AudioAssetCatalogData.MusicBankView",
+      "type": "SuperMetroid.Core.Audio.AudioAssetCatalogDefinitions.MusicBankView",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Audio/AudioAssetCatalogData.cs"
+        "csharp/src/SuperMetroid.Core/Audio/AudioAssetCatalogDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -7981,40 +7981,40 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SnesDspRegisterMap",
+      "type": "SuperMetroid.Core.Audio.SnesDspRegisterLayout",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterMap.cs"
+        "csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterLayout.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SnesDspRegisterMap.Fields",
+      "type": "SuperMetroid.Core.Audio.SnesDspRegisterLayout.Fields",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterMap.cs"
+        "csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterLayout.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SnesDspRegisterMap.Voice",
+      "type": "SuperMetroid.Core.Audio.SnesDspRegisterLayout.Voice",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterMap.cs"
+        "csharp/src/SuperMetroid.Core/Audio/SnesDspRegisterLayout.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -8214,85 +8214,85 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SpcDriverData",
+      "type": "SuperMetroid.Core.Audio.SpcDriverDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs"
+        "csharp/src/SuperMetroid.Core/Audio/SpcDriverDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SpcDriverData.Echo",
+      "type": "SuperMetroid.Core.Audio.SpcDriverDefinitions.Echo",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs"
+        "csharp/src/SuperMetroid.Core/Audio/SpcDriverDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SpcDriverData.Instruments",
+      "type": "SuperMetroid.Core.Audio.SpcDriverDefinitions.Instruments",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs"
+        "csharp/src/SuperMetroid.Core/Audio/SpcDriverDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SpcDriverData.Music",
+      "type": "SuperMetroid.Core.Audio.SpcDriverDefinitions.Music",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs"
+        "csharp/src/SuperMetroid.Core/Audio/SpcDriverDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SpcDriverData.Ram",
+      "type": "SuperMetroid.Core.Audio.SpcDriverDefinitions.Ram",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs"
+        "csharp/src/SuperMetroid.Core/Audio/SpcDriverDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SpcDriverData.SoundEffects",
+      "type": "SuperMetroid.Core.Audio.SpcDriverDefinitions.SoundEffects",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SpcDriverData.cs"
+        "csharp/src/SuperMetroid.Core/Audio/SpcDriverDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SpcDriverDataRamConstants",
+      "type": "SuperMetroid.Core.Audio.SpcDriverDefinitionsRamConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -8302,13 +8302,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Audio/SpcDriverDataRamConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Audio/SpcDriverDefinitionsRamConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SpcDriverDataRamConstants.extension(SuperMetroid.Core.Audio.SpcDriverData.Ram)",
+      "type": "SuperMetroid.Core.Audio.SpcDriverDefinitionsRamConstants.extension(SuperMetroid.Core.Audio.SpcDriverDefinitions.Ram)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -8318,7 +8318,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Audio/SpcDriverDataRamConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Audio/SpcDriverDefinitionsRamConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"

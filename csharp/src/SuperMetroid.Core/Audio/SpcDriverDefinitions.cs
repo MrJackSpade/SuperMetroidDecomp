@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// Fixed SPC-RAM locations, protocol values, and timing constants used by Super Metroid's
 /// uploaded sound driver. These are addresses in the game's own APU program, not host policy.
 /// </summary>
-internal static class SpcDriverData
+internal static class SpcDriverDefinitions
 {
     /// <summary>Complete sixteen-bit APU address range available to the uploaded driver.</summary>
     internal const int ApuRamSize = 0x10000;

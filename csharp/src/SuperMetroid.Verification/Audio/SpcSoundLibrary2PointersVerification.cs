@@ -42,7 +42,7 @@ internal static class SpcSoundLibrary2PointersVerification
             AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.CommandCount(invalid), "unsupported command-count library");
         }
 
-        short[] pcm = new short[SpcDriverData.HostStereoFramesPerVideoFrame * 2];
+        short[] pcm = new short[SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2];
         var zero = new ManagedSpcPlayer();
         zero.WritePort(ApuPorts.ForSoundLibrary(library), 0);
         zero.GenerateFrame(pcm);

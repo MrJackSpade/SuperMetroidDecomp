@@ -45,9 +45,9 @@ internal readonly struct SnesDspGlobalControls(ManagedSnesDsp dsp)
     /// <summary>FIR coefficient <paramref name="tap"/> (0-7) at $0F + 16 × tap: a signed filter coefficient.</summary>
     public void WriteFirCoefficient(int tap, sbyte coefficient)
     {
-        if ((uint)tap > SnesDspRegisterMap.VoiceIndexMask)
+        if ((uint)tap > SnesDspRegisterLayout.VoiceIndexMask)
             throw new ArgumentOutOfRangeException(nameof(tap), tap, "The echo FIR has eight taps.");
-        dsp.WriteRegister(unchecked((byte)(SnesDspRegisterMap.FirstFirCoefficient + tap * SnesDspRegisterMap.VoiceStride)),
+        dsp.WriteRegister(unchecked((byte)(SnesDspRegisterLayout.FirstFirCoefficient + tap * SnesDspRegisterLayout.VoiceStride)),
             unchecked((byte)coefficient));
     }
 

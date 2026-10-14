@@ -296,7 +296,6 @@ csharp/src/SuperMetroid.Core/Game/EvirInstructionProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Game/ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Game/EyeDoorBehavior.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs	SME6341	8
-csharp/src/SuperMetroid.Core/Game/EyeDoorSweatInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/FakeKraidBehavior.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Game/FakeKraidInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Game/FakeKraidProjectileInstructionProgramDefinitions.cs	SME6341	7
@@ -489,7 +488,6 @@ csharp/src/SuperMetroid.Core/Game/SamusSuitPickupState.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Game/SamusXrayState.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Game/SaveLoadingGameStates.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Game/SaveMirrorWorkRam.cs	SME6340	9
-csharp/src/SuperMetroid.Core/Game/SaveStationElectricityInstructionProgramDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Game/SbugBehavior.cs	SME6340	25
 csharp/src/SuperMetroid.Core/Game/SbugInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Game/SbugMovementDefinitions.cs	SME6341	1
@@ -587,11 +585,9 @@ csharp/src/SuperMetroid.Core/Rooms/BombTorizoHandPlmProgramDefinitions.cs	SME634
 csharp/src/SuperMetroid.Core/Rooms/BombTorizoHandPlms.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Rooms/BombTorizoHandPlms.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Rooms/BossRoomMutationPlms.cs	SME6340	4
-csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmProgramDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Rooms/CartridgeDoorOrientation.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Rooms/CollectiblePlms.cs	SME6340	6
 csharp/src/SuperMetroid.Core/Rooms/ColoredDoorPlmProgramDefinitions.cs	SME6341	9
-csharp/src/SuperMetroid.Core/Rooms/CrocomireArenaPlmProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Rooms/DoorPlms.cs	SME6340	7
 csharp/src/SuperMetroid.Core/Rooms/DownwardGatePlmProgramDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Rooms/DownwardGateShotBlockDefinitions.cs	SME6341	1
@@ -600,11 +596,9 @@ csharp/src/SuperMetroid.Core/Rooms/EyeDoorPlmProgramDefinitions.cs	SME6341	5
 csharp/src/SuperMetroid.Core/Rooms/EyeDoorPlms.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Rooms/GreyDoorPlmProgramDefinitions.cs	SME6341	6
 csharp/src/SuperMetroid.Core/Rooms/GreyDoorPlms.cs	SME6340	5
-csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmProgramDefinitions.cs	SME6341	5
 csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundWorkRam.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Rooms/MetroidsClearedPlmRomData.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs	SME6342	12
-csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Rooms/MotherBrainGlassPlmProgramDefinitions.cs	SME6341	11
 csharp/src/SuperMetroid.Core/Rooms/NoobTubePlmProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Rooms/NoobTubePlms.cs	SME6340	2
@@ -618,7 +612,6 @@ csharp/src/SuperMetroid.Core/Rooms/RoomLevelData.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Rooms/RoomLevelWord.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Rooms/RoomPlmSharedDeleteProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs	SME6340	2
-csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Rooms/RoomPlmVisualBlockIndexes.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Rooms/SamusEaterPlmProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Rooms/SamusEaterPlms.cs	SME6340	1
@@ -758,7 +751,6 @@ csharp/src/SuperMetroid.Tooling/Core/Game/EscapeDachoraInstructionProgramDefinit
 csharp/src/SuperMetroid.Tooling/Core/Game/EscapeEtecoonInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Game/EvirInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Game/EyeDoorProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
-csharp/src/SuperMetroid.Tooling/Core/Game/EyeDoorSweatInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Game/FakeKraidInstructionProgramDefinitionsTooling.cs	SME6340	5
 csharp/src/SuperMetroid.Tooling/Core/Game/FakeKraidInstructionProgramDefinitionsTooling.cs	SME6341	2
 csharp/src/SuperMetroid.Tooling/Core/Game/FakeKraidProjectileInstructionProgramDefinitionsTooling.cs	SME6341	3
@@ -835,7 +827,6 @@ csharp/src/SuperMetroid.Tooling/Core/Game/RinkaInstructionProgramDefinitionsTool
 csharp/src/SuperMetroid.Tooling/Core/Game/RioInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Game/RipperInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Game/RoomFxRomDataBanksTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Game/SaveStationElectricityInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Game/SbugInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Game/SciserInstructionProgramDefinitionsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Game/SciserInstructionProgramDefinitionsTooling.cs	SME6341	3
@@ -965,9 +956,7 @@ csharp/src/SuperMetroid.Verification/Program.BotwoonAnimations.cs	SME6340	25
 csharp/src/SuperMetroid.Verification/Program.BotwoonAnimations.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Program.BotwoonNavigationDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.BotwoonSpeeds.cs	SME6340	3
-csharp/src/SuperMetroid.Verification/Program.BotwoonWallPlms.cs	SME6340	35
-csharp/src/SuperMetroid.Verification/Program.BotwoonWallPlms.cs	SME6341	2
-csharp/src/SuperMetroid.Verification/Program.BotwoonWallPlms.cs	SME6342	1
+csharp/src/SuperMetroid.Verification/Program.BotwoonWallPlms.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Program.BotwoonWallVisuals.cs	SME6340	32
 csharp/src/SuperMetroid.Verification/Program.BotwoonWallVisuals.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Program.BoulderInstructionProgramDefinitions.cs	SME6342	2
@@ -1055,7 +1044,6 @@ csharp/src/SuperMetroid.Verification/Program.CrateriaMainstreetEscapePassage.cs	
 csharp/src/SuperMetroid.Verification/Program.CrawlerAnimationDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.CrawlerSpeeds.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Program.CrocomireArenaPlms.cs	SME6340	16
-csharp/src/SuperMetroid.Verification/Program.CrocomireArenaPlms.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Program.CrocomireArenaVisuals.cs	SME6340	26
 csharp/src/SuperMetroid.Verification/Program.CrocomireBg2Scroll.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Program.CrocomireBg2Scroll.cs	SME6342	1
@@ -1401,7 +1389,6 @@ csharp/src/SuperMetroid.Verification/Program.KraidNailContourMappings.cs	SME6340
 csharp/src/SuperMetroid.Verification/Program.KraidNailSibling.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Program.KraidReportedCollisions.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Program.KraidRoomPlms.cs	SME6340	18
-csharp/src/SuperMetroid.Verification/Program.KraidRoomPlms.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Program.KraidRoomProgramMapping.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Program.KraidRoomVisualSelection.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Program.KraidRoomVisuals.cs	SME6340	29
@@ -1548,7 +1535,7 @@ csharp/src/SuperMetroid.Verification/Program.LookupStream2.cs	SME6342	3
 csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs	SME6340	390
 csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs	SME6341	4
 csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs	SME6342	14
-csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6340	578
+csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6340	563
 csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6342	5
 csharp/src/SuperMetroid.Verification/Program.LookupStream5.cs	SME6340	132
@@ -1623,7 +1610,6 @@ csharp/src/SuperMetroid.Verification/Program.MotherBrainCorpseArtwork.cs	SME6340
 csharp/src/SuperMetroid.Verification/Program.MotherBrainDeathHandoff.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Program.MotherBrainEscapeTextArtwork.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Program.MotherBrainFakeDeathPlms.cs	SME6340	4
-csharp/src/SuperMetroid.Verification/Program.MotherBrainFakeDeathPlms.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Program.MotherBrainFakeDeathVisuals.cs	SME6340	20
 csharp/src/SuperMetroid.Verification/Program.MotherBrainGeneratedVisualCatalogs.cs	SME6340	38
 csharp/src/SuperMetroid.Verification/Program.MotherBrainGlassPlmDrawDefinitions.cs	SME6342	1
@@ -2046,12 +2032,9 @@ csharp/test-support/VerificationAccess.Core/Hardware/SnesVramAccess.cs	SME6340	2
 csharp/test-support/VerificationAccess.Core/Hardware/XraySetupMemory.cs	SME6340	1
 csharp/test-support/VerificationAccess.Core/Input/DemoInputRomDataIntroMotherBrain.cs	SME6340	3
 csharp/test-support/VerificationAccess.Core/Rendering/SnesGameplayFrameRendererAccess.cs	SME6340	5
-csharp/test-support/VerificationAccess.Core/Rooms/BotwoonWallPlmProgramDefinitionsAccess.cs	SME6341	2
-csharp/test-support/VerificationAccess.Core/Rooms/CrocomireArenaPlmProgramDefinitionsAccess.cs	SME6341	1
 csharp/test-support/VerificationAccess.Core/Rooms/DownwardGatePlmProgramDefinitionsAccess.cs	SME6340	1
 csharp/test-support/VerificationAccess.Core/Rooms/DownwardGatePlmProgramDefinitionsAccess.cs	SME6341	2
 csharp/test-support/VerificationAccess.Core/Rooms/LandingSiteEntryStateAccess.cs	SME6341	1
-csharp/test-support/VerificationAccess.Core/Rooms/MotherBrainFakeDeathPlmProgramDefinitionsAccess.cs	SME6341	1
 csharp/test-support/VerificationAccess.Core/Rooms/NoobTubePlmProgramDefinitionsAccess.cs	SME6340	2
 csharp/test-support/VerificationAccess.Core/Rooms/NoobTubePlmProgramDefinitionsAccess.cs	SME6341	2
 csharp/test-support/VerificationAccess.Core/Rooms/RoomPlmPopulationDefinitionsAccess.cs	SME6340	1

@@ -270,7 +270,8 @@ internal static class RoomPlmSystemAccess
                 PreInstruction: slot.PreInstruction,
                 InstructionTimer: slot.InstructionTimer.RawValue,
                 LinkInstruction: slot.LinkInstruction,
-                LoopTimer: slot.LoopTimer);
+                LoopTimer: slot.LoopTimer,
+                Animation: slot.Animation);
         }
 
         /// <summary>Visible BG1 mutations emitted during the most recent handler pass.</summary>

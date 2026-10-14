@@ -24,51 +24,7 @@ internal static class BotwoonWallPlmsVerification
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort[] addresses = [0xab31,0xab34,0xab36,0xab39,0xab3b,0xab3d,0xab3f,0xab41,0xab43,
-            0xab45,0xab47,0xab49,0xab4b,0xab4d,0xab4f,0xab67,0xab69,0xab6b];
-        AssertTrue(addresses.SequenceEqual(BotwoonWallPlmProgramDefinitions.NativeWordAddresses()),
-            "Botwoon program enumeration matches independent native positions");
-        AssertEqual(18, addresses.Length,
-            "Botwoon wall owns eighteen instruction words");
-        AssertEqual(addresses.Length, addresses.Distinct().Count(),
-            "Botwoon wall instruction words do not overlap");
-        foreach (ushort address in addresses)
-        {
-            AssertTrue(BotwoonWallPlmProgramDefinitions.TryReadMechanicsWord(
-                    address, out ushort compiled),
-                $"Botwoon wall word $84:{address:X4} is compiled");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | address),
-                compiled,
-                $"Botwoon wall word $84:{address:X4} matches ROM");
-        }
-        foreach (ushort address in new ushort[]
-        {
-            BotwoonWallPlmProgramDefinitions.Crumble + 2,
-            BotwoonWallPlmProgramDefinitions.Crumble + 7,
-        })
-        {
-            AssertTrue(BotwoonWallPlmProgramDefinitions.TryReadMechanicsByte(
-                    address, out byte compiled),
-                $"Botwoon wall byte $84:{address:X4} is compiled");
-            AssertEqual(rom.ReadCartridgeByte(0x840000 | address), compiled,
-                $"Botwoon wall byte $84:{address:X4} matches ROM");
-        }
-        AssertTrue(!BotwoonWallPlmProgramDefinitions.TryReadMechanicsWord(
-                BotwoonWallPlmProgramDefinitions.CrumbleEndExclusive, out _),
-            "Botwoon scroll callback is not claimed as program data");
-        AssertTrue(!BotwoonWallPlmProgramDefinitions.TryReadMechanicsWord(
-                BotwoonWallPlmProgramDefinitions.ClearEndExclusive, out _),
-            "following Kraid program is not claimed by Botwoon");
-        var knownWords = addresses.ToHashSet();
-        for (int address = 0; address <= ushort.MaxValue; address++)
-        {
-            bool wordFound = BotwoonWallPlmProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort word);
-            AssertEqual(knownWords.Contains((ushort)address), wordFound, "Botwoon full word ownership includes packed unaligned controls");
-            if (!wordFound) AssertEqual((ushort)0, word, "Botwoon unknown word output cleared");
-            bool byteFound = BotwoonWallPlmProgramDefinitions.TryReadMechanicsByte((ushort)address, out byte value);
-            AssertEqual(address is 0xab33 or 0xab38, byteFound, "Botwoon packed timer/sound ownership");
-            if (!byteFound) AssertEqual((byte)0, value, "Botwoon unknown byte output cleared");
-        }
+        Suite(nameof(BossRoomPlmProgramsVerification.VerifyBotwoonWallPrograms), () => BossRoomPlmProgramsVerification.VerifyBotwoonWallPrograms(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList draw =
             BotwoonWallPlmDrawDefinitions.All.Single();
@@ -98,7 +54,7 @@ internal static class BotwoonWallPlmsVerification
         Suite(nameof(VerifyBotwoonWall), () => VerifyBotwoonWall(clear: false));
         Suite(nameof(VerifyBotwoonWall), () => VerifyBotwoonWall(clear: true));
         Console.WriteLine(
-            "Botwoon wall: ROM-matched programs and nine-block clear draw run their timed crumble/clear paths without source reads.");
+            "Botwoon wall: typed programs match ROM, and they and the nine-block clear draw run their timed crumble/clear paths without source reads.");
 
         void AssertWord(ushort expected)
         {
@@ -133,9 +89,7 @@ internal static class BotwoonWallPlmsVerification
         {
             plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
             soundCount += plms.Sounds.SoundRequests.Count(request =>
-                request.SoundEffect == SoundEffectId.FromCartridge(
-                    SoundEffectLibrary.Library2,
-                    BotwoonWallPlmProgramDefinitions.CrumbleSoundId));
+                request.SoundEffect == BotwoonWallPlmProgramDefinitions.CrumbleSound);
             if (clear && frame == 0)
             {
                 for (int y = 4; y <= 12; y++)
@@ -184,10 +138,7 @@ internal static class BotwoonWallPlmsVerification
             {
                 int pointer = SnesAddressMath.OffsetInBank(address);
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
-                    ((pointer >= BotwoonWallPlmProgramDefinitions.Crumble &&
-                      pointer < BotwoonWallPlmProgramDefinitions.CrumbleEndExclusive) ||
-                     (pointer >= BotwoonWallPlmProgramDefinitions.Clear &&
-                      pointer < BotwoonWallPlmProgramDefinitions.ClearEndExclusive) ||
+                    (BossRoomPlmNativeListAddresses.IsTypedProgramByte(pointer) ||
                      (pointer >= BotwoonWallPlmDrawDefinitions.ClearPointer &&
                       pointer < BotwoonWallPlmDrawDefinitions.EndExclusive) ||
                      (pointer >= RoomPlmShotBlockDrawDefinitions.SingleFrame0 &&

@@ -21,10 +21,6 @@ internal static class RoomPlmProgramDefinitions
         SamusEaterPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         TourianAccessPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        BotwoonWallPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        KraidRoomPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        CrocomireArenaPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        MotherBrainFakeDeathPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(address, out value) ||
         SpeedBoosterEscapePlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         MetroidsClearedPlmRomData.TryReadInstructionWord(address, out value) ||
@@ -57,8 +53,6 @@ internal static class RoomPlmProgramDefinitions
         SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         TourianAccessPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
-        BotwoonWallPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
-        KraidRoomPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         MaridiaElevatubePlmDefinitions.TryReadMechanicsByte(address, out value) ||
         SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         RoomPlmShotBlockProgramDefinitions.TryReadMechanicsByte(address, out value) ||

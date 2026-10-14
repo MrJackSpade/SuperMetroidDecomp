@@ -12,7 +12,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static AssertionsVerification;
 using static KraidDrawMappingsVerification;
-using static KraidRoomProgramMappingVerification;
+using static BossRoomPlmProgramsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
@@ -24,7 +24,7 @@ internal static class KraidRoomPlmsVerification
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyKraidRoomProgramMapping), () => VerifyKraidRoomProgramMapping(rom));
+        Suite(nameof(VerifyKraidRoomPrograms), () => VerifyKraidRoomPrograms(rom));
 
         Suite(nameof(VerifyKraidDrawAddresses), () => VerifyKraidDrawAddresses());
         Suite(nameof(VerifyKraidDrawOwnerClassification), () => VerifyKraidDrawOwnerClassification(rom));
@@ -111,10 +111,7 @@ internal static class KraidRoomPlmsVerification
     internal static CartridgeReadGuard NewKraidRoomSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => (SnesAddressMath.BankNumber(address)) == 0x84 &&
-                (((SnesAddressMath.OffsetInBank(address)) >= KraidRoomPlmProgramDefinitions.CrumbleCeilingBackground1 &&
-                  (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmProgramDefinitions.MoveRightCallback) ||
-                 ((SnesAddressMath.OffsetInBank(address)) >= KraidRoomPlmProgramDefinitions.ClearSpikes &&
-                  (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmProgramDefinitions.EndExclusive) ||
+                (BossRoomPlmNativeListAddresses.IsTypedProgramByte(SnesAddressMath.OffsetInBank(address)) ||
                  ((SnesAddressMath.OffsetInBank(address)) >= (ushort)KraidRoomDraw.CrumbleFirst &&
                   (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmDrawDefinitions.EndExclusive)),
             address => $"Kraid mutation reread migrated source ${address:X6}.");

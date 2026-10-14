@@ -209,9 +209,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             Add(frames, "ceres_falling_debris",
                 CeresFallingDebrisInstructionProgramDefinitions.PresentationWordCount,
                 CeresFallingDebrisInstructionProgramDefinitions.PresentationWordAddress);
-            Add(frames, "save_station_electricity",
-                SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount,
-                SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "save_station_electricity", SaveStationElectricityVisualDefinitions.ProjectileFrames.Count,
+                index => SaveStationElectricityVisualDefinitions.PresentationKey(SaveStationElectricityVisualDefinitions.ProjectileFrames[index]));
             Add(frames, "gunship_dust",
                 GunshipDustInstructionProgramDefinitions.PresentationWordCount,
                 GunshipDustInstructionProgramDefinitions.PresentationWordAddress);
@@ -224,9 +223,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             Add(frames, "chozo_tourian_dust",
                 ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount,
                 ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress);
-            Add(frames, "eye_door_sweat",
-                EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
-                EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress);
+            Add(frames, "eye_door_sweat", EyeDoorSweatVisualDefinitions.ProjectileFrames.Count,
+                index => EyeDoorSweatVisualDefinitions.PresentationKey(EyeDoorSweatVisualDefinitions.ProjectileFrames[index]));
             Add(frames, "ki_hunter_acid_spit",
                 KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount,
                 KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordAddress);

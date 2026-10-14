@@ -23,7 +23,8 @@ internal static class PlmInterpreterSourceContract
         // #628 $84:AB51 names its two scroll cells as typed screen positions; same writes, no program reads.
         // #628 $84:AB51 names its two scroll cells as typed screen positions; same writes, no program reads.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "ExecuteInstructionStream/7",
+        // #1296 moves Botwoon's scroll instruction to its typed wall program; the interpreter no longer takes the scroll grid.
+        "ExecuteInstructionStream/6",
         // #1273 drops the verification-only instruction source; the remaining sources are unchanged.
         "ReadProgramByte/2",
         "ReadProgramWord/2",

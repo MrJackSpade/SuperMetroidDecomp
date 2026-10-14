@@ -258,14 +258,17 @@ public sealed class RoomPlmSystem
             if (!slot.InstructionTimer.IsZero)
                 continue;
 
-            ExecuteInstructionStream(bus, level, streamer, slot, view, frame.Scrolls, frame.CollectedItems);
+            if (slot.Animation is { } animation)
+                animation.Advance(slot, new PlmAnimationContext(this, bus, level, streamer, view, frame));
+            else
+                ExecuteInstructionStream(bus, level, streamer, slot, view, frame.CollectedItems);
         }
 
         return Drawing._tilemapUpdates;
     }
 
     /// <summary>Dispatches bank-$84 controls until a timed draw pair is installed; rejects uncompiled or runaway chains.</summary>
-    private void ExecuteInstructionStream(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, RoomScrollGrid? scrolls, ushort collectedItems)
+    private void ExecuteInstructionStream(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, ushort collectedItems)
     {
         // An instruction list may execute multiple negative instruction words before it
         // reaches a positive timer/draw pair. The guard catches corrupt ROM/test data while
@@ -413,8 +416,9 @@ public sealed class RoomPlmSystem
                 case RoomPlmInstruction.DecrementTimerAndGoto:
                     // `$84:873F` always decrements the independent PLM_Timers word. A
                     // nonzero result jumps through the following pointer; zero consumes it.
-                    slot.LoopTimer = unchecked((ushort)(slot.LoopTimer - 1));
-                    if (slot.LoopTimer != 0)
+                    NativeWordCounterStep counted = NativeWordCounter.Decrement(slot.LoopTimer);
+                    slot.LoopTimer = counted.Value;
+                    if (!counted.IsZero)
                     {
                         slot.InstructionPointer = ReadProgramWord(
                             bus,
@@ -426,18 +430,6 @@ public sealed class RoomPlmSystem
                     }
                     continue;
 
-                case RoomPlmInstruction.SetBotwoonScrollsBlue:
-                    if (scrolls is null)
-                    {
-                        throw new InvalidOperationException(
-                            "Botwoon's scroll PLM requires the active room scroll grid.");
-                    }
-                    // `$84:AB51` performs one 16-bit store of $0101 at Scrolls. Express the
-                    // two raw leading cells semantically while retaining the same WRAM mirror.
-                    scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
-                    scrolls.SetLogicalState(new(1, 0), RoomScrollState.Blue);
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
 
                 case RoomPlmInstruction.MoveRightFourBlocks:
                     // Eight bytes of native block index are four whole level words.
@@ -445,16 +437,8 @@ public sealed class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
-                case RoomPlmInstruction.MoveRightOneBlock:
-                    // The cartridge increments its byte offset twice; our index
-                    // already addresses whole level words. Drawing stays list-owned.
-                    slot.BlockIndex = checked(slot.BlockIndex + 1);
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
-
-                case RoomPlmInstruction.MoveBotwoonPlmDownOneBlock:
                 case RoomPlmInstruction.MoveTourianAccessDown:
-                    // Native PLM_BlockIndices are byte offsets, so AB59 adds room width
+                    // Native PLM_BlockIndices are byte offsets, so AB00 adds room width
                     // twice. C# stores logical word indexes; adding width once is identical.
                     slot.BlockIndex = checked(slot.BlockIndex + level.Size.X);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
@@ -498,16 +482,7 @@ public sealed class RoomPlmSystem
                     return;
 
                 case RoomPlmInstruction.Delete:
-                    slot.Active = false;
-                    BombTorizoHandPlms.MarkBombTorizoHandDeleted(slot);
-                    MotherBrainGlass.OnPlmDeleted(slot);
-                    // Semantic family references are discriminators, not retained debug
-                    // history. A later allocation can reuse this physical native slot and
-                    // must never inherit door-only pre-handler behavior.
-                    slot.ColoredDoor = null;
-                    slot.GreyDoor = null;
-                    slot.EyeDoor = null;
-                    slot.DraygonCannon = null;
+                    DeletePlm(slot);
                     return;
 
                 case RoomPlmInstruction.Sleep:
@@ -538,6 +513,23 @@ public sealed class RoomPlmSystem
         }
 
         throw new InvalidDataException("Movement-owned PLM instruction chain did not reach a timer.");
+    }
+
+    /// <summary>
+    /// <c>$84:86BC Instruction_PLM_Delete</c>: releases the slot. Native lists and typed programs end a PLM the same way.
+    /// </summary>
+    internal void DeletePlm(PlmSlot slot)
+    {
+        slot.Active = false;
+        BombTorizoHandPlms.MarkBombTorizoHandDeleted(slot);
+        MotherBrainGlass.OnPlmDeleted(slot);
+        // Semantic family references are discriminators, not retained debug
+        // history. A later allocation can reuse this physical native slot and
+        // must never inherit door-only pre-handler behavior.
+        slot.ColoredDoor = null;
+        slot.GreyDoor = null;
+        slot.EyeDoor = null;
+        slot.DraygonCannon = null;
     }
 
     /// <summary>Reads a wrapped PLM instruction word through the low-bank live WRAM alias.</summary>

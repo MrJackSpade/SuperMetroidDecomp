@@ -1286,9 +1286,8 @@ internal static class RoomPlmPopulationVerification
             OffsetX = 0, OffsetY = 0, TileColumn = 1, TileRow = 0,
             Size = 8, Priority = 1, Palette = 0, FlipX = false, FlipY = false,
         };
-        HashSet<ushort> electricityOperands = Enumerable.Range(0,
-            SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount)
-            .Select(SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress).ToHashSet();
+        HashSet<ushort> electricityOperands = SaveStationElectricityVisualDefinitions.ProjectileFrames
+            .Select(SaveStationElectricityVisualDefinitions.PresentationKey).ToHashSet();
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
             Version = (int)EnemyProjectileSpritemapVersion.Current,
@@ -1307,7 +1306,7 @@ internal static class RoomPlmPopulationVerification
             "save electricity starts two blocks above the station PLM");
 
         enemies.StepEnemyProjectiles(level, samus: null);
-        AssertEqual(SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(0),
+        AssertEqual(SaveStationElectricityVisualDefinitions.PresentationKey(new SaveStationElectricityFrame(0)),
             electricity.PresentationOperandAddress, "save electricity selects its first installed frame through the compiled interpreter");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,
             "installed program artwork does not retain a cartridge spritemap pointer");

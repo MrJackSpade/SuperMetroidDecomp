@@ -40,9 +40,10 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 Kind = kind,
             };
             // Botwoon's, Crocomire's, Draygon's and Kraid's spawners (and Kago's, which shares Kraid's rock pose) start
-            // typed animations (#641); their oracles match them to these native lists frame by frame, and no
-            // interpreter owns the lists. Crocomire's mouth projectile, Draygon's goop and Kraid's spat rock also start
-            // typed shot programs, and the goop a typed touch program.
+            // typed animations (#641), as do the eye-door sweat and the save station electricity (#1296); their
+            // oracles match them to these native lists frame by frame, and no interpreter owns the lists. Crocomire's
+            // mouth projectile, Draygon's goop and Kraid's spat rock also start typed shot programs, and the goop a
+            // typed touch program.
             bool typed = kind is RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit or
                 RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces or RoomEnemyProjectileKind.DraygonGoop or
@@ -51,7 +52,8 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.KraidRisingRockRight or RoomEnemyProjectileKind.KagoBug or
                 RoomEnemyProjectileKind.MotherBrainRoomTurret or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainGlassShard or RoomEnemyProjectileKind.MotherBrainGlassSparkle or
-                RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired;
+                RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired or
+                RoomEnemyProjectileKind.EyeDoorSweat or RoomEnemyProjectileKind.SaveStationElectricity;
             if (!typed)
                 VerifyEntry(definition.InitialInstructionList, "initial");
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet))

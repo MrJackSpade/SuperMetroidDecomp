@@ -27,7 +27,6 @@ using static EnemyTileArtworkBotwoonColorsVerification;
 using static FrontendRomFreeVerification;
 using static PaletteFxInstructionCodesVerification;
 using static ProjectileCompositionsVerification;
-using static SaveStationElectricityInstructionProgramDefinitionsVerification;
 using static SkreeMetareeParticleInstructionProgramDefinitionsVerification;
 using static SuiteTimingVerification;
 
@@ -2157,38 +2156,13 @@ internal static class LookupStream4Verification
         }
         AssertEqual(particleMechanics, SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWordCount, "stream4 debris mechanics count");
         AssertEqual(particlePresentation, SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordCount, "stream4 debris presentation count");
-        int electricMechanics = 0, electricPresentation = 0;
-        for (int address = 0xe683; address < 0xe6ad; address += 2)
-        {
-            bool presentation = address >= 0xe689 && address <= 0xe6a5 && (address - 0xe689) % 4 == 0;
-            if (presentation)
-            {
-                AssertEqual((ushort)address, SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(electricPresentation++), "stream4 electricity presentation ordering");
-                AssertThrows<InvalidDataException>(() => SaveStationElectricityInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream4 electricity presentation not mechanics");
-            }
-            else
-            {
-                var actual = SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(electricMechanics++);
-                AssertEqual((ushort)address, actual.Address, "stream4 electricity mechanics ordering");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | address)), actual.Value, "stream4 native electricity mechanics");
-                AssertEqual(actual.Value, SaveStationElectricityInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream4 electricity direct mechanics");
-            }
-            for (int half = 0; half < 2; half++)
-                AssertEqual(!presentation, SaveStationElectricityInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | (address + half)), "stream4 electricity byte ownership");
-        }
-        AssertEqual(electricMechanics, SaveStationElectricityInstructionProgramDefinitions.MechanicsWordCount, "stream4 electricity mechanics count");
-        AssertEqual(electricPresentation, SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount, "stream4 electricity presentation count");
         foreach (int invalid in new[] { -1, int.MaxValue })
         {
             AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "stream4 debris mechanics bounds");
             AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "stream4 debris presentation bounds");
-            AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(invalid), "stream4 electricity mechanics bounds");
-            AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(invalid), "stream4 electricity presentation bounds");
         }
         AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWord(particleMechanics), "stream4 debris mechanics end");
         AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordAddress(particlePresentation), "stream4 debris presentation end");
-        AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(electricMechanics), "stream4 electricity mechanics end");
-        AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(electricPresentation), "stream4 electricity presentation end");
     }
 
     /// <summary>Checks projectile instruction consumers select the compiled program words they expect.</summary>
@@ -2197,24 +2171,19 @@ internal static class LookupStream4Verification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        var electricityGuard = NewSaveStationElectricityInstructionReadGuard(rom);
         var electricitySystem = new RoomEnemySystem();
-        electricitySystem.BindFixtureBus(electricityGuard);
+        electricitySystem.BindFixtureBus(new TestAddressSpace());
         electricitySystem.Projectiles.SpawnSaveStationElectricity(42, 16);
         var electricity = electricitySystem.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         for (int frame = 0; frame < 160; frame++)
         {
-            electricity.InstructionTimer = NativeCountdown.Start(1);
             electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
             AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
-            AssertEqual((ushort)(0xe68b + 4 * (frame % 8)), electricity.InstructionPointer, "stream4 electricity exact frame order");
             AssertEqual((ushort)1, electricity.InstructionTimer.RawValue, "stream4 electricity one-frame timing");
             AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
         }
-        electricity.InstructionTimer = NativeCountdown.Start(1);
         electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
         AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
-        AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
         foreach (bool metaree in new[] { false, true })
         {
             var guard = NewSkreeMetareeParticleInstructionReadGuard(rom);
@@ -2329,7 +2298,6 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectileDefinitions.SpawnerX(invalid), "stream4 emitter spawn domain");
         }
         Check(0xa20000, 0xb013, 0xb027, FlyInstructionProgramDefinitions.MechanicsWordCount, FlyInstructionProgramDefinitionsTooling.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = FlyInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: FlyInstructionProgramDefinitionsTooling.PresentationWordAddress, Read: FlyInstructionProgramDefinitions.ReadMechanicsWord, Owns: FlyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a is 0xb015 or 0xb019 or 0xb01d or 0xb021));
-        Check(0x860000, 0xb615, 0xb62d, EyeDoorSweatInstructionProgramDefinitions.MechanicsWordCount, EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = EyeDoorSweatInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress, Read: EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord, Owns: EyeDoorSweatInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a is 0xb617 or 0xb621 or 0xb625 or 0xb629));
         for (int address = 0xb012; address <= 0xb027; address++)
             AssertEqual(address is 0xb015 or 0xb019 or 0xb01d or 0xb021,
                 FlyInstructionProgramDefinitions.IsPresentationWord((ushort)address), "stream4 exact fly presentation classification");

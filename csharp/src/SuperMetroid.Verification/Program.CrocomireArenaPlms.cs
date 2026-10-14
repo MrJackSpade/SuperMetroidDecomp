@@ -12,7 +12,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 using static AssertionsVerification;
 using static LookupCrocomireDrawsVerification;
-using static LookupCrocomireProgramsVerification;
+using static BossRoomPlmProgramsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
@@ -26,8 +26,7 @@ internal static class CrocomireArenaPlmsVerification
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Crocomire native oracle revision");
-        Suite(nameof(VerifyCrocomireProgramControls), () => VerifyCrocomireProgramControls(rom));
-        Suite(nameof(VerifyCrocomireProgramDraws), () => VerifyCrocomireProgramDraws(rom));
+        Suite(nameof(VerifyCrocomireArenaPrograms), () => VerifyCrocomireArenaPrograms(rom));
 
         Suite(nameof(VerifyCrocomirePhysicalDrawMapping), () => VerifyCrocomirePhysicalDrawMapping(rom));
 
@@ -96,8 +95,7 @@ internal static class CrocomireArenaPlmsVerification
             {
                 int pointer = SnesAddressMath.OffsetInBank(address);
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
-                    ((pointer >= CrocomireArenaPlmProgramDefinitions.ClearBridge &&
-                      pointer < CrocomireArenaPlmProgramDefinitions.EndExclusive) ||
+                    (BossRoomPlmNativeListAddresses.IsTypedProgramByte(pointer) ||
                      (pointer >= (ushort)CrocomireArenaDraw.ClearBridge &&
                       pointer < CrocomireArenaPlmDrawDefinitions.EndExclusive));
             }, address => $"Crocomire PLM reread compiled source ${address:X6}.");

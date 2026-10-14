@@ -111,8 +111,7 @@ internal static void VerifyTypedNativeWords()
         (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum3,
         (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum1,
         (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct,
-        (ushort)RoomPlmInstruction.SetBotwoonScrollsBlue,
-        (ushort)RoomPlmInstruction.MoveBotwoonPlmDownOneBlock,
+
         (ushort)RoomPlmInstruction.SetPlmBtsToOne,
         (ushort)RoomPlmInstruction.GotoIfRoomArgumentLess,
         (ushort)RoomPlmInstruction.SpawnFourMotherBrainGlassShards,

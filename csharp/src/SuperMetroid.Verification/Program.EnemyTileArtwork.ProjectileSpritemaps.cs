@@ -25,6 +25,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         RoomEnemyProjectileKind.MotherBrainHandBeamFired,
         RoomEnemyProjectileKind.MotherBrainRoomTurret,
         RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
+        RoomEnemyProjectileKind.EyeDoorSweat,
+        RoomEnemyProjectileKind.SaveStationElectricity,
     ];
 
     /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
@@ -208,8 +210,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 CeresFallingDebrisInstructionProgramDefinitions.PresentationWordCount,
                 CeresFallingDebrisInstructionProgramDefinitions.PresentationWordAddress),
             ("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity,
-                SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount,
-                SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress),
+                SaveStationElectricityVisualDefinitions.ProjectileFrames.Count,
+                index => SaveStationElectricityVisualDefinitions.PresentationKey(SaveStationElectricityVisualDefinitions.ProjectileFrames[index])),
             ("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
                 GunshipDustInstructionProgramDefinitions.PresentationWordCount,
                 GunshipDustInstructionProgramDefinitions.PresentationWordAddress),
@@ -223,8 +225,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount,
                 ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress),
             ("eye-door sweat", RoomEnemyProjectileKind.EyeDoorSweat,
-                EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
-                EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress),
+                EyeDoorSweatVisualDefinitions.ProjectileFrames.Count,
+                index => EyeDoorSweatVisualDefinitions.PresentationKey(EyeDoorSweatVisualDefinitions.ProjectileFrames[index])),
             ("Ki Hunter acid spit", RoomEnemyProjectileKind.KiHunterAcidSpitLeft,
                 KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount,
                 KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordAddress),

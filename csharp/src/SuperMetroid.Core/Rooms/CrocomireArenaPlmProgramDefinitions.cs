@@ -1,42 +1,25 @@
+using SuperMetroid.Core.Game;
+using Step = SuperMetroid.Core.Game.AnimationProgramStep<SuperMetroid.Core.Rooms.CrocomireArenaProgram, SuperMetroid.Core.Rooms.CrocomireArenaDraw, SuperMetroid.Core.Rooms.PlmNoCue>;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Crocomire's five finite room-object instruction lists at $84:AFCA..AFE7.
-/// Each list draws its physical layout once, then deletes its PLM.
+/// Crocomire's arena PLM programs (#1296), in place of their bank-$84 instruction lists at $84:AFCA..AFE7: each
+/// draws its arena layout for one update, then deletes the PLM.
 /// </summary>
 internal static class CrocomireArenaPlmProgramDefinitions
 {
-    /// <summary><c>$84:AFCA</c>: clear the ten-block bridge.</summary>
-    internal const ushort ClearBridge = RoomPlmInstructionLists.ClearCrocomireBridge;
-    /// <summary><c>$84:AFE8</c>: first byte of the following save-station program.</summary>
-    internal const ushort EndExclusive = 0xafe8;
-
-    /// <summary>
-    /// Each six-byte list owns aligned duration, draw and delete words only.
-    /// The five named draw operations are semantic selections, not stored operands.
-    /// Odd words and the following save-station program remain unowned.
-    /// </summary>
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
-    {
-        value = 0;
-        int relative = address - ClearBridge;
-        if (relative < 0 || address >= EndExclusive || (relative & 1) != 0)
-            return false;
-        value = (relative % 6) switch
+    /// <summary>Every arena program.</summary>
+    internal static AnimationProgramSet<CrocomireArenaProgram, CrocomireArenaDraw, PlmNoCue> Programs { get; } = new(
+        new Dictionary<CrocomireArenaProgram, Step[]>
         {
-            0 => 1,
-            4 => (ushort)RoomPlmInstruction.Delete,
-            // The five six-byte lists draw, in order, the five arena layouts.
-            _ => (relative / 6) switch
-            {
-                0 => (ushort)CrocomireArenaDraw.ClearBridge,
-                1 => (ushort)CrocomireArenaDraw.CrumbleBridgeBlock,
-                2 => (ushort)CrocomireArenaDraw.ClearBridgeBlock,
-                3 => (ushort)CrocomireArenaDraw.ClearInvisibleWall,
-                4 => (ushort)CrocomireArenaDraw.CreateInvisibleWall,
-                _ => throw new InvalidOperationException("Invalid bounded Crocomire program."),
-            },
-        };
-        return true;
-    }
+            [CrocomireArenaProgram.ClearBridge] = DrawOnce(CrocomireArenaDraw.ClearBridge),
+            [CrocomireArenaProgram.CrumbleBridgeBlock] = DrawOnce(CrocomireArenaDraw.CrumbleBridgeBlock),
+            [CrocomireArenaProgram.ClearBridgeBlock] = DrawOnce(CrocomireArenaDraw.ClearBridgeBlock),
+            [CrocomireArenaProgram.ClearInvisibleWall] = DrawOnce(CrocomireArenaDraw.ClearInvisibleWall),
+            [CrocomireArenaProgram.CreateInvisibleWall] = DrawOnce(CrocomireArenaDraw.CreateInvisibleWall),
+        });
+
+    /// <summary>Draws <paramref name="layout"/> for one update, then deletes the PLM.</summary>
+    private static Step[] DrawOnce(CrocomireArenaDraw layout) => [Step.Show(layout, 1), Step.Stop];
 }

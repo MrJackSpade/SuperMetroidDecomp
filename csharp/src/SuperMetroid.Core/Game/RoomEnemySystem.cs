@@ -1507,6 +1507,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         DragonBehavior.RegisterDragonProjectiles(table);
         DraygonBehavior.RegisterDraygonProjectiles(table);
         EyeDoorBehavior.RegisterEyeDoorProjectiles(table);
+        SaveStationElectricityAnimations.RegisterCues(table);
         FakeKraidBehavior.RegisterFakeKraidProjectiles(table);
         FallingSparksBehavior.RegisterFallingSparksProjectiles(table);
         FuneNamiheBehavior.RegisterFuneNamiheProjectiles(table);

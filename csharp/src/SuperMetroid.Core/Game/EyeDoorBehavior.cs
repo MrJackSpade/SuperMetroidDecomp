@@ -64,6 +64,7 @@ internal sealed class EyeDoorBehavior
                 return;
 
             case RoomEnemyProjectileKind.EyeDoorSweat:
+                projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatProgram.Falling));
                 InitializeEyeDoorSweat(projectile, request.Parameter, block);
                 return;
 
@@ -181,9 +182,9 @@ internal sealed class EyeDoorBehavior
         if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0 && collidedVertically)
         {
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 4)));
-            SetEyeDoorEffectImpactList(
-                projectile,
-                EyeDoorSweatInstructionProgramDefinitions.Impact);
+            // Like the shot's impact list, the splash stops the drop before its first frame.
+            projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
+            projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatProgram.HitFloor));
             return;
         }
 
@@ -338,5 +339,6 @@ internal sealed class EyeDoorBehavior
         {
             RunEyeDoorSweatPreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.EyeDoorSweatPreInstruction);
+        EyeDoorSweatAnimations.RegisterCues(table);
     }
 }

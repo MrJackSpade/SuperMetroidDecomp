@@ -303,7 +303,7 @@ internal static class EnemyProjectileDefinitionCatalog
             EyeDoorProjectileInstructionProgramDefinitions.Shot),
         RoomEnemyProjectileKind.EyeDoorSweat => new(
             0xB714,
-            EyeDoorSweatInstructionProgramDefinitions.Initial,
+            0xB615,
             0x0000,
             0x0004,
             0x0000,
@@ -392,7 +392,7 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.SporeSpawnSpawner => new(0xDD46, SporeSpawnProjectileInstructionProgramDefinitions.SpawnerClosed, 0x0202, 0x2000, 0x0000, SporeSpawnProjectileInstructionProgramDefinitions.SpawnerClosed),
         RoomEnemyProjectileKind.SaveStationElectricity => new(
             0xE6D1,
-            SaveStationElectricityInstructionProgramDefinitions.Initial,
+            0xE683,
             0x0000,
             0x3000,
             0x0000,

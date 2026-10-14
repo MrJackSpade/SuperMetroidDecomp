@@ -51,9 +51,7 @@ internal sealed record PlmInstructionFormat(int Length, int[] Words, int[] Bytes
         RoomPlmInstruction.ClearPreInstruction or
         RoomPlmInstruction.SetGreyDoorPreInstruction or
         RoomPlmInstruction.ClearDownwardGateTrigger or
-        RoomPlmInstruction.SetBotwoonScrollsBlue or
-        RoomPlmInstruction.MoveRightOneBlock or
-        RoomPlmInstruction.MoveBotwoonPlmDownOneBlock or
+
         RoomPlmInstruction.SetPlmBtsToOne or
         RoomPlmInstruction.DrawPlmBlock or
         RoomPlmInstruction.DrawPlmBlockClone or

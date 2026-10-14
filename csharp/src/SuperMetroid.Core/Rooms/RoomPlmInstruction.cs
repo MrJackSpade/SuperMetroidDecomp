@@ -45,8 +45,6 @@ public enum RoomPlmInstruction : ushort
     /// <summary><c>$84:874E Instruction_PLM_SetTimer8Bit</c>.</summary>
     SetEightBitTimer = 0x874e,
 
-    /// <summary><c>$84:ABD6 Instruction_PLM_MovePLMRight1Block</c>: increment the native block byte index twice.</summary>
-    MoveRightOneBlock = 0xabd6,
 
     /// <summary><c>$84:87E5 Instruction_PLM_CopyFromRamToVram</c>.</summary>
     CopyFromRamToVram = 0x87e5,
@@ -117,11 +115,6 @@ public enum RoomPlmInstruction : ushort
     /// <summary>Direct-entry form of the max-one library-two queue routine at <c>$84:8C7C</c>.</summary>
     QueueSoundLibrary2Maximum1Direct = 0x8c7c,
 
-    /// <summary><c>$84:AB51</c>: set Botwoon's first two scroll cells blue.</summary>
-    SetBotwoonScrollsBlue = 0xab51,
-
-    /// <summary><c>$84:AB59</c>: move Botwoon's PLM origin down one room-block row.</summary>
-    MoveBotwoonPlmDownOneBlock = 0xab59,
 
     /// <summary>
     /// <c>$84:BA6F PlmInstr_JumpIfSamusHasNoBombs</c>: branch through the following

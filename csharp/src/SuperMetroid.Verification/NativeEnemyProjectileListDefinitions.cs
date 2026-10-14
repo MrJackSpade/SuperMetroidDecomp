@@ -29,6 +29,10 @@ internal static class NativeEnemyProjectileListDefinitions
         CallExternal,
         /// <summary>The goto and its target operand.</summary>
         GoTo,
+        /// <summary>Loads the projectile's loop counter from its operand.</summary>
+        SetCounter,
+        /// <summary>Counts the loop counter down and jumps to its target operand while it is not zero.</summary>
+        RepeatWhileCounting,
         /// <summary>The sleep.</summary>
         Sleep,
         /// <summary>The deletion.</summary>
@@ -43,6 +47,8 @@ internal static class NativeEnemyProjectileListDefinitions
         [(ushort)EnemyProjectileInstruction.UsePalette0] = WordKind.UsePaletteZero,
         [(ushort)EnemyProjectileInstruction.CallExternalFunctionInY] = WordKind.CallExternal,
         [(ushort)EnemyProjectileInstruction.GotoY] = WordKind.GoTo,
+        [(ushort)EnemyProjectileInstruction.TimerInY] = WordKind.SetCounter,
+        [(ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero] = WordKind.RepeatWhileCounting,
         [(ushort)EnemyProjectileInstruction.Sleep] = WordKind.Sleep,
         [(ushort)EnemyProjectileInstruction.Delete] = WordKind.Delete,
     };
@@ -72,6 +78,8 @@ internal static class NativeEnemyProjectileListDefinitions
         internal List<int> Calls { get; } = [];
         /// <summary>Whether the list has deleted its projectile.</summary>
         internal bool Deleted { get; private set; }
+        /// <summary>The list's loop counter, the projectile's native general timer.</summary>
+        internal ushort Counter { get; private set; }
 
         /// <summary>Runs one update.</summary>
         internal void Step(IImportCartridgeSource cartridge)
@@ -110,6 +118,19 @@ internal static class NativeEnemyProjectileListDefinitions
                     case WordKind.GoTo:
                         cursor = cartridge.ReadCartridgeWord(ProjectileBank | (cursor + 2));
                         continue;
+                    case WordKind.SetCounter:
+                        Counter = cartridge.ReadCartridgeWord(ProjectileBank | (cursor + 2));
+                        cursor = unchecked((ushort)(cursor + 4));
+                        continue;
+                    case WordKind.RepeatWhileCounting:
+                    {
+                        ushort before = Counter;
+                        Counter = unchecked((ushort)(before - 1));
+                        cursor = before == 1
+                            ? unchecked((ushort)(cursor + 4))
+                            : cartridge.ReadCartridgeWord(ProjectileBank | (cursor + 2));
+                        continue;
+                    }
                     case WordKind.Sleep:
                         return;
                     case WordKind.Delete:

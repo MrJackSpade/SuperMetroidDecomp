@@ -99,7 +99,7 @@ using static EtecoonInstructionProgramDefinitionsVerification;
 using static EvirInstructionProgramDefinitionsVerification;
 using static EyeDoorPlmDrawDefinitionsVerification;
 using static EyeDoorProjectileInstructionProgramDefinitionsVerification;
-using static EyeDoorSweatInstructionProgramDefinitionsVerification;
+using static EyeDoorSweatAnimationsVerification;
 using static FakeKraidInstructionProgramDefinitionsVerification;
 using static FakeKraidProjectileDefinitionsVerification;
 using static FakeKraidProjectileInstructionProgramDefinitionsVerification;
@@ -244,7 +244,7 @@ using static SamusIndexedSpeedsVerification;
 using static SamusStandaloneSpeedsVerification;
 using static SamusVerticalDefinitionsVerification;
 using static SaveStationAnimationDefinitionsVerification;
-using static SaveStationElectricityInstructionProgramDefinitionsVerification;
+using static SaveStationElectricityAnimationsVerification;
 using static SbugMovementDefinitionsVerification;
 using static SciserInstructionProgramDefinitionsVerification;
 using static ShaktoolInstructionDefinitionsVerification;
@@ -334,7 +334,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyMagdolliteLavaInstructionProgramDefinitions), () => VerifyMagdolliteLavaInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyDragonFireballInstructionProgramDefinitions), () => VerifyDragonFireballInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEyeDoorProjectileInstructionProgramDefinitions), () => VerifyEyeDoorProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyEyeDoorSweatInstructionProgramDefinitions), () => VerifyEyeDoorSweatInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyEyeDoorSweatAnimations), () => VerifyEyeDoorSweatAnimations(LoadRepositoryRom())),
         new(nameof(VerifySkreeMetareeParticleInstructionProgramDefinitions), () => VerifySkreeMetareeParticleInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyAlcoonFireballInstructionProgramDefinitions), () => VerifyAlcoonFireballInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -352,7 +352,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyCeresRidleyProjectileInstructionProgramDefinitions), () => VerifyCeresRidleyProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySpacePirateProjectileInstructionProgramDefinitions), () => VerifySpacePirateProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCeresFallingDebrisInstructionProgramDefinitions), () => VerifyCeresFallingDebrisInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifySaveStationElectricityInstructionProgramDefinitions), () => VerifySaveStationElectricityInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifySaveStationElectricityAnimations), () => VerifySaveStationElectricityAnimations(LoadRepositoryRom())),
         new(nameof(VerifyEnemyPickupInstructionProgramDefinitions), () => VerifyEnemyPickupInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEnemyDeathInstructionProgramDefinitions), () => VerifyEnemyDeathInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyShaktoolProjectileInstructionProgramDefinitions), () => VerifyShaktoolProjectileInstructionProgramDefinitions(LoadRepositoryRom())),

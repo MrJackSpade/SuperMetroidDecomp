@@ -1063,11 +1063,6 @@ internal sealed class EnemyProjectileEngine
             return CeresFallingDebrisInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
-        if (projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity)
-        {
-            return SaveStationElectricityInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
 
         if (DownwardGateProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
@@ -1165,10 +1160,6 @@ internal sealed class EnemyProjectileEngine
             return EyeDoorProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
-        if (projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat)
-        {
-            return EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
 
         if (EnemyProjectileInstructionMechanicsDefinitions.Owns(projectile.Kind))
         {
@@ -1408,6 +1399,7 @@ internal sealed class EnemyProjectileEngine
             projectile,
             RoomEnemyProjectileKind.SaveStationElectricity,
             graphicsIndex: 0);
+        projectile.StartAnimation(new SaveStationElectricityAnimation());
         int blockX = plmBlockIndex % roomWidthInBlocks;
         int blockY = plmBlockIndex / roomWidthInBlocks;
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(16 * (blockX + 1))), unchecked((ushort)(16 * (blockY - 2)))));

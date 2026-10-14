@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Game;
-using System.Text.Json.Serialization;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -137,12 +136,3 @@ public sealed class SamusSpritemapArtworkCatalog
         return definition is not null;
     }
 }
-
-/// <summary>A native bank-$92 spritemap record and its editable five-byte OAM parts.</summary>
-public sealed record SamusSpritemapDefinition(ushort Pointer, SamusSpritePart[] Parts);
-
-/// <summary>Encoded X/size word, signed-wrap Y byte, and complete OBJ attribute word.</summary>
-public readonly record struct SamusSpritePart(
-    [property: JsonRequired] ushort X,
-    [property: JsonRequired] byte Y,
-    [property: JsonRequired] ushort Attributes);

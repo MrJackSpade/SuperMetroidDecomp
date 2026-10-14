@@ -51,12 +51,3 @@ internal sealed class RenderTimingWindow
         return new(total, Math.Min(total, warmup), copy.Length, Percentile(0.50), Percentile(0.95), Percentile(0.99));
     }
 }
-
-/// <summary>Nearest-rank milliseconds from the retained rolling window, not a whole-run soak summary.</summary>
-public readonly record struct RenderTimingDistribution(long Observed, long WarmupExcluded, int Retained,
-    double P50Milliseconds, double P95Milliseconds, double P99Milliseconds);
-
-/// <summary>Independent windows: GPU results arrive asynchronously; Present includes display submission and host waiting.</summary>
-public readonly record struct RenderWorkerTimings(RenderTimingDistribution CpuComposition,
-    RenderTimingDistribution CpuDisplayAndPresent, RenderTimingDistribution GpuComposition,
-    RenderTimingDistribution GpuCompositionAndDisplay);

@@ -23,7 +23,3 @@ public static class SamusPowerBombFuse
         return new(timer, instructionPointer, SpawnExplosion: false, DeleteProjectile: false);
     }
 }
-
-/// <summary>Writes and caller-owned side effects of one native Power Bomb fuse invocation.</summary>
-public readonly record struct PowerBombFuseStep(
-    ushort Timer, ushort InstructionPointer, bool SpawnExplosion, bool DeleteProjectile);

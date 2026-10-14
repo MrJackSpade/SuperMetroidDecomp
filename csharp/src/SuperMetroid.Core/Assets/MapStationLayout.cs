@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -47,24 +46,4 @@ public sealed class MapStationLayout
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable JSON schema for all map-station marker drawing positions.</summary>
-public sealed record MapStationLayoutDocument
-{
-    /// <summary>Gets the map-station layout schema version.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Gets one screen-pixel drawing position for every known station-marker identifier.</summary>
-    public required Dictionary<string, Position16<MapPixels>> Markers { get; init; }
-}
-
-/// <summary>Names and versions the editable map-station layout asset.</summary>
-public static class MapStationLayoutFormat
-{
-    /// <summary>The supported map-station layout schema version.</summary>
-    public const int Version = 1;
-
-    /// <summary>The embedded editable map-station layout file name.</summary>
-    public const string FileName = "map-station-labels.json";
 }

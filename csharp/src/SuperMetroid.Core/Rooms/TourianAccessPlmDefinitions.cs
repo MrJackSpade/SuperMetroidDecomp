@@ -9,7 +9,6 @@ internal static class TourianAccessPlmDefinitions
     /// </summary>
     public const ushort CrumbleInstructionList = 0xaae5;
 
-
     /// <summary><c>$84:AB0C</c>, initial list that immediately clears the access floor.</summary>
     public const ushort ClearInstructionList = 0xab0c;
 
@@ -18,8 +17,3 @@ internal static class TourianAccessPlmDefinitions
         ? new(PlmHeaderId.ClearAccessToTourianElevator, ClearInstructionList)
         : new(PlmHeaderId.CrumbleAccessToTourianElevator, CrumbleInstructionList);
 }
-
-/// <summary>One Tourian access-floor PLM header and its initial instruction list.</summary>
-internal readonly record struct TourianAccessPlmDefinition(
-    PlmHeaderId HeaderPointer,
-    ushort InstructionListPointer);

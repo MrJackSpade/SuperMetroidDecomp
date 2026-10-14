@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -179,8 +178,3 @@ public static class SamusSlopePhysics
     }
 
 }
-
-/// <summary>Debugger-visible result of bank-$94's post-horizontal slope correction.</summary>
-public readonly record struct SlopeAlignmentResult(
-    ushort YPosition,
-    bool Adjusted);

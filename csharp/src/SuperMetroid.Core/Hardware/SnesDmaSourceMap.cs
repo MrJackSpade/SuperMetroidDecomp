@@ -1,18 +1,5 @@
 namespace SuperMetroid.Core.Hardware;
 
-/// <summary>The mutually exclusive mapped sources a PPU DMA transfer can read.</summary>
-internal enum SnesDmaSourceKind
-{
-    /// <summary>Direct WRAM bank or its low-bank mirror supplies the DMA byte.</summary>
-    WorkRam,
-    /// <summary>A low-address SRAM window supplies the DMA byte.</summary>
-    SaveRam,
-    /// <summary>The upper LoROM cartridge window supplies the DMA byte.</summary>
-    Cartridge,
-    /// <summary>No mapped memory source owns this bank and offset.</summary>
-    Unmapped,
-}
-
 /// <summary>
 /// Classifies each A-bus byte after the DMA channel's 16-bit offset wraps. A transfer
 /// that crosses $xx:FFFF can change from a cartridge window to WRAM or an unmapped

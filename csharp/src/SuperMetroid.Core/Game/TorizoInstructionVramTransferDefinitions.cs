@@ -1,9 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One native bank-$AA common-enemy $814B tile transfer descriptor.</summary>
-internal readonly record struct TorizoInstructionVramTransferDefinition(
-    ushort Instruction, ushort ByteCount, int SourceAddress, ushort DestinationWord);
-
 /// <summary>
 /// Compiled control data for every $814B transfer in the Bomb/Golden Torizo
 /// instruction region. Source bytes are editable character art, supplied by

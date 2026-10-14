@@ -1,53 +1,6 @@
-using SuperMetroid.Core.Assets;
 using P = SuperMetroid.Core.Game.DraygonProjectileProgram;
 
 namespace SuperMetroid.Core.Game;
-
-/// <summary>Draygon's goop and wall-turret projectile programs.</summary>
-public enum DraygonProjectileProgram
-{
-    /// <summary><c>InstList_EnemyProjectile_DraygonGoop_Touch</c> ($86:8C38): sticks the goop to Samus, then runs on into the goop loop.</summary>
-    GoopTouch,
-    /// <summary><c>InstList_EnemyProjectile_DraygonGoop</c> ($86:8C3A): six ten-update frames, looping.</summary>
-    Goop,
-    /// <summary><c>InstList_EnemyProjectile_DraygonGoop_Shot</c> ($86:8C58): two eight-update frames, a drop, then deletion.</summary>
-    GoopShot,
-    /// <summary><c>InstList_EnemyProjectile_DraygonsWallTurretProjectile_0</c> ($86:8CA4): the sixteen-frame bloom, then the shot is fired.</summary>
-    WallTurretBloom,
-    /// <summary><c>InstList_EnemyProjectile_DraygonsWallTurretProjectile_1</c> ($86:8CE6): three eight-update frames, looping.</summary>
-    WallTurretFlight,
-}
-
-/// <summary>What a Draygon projectile frame belongs to.</summary>
-public enum DraygonProjectileFrameKind
-{
-    /// <summary>The goop in flight.</summary>
-    Goop,
-    /// <summary>The goop bursting after a Samus shot.</summary>
-    GoopShot,
-    /// <summary>The wall turret's shot forming.</summary>
-    WallTurretBloom,
-    /// <summary>The wall turret's shot in flight.</summary>
-    WallTurretFlight,
-}
-
-/// <summary>One Draygon projectile frame: its program and its position there.</summary>
-/// <param name="Kind">The program the frame belongs to.</param>
-/// <param name="Phase">The frame's position in that program.</param>
-public readonly record struct DraygonProjectileFrame(DraygonProjectileFrameKind Kind, int Phase);
-
-/// <summary>Gameplay cues of Draygon's projectile programs.</summary>
-internal enum DraygonProjectileCue
-{
-    /// <summary>Sticks the goop to Samus.</summary>
-    StickToSamus,
-    /// <summary>Spawns an enemy drop with Draygon's eye's drop chances where the goop burst.</summary>
-    SpawnDrops,
-    /// <summary>Deletes the projectile.</summary>
-    Delete,
-    /// <summary>Gives the wall turret's shot its fired pre-instruction.</summary>
-    Fire,
-}
 
 /// <summary>Draygon's typed projectile programs (#641), in place of their bank-$86 instruction lists.</summary>
 internal static class DraygonProjectileAnimations
@@ -103,16 +56,4 @@ internal static class DraygonProjectileAnimations
         DraygonProjectileFrameKind kind, int count, Func<int, int> duration) =>
         Enumerable.Range(0, count).Select(phase =>
             AnimationProgramStep<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>.Show(new(kind, phase), duration(phase)));
-}
-
-/// <summary>A Draygon goop's or wall-turret shot's typed animation.</summary>
-internal sealed class DraygonProjectileAnimation(DraygonProjectileProgram program)
-    : EnemyProjectileProgramAnimation<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue>(program)
-{
-    /// <inheritdoc/>
-    private protected override AnimationProgramSet<DraygonProjectileProgram, DraygonProjectileFrame, DraygonProjectileCue> Programs =>
-        DraygonProjectileAnimations.Programs;
-
-    /// <inheritdoc/>
-    private protected override ushort PresentationKey(DraygonProjectileFrame frame) => DraygonProjectileVisualDefinitions.PresentationKey(frame);
 }

@@ -1,0 +1,13 @@
+using SuperMetroid.Core.Hardware;
+
+/// <summary>Verification access to <see cref="SnesCgram"/> members production does not use.</summary>
+internal static class SnesCgramAccess
+{
+    /// <summary>Provides a fixture reset for all entries in CGRAM.</summary>
+    extension(SnesCgram self)
+    {
+        /// <summary>Clears all 256 colors to black.</summary>
+        [PpuLayoutBoundary("exact hardware test: clears the 256-color CGRAM backing store")]
+        internal void Clear() => Array.Clear(self._colors);
+    }
+}

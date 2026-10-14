@@ -68,7 +68,7 @@ internal static class NullForgivingAnalyzerTests
     }
 
     /// <summary>The repository's <c>csharp/src</c> directory, found from the working directory upward.</summary>
-    private static string SourceDirectory()
+    internal static string SourceDirectory()
     {
         for (DirectoryInfo? directory = new(Directory.GetCurrentDirectory()); directory is not null; directory = directory.Parent)
         {

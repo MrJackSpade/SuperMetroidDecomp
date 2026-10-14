@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -140,31 +139,4 @@ public sealed class SamusSuitColorCatalog
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus suit color property {name}."));
-}
-
-/// <summary>JSON schema for the Power, Varia, and Gravity normal body palettes.</summary>
-public sealed record SamusSuitColorDocument
-{
-    /// <summary>Gets the schema version required by <see cref="SamusSuitColorFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Gets the sixteen editable Power-suit RGB5 colors.</summary>
-    public required PaletteRgb5[] Power { get; init; }
-
-    /// <summary>Gets the sixteen editable Varia-suit RGB5 colors.</summary>
-    public required PaletteRgb5[] Varia { get; init; }
-
-    /// <summary>Gets the sixteen editable Gravity-suit RGB5 colors.</summary>
-    public required PaletteRgb5[] Gravity { get; init; }
-}
-
-/// <summary>Defines the installed normal-suit color resource and its fixed palette size.</summary>
-public static class SamusSuitColorFormat
-{
-    /// <summary>Canonical normal-suit color asset file name.</summary>
-    public const string FileName = "samus-suit-colors.json";
-    /// <summary>Supported normal-suit color schema version.</summary>
-    public const int Version = 1;
-    /// <summary>Number of OBJ palette colors stored for each suit, including the transparent slot.</summary>
-    public const int ColorsPerSuit = SamusPaletteRomData.Common.ColorsPerObjPalette;
 }

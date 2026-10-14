@@ -1,5 +1,5 @@
 <Project>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/DesktopAccess.cs" Link="TestSupport/VerificationAccess/DesktopAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess.Desktop/**/*.cs" LinkBase="TestSupport/VerificationAccess.Desktop" />
   </ItemGroup>
 </Project>

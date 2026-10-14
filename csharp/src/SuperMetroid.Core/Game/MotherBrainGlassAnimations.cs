@@ -1,41 +1,4 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Game;
-
-/// <summary>Mother Brain's glass projectile programs: eight spinning shard loops by flight angle, and the sparkle.</summary>
-public enum MotherBrainGlassProgram
-{
-    /// <summary>Shard angle group 0 ($86:CC93).</summary>
-    ShardGroup0,
-    /// <summary>Shard angle group 1 ($86:CCB7).</summary>
-    ShardGroup1,
-    /// <summary>Shard angle group 2 ($86:CCDB).</summary>
-    ShardGroup2,
-    /// <summary>Shard angle group 3 ($86:CCFF).</summary>
-    ShardGroup3,
-    /// <summary>Shard angle group 4 ($86:CD23).</summary>
-    ShardGroup4,
-    /// <summary>Shard angle group 5 ($86:CD47).</summary>
-    ShardGroup5,
-    /// <summary>Shard angle group 6 ($86:CD6B).</summary>
-    ShardGroup6,
-    /// <summary>Shard angle group 7 ($86:CD8F).</summary>
-    ShardGroup7,
-    /// <summary>The finite sparkle a falling shard sheds ($86:CDB3).</summary>
-    Sparkle,
-}
-
-/// <summary>One glass frame: its program and its position there.</summary>
-/// <param name="Program">The program the frame belongs to.</param>
-/// <param name="Phase">The frame's position in that program.</param>
-public readonly record struct MotherBrainGlassFrame(MotherBrainGlassProgram Program, int Phase);
-
-/// <summary>Gameplay cues of the glass programs.</summary>
-internal enum MotherBrainGlassCue
-{
-    /// <summary>Deletes the finished sparkle.</summary>
-    Delete,
-}
 
 /// <summary>Mother Brain's typed glass programs (#641), in place of their bank-$86 instruction lists.</summary>
 internal static class MotherBrainGlassAnimations
@@ -97,19 +60,4 @@ internal static class MotherBrainGlassAnimations
         14 or 15 => MotherBrainGlassProgram.ShardGroup7,
         _ => throw new ArgumentOutOfRangeException(nameof(angleBin), angleBin, "Glass-shard angle bins run from zero to fifteen."),
     };
-}
-
-/// <summary>A glass shard's or sparkle's typed animation.</summary>
-internal sealed class MotherBrainGlassAnimation(MotherBrainGlassProgram program)
-    : EnemyProjectileTimelineAnimation<MotherBrainGlassFrame, MotherBrainGlassCue>
-{
-    /// <summary>The program played.</summary>
-    internal MotherBrainGlassProgram Program { get; } = program;
-
-    /// <inheritdoc/>
-    private protected override AnimationTimeline<MotherBrainGlassFrame, MotherBrainGlassCue> Timeline =>
-        MotherBrainGlassAnimations.Timeline(Program);
-
-    /// <inheritdoc/>
-    private protected override ushort PresentationKey(MotherBrainGlassFrame frame) => MotherBrainGlassVisualDefinitions.PresentationKey(frame);
 }

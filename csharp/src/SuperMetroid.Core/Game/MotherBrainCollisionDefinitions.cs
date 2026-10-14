@@ -1,12 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>A fixed bank-$A9 Mother Brain component offset and hitbox-list identity.</summary>
-internal readonly record struct MotherBrainCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
-
-/// <summary>One native Mother Brain rectangle with its touch and shot callbacks.</summary>
-internal readonly record struct MotherBrainCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
-
 /// <summary>
 /// Cartridge-owned collision for Mother Brain's extended frames in bank $A9, read by
 /// <c>$A0:9B7F</c>/<c>$A0:9A5A</c> for both the body and the head, whose dummy list keeps

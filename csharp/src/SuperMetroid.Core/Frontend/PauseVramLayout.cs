@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -47,36 +46,4 @@ public static class PauseVramLayout
     /// <summary>VMADD $5880-$5FFF: the FX rows <c>QueueClearingOfFxTilemap</c> ($80:A211) fills below the HUD.</summary>
     public static readonly PpuLayoutCell Bg3FxRows = new(nameof(Bg3FxRows), PpuLayoutRegion.Vram,
         0x5880, 0x0780, "BG3 tilemap words", GameplayVramLayout.HudTilemap);
-}
-
-/// <summary>Typed view of the pause screen's VRAM (#630).</summary>
-[PpuLayoutBoundary("rendering view: pause screen VRAM")]
-public readonly struct PauseVram(SnesVram vram)
-{
-    /// <summary>The shared map characters.</summary>
-    public VramRegion MapCharacters => new(vram, PauseVramLayout.MapCharacters);
-
-    /// <summary>The pause interface characters.</summary>
-    public VramRegion InterfaceCharacters => new(vram, PauseVramLayout.InterfaceCharacters);
-
-    /// <summary>The map-object OBJ characters.</summary>
-    public VramRegion ObjectCharacters => new(vram, PauseVramLayout.ObjectCharacters);
-
-    /// <summary>The pause frame's BG2 tilemap.</summary>
-    public VramRegion Bg2Tilemap => new(vram, PauseVramLayout.Bg2Tilemap);
-
-    /// <summary>The map/equipment BG1 tilemap.</summary>
-    public VramRegion Bg1Tilemap => new(vram, PauseVramLayout.Bg1Tilemap);
-
-    /// <summary>The button-label rows.</summary>
-    public VramRegion ButtonRows => new(vram, PauseVramLayout.ButtonRows);
-
-    /// <summary>The retained gameplay BG3 tilemap.</summary>
-    public VramRegion RetainedHudTilemap => new(vram, PauseVramLayout.RetainedHudTilemap);
-
-    /// <summary>The mutable HUD rows.</summary>
-    public VramRegion AcceptedHudRows => new(vram, PauseVramLayout.AcceptedHudRows);
-
-    /// <summary>The cleared FX rows.</summary>
-    public VramRegion Bg3FxRows => new(vram, PauseVramLayout.Bg3FxRows);
 }

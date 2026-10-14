@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -129,24 +128,4 @@ public sealed class NorfairRidleyColorCatalog
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Norfair Ridley color property."));
-}
-
-/// <summary>Editable JSON schema for Lower Norfair Ridley's initial OBJ palette and ordered arena-background reveal colors; reveal timing and the terminating step are not asset data.</summary>
-public sealed record NorfairRidleyColorDocument
-{
-    /// <summary>Schema version, which must equal <see cref="NorfairRidleyColorFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>The 32 initial RGB5 colors in native <c>$A6:E1CF-E20E</c> order, including each palette's color-zero entry, copied to CGRAM entries 160..191.</summary>
-    public required PaletteRgb5[] Initial { get; init; }
-    /// <summary>Fifteen ordered reveal rows, each containing fourteen RGB5 colors for BG palette 7 colors 1..14; the caller applies them at the native three-dispatcher-call cadence.</summary>
-    public required PaletteRgb5[][] Reveal { get; init; }
-}
-
-/// <summary>Editable visual rows; the reveal's cadence and zero terminator stay in code.</summary>
-public static class NorfairRidleyColorFormat
-{
-    /// <summary>Asset filename used to install Lower Norfair Ridley's editable initial and arena-reveal colors.</summary>
-    public const string FileName = "norfair-ridley-colors.json";
-    /// <summary>Supported JSON schema revision for the 32-color initial palette and fifteen fourteen-color reveal rows.</summary>
-    public const int Version = 1;
 }

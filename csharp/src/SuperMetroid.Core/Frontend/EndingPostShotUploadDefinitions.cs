@@ -1,20 +1,5 @@
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>The three WRAM staging buffers the post-shot transfers read from.</summary>
-internal enum EndingPostShotUploadSource
-{
-    /// <summary>The subtitle font page staged at <c>$7F:D000</c>.</summary>
-    Subtitle,
-    /// <summary>The decompressed logo tiles staged from <c>$7E:6000</c>.</summary>
-    LogoTiles,
-    /// <summary>The decompressed logo tilemap staged at <c>$7E:8000</c>.</summary>
-    LogoMap,
-}
-
-/// <summary>One immutable eight-byte transfer record from <c>$8B:E45A</c>.</summary>
-internal readonly record struct EndingPostShotUploadDefinition(
-    ushort Length, int SourceAddress, ushort DestinationWord, EndingPostShotUploadSource Source);
-
 /// <summary>
 /// Compiled six-transfer schedule for Func142's post-credits Super Metroid logo.
 /// Artwork bytes remain separate presentation assets; this table fixes only

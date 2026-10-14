@@ -5,13 +5,6 @@ using System.Text.RegularExpressions;
 
 namespace SuperMetroid.Core.Hardware;
 
-/// <summary>One PPU layout catalog cell found by reflection: its declaring catalog, member and descriptor.</summary>
-internal sealed record PpuLayoutCatalogEntry(Type Owner, string Member, PpuLayoutCell Cell)
-{
-    /// <summary>The <c>Owner.Member</c> reference callers write.</summary>
-    internal string Reference => $"{Owner.Name}.{Member}";
-}
-
 /// <summary>
 /// Enumerates every <see cref="PpuLayoutCell"/> declared by the production layout catalogs (#630),
 /// checks the catalog rules (unique identities; storage shared only through a declared alias) and

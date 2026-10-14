@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
-
-namespace SuperMetroid.AssetExtraction;
+﻿namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Development-tool members of <see cref="CartridgeImportAddressSpace"/>; never linked by player hosts.</summary>
 internal static class CartridgeImportAddressSpaceTooling
@@ -29,16 +27,5 @@ internal static class CartridgeImportAddressSpaceTooling
             return new CartridgeImportAddressSpace(romBytes);
         }
         finally { System.Buffers.ArrayPool<byte>.Shared.Return(buffer); }
-    }
-}
-
-/// <summary>Development-tool instance members of <see cref="CartridgeImportAddressSpace"/>.</summary>
-internal static class CartridgeImportAddressSpaceToolingExtensions
-{
-    /// <summary>Exposes normalized retail image bytes only to asset extraction tools.</summary>
-    extension(CartridgeImportAddressSpace self)
-    {
-        /// <summary>Exposes the normalized image bytes to extraction tools without copying them.</summary>
-        public ReadOnlySpan<byte> Rom => self._rom;
     }
 }

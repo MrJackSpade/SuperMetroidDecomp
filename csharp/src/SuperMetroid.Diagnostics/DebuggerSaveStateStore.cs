@@ -3,7 +3,6 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Desktop;
@@ -348,19 +347,3 @@ internal sealed class DebuggerSaveStateStore
         public readonly SuperMetroidGame Game = game;
     }
 }
-
-/// <summary>Capture timestamp, frame and room identity of one debugger slot.</summary>
-internal readonly record struct DebuggerSaveStateMetadata(
-    DateTimeOffset SavedUtc,
-    ushort FrameNumber,
-    SuperMetroidGameState GameState,
-    ushort? RoomPointer,
-    ushort? RoomStatePointer,
-    string Path);
-
-/// <summary>Restored runtime owners, file metadata and any compatible build-identity warnings.</summary>
-internal readonly record struct DebuggerSaveStateLoadResult(
-    SuperMetroidAddressSpace AddressSpace,
-    SuperMetroidGame Game,
-    DebuggerSaveStateMetadata Metadata,
-    IReadOnlyList<string> Warnings);

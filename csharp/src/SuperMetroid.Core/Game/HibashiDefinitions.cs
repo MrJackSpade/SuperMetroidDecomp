@@ -1,10 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One authored Hibashi eruption hitbox frame.</summary>
-internal readonly record struct HibashiActivityDefinition(
-    ushort YOffset,
-    ushort YRadius);
-
 /// <summary>Compiled cartridge definitions for Hibashi/fire pillars.</summary>
 internal static class HibashiDefinitions
 {

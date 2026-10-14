@@ -1,0 +1,19 @@
+using SuperMetroid.Core.Game;
+
+/// <summary>Cartridge values of <see cref="WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions"/> that only verification reads.</summary>
+internal static class WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants
+{
+    /// <summary>Powered Wrecked Ship palette-FX definition at $8D:F76D.</summary>
+    public const ushort PoweredDefinition = 0xf76d;
+    /// <summary>Alternate caller of the powered-light program at $8D:F771.</summary>
+    public const ushort PoweredDefinitionAlternate = 0xf771;
+
+    /// <summary>Provides both powered Wrecked Ship green light palette definitions for effect comparison.</summary>
+    extension(WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions)
+    {
+        /// <inheritdoc cref="WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants.PoweredDefinition"/>
+        internal static ushort PoweredDefinition => WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants.PoweredDefinition;
+        /// <inheritdoc cref="WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants.PoweredDefinitionAlternate"/>
+        internal static ushort PoweredDefinitionAlternate => WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants.PoweredDefinitionAlternate;
+    }
+}

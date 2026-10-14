@@ -1,0 +1,6 @@
+<Project>
+  <!-- Shared gameplay scenarios that DebugRunner records and the verifier replays. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ScenarioFixtures/**/*.cs" LinkBase="TestSupport/ScenarioFixtures" />
+  </ItemGroup>
+</Project>

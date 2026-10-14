@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -108,34 +107,4 @@ public sealed class PauseBackdropPresentation
         _ = Load(new MemoryStream(json, writable: false));
         output.Write(json);
     }
-}
-
-/// <summary>One complete 32x32 backdrop per area; live buttons are a separate foreground overlay.</summary>
-public sealed record PauseBackdropDocument
-{
-    /// <summary>Schema revision; loading requires <see cref="PauseBackdropDefinitions.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Exactly Crateria, Brinstar, Norfair, WreckedShip, Maridia, Tourian and Ceres, each containing 1024 nonnull cells in 32-column row-major order; collections remain caller-mutable.</summary>
-    public required Dictionary<string, PauseBackdropCell[]> Areas { get; init; }
-    /// <summary>Separate foreground/button page with 512 nonnull cells in 32-column, 16-row order, initially corresponding to the lower half of native $B6:E000's backdrop.</summary>
-    public required PauseBackdropCell[] Buttons { get; init; }
-}
-
-/// <summary>Native-size artwork references, not tile numbers, addresses or gameplay commands.</summary>
-public sealed record PauseBackdropCell
-{
-    /// <summary>Case-sensitive artwork sheet key, Map or Interface, selecting the first or second 256-character page of the loaded pause graphics.</summary>
-    public required string Atlas { get; init; }
-    /// <summary>Zero-based column 0..31 of an eight-pixel tile within the selected atlas, not its destination tilemap column.</summary>
-    public required int TileColumn { get; init; }
-    /// <summary>Zero-based row 0..7 of an eight-pixel tile within the selected atlas, not its destination tilemap row.</summary>
-    public required int TileRow { get; init; }
-    /// <summary>BG palette selector 0..7, encoded in tilemap attribute bits 10 through 12.</summary>
-    public required int Palette { get; init; }
-    /// <summary>Whether the tilemap's BG priority bit 13 is set; this is not an OBJ priority tier.</summary>
-    public required bool Priority { get; init; }
-    /// <summary>Whether the selected tile's pixels are reflected horizontally via attribute bit 14.</summary>
-    public required bool FlipX { get; init; }
-    /// <summary>Whether the selected tile's pixels are reflected vertically via attribute bit 15.</summary>
-    public required bool FlipY { get; init; }
 }

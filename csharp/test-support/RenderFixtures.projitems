@@ -1,8 +1,5 @@
 <Project>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)RenderFixtures/MinimapBlinkAudit.cs" Link="TestSupport/RenderFixtures/MinimapBlinkAudit.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)RenderFixtures/MapCrossViewAudit.cs" Link="TestSupport/RenderFixtures/MapCrossViewAudit.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)RenderFixtures/KraidAuditDefinitions.cs" Link="TestSupport/RenderFixtures/KraidAuditDefinitions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)RenderFixtures/DoorTransitionAuditDefinitions.cs" Link="TestSupport/RenderFixtures/DoorTransitionAuditDefinitions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RenderFixtures/**/*.cs" LinkBase="TestSupport/RenderFixtures" />
   </ItemGroup>
 </Project>

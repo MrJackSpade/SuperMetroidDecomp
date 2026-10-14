@@ -1,27 +1,4 @@
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
-
 namespace SuperMetroid.Core.Game;
-
-/// <summary>
-/// Bank-$B3 pre-instruction words stored by escape Etecoon enemy <c>$F2D3</c>. These are
-/// executable cartridge addresses, not host state identifiers: the main AI at
-/// <c>$B3:E655</c> performs an indirect call through common enemy variable F every frame.
-/// </summary>
-public enum EscapeEtecoonPreInstruction : ushort
-{
-    /// <summary><c>$B3:807B</c>, the bank-common one-byte RTL installed by opcode $8074.</summary>
-    Cleared = 0x807b,
-
-    /// <summary><c>$B3:E65C</c>, add 3.5 pixels to X without terrain collision.</summary>
-    EscapeRight = 0xe65c,
-
-    /// <summary><c>$B3:E670</c>, wait for the persistent “critters escaped” event.</summary>
-    WaitForEscapeEvent = 0xe670,
-
-    /// <summary><c>$B3:E680</c>, walk, reverse at walls, and remain floor-aligned.</summary>
-    WalkAndFall = 0xe680,
-}
 
 /// <summary>
 /// Typed projection of the only two common words used by escape Etecoon. Keeping the
@@ -49,19 +26,4 @@ public sealed class EscapeEtecoonEnemyState
         get => (EscapeEtecoonPreInstruction)_slot.VariableF;
         set => _slot.VariableF = (ushort)value;
     }
-}
-
-/// <summary>
-/// Debugger-visible typed marker for escape Dachora enemy <c>$F313</c>. Dachora owns no
-/// private variables: all of its movement is authored directly in the three ROM instruction
-/// lists at <c>$B3:E964-$EAA7</c>. These read-only properties expose that live script state
-/// without inventing a parallel host state machine.
-/// </summary>
-public sealed class EscapeDachoraEnemyState
-{
-    /// <summary>Native Dachora enemy slot; movement remains in its bank-$B3 instruction lists.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Retains the underlying slot for debugger inspection of script-driven Dachora state.</summary>
-    internal EscapeDachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
 }

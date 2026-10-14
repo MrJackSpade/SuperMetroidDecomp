@@ -1,13 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One native physical component of a Crocomire body frame.</summary>
-internal readonly record struct CrocomireBodyCollisionComponent(
-    Offset16<RoomPixels> Offset, ushort HitboxPointer);
-
-/// <summary>One native physical hitbox and its independently selected callbacks.</summary>
-internal readonly record struct CrocomireBodyCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
-
 /// <summary>
 /// Engine-owned collision data for Crocomire's fifty selected body frames at
 /// $A4:BFC4..CAC4 and their fifteen distinct hitbox lists at $A4:CB07..CC2D.

@@ -1,9 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One immutable Oum rectangle with its native touch and shot callbacks.</summary>
-internal readonly record struct MaridiaLargeSnailCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
-
 /// <summary>
 /// Physical collision for Oum's 30 bank-$A2 extended frames. Every native frame
 /// at $CB87-$CCA9 has exactly one component at (0,0); only its hitbox-list

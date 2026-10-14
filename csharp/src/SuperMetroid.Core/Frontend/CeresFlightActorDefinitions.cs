@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Fixed actor metadata and motion parameters for Samus's flight toward Ceres.</summary>
@@ -120,13 +118,3 @@ internal static class CeresFlightActorDefinitions
     /// with borrow into the whole X word and no nine-bit mask.</summary>
     private const int VortexHorizontalDelta = -0x2000;
 }
-
-/// <summary>One Ceres cinematic actor definition plus its fixed initializer result.</summary>
-internal readonly record struct CeresFlightActorDefinition(
-    ushort ActivePreInstruction,
-    ushort InstructionList,
-    Position16<ScreenPixels> Position,
-    ushort Attributes,
-    ushort InitialTimer,
-    int HorizontalDelta,
-    bool WrapX);

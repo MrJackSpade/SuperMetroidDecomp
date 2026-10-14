@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Fixed cinematic-object definitions for the SR388 egg and baby-Metroid scenes.</summary>
@@ -22,13 +20,3 @@ internal static class IntroBabyActorDefinitions
     public static IntroBabyActorDefinition ConfusedBaby =>
         new((ushort)ConfusedBabyPreInstruction.WaitingForHatch, 0xcc2b, new(0x0070, 0x009b), 0x0e00);
 }
-
-/// <summary>
-/// One native six-byte cinematic-object definition together with the fixed position and
-/// OBJ attributes written by its initialization callback.
-/// </summary>
-internal readonly record struct IntroBabyActorDefinition(
-    ushort PreInstruction,
-    ushort InstructionList,
-    Position16<ScreenPixels> Position,
-    ushort PaletteBits);

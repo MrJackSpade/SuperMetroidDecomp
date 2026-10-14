@@ -1,34 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Parameters that select one authored component of Ridley's death breakup.</summary>
-internal enum RidleyExplosionPart : ushort
-{
-    /// <summary>First tail segment.</summary>
-    Tail0 = 0x0000,
-    /// <summary>Second tail segment.</summary>
-    Tail1 = 0x0002,
-    /// <summary>Third tail segment.</summary>
-    Tail2 = 0x0004,
-    /// <summary>Fourth tail segment.</summary>
-    Tail3 = 0x0006,
-    /// <summary>Fifth tail segment.</summary>
-    Tail4 = 0x0008,
-    /// <summary>Sixth tail segment.</summary>
-    Tail5 = 0x000a,
-    /// <summary>Seventh segment, whose image is selected from the combined tip angle.</summary>
-    TailTip = 0x000c,
-    /// <summary>Wing fragment.</summary>
-    Wings = 0x000e,
-    /// <summary>Leg fragment.</summary>
-    Legs = 0x0010,
-    /// <summary>Open-head and neck fragment.</summary>
-    OpenHeadAndNeck = 0x0012,
-    /// <summary>Torso fragment.</summary>
-    Torso = 0x0014,
-    /// <summary>Claw fragment.</summary>
-    Claw = 0x0016,
-}
-
 /// <summary>
 /// Compiled bank-$A6 mechanics and dispatch metadata for Lower Norfair Ridley's
 /// twelve death-breakup actors. The selected instruction streams remain ROM-backed.
@@ -128,12 +99,3 @@ internal static class RidleyExplosionDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(parameter)),
     };
 }
-
-/// <summary>One native Ridley-breakup lifetime and initializer-dispatch record.</summary>
-internal readonly record struct RidleyExplosionPartDefinition(
-    ushort Lifetime);
-
-/// <summary>One facing-specific body fragment placement and animation selector.</summary>
-internal readonly record struct RidleyExplosionBodyPartDefinition(
-    Offset16<RoomPixels> Offset,
-    ushort InstructionList);

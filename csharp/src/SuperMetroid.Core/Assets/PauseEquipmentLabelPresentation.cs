@@ -2,8 +2,6 @@ using SuperMetroid.Core.Frontend;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -251,28 +249,4 @@ public sealed class PauseEquipmentLabelPresentation
                         : PauseEquipmentLabelDefinitions.StockWord(key, cell));
         }
     }
-}
-
-/// <summary>Editable pause equipment-page label schema, separating inventory-owned text from the backdrop, wireframe, and reserve controls.</summary>
-public sealed record PauseEquipmentLabelDocument
-{
-    /// <summary>Schema revision; loading requires version one from <see cref="PauseEquipmentLabelDefinitions.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>BG palette selector 0..7 applied to collected but unequipped labels while preserving their character, priority, and flip bits.</summary>
-    public required int DisabledPalette { get; init; }
-    /// <summary>Nine nonnull cells replacing the native zero-word blank strip at $82:C01A; uncollected labels and discarded Hyper beam slots use the needed prefix.</summary>
-    public required PauseBackdropCell[] Blank { get; init; }
-    /// <summary>Exactly fourteen case-sensitive ordinary selector-anchor keys plus Beam.Hyper, with no reserve labels; entries specify editable tile artwork and destinations.</summary>
-    public required Dictionary<string, PauseEquipmentLabel> Labels { get; init; }
-}
-
-/// <summary>One horizontal strip of pause BG tile artwork and its destination within the equipment page's 32x32 tilemap.</summary>
-public sealed record PauseEquipmentLabel
-{
-    /// <summary>Zero-based destination tile column 0..31, not an artwork-atlas column; the displayed label must fit within the tilemap row.</summary>
-    public required int Column { get; init; }
-    /// <summary>Zero-based destination tile row 0..31 in the equipment page, with each tile occupying eight screen pixels vertically.</summary>
-    public required int Row { get; init; }
-    /// <summary>Left-to-right nonnull artwork cells: five for ordinary beams and nine for equipment, boots, and Beam.Hyper; Hyper displays only its first five cells.</summary>
-    public required PauseBackdropCell[] Cells { get; init; }
 }

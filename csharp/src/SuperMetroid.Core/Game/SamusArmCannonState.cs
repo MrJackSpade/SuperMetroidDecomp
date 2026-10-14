@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
@@ -206,9 +205,3 @@ public sealed class SamusArmCannonState
     }
 
 }
-
-/// <summary>Debugger witness from the once-per-frame arm-cannon state update.</summary>
-public readonly record struct SamusArmCannonUpdateResult();
-
-/// <summary>Debugger witness from one optional arm-cannon OBJ/tile upload.</summary>
-public readonly record struct SamusArmCannonDrawResult();

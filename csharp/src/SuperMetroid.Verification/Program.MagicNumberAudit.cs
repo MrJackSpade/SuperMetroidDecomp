@@ -61,8 +61,12 @@ internal static class MagicNumberAuditVerification
                 "// instructionPointer = 0x9438;\nstring text = \"0x8f8000\";").Count,
             "magic-number audit ignores comments and strings");
 
-        AssertEqual(0, ProductionMagicNumberAudit.AuditText("SamusPoseId.cs", "UnusedPose20 = 0x20,").Count,
-            "exclusive pose enum owns its native identifiers");
+        AssertEqual(0, ProductionMagicNumberAudit.AuditText("SamusPoseId.cs",
+                "/// <summary>Poses.</summary>\ninternal enum SamusPoseId : ushort\n{\n    UnusedPose20 = 0x20,\n}").Count,
+            "an enum's file owns its native identifiers");
+        AssertEqual(1, ProductionMagicNumberAudit.AuditText("PoseState.cs",
+                "internal enum Mode { A }\ninternal sealed class PoseState\n{\n    int pose = 0x20;\n}").Count,
+            "a file with behavior beside an enum keeps its classifiers");
 
         AssertEqual(0, ProductionMagicNumberAudit.AuditText("RoomPlmPopulationDefinitions.Generated.cs", UnsafeSource).Count,
             "generated partial definition catalogs retain the existing catalog exemption");

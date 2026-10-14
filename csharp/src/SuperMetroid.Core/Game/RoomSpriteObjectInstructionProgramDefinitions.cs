@@ -2,27 +2,12 @@ using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The bank-$B4 room sprite-object instruction opcodes.</summary>
-internal enum RoomSpriteObjectInstruction : ushort
-{
-    /// <summary><c>SpriteObject_Instr_RepeatLast</c> at $B4:BCF0.</summary>
-    RepeatLast = 0xbcf0,
-
-    /// <summary><c>SpriteObject_Instr_Terminate</c> at $B4:BD07.</summary>
-    Terminate = 0xbd07,
-
-    /// <summary><c>SpriteObject_Instr_Goto</c> at $B4:BD12.</summary>
-    Goto = 0xbd12,
-}
-
 /// <summary>
 /// Compiled engine-control words reachable from all 62 bank-$B4 room sprite-object
 /// programs. Interleaved spritemap pointers remain live cartridge presentation data.
 /// </summary>
 internal abstract class RoomSpriteObjectInstructionProgramDefinitions
 {
-
-
 
     /// <summary><c>UNUSED_InstList_SpriteObject_1C_ElevatorPad_B4BF68</c> at $B4:BF68.</summary>
     private const ushort UNUSEDInstListSpriteObject1CElevatorPadB4BF68 = 0xbf68;

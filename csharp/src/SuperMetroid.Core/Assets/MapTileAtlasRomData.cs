@@ -9,4 +9,6 @@ internal static class MapTileAtlasRomData
     internal const int CharacterData = 0xb68000;
     /// <summary>$9A:B200: standard 2-bpp BG3/HUD tiles; the following equal-sized clear table is all zero.</summary>
     internal const int HudCharacterData = 0x9ab200;
+    /// <summary>$B6:C000: shared menu object characters, transferred to the active menu's OBJ base.</summary>
+    internal const int MenuObjectCharacterData = 0xb6c000;
 }

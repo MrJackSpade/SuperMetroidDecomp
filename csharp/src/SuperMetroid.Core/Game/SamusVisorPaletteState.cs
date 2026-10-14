@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
@@ -96,6 +95,3 @@ public sealed class SamusVisorPaletteState
     }
 
 }
-
-/// <summary>Branch and packed-word witness from one native visor-palette call.</summary>
-public readonly record struct SamusVisorPaletteStepResult();

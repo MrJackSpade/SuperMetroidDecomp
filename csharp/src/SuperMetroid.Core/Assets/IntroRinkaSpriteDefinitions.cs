@@ -34,6 +34,3 @@ internal static class IntroRinkaSpriteDefinitions
     /// <summary>Number of five-byte OAM parts in each stock Rinka composition.</summary>
     internal const int StockPartCount = 4;
 }
-
-/// <summary>Native spritemap pointer paired with the installed intro Rinka frame name.</summary>
-internal readonly record struct IntroRinkaSpriteFrameDefinition(ushort Pointer, string Name);

@@ -1,18 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Engine-owned offset and hitbox identity in one extended frame component.</summary>
-/// <param name="Offset">Component origin relative to the Pirate's room position.</param>
-/// <param name="HitboxPointer">Bank-$B2 address of the authored collision list for this component.</param>
-internal readonly record struct SpacePirateCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
-/// <summary>Engine-owned signed collision bounds and touch/shot callbacks.</summary>
-/// <param name="Left">Left contact extent relative to its component origin.</param>
-/// <param name="Top">Upper contact extent relative to its component origin.</param>
-/// <param name="Right">Right contact extent relative to its component origin.</param>
-/// <param name="Bottom">Lower contact extent relative to its component origin.</param>
-/// <param name="TouchAi">Native Pirate contact callback identity.</param>
-/// <param name="ShotAi">Native Pirate projectile-hit callback identity.</param>
-internal readonly record struct SpacePirateCollisionHitbox(short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
-
 /// <summary>Fixed bank-$B2 walking/wall/ninja-Pirate collision data, separate from editable OAM art.</summary>
 /// <remarks>
 /// Reviewed for #1165. The 132 frame records lie in 8 contiguous runs and the 147 hitbox

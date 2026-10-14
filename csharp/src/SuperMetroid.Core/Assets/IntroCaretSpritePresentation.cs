@@ -1,6 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -87,29 +85,4 @@ public sealed class IntroCaretSpritePresentation
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable JSON schema for ordered visible-caret sprite parts; positioning and blink timing remain cinematic-script behavior, not authored frame sequences.</summary>
-public sealed record IntroCaretSpriteDocument
-{
-    /// <summary>Schema revision: current <see cref="IntroCaretSpriteVersion.Current"/> or the supported <see cref="IntroCaretSpriteVersion.Previous"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Current schema requires <c>caret-visible</c> with at most 128 ordered OAM parts; legacy schema requires <c>caret-still</c> and three <c>caret-blink-1..3</c> names, but only the still composition is installed.</summary>
-    public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
-}
-
-/// <summary>Schema revisions of the opening caret composition document.</summary>
-public enum IntroCaretSpriteVersion
-{
-    /// <summary>Supported legacy revision with four mistakenly separate frame names; loading uses <c>caret-still</c> and discards the three blink compositions.</summary>
-    Previous = 1,
-    /// <summary>Current schema revision, containing only the visible <c>caret-visible</c> composition; the native script supplies the hidden blink phase.</summary>
-    Current = 2,
-}
-
-/// <summary>Installed file identity for opening caret compositions.</summary>
-public static class IntroCaretSpriteFormat
-{
-    /// <summary>Asset filename for the opening cinematic's editable caret sprite composition.</summary>
-    public const string FileName = "intro-caret-sprites.json";
 }

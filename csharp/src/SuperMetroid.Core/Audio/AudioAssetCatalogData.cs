@@ -79,6 +79,3 @@ public static class AudioAssetCatalogData
             $"Music data index ${dataIndex:X2} is not present in the compiled retail upload catalog."),
     };
 }
-
-/// <summary>Identity of one upload stream before it is materialized on disk.</summary>
-public sealed record AudioUploadAssetDefinition(int SnesAddress, byte DataIndex, string Name);

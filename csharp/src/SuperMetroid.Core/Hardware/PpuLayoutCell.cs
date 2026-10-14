@@ -1,24 +1,5 @@
 namespace SuperMetroid.Core.Hardware;
 
-/// <summary>Which PPU-side store a <see cref="PpuLayoutCell"/> describes, and the unit of its offsets.</summary>
-public enum PpuLayoutRegion
-{
-    /// <summary>VRAM, addressed in 16-bit words (VMADD); <see cref="PpuLayoutCell.Offset"/> and <see cref="PpuLayoutCell.Count"/> are words.</summary>
-    Vram,
-
-    /// <summary>CGRAM, addressed in BGR555 colour slots; offsets and counts are colours.</summary>
-    Cgram,
-
-    /// <summary>The OAM low table, four bytes per object; offsets and counts are objects.</summary>
-    OamLow,
-
-    /// <summary>The OAM high table, two bits per object; offsets and counts are objects.</summary>
-    OamHigh,
-
-    /// <summary>A B-bus PPU register or its shadow; the offset is the register number ($21xx low byte).</summary>
-    Register,
-}
-
 /// <summary>
 /// One named PPU layout location or bounded range (#630): a VRAM tilemap/character region, a CGRAM
 /// palette range, an OAM range or a register. Layout catalogs declare every location the port knows

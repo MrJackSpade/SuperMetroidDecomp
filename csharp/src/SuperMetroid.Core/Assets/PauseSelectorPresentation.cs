@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Frontend;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -156,32 +154,4 @@ public sealed class PauseSelectorPresentation
         /// <summary>OBJ palette index encoded when drawing a selector frame.</summary>
         public required int Palette { get; init; }
     }
-}
-/// <summary>Defines editable pause equipment-selector placement and animation.</summary>
-public sealed record PauseSelectorDocument
-{
-    /// <summary>Gets the document schema revision.</summary>
-    public required int Version { get; init; }
-    /// <summary>Gets the initial selector dwell time in update ticks.</summary>
-    public required int InitialDurationTicks { get; init; }
-    /// <summary>Gets the OBJ palette index from zero through seven.</summary>
-    public required int Palette { get; init; }
-    /// <summary>Gets all sixteen named selector anchors in screen pixels.</summary>
-    public required Dictionary<string, Position16<OamPixels>> Anchors { get; init; }
-    /// <summary>Gets named selector frames as sprite-part compositions.</summary>
-    public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
-    /// <summary>Gets the ordered cyclic animation phases.</summary>
-    public required PauseSelectorPhase[] Animation { get; init; }
-}
-/// <summary>Defines one timed pause-selector animation phase for all three categories.</summary>
-public sealed record PauseSelectorPhase
-{
-    /// <summary>Gets the phase duration in accepted update ticks.</summary>
-    public required int DurationTicks { get; init; }
-    /// <summary>Gets the named frame used by the reserve selector.</summary>
-    public required string Reserve { get; init; }
-    /// <summary>Gets the named frame used by the beam selector.</summary>
-    public required string Beam { get; init; }
-    /// <summary>Gets the named frame used by the suit-and-equipment selector.</summary>
-    public required string Equipment { get; init; }
 }

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -105,38 +104,4 @@ public sealed class CeresRevealActorLayout
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>One named cinematic actor's initial whole-pixel screen position; animation, palette, sliding, and deletion remain compiled mechanics.</summary>
-[SpatialComponents("External format: the actor layout JSON stores each spawn position as x/y screen words.")]
-public sealed record CeresRevealActorPlacement
-{
-    /// <summary>The validated spawn position as one native screen-pixel value.</summary>
-    [System.Text.Json.Serialization.JsonIgnore]
-    public Position16<ScreenPixels> Position => new(checked((ushort)X), checked((ushort)Y));
-
-    /// <summary>Case-sensitive native presentation role, required to match its fixed index in <see cref="CeresRevealActorLayoutDocument.Actors"/>.</summary>
-    public required string Id { get; init; }
-    /// <summary>Initial horizontal screen-pixel coordinate encoded as a native unsigned 16-bit position word, 0..65535; not a room-world or tile coordinate.</summary>
-    public required int X { get; init; }
-    /// <summary>Initial vertical screen-pixel coordinate encoded as a native unsigned 16-bit position word, 0..65535; increases downward.</summary>
-    public required int Y { get; init; }
-}
-
-/// <summary>Editable initial-position schema for the planet, four star sheets, and title shown after Ceres destruction.</summary>
-public sealed record CeresRevealActorLayoutDocument
-{
-    /// <summary>Schema revision; loading requires version one from <see cref="CeresRevealActorLayoutFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Exactly six nonnull entries in order: planet, stars-upper-left, stars-upper-right, stars-lower-left, stars-lower-right, planet-zebes-title; IDs cannot be reassigned or reordered.</summary>
-    public required CeresRevealActorPlacement[] Actors { get; init; }
-}
-
-/// <summary>Installed-resource identity and schema revision for the Ceres-to-Zebes reveal's editable actor positions.</summary>
-public static class CeresRevealActorLayoutFormat
-{
-    /// <summary>Supported schema revision, one, requiring the six native actor roles in spawn order.</summary>
-    public const int Version = 1;
-    /// <summary>JSON resource filename for the six reveal actors' initial screen-coordinate words.</summary>
-    public const string FileName = "ceres-zebes-reveal-actors.json";
 }

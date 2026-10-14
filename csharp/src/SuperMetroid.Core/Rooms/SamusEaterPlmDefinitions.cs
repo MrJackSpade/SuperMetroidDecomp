@@ -24,8 +24,3 @@ internal static class SamusEaterPlmDefinitions
         _ => throw new InvalidDataException($"Unsupported Samus Eater PLM ${(int)headerPointer:X4}."),
     };
 }
-
-/// <summary>One Samus Eater PLM header paired with its initial list and mounting direction.</summary>
-internal readonly record struct SamusEaterPlmDefinition(
-    ushort InstructionListPointer,
-    bool Ceiling);

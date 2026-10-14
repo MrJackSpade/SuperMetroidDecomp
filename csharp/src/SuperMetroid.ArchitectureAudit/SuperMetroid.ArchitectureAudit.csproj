@@ -11,7 +11,7 @@
   <ItemGroup>
     <!-- The partial-type analyzer and this audit share one generated-code test. -->
     <Compile Include="../SuperMetroid.EnsureAnalyzer/PartialTypeAnalyzer.cs" Link="Shared/PartialTypeAnalyzer.cs" />
-    <Compile Include="../SuperMetroid.ReachabilityAudit/SolutionLoader.cs" Link="Shared/SolutionLoader.cs" />
+    <Compile Include="../SuperMetroid.ReachabilityAudit/SolutionLoading/**/*.cs" LinkBase="SolutionLoading" />
   </ItemGroup>
   <Import Project="../../test-support/WindowsConsole.projitems" />
 </Project>

@@ -76,3 +76,17 @@ The build analyzer reports conversions whose only purpose is to reach another op
 A `ToArray()` that is stored, passed, compared through another overload, or that snapshots a reused buffer keeps an
 ownership purpose and is not reported. The code fix removes the adapter where that is unambiguous. Domain transforms
 belong to their owner type, such as `LayeredRenderSnapshot.Without<TLayer>()` and `LayersOf<TLayer>()`.
+
+## One top-level type per file
+
+The build analyzer reports **SME6400** for every top-level type after the first in a source file: classes,
+records, structs, interfaces, enums and delegates, with any accessibility, in file-scoped, block or nested
+namespaces, partial or not. A file of top-level statements declares no type. The file is named after its type
+(`Type.cs`, or `Type.Purpose.cs` for a deliberate partial), and the domain directory groups related types; an
+umbrella file does not. Nested types stay only as implementation details of their enclosing type.
+
+Repository code, including any generator it adds, is analyzed; only the framework generators listed in
+`OneTypePerFileAnalyzer.ThirdPartyGeneratorPrefixes` are exempt. The code fix moves a declaration into a sibling
+file when its usings, namespace, attributes and documentation carry over unambiguously; a file with preprocessor
+directives, statements or file-local types needs manual placement. The analyzer projects and their verifier are
+checked by `SuperMetroid.EnsureVerification`.

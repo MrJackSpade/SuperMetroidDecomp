@@ -180,34 +180,3 @@ public static class CreditsPresentationDefinitions
         public const int MaximumOperations = 4096;
     }
 }
-
-/// <summary>Mutually exclusive Font-3 glyph layouts used by the fixed staff-credit roles.</summary>
-public enum CreditsLineStyle : byte
-{
-    /// <summary>One 8-pixel-high tile row per glyph, used for section headings; authored text accepts spaces and uppercase letters.</summary>
-    Small,
-    /// <summary>Two vertically stacked tile rows per 8-by-16-pixel glyph, used for names and other credits; authored text additionally accepts ampersand and period.</summary>
-    Large,
-}
-
-/// <summary>Compiled role, font style, and spacing for one line of editable staff-credit content.</summary>
-/// <param name="Id">Stable case-sensitive role key required at this ordered document position; does not contain the editable displayed wording.</param>
-/// <param name="Style">Glyph layout determining whether the line occupies one or two BG tile rows.</param>
-/// <param name="BlankRowsBefore">Number of complete 32-cell blank tile rows inserted before the line; a scrolling-layout count, not an update or frame delay.</param>
-public readonly record struct CreditsLineDefinition(
-    string Id,
-    CreditsLineStyle Style,
-    int BlankRowsBefore);
-
-/// <summary>The bank-$8B commands the retail credits row stream uses.</summary>
-public enum CreditsInstruction : ushort
-{
-    /// <summary><c>Instruction_CreditsObject_TimerInY</c> at $8B:9A17.</summary>
-    SetTimer = 0x9a17,
-    /// <summary><c>Instruction_CreditsObject_DecrementTimer_GotoYIfNonZero</c> at $8B:9A0D.</summary>
-    DecrementTimerAndGoto = 0x9a0d,
-    /// <summary><c>CreditsObject_Func2</c> at $8B:F6FE, which ends the scrolling credits.</summary>
-    EndCredits = 0xf6fe,
-    /// <summary><c>Instruction_CreditsObject_Delete</c> at $8B:99FE.</summary>
-    Delete = 0x99fe,
-}

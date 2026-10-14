@@ -1,5 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -118,51 +117,4 @@ public sealed class MapPaletteCycle
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable map-highlight cycle schema, containing only authored durations and palette rows rather than an executable palette program.</summary>
-public sealed record MapPaletteCycleDocument
-{
-    /// <summary>Schema revision; loading requires <see cref="MapPaletteCycleFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Caller-owned mutable array of one through 255 frames in playback order; copied into compiled values when loaded.</summary>
-    public required MapPaletteCycleFrame[] Frames { get; init; }
-}
-/// <summary>One highlight phase's palette row and update-counted hold.</summary>
-public sealed record MapPaletteCycleFrame
-{
-    /// <summary>Number of map-palette animation ticks to hold this frame, one through 254; not elapsed milliseconds or a native callback opcode.</summary>
-    public required int DurationTicks { get; init; }
-    /// <summary>Exactly sixteen native-precision RGB colors in destination palette-row order, including its first color.</summary>
-    public required PaletteRgb5[] Colors { get; init; }
-}
-/// <summary>Native-precision RGB components, not a packed hardware word.</summary>
-public sealed record PaletteRgb5
-{
-    /// <summary>Red intensity, zero through 31, encoded in BGR555 bits zero through four by consuming presentation loaders.</summary>
-    public required int Red { get; init; }
-    /// <summary>Green intensity, zero through 31, encoded in BGR555 bits five through nine by consuming presentation loaders.</summary>
-    public required int Green { get; init; }
-    /// <summary>Blue intensity, zero through 31, encoded in BGR555 bits ten through fourteen by consuming presentation loaders; no alpha channel is represented.</summary>
-    public required int Blue { get; init; }
-
-    /// <summary>Packs the channels; each must be 0-31.</summary>
-    public Bgr555 ToBgr555() => new(Red, Green, Blue);
-
-    /// <summary>The JSON channels of <paramref name="color"/>.</summary>
-    public static PaletteRgb5 From(Bgr555 color) => new() { Red = color.Red, Green = color.Green, Blue = color.Blue };
-}
-/// <summary>Host filename and byte-sized schema limits for editable map highlight palettes.</summary>
-public static class MapPaletteCycleFormat
-{
-    /// <summary>JSON presentation filename used by pause and file-select map highlight animation.</summary>
-    public const string FileName = "map-highlight-cycle.json";
-    /// <summary>Required cycle-document schema revision.</summary>
-    public const int Version = 1;
-    /// <summary>Number of colors written per frame, equal to one sixteen-color native CGRAM row.</summary>
-    public const int ColorCount = 16;
-    /// <summary>Maximum selected frame count, 255, preserving the animation owner's byte-sized frame cursor.</summary>
-    public const int MaximumFrames = 255;
-    /// <summary>Maximum authored frame hold, 254 ticks; zero is invalid and the native $FF duration marks stream termination rather than a hold.</summary>
-    public const int MaximumDuration = 254;
 }

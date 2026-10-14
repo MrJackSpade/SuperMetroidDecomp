@@ -2,8 +2,6 @@ using System.Buffers.Binary;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -98,29 +96,4 @@ public sealed class KraidHeadTilemapAtlas
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
-}
-
-/// <summary>Editable JSON representation of a single ordered Kraid BG2 head frame; cells reference artwork rather than encoding animation or collision behavior.</summary>
-[SpatialComponents("External format: the Kraid head tilemap JSON stores its declared grid dimensions as width/height integers.")]
-public sealed record KraidHeadTilemapDocument
-{
-    /// <summary>Schema revision required to equal <see cref="KraidHeadTilemapFormat.Version"/> during loading.</summary>
-    public required int Version { get; init; }
-    /// <summary>Tilemap width in eight-pixel cells, required to be 32 rather than a pixel width or character-atlas stride.</summary>
-    public required int Width { get; init; }
-    /// <summary>Tilemap height in eight-pixel cells, required to be eleven.</summary>
-    public required int Height { get; init; }
-    /// <summary>Exactly 352 nonnull cells in 32-column row-major order, each retaining its character-atlas coordinates, BG palette, priority, and flip attributes.</summary>
-    public required RoomBackgroundTilemapCell[] Cells { get; init; }
-}
-
-/// <summary>Supported JSON version and fixed head-frame dimensions matching the $0160-word native copy at $A7:AF3D.</summary>
-public static class KraidHeadTilemapFormat
-{
-    /// <summary>Supported Kraid head tilemap schema revision one.</summary>
-    public const int Version = 1;
-    /// <summary>Thirty-two tile-reference columns in each head-frame row.</summary>
-    public const int Width = 32;
-    /// <summary>Eleven tile-reference rows in each head frame; with <see cref="Width"/> this yields 352 native words.</summary>
-    public const int Height = 11;
 }

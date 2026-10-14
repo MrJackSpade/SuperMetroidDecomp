@@ -1,9 +1,5 @@
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>One native one-block collectible draw list and its physical level word.</summary>
-internal readonly record struct RoomPlmCollectibleDrawFrame(
-    ushort Pointer, ushort LevelWord, string Id);
-
 /// <summary>
 /// Compiled bank-$84 collectible draw geometry and level words. Only the low visual
 /// twelve bits may be overridden; pickup, collision, and persistence stay native.

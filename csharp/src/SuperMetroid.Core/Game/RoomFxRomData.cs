@@ -414,5 +414,6 @@ public static class RoomFxRomData
             public static bool Contains(ushort room) => Enum.IsDefined((Room)room);
         }
     }
-
+    /// <summary>$8A:8000: first of the contiguous layer-3 FX tilemap pages.</summary>
+    public const int Layer3TilemapPages = 0x8a8000;
 }

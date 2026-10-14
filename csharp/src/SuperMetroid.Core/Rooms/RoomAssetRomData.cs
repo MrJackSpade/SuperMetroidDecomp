@@ -77,4 +77,6 @@ public static class RoomAssetRomData
         /// </summary>
         public const ushort KraidHudCharacterBaseWord = 0x2000;
     }
+    /// <summary>$8A:B180: first of the seven contiguous 32x32 scrolling-sky tilemap pages.</summary>
+    public const int ScrollingSkyTilemapPages = 0x8ab180;
 }

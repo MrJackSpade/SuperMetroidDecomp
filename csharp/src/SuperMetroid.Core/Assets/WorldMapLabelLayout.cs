@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -79,24 +78,4 @@ public sealed class WorldMapLabelLayout
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>JSON schema for the six named Zebes world-map label anchors.</summary>
-public sealed record WorldMapLabelDocument
-{
-    /// <summary>Gets the schema version required by <see cref="WorldMapLabelFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Gets the label anchors keyed by the six case-sensitive area names.</summary>
-    public required Dictionary<string, Position16<OamPixels>> Areas { get; init; }
-}
-
-/// <summary>Defines the installed world-map label resource contract.</summary>
-public static class WorldMapLabelFormat
-{
-    /// <summary>Supported world-map label schema version.</summary>
-    public const int Version = 1;
-
-    /// <summary>Canonical world-map label asset file name.</summary>
-    public const string FileName = "world-map-labels.json";
 }

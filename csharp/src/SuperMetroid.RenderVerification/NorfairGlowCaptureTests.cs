@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
 
 /// <summary>Checks D3D11 capture of Norfair's animated foreground glow against production rendering.</summary>
 internal static class NorfairGlowCaptureTests
@@ -54,14 +53,4 @@ internal static class NorfairGlowCaptureTests
             throw new InvalidOperationException("Norfair palette animation never changes a visible BG1 foreground pixel.");
         Console.WriteLine($"{device.Kind}: 232 Norfair runtime/GPU frames agree; isolated glow changes {maximumChanged} foreground pixels.");
     }
-}
-
-/// <summary>Cathedral room and CGRAM destinations used to isolate Norfair's animated foreground glow.</summary>
-internal static class NorfairGlowFixture
-{
-    /// <summary>$8F:A788 Cathedral, a heated Norfair room with glowing foreground rock.</summary>
-    internal const ushort Cathedral = 0xa788;
-    /// <summary>CGRAM word destinations written by $8D:F08E/F1D1/F2D9/F3E1, including inline skips.</summary>
-    internal static ReadOnlySpan<int> ColorIndices =>
-        [53, 54, 55, 60, 61, 65, 66, 67, 76, 77, 81, 82, 83, 92, 93, 97, 98, 99, 108, 109];
 }

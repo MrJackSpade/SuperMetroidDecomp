@@ -9,13 +9,9 @@
     <ProjectReference Include="../SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
     <ProjectReference Include="../SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
-    <Compile Include="../../test-support/ShutterBombArcScenario.cs" Link="ShutterBombArcScenario.cs" />
-    <Compile Include="../../test-support/BombSpreadTransitionScenario.cs" Link="BombSpreadTransitionScenario.cs" />
-    <Compile Include="../../test-support/ShallowWaterJumpScenario.cs" Link="ShallowWaterJumpScenario.cs" />
-    <Compile Include="../../test-support/EnemyVisualSelectorInventory.cs" Link="EnemyVisualSelectorInventory.cs" />
-    <Compile Include="../../test-support/RoomFxRecordCatalogSource.cs" Link="RoomFxRecordCatalogSource.cs" />
-    <Compile Include="../../test-support/PixelComparison.cs" Link="TestSupport/PixelComparison.cs" />
-    <Compile Include="../../test-support/D3D11FrameReadback.cs" Link="TestSupport/D3D11FrameReadback.cs" />
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
+  <Import Project="../../test-support/ScenarioFixtures.projitems" />
+  <Import Project="../../test-support/CatalogInventories.projitems" />
+  <Import Project="../../test-support/FrameCapture.projitems" />
 </Project>

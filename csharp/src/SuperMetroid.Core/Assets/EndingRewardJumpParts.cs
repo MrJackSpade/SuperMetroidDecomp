@@ -1,5 +1,4 @@
 using System.Collections;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -69,13 +68,4 @@ internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
     }
     /// <summary>Exposes the same ordered sprite strips to non-generic enumeration.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-}
-
-/// <summary>Individually ordered pieces of the suited jumping pose.</summary>
-internal static class EndingRewardJumpAtlas
-{
-    /// <summary>Tile$1B, upper-body center drawn ahead of the limbs and remaining body rows.</summary>
-    internal const int UpperBodyCenter = 0x1b;
-    /// <summary>Tile$08, separately positioned upper-left limb cap.</summary>
-    internal const int LeftLimbCap = 0x08;
 }

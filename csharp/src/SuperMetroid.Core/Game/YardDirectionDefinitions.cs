@@ -1,21 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>
-/// One of the eight cartridge-authored surface directions used by a Yard (Maridia snail).
-/// </summary>
-internal readonly record struct YardDirectionDefinition(
-    ushort CrawlingInstructionList,
-    ushort PropertyBits,
-    ushort HidingInstructionList,
-    ushort AirborneFacingDirection,
-    ushort OppositeDirection,
-    YardMovementFunction MovementFunction);
-
-/// <summary>Facing-specific animation lists installed while a Yard is airborne.</summary>
-internal readonly record struct YardAirborneInstructionDefinition(
-    ushort VisibleInstructionList,
-    ushort HidingInstructionList);
-
 /// <summary>Fixed direction and airborne-animation definitions for Yard.</summary>
 internal static class YardDirectionDefinitions
 {

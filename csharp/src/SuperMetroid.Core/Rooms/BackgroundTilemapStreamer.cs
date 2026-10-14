@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -281,86 +279,4 @@ public sealed class BackgroundTilemapStreamer
         }
         return source[index];
     }
-}
-
-/// <summary>One visible 16x16 PLM block redraw in BG1's two-screen ring.</summary>
-/// <param name="TopRowDestination">VRAM word address of the block's upper-left character; the lower row begins 32 words later.</param>
-/// <param name="TopRow">Upper-left and upper-right packed BG character words in horizontal transfer order.</param>
-/// <param name="BottomRow">Lower-left and lower-right packed BG character words in horizontal transfer order.</param>
-public sealed record PlmTilemapUpdate(
-    ushort TopRowDestination,
-    ushort[] TopRow,
-    ushort[] BottomRow)
-{
-    /// <summary>Applies the two horizontal two-word transfers produced by bank $84.</summary>
-    [PpuLayoutBoundary("codec: DrawPLM two-row BG1 tilemap DMA (VMADD)")]
-    public void ExecuteTo(SnesVram vram)
-    {
-        Ensure.NotNull(vram);
-        vram.ExecuteWordTransfer(TopRow, TopRowDestination, 1);
-        vram.ExecuteWordTransfer(
-            BottomRow,
-            unchecked((ushort)(TopRowDestination + 0x20)),
-            1);
-    }
-}
-
-/// <summary>One completed WRAM staging buffer and its ordered NMI DMA operations.</summary>
-/// <param name="Segments">Transfer descriptors in native producer/consumer order, including unwrapped and wrapped slices; creating the record does not execute them.</param>
-public sealed record TilemapStreamUpdate(
-    IReadOnlyList<TilemapDmaSegment> Segments)
-{
-    /// <summary>
-    /// Executes the same ordered transfers that <c>$80:8CD8/$80:8DAC</c> perform after
-    /// observing the corresponding update flag during NMI.
-    /// </summary>
-    public void ExecuteTo(SnesVram vram)
-    {
-        Ensure.NotNull(vram);
-        foreach (TilemapDmaSegment segment in Segments)
-            segment.ExecuteTo(vram);
-    }
-}
-
-/// <summary>
-/// One DMA sourced from a slice of a staging array. Column segments use VMAIN=$81
-/// (destination +32 words); row segments use VMAIN=$80 (destination +1 word).
-/// </summary>
-/// <param name="SourceWords">Staging array of packed BG character words, shared with any other slices of the same produced row or column.</param>
-/// <param name="SourceWordOffset">First source-array element to transfer, measured in words rather than bytes.</param>
-/// <param name="WordCount">Number of consecutive source words in this segment.</param>
-/// <param name="VramWordDestination">VRAM word address of the first destination character.</param>
-/// <param name="Direction">Destination stride: one word across a row or 32 words down a column.</param>
-public sealed record TilemapDmaSegment(
-    ushort[] SourceWords,
-    int SourceWordOffset,
-    int WordCount,
-    ushort VramWordDestination,
-    TilemapDmaDirection Direction)
-{
-    /// <summary>Validates the staging slice and immediately transfers its words to VRAM with the row/column stride; does not enqueue another transfer or advance camera state.</summary>
-    /// <param name="vram">Destination VRAM receiving packed BG character words.</param>
-    /// <exception cref="InvalidDataException">The source offset/count exceeds the staging array.</exception>
-    [PpuLayoutBoundary("codec: one BG tilemap stream DMA segment (VMADD, VMAIN increment)")]
-    public void ExecuteTo(SnesVram vram)
-    {
-        Ensure.NotNull(vram);
-        if (SourceWordOffset < 0 || WordCount < 0 || SourceWordOffset + WordCount > SourceWords.Length)
-            throw new InvalidDataException("Tilemap DMA segment exceeds its staging array.");
-
-        int increment = Direction == TilemapDmaDirection.Column ? 32 : 1;
-        vram.ExecuteWordTransfer(
-            SourceWords.AsSpan(SourceWordOffset, WordCount),
-            VramWordDestination,
-            increment);
-    }
-}
-
-/// <summary>Destination progression within a native 32-character-wide BG tilemap page, distinct from the camera axis that caused the update.</summary>
-public enum TilemapDmaDirection
-{
-    /// <summary>Horizontal character sequence: VMAIN=$80 and destination address increments by one VRAM word after each transferred word.</summary>
-    Row,
-    /// <summary>Vertical character sequence: VMAIN=$81 and destination address increments by 32 VRAM words after each transferred word.</summary>
-    Column,
 }

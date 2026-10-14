@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Game;
@@ -234,14 +233,3 @@ public sealed class SamusDraygonGrabbedState
         }
     }
 }
-
-/// <summary>Debugger-visible result of the otherwise one-instruction `$90:A7D2` handler.</summary>
-public readonly record struct DraygonGrabbedMovementResult();
-
-/// <summary>Literal claw offsets and resulting Samus position from `$A5:94A9`.</summary>
-public readonly record struct DraygonOwnerPlacement();
-
-/// <summary>One timer/hack-handler pass at `$90:E2A1`.</summary>
-public readonly record struct DraygonEscapeResult(
-    bool SuppressProspectivePose,
-    bool Released);

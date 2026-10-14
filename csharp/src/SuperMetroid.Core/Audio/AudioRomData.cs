@@ -83,32 +83,3 @@ public static class AudioRomData
         public const byte ResumeMusic = 0xf1;
     }
 }
-
-/// <summary>The four byte-wide bidirectional APU I/O ports, SNES registers <c>$2140-$2143</c>.</summary>
-public enum ApuPort : byte
-{
-    /// <summary>Port zero, <c>$2140</c>, used for music commands and upload handshakes.</summary>
-    Music = 0,
-    /// <summary>Port one, <c>$2141</c>: sound library one; adding a zero-based library index selects ports one through three.</summary>
-    SoundLibrary1 = 1,
-    /// <summary>Port two, <c>$2142</c>: sound library two.</summary>
-    SoundLibrary2 = 2,
-    /// <summary>Port three, <c>$2143</c>: sound library three.</summary>
-    SoundLibrary3 = 3,
-}
-
-/// <summary>Domain-owned transitions over <see cref="ApuPort"/>.</summary>
-public static class ApuPorts
-{
-    /// <summary>
-    /// The port that carries zero-based sound library <paramref name="libraryIndex"/>: the cartridge
-    /// writes library queue X to <c>$2141+X</c>.
-    /// </summary>
-    public static ApuPort ForSoundLibrary(int libraryIndex) => libraryIndex switch
-    {
-        0 => ApuPort.SoundLibrary1,
-        1 => ApuPort.SoundLibrary2,
-        2 => ApuPort.SoundLibrary3,
-        _ => throw new InvalidOperationException($"Sound library {libraryIndex} has no {nameof(ApuPort)}."),
-    };
-}

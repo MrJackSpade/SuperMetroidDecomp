@@ -1,32 +1,4 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
-
-/// <summary>One $A6 Mode 7 low-byte tilemap DMA descriptor and its authored source bytes.</summary>
-/// <param name="DestinationWord">VRAM word address of the first map cell; each tile replaces its low byte while preserving the high-byte Mode 7 character data.</param>
-/// <param name="TileNumbers">Ordered eight-bit character selectors for consecutive map cells, not character pixel bytes.</param>
-/// <param name="SourceOffset">Bank-<c>$A6</c> offset of the descriptor's native source bytes, which the queued descriptor records.</param>
-public readonly record struct CeresMode7Transfer(
-ushort DestinationWord, CeresMode7TransferDefinitions.TileSequence TileNumbers, ushort SourceOffset);
-
-/// <summary>The seven fixed bank-<c>$A6</c> Ceres Mode 7 transfer lists.</summary>
-public enum CeresMode7TransferList : ushort
-{
-    /// <summary>$A6:F904, Ceres elevator landing-platform light frame.</summary>
-    ElevatorLight = 0xf904,
-    /// <summary>$A6:F90E, Ceres elevator landing-platform dark frame.</summary>
-    ElevatorDark = 0xf90e,
-    /// <summary>$A6:ACE2, baby-capsule tilemap frame zero.</summary>
-    BabyFrame0 = 0xace2,
-    /// <summary>$A6:ACF5, baby-capsule tilemap frame one (also frame three).</summary>
-    BabyFrame1 = 0xacf5,
-    /// <summary>$A6:AD08, baby-capsule tilemap frame two.</summary>
-    BabyFrame2 = 0xad08,
-    /// <summary>$A6:AD49, Ridley wing tilemap frame zero.</summary>
-    WingFrame0 = 0xad49,
-    /// <summary>$A6:AD80, Ridley wing tilemap frame one.</summary>
-    WingFrame1 = 0xad80,
-}
 
 /// <summary>
 /// The seven fixed transfer lists selected by the Ceres door/elevator and Ridley

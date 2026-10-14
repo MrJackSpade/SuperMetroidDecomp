@@ -1,16 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>
-/// One target in Crocomire's hidden-wall rumble schedule. Negative targets carry the
-/// cooldown and approach delta loaded when their oscillation completes.
-/// </summary>
-internal readonly record struct CrocomireRumbleDefinition(
-    short TargetYOffset,
-    ushort NextTargetOffset,
-    ushort Cooldown,
-    ushort Delta,
-    bool IsTerminator);
-
 /// <summary>Fixed hidden-wall rumble schedule from <c>$A4:98CA-$A4:9909</c>.</summary>
 internal static class CrocomireRumbleDefinitions
 {
@@ -119,4 +108,3 @@ internal static class CrocomireRumbleDefinitions
         throw new InvalidDataException("Crocomire rumble offset $" + tableOffset.ToString("X4") + " is not an authored target word.");
     }
 }
-

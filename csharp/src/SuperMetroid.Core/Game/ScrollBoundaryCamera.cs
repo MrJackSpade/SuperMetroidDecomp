@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -593,17 +591,3 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Writes only the vertical integer camera word, preserving its fraction and horizontal axis.</summary>
     private void SetWholeY(ushort y) => Position = Position.WithY(Position.Y.WithWhole(y));
 }
-
-/// <summary>State branches used by horizontal camera target selection at <c>$90:95B7</c>.</summary>
-public readonly record struct HorizontalCameraContext(
-    ushort KnockbackDirection,
-    SamusMovementType MovementType,
-    ushort XAccelerationMode,
-    byte PoseXDirection,
-    CameraDistanceMode CameraDistanceIndex);
-
-/// <summary>Scroller distances used by vertical target selection at <c>$90:9666</c>.</summary>
-public readonly record struct VerticalCameraContext(
-    SamusVerticalDirection YDirection,
-    ushort UpScroller,
-    ushort DownScroller);

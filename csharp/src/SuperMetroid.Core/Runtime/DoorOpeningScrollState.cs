@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -213,6 +211,3 @@ internal sealed class DoorOpeningScrollState
         CameraPosition = FinalCameraPosition;
     }
 }
-
-/// <summary>A door loader's deferred write of Samus's whole position.</summary>
-internal readonly record struct LoaderSamusPlacement(int EnemySlot, Position16<RoomPixels> Position);

@@ -1,16 +1,6 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// The eight palette selector bytes and 256 raw 4bpp character bytes consumed by
-/// bank-$84 instruction <c>$8764</c> for one permanent-item kind.
-/// </summary>
-public sealed record RoomPlmDynamicCollectibleGraphic(
-    InWorldCollectibleKind Kind,
-    ushort GraphicsPointer,
-    ReadOnlyMemory<byte> PaletteOffsets,
-    ReadOnlyMemory<byte> Tiles);
-
-/// <summary>
 /// Cartridge definitions shared by the exposed, Chozo-orb, and shot-block
 /// presentations of the 17 dynamically uploaded permanent-item kinds.
 /// </summary>

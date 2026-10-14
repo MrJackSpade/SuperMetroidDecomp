@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
@@ -168,16 +167,3 @@ public sealed class MotherBrainCorpseRottingState
         }
     }
 }
-
-/// <summary>One MiscDust projectile emitted by Mother Brain's row-finished hook.</summary>
-public readonly record struct MotherBrainCorpseDustRequest(
-    Position16<RoomPixels> Position,
-    MiscDustAnimation Animation,
-    bool SoundEffectQueued,
-    ushort SoundEffect);
-
-/// <summary>Observable work produced by one shared corpse-rotting processor call.</summary>
-public readonly record struct MotherBrainCorpseRottingStepResult(
-    bool StillRotting,
-    IReadOnlyList<MotherBrainSpriteTileTransferRequest> VramTransfers,
-    IReadOnlyList<MotherBrainCorpseDustRequest> DustRequests);

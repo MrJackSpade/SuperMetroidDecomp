@@ -41,6 +41,3 @@ public static class UnhandledExceptionConsoleSmokeTest
         return new UnhandledExceptionConsoleSmokeTestResult(output.ToString().Length);
     }
 }
-
-/// <summary>Observable result returned by the fatal console reporting smoke test.</summary>
-public readonly record struct UnhandledExceptionConsoleSmokeTestResult(int ReportLength);

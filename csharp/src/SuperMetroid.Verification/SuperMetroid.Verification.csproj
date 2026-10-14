@@ -8,17 +8,7 @@
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
     <ProjectReference Include="../SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
-    <Compile Include="../../tools/ProductionMagicNumberAudit.cs" Link="ProductionMagicNumberAudit.cs" />
-    <Compile Include="../../test-support/SaveLoadRandomAudit.cs" Link="SaveLoadRandomAudit.cs" />
-    <Compile Include="../../test-support/SaveMapPresentationFixture.cs" Link="SaveMapPresentationFixture.cs" />
-    <Compile Include="../../test-support/ReferencePaletteFxColorSource.cs" Link="ReferencePaletteFxColorSource.cs" />
-    <Compile Include="../../test-support/ImportedSpritemapOracle.cs" Link="ImportedSpritemapOracle.cs" />
-    <Compile Include="../../test-support/ImportedVramOracle.cs" Link="ImportedVramOracle.cs" />
-    <Compile Include="../../test-support/ShutterBombArcScenario.cs" Link="ShutterBombArcScenario.cs" />
-    <Compile Include="../../test-support/BombSpreadTransitionScenario.cs" Link="BombSpreadTransitionScenario.cs" />
-    <Compile Include="../../test-support/ShallowWaterJumpScenario.cs" Link="ShallowWaterJumpScenario.cs" />
-    <Compile Include="../../test-support/EnemyVisualSelectorInventory.cs" Link="EnemyVisualSelectorInventory.cs" />
-    <Compile Include="../../test-support/RoomFxRecordCatalogSource.cs" Link="RoomFxRecordCatalogSource.cs" />
+    <Compile Include="../../tools/MagicNumberAudit/**/*.cs" LinkBase="MagicNumberAudit" />
     <Compile Include="../SuperMetroid.DebugRunner/Assets/MapAssetExtractor.cs" Link="MapAssetExtractor.cs" />
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
@@ -27,4 +17,8 @@
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
   <Import Project="../../test-support/VerificationImporters.projitems" />
   <Import Project="../../test-support/CpuBusTestDoubles.projitems" />
+  <Import Project="../../test-support/VerificationOracles.projitems" />
+  <Import Project="../../test-support/SaveMapFixtures.projitems" />
+  <Import Project="../../test-support/ScenarioFixtures.projitems" />
+  <Import Project="../../test-support/CatalogInventories.projitems" />
 </Project>

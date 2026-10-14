@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
 
 /// <summary>Native AI-driven escape after staging either retail termination condition at hover.</summary>
 internal static class RetailRidleyEscapeTests
@@ -66,13 +64,4 @@ internal static class RetailRidleyEscapeTests
                 $"{mixedFrames} Mode-7 frames, {matrices.Count} matrices, {phases.Count} phases; timer/ejection handoff complete.");
         }
     }
-}
-
-/// <summary>Holds the two native Ceres Ridley hover-exit thresholds exercised by the fixture.</summary>
-internal static class RidleyEscapeFixtureDefinitions
-{
-    /// <summary>Ceres hover AI branches to the fake retreat at 100 registered projectile contacts.</summary>
-    internal const ushort HitThreshold = 100;
-    /// <summary>Energy below the native 30 threshold selects the direct retreat; keep the player alive.</summary>
-    internal const ushort LowEnergy = 29;
 }

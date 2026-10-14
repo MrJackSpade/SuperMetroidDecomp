@@ -136,27 +136,3 @@ internal static class FileSelectLayout
     /// <summary>BG1 destination of the confirmation No choice.</summary>
     public const int ConfirmationNoDestination = 0x65c;
 }
-
-/// <summary>Distinct fields in each native file-select save-slot panel.</summary>
-internal enum FileSelectSlotField
-{
-    /// <summary>Save-slot letter and label.</summary>
-    Label,
-    /// <summary>Displayed energy value.</summary>
-    Energy,
-    /// <summary>Elapsed-time digits on the line below the labels.</summary>
-    TimeValue,
-    /// <summary>Displayed elapsed-time label.</summary>
-    TimeLabel,
-}
-
-/// <summary>Control words in the bank-$81 file-select tilemap stream format.</summary>
-internal static class FileSelectTilemapFormat
-{
-    /// <summary>Bank containing the file-select text streams.</summary>
-    public const int Bank = 0x810000;
-    /// <summary>Terminates one tilemap text stream.</summary>
-    public const ushort End = 0xffff;
-    /// <summary>Moves the output cursor to the same column on the following row.</summary>
-    public const ushort NextRow = 0xfffe;
-}

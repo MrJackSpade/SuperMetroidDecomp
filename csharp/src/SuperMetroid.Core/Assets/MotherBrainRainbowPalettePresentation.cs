@@ -1,7 +1,6 @@
 using System.Text.Json;
 using RedOriginLayout = SuperMetroid.Core.Assets.MotherBrainRainbowPaletteFormat.RedOriginLayout;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -837,104 +836,4 @@ public sealed class MotherBrainRainbowPalettePresentation
                     + b * frame + intervals / 2) / intervals));
         }
     }
-}
-
-/// <summary>Editable Mother Brain palette schema, separating selected RGB5 colors from engine-owned attack/fade cadence and HDMA loop control.</summary>
-public sealed record MotherBrainRainbowPaletteDocument
-{
-    /// <summary>Schema revision: version 3 includes the fake-death fade; version 2 is loadable only with a current-stock presentation supplying that missing sequence.</summary>
-    public required int Version { get; init; }
-    /// <summary>Ten native $AD:E434 rainbow-list phases, each containing 15 body/brain colors and 15 rear-leg colors with no trailing word.</summary>
-    public required MotherBrainRainbowPaletteFrameDocument[] Rainbow { get; init; }
-    /// <summary>Eight $AD:EF87 drain phases, each containing 15 body/brain colors, five rear-leg colors, and a trailing word written to WRAM $017C.</summary>
-    public required MotherBrainRainbowPaletteFrameDocument[] ToGrey { get; init; }
-    /// <summary>Eight $AD:ED9C revival phases, each containing 13 body/brain colors, five rear-leg colors, and a trailing WRAM word; the final two body/brain inks are preserved.</summary>
-    public required MotherBrainRainbowPaletteFrameDocument[] FromGrey { get; init; }
-    /// <summary>Eight ordered rows of three brain-only RGB5 inks corresponding to $AD:ED8A, required by version 3 and applied beginning at CGRAM color $91.</summary>
-    public PaletteRgb5[][]? FakeDeathToGrey { get; init; }
-    /// <summary>Normal restoration frame with 15 shared body/brain inks and 15 rear-leg inks, matching the roles of $A9:9474/$9494; no trailing word is allowed.</summary>
-    public required MotherBrainRainbowPaletteFrameDocument Normal { get; init; }
-    /// <summary>RGB5 fixed backdrop color for the first active rainbow-beam HDMA frame, before the native color cursor advances.</summary>
-    public required PaletteRgb5 BeamInitial { get; init; }
-    /// <summary>Exactly 38 RGB5 backdrop samples from the native $88:E833 hue cycle; the terminating signed $FFFF word is engine control and is not included.</summary>
-    public required PaletteRgb5[] BeamCycle { get; init; }
-}
-
-/// <summary>One RGB5 palette payload whose array dimensions depend on its rainbow, drain, revival, or normal-restoration role; each channel must be from 0 through 31.</summary>
-public sealed record MotherBrainRainbowPaletteFrameDocument
-{
-    /// <summary>Shared body-BG and brain/neck-OBJ inks copied starting at CGRAM $41 and $91: 15 colors for rainbow/drain/normal, or 13 for revival.</summary>
-    public required PaletteRgb5[] Body { get; init; }
-    /// <summary>Rear-leg OBJ inks: 15 copied to CGRAM starting at $B1 for rainbow/normal, or five starting at $B4 for drain/revival.</summary>
-    public required PaletteRgb5[] BackLegs { get; init; }
-    /// <summary>Required RGB5 word for drain/revival, written directly to WRAM $7E:017C rather than CGRAM; must be absent for rainbow and normal frames.</summary>
-    public PaletteRgb5? TrailingColor { get; init; }
-}
-
-/// <summary>Schema revisions of the editable Mother Brain rainbow palette document.</summary>
-public enum MotherBrainRainbowPaletteVersion
-{
-    /// <summary>Legacy revision lacking fake-death colors, accepted only when loading with a verified current-stock fallback.</summary>
-    PreFakeDeath = 2,
-    /// <summary>Current palette schema revision, requiring the brain-only fake-death sequence alongside all previous color families.</summary>
-    Current = 3,
-}
-
-/// <summary>Installed palette filename and fixed native sequence geometry; color content is editable while attack/fade timing and loop termination remain engine-owned.</summary>
-public static class MotherBrainRainbowPaletteFormat
-{
-    /// <summary>Body-row indices for head, plate, tissue, and independent tail inks.</summary>
-    internal static class RedOriginLayout
-    {
-        /// <summary>$AD:E44E: darker head pair begins at body color index2.</summary>
-        internal const int DarkHead = 2;
-        /// <summary>$AD:E452-E459: four plate inks at body indices4..7.</summary>
-        internal const int PlateStart = 4, PlateEnd = 7;
-        /// <summary>Three interpolation steps between the first and last plate inks.</summary>
-        internal const int PlateIntervals = PlateEnd - PlateStart;
-        /// <summary>$AD:E45A-E463: five tissue inks at body indices8..12.</summary>
-        internal const int TissueStart = 8, TissueEnd = 12;
-        /// <summary>Four interpolation steps between tissue endpoint inks.</summary>
-        internal const int TissueIntervals = TissueEnd - TissueStart;
-        /// <summary>$AD:E464-E467: two remaining independent body inks at indices13..14.</summary>
-        internal const int TailStart = 13;
-    }
-    /// <summary>$AD:E44A-E451: first four head/outline inks have red31/25/19/13; chosen decrement6 and paired other-channel policy are chosen paint-animation content.</summary>
-    internal const int HeadRedStep = 6;
-    /// <summary>$AD:E44A: original red phase, supplying shared channels; selected phase role is chosen paint-animation content.</summary>
-    internal const int RedOriginPhase = 0;
-    /// <summary>$AD:E486: first green rise shares original red/blue; its independent green inputs are chosen paint-animation content.</summary>
-    internal const int FirstGreenRisePhase = 1;
-    /// <summary>$AD:E576: phase5 retains original red minus10/green plus5; its independent blue inputs and tint choices are chosen paint-animation content.</summary>
-    internal const int MixedShiftPhase = 5;
-    /// <summary>$AD:E5B2: phase6 retains original green and reduced red; its independent blue inputs are chosen paint-animation content.</summary>
-    internal const int BlueMaximumPhase = 6;
-    /// <summary>$AD:E5EE: phase7 retains phase6 blue and increases red; its independent green inputs are chosen paint-animation content.</summary>
-    internal const int RedRecoveryPhase = 7;
-    /// <summary>$AD:E62A: phase8 is phase6 with restored red plus10; selected phase mapping/tint are chosen paint-animation content.</summary>
-    internal const int RedRestoredPhase = 8;
-    /// <summary>$AD:E576 versusE44A: selected green addition5 across all15 inks; independent of red/blue additions5 and chosen paint-animation content.</summary>
-    internal const int GreenAddition = 5;
-    /// <summary>$AD:E5EE versusE5B2: selected red recovery addition5; magnitude is chosen paint-animation content independently of blue tint5.</summary>
-    internal const int RedRecoveryAddition = 5;
-    /// <summary>$AD:E4C2/E4FE: phase3 copies phase2 with a selected red reduction; phase mapping is chosen paint-animation content.</summary>
-    internal const int RedReductionSourcePhase = 2, RedReducedPhase = 3;
-    /// <summary>$AD:E4FE: all15 body inks reduce red by10; chosen magnitude is chosen paint-animation content.</summary>
-    internal const int RedReduction = 10;
-    /// <summary>$AD:E53A: phase4 shifts phase3 from green toward blue; phase mapping is chosen paint-animation content.</summary>
-    internal const int BlueGreenShiftPhase = 4;
-    /// <summary>$AD:E53A: all15 body inks subtract2 green/add2 blue; selected amount is chosen paint-animation content.</summary>
-    internal const int BlueGreenShift = 2;
-    /// <summary>$AD:E666: phase9 copies phase0 with increased blue; selected mapping is chosen paint-animation content.</summary>
-    internal const int BlueRaisedPhase = 9;
-    /// <summary>$AD:E666 versusE44A: all15 body inks add5 blue; selected magnitude is chosen paint-animation content.</summary>
-    internal const int BlueAddition = 5;
-    /// <summary>Installed editable JSON filename for rainbow, drain/revival, fake-death, restoration, and beam-backdrop colors.</summary>
-    public const string FileName = "mother-brain-rainbow-palette.json";
-    /// <summary>Ten full-palette phases before the zero terminator in the native $AD:E434 rainbow pointer list.</summary>
-    public const int RainbowFrameCount = 10;
-    /// <summary>Eight authored steps in each native drain and revival palette pointer sequence; cadence and completion are controlled by boss AI.</summary>
-    public const int GreyFrameCount = 8;
-    /// <summary>38 sampled BGR555 words before the signed bank-$88 loop terminator.</summary>
-    public const int BeamCycleColorCount = 38;
 }

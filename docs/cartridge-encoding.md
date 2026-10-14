@@ -14,7 +14,7 @@ occurrences, and a file absent from the baseline may hold none.
 
 | Rule | Reports |
 | --- | --- |
-| SME6340 | A hexadecimal literal in functional code. Files named as definition catalogs (`*Definitions.cs`, `*Catalog.cs`, `*CodePointers.cs`, ... the same suffixes as the magic-number audit) own their data and are exempt. |
+| SME6340 | A hexadecimal literal in functional code. Files named as definition catalogs (`*Definitions.cs`, `*Definition.cs`, `*Catalog.cs`, `*CodePointers.cs`, ...) own their data and are exempt, as is an enum member's value: an enum is a named definition set wherever its file lives. |
 | SME6341 | A primitive compared with, offset from or switched over an address-valued code or instruction constant: runtime interpretation of cartridge pointers, catalogs included. |
 | SME6342 | An integral array or collection literal of four or more elements holding hexadecimal words: opaque instruction or packed-table data, catalogs included. |
 | SME6345 | A shift by a byte, word or bank width, or a byte/word/bank mask, in functional code (#223). |

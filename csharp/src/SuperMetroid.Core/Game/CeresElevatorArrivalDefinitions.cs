@@ -87,26 +87,3 @@ internal static class CeresElevatorArrivalDefinitions
                 $"Unknown Ceres elevator projectile instruction $86:{pointer:X4}."),
         };
 }
-
-/// <summary>One immutable bank-$86 enemy-projectile header.</summary>
-internal readonly record struct CeresElevatorProjectileDefinition(
-    ushort DefinitionPointer,
-    ushort InitialInstruction);
-
-/// <summary>The three operations reachable from the two Ceres arrival programs.</summary>
-internal enum CeresElevatorProjectileOperation
-{
-    /// <summary>Publishes a timed spritemap pose and advances to the next program word.</summary>
-    Frame,
-    /// <summary>Releases the projectile after the elevator landing sequence.</summary>
-    Delete,
-    /// <summary>Loops the pad or platform animation to its first frame.</summary>
-    Goto,
-}
-
-/// <summary>A decoded frame or control transfer from the compiled bank-$86 program.</summary>
-internal readonly record struct CeresElevatorProjectileInstruction(
-    CeresElevatorProjectileOperation Operation,
-    ushort NextInstruction = 0,
-    ushort Duration = 0,
-    ushort SpritemapPointer = 0);

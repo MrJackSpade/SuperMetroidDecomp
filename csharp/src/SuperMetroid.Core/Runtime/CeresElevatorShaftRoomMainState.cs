@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -172,9 +171,3 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>The shaft's fixed M7X/M7Y rotation centre, written by both <c>$8F:E4E0</c> and room main.</summary>
     internal static readonly Position16<RoomPixels> CeresShaftMode7Center = new(0x0080, 0x03f0);
 }
-
-/// <summary>Debugger-visible result of one Ceres elevator shaft room-main call.</summary>
-public readonly record struct CeresElevatorShaftRoomMainResult(
-    SamusMode7Transform Transform,
-    bool MatrixChanged,
-    bool DepartureRequestedThisFrame);

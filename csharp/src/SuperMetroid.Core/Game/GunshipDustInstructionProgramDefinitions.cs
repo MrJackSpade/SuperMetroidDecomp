@@ -1,20 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One of the six authored gunship liftoff-dust animation programs.</summary>
-internal readonly record struct GunshipDustInstructionProgramDefinition(
-    ushort Initial,
-    ushort FirstFrame,
-    ushort Terminal,
-    GunshipDustDurations Durations);
-
-/// <summary>Each dust pair adds one tick per two poses, reaching its terminal hold after four poses.</summary>
-internal readonly record struct GunshipDustDurations(int Length, ushort Initial)
-{
-    /// <summary>Advances the cloud's hold by one tick after each pair of poses, capped at the terminal hold.</summary>
-    internal ushort this[int frame] => (uint)frame < Length
-        ? (ushort)(Initial + Math.Min(frame / 2, 2)) : throw new IndexOutOfRangeException();
-}
-
 /// <summary>
 /// Compiled control for all six gunship liftoff-dust instruction lists. Interleaved
 /// spritemap operands resolve through extracted presentation art.

@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -476,38 +475,5 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
             if (unread.Length > 0)
                 throw new InvalidDataException($"Map catalog manifest lists stock files the catalog never verifies: {string.Join(", ", unread)}.");
         }
-    }
-}
-
-/// <summary>Stock content provenance, separate from a catalog's selected replacement identity.</summary>
-public sealed record AreaMapCatalogManifest
-{
-    /// <summary>Catalog schema version that must equal <see cref="AreaMapCatalogFormat.Version"/> when stock content is loaded.</summary>
-    public required int Version { get; init; }
-    /// <summary>SHA-256 digest of the cartridge used to extract the stock content, independent of selected user overrides.</summary>
-    public required string SourceCartridgeSha256 { get; init; }
-    /// <summary>Extracted filename-to-SHA-256 mapping; every listed stock file must be read and verified during catalog loading.</summary>
-    public required Dictionary<string, string> Sha256 { get; init; }
-}
-
-/// <summary>On-disk names and manifest bounds for seven area maps and their shared presentation resources.</summary>
-public static class AreaMapCatalogFormat
-{
-    /// <summary>Supported extracted map-catalog schema version; other manifest versions are rejected.</summary>
-    public const int Version = 78;
-    /// <summary>Manifest-bound non-area artwork files, including Ceres Mode-7 colors.</summary>
-    public const int SharedResourceCount = 61;
-    /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
-    public const string StationRevealFile = "station-reveal.json";
-    /// <summary>Stock manifest filename containing extraction provenance and the SHA-256 digest of every catalog resource.</summary>
-    public const string ManifestFile = "manifest.json";
-    /// <summary>Builds the extracted JSON filename from a validated retail area identity using its lowercase enum name.</summary>
-    /// <param name="area">One of the seven retail area identities.</param>
-    /// <returns>The area's lowercase name followed by <c>.json</c>, without a directory.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The value is not a retail area identity.</exception>
-    public static string FileName(AreaId area)
-    {
-        _ = AreaIds.ToIndex(area);
-        return area.ToString().ToLowerInvariant() + ".json";
     }
 }

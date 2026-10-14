@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -94,46 +93,4 @@ public sealed class TitleGradientPresentation
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable expanded title-gradient schema; native HDMA runs are represented by sixteen complete screen-height color/control arrays.</summary>
-public sealed record TitleGradientDocument
-{
-    /// <summary>Schema revision; loading requires <see cref="TitleGradientFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Sixteen nonnull variants in zoom-nibble order 0 through 15; this array and its nested line arrays remain caller-mutable until compilation.</summary>
-    public required TitleGradientVariant[] Variants { get; init; }
-}
-
-/// <summary>One title zoom bucket corresponding to a pointer in native TitleSequenceHDMATables at $8C:BC5D, expanded into screen scanlines.</summary>
-public sealed record TitleGradientVariant
-{
-    /// <summary>Zero through fifteen; native selects this with zoom bits four through seven.</summary>
-    public required int ZoomHighNibble { get; init; }
-    /// <summary>Exactly 224 nonnull scanlines indexed by visible screen Y from 0 through 223, not HDMA commands or run lengths.</summary>
-    public required TitleGradientScanline[] Lines { get; init; }
-}
-
-/// <summary>One scanline's effective fixed RGB5 color after native COLDATA writes, plus the CGADSUB byte governing its color arithmetic.</summary>
-public sealed record TitleGradientScanline
-{
-    /// <summary>Fixed-color red intensity from 0 through 31, not an eight-bit display-channel value.</summary>
-    public required int Red { get; init; }
-    /// <summary>Fixed-color green intensity from 0 through 31, not an eight-bit display-channel value.</summary>
-    public required int Green { get; init; }
-    /// <summary>Fixed-color blue intensity from 0 through 31, not an eight-bit display-channel value.</summary>
-    public required int Blue { get; init; }
-    /// <summary>Raw CGADSUB value from 0 through 255. The title renderer uses bit 0 for BG1/backdrop, bit 4 for OBJ palettes 4..7 and bit 7 for subtraction; native $88:EB95 supplies $A1/$31 runs.</summary>
-    public required int ColorMathControl { get; init; }
-}
-
-/// <summary>Published filename and schema dimensions for the expanded title fixed-color gradient, independently editable without native HDMA pointers.</summary>
-public static class TitleGradientFormat
-{
-    /// <summary>Installed JSON filename selected by the title presentation catalog.</summary>
-    public const string FileName = "title-gradient.json";
-    /// <summary>Revision 1 of the sixteen-variant, per-scanline RGB5/control-byte schema.</summary>
-    public const int Version = 1;
-    /// <summary>Sixteen variants covering every value of the native zoom word's bits 4 through 7.</summary>
-    public const int VariantCount = 16;
 }

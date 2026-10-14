@@ -1,6 +1,4 @@
 using System.Collections;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -79,13 +77,4 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
     }
     /// <summary>Exposes the same frame parts through the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-}
-/// <summary>Atlas tile identities used to calculate the Ceres vortex core and edge.</summary>
-internal static class CeresVortexAtlas
-{
-    /// <summary>Tile1C0, first large vortex tile; eleven large pieces are packed
-    /// eight per two-row atlas strip and rendered as a three-column grid.</summary>
-    internal const int Core = 0x1c0;
-    /// <summary>Tile1E6, small lower-edge drawing repeated across the final grid cell.</summary>
-    internal const int LowerEdge = 0x1e6;
 }

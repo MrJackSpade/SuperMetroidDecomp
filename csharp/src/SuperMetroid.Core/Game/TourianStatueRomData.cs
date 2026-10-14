@@ -22,29 +22,3 @@ public static class TourianStatueRomData
     /// <summary>$88:DC23/DC69 earthquake type 13 with timer bits $20.</summary>
     public const ushort DescentEarthquakeType = 13, DescentEarthquakeTimer = 0x20;
 }
-
-/// <summary>The bank-$86 pre-instructions that move Tourian statue unlocking effects.</summary>
-internal enum TourianStatuePreInstruction : ushort
-{
-    /// <summary>$86:B977 splash follows water surface.</summary>
-    SplashMotion = 0xb977,
-    /// <summary>$86:B982 particle motion pre-instruction.</summary>
-    ParticleMotion = 0xb982,
-    /// <summary>$86:B9FD soul motion pre-instruction.</summary>
-    SoulMotion = 0xb9fd,
-}
-
-/// <summary>The bank-$86 instructions private to Tourian statue unlocking effects and the Chozo dust.</summary>
-internal enum TourianStatueInstruction : ushort
-{
-    /// <summary>$86:AF36 restores a dust actor to its initial position.</summary>
-    ResetDustPosition = 0xaf36,
-    /// <summary>$86:B7EA spawn particle at this projectile.</summary>
-    SpawnParticle = 0xb7ea,
-    /// <summary>$86:B7F5 unlocking earthquake.</summary>
-    Earthquake = 0xb7f5,
-    /// <summary>$86:B818 spawn particle tail.</summary>
-    SpawnTail = 0xb818,
-    /// <summary>$86:B841 add signed word to projectile Y.</summary>
-    AddY = 0xb841,
-}

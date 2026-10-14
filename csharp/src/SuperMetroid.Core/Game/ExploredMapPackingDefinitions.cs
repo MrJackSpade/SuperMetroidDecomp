@@ -1,6 +1,5 @@
 using System.Collections;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Game;
 
@@ -98,8 +97,3 @@ internal static class ExploredMapPackingDefinitions
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
-
-/// <summary>One area's calculated SRAM destination and occupied native map-byte view.</summary>
-internal readonly record struct ExploredMapPackingDefinition(
-    ushort DestinationOffset,
-    ExploredMapPackingDefinitions.OccupiedByteIndexes AreaByteIndexes);

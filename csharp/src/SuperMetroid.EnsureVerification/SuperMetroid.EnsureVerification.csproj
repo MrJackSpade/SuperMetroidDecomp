@@ -11,6 +11,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="../../test-support/VerificationAccess/MetadataShape.cs" Link="TestSupport/VerificationAccess/MetadataShape.cs" />
+    <Compile Include="../../test-support/VerificationAccess.Core/MetadataShape.cs" Link="TestSupport/VerificationAccess/MetadataShape.cs" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -197,23 +195,3 @@ public static class TitleSequenceRomData
             SnesButton.B | SnesButton.Start | SnesButton.A;
     }
 }
-
-/// <summary>One bank-$8B title-card object definition.</summary>
-/// <param name="Phase">Runtime title-card phase entered when this instruction list starts.</param>
-/// <param name="InstructionAddress">Full 24-bit address of the bank-$8B text-object instruction list.</param>
-/// <param name="Origin">Drawing origin in screen pixels.</param>
-/// <param name="CharacterOffset">Native OBJ attribute/palette word applied to the composition; the legacy name does not denote a tile-count offset.</param>
-public readonly record struct TitleTextSequenceDefinition(
-    TitleSequencePhase Phase,
-    int InstructionAddress,
-    Position16<ScreenPixels> Origin,
-    ushort CharacterOffset);
-
-/// <summary>Initial Mode-7 transform installed by one title-scene command.</summary>
-/// <param name="Phase">Pan or zoom phase entered by the scene-trigger command.</param>
-/// <param name="Scale">Initial native 8.8 transform scale, with $0100 representing unity.</param>
-/// <param name="Position">Background position in pixels as two's-complement words, before fixed-point pan updates.</param>
-public readonly record struct TitleMode7SceneDefinition(
-    TitleSequencePhase Phase,
-    int Scale,
-    Position16<Mode7Pixels> Position);

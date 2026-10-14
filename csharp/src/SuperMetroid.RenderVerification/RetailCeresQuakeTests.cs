@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
 
 /// <summary>Compares Ceres escape-room quake snapshots with direct frame rendering.</summary>
 internal static class RetailCeresQuakeTests
@@ -42,11 +40,4 @@ internal static class RetailCeresQuakeTests
             Console.WriteLine($"{device.Kind}: Ceres room {room:X4}, 240 exact frames, {shaking} shaking frames and {offsets.Count} displacement states.");
         }
     }
-}
-
-/// <summary>Holds the Ridley departure state that activates Ceres door earthquake producers.</summary>
-internal static class CeresQuakeFixture
-{
-    /// <summary>Native Ceres status word after Ridley's departure enables door earthquake producers.</summary>
-    internal const ushort EscapeStatus = 2;
 }

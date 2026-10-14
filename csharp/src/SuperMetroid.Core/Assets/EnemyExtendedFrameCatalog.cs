@@ -1,16 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
-
-/// <summary>One visual component of an extended enemy frame, without hitbox metadata.</summary>
-/// <param name="Offset">Signed displacement of the component's spritemap from the enemy's on-screen origin.</param>
-/// <param name="Parts">The component's OAM parts.</param>
-internal readonly record struct EnemyExtendedDrawComponent(
-    Offset16<OamPixels> Offset, EnemySpritemapParts Parts);
 
 /// <summary>
 /// Installed visual compositions for extended enemy frames. Hitbox records and
@@ -351,27 +343,4 @@ public sealed class EnemyExtendedFrameCatalog
                 .SequenceEqual(right.AsSpan(0, rightEnd));
         }
     }
-}
-
-/// <summary>Editable, visual-only coordinates and OAM parts of one component.</summary>
-[SpatialComponents("External format: the extended-frame JSON stores each component displacement as offsetX/offsetY.")]
-public sealed record EnemyExtendedVisualComponent
-{
-    /// <summary>Gets the signed whole-pixel horizontal displacement from the enemy anchor.</summary>
-    public required int OffsetX { get; init; }
-    /// <summary>Gets the signed whole-pixel vertical displacement from the enemy anchor.</summary>
-    public required int OffsetY { get; init; }
-    /// <summary>Gets the ordered visual-only OAM parts drawn for this component.</summary>
-    public required SpriteVisualPart[] Parts { get; init; }
-}
-
-/// <summary>Versioned editable extended-enemy-frame compositions.</summary>
-public sealed record EnemyExtendedFrameDocument
-{
-    /// <summary>Gets the extended-frame schema revision.</summary>
-    public required int Version { get; init; }
-    /// <summary>Gets every named visual frame composition defined by this schema revision.</summary>
-    public required Dictionary<string, EnemyExtendedVisualComponent[]> Frames { get; init; }
-    /// <summary>Visual-only frame selection; native timers and hitboxes remain fixed.</summary>
-    public Dictionary<string, string>? DisplayFrames { get; init; }
 }

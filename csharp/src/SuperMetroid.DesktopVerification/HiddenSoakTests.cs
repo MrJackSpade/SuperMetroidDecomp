@@ -3,13 +3,10 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
 
 using static DesktopVerificationSupport;
 
@@ -115,13 +112,4 @@ internal static class HiddenSoakTests
         count += samples.Length;
         foreach (short sample in samples) if (sample != 0) nonzero++;
     }
-}
-
-/// <summary>Retail room identities used for active and paused hidden-window samples.</summary>
-internal static class HiddenSoakRooms
-{
-    /// <summary>Retail $8F:A3AE room-local ordinary gameplay fixture.</summary>
-    internal const ushort AlphaPowerBomb = 0xa3ae;
-    /// <summary>Retail $8F:CEFB Maridia glass tube, logical room $04/$01.</summary>
-    internal const ushort MaridiaTube = 0xcefb;
 }

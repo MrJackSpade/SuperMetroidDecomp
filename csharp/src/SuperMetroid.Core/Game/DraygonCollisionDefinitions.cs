@@ -2,27 +2,6 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The four bank-$A5 hitbox lists Draygon's BG2 and OAM frames refer to.</summary>
-internal enum DraygonHitboxList : ushort
-{
-    /// <summary>$A5:AA95, Draygon's first four-rectangle body hitbox list.</summary>
-    FirstBody = 0xaa95,
-    /// <summary>$A5:AAC7, the empty hitbox list used while the body cannot be hit.</summary>
-    Empty = 0xaac7,
-    /// <summary>$A5:ABAB, Draygon's second four-rectangle body hitbox list.</summary>
-    SecondBody = 0xabab,
-    /// <summary>$A5:ABDD, the second empty hitbox list used by mirrored OAM frames.</summary>
-    OtherEmpty = 0xabdd,
-}
-
-/// <summary>A fixed bank-$A5 component offset and hitbox-list identity, not editable art.</summary>
-internal readonly record struct DraygonCollisionComponent(
-    Offset16<RoomPixels> Offset, DraygonHitboxList HitboxPointer);
-
-/// <summary>One native Draygon rectangle with its touch and shot callbacks.</summary>
-internal readonly record struct DraygonCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
-
 /// <summary>
 /// Cartridge-owned collision for Draygon's BG2 and ordinary OAM frames. The
 /// visual streams referenced by these frames are independently replaceable;
@@ -85,7 +64,6 @@ internal static class DraygonCollisionDefinitions
             _ = OamComponentsAt(pointer);
             return new(false, default);
         }
-
 
         bool right = pointer >= FirstRightBodyFrame;
         int phase = (pointer - (right ? FirstRightBodyFrame : FirstLeftBodyFrame)) / 10;

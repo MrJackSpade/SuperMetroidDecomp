@@ -1,5 +1,4 @@
 using System.Collections;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -87,24 +86,4 @@ internal sealed class CeresLargeAsteroidParts(
     }
     /// <summary>Uses the same native part order for non-generic consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-}
-
-/// <summary>The two bank-$8C OAM records that draw the three large asteroids.</summary>
-internal enum CeresLargeAsteroidComposition : ushort
-{
-    /// <summary>8C:909D,station-under-attack large asteroids at OBJ priority 3,also exposed by the legacy discovery catalog.</summary>
-    UnderAttack = 0x909d,
-    /// <summary>8C:94F7,same three large asteroids at OBJ priority0.</summary>
-    Approach = 0x94f7,
-}
-
-/// <summary>Atlas patches shared by the two large-asteroid compositions.</summary>
-internal static class CeresLargeAsteroidAtlas
-{
-    /// <summary>Tile$160,upper-left of the left asteroid atlas patch.</summary>
-    internal const int Left = 0x160;
-    /// <summary>Tile$169,upper-left of the right asteroid atlas patch.</summary>
-    internal const int Right = 0x169;
-    /// <summary>Tile$165,upper-left of the lower asteroid atlas patch.</summary>
-    internal const int Lower = 0x165;
 }

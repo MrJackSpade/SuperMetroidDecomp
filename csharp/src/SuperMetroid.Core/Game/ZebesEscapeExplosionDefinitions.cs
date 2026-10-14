@@ -1,10 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One random Zebes-escape explosion sprite and its optional sound.</summary>
-internal readonly record struct ZebesEscapeExplosionDefinition(
-    RoomSpriteObjectKind SpriteKind,
-    byte SoundEffect);
-
 /// <summary>Semantic weighted choices from the bank-$8F escape explosion selector.</summary>
 internal static class ZebesEscapeExplosionDefinitions
 {

@@ -1,11 +1,8 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
 
 /// <summary>Checks D3D11 output against production rendering during the retail Morph Ball eye-beam sequence.</summary>
 internal static class RetailEyeCaptureTests
@@ -37,13 +34,4 @@ internal static class RetailEyeCaptureTests
         if (!firstBeam || !fullBeam) throw new InvalidOperationException("Eye fixture missed first visible beam or full-width beam.");
         Console.WriteLine($"{device.Kind}: 96 retail eye activation/widening/full-beam frames match exactly, including first visible publication.");
     }
-}
-
-/// <summary>Camera origin placing the retail Morph Ball eye in the capture view.</summary>
-internal static class EyeCaptureFixture
-{
-    /// <summary>World camera X used by the production Morph Ball eye apex regression.</summary>
-    internal const ushort CameraX = 0x0380;
-    /// <summary>World camera Y used by the production Morph Ball eye apex regression.</summary>
-    internal const ushort CameraY = 0x01c0;
 }

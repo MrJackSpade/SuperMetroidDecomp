@@ -1,28 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The Tourian Shitroid's programs, in bank $A9 order.</summary>
-public enum ShitroidProgram
-{
-    /// <summary><c>InstList_BabyMetroid_FinishDraining</c> (<c>$A9:F906</c>): a long wide-open hold, then calm.</summary>
-    FinishDraining,
-    /// <summary><c>InstList_BabyMetroid_Normal</c> (<c>$A9:F90E</c>): the calm pulse.</summary>
-    Normal,
-    /// <summary><c>InstList_BabyMetroid_LatchedOn</c> (<c>$A9:F924</c>): the quick draining pulse.</summary>
-    LatchedOn,
-    /// <summary><c>InstList_BabyMetroid_Remorse</c> (<c>$A9:F93A</c>): the hesitant pulse before leaving.</summary>
-    Remorse,
-}
-
-/// <summary>Gameplay cues of the Shitroid's programs.</summary>
-internal enum ShitroidCue
-{
-    /// <summary>
-    /// <c>$A9:F994</c> samples the random word: with bit 15 clear the remorse pulse starts over; with it set the
-    /// Shitroid cries and runs its quickening and slowing pulse.
-    /// </summary>
-    MaybeRemorseCry,
-}
-
 /// <summary>The Shitroid's typed programs (#641), in place of its bank-$A9 instruction lists.</summary>
 internal static class ShitroidAnimations
 {

@@ -1,5 +1,4 @@
 using System.Collections;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -39,13 +38,4 @@ internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpr
     public IEnumerator<CompiledSpritePart> GetEnumerator() { yield return this[0]; }
     /// <summary>Shares the one-part sequence with non-generic OAM consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-}
-
-/// <summary>Tile origins of the native shell-fragment patch and slime row in the intro egg effects sheet.</summary>
-internal static class IntroEggEffectAtlas
-{
-    /// <summary>Tile$105, upper-left of the two-column shell-fragment patch.</summary>
-    internal const int FragmentStart = 0x105;
-    /// <summary>Tile$10D, moving slime and origin of the impact row/column traversal.</summary>
-    internal const int SlimeStart = 0x10d;
 }

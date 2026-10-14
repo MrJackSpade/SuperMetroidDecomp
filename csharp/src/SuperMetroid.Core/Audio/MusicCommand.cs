@@ -1,21 +1,5 @@
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>Semantic class of a bank-$80 music-queue word.</summary>
-public enum MusicCommandKind : byte
-{
-    /// <summary>The zero command writes zero to APU port zero and stops playback.</summary>
-    Stop,
-
-    /// <summary>A canonical <c>$FFxx</c> command uploads music data set <c>xx</c>.</summary>
-    LoadData,
-
-    /// <summary>A canonical <c>$00xx</c> command selects track <c>xx</c>.</summary>
-    SelectTrack,
-
-    /// <summary>A noncanonical word retained losslessly for native dispatcher behavior.</summary>
-    Unknown,
-}
-
 /// <summary>
 /// Lossless bank-$80 music queue command. Canonical stop, data-load, and track-selection
 /// words have named factories; arbitrary cartridge words remain representable.
@@ -82,31 +66,4 @@ public readonly record struct MusicCommand
 
     /// <inheritdoc />
     public override string ToString() => $"{Kind}:${RawValue:X4}";
-}
-
-/// <summary>
-/// Effective countdown stored beside a music command after <c>QueueMusic_DelayedY</c>'s
-/// minimum-eight-frame clamp.
-/// </summary>
-public readonly record struct MusicCommandDelay
-{
-    /// <summary>Stores the effective countdown after native minimum-delay handling.</summary>
-    internal MusicCommandDelay(ushort frames) => Frames = frames;
-
-    /// <summary>Effective native countdown frames.</summary>
-    public ushort Frames { get; }
-
-    /// <summary>The fixed delay installed by <c>QueueMusic_Delayed8</c>.</summary>
-    public static MusicCommandDelay EightFrames { get; } =
-        new(AudioRomData.Queues.MinimumMusicDelayFrames);
-
-    /// <summary>
-    /// Converts a <c>QueueMusic_DelayedY</c> argument to the effective native countdown,
-    /// clamping values below eight exactly as bank $80 does.
-    /// </summary>
-    public static MusicCommandDelay FromDelayedYArgument(ushort requestedFrames) =>
-        new(Math.Max(requestedFrames, AudioRomData.Queues.MinimumMusicDelayFrames));
-
-    /// <inheritdoc />
-    public override string ToString() => $"{Frames} frames";
 }

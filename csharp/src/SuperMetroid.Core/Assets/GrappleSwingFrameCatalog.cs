@@ -59,27 +59,3 @@ public sealed class GrappleSwingFrameCatalog
         return bytes;
     }
 }
-
-/// <summary>Editable JSON schema for displayed Grapple swing orientations; physical body offsets, facing selection, and animation timing remain engine-owned.</summary>
-public sealed record GrappleSwingFrameDocument
-{
-    /// <summary>Schema revision, which must equal <see cref="GrappleSwingFrameDefinitions.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Exactly 256 orientation-frame indices in 0..31, indexed by the high byte of the mirrored native swing angle, corresponding to visual selections at <c>$9B:C1C2-C2C1</c>.</summary>
-    public required int[] Frames { get; init; }
-}
-
-/// <summary>Native displayed-frame identities, independent of the physical offset table.</summary>
-public static class GrappleSwingFrameDefinitions
-{
-    /// <summary>Asset filename for the editable angle-to-displayed-orientation mapping.</summary>
-    public const string FileName = "grapple-swing-frames.json";
-    /// <summary>Supported revision of the 256-entry displayed-frame JSON schema.</summary>
-    public const int Version = 1;
-    /// <summary>$9B:C1C2..C2C1: one displayed animation frame for each high angle byte.</summary>
-    public const int AngleCount = 256;
-    /// <summary>$9B:BD95: Grapple swing art has 32 orientation frames per facing.</summary>
-    public const int FrameCount = 32;
-    /// <summary>$9B:C1C2 angle selector rounds to the nearest eight-angle frame, wrapping at 32.</summary>
-    public static byte FrameForAngle(byte angle) => (byte)(((angle + 4) >> 3) & (FrameCount - 1));
-}

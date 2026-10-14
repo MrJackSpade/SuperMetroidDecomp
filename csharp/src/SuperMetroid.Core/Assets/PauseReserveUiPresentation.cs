@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -284,65 +283,4 @@ public sealed class PauseReserveUiPresentation
         /// <summary>Two RGB5 bevel colors for each of the 32 mirrored pulse phases.</summary>
         public required (Bgr555, Bgr555)[] ArrowFrames { get; init; }
     }
-}
-
-/// <summary>Complete editable reserve UI schema; nested arrays and dictionaries are mutable authoring data copied into compiled presentation values.</summary>
-public sealed record PauseReserveUiDocument
-{
-    /// <summary>Schema revision; loading requires <see cref="PauseReserveUiDefinitions.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Exactly four case-sensitive entries named Mode, ReserveTank, Manual, and Auto, defining placement and ordered character words.</summary>
-    public required Dictionary<string, PauseReserveLabelVisual> Labels { get; init; }
-    /// <summary>Decimal digit atlas references and starting location of the three-place reserve-energy display.</summary>
-    public required PauseReserveDigitVisual Digits { get; init; }
-    /// <summary>Arrow cells, enabled/disabled palettes, solid bevel colors, and the 32-phase pulse.</summary>
-    public required PauseReserveArrowVisual Arrow { get; init; }
-}
-/// <summary>One reserve label's equipment-page anchor and consecutive native BG tile references.</summary>
-public sealed record PauseReserveLabelVisual
-{
-    /// <summary>First destination tile cell in the 32-by-32 equipment page; subsequent words continue in native linear tilemap order.</summary>
-    public required PauseGridPoint Anchor { get; init; }
-    /// <summary>Ordered glyph/attribute definitions: seven for Mode or ReserveTank, four for Manual or Auto.</summary>
-    public required PauseBackdropCell[] Cells { get; init; }
-}
-/// <summary>Editable decimal glyphs and placement for the reserve-supply display, independent of its numeric value.</summary>
-public sealed record PauseReserveDigitVisual
-{
-    /// <summary>Destination of the leftmost supply digit; the next two places occupy consecutive native words.</summary>
-    public required PauseGridPoint Anchor { get; init; }
-    /// <summary>Exactly ten BG glyph/attribute definitions in decimal-value order, zero through nine; not ten destination digit places.</summary>
-    public required PauseBackdropCell[] Cells { get; init; }
-}
-/// <summary>Editable arrow placement and palette behavior corresponding to native reserve-arrow owner <c>$82:AD0A</c>.</summary>
-public sealed record PauseReserveArrowVisual
-{
-    /// <summary>Exactly ten distinct equipment-page cell locations; stock layout is an eight-cell vertical stem followed by a two-cell horizontal arm.</summary>
-    public required PauseGridPoint[] Cells { get; init; }
-    /// <summary>BG palette selector 0-7 applied when the pause owner enables the arrow; stock uses six.</summary>
-    public required int EnabledPalette { get; init; }
-    /// <summary>BG palette selector 0-7 applied when the pause owner disables the arrow; stock uses seven.</summary>
-    public required int DisabledPalette { get; init; }
-    /// <summary>RGB5 bevel color for arrow slot six when pulse animation is disabled.</summary>
-    public required PaletteRgb5 SolidColor6 { get; init; }
-    /// <summary>RGB5 bevel color for arrow slot eleven when pulse animation is disabled.</summary>
-    public required PaletteRgb5 SolidColor11 { get; init; }
-    /// <summary>Exactly 32 ordered pulse frames, selected by the low five bits of the accepted NMI counter; native colors originate at $82:AD5D/$AD9D.</summary>
-    public required PauseReserveArrowFrame[] Frames { get; init; }
-}
-/// <summary>One pulse phase's two arrow bevel colors, each with red, green, and blue components from zero through 31.</summary>
-public sealed record PauseReserveArrowFrame
-{
-    /// <summary>RGB5 color written to arrow palette slot six for this phase.</summary>
-    public required PaletteRgb5 Color6 { get; init; }
-    /// <summary>RGB5 color written to arrow palette slot eleven for this phase.</summary>
-    public required PaletteRgb5 Color11 { get; init; }
-}
-/// <summary>Zero-based destination tile-cell coordinates on a 32-by-32 pause equipment page, distinct from character-atlas coordinates.</summary>
-public sealed record PauseGridPoint
-{
-    /// <summary>Destination column in tile cells, zero through 31.</summary>
-    public required int Column { get; init; }
-    /// <summary>Destination row in tile cells, zero through 31; the native word offset is <c>Row * 32 + Column</c>.</summary>
-    public required int Row { get; init; }
 }

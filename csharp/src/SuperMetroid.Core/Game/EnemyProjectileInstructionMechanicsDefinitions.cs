@@ -1,24 +1,6 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// One bank-$86 timed program whose frame durations and control flow affect simulation;
-/// <paramref name="Duration"/> gives each frame's hold.
-/// Spritemap operands remain outside this definition and select installed presentation content.
-/// </summary>
-internal readonly record struct EnemyProjectileTimedProgramDefinition(
-    ushort InitialPointer,
-    int FrameCount,
-    ushort? PrefixInstruction,
-    ushort TerminalInstruction,
-    ushort? TerminalOperand,
-    Func<int, ushort> Duration);
-
-/// <summary>One presentation-only spritemap operand in a compiled bank-$86 program.</summary>
-internal readonly record struct EnemyProjectilePresentationFrameDefinition(
-    ushort OperandAddress,
-    string Name);
-
-/// <summary>
 /// Compiled mechanics words for the translated Mother Brain and shared misc-dust enemy
 /// projectile programs in bank $86.
 /// </summary>
@@ -163,7 +145,6 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
     /// through the same pose for three ticks at $86:E2E8 before adding a second tile.
     /// </summary>
     private const ushort ShortBeamTerminalFrames = 5;
-
 
     /// <summary>$86:C829: RainbowCharge selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
     private const ushort RainbowChargeFrames = 5;

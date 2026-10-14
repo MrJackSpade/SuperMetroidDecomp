@@ -1,18 +1,7 @@
-using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
-
-/// <summary>The two mutually exclusive full-body palettes in Samus's hurt handler.</summary>
-public enum SamusHurtColorVariant
-{
-    /// <summary>Bright flash from native <c>SamusPalettes_HurtFlash</c> at <c>$9B:A380</c>, selected on hurt-counter calls one, three, and five.</summary>
-    Hurt,
-    /// <summary>Gray-tinted restoration from native <c>SamusPalettes_Intro</c> at <c>$9B:A3A0</c>, selected on even hurt-counter calls below seven while a cinematic is active; ordinary gameplay restores the equipped suit instead.</summary>
-    Intro,
-}
 
 /// <summary>Editable RGB5 artwork for the hurt flash and cinematic restoration.</summary>
 public sealed class SamusHurtColorCatalog
@@ -130,30 +119,4 @@ public sealed class SamusHurtColorCatalog
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus hurt color property {name}."));
-}
-
-/// <summary>Editable JSON payload for the two complete Samus OBJ palettes; initialized array references and their RGB5 entries remain caller-owned and mutable.</summary>
-public sealed record SamusHurtColorDocument
-{
-    /// <summary>Schema version required to match <see cref="SamusHurtColorFormat.Version"/> when loading or writing.</summary>
-    public required int Version { get; init; }
-    /// <summary>Sixteen RGB5 colors in native hurt-flash pen order, including transparent slot zero; replaces Samus OBJ palette four on odd flash calls.</summary>
-    public required PaletteRgb5[] Hurt { get; init; }
-    /// <summary>Sixteen RGB5 colors in native intro pen order, including transparent slot zero; supplies cinematic restoration rather than the equipment-dependent normal suit palette.</summary>
-    public required PaletteRgb5[] Intro { get; init; }
-}
-
-/// <summary>Installed JSON identity, schema dimensions, and extraction-only cartridge locations for Samus's hurt and cinematic full-body colors.</summary>
-public static class SamusHurtColorFormat
-{
-    /// <summary>Installed resource filename loaded by the area-map presentation catalog for hurt-flash and cinematic restoration artwork.</summary>
-    public const string FileName = "samus-hurt-colors.json";
-    /// <summary>Supported schema version, requiring both complete sixteen-color RGB5 arrays.</summary>
-    public const int Version = 1;
-    /// <summary>Number of colors in one SNES OBJ palette: sixteen, including the transparent first slot.</summary>
-    public const int ColorsPerPalette = SamusPaletteRomData.Common.ColorsPerObjPalette;
-    /// <summary>Extraction address <c>$9B:A380</c>, native <c>SamusPalettes_HurtFlash</c>: sixteen little-endian SNES color words copied on odd hurt-counter calls below seven.</summary>
-    public const int HurtSourceAddress = SamusPaletteRomData.HurtFlash.Colors;
-    /// <summary>Extraction address <c>$9B:A3A0</c>, native <c>SamusPalettes_Intro</c>: sixteen little-endian SNES color words used for cinematic restoration, distinct from normal suit artwork.</summary>
-    public const int IntroSourceAddress = SamusPaletteRomData.HurtFlash.IntroColors;
 }

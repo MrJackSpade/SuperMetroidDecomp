@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
@@ -441,23 +439,3 @@ public sealed class SamusCrystalFlashState
         samus.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.FromRaw(CommonPaletteTimer);
     }
 }
-
-/// <summary>Named substitutes for Crystal Flash's three bank-$90 handler addresses.</summary>
-public enum CrystalFlashPhase
-{
-    /// <summary>No Crystal Flash movement handler is installed; its palette handler may still await the separate restoration pass.</summary>
-    Inactive,
-    /// <summary>$90:D678, SamusMovementHandler_CrystalFlash_RaiseSamus_GenerateBubble: raises the whole Y word two pixels for ten calls, then captures the raised center and requests bubble HDMA.</summary>
-    Raising,
-    /// <summary>$90:D6CE, SamusMovementHandler_CrystalFlash_DecrementAmmo: consumes missiles, supers, then power bombs, restoring 50 energy per decrement on every eighth accepted NMI.</summary>
-    DrainingAmmo,
-    /// <summary>$90:D75B, SamusMovementHandler_CrystalFlash_Finish: increments Y one pixel whenever it differs from the retained raised word and waits for standing movement type before releasing input locks and requesting palette restoration.</summary>
-    Finishing,
-}
-
-/// <summary>One-frame debugger witness from the translated Crystal Flash handler.</summary>
-/// <param name="PhaseAtStart">Handler selected at call entry, before any transition made by that call.</param>
-/// <param name="BubbleHdmaRequested">Retained request flag, not a consumed one-shot event; pair with the raising entry phase to identify bubble activation.</param>
-public readonly record struct CrystalFlashMovementResult(
-    CrystalFlashPhase PhaseAtStart,
-    bool BubbleHdmaRequested);

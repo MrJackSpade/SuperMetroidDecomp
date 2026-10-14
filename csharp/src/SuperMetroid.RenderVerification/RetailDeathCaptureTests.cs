@@ -1,12 +1,8 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Spatial;
 
 /// <summary>Compares captured death and reserve-recovery frames with the legacy raster and audio path.</summary>
 internal static class RetailDeathCaptureTests
@@ -90,13 +86,4 @@ internal static class RetailDeathCaptureTests
             throw new InvalidOperationException("Death fixture missed blackout, explosion or game-over handoff.");
         Console.WriteLine($"{device.Kind}: {frames + 1} exact death frames with matching PCM, blackout/explosion/fade and game-over handoff.");
     }
-}
-
-/// <summary>Reserve capacity and mode used to exercise the native automatic recovery path.</summary>
-internal static class ReserveCaptureFixtureDefinitions
-{
-    /// <summary>One acquired reserve tank supplies 100 energy units for the focused recovery fixture.</summary>
-    internal const ushort Capacity = 100;
-    /// <summary>WRAM reserve mode one selects the native automatic-recovery path.</summary>
-    internal const ushort AutomaticMode = 1;
 }

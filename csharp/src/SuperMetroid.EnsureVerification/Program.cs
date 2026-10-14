@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using SuperMetroid.Core;
 using static SuperMetroid.EnsureVerification.AnalyzerTests;
 using static SuperMetroid.EnsureVerification.MemberDocumentationAnalyzerTests;
@@ -11,6 +10,7 @@ using static SuperMetroid.EnsureVerification.ParameterContractsTests;
 using static SuperMetroid.EnsureVerification.ParameterListAnalyzerTests;
 using static SuperMetroid.EnsureVerification.NullForgivingAnalyzerTests;
 using static SuperMetroid.EnsureVerification.AdapterChainAnalyzerTests;
+using static SuperMetroid.EnsureVerification.OneTypePerFileAnalyzerTests;
 using static SuperMetroid.EnsureVerification.PartialTypeAnalyzerTests;
 using static SuperMetroid.EnsureVerification.WordReadAnalyzerTests;
 
@@ -52,6 +52,7 @@ internal static class Program
             VerifyPartialTypeAnalyzer();
             VerifyNullForgivingAnalyzer();
             VerifyAdapterChainAnalyzer();
+            VerifyOneTypePerFileAnalyzer();
             VerifyOwnedReflectionAnalyzer();
             VerifyParameterContracts();
             VerifyCartridgeEncodingAnalyzer();
@@ -120,12 +121,4 @@ internal static class Program
         }
         throw new InvalidOperationException($"Expected {typeof(T).Name} for {parameterName}.");
     }
-}
-
-/// <summary>Windows process-error policy used before verifier work can fail.</summary>
-internal static partial class NativeConsoleProcess
-{
-    /// <summary>Suppresses Windows process error dialogs so failures reach the console boundary.</summary>
-    [LibraryImport("kernel32.dll")]
-    internal static partial uint SetErrorMode(uint errorMode);
 }

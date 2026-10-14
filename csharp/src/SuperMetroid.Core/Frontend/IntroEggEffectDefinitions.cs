@@ -67,8 +67,3 @@ internal static class IntroEggEffectDefinitions
     public static IntroEggEffectActorDefinition SlimeDrop =>
         new(0xaab3, 0xcd69);
 }
-
-/// <summary>One native six-byte shell/slime cinematic-object definition.</summary>
-internal readonly record struct IntroEggEffectActorDefinition(
-    ushort PreInstruction,
-    ushort InstructionList);

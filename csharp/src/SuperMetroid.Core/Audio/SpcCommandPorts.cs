@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
@@ -62,7 +60,6 @@ public sealed class SpcCommandPorts
             throw new ArgumentOutOfRangeException(nameof(port), port, "SPC sound-effect port must be one through three.");
         return soundEffectOutputPorts[library];
     }
-
 
     /// <summary>
     /// The port half of an upload. The music input latch reads empty; <c>$1E8B</c> leaves
@@ -142,23 +139,3 @@ public sealed class SpcCommandPorts
         return new SpcSoundEffectPoll(command, Changed: command != previous);
     }
 }
-
-/// <summary>One sound-effect library's command as a driver poll acted on it.</summary>
-/// <param name="Command">The value latched at the previous poll, now echoed to the CPU.</param>
-/// <param name="Changed">Whether it differs from the value acted on at the previous poll; the driver starts a sound only for a changed nonzero command.</param>
-public readonly record struct SpcSoundEffectPoll(byte Command, bool Changed);
-
-/// <summary>One driver timer tick within a frame, with the sound-effect polls it ran.</summary>
-/// <param name="DspCycleOffset">DSP cycles from the frame start at which the tick runs.</param>
-/// <param name="Ticks">Elapsed timer periods the tick accounts for.</param>
-/// <param name="SoundEffectsPolled">Whether the sound-effect timer carried and polled all three libraries.</param>
-/// <param name="Library1">Library 1's poll when <paramref name="SoundEffectsPolled"/> is set.</param>
-/// <param name="Library2">Library 2's poll when <paramref name="SoundEffectsPolled"/> is set.</param>
-/// <param name="Library3">Library 3's poll when <paramref name="SoundEffectsPolled"/> is set.</param>
-public readonly record struct SpcDriverTick(
-    int DspCycleOffset,
-    byte Ticks,
-    bool SoundEffectsPolled,
-    SpcSoundEffectPoll Library1,
-    SpcSoundEffectPoll Library2,
-    SpcSoundEffectPoll Library3);

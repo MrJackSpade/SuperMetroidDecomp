@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -149,6 +148,3 @@ public sealed class SamusCeresRidleyEjectionState
         return new CeresRidleyEjectionResult();
     }
 }
-
-/// <summary>Debugger-visible work performed by one Ceres ejection handler call.</summary>
-public readonly record struct CeresRidleyEjectionResult();

@@ -1,44 +1,4 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Game;
-
-/// <summary>Crocomire's tongue programs.</summary>
-public enum CrocomireTongueProgram
-{
-    /// <summary><c>InstList_CrocomireTongue_Fight</c> ($A4:BE56): four five-update frames, looping.</summary>
-    Fight,
-    /// <summary><c>InstList_Crocomire_Sleep</c> ($A4:BF62): a bare sleep for the hidden tongue after the bridge collapses.</summary>
-    Sleep,
-    /// <summary><c>InstList_CrocomireTongue_Melting</c> ($A4:BF98): five five-update frames, looping.</summary>
-    Melting,
-}
-
-/// <summary>What a Crocomire projectile program shows.</summary>
-public enum CrocomireProjectileFrameKind
-{
-    /// <summary>The mouth projectile in flight.</summary>
-    Mouth,
-    /// <summary>A crumbling bridge fragment.</summary>
-    BridgeFragment,
-    /// <summary>A spike-wall piece.</summary>
-    SpikeWallPiece,
-    /// <summary>The mouth projectile's explosion after a Samus shot.</summary>
-    Shot,
-}
-
-/// <summary>One Crocomire projectile frame.</summary>
-/// <param name="Kind">The program the frame belongs to.</param>
-/// <param name="Phase">The frame's position in that program.</param>
-public readonly record struct CrocomireProjectileFrame(CrocomireProjectileFrameKind Kind, int Phase);
-
-/// <summary>Gameplay cues of Crocomire's projectile programs.</summary>
-internal enum CrocomireProjectileCue
-{
-    /// <summary>Spawns an enemy drop with Crocomire's drop chances where the shot projectile exploded.</summary>
-    SpawnDrops,
-    /// <summary>Deletes the projectile, ending its animation.</summary>
-    Delete,
-}
 
 /// <summary>Crocomire's typed tongue and projectile animations (#641), in place of their native lists.</summary>
 internal static class CrocomireAnimations
@@ -112,28 +72,4 @@ internal static class CrocomireAnimations
         AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Publish(CrocomireProjectileCue.Delete),
         AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Hold,
     ]);
-}
-
-/// <summary>A Crocomire projectile's typed animation.</summary>
-internal sealed class CrocomireProjectileAnimation : EnemyProjectileTimelineAnimation<CrocomireProjectileFrame, CrocomireProjectileCue>
-{
-    /// <summary>Plays <paramref name="kind"/>'s program.</summary>
-    internal CrocomireProjectileAnimation(CrocomireProjectileFrameKind kind) => Kind = kind;
-
-    /// <summary>The program played.</summary>
-    internal CrocomireProjectileFrameKind Kind { get; }
-
-    /// <inheritdoc/>
-    private protected override AnimationTimeline<CrocomireProjectileFrame, CrocomireProjectileCue> Timeline => Kind switch
-    {
-        CrocomireProjectileFrameKind.Mouth => CrocomireAnimations.Mouth,
-        CrocomireProjectileFrameKind.BridgeFragment => CrocomireAnimations.BridgeFragment,
-        CrocomireProjectileFrameKind.SpikeWallPiece => CrocomireAnimations.SpikeWallPiece,
-        CrocomireProjectileFrameKind.Shot => CrocomireAnimations.Shot,
-        _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileFrameKind)} {Kind}."),
-    };
-
-    /// <inheritdoc/>
-    private protected override ushort PresentationKey(CrocomireProjectileFrame frame) =>
-        CrocomireProjectileVisualDefinitions.PresentationKey(frame);
 }

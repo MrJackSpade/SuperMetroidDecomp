@@ -1,5 +1,4 @@
 using System.Collections;
-using SuperMetroid.Core.Hardware;
 using Pose = SuperMetroid.Core.Assets.EndingRewardSpriteFrame;
 
 namespace SuperMetroid.Core.Assets;
@@ -89,15 +88,4 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
     }
     /// <summary>Exposes the same native part ordering to non-generic callers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-}
-
-/// <summary>Individually ordered edges outside the suitless body strip traversals.</summary>
-internal static class EndingRewardSuitlessAtlas
-{
-    /// <summary>Tile$53, small inner hip edge in the lower-body composition.</summary>
-    internal const int InnerHipEdge = 0x53;
-    /// <summary>Tile$19, small upper-right cap of the jump-preparation pose.</summary>
-    internal const int CrouchRightCap = 0x19;
-    /// <summary>Tile$86, small left leg edge of the jump-preparation pose.</summary>
-    internal const int CrouchLeftLegEdge = 0x86;
 }

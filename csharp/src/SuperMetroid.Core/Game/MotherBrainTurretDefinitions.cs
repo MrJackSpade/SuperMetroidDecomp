@@ -1,44 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The eight mutually exclusive directions used by Mother Brain's room turrets.</summary>
-internal enum MotherBrainTurretDirection : byte
-{
-    /// <summary>Horizontal leftward turret aim and bullet launch.</summary>
-    Left = 0,
-    /// <summary>Diagonal aim toward the lower left.</summary>
-    DownLeft = 1,
-    /// <summary>Vertical downward turret aim.</summary>
-    Down = 2,
-    /// <summary>Diagonal aim toward the lower right.</summary>
-    DownRight = 3,
-    /// <summary>Horizontal rightward turret aim and bullet launch.</summary>
-    Right = 4,
-    /// <summary>Diagonal aim toward the upper right.</summary>
-    UpRight = 5,
-    /// <summary>Vertical upward turret aim.</summary>
-    Up = 6,
-    /// <summary>Diagonal aim toward the upper left.</summary>
-    UpLeft = 7,
-}
-
-/// <summary>Fixed placement and rotation policy for one of the twelve room turrets.</summary>
-/// <param name="Position">The turret's fixed room-pixel position.</param>
-/// <param name="AllowedRotationPointer">The bank-$86 allowed-direction row.</param>
-/// <param name="InitialDirection">The direction the turret starts in.</param>
-/// <param name="AllowedDirectionMask">The directions the turret may rotate to, one bit each.</param>
-internal readonly record struct MotherBrainTurretDefinition(
-    Position16<RoomPixels> Position,
-    ushort AllowedRotationPointer,
-    MotherBrainTurretDirection InitialDirection,
-    byte AllowedDirectionMask);
-
-/// <summary>Physical bullet launch for one turret direction.</summary>
-/// <param name="BulletOffset">The bullet's spawn offset from the turret, in room pixels.</param>
-/// <param name="BulletVelocity">The bullet's signed 8.8 launch velocity.</param>
-internal readonly record struct MotherBrainTurretDirectionDefinition(
-    Offset16<RoomPixels> BulletOffset,
-    EightEightVector<RoomPixels> BulletVelocity);
-
 /// <summary>Compiled placement, rotation and bullet-physics definitions.</summary>
 internal static class MotherBrainTurretDefinitions
 {

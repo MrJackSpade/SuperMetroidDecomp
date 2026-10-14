@@ -2,39 +2,6 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Engine-owned component offset and bank-$A7 hitbox-list identity.</summary>
-internal readonly record struct PhantoonCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
-
-/// <summary>Engine-owned rectangle and touch/shot callbacks for Phantoon.</summary>
-internal readonly record struct PhantoonCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
-
-/// <summary>The Phantoon BG2 frames whose collision differs from the single inert point.</summary>
-internal enum PhantoonCollisionFrame : ushort
-{
-    /// <summary>Body with its complete five-rectangle hitbox, $A7:DEE7.</summary>
-    BodyFullHitbox = 0xdee7,
-    /// <summary>Body with only the vulnerable eye hitbox, $A7:DEF1.</summary>
-    BodyEyeHitboxOnly = 0xdef1,
-    /// <summary>First two-component tentacle frame, $A7:DFB3.</summary>
-    Tentacles0 = 0xdfb3,
-    /// <summary>Second two-component tentacle frame, $A7:DFC5.</summary>
-    Tentacles1 = 0xdfc5,
-    /// <summary>Third two-component tentacle frame, $A7:DFD7.</summary>
-    Tentacles2 = 0xdfd7,
-}
-
-/// <summary>Phantoon's three bank-$A7 hitbox lists.</summary>
-internal enum PhantoonHitboxList : ushort
-{
-    /// <summary>$A7:E020, the one-point no-op hitbox used by hidden parts.</summary>
-    Point = 0xe020,
-    /// <summary>$A7:E02E, Phantoon's five-rectangle full body.</summary>
-    FullBody = 0xe02e,
-    /// <summary>$A7:E06C, the single vulnerable eye rectangle.</summary>
-    EyeOnly = 0xe06c,
-}
-
 /// <summary>
 /// Phantoon's three hitbox lists at $A7:E020, $E02E, and $E06C, separate from
 /// its editable BG2 frames. The 22 frame roots at $A7:DEDD-$DFFD have zero

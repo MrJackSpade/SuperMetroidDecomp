@@ -1,17 +1,9 @@
 using System.Reflection;
-using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace SuperMetroid.Core.Hardware;
-
-/// <summary>One catalog cell found by reflection: its declaring catalog, member and descriptor.</summary>
-internal sealed record CpuBusCatalogEntry(Type Owner, string Member, CpuBusCell Cell)
-{
-    /// <summary>The <c>Owner.Member</c> reference callers write.</summary>
-    internal string Reference => $"{Owner.Name}.{Member}";
-}
 
 /// <summary>
 /// Enumerates every <see cref="CpuBusCell"/> declared by the production catalogs (#629), checks

@@ -6,23 +6,6 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// Names the ROM-derived pieces required to render one static room state. Keeping filenames
-/// here, rather than hiding them in the renderer, makes the eventual room-state table explicit.
-/// </summary>
-public sealed record RoomRenderDefinition(
-    string Name,
-    Extent16<RoomScreens> Size,
-    string LevelData,
-    string AreaTiles,
-    string AreaTileTable,
-    string Palette,
-    string CommonTiles = "CRE_Tiles_Compressed.bin",
-    string CommonTileTable = "CRE_TileTable_Compressed.bin");
-
-/// <summary>A fully composed, top-left-origin room image in row-major RGBA order.</summary>
-public sealed record RenderedRoom(Extent16<ImagePixels> Size, Rgba32[] Pixels);
-
-/// <summary>
 /// Import/reference-only renderer for named raw assets extracted from bank $82.
 /// PLMs, enemies, and runtime palette effects are intentionally separate layers.
 /// </summary>

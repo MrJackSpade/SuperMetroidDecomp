@@ -9,19 +9,6 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Desktop;
 
-/// <summary>Debugger context captured at a recoverable desktop-host error boundary.</summary>
-public sealed record GitHubErrorContext(
-    string Boundary,
-    ushort? FrameNumber = null,
-    string? GameState = null,
-    string? Phase = null,
-    ushort? ControllerInput = null,
-    ushort? RoomPointer = null,
-    ushort? RoomStatePointer = null,
-    ushort? DoorPointer = null,
-    string? InputRecordingPath = null,
-    string? FrameDiagnostics = null);
-
 /// <summary>
 /// Queues recoverable failures to one private GitHub repository without blocking emulation.
 /// </summary>
@@ -313,16 +300,4 @@ public sealed class GitHubErrorReporter : IDisposable
 
     /// <summary>A marker the worker completes once every earlier item has been processed.</summary>
     internal sealed record QueueFlush(TaskCompletionSource Completion) : QueuedWork;
-}
-
-/// <summary>Remote issue operations used to deduplicate and publish captured desktop failures.</summary>
-internal interface IGitHubIssueClient
-{
-    /// <summary>Adds another occurrence to the issue already owning this fingerprint.</summary>
-    Task CommentAsync(string repository, string issueUrl, string body);
-    /// <summary>Finds a published issue by its stable auto-error marker.</summary>
-    Task<string?> FindByFingerprintAsync(string repository, string fingerprint);
-
-    /// <summary>Creates a new issue for a previously unseen fingerprint.</summary>
-    Task<string> CreateAsync(string repository, string title, string body);
 }

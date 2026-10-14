@@ -113,6 +113,14 @@
       "reason": "Draws the ending scene state it belongs to; it never changes it."
     },
     {
+      "type": "SuperMetroid.Core.Frontend.EndingCreditsState",
+      "flags": [
+        "large"
+      ],
+      "disposition": "scene-state-machine",
+      "reason": "One frontend scene: the ending's ordered bank-$8B phases over one scene state; its presentation, phase and domain types are separate."
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.GameArtwork",
       "flags": [
         "context-bag"

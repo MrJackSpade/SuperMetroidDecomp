@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -164,30 +163,4 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable RGB5 schema for the initial title palette, ambient color frames and copyright replacements; nested arrays remain caller-mutable until compilation.</summary>
-public sealed record TitlePaletteDocument
-{
-    /// <summary>Schema revision; loading requires <see cref="TitlePaletteFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Exactly 256 nonnull colors in CGRAM index order, corresponding to Palettes_TitleScreen at $8C:E1E9; every channel is 0..31.</summary>
-    public required PaletteRgb5[] Colors { get; init; }
-    /// <summary>Eight ordered four-color RGB5 rows for $8D:C7FE's tube-light loop, targeting CGRAM 42..45; each row's ten-update duration remains compiled mechanics.</summary>
-    public required PaletteRgb5[][] BabyMetroidTubeLight { get; init; }
-    /// <summary>Two ordered two-color RGB5 rows for $8D:C866's display-flicker loop, targeting CGRAM 46..47; alternating one-update durations remain compiled mechanics.</summary>
-    public required PaletteRgb5[][] FlickeringDisplays { get; init; }
-    /// <summary>Nonnull RGB5 copyright highlight restored at CGRAM 201 on fast skip, independently editable from the initial palette's same slot.</summary>
-    public required PaletteRgb5 SkipCopyrightWhite { get; init; }
-    /// <summary>Nonnull RGB5 copyright tint restored at CGRAM 202 on fast skip, independently editable from the initial palette; Red is a legacy role name rather than a color constraint.</summary>
-    public required PaletteRgb5 SkipCopyrightRed { get; init; }
-}
-
-/// <summary>Installed file identity and schema revision for title palette paint and its selected ambient animation colors.</summary>
-public static class TitlePaletteFormat
-{
-    /// <summary>JSON filename loaded by the title presentation catalog for initial, ambient and skip-only colors.</summary>
-    public const string FileName = "title-palette.json";
-    /// <summary>Revision 3 of the schema, requiring all 256 initial colors, both ambient frame sets and both copyright replacements.</summary>
-    public const int Version = 3;
 }

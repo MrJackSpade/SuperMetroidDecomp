@@ -1,12 +1,8 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
 
 /// <summary>Compares GPU captures through Kraid's rise, growth, death, and defeated-room exits.</summary>
 internal static class RetailKraidCaptureTests
@@ -146,15 +142,4 @@ internal static class RetailKraidCaptureTests
         if (runtime.Enemies.ResolveKraidProjectileHits(bus, shots, InstalledFixtures.CreateBombSystem()) == 0)
             throw new InvalidOperationException("Kraid growth fixture failed to land its staged missile.");
     }
-}
-
-/// <summary>Retail door and staged missile identities used by the Kraid capture sequence.</summary>
-internal static class KraidCaptureDefinitions
-{
-    /// <summary>Retail incoming door $83:91B6 used by the existing Kraid rise audit.</summary>
-    internal const ushort IncomingDoor = 0x91b6;
-    /// <summary>Live missile type word used by the established Kraid collision audit.</summary>
-    internal const ushort AuditMissileType = 0x8100;
-    /// <summary>Nonzero instruction sentinel; this staged projectile only enters collision, not animation.</summary>
-    internal const ushort AuditLiveInstruction = 0x9000;
 }

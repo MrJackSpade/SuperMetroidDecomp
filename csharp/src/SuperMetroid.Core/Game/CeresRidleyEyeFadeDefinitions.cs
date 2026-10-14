@@ -35,6 +35,3 @@ internal static class CeresRidleyEyeFadeDefinitions
             $"{PaletteStepCount + 1}-entry schedule."),
     };
 }
-
-/// <summary>One Ceres Ridley eye-fade row selection or the terminal handoff.</summary>
-internal readonly record struct CeresRidleyEyeFadeStep(bool IsComplete, byte PaletteRow);

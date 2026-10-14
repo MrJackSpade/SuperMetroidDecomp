@@ -1,0 +1,21 @@
+using System.Runtime.CompilerServices;
+
+namespace SuperMetroid.Core.Hardware;
+
+/// <summary>Converts background pixel coordinates to the 8×8 characters that cover them (#223).</summary>
+[SnesEncodingOwner]
+public static class BgCharacterGrid
+{
+    /// <summary>The character (tile) column or row containing a non-negative pixel coordinate.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int CharacterOf(int pixel) => pixel / SnesPpuLayout.BackgroundTileSizePixels;
+
+    /// <summary>The pixel's position within its character, zero through seven.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int PixelWithinCharacter(int pixel) => pixel % SnesPpuLayout.BackgroundTileSizePixels;
+
+    /// <summary>The source row or column of a character pixel, mirrored when the entry flips that axis.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int SourcePixel(int pixel, bool flipped) =>
+        flipped ? SnesPpuLayout.BackgroundTileSizePixels - 1 - pixel : pixel;
+}

@@ -1,43 +1,5 @@
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>The ten bank-$8B reward gesture and jump cinematic-object definitions.</summary>
-internal enum EndingRewardActor : ushort
-{
-    /// <summary>$8B:EF33, suitless upper hair-release actor spawned by E342.</summary>
-    SuitlessUpper = 0xef33,
-    /// <summary>$8B:EF39, suitless lower hair-release actor spawned by E342.</summary>
-    SuitlessLower = 0xef39,
-    /// <summary>$8B:EF3F, suitless jumping actor spawned by F51D.</summary>
-    JumpSuitlessBody = 0xef3f,
-    /// <summary>$8B:EF57, suited gesture body.</summary>
-    SuitedBody = 0xef57,
-    /// <summary>$8B:EF5D, suited moving thumbs-up arm.</summary>
-    SuitedArm = 0xef5d,
-    /// <summary>$8B:EF63, helmeted gesture head.</summary>
-    HelmetedHead = 0xef63,
-    /// <summary>$8B:EF69, helmetless gesture head.</summary>
-    HelmetlessHead = 0xef69,
-    /// <summary>$8B:EF6F, suited jump body spawned by F554.</summary>
-    JumpSuitedBody = 0xef6f,
-    /// <summary>$8B:EF75, helmeted jump head spawned by F554.</summary>
-    JumpHelmetedHead = 0xef75,
-    /// <summary>$8B:EF7B, helmetless jump head spawned by F554.</summary>
-    JumpHelmetlessHead = 0xef7b,
-}
-
-/// <summary>The four bank-$8B reward actor initialization routines.</summary>
-internal enum EndingRewardInitialization : ushort
-{
-    /// <summary>$8B:F143 initializes suitless actors at (120,136), OBJ palette five.</summary>
-    Suitless = 0xf143,
-    /// <summary>$8B:F156 initializes suited body/arm at (120,152), OBJ palette six.</summary>
-    SuitedBody = 0xf156,
-    /// <summary>$8B:F169 initializes the helmeted head at (124,108), OBJ palette six.</summary>
-    HelmetedHead = 0xf169,
-    /// <summary>$8B:F17C initializes the helmetless head at (121,107), OBJ palette five.</summary>
-    HelmetlessHead = 0xf17c,
-}
-
 /// <summary>Bank-$8B reward gesture constructors and their jump handoffs.</summary>
 internal static class EndingRewardActorDefinitions
 {
@@ -74,9 +36,3 @@ internal static class EndingRewardActorDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardInitialization)} {(int)address:X4}."),
     };
 }
-
-/// <summary>One native six-byte ending reward cinematic-object definition.</summary>
-internal readonly record struct EndingRewardActorDefinition(
-    EndingRewardInitialization Initialization,
-    ushort PreInstruction,
-    ushort InstructionList);

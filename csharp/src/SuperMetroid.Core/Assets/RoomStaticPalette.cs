@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Assets;
@@ -76,29 +75,4 @@ public sealed class RoomStaticPalette
         WriteIndented = true,
         UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow,
     };
-}
-
-/// <summary>Editable JSON representation of one room graphics-set palette source.</summary>
-public sealed record RoomStaticPaletteDocument
-{
-    /// <summary>Gets the room-palette schema version.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Gets the exactly 128 RGB5 colors in native CGRAM order.</summary>
-    public required PaletteRgb5[] Colors { get; init; }
-}
-
-/// <summary>One editable RGB5 palette file per distinct graphics-set color source.</summary>
-public static class RoomStaticPaletteFormat
-{
-    /// <summary>The supported room-palette JSON schema version.</summary>
-    public const int Version = 1;
-
-    /// <summary>The number of RGB5 colors in one room graphics-set palette source.</summary>
-    public const int ColorCount = RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount / Bgr555.ByteCount;
-
-    /// <summary>Builds the editable file name for a palette's 24-bit native source address.</summary>
-    /// <param name="sourceAddress">The palette's 24-bit native source address.</param>
-    /// <returns>A file name in the form <c>room-palette-XXXXXX.json</c>.</returns>
-    public static string SourceFileName(int sourceAddress) => $"room-palette-{sourceAddress:X6}.json";
 }

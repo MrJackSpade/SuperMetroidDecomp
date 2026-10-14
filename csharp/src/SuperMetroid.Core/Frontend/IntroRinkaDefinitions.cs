@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Fixed cinematic-object and physical launch definitions for the intro Rinkas.</summary>
@@ -95,13 +93,3 @@ internal static class IntroRinkaDefinitions
     /// <summary><c>$8B:B8E4/$B947</c>, shared half-pixel X/Y fractional velocity.</summary>
     public const ushort HalfPixelFraction = 0x8000;
 }
-
-/// <summary>One native six-byte intro-Rinka cinematic-object definition.</summary>
-internal readonly record struct IntroRinkaActorDefinition(
-    ushort PreInstruction,
-    ushort InstructionList);
-
-/// <summary>One intro Rinka's final origin and signed whole-pixel X velocity component.</summary>
-internal readonly record struct IntroRinkaPhysicalDefinition(
-    Position16<ScreenPixels> Position,
-    short XWholeVelocity);

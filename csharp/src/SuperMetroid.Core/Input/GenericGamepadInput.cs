@@ -1,43 +1,4 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Input;
-
-/// <summary>
-/// Platform-neutral snapshot of the controls exposed by a conventional USB gamepad.
-/// </summary>
-/// <remarks>
-/// Windows reports joystick axes in device-specific unsigned ranges and POV hats in
-/// hundredths of a degree. The desktop adapter normalizes those axes to signed 16-bit
-/// values before constructing this record. Keeping the mapping itself in Core makes the
-/// exact host-to-SNES bit conversion deterministic and independently testable without a
-/// physical controller or a dependency on Windows native APIs.
-/// </remarks>
-/// <param name="Stick">Normalized analog-stick deflection on both axes.</param>
-/// <param name="PointOfView">POV hat angle in hundredths of a degree clockwise from north, or <see cref="GenericGamepadInput.CenteredPointOfView"/>.</param>
-/// <param name="Buttons">Host button bits, button one in bit zero.</param>
-public readonly record struct GenericGamepadSnapshot(
-    Offset16<GamepadStick> Stick,
-    uint PointOfView,
-    uint Buttons);
-
-/// <summary>
-/// Identifies how a host driver numbers the four physical face buttons before they are
-/// converted to the SNES controller word.
-/// </summary>
-/// <remarks>
-/// This is deliberately a host-input concern, not an in-game control binding. Super
-/// Metroid still receives literal SNES X/A/B/Y bits and applies its configurable action
-/// bindings afterward. Some generic SNES USB adapters enumerate buttons by their printed
-/// labels instead of by the conventional DirectInput diamond positions.
-/// </remarks>
-public enum GenericGamepadFaceButtonLayout
-{
-    /// <summary>WinMM buttons 1-4 are south, east, west, north: SNES B, A, Y, X.</summary>
-    Positional,
-
-    /// <summary>WinMM buttons 1-4 are printed X, A, B, Y on VID 0079 / PID 0011 pads.</summary>
-    SnesUsbAdapter0079_0011,
-}
 
 /// <summary>Converts a conventional physical gamepad layout into one SNES controller word.</summary>
 public static class GenericGamepadInput

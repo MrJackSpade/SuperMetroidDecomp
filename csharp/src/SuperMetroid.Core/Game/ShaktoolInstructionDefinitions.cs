@@ -1,9 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Collision-recovery and dormant-attack programs for one Shaktool segment.</summary>
-internal readonly record struct ShaktoolSegmentInstructionDefinition(
-    ushort CollisionInstruction);
-
 /// <summary>Compiled fixed instruction selectors used by Shaktool's mechanics state machine.</summary>
 internal static class ShaktoolInstructionDefinitions
 {

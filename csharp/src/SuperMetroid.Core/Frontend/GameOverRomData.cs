@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Verified cartridge streams, opcodes, and layout for the game-over menu.</summary>
@@ -133,39 +130,4 @@ public static class GameOverRomData
 
     /// <summary>Blank tile used before the text command streams populate BG1.</summary>
     public static readonly SnesBgTilemapWord BlankTile = new(0x000f);
-}
-
-/// <summary>Mutually exclusive game-over text elements in native initialization order.</summary>
-public enum GameOverTextElement
-{
-    /// <summary>$81:9206 loads GAME OVER from $81:92DC to BG1 byte $0156.</summary>
-    Title,
-    /// <summary>$81:920F loads FIND THE METROID LARVA from $81:9304 to BG1 byte $038A.</summary>
-    Objective,
-    /// <summary>$81:9218 loads TRY AGAIN from $81:9334 to BG1 byte $0414.</summary>
-    Prompt,
-    /// <summary>$81:9221 loads YES - RETURN TO GAME from $81:934C to BG1 byte $04CE.</summary>
-    ReturnToGame,
-    /// <summary>$81:922A loads NO - GO TO TITLE from $81:93A0 to BG1 byte $05CE.</summary>
-    ReturnToTitle,
-}
-
-/// <summary>One bank-$81 text command stream and its BG1 byte destination.</summary>
-/// <param name="DestinationByteOffset">BG1-page-relative byte offset of the initial tile; row and column are encoded as 64 times Y plus twice X.</param>
-/// <param name="SourcePointer">Sixteen-bit bank-$81 source pointer to tile words and the $FFFE/$FFFF text commands.</param>
-/// <param name="Description">Human-readable text-element identity for extraction diagnostics, not the encoded tile-word payload.</param>
-public readonly record struct GameOverTextStream(
-    int DestinationByteOffset,
-    ushort SourcePointer,
-    string Description);
-
-/// <summary>The three bank-$82 cry instructions in the game-over Baby animation stream.</summary>
-public enum GameOverBabyCryInstruction : ushort
-{
-    /// <summary><c>$82:BC0C Instruction_Queue_BabyMetroid_Cry1_SoundEffect</c>: queues library-three sound $23, then advances past the two-byte opcode.</summary>
-    Cry23 = 0xbc0c,
-    /// <summary><c>$82:BC15 Instruction_Queue_BabyMetroid_Cry2_SoundEffect</c>: queues library-three sound $26, then advances past the two-byte opcode.</summary>
-    Cry26 = 0xbc15,
-    /// <summary><c>$82:BC1E Instruction_Queue_BabyMetroid_Cry3_SoundEffect</c>: queues library-three sound $27, then advances past the two-byte opcode.</summary>
-    Cry27 = 0xbc1e,
 }

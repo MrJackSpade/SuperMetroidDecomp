@@ -1,6 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -88,40 +86,4 @@ public sealed class IntroFinalLineTilemap
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable subtitle-staging tile references for BG3 rows 24-27; glyph pixels, translated narration, and reveal timing are separate resources or runtime state.</summary>
-public sealed record IntroFinalLineTilemapDocument
-{
-    /// <summary>Schema revision, which loading requires to equal <see cref="IntroFinalLineTilemapFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Exactly 128 non-null cells in four rows of 32, including margins; character-sheet columns/rows are 0..31 and BG palette selectors are 0..7.</summary>
-    public required RoomBackgroundTilemapCell[] Cells { get; init; }
-}
-
-/// <summary>File identity and dimensions for the cartridge's four-row Japanese subtitle staging map.</summary>
-public static class IntroFinalLineTilemapFormat
-{
-    /// <summary>Supported revision of the ordered editable subtitle-map schema.</summary>
-    public const int Version = 1;
-    /// <summary>Destination cells per BG3 row, comprising 24 stock subtitle columns and four stock margin columns on each side.</summary>
-    public const int Columns = 32;
-    /// <summary>$8B:A72B-A82A: two selected subtitle lines, each composed of an upper and lower glyph half.</summary>
-    public const int Rows = 2 * 2;
-    /// <summary>Required tile-reference count, 128, corresponding to the $0100-byte native map copied into BG3 rows 24-27.</summary>
-    public const int CellCount = Columns * Rows;
-    /// <summary>$8B:8DEA/A68F: 0600 bytes of 2bpp glyph staging form four displayed tile rows, yielding 24 columns.</summary>
-    internal const int InteriorColumns = IntroCinematicRomData.Vram.JapaneseBlankCharactersByteCount /
-        (IntroFontAtlasFormat.BitsPerPixel * IntroFontAtlasFormat.TileSize * Rows);
-    /// <summary>$8B:A72B-A82A: center the subtitle staging width in the 32-column BG page.</summary>
-    internal const int MarginColumns = (Columns - InteriorColumns) / 2;
-    /// <summary>$8B:A6B7: margins share the surrounding Japanese blank tile/palette/priority word.</summary>
-    internal static ushort MarginWord => IntroCinematicRomData.Text.JapaneseBlank.Raw;
-    /// <summary>$8B:A72B: first subtitle tile follows its VRAM staging destination relative to the font base; palette four and priority are selected subtitle style.</summary>
-    internal static ushort FirstInteriorWord => SnesBgTilemapWord.Create(
-        IntroVramLayout.JapaneseBlankFirstCharacter, SubtitlePalette, true, default).Raw;
-    /// <summary>$8B:A733: chosen palette four for the Japanese subtitle glyph staging area; this display policy is retained as selected typesetting, not prose, pixels or timing.</summary>
-    private const int SubtitlePalette = 4;
-    /// <summary>Editable JSON filename for the opening cinematic's four-row subtitle staging map, not a prose or animation-sequence file.</summary>
-    public const string FileName = "intro-final-text-divider.json";
 }

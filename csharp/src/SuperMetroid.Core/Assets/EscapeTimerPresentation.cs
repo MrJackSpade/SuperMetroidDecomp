@@ -1,7 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -147,41 +145,4 @@ public sealed class EscapeTimerPresentation
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
-}
-
-/// <summary>Authoring schema for the timer's palette, digit placement and eleven named sprite compositions; its dictionary and array contents remain caller-mutable.</summary>
-public sealed record EscapeTimerPresentationDocument
-{
-    /// <summary>Schema revision; loading requires <see cref="EscapeTimerPresentationDefinitions.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Shared OBJ palette selector, 0 through 7, inherited by parts with a null palette; the cartridge timer uses selector 5.</summary>
-    public required int Palette { get; init; }
-    /// <summary>Signed horizontal pixel displacement from tens to ones in every digit pair, from -256 through 255; stock value is 8.</summary>
-    public required int DigitSpacing { get; init; }
-    /// <summary>Exactly Label, Minutes, Seconds and Centiseconds pixel offsets relative to the live timer origin; X is -256..255 and Y is -224..223.</summary>
-    public required Dictionary<string, Offset16<OamPixels>> Anchors { get; init; }
-    /// <summary>Exactly Label and Digit.0 through Digit.9; each nonnull array contains zero to 128 ordered, nonnull OAM parts. The stock Label also supplies both digit separators.</summary>
-    public required Dictionary<string, EscapeTimerVisualPart[]> Frames { get; init; }
-}
-
-/// <summary>One ordered OAM part using the timer's full nine-bit gameplay OBJ tile number.</summary>
-[SpatialComponents("External format: the escape-timer JSON stores each OAM part displacement as offsetX/offsetY.")]
-public sealed record EscapeTimerVisualPart
-{
-    /// <summary>Signed horizontal pixel offset from the composition's anchor, from -256 through 255, encoded in the native nine-bit spritemap X field.</summary>
-    public required int OffsetX { get; init; }
-    /// <summary>Signed vertical pixel offset from the composition's anchor, from -128 through 127, encoded as a signed byte.</summary>
-    public required int OffsetY { get; init; }
-    /// <summary>Gameplay OBJ character number, 0 through 511 including its tile-page bit; this is not a column or row in the extracted timer artwork.</summary>
-    public required int TileNumber { get; init; }
-    /// <summary>Square sprite side length in pixels, either 8 or 16, selecting the small or large gameplay OBJ size.</summary>
-    public required int Size { get; init; }
-    /// <summary>OBJ priority tier from 0 through 3; stock timer parts use 3.</summary>
-    public required int Priority { get; init; }
-    /// <summary>Explicit OBJ palette selector from 0 through 7, or null to inherit the presentation's shared palette.</summary>
-    public required int? Palette { get; init; }
-    /// <summary>Whether the sprite's pixels are reflected horizontally without changing its authored anchor offset.</summary>
-    public required bool FlipX { get; init; }
-    /// <summary>Whether the sprite's pixels are reflected vertically without changing its authored anchor offset.</summary>
-    public required bool FlipY { get; init; }
 }

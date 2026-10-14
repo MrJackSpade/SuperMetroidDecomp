@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -74,30 +73,4 @@ public sealed class MapStaticPalettes
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>JSON schema for complete pause, file-select, and area-map palettes.</summary>
-public sealed record MapStaticPalettesDocument
-{
-    /// <summary>Gets the schema version, which must equal <see cref="MapStaticPalettesFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Gets the 256 editable RGB5 colors used by the pause screen.</summary>
-    public required PaletteRgb5[] Pause { get; init; }
-
-    /// <summary>Gets the 256 editable RGB5 colors used by file select.</summary>
-    public required PaletteRgb5[] FileSelect { get; init; }
-
-    /// <summary>Gets the six 256-color Zebes world-map palettes keyed by area name.</summary>
-    public required Dictionary<string, PaletteRgb5[]> World { get; init; }
-}
-
-/// <summary>Defines the static map-palette document contract.</summary>
-public static class MapStaticPalettesFormat
-{
-    /// <summary>Current static map-palette schema version.</summary>
-    public const int Version = 1;
-
-    /// <summary>Canonical static map-palette asset file name.</summary>
-    public const string FileName = "map-palettes.json";
 }

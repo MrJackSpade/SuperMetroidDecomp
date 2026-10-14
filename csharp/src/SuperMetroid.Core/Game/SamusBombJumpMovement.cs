@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -164,8 +163,3 @@ public static class SamusBombJumpMovement
     }
 
 }
-
-/// <summary>Observable output of one special bomb-jump handler frame.</summary>
-public readonly record struct BombJumpMovementResult(
-    BlockMoveResult? Vertical,
-    bool FellWithoutFloor = false);

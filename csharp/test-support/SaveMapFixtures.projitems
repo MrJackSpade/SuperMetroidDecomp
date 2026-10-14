@@ -1,0 +1,6 @@
+<Project>
+  <!-- The save-map presentation fixture shared by the save, desktop and render verifiers. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)SaveMapFixtures/**/*.cs" LinkBase="TestSupport/SaveMapFixtures" />
+  </ItemGroup>
+</Project>

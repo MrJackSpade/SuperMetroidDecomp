@@ -1,24 +1,6 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
-
-/// <summary>Mutually exclusive station marker families in the normal file-select map.</summary>
-public enum MapStationKind
-{
-    /// <summary>Missile-refill markers selected through the area-pointer table at $82:C7DB.</summary>
-    Missile,
-    /// <summary>Energy-refill markers selected through the area-pointer table at $82:C7EB.</summary>
-    Energy,
-    /// <summary>Map-download station markers selected through the area-pointer table at $82:C7FB.</summary>
-    Map
-}
-
-/// <summary>Stable marker identity and original exploration cell, independent of authored drawing coordinates.</summary>
-/// <param name="Id">Stable area/family/ordinal key used to resolve the editable marker drawing position.</param>
-/// <param name="Area">Area whose saved exploration bits govern this marker's visibility.</param>
-/// <param name="Cell">Original exploration cell, obtained from the native map-pixel position divided by eight.</param>
-public readonly record struct MapStationDiscoveryRule(string Id, AreaId Area, Position16<MapTiles> Cell);
 
 /// <summary>Application-owned discovery cells from the retail $82:C7DB/C7EB/C7FB station lists.</summary>
 public static class MapStationDiscoveryRules

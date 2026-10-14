@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -174,41 +173,4 @@ public sealed class IntroCinematicPalette
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable full-CGRAM color schema for opening narration, portrait, object, and cross-fade inks; scene phases and fade timing are not document content.</summary>
-public sealed record IntroCinematicPaletteDocument
-{
-    /// <summary>Schema revision required to equal <see cref="IntroCinematicPaletteFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Exactly 256 non-null RGB5 colors in CGRAM index order, including every sixteen-color row's slot zero; each red, green, and blue channel is 0..31.</summary>
-    public required PaletteRgb5[] Colors { get; init; }
-}
-
-/// <summary>The opening-palette CGRAM rows whose colors are derived from shared paint, valued by row index.</summary>
-internal enum IntroCinematicAnimatedRow
-{
-    /// <summary>$8C:E4E9-E508: first object palette repeats a neutral ramp after its background slot.</summary>
-    NeutralCycle = 8,
-    /// <summary>$8C:E5A9-E5C8, Palettes_Intro_CrossFade; its first eight visible inks repeat palette2.</summary>
-    CrossFade = 14,
-}
-
-/// <summary>Resource identity and schema for the opening narration palette.</summary>
-public static class IntroCinematicPaletteFormat
-{
-    /// <summary>Supported revision of the complete 256-color RGB5 opening-palette schema.</summary>
-    public const int Version = 1;
-    /// <summary>Native CGRAM palette-row width in RGB5 words.</summary>
-    internal const int ColorsPerRow = 16;
-    /// <summary>$8C:E4EB-E4F2: reviewed four-shade neutral material cycle.</summary>
-    internal const int NeutralCycleLength = IntroCinematicPaintDefinitions.WhiteCycleLength;
-    /// <summary>$8C:E4EB-E508: reviewed unit decrement in every RGB5 channel.</summary>
-    internal const int NeutralCycleStep = IntroCinematicPaintDefinitions.WhiteCycleStep;
-    /// <summary>$8C:E42B-E43A supplies the eight-color gradient also copied atE5AB-E5BA.</summary>
-    internal const int SharedCrossFadeSourceRow = 2;
-    /// <summary>$8C:E5BB-E5C2: reviewed blue endpoints31/4 derive their equal three-interval decrement.</summary>
-    internal const int CrossFadeBlueStep = IntroCinematicPaintDefinitions.CrossfadeBlueStep;
-    /// <summary>Editable JSON filename for the opening narration's complete native-precision CGRAM palette.</summary>
-    public const string FileName = "intro-narration-palette.json";
 }

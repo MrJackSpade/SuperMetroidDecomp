@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -241,26 +240,4 @@ public sealed class MotherBrainHealthPalettePresentation
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable health-band palette JSON, separate from rainbow cycling and death-fade artwork; array references, rows, and RGB5 entries remain caller-owned and mutable.</summary>
-public sealed record MotherBrainHealthPaletteDocument
-{
-    /// <summary>Schema version required to match <see cref="MotherBrainHealthPaletteFormat.Version"/> during loading or writing.</summary>
-    public required int Version { get; init; }
-    /// <summary>Four rows of fifteen RGB5 colors in native <c>MotherBrainHealthBasedPalettes_BrainBody</c> order from <c>$AD:E6A2</c>; ascending row index denotes lower health, and each row supplies both body BG and brain/neck OBJ colors 1..15.</summary>
-    public required PaletteRgb5[][] Body { get; init; }
-    /// <summary>Four rows of fifteen RGB5 colors in native <c>MotherBrainHealthBasedPalettes_BackLeg</c> order from <c>$AD:E742</c>, aligned with the body health bands and supplying rear-leg OBJ palette colors 1..15.</summary>
-    public required PaletteRgb5[][] BackLegs { get; init; }
-}
-
-/// <summary>Installed JSON identity and dimensions for the four final-phase health-dependent palettes selected by native <c>MotherBrainHealthBasedPaletteHandling</c> at <c>$AD:E3D5</c>.</summary>
-public static class MotherBrainHealthPaletteFormat
-{
-    /// <summary>Installed resource filename loaded with area-map presentation assets for Mother Brain's body/brain and rear-leg damage colors.</summary>
-    public const string FileName = "mother-brain-health-palette.json";
-    /// <summary>Supported schema version requiring paired body and rear-leg arrays with four fifteen-color RGB5 rows each.</summary>
-    public const int Version = 1;
-    /// <summary>Four health-band selectors in least-to-most-damaged order; excludes the unused fifth entry present in the native pointer tables.</summary>
-    public const int StateCount = 4;
 }

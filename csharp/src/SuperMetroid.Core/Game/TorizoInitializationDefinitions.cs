@@ -16,7 +16,3 @@ public static class TorizoInitializationDefinitions
     /// </summary>
     public static TorizoInitializationDefinition Golden => new(new(0x01a8, 0x0090), 0xc9cb, 0x2800, new(0x12, 0x29));
 }
-
-/// <summary>Initial actor placement, program selection, property mask and collision radii.</summary>
-public readonly record struct TorizoInitializationDefinition(
-    Position16<RoomPixels> Position, ushort Instruction, ushort PropertyMask, Extent16<RoomPixels> Radius);

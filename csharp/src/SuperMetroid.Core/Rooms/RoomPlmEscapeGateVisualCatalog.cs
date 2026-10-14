@@ -2,11 +2,6 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Editable visual block references for one Mother Brain escape-gate frame.</summary>
-/// <param name="Id">Compiled open, half-closed, or closed escape-gate draw identity.</param>
-/// <param name="Blocks">Four metatile/flip words ordered down the native vertical run; changed arrays are copied by the catalog.</param>
-public sealed record RoomPlmEscapeGateVisualEntry(string Id, ushort[] Blocks);
-
 /// <summary>
 /// Presentation-only selection for the three escape-gate frames. The compiled
 /// level words continue to own collision, animation timing, and door handoff.

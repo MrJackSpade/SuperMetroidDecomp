@@ -1,6 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -85,24 +83,4 @@ public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePres
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable JSON schema for the scientist scenes' baby-Metroid compositions.</summary>
-public sealed record IntroScientistSpriteDocument
-{
-    /// <summary>Must match <see cref="IntroScientistSpriteFormat.Version"/> before any visual frame is accepted.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Gets all ten required named baby-Metroid visual compositions.</summary>
-    public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
-}
-
-/// <summary>Installed file identity for ten scientist-scene baby sprite frames.</summary>
-public static class IntroScientistSpriteFormat
-{
-    /// <summary>The supported scientist-scene sprite JSON schema version.</summary>
-    public const int Version = 1;
-
-    /// <summary>The embedded editable scientist-scene sprite asset file name.</summary>
-    public const string FileName = "intro-scientist-baby-sprites.json";
 }

@@ -1,22 +1,6 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
-
-/// <summary>
-/// Application-owned copy of the fixed eleven-byte metadata preceding a retail room's
-/// native state-selection program.
-/// </summary>
-public sealed record RoomHeaderDefinition(
-    ushort Pointer,
-    byte RoomIndex,
-    AreaId AreaIndex,
-    Position16<MapTiles> MapPosition,
-    Extent16<RoomScreens> Size,
-    byte UpScroller,
-    byte DownScroller,
-    byte CreBitset,
-    ushort DoorListPointer);
 
 /// <summary>Direct configuration selection for the 262 non-debug retail rooms.</summary>
 /// <remarks>Each bank-$8F header identity selects its room/area indexes, map position,

@@ -1,5 +1,5 @@
 <Project>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)WindowsConsole/NativeConsoleErrors.cs" Link="TestSupport/WindowsConsole/NativeConsoleErrors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WindowsConsole/**/*.cs" LinkBase="TestSupport/WindowsConsole" />
   </ItemGroup>
 </Project>

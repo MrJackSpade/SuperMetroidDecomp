@@ -2,11 +2,6 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>One Draygon cannon frame's visible blocks in cartridge run order.</summary>
-/// <param name="Id">Compiled identity of a reachable Draygon cannon draw frame.</param>
-/// <param name="Blocks">Metatile/flip words flattened in native run order, then word order within each run; changed arrays are copied by the catalog.</param>
-public sealed record RoomPlmDraygonCannonVisualEntry(string Id, ushort[] Blocks);
-
 /// <summary>
 /// Editable appearance for the cannon PLM. The compiled draw geometry, full
 /// level words, hit thresholds, damage transitions, and control writes remain fixed.

@@ -4,40 +4,6 @@ using System.Text.Json;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// Describes how a replacement waveform obtains its loop point. Loop positions are PCM frame
-/// indexes; preserving time rescales the stock position when an HD file changes sample rate.
-/// </summary>
-/// <param name="Kind">Policy used to derive the replacement waveform's intrinsic loop point.</param>
-/// <param name="ExplicitSampleIndex">Zero-based decoded mono PCM frame, used only by the explicit-index policy.</param>
-public readonly record struct PcmSampleLoopReplacement(
-    PcmSampleLoopReplacementKind Kind,
-    int ExplicitSampleIndex = 0)
-{
-    /// <summary>Preserves the existing loop's elapsed-time position by rate conversion rounded to the nearest PCM frame, or preserves the absence of a loop.</summary>
-    public static PcmSampleLoopReplacement PreserveTime =>
-        new(PcmSampleLoopReplacementKind.PreserveTime);
-
-    /// <summary>Selects a replacement with no intrinsic loop point, regardless of the previous catalog entry.</summary>
-    public static PcmSampleLoopReplacement Disabled =>
-        new(PcmSampleLoopReplacementKind.Disabled);
-
-    /// <summary>Selects an explicit zero-based PCM loop frame; the installer later validates that it lies within the replacement waveform.</summary>
-    public static PcmSampleLoopReplacement At(int sampleIndex) =>
-        new(PcmSampleLoopReplacementKind.ExplicitSampleIndex, sampleIndex);
-}
-
-/// <summary>Mutually exclusive policies for resolving a replacement sample's intrinsic PCM loop point.</summary>
-public enum PcmSampleLoopReplacementKind
-{
-    /// <summary>Rescales the existing loop index to preserve its time at the replacement sample rate; an unlooped sample remains unlooped.</summary>
-    PreserveTime,
-    /// <summary>Removes the intrinsic loop point from the replacement metadata.</summary>
-    Disabled,
-    /// <summary>Uses the supplied decoded PCM frame index without sample-rate conversion.</summary>
-    ExplicitSampleIndex,
-}
-
-/// <summary>
 /// Installs a validated PCM16 mono WAV behind an existing stable sample ID and updates only
 /// that catalog entry. Instrument assignments and every sequence reference remain unchanged.
 /// </summary>

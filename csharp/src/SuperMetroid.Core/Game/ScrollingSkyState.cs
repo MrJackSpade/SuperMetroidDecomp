@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -169,10 +168,3 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         return -1;
     }
 }
-
-/// <summary>One eight-byte row from the ROM table at <c>$88:AEC1</c>.</summary>
-public readonly record struct SkyScrollSection(
-    ushort TopPosition,
-    ushort Subspeed,
-    ushort Speed,
-    int DataSlot);

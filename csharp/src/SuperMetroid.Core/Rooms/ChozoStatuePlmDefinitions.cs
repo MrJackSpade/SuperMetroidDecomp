@@ -33,8 +33,3 @@ internal static class ChozoStatuePlmDefinitions
         _ => throw new InvalidDataException($"Unsupported Chozo PLM ${(int)headerPointer:X4}."),
     };
 }
-
-/// <summary>One Chozo terrain PLM header paired with its native initial list.</summary>
-internal readonly record struct ChozoStatuePlmDefinition(
-    PlmHeaderId HeaderPointer,
-    ushort InstructionListPointer);

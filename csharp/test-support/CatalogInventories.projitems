@@ -1,0 +1,6 @@
+<Project>
+  <!-- Retail catalog inventories that DebugRunner prints and the verifier checks. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)CatalogInventories/**/*.cs" LinkBase="TestSupport/CatalogInventories" />
+  </ItemGroup>
+</Project>

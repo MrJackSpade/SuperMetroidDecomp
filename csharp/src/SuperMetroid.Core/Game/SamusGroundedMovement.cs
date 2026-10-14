@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -564,8 +563,3 @@ public static class SamusGroundedMovement
     }
 
 }
-
-/// <summary>Both bank-$94 scans performed by one grounded bank-$90 movement handler.</summary>
-public readonly record struct GroundedMovementResult(
-    BlockMoveResult Horizontal,
-    BlockMoveResult Vertical);

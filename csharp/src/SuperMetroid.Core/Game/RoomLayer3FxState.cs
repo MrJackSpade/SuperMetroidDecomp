@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
@@ -823,33 +821,4 @@ public sealed class RoomLayer3FxState
         /// <summary>Advances the liquid base each update until it reaches the target and clears velocity.</summary>
         Moving,
     }
-}
-
-/// <summary>One bank-$88 room-FX request for the global cartridge sound queue.</summary>
-public readonly record struct RoomFxSoundRequest(
-    SoundEffectId SoundEffect,
-    byte MaximumQueued,
-    bool SoundSuppressed = false);
-
-/// <summary>One bank-$88 request for the global room-shake type and timer bits.</summary>
-public readonly record struct RoomFxEarthquakeRequest(
-    ushort Type,
-    ushort TimerBits);
-
-/// <summary>Immutable gameplay BG3 values published by one accepted NMI.</summary>
-public readonly record struct RoomLayer3FxRenderSnapshot(
-    RoomFxType Type,
-    LayerBlendingConfiguration LayerBlendConfiguration,
-    Position16<Bg3Pixels> Scroll,
-    ushort CurrentYPosition = ushort.MaxValue,
-    ushort LiquidOptions = 0,
-    int WaterBg3WavePhase = 0,
-    int WaterBg2WavePhase = 0,
-    short WaterSurfaceScreenY = short.MaxValue)
-{
-    /// <summary>
-    /// Effective circular phase of the lava/acid BG2 HDMA table. Zero is the first table
-    /// produced after <c>$88:B4CE</c>; subsequent phases move backward through 16 entries.
-    /// </summary>
-    public int LavaAcidBg2WavePhase { get; init; }
 }

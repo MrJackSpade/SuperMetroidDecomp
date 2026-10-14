@@ -177,25 +177,3 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
     /// <summary>Rejects a selected bus write before it reaches mutable memory.</summary>
     private sealed record WriteRule(Func<int, bool> Match, Func<int, Exception> Failure);
 }
-
-/// <summary>
-/// A <see cref="CartridgeReadGuard"/> whose read rules also apply to WRAM/SRAM reads (#629): a WRAM/SRAM
-/// read no rule rejects is served by the source's mutable memory.
-/// </summary>
-[CpuBusBoundary("exact bus test: guard double over a mutable bus that forbids, observes and counts reads")]
-internal sealed class MutableCartridgeReadGuard(ISnesAddressSpace source) : CartridgeReadGuard(source)
-{
-    /// <inheritdoc />
-    public override byte ReadWorkRamByte(int address)
-    {
-        Check(address);
-        return base.ReadWorkRamByte(address);
-    }
-
-    /// <inheritdoc />
-    public override byte ReadSaveRamByte(int address)
-    {
-        Check(address);
-        return base.ReadSaveRamByte(address);
-    }
-}

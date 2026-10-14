@@ -1,18 +1,5 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Four distinct RGB5 animation sources; values are identities, not composable bits.</summary>
-public enum EnemyAuxiliaryPalette
-{
-    /// <summary><c>$A8:E7CC</c>, native <c>FaceBlockGlowColors</c>: eight four-color glow rows for the Blue Brinstar face block, selected by its shared timed palette hook.</summary>
-    FaceBlock,
-    /// <summary><c>$A9:EBCC-ECAB</c>, native <c>Palette_SidehopperCorpseBeingDrained_0..6</c>: six draining rows followed by corpse paint; each supplied row omits color zero and updates CGRAM entries 145..159.</summary>
-    DeadSidehopper,
-    /// <summary><c>$84:8032-8131</c>, native <c>GoldenTorizo_HealthBasedPalette_Handling.palette1</c>: eight sixteen-color body health bands from low to high health, copied to OBJ palette 1; the runtime clamps the highest range to band seven.</summary>
-    GoldenTorizoBody,
-    /// <summary><c>$84:8132-8231</c>, native <c>GoldenTorizo_HealthBasedPalette_Handling.palette2</c>: eight sixteen-color belly health bands paired with the body bands, copied to OBJ palette 2 using the same runtime health selector.</summary>
-    GoldenTorizoBelly,
-}
-
 /// <summary>Import provenance and bounded dimensions; runtime AI owns cadence and frame selection.</summary>
 internal static class EnemyAuxiliaryColorDefinitions
 {
@@ -56,17 +43,4 @@ internal static class EnemyAuxiliaryColorDefinitions
         /// <summary>Exposes the same family order through non-generic enumeration.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-}
-
-/// <summary>Native source address and fixed frame and color dimensions for one auxiliary palette family.</summary>
-internal readonly record struct EnemyAuxiliaryPaletteDefinition(
-    EnemyAuxiliaryPalette Id, int SourceAddress, int FrameCount, int ColorCount, int NativeFrameStrideColors);
-
-/// <summary>Installed auxiliary-palette document identity, separate from its consumer.</summary>
-public static class EnemyAuxiliaryColorFormat
-{
-    /// <summary>Asset filename for the four editable face-block, sidehopper, and Golden Torizo auxiliary palette families.</summary>
-    public const string FileName = "enemy-auxiliary-colors.json";
-    /// <summary>Supported revision of the complete four-family RGB5 row document; dimensions remain fixed by the native palette definitions.</summary>
-    public const int Version = 1;
 }

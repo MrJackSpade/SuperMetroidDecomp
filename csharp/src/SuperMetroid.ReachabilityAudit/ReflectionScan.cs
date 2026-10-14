@@ -4,13 +4,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SuperMetroid.ReachabilityAudit;
 
-/// <summary>A reflection lookup site, formatted as repository file, line and source text.</summary>
-internal sealed record ReflectionSite(string File, int Line, string Text)
-{
-    /// <summary>Formats a lookup site as a tab-separated path, line, and compact source expression.</summary>
-    public override string ToString() => $"{File}\t{Line}\t{Text}";
-}
-
 /// <summary>
 /// Resolves reflection lookups by name (Type.GetMethod/GetProperty/GetField/GetConstructor/...,
 /// Activator.CreateInstance) to repository members. A resolved lookup is a reference from the code

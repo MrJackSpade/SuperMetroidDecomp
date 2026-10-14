@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -166,24 +165,4 @@ public sealed class BabyMetroidCutsceneColorCatalog
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate cutscene Baby color property {name}."));
-}
-
-/// <summary>Editable JSON artwork for the Mother Brain cutscene Baby's initial image and six displayed death-fade images; array references and RGB5 entries remain caller-owned and mutable.</summary>
-public sealed record BabyMetroidCutsceneColorDocument
-{
-    /// <summary>Schema version required to match <see cref="BabyMetroidCutsceneColorFormat.Version"/> when loading or writing.</summary>
-    public required int Version { get; init; }
-    /// <summary>Fifteen RGB5 entries in native initial-image order, mapping to OBJ palette seven colors 1..15 and excluding transparent color zero.</summary>
-    public required PaletteRgb5[] Initial { get; init; }
-    /// <summary>Six chronological RGB5 rows of fourteen colors each; row zero corresponds to displayed fade selector one, and each row replaces OBJ palette seven colors 1..14 without changing color 15.</summary>
-    public required PaletteRgb5[][] Fade { get; init; }
-}
-
-/// <summary>Installed resource identity and JSON schema version for the Mother Brain cutscene Baby's initial and death-fade artwork, separate from health and pulse palettes.</summary>
-public static class BabyMetroidCutsceneColorFormat
-{
-    /// <summary>Installed artwork filename loaded with enemy tile resources for the Baby's initial colors and six death-fade images.</summary>
-    public const string FileName = "baby-metroid-cutscene-colors.json";
-    /// <summary>Supported schema version, requiring a fifteen-color initial image and six fourteen-color fade rows.</summary>
-    public const int Version = 1;
 }

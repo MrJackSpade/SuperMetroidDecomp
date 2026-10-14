@@ -1,45 +1,4 @@
-﻿using SuperMetroid.Core.Rooms;
-
-namespace SuperMetroid.Core.Game;
-
-/// <summary>One translated enemy initialization AI routine (the definition's init pointer).</summary>
-internal delegate void EnemyInitializationAiHandler(
-    RoomEnemySlot slot, RoomLevelData? level, SamusState? samus, ushort controllerInput, ushort cameraX);
-
-/// <summary>One translated enemy main AI routine (the definition's main pointer).</summary>
-internal delegate void EnemyMainAiHandler(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8);
-
-/// <summary>One owner's private enemy-instruction opcodes; returns false for a word it does not own.</summary>
-internal delegate bool EnemyOwnedInstructionHandler(
-    RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter);
-
-/// <summary>One Samus/enemy overlap that reached a translated touch reaction.</summary>
-/// <param name="Slot">The touched enemy.</param>
-/// <param name="Samus">Samus, who touched it.</param>
-/// <param name="ControllerInput">Held input, used by reactions that grab or eject Samus.</param>
-/// <param name="Level">Room terrain for collision-aware reactions.</param>
-/// <param name="UsesExtendedHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
-/// <param name="HitboxTouchAi">The named callback of the overlapping hitbox (the header's on the radius path), if named.</param>
-/// <param name="HitboxTouchAiPointer">The raw bank-local callback word of the overlapping hitbox.</param>
-/// <param name="ContactDamageIndex">Samus's contact-damage index sampled at the pass entry.</param>
-internal readonly record struct EnemyTouchContext(
-    RoomEnemySlot Slot,
-    SamusState Samus,
-    ushort ControllerInput,
-    RoomLevelData? Level,
-    bool UsesExtendedHitboxes,
-    EnemyInteractionCallback? HitboxTouchAi,
-    ushort HitboxTouchAiPointer,
-    SamusContactDamageIndex ContactDamageIndex);
-
-/// <summary>One translated touch reaction.</summary>
-internal delegate void EnemyTouchHandler(EnemyTouchContext context);
-
-/// <summary>One translated hurt AI, run instead of main AI while the slot's hurt bit (AI handler bit 1) is set.</summary>
-internal delegate void EnemyHurtAiHandler(RoomEnemySlot slot, RoomEnemyFrame frame);
-
-/// <summary>A frozen enemy's private tail, run before the common thaw; true when it consumed the slot's whole frame.</summary>
-internal delegate bool EnemyFrozenPreemption(RoomEnemySlot slot);
+﻿namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// The enemy AI dispatch table. A native routine pointer can be shared by several definitions, so each routine

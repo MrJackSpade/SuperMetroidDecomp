@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
@@ -318,22 +316,4 @@ public sealed class DemoInputState
     /// <summary>Diagnoses a non-RTS initializer or pre-instruction whose object owner supplied no callback.</summary>
     private static InvalidOperationException UnsupportedRoutine(string kind, ushort pointer) =>
         new($"Demo-input {kind} $91:{pointer:X4} was not supplied by the owning object.");
-}
-
-/// <summary>Control-flow result from one explicitly translated demo-list instruction.</summary>
-/// <param name="Handled">Whether the callback recognizes the bank-$91 routine pointer.</param>
-/// <param name="NextInstructionPointer">Cursor after all operands consumed by that routine.</param>
-/// <param name="TerminateProcessing">Whether the generic handler must return immediately.</param>
-public readonly record struct DemoInputInstructionResult(
-    bool Handled,
-    ushort NextInstructionPointer,
-    bool TerminateProcessing)
-{
-    /// <summary>Reports that a callback does not own the encountered routine.</summary>
-    public static DemoInputInstructionResult NotHandled(ushort argumentPointer) =>
-        new(false, argumentPointer, false);
-
-    /// <summary>Continues decoding at the supplied cursor after a handled instruction.</summary>
-    public static DemoInputInstructionResult ContinueAt(ushort nextInstructionPointer) =>
-        new(true, nextInstructionPointer, false);
 }

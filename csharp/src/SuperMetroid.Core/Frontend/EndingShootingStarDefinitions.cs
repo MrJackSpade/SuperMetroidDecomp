@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Native post-credits star motion and animation data.</summary>
@@ -41,10 +39,3 @@ internal static class EndingShootingStarDefinitions
         0x09f3, 0x09f3, 0x09f3, 0x09f3
     ];
 }
-
-/// <summary>One shooting star's motion and animation record.</summary>
-/// <param name="Acceleration">Signed 8.8 velocity change per call on both axes.</param>
-/// <param name="Period">Animation frame duration.</param>
-/// <param name="Delay">Initial invisible delay; zero starts immediately.</param>
-internal readonly record struct EndingShootingStarDefinition(
-    EightEightVector<ScreenPixels> Acceleration, ushort Period, ushort Delay);

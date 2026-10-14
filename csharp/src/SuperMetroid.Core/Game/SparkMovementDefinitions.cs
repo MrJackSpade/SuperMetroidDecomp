@@ -24,8 +24,3 @@ internal static class SparkMovementDefinitions
             _ => new(AdjacentInstructionWord, AdjacentFunctionWord),
         };
 }
-
-/// <summary>Instruction-list and AI-function pair selected by a Spark population parameter.</summary>
-internal readonly record struct SparkMovementDefinition(
-    ushort InstructionList,
-    SparkEnemyFunction Function);

@@ -6,14 +6,6 @@ using SuperMetroid.ReachabilityAudit;
 
 namespace SuperMetroid.CartridgeEncodingAudit;
 
-/// <summary>One audited source file's occurrences and retained cartridge storage widths.</summary>
-internal sealed record EncodedFile(
-    string Path,
-    string Project,
-    IReadOnlyList<CartridgeEncodingOccurrence> Occurrences,
-    IReadOnlyList<string> AddressInterpretingTypes,
-    int StorageWidthMembers);
-
 /// <summary>The scan of every audited project's authored sources, each file once.</summary>
 internal sealed class EncodingMeasurement(IReadOnlyList<EncodedFile> files)
 {

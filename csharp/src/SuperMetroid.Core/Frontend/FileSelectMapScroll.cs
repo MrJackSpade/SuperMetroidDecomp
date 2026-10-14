@@ -1,23 +1,6 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
-
-/// <summary>$82:925D's mutually exclusive map-scrolling dispatcher indices.</summary>
-public enum MapScrollDirection
-{
-    /// <summary>No eight-tick scroll step is active.</summary>
-    None,
-    /// <summary>Scroll the map viewport toward smaller horizontal offsets.</summary>
-    Left,
-    /// <summary>Scroll the map viewport toward larger horizontal offsets.</summary>
-    Right,
-    /// <summary>Scroll the map viewport toward smaller vertical offsets.</summary>
-    Up,
-    /// <summary>Scroll the map viewport toward larger vertical offsets.</summary>
-    Down
-}
 
 /// <summary>Initial room-select positioning and $81:AECA/$82:925D scroll ownership.</summary>
 public sealed class FileSelectMapScroll

@@ -7,30 +7,6 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 
-/// <summary>One missing or invalid compiled PLM program record with its root owner and bank-84 offset.</summary>
-internal sealed record PlmProgramFinding(string Code, string Owner, ushort Address, string Detail);
-/// <summary>Marks a PLM root handled by a reviewed typed owner rather than the generic interpreter.</summary>
-internal sealed record PlmProgramClassification();
-
-/// <summary>Finite closure of immutable PLM records. Never runs a PLM or opens a ROM.</summary>
-internal sealed class PlmProgramAuditReport
-{
-    /// <summary>Decoded instruction and timed-draw records reached by the static walk.</summary>
-    public int Records { get; set; }
-    /// <summary>Timed PLM draw records among the decoded records.</summary>
-    public int TimedDraws { get; set; }
-    /// <summary>Word operands required by decoded instruction formats.</summary>
-    public int WordOperands { get; set; }
-    /// <summary>Packed byte operands required by decoded instruction formats.</summary>
-    public int ByteOperands { get; set; }
-    /// <summary>Cartridge-source VRAM transfers that require an installed artwork provider.</summary>
-    public int ArtworkTransfers { get; set; }
-    /// <summary>Missing words, draws, targets, or transfer ownership found by the walk.</summary>
-    public List<PlmProgramFinding> Findings { get; } = [];
-    /// <summary>Roots classified as execution owned by a typed PLM path.</summary>
-    public List<PlmProgramClassification> Classifications { get; } = [];
-}
-
 /// <summary>Walks compiled PLM programs and checks instruction, draw, and DMA closure without executing gameplay.</summary>
 internal static class PlmProgramAudit
 {

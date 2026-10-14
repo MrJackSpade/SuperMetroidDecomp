@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
@@ -20,18 +18,4 @@ public static class CeresVramLayout
     /// <summary>VMADD $5C00-$5FFF (bytes $B800-$BFFF): the Zebes reveal's Mode 1 tilemap, reusing the caption plane.</summary>
     public static readonly PpuLayoutCell ZebesTilemap = new(nameof(ZebesTilemap), PpuLayoutRegion.Vram,
         0x5c00, 0x0400, "BG tilemap words (32x32)", SpaceColonyTilemap);
-}
-
-/// <summary>Typed view of the Ceres cinematics' Mode 1 VRAM (#630).</summary>
-[PpuLayoutBoundary("rendering view: Ceres flight and destruction cinematic VRAM")]
-public readonly struct CeresVram(SnesVram vram)
-{
-    /// <summary>The cinematic OBJ characters.</summary>
-    public VramRegion ObjectCharacters => new(vram, CeresVramLayout.ObjectCharacters);
-
-    /// <summary>The SPACE COLONY caption tilemap.</summary>
-    public VramRegion SpaceColonyTilemap => new(vram, CeresVramLayout.SpaceColonyTilemap);
-
-    /// <summary>The Zebes reveal tilemap.</summary>
-    public VramRegion ZebesTilemap => new(vram, CeresVramLayout.ZebesTilemap);
 }

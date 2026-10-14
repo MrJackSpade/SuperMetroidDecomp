@@ -1,18 +1,5 @@
 namespace SuperMetroid.ReachabilityAudit;
 
-/// <summary>Everything the report needs: declarations, both reachability sets and the scans.</summary>
-internal sealed record ReachabilityResult(
-    IReadOnlyDictionary<string, Declaration> Declarations,
-    HashSet<string> Reachable,
-    HashSet<string> ProductionReachable,
-    HashSet<string> Referenced,
-    HashSet<string> SerializerAccessed,
-    ReflectionScan Reflection,
-    HashSet<string> VerificationSourceFiles,
-    ReachabilityGraph Graph,
-    IReadOnlySet<string> ProductionRoots,
-    IReadOnlySet<string> Roots);
-
 /// <summary>
 /// Builds the reference graph for a loaded solution and computes reachability from its roots.
 /// Verification projects are not users: a symbol only a test reaches is unused, so their code is

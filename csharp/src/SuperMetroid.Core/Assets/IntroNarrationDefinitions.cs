@@ -2,21 +2,6 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>The opening-narration BG words for space and the four punctuation glyphs.</summary>
-public enum IntroNarrationSymbolWord : ushort
-{
-    /// <summary>Blank-space BG word $002F from <c>IndirectInstructions_IntroText_Space</c> at <c>$8C:D67D</c>, without the nonblank glyphs' priority bit.</summary>
-    Blank = 0x002f,
-    /// <summary>High-priority period BG word $2024 from <c>IndirectInstructions_IntroText_Period</c> at <c>$8C:D75D</c>, distinct from the unused decimal-point glyph.</summary>
-    Period = 0x2024,
-    /// <summary>High-priority comma BG word $2025 from <c>IndirectInstructions_IntroText_Comma</c> at <c>$8C:D763</c>.</summary>
-    Comma = 0x2025,
-    /// <summary>High-priority apostrophe BG word $2027 from <c>IndirectInstructions_IntroText_Apostrophe</c> at <c>$8C:D76F</c>.</summary>
-    Apostrophe = 0x2027,
-    /// <summary>High-priority exclamation BG word $202A from <c>IndirectInstructions_IntroText_ExclamationPoint</c> at <c>$8C:D77B</c>.</summary>
-    Exclamation = 0x202a,
-}
-
 /// <summary>Schema, native source identities, and fixed layout limits for opening narration.</summary>
 public static class IntroNarrationDefinitions
 {
@@ -167,31 +152,3 @@ public static class IntroNarrationDefinitions
         }
     }
 }
-
-/// <summary>One named English narration page exposed to presentation content.</summary>
-public enum IntroNarrationPageId : byte
-{
-    /// <summary>First story page, recalling the Zebes battle and Mother Brain's plans; native <c>CinematicBGObjectInstLists_IntroTextPage1</c> at <c>$8C:C383</c>.</summary>
-    Page1 = 1,
-    /// <summary>Second story page, recalling SR388 and the surviving larva; native <c>CinematicBGObjectInstLists_IntroTextPage2</c> at <c>$8C:C797</c>.</summary>
-    Page2,
-    /// <summary>Third story page, describing the larva's delivery to Ceres for research; native <c>CinematicBGObjectInstLists_IntroTextPage3</c> at <c>$8C:CB45</c>.</summary>
-    Page3,
-    /// <summary>Fourth story page, describing the scientists' findings about Metroid energy; native <c>CinematicBGObjectInstLists_IntroTextPage4</c> at <c>$8C:CE33</c>.</summary>
-    Page4,
-    /// <summary>Fifth story page, describing Samus's departure and receipt of a distress signal; native <c>CinematicBGObjectInstLists_IntroTextPage5</c> at <c>$8C:D15D</c>.</summary>
-    Page5,
-    /// <summary>Final story page, announcing the attack on Ceres and using a timed final hold instead of the earlier pages' input wait; native <c>CinematicBGObjectInstLists_IntroTextPage6</c> at <c>$8C:D511</c>.</summary>
-    Page6,
-}
-
-/// <summary>Native bank-$8C stream boundaries used only by extraction and parity tests.</summary>
-/// <param name="Id">Named story-page identity, independent of the editable wording.</param>
-/// <param name="InstructionPointer">Sixteen-bit offset of the stock background-object list in bank $8C, not a full SNES address.</param>
-/// <param name="BeginOpcode">Bank-$8B callback offset expected at the list's start, establishing that page's subtitle state.</param>
-/// <param name="FinishOpcode">Bank-$8B callback offset expected before deletion, establishing the next wait or scene transition.</param>
-public readonly record struct IntroNarrationNativePage(
-    IntroNarrationPageId Id,
-    ushort InstructionPointer,
-    ushort BeginOpcode,
-    ushort FinishOpcode);

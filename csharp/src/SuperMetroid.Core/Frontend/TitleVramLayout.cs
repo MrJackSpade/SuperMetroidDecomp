@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The title screen's VRAM allocations beside its Mode 7 planes (#630).</summary>
@@ -16,19 +14,4 @@ public static class TitleVramLayout
     /// </summary>
     public static readonly PpuLayoutCell BabyMetroidCharacters = new(nameof(BabyMetroidCharacters), PpuLayoutRegion.Vram,
         0x3800, 0x0100, "Mode 7 8-bpp pixels (u8, VRAM high bytes)", Mode7VramLayout.Characters);
-}
-
-/// <summary>Typed view of the title screen's VRAM (#630).</summary>
-[PpuLayoutBoundary("rendering view: title screen VRAM")]
-public readonly struct TitleVram(SnesVram vram)
-{
-    /// <summary>The title OBJ characters.</summary>
-    public VramRegion ObjectCharacters => new(vram, TitleVramLayout.ObjectCharacters);
-
-    /// <summary>Writes one Baby Metroid character page through the Mode 7 high-byte port, keeping the map bytes.</summary>
-    public void LoadBabyMetroidPage(ReadOnlySpan<byte> pixels)
-    {
-        Ensure.LengthEqual(pixels, TitleVramLayout.BabyMetroidCharacters.Count);
-        new Mode7Vram(vram).LoadCharacters(pixels, TitleVramLayout.BabyMetroidCharacters.Offset);
-    }
 }

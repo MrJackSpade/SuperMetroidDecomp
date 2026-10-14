@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Hardware.SnesAddressMath;
 
 namespace SuperMetroid.Core.Hardware;
 
@@ -184,7 +183,6 @@ public sealed class OamBuffer
         SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(x, xOffset.IsLarge));
         NextByteOffset = (NextByteOffset + 4) & 0x01ff;
     }
-
 
     /// <summary>Draws an installed enemy frame without reading visual records from ROM.</summary>
     public void AddEnemySpritemap(
@@ -412,14 +410,3 @@ public sealed class OamBuffer
         return (unsignedYSum & 0x100) != 0 ? wrappedY >= 0xe0 : wrappedY < 0xe0;
     }
 }
-
-/// <summary>A readable projection of one hardware OAM record.</summary>
-public readonly record struct OamEntry(
-    int X,
-    byte Y,
-    int TileNumber,
-    int Palette,
-    int Priority,
-    bool FlipX,
-    bool FlipY,
-    bool IsLarge);

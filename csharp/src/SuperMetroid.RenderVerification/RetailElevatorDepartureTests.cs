@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -68,11 +67,4 @@ internal static class RetailElevatorDepartureTests
         Console.WriteLine($"{device.Kind}: downward elevator {samples} exact frames, {departure} departure, " +
             $"{scrolling} scroll and {returning} return frames; control released.");
     }
-}
-
-/// <summary>Native Samus-to-carrier offset used to stage the downward elevator capture.</summary>
-internal static class ElevatorCaptureFixtureDefinitions
-{
-    /// <summary>Native elevator attachment uses a 26-pixel Samus center offset above the carrier; matches the existing ElevatorAudit fixture.</summary>
-    internal const int SamusAttachmentOffset = 26;
 }

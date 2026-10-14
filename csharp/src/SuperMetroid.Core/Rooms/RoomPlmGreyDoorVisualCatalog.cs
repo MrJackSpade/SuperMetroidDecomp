@@ -2,11 +2,6 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Visual-only blocks for a grey-door cap or shared door-clear frame.</summary>
-/// <param name="Id">Compiled clear or grey-door frame identity, including orientation.</param>
-/// <param name="Blocks">Four metatile/flip words in native run order; changed arrays are copied by the catalog.</param>
-public sealed record RoomPlmGreyDoorVisualEntry(string Id, ushort[] Blocks);
-
 /// <summary>
 /// Presentation-only selection for twenty grey-door and shared clear-cap frames. The compiled
 /// level words continue to own collision, animation timing, and door handoff.

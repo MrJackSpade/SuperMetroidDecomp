@@ -1,22 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The six bank-$86 movement callbacks the n00b-tube projectile lists install.</summary>
-internal enum NoobTubeProjectilePreInstruction : ushort
-{
-    /// <summary>$86:D7BF: flicker the n00b-tube crack actor.</summary>
-    CrackFlickering = (ushort)EnemyProjectilePreInstruction.NoobTubeCrackFlickering,
-    /// <summary>$86:D7DE: move the detached n00b-tube crack downward.</summary>
-    CrackFalling = (ushort)EnemyProjectilePreInstruction.NoobTubeCrackFalling,
-    /// <summary>$86:D7FD: move a newly emitted n00b-tube shard.</summary>
-    ShardFlying = (ushort)EnemyProjectilePreInstruction.NoobTubeShardFlying,
-    /// <summary>$86:D83D: rotate and fall after a shard's initial flight.</summary>
-    ShardFalling = (ushort)EnemyProjectilePreInstruction.NoobTubeShardFalling,
-    /// <summary>$86:D89F: rotate and fall a released-air bubble.</summary>
-    BubbleFalling = (ushort)EnemyProjectilePreInstruction.NoobTubeBubbleFalling,
-    /// <summary>$86:D8DF: move a released-air bubble vertically.</summary>
-    BubbleFlying = (ushort)EnemyProjectilePreInstruction.NoobTubeBubbleFlying,
-}
-
 /// <summary>
 /// Compiled control for the tube crack, its ten glass shards, and six released-air bubbles.
 /// Their interleaved spritemap operands select separately installed presentation data.
@@ -169,26 +152,4 @@ internal abstract class NoobTubeProjectileInstructionProgramDefinitions
             $"N00b-tube projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-}
-
-/// <summary>Ten native shard entry points: nine36-byte programs and one32-byte unreflected ninth program.</summary>
-public readonly struct NoobTubeShardProgramSequence : IReadOnlyList<ushort>
-{
-    /// <summary>Ten entry pointers for the ten native shard spawn parameters, not a count of currently live projectiles.</summary>
-    public int Count => 10;
-    /// <summary>Calculates a bank-$86 instruction-list entry from $D47D; ordinal eight uses the compact $D59D program and ordinal nine begins at $D5BD.</summary>
-    /// <param name="index">Zero-based shard ordinal 0..9, corresponding to native even parameter 2 times this index ($00..$12).</param>
-    /// <returns>A 16-bit bank-relative program pointer, not a full cartridge address or spritemap operand.</returns>
-    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside 0..9.</exception>
-    public ushort this[int index] => (uint)index < Count
-        ? (ushort)(NoobTubeProjectileInstructionProgramDefinitions.FirstShard+36*index-(index>8?4:0))
-        : throw new IndexOutOfRangeException();
-    /// <summary>Enumerates calculated entry pointers in native spawn-parameter order without retaining an array or mutable projectile state.</summary>
-    /// <returns>An independent enumerator over all ten bank-relative pointers.</returns>
-    public IEnumerator<ushort> GetEnumerator()
-    {
-        for(int index=0;index<Count;index++) yield return this[index];
-    }
-    /// <summary>Enumerates the same ten shard pointers through the non-generic collection interface.</summary>
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 }

@@ -2,17 +2,6 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One suit-dependent row of the fixed quicksand-surface physics table.</summary>
-public readonly record struct QuicksandSurfacePhysics(
-    ushort MovingDisplacement,
-    ushort StationaryDisplacement,
-    ushort UpwardSpeedLimit);
-
-/// <summary>One quicksand PLM header paired with its setup routine and initial list.</summary>
-public readonly record struct QuicksandReactionDefinition(
-    SpecialAirReactionSetup SetupPointer,
-    ushort InstructionListPointer);
-
 /// <summary>Compiled Maridia quicksand dispatch and physical definition data.</summary>
 public static class QuicksandDefinitions
 {

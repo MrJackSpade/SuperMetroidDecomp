@@ -1,6 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -174,68 +172,4 @@ public sealed class TitleGraphicsPresentation
                     "keep the compiled frame identities when editing visual parts.");
         return result;
     }
-}
-
-/// <summary>Serializable title Mode 7 map and native-selected sprite compositions.</summary>
-[SpatialComponents("External format: the title Mode 7 map JSON stores its declared grid dimensions as width/height integers.")]
-public sealed record TitleMode7MapDocument
-{
-    /// <summary>Gets the title-graphics document schema version.</summary>
-    public required int Version { get; init; }
-    /// <summary>Gets the Mode 7 map width in cells.</summary>
-    public required int Width { get; init; }
-    /// <summary>Gets the Mode 7 map height in cells.</summary>
-    public required int Height { get; init; }
-    /// <summary>Gets the row-major eight-bit Mode 7 character indexes.</summary>
-    public required int[] Tiles { get; init; }
-    /// <summary>Gets every native-selected title OBJ frame.</summary>
-    public required TitleSpriteFrame[] Sprites { get; init; }
-}
-
-/// <summary>One ROM-selected title OBJ frame; all parts inherit the active title palette.</summary>
-public sealed record TitleSpriteFrame
-{
-    /// <summary>Gets the bank-$8C spritemap pointer used to select this frame.</summary>
-    public required int Pointer { get; init; }
-    /// <summary>Gets the ordered OBJ parts composing the frame.</summary>
-    public required SpriteVisualPart[] Parts { get; init; }
-}
-
-/// <summary>Schema, dimensions, filenames, and validation limits for editable title graphics.</summary>
-public static class TitleGraphicsFormat
-{
-    /// <summary>Current title-graphics document schema version.</summary>
-    public const int Version = 2;
-    /// <summary>Number of cartridge-selected title sprite frames.</summary>
-    public const int SpriteFrameCount = 31;
-    /// <summary>Maximum OBJ parts accepted in one title sprite frame.</summary>
-    public const int MaximumSpriteParts = 128;
-    /// <summary>Width of the title OBJ character sheet in eight-pixel tiles.</summary>
-    public const int ObjectTileColumns = 32;
-    /// <summary>Height of the title OBJ character sheet in eight-pixel tiles.</summary>
-    public const int ObjectTileRows = 16;
-    /// <summary>Installed filename of the title Mode 7 character PNG.</summary>
-    public const string Mode7TilesFile = "title-mode7-tiles.png";
-    /// <summary>Installed filename of the title Mode 7 map JSON document.</summary>
-    public const string Mode7MapFile = "title-mode7-map.json";
-    /// <summary>Installed filename of the title OBJ character PNG.</summary>
-    public const string ObjectTilesFile = "title-object-tiles.png";
-    /// <summary>Installed filename of the baby Metroid Mode 7 character PNG.</summary>
-    public const string BabyTilesFile = "title-baby-tiles.png";
-    /// <summary>Width in pixels of the title Mode 7 character image.</summary>
-    public const int Mode7Width = 128;
-    /// <summary>Height in pixels of the title Mode 7 character image.</summary>
-    public const int Mode7Height = 128;
-    /// <summary>Width in cells of the title Mode 7 map.</summary>
-    public const int MapWidth = 64;
-    /// <summary>Height in cells of the title Mode 7 map.</summary>
-    public const int MapHeight = 64;
-    /// <summary>Width in pixels of the title OBJ character image.</summary>
-    public const int ObjectWidth = 256;
-    /// <summary>Height in pixels of the title OBJ character image.</summary>
-    public const int ObjectHeight = 128;
-    /// <summary>Width in pixels of the baby Metroid Mode 7 character image.</summary>
-    public const int BabyWidth = 32;
-    /// <summary>Height in pixels of the baby Metroid Mode 7 character image.</summary>
-    public const int BabyHeight = 32;
 }

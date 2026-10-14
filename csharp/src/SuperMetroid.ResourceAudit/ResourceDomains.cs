@@ -24,25 +24,3 @@ internal static class ResourceDomains
     /// <summary>Identity space for Mother Brain room flash palette rows.</summary>
     public const string MotherBrainRoomFlash = "mother-brain-room-flash-row";
 }
-
-/// <summary>Bank ownership of resource identities, derived from production catalogs.</summary>
-internal static class ResourceBanks
-{
-    /// <summary>$86: instruction operands selecting enemy-projectile presentation frames.</summary>
-    public const byte EnemyProjectilePrograms = (byte)(SuperMetroid.Core.Game.EnemyProjectileCodePointers.BankBase >> 16);
-    /// <summary>$8D: enemy-projectile OAM compositions and palette-FX colors.</summary>
-    public const byte ProjectileOamAndPaletteFx = (byte)(SuperMetroid.Core.Game.RoomFxRomData.Banks.PaletteFx >> 16);
-    /// <summary>$93: Samus projectile animation compositions.</summary>
-    public const byte SamusProjectiles = SuperMetroid.Core.Game.SamusProjectileRomData.Banks.ProjectileNumber;
-}
-
-/// <summary>Win32 SetErrorMode bits matching the repository console process policy.</summary>
-internal static class ConsoleErrorPolicy
-{
-    /// <summary>SEM_FAILCRITICALERRORS: report critical errors through the console boundary.</summary>
-    public const uint FailCriticalErrors = 0x0001;
-    /// <summary>SEM_NOGPFAULTERRORBOX: no Windows fault-reporting dialog.</summary>
-    public const uint NoFaultDialog = 0x0002;
-    /// <summary>SEM_NOOPENFILEERRORBOX: file errors never prompt through legacy Windows UI.</summary>
-    public const uint NoOpenFileDialog = 0x8000;
-}

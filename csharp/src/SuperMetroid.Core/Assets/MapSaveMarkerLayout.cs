@@ -1,7 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -70,20 +69,4 @@ public sealed class MapSaveMarkerLayout
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-/// <summary>Editable JSON schema for selected-save marker drawing anchors; native station identities, load destinations, and initial scrolling remain application-owned.</summary>
-public sealed record MapSaveMarkerDocument
-{
-    /// <summary>Schema revision, which loading requires to equal <see cref="MapSaveMarkerFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>One non-null area-map pixel anchor per usable station, keyed as <c>Area.Save.slot</c> with exact casing; X=0..511 and Y=0..255 are measured before scroll subtraction.</summary>
-    public required Dictionary<string, Position16<MapPixels>> Markers { get; init; }
-}
-/// <summary>Asset filename and supported JSON revision for editable selected-save marker drawing positions.</summary>
-public static class MapSaveMarkerFormat
-{
-    /// <summary>Required revision of the complete named-station coordinate schema.</summary>
-    public const int Version = 1;
-    /// <summary>Filename loaded by the area-map presentation catalog for selected-save marker anchors.</summary>
-    public const string FileName = "map-save-markers.json";
 }

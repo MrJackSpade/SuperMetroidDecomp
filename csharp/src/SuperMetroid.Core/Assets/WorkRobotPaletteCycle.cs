@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -147,23 +146,4 @@ public sealed class WorkRobotPaletteCycle
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Work Robot palette property {name}."));
-}
-
-/// <summary>JSON schema for the six ordered Work Robot RGB5 palette records.</summary>
-public sealed record WorkRobotPaletteCycleDocument
-{
-    /// <summary>Schema revision; loading requires <see cref="WorkRobotPaletteCycleFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Six ordered frames of four editable RGB5 colors, independent of native frame timing.</summary>
-    public required PaletteRgb5[][] Frames { get; init; }
-}
-
-/// <summary>Defines the installed Work Robot palette-cycle resource contract.</summary>
-public static class WorkRobotPaletteCycleFormat
-{
-    /// <summary>Canonical Work Robot palette-cycle asset file name.</summary>
-    public const string FileName = "work-robot-palette-cycle.json";
-    /// <summary>Supported Work Robot palette-cycle schema version.</summary>
-    public const int Version = 1;
 }

@@ -1,27 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>
-/// Prospective pose change commands dispatched by <c>$91:EC16</c> when the prospective
-/// pose equals the current pose. Each command is one handler, so this is not a flag set.
-/// </summary>
-public enum SamusProspectivePoseChangeCommand : byte
-{
-    /// <summary>Command 0, <c>RTS_91EFC3</c>.</summary>
-    None = 0,
-
-    /// <summary>Command 1, <c>ProspectivePoseCmd_1_Decelerate</c>.</summary>
-    Decelerate = 1,
-
-    /// <summary>Command 2, <c>ProspectivePoseCmd_2_Stop</c>.</summary>
-    Stop = 2,
-
-    /// <summary>Command 6, <c>ProspectivePoseCmd_6_KillXSpeed</c>.</summary>
-    KillXSpeed = 6,
-
-    /// <summary>Command 8, <c>ProspectivePoseCmd_8_KillRunSpeed</c>.</summary>
-    KillRunSpeed = 8,
-}
-
 /// <summary>The lookup-failure command table at <c>$91:8332</c>, indexed by movement type.</summary>
 public static class SamusPoseChangeCommandDefinitions
 {
@@ -60,33 +38,4 @@ public static class SamusPoseChangeCommandDefinitions
             _ => throw new ArgumentOutOfRangeException(nameof(movementType), movementType,
                 "Movement type has no $91:8332 lookup-failure command."),
         };
-}
-
-/// <summary>The prospective pose and command chosen by <c>HandleTransitionTableLookupFailure</c>.</summary>
-public readonly record struct SamusLookupFailurePose(SamusPoseId ProspectivePose)
-{
-    /// <summary>
-    /// Ports <c>$91:82D9</c> with <c>Set_ProspectivePoseChangeCommand</c> ($91:8304).
-    /// Decelerate retains the current pose while base X speed remains and otherwise
-    /// becomes Stop; every other command consults pose-definition byte two, where $FF
-    /// retains the current pose.
-    /// </summary>
-    public static SamusLookupFailurePose Resolve(
-        SamusMovementType movementType,
-        SamusPoseId currentPose,
-        SamusPoseId definitionFallbackPose,
-        bool hasBaseXSpeed)
-    {
-        SamusProspectivePoseChangeCommand command = SamusPoseChangeCommandDefinitions.ForLookupFailure(movementType);
-        if (command == SamusProspectivePoseChangeCommand.Decelerate)
-        {
-            if (hasBaseXSpeed)
-                return new SamusLookupFailurePose(currentPose);
-            command = SamusProspectivePoseChangeCommand.Stop;
-        }
-        SamusPoseId pose = definitionFallbackPose == SamusMovementRomData.Poses.RetainCurrentPoseFallback
-            ? currentPose
-            : definitionFallbackPose;
-        return new SamusLookupFailurePose(pose);
-    }
 }

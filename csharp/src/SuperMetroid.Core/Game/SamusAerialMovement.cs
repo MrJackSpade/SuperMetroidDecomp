@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -861,17 +860,3 @@ public static class SamusAerialMovement
     }
 
 }
-
-/// <summary>Both collision scans and collision state produced by one aerial frame.</summary>
-public readonly record struct AerialMovementResult(
-    bool Landed,
-    bool HitCeiling,
-    bool WallJumpTriggered = false,
-    bool WallContact = false,
-    ushort WallDistance = 0);
-
-/// <summary>Wall probe outcome including contact distance even when the launch chord does not trigger.</summary>
-internal readonly record struct WallJumpCheckResult(
-    bool Triggered,
-    bool Contact,
-    ushort Distance);

@@ -1,22 +1,5 @@
 namespace SuperMetroid.Core.Input;
 
-/// <summary>The six bank-$91 control routines shared by every demo-input instruction list.</summary>
-public enum DemoInputInstruction : ushort
-{
-    /// <summary>$91:8427, <c>Instruction_DemoInputObject_Delete</c>: no operands; clears the instruction pointer and held/new input words, terminating list processing.</summary>
-    Delete = 0x8427,
-    /// <summary>$91:8434, <c>Instruction_DemoInputObject_PreInstructionInY</c>: consumes one bank-$91 routine-pointer word and installs it as the object's per-update pre-instruction.</summary>
-    SetPreInstruction = 0x8434,
-    /// <summary>$91:843F, <c>Instruction_DemoInputObject_ClearPreInstruction</c>: no operands; installs the return-only target <see cref="DemoInputRomData.Routines.ClearedPreInstruction"/>.</summary>
-    ClearPreInstruction = 0x843f,
-    /// <summary>$91:8448, <c>Instruction_DemoInputObject_GotoY</c>: replaces the list cursor with the following sixteen-bit bank-$91 byte pointer.</summary>
-    Goto = 0x8448,
-    /// <summary>$91:844F, <c>Instruction_DemoInputObject_DecrementTimer_GotoYIfNonZero</c>: decrements the separate sixteen-bit loop timer and jumps through the following pointer unless the result is zero; zero skips that operand.</summary>
-    DecrementTimerAndGoto = 0x844f,
-    /// <summary>$91:8459, <c>Instruction_DemoInputObject_TimerInY</c>: consumes one word to set the loop timer, independently of the input-record duration countdown.</summary>
-    SetTimer = 0x8459,
-}
-
 /// <summary>Verified bank-$91 demo-controller object and bytecode definitions.</summary>
 public static class DemoInputRomData
 {
@@ -47,17 +30,4 @@ public static class DemoInputRomData
         /// <summary>Six bytes per input record: duration word, held-button word, and explicitly authored newly-pressed-button word; $91:8420 advances the cursor by this byte count.</summary>
         public const int InputRecordBytes = 6;
     }
-}
-
-/// <summary>The bank-$91 pre-instructions a title-demo input object can hold.</summary>
-public enum AttractDemoPreInstruction : ushort
-{
-    /// <summary>$91:83BF, the return-only routine installed by the demo object definition.</summary>
-    NoOp = DemoInputRomData.Routines.NoOp,
-    /// <summary>$91:8447, the return-only routine installed when the pre-instruction is cleared.</summary>
-    Cleared = DemoInputRomData.Routines.ClearedPreInstruction,
-    /// <summary>$91:8A9B, DemoPreInstr_CheckLeaveDemo: delete during game state $2C.</summary>
-    CheckLeave = 0x8a9b,
-    /// <summary>$91:8AB0, DemoPreInstr_8AB0: redirects unless movement type is $1A.</summary>
-    Shinespark = 0x8ab0,
 }

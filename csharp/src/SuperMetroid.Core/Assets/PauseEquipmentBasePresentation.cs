@@ -1,6 +1,5 @@
 using System.Buffers.Binary;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -115,14 +114,4 @@ public sealed class PauseEquipmentBasePresentation
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
     }
-}
-
-/// <summary>Editable JSON schema for the pause equipment page's static base tilemap.</summary>
-public sealed record PauseEquipmentBaseDocument
-{
-    /// <summary>Must match the installed equipment-base format before any cell is accepted.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Gets all 1024 BG tile references in 32-column row-major order.</summary>
-    public required PauseBackdropCell[] Cells { get; init; }
 }

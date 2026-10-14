@@ -1,6 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -90,23 +88,4 @@ public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePres
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Mutable JSON authoring data for SR388's six shell fragments, moving slime, and four slime-impact frames; actor physics and instruction timing are not stored here.</summary>
-public sealed record IntroEggEffectSpriteDocument
-{
-    /// <summary>Gets the schema version, which must equal <see cref="IntroEggEffectSpriteFormat.Version"/> when loaded or written.</summary>
-    public required int Version { get; init; }
-    /// <summary>Gets the caller-owned frame arrays keyed by fragment-0..fragment-5, slime-moving, and slime-impact-0..slime-impact-3; array order determines OAM draw order.</summary>
-    /// <remarks>Parts use pixel offsets and 8- or 16-pixel OBJ sizes within a 16-column by 32-row tile atlas. A null palette inherits the drawing actor's selector. Loading compiles and copies these values rather than retaining the mutable arrays.</remarks>
-    public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
-}
-
-/// <summary>Installed file identity for the eleven SR388 egg-effect frames.</summary>
-public static class IntroEggEffectSpriteFormat
-{
-    /// <summary>Supported JSON schema revision for the eleven named visual compositions; not a native animation or motion version.</summary>
-    public const int Version = 1;
-    /// <summary>Installation-relative JSON filename selected by the opening cinematic artwork loader for shell-fragment and slime OAM definitions.</summary>
-    public const string FileName = "intro-egg-effect-sprites.json";
 }

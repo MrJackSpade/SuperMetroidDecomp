@@ -89,4 +89,10 @@ public static class FileSelectMapRomData
     public const int EntryWindowRight = 129;
     /// <summary>$81:A725 expands each window edge four pixels per update.</summary>
     public const int EntryWindowSpeed = 4;
+    /// <summary>$8E:8000: the $5600-byte 4-bpp menu foreground characters $81:8DDB LoadInitialMenuTiles transfers.</summary>
+    public const int InitialMenuForegroundCharacters = 0x8e8000;
+    /// <summary>$8E:D600: the $600-byte 2-bpp BG3 menu characters $81:8DDB also installs.</summary>
+    public const int InitialMenuBackgroundCharacters = 0x8ed600;
+    /// <summary>Bank $81, holding the file-select tilemap text streams.</summary>
+    public const int TilemapTextBank = 0x810000;
 }

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 
@@ -1000,21 +999,4 @@ public sealed class SamusHorizontalSpeedState
         return unchecked((int)(SnesSixteenSixteen.Compose((ushort)high, low)));
     }
 
-
 }
-
-/// <summary>One native 12-byte <c>SamusSpeedTableEntry</c> from cartridge bank $90.</summary>
-public readonly record struct SpeedTableEntry(
-    ushort Acceleration,
-    ushort AccelerationSubspeed,
-    ushort MaximumSpeed,
-    ushort MaximumSubspeed,
-    ushort Deceleration,
-    ushort DecelerationSubspeed)
-{
-    /// <summary>All six table fields are little-endian 16-bit words.</summary>
-    public const int ByteCount = 12;
-}
-
-/// <summary>Value and 65816 carry returned by <c>$90:9B1F</c>.</summary>
-public readonly record struct AerialBaseSpeedResult(uint Speed, bool ReachedMaximum);

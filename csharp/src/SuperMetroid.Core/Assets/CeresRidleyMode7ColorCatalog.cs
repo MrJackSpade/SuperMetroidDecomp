@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -98,22 +97,4 @@ public sealed class CeresRidleyMode7ColorCatalog
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Ceres Ridley Mode-7 property {name}."));
-}
-
-/// <summary>Editable Ceres Ridley getaway zoom shades corresponding to $A6:B107 onward, excluding each native row's unused sixteenth word.</summary>
-public sealed record CeresRidleyMode7ColorDocument
-{
-    /// <summary>Schema revision required to equal <see cref="CeresRidleyMode7ColorFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Nine zoom-high-byte rows, zero through eight, each with fifteen RGB5 colors.</summary>
-    public required PaletteRgb5[][] ZoomRows { get; init; }
-}
-
-/// <summary>Editable color-resource filename and JSON revision, separate from native zoom-state and palette-destination definitions.</summary>
-public static class CeresRidleyMode7ColorFormat
-{
-    /// <summary>JSON filename loaded by the presentation catalog for the nine Mode-7 getaway shades.</summary>
-    public const string FileName = "ceres-ridley-mode7-colors.json";
-    /// <summary>Supported revision of the nine-by-fifteen RGB5 zoom-shade schema.</summary>
-    public const int Version = 1;
 }

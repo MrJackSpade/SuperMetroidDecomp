@@ -6,14 +6,6 @@ using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Desktop;
 
-/// <summary>PCM-level regression for gameplay-to-pause-to-gameplay audio continuity.</summary>
-public readonly record struct PauseAudioSmokeTestResult(
-    int FramesGenerated,
-    int PauseFrames,
-    int AudioCommandCount,
-    int MaximumAdjacentSampleDelta,
-    int MaximumFrameBoundaryDelta);
-
 /// <summary>Headless saved-game pause/resume regression covering PCM continuity, sound-library cancellation order, and preservation of the resident SPC upload.</summary>
 public static class PauseAudioSmokeTest
 {

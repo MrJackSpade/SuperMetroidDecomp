@@ -1,9 +1,5 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>One native Crocomire skeleton-character upload, with fixed VRAM placement.</summary>
-internal readonly record struct CrocomireSkeletonTransferDefinition(
-    int SourceAddress, ushort DestinationOffset);
-
 /// <summary>
 /// The six $0200-byte skeleton uploads selected by the tables at $A4:99CB/$99D9.
 /// $FFFF is the seventh destination-table entry and ends the sequence. The source
@@ -65,12 +61,4 @@ internal static class CrocomireSkeletonTransferDefinitions
         frame = default;
         return false;
     }
-}
-
-/// <summary>Calculated source-page and OBJ-placement identities, without stored transfer rows.</summary>
-internal readonly record struct CrocomireSkeletonTransferSequence(int Length)
-{
-    /// <summary>Computes the selected native source page and VRAM destination without storing transfer rows.</summary>
-    internal CrocomireSkeletonTransferDefinition this[int index] =>
-        CrocomireSkeletonTransferDefinitions.Frame(index);
 }

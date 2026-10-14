@@ -30,8 +30,8 @@ different types; moving between spaces is always a named conversion.
 | `DisplayPixels` | Host window/swapchain pixels after presentation scaling. |
 | `GamepadStick` | Normalized host analog-stick deflection (signed 16-bit axes, X right, Y down). |
 
-Add a space only when values in it must not mix with an existing space; document it here and in
-`SpatialSpaces.cs`.
+Add a space only when values in it must not mix with an existing space; document it here and give it its own
+`csharp/src/SuperMetroid.Core/Spatial/<Space>.cs` file beside the others.
 
 Sprite drawing: asset compositions draw at a `Position16<OamPixels>` origin and authored sprite
 anchors are OAM coordinates. Game and cinematic state keeps on-screen object positions in

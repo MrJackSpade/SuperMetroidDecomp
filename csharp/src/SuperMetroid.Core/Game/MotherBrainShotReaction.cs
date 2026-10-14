@@ -1,8 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The walk counter after one shot reaction and whether it started recoil.</summary>
-internal readonly record struct MotherBrainShotReactionResult(ushort WalkCounter, bool HyperBeamRecoil);
-
 /// <summary>
 /// Ports the walk-counter arithmetic of Mother Brain's phase-two/three shot reaction
 /// <c>$A9:B562-$B5C4</c>, independent of which object currently owns the counter.

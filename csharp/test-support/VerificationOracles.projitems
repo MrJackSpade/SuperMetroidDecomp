@@ -1,0 +1,6 @@
+<Project>
+  <!-- Reference oracles and audits only the main verifier uses. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationOracles/**/*.cs" LinkBase="TestSupport/VerificationOracles" />
+  </ItemGroup>
+</Project>

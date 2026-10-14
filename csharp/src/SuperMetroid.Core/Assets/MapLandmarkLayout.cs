@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -45,20 +44,4 @@ public sealed class MapLandmarkLayout
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-/// <summary>Editable JSON schema for boss, elevator-label, and gunship drawing anchors; native identities, slot order, progression visibility, and destination rules remain application-owned.</summary>
-public sealed record MapLandmarkDocument
-{
-    /// <summary>Schema revision, which must equal <see cref="MapLandmarkFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>One non-null pixel anchor for every identity from <see cref="MapLandmarkDefinitions.AllIds"/>, keyed with exact casing; coordinates lie on the area-map canvas before scroll subtraction, with X=0..511 and Y=0..255.</summary>
-    public required Dictionary<string, Position16<MapPixels>> Markers { get; init; }
-}
-/// <summary>Asset filename and supported JSON schema revision for editable area-map landmark anchors.</summary>
-public static class MapLandmarkFormat
-{
-    /// <summary>Supported revision of the complete named-landmark coordinate schema.</summary>
-    public const int Version = 1;
-    /// <summary>Asset filename loaded by the area-map presentation catalog for landmark drawing positions.</summary>
-    public const string FileName = "map-landmarks.json";
 }

@@ -1,8 +1,5 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>One immutable stock sprite's tile coverage and visible origin.</summary>
-internal readonly record struct DeadTorizoStockPart(int Tile, int TileExtent);
-
 /// <summary>
 /// Stock $A9:D6E2-D760 composition, separate from editable display OAM. Its authored
 /// head/body/ankle/foot arrangement remains required under Stream3's existing

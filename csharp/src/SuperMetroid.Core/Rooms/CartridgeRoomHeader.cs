@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -53,60 +51,4 @@ public sealed record CartridgeRoomHeader(
     public static AreaId ReadAreaIndex(ushort roomPointer) =>
         RoomHeaderDefinitions.Get(roomPointer).AreaIndex;
 
-}
-
-/// <summary>The fields copied by <c>LoadStateHeader</c> at $82:DEF2.</summary>
-public sealed record CartridgeRoomState(
-    ushort Pointer,
-    int CompressedLevelDataAddress,
-    byte GraphicsSet,
-    byte MusicDataIndex,
-    byte MusicTrackIndex,
-    ushort FxPointer,
-    ushort EnemyPopulationPointer,
-    ushort EnemyTilesetPointer,
-    SuperMetroid.Core.Game.Layer2ScrollModes Layer2Scroll,
-    ushort ScrollPointer,
-    ushort XrayPointer,
-    ushort MainCodePointer,
-    ushort PlmPointer,
-    ushort BackgroundDataPointer,
-    ushort SetupCodePointer)
-{
-    /// <summary>Typed mutually exclusive identity of the selected room-main callback.</summary>
-    public RoomMainCallback MainCallback =>
-        RoomCallbackDefinitions.ResolveMain(MainCodePointer);
-
-    /// <summary>Typed mutually exclusive identity of the selected room-setup callback.</summary>
-    public RoomSetupCallback SetupCallback =>
-        RoomCallbackDefinitions.ResolveSetup(SetupCodePointer);
-
-}
-
-/// <summary>Facts inspected by the cartridge's room-state selector functions.</summary>
-public readonly record struct RoomStateSelectionContext(
-    ReadOnlyMemory<byte> Events,
-    BossBits BossBits,
-    bool HasMorphBallAndMissiles,
-    bool HasPowerBombs)
-{
-    /// <summary>Tests one native event bit, treating indices beyond the supplied event memory as clear.</summary>
-    /// <param name="eventIndex">Zero-based bit index into the event byte sequence.</param>
-    /// <returns>True when the corresponding supplied bit is set; false when clear or absent.</returns>
-    public bool IsEventSet(byte eventIndex)
-    {
-        ReadOnlySpan<byte> events = Events.Span;
-        int byteIndex = eventIndex >> 3;
-        return byteIndex < events.Length && (events[byteIndex] & (1 << (eventIndex & 7))) != 0;
-    }
-
-    /// <summary>Tests whether the selected area's boss-state word contains any bit from a validated known mask.</summary>
-    /// <param name="mask">A mask composed only of established <see cref="BossBits"/> values; zero is allowed.</param>
-    /// <returns>True when at least one selected boss-defeat bit is set; a zero mask returns false.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The mask contains an unproven boss-state bit.</exception>
-    public bool IsBossDead(BossBits mask)
-    {
-        BossBitMasks.Validate(mask, "Room-state boss selector");
-        return (BossBits & mask) != 0;
-    }
 }

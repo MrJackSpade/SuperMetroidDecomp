@@ -1,7 +1,5 @@
-using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -100,26 +98,4 @@ public sealed class SamusVisorColorCatalog
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus visor color property {name}."));
-}
-
-/// <summary>Editable RGB5 schema for the six shared X-ray and animated-room visor colors, excluding their native timing and byte-offset state.</summary>
-public sealed record SamusVisorColorDocument
-{
-    /// <summary>Schema revision; loading requires version one from <see cref="SamusVisorColorFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Six nonnull RGB5 colors with channels 0..31 in $9B:A3C0 word order: three widening colors followed by three full-X-ray/room-cycle colors.</summary>
-    public required PaletteRgb5[] Colors { get; init; }
-}
-
-/// <summary>Installed-resource identity, schema revision, and native six-word extent for editable Samus visor colors.</summary>
-public static class SamusVisorColorFormat
-{
-    /// <summary>JSON resource filename containing the six editable visor RGB5 colors.</summary>
-    public const string FileName = "samus-visor-colors.json";
-    /// <summary>Supported schema revision, one, requiring exactly the six authored visor words.</summary>
-    public const int Version = 1;
-    /// <summary>The six authored BGR555 words at $9B:A3C0, including X-ray widening and room-cycle colors.</summary>
-    public const int SourceAddress = SamusPaletteRomData.Visor.Colors;
-    /// <summary>Six selected color words, corresponding to valid native even byte offsets 0, 2, 4, 6, 8, and 10.</summary>
-    public const int ColorCount = 6;
 }

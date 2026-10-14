@@ -2,12 +2,6 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Editable tile appearance for one Mother Brain fake-death draw.</summary>
-/// <param name="Id">Compiled identity of a wall, escape-door, background-row, or tube-clearing layout, including the two retained unused background rows.</param>
-/// <param name="Blocks">Metatile/flip words flattened in native run order and word order within each run; changed arrays are copied by the catalog.</param>
-public sealed record RoomPlmMotherBrainFakeDeathVisualEntry(
-    string Id, ushort[] Blocks);
-
 /// <summary>
 /// Visual-only Mother Brain fake-death wall, room background, door, and tube
 /// appearances. Native collision words, draw geometry, and PLM timing remain

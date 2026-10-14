@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -48,68 +47,4 @@ public sealed class MapArrowPresentation
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-/// <summary>Provides one map arrow's screen anchor and cyclic cosmetic phase timing.</summary>
-public sealed class MapArrowVisual
-{
-    /// <summary>Only edited durations are stored; stock phases use native timing.</summary>
-    internal readonly Dictionary<int, byte>? durationOverrides;
-    /// <summary>Captures the authored phase count and stores deviations from cartridge timing.</summary>
-    internal MapArrowVisual(Position16<OamPixels> position, int[] durations)
-    {
-        Position = position;
-        PhaseCount = durations.Length;
-        for (int phase = 0; phase < durations.Length; phase++)
-            if (durations[phase] != MenuSelectorTiming.Duration(phase))
-                (durationOverrides ??= new()).Add(phase, (byte)durations[phase]);
-    }
-    /// <summary>Screen-pixel anchor used when composing this direction's OAM sprite.</summary>
-    public Position16<OamPixels> Position { get; }
-    /// <summary>Bounds the cyclic phase index supplied to <see cref="Duration"/>.</summary>
-    public int PhaseCount { get; }
-
-    /// <summary>Calculates native arrow timing, with independent authored phase edits.</summary>
-    /// <remarks>$82:C137 holds the initial phase for15 ticks and every following
-    /// phase for2. The original14-phase cycle repeats this rule without a cache.
-    /// Custom cycle lengths and individual delays remain document-owned inputs.</remarks>
-    public byte Duration(int phase)
-    {
-        if ((uint)phase >= (uint)PhaseCount) throw new IndexOutOfRangeException();
-        return durationOverrides is not null && durationOverrides.TryGetValue(phase, out byte value)
-            ? value : MenuSelectorTiming.Duration(phase);
-    }
-}
-/// <summary>Defines the four directional map-arrow visuals.</summary>
-public sealed record MapArrowDocument
-{
-    /// <summary>Gets the document schema revision.</summary>
-    public required int Version { get; init; }
-    /// <summary>Gets the exact Left, Right, Up, and Down arrow entries.</summary>
-    public required Dictionary<string, MapArrowEntry> Arrows { get; init; }
-}
-/// <summary>Defines one arrow's screen anchor and per-phase durations.</summary>
-[SpatialComponents("External format: map-arrows.json stores each arrow anchor as flat x/y fields.")]
-public sealed record MapArrowEntry
-{
-    /// <summary>The authored screen-pixel anchor.</summary>
-    [System.Text.Json.Serialization.JsonIgnore]
-    public Position16<OamPixels> Position => new(checked((ushort)X), checked((ushort)Y));
-    /// <summary>Gets the horizontal screen-pixel anchor from zero through 255.</summary>
-    public required int X { get; init; }
-    /// <summary>Gets the vertical screen-pixel anchor from zero through 223.</summary>
-    public required int Y { get; init; }
-    /// <summary>Gets one positive update-tick duration per cyclic animation phase.</summary>
-    public required int[] DurationTicks { get; init; }
-}
-/// <summary>Defines the map-arrow document identity and bounded timing limits.</summary>
-public static class MapArrowFormat
-{
-    /// <summary>Supported map-arrow document schema revision.</summary>
-    public const int Version = 1;
-    /// <summary>JSON filename containing directional map-arrow visuals.</summary>
-    public const string FileName = "map-arrows.json";
-    /// <summary>Largest supported number of cyclic animation phases.</summary>
-    public const int MaximumPhases = 255;
-    /// <summary>Largest supported duration, in update ticks, for one phase.</summary>
-    public const int MaximumDuration = 254;
 }

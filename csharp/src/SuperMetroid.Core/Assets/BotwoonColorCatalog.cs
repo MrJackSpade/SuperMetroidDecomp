@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -110,24 +109,4 @@ public sealed class BotwoonColorCatalog
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Botwoon color property {name}."));
-}
-
-/// <summary>Editable JSON schema for Botwoon's eight health-dependent sprite-palette images.</summary>
-public sealed record BotwoonColorDocument
-{
-    /// <summary>Gets the Botwoon color schema version.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Gets eight ordered rows of sixteen RGB5 colors corresponding to native <c>$B3:971B-$981A</c>.</summary>
-    public required PaletteRgb5[][] Health { get; init; }
-}
-
-/// <summary>Names and versions the editable Botwoon health-color asset.</summary>
-public static class BotwoonColorFormat
-{
-    /// <summary>The embedded Botwoon color asset file name.</summary>
-    public const string FileName = "botwoon-colors.json";
-
-    /// <summary>The supported Botwoon color JSON schema version.</summary>
-    public const int Version = 1;
 }

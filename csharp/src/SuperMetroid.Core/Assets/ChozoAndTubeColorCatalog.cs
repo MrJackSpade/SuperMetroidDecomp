@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -167,26 +166,4 @@ public sealed class ChozoAndTubeColorCatalog
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Chozo/tube color property {name}."));
-}
-
-/// <summary>Editable tube-crack and Chozo-statue RGB5 images, each retaining two ordered sixteen-color OBJ palettes including their transparent-slot words.</summary>
-public sealed record ChozoAndTubeColorDocument
-{
-    /// <summary>Color schema revision; loading currently requires version 1.</summary>
-    public required int Version { get; init; }
-    /// <summary>32 ordered tube-crack inks corresponding to $AA:E2DD–$E31C, filling OBJ palettes 1 and 2; stock halves repeat but edits need not.</summary>
-    public required PaletteRgb5[] TubeCracks { get; init; }
-    /// <summary>32 ordered Wrecked Ship Chozo inks corresponding to $AA:E31D–$E35C, filling OBJ palettes 1 and 2.</summary>
-    public required PaletteRgb5[] WreckedShip { get; init; }
-    /// <summary>32 ordered Lower Norfair Chozo inks corresponding to $AA:E35D–$E39C, filling OBJ palettes 1 and 2 independently of the Wrecked Ship image.</summary>
-    public required PaletteRgb5[] LowerNorfair { get; init; }
-}
-
-/// <summary>Installed filename and supported schema revision for the three bounded editable tube/statue color images.</summary>
-public static class ChozoAndTubeColorFormat
-{
-    /// <summary>Installed editable JSON filename for the tube-crack, Wrecked Ship Chozo, and Lower Norfair Chozo palette images.</summary>
-    public const string FileName = "chozo-and-tube-colors.json";
-    /// <summary>Supported color schema revision, requiring 32 RGB5 colors for each independent image.</summary>
-    public const int Version = 1;
 }

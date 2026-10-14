@@ -1,20 +1,4 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Game;
-
-/// <summary>One frame of the red hand beam's program: its stage and its position there.</summary>
-/// <param name="Stage">One of the three identical stages.</param>
-/// <param name="Phase">The frame's position in its stage.</param>
-public readonly record struct MotherBrainHandBeamFrame(int Stage, int Phase);
-
-/// <summary>Gameplay cues of the hand beam's program.</summary>
-internal enum MotherBrainHandBeamCue
-{
-    /// <summary><c>Spawn_MotherBrainRedBeam_Fired</c> ($86:C7FB): spawns the next fired beam along the aim.</summary>
-    SpawnNextBeam,
-    /// <summary>Deletes the beam after its third stage.</summary>
-    Delete,
-}
 
 /// <summary>The red hand beam's typed program (#641), in place of its bank-$86 instruction list at $86:C796.</summary>
 internal static class MotherBrainHandBeamAnimations
@@ -43,16 +27,4 @@ internal static class MotherBrainHandBeamAnimations
         foreach ((int phase, int duration) in new[] { (1, 3), (2, 2), (3, 2), (4, 1), (5, 1), (6, 1) })
             yield return AnimationStep<MotherBrainHandBeamFrame, MotherBrainHandBeamCue>.Show(new(stage, phase), duration);
     }
-}
-
-/// <summary>A hand beam's typed animation.</summary>
-internal sealed class MotherBrainHandBeamAnimation : EnemyProjectileTimelineAnimation<MotherBrainHandBeamFrame, MotherBrainHandBeamCue>
-{
-    /// <inheritdoc/>
-    private protected override AnimationTimeline<MotherBrainHandBeamFrame, MotherBrainHandBeamCue> Timeline =>
-        MotherBrainHandBeamAnimations.Timeline;
-
-    /// <inheritdoc/>
-    private protected override ushort PresentationKey(MotherBrainHandBeamFrame frame) =>
-        MotherBrainHandBeamVisualDefinitions.PresentationKey(frame);
 }

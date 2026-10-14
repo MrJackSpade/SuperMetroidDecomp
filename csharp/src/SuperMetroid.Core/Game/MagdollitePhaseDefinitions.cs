@@ -1,11 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One authored Magdollite rising-body phase.</summary>
-internal readonly record struct MagdollitePhaseDefinition(
-    ushort DistanceThreshold,
-    ushort BodyInstructionList,
-    ushort OverlayYOffset);
-
 /// <summary>Compiled physical phase definitions for Magdollite's rising body.</summary>
 internal static class MagdollitePhaseDefinitions
 {

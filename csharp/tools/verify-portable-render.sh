@@ -7,7 +7,7 @@ tar -C /source --exclude=bin --exclude=obj -cf /work/source.tar \
     csharp/Directory.Build.props \
     csharp/src/SuperMetroid.Core \
     csharp/src/SuperMetroid.Verification \
-    csharp/tools/ProductionMagicNumberAudit.cs \
+    csharp/tools/MagicNumberAudit \
     'Super Metroid.smc'
 tar -C /work -xf /work/source.tar
 cd /work

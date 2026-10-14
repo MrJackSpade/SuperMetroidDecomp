@@ -144,6 +144,3 @@ internal sealed class D3D11GpuTimer : IDisposable
         public void Dispose() { CompositionFinished.Dispose(); Finish.Dispose(); Start.Dispose(); Disjoint.Dispose(); }
     }
 }
-
-/// <summary>GPU duration for one interval and its composition portion, or invalid values after a disjoint clock.</summary>
-internal readonly record struct GpuTimingSample(bool Valid, double Milliseconds, double CompositionMilliseconds);

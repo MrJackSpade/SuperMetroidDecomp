@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Fixed actor metadata and physical spawn schedule for the Ceres destruction blasts.</summary>
@@ -205,14 +203,3 @@ internal static class CeresExplosionDefinitions
         return new(new((short)x, (short)y), (ushort)(index == 0 ? 1 : 1 << (index + 1)));
     }
 }
-
-/// <summary>One native six-byte bank-$8B cinematic sprite-object definition.</summary>
-internal readonly record struct CeresExplosionActorDefinition(
-    ushort PreInstruction,
-    ushort InstructionList);
-
-/// <summary>One fixed Ceres explosion offset and initial instruction delay.</summary>
-internal readonly record struct CeresExplosionPlacement(Offset16<ScreenPixels> Offset, ushort DelayFrames);
-
-/// <summary>Ordered spawner events; repeating and final waves may occur on the same call.</summary>
-internal readonly record struct CeresExplosionSpawnEvents(bool Initial, bool Repeating, bool Final);

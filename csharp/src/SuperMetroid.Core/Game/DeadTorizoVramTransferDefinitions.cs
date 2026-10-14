@@ -1,14 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One fixed Dead Torizo corpse-transfer descriptor; source bytes remain mutable WRAM.</summary>
-internal readonly record struct DeadTorizoVramTransferDefinition(
-    ushort SizeInBytes, ushort SourceBankWord, ushort SourceOffset,
-    ushort EncodedVramDestination)
-{
-    /// <summary>Combines the descriptor's encoded bank byte and source offset into the WRAM DMA address.</summary>
-    internal int SourceAddress => ((SourceBankWord & 0xff00) << 8) | SourceOffset;
-}
-
 /// <summary>
 /// The alternating bank-$A9 corpse VRAM queues at $A9:D549 and $A9:D583.
 /// These immutable descriptor words select mutable $7E staging bytes; the

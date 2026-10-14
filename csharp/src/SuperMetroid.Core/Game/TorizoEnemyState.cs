@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Core.Game;
@@ -78,15 +76,3 @@ public sealed class TorizoEnemyState
     /// <summary>Host latch recording the death instruction's 16-pickup scatter request in the variant's arena; does not mean those pickups were collected.</summary>
     public bool ItemDropRequested { get; internal set; }
 }
-
-/// <summary>Music request produced by Bomb Torizo's ROM instruction stream.</summary>
-/// <param name="Command">Track or music-data command to pass to the gameplay music queue.</param>
-/// <param name="Delay">Authored queue delay, expressed by the music command's gameplay-frame delay identifier.</param>
-public readonly record struct BombTorizoMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
-
-/// <summary>
-/// One pickup request emitted after Samus shoots a Bomb/Golden Torizo Chozo orb. Opcode
-/// <c>$86:AB8A</c> selects one of two enemy headers by area; the initialized Torizo variant
-/// is the equivalent concrete authority in this room-scoped runtime.
-/// </summary>
-public readonly record struct TorizoOrbDropRequest();

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -88,26 +87,4 @@ public sealed class ChargeFlarePlacementCatalog
     private static void ValidateUnique(JsonElement element) =>
         JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate charge-flare placement property."), descendArrays: false);
-}
-
-/// <summary>Signed whole-pixel visual muzzle displacement from Samus's render center, applied before camera subtraction and the renderer's separate pose-graphics Y adjustment.</summary>
-[SpatialComponents("External format: the placement JSON stores each muzzle displacement as signed x/y words.")]
-public sealed record ChargeFlareOffset
-{
-    /// <summary>The displacement as one spatial value.</summary>
-    [JsonIgnore]
-    public Offset16<RoomPixels> Offset => new(X, Y);
-
-    /// <summary>Horizontal displacement in signed pixels; positive values move the visual origin right.</summary>
-    public required short X { get; init; }
-    /// <summary>Vertical displacement in signed pixels; positive values move the visual origin down, before the separate pose-graphics Y offset is subtracted.</summary>
-    public required short Y { get; init; }
-}
-/// <summary>Editable JSON schema shared by beam-charge and Grapple visual flare placements; the importing resource determines source kind, and the engine retains animation and physical-origin rules.</summary>
-public sealed record ChargeFlarePlacementDocument
-{
-    /// <summary>Schema revision, which must equal <see cref="ChargeFlarePlacementDefinitions.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>All 32 non-null offsets keyed <c>standing-00</c> through <c>standing-15</c> and <c>running-00</c> through <c>running-15</c>, using two-digit decimal direction selectors and independently editable signed 16-bit coordinates.</summary>
-    public required Dictionary<string, ChargeFlareOffset> Offsets { get; init; }
 }

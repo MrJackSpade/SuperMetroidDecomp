@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Desktop;
@@ -88,54 +87,4 @@ internal sealed class HostKeyboardInputState
         Keys.Left or Keys.Right or Keys.Up or Keys.Down or
         Keys.Z or Keys.X or Keys.Space or Keys.A or Keys.S or Keys.Q or Keys.W or
         Keys.Enter or Keys.ShiftKey;
-}
-
-/// <summary>
-/// Prevents a controller state sampled before desktop deactivation from becoming a
-/// permanent held input when Windows or an RDP session drops the corresponding release.
-/// </summary>
-/// <remarks>
-/// The gate does not guess that a long press is invalid. After deactivation it requires
-/// one completely neutral merged keyboard/gamepad sample before accepting input again.
-/// This preserves arbitrary legitimate holds while making focus loss an explicit release
-/// boundary for both host producers.
-/// </remarks>
-internal sealed class HostInputActivationGate
-{
-    /// <summary>Set on deactivation and cleared only by a neutral merged device sample.</summary>
-    private bool suppressedUntilNeutral;
-
-    /// <summary>Suppresses subsequent input until every host control has been released.</summary>
-    public void SuppressUntilNeutral() => suppressedUntilNeutral = true;
-
-    /// <summary>Returns a safe controller word for the current activation state.</summary>
-    public ushort Filter(ushort input)
-    {
-        if (!suppressedUntilNeutral)
-            return input;
-
-        if (input == 0)
-            suppressedUntilNeutral = false;
-        return 0;
-    }
-}
-
-/// <summary>
-/// Applies one host-input discontinuity to every stateful desktop producer. Windows can
-/// omit both keyboard-up messages and fresh WinMM joystick samples across a remote-session
-/// switch, so the operation must clear event-owned keys and arm the merged neutral gate as
-/// one indivisible policy decision.
-/// </summary>
-internal static class HostInputDiscontinuity
-{
-    /// <summary>Releases event-owned keys and suppresses stale device samples until neutral.</summary>
-    public static void Release(
-        HostKeyboardInputState keyboard,
-        HostInputActivationGate activation)
-    {
-        Ensure.NotNull(keyboard);
-        Ensure.NotNull(activation);
-        keyboard.Clear();
-        activation.SuppressUntilNeutral();
-    }
 }

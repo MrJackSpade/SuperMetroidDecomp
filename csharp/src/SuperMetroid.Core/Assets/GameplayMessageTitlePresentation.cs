@@ -177,30 +177,3 @@ public sealed class GameplayMessageTitlePresentation
     /// <summary>Validated title text and palette retained independently of the mutable JSON document.</summary>
     private sealed record CompiledTitle(string Text, int Palette);
 }
-
-/// <summary>Editable schema for the fifteen one-row gameplay messages and their shared border; collections remain caller-mutable until compilation.</summary>
-public sealed record GameplayMessageTitleDocument
-{
-    /// <summary>Schema revision; loading requires <see cref="GameplayMessageTitleDefinitions.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Thirty-two native BG3 words copied unchanged to both outer rows; the stock row is Small_MessageBox_TopBottomBorder_Tilemap at $85:8040.</summary>
-    public required GameplayMessageTitleCell[] Border { get; init; }
-    /// <summary>Exactly the fifteen case-sensitive message-name keys listed by <see cref="GameplayMessageTitleDefinitions.MessageIds"/>, each with a nonnull title definition.</summary>
-    public required Dictionary<string, GameplayMessageTitle> Titles { get; init; }
-}
-
-/// <summary>One selected title string and BG palette; its placement is centered by the builder rather than supplied as gameplay state.</summary>
-public sealed record GameplayMessageTitle
-{
-    /// <summary>Nonempty text of at most nineteen characters, using uppercase A..Z, space, hyphen, period or question mark; no arbitrary Unicode glyph substitution is performed.</summary>
-    public required string Text { get; init; }
-    /// <summary>BG palette selector 0..7 applied to title glyphs and the space-filled interior, with BG priority set and no reflection flags.</summary>
-    public required int Palette { get; init; }
-}
-
-/// <summary>One lossless native BG tilemap word used by authored message borders and templates, not an atlas coordinate or controller instruction.</summary>
-public sealed record GameplayMessageTitleCell
-{
-    /// <summary>Complete 16-bit word: character index in bits 0..9, palette in 10..12, priority in 13 and horizontal/vertical reflections in 14/15.</summary>
-    public required ushort Raw { get; init; }
-}

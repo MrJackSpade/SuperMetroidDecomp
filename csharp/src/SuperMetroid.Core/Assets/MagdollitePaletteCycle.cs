@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -143,22 +142,4 @@ public sealed class MagdollitePaletteCycle
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Magdollite palette property {name}."));
-}
-
-/// <summary>Editable four-row Magdollite glow schema, containing only animated OBJ colors rather than the complete sixteen-color native palette rows.</summary>
-public sealed record MagdollitePaletteCycleDocument
-{
-    /// <summary>Schema revision; loading requires version one from <see cref="MagdollitePaletteCycleFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Four ordered rows of four nonnull RGB5 colors, each channel 0..31, corresponding to colors 9..12 of the native rows beginning at $A8:AC1C; stock rows rotate the $AC2E-$AC34 glow colors left.</summary>
-    public required PaletteRgb5[][] Frames { get; init; }
-}
-
-/// <summary>Installed-resource identity and schema revision for Magdollite's four-color glow artwork.</summary>
-public static class MagdollitePaletteCycleFormat
-{
-    /// <summary>JSON resource filename containing the four editable glow-cycle rows.</summary>
-    public const string FileName = "magdollite-palette-cycle.json";
-    /// <summary>Supported schema revision, one, fixing four rows of four RGB5 colors without encoding animation cadence.</summary>
-    public const int Version = 1;
 }

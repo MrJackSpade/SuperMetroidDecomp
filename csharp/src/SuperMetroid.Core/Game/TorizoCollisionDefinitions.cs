@@ -1,23 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Physical component of one Golden Torizo extended frame; not editable art.</summary>
-/// <param name="Offset">Component position relative to Torizo's room origin, reflected for mirrored right-facing frames.</param>
-/// <param name="HitboxList">Bank-$AA pointer to ordered touch and shot rectangles, or the shared empty list.</param>
-internal readonly record struct GoldenTorizoCollisionComponent(
-    Offset16<RoomPixels> Offset, ushort HitboxList);
-
-/// <summary>Native ordered touch/shot rectangle from a bank-$AA hitbox list.</summary>
-/// <param name="Left">Left extent relative to the component origin.</param>
-/// <param name="Top">Upper extent relative to the component origin.</param>
-/// <param name="Right">Right extent relative to the component origin.</param>
-/// <param name="Bottom">Lower extent relative to the component origin.</param>
-/// <param name="TouchAi">Native callback pointer for Samus contact.</param>
-/// <param name="ShotAi">Native callback pointer for projectile contact.</param>
-internal readonly record struct GoldenTorizoCollisionHitbox(
-    short Left, short Top, short Right, short Bottom,
-    ushort TouchAi, ushort ShotAi);
-
 /// <summary>
 /// Ordered physical components and touch/shot rectangles for all 106 Torizo frames selected
 /// by the compiled bank-$AA instruction lists. OAM composition and pixels are not stored here.
@@ -278,39 +261,4 @@ internal static class TorizoCollisionDefinitions
             0x8a88 => List8A88,
             _ => throw new InvalidDataException($"Torizo hitbox list $AA:{pointer:X4} is not compiled."),
         };
-}
-
-/// <summary>Allocation-free view of one frame's components, mirrored for right-facing frames.</summary>
-internal readonly struct TorizoCollisionComponents(GoldenTorizoCollisionComponent[] source, bool mirrored)
-{
-    /// <summary>Number of ordered native components in this frame's collision drawing.</summary>
-    internal int Length => source.Length;
-
-    /// <summary>Projects one component into the requested facing, reflecting X and selecting the paired right-facing hitbox list when needed.</summary>
-    internal GoldenTorizoCollisionComponent this[int index]
-    {
-        get
-        {
-            GoldenTorizoCollisionComponent part = source[index];
-            if (!mirrored) return part;
-            ushort list = part.HitboxList == TorizoCollisionDefinitions.EmptyList
-                ? TorizoCollisionDefinitions.EmptyList
-                : (ushort)(part.HitboxList + TorizoCollisionDefinitions.RightFacingListOffset);
-            return part with { Offset = part.Offset.MirroredX(), HitboxList = list };
-        }
-    }
-
-    /// <summary>Enumerates components without materializing reflected frame records.</summary>
-    public Enumerator GetEnumerator() => new(this);
-
-    /// <summary>Index-based enumerator over one frame's reflected or original components.</summary>
-    internal struct Enumerator(TorizoCollisionComponents view)
-    {
-        /// <summary>Current position before the next component, initially before index zero.</summary>
-        private int index = -1;
-        /// <summary>Advances to the next component while retaining native component order.</summary>
-        public bool MoveNext() => ++index < view.Length;
-        /// <summary>Resolves the current component through the view's facing projection.</summary>
-        public readonly GoldenTorizoCollisionComponent Current => view[index];
-    }
 }

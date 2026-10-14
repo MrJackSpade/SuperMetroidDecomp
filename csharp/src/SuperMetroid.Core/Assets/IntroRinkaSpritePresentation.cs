@@ -1,6 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -86,23 +84,4 @@ public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresenta
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Mutable JSON authoring data for the opening flashback's Rinka sprites, not the room-enemy Rinka AI or its physical definitions.</summary>
-public sealed record IntroRinkaSpriteDocument
-{
-    /// <summary>Schema revision, required to equal <see cref="IntroRinkaSpriteFormat.Version"/> when loaded or written.</summary>
-    public required int Version { get; init; }
-    /// <summary>Caller-owned ordered parts keyed by rinka-0, rinka-1, and rinka-2.</summary>
-    /// <remarks>Stock frames mirror one 8-pixel tile into a 16-by-16-pixel four-part composition, ordered bottom-right, bottom-left, top-right, then top-left. Editable parts use pixel offsets and a 16-column by 32-row tile atlas; null palettes inherit the actor's selector. Loading copies compiled values, not these mutable arrays.</remarks>
-    public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
-}
-
-/// <summary>Installed visual resource for the three intro Rinka frames.</summary>
-public static class IntroRinkaSpriteFormat
-{
-    /// <summary>Supported JSON visual-schema revision; actor motion and instruction timing remain in cinematic definitions.</summary>
-    public const int Version = 1;
-    /// <summary>Installation-relative JSON filename selected for the three intro Rinka OAM compositions.</summary>
-    public const string FileName = "intro-rinka-sprites.json";
 }

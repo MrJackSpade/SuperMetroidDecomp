@@ -1,5 +1,4 @@
 using System.Collections;
-using SuperMetroid.Core.Hardware;
 using Pose = SuperMetroid.Core.Assets.EndingRewardSpriteFrame;
 
 namespace SuperMetroid.Core.Assets;
@@ -68,15 +67,4 @@ internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList
     }
     /// <summary>Exposes the same standing-part order through the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-}
-
-/// <summary>Individual edge pieces outside the standing-body row traversals.</summary>
-internal static class EndingRewardStandingAtlas
-{
-    /// <summary>Tile$D4, large right foot drawn between its small edge and shoulder strip.</summary>
-    internal const int RightFoot = 0xd4;
-    /// <summary>Tile$80, small outer left hip edge adjacent to tile$81.</summary>
-    internal const int OuterLeftHip = 0x80;
-    /// <summary>Tile$C1, small left leg edge above the foot row.</summary>
-    internal const int LeftLegEdge = 0xc1;
 }

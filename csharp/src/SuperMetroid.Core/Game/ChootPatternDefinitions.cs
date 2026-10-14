@@ -1,10 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One Choot falling stream and its per-loop vertical advance.</summary>
-internal readonly record struct ChootPatternDefinition(
-    ChootFallingPath FallingPatternPointer,
-    ushort FallingPatternYDistance);
-
 /// <summary>Named motion selection and loop-origin advance for Choot falling patterns.</summary>
 internal static class ChootPatternDefinitions
 {

@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
@@ -304,6 +301,3 @@ public static class IntroCinematicRomData
         public const int BackgroundRecordByteCount = 6;
     }
 }
-
-/// <summary>One byte-indexed CGRAM span used by the intro palette fader.</summary>
-public readonly record struct IntroPaletteSpan(ushort ByteOffset, ushort ByteCount);

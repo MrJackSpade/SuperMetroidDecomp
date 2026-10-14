@@ -1,8 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -429,96 +426,4 @@ public sealed class GameplayHudPresentation
         internal ushort Cell(int index) => edits.TryGetValue(index, out ushort edited)
             ? edited : GameplayHudDefinitions.IconWord(item, index);
     }
-}
-
-/// <summary>Serializable versioned document describing the editable gameplay HUD.</summary>
-public sealed record GameplayHudPresentationDocument
-{
-    /// <summary>Gets the gameplay-HUD document schema version.</summary>
-    public required int Version { get; init; }
-    /// <summary>Gets the immutable 32-cell top row transferred at the HUD DMA boundary.</summary>
-    public required GameplayHudCell[] TopRow { get; init; }
-    /// <summary>Gets the complete 32-by-3 mutable HUD tilemap template.</summary>
-    public required GameplayHudCell[] Template { get; init; }
-    /// <summary>Gets the cell used to clear dynamic HUD regions.</summary>
-    public required GameplayHudCell Blank { get; init; }
-    /// <summary>Gets the palette index used for a selected item.</summary>
-    public required int SelectedPalette { get; init; }
-    /// <summary>Gets the palette index used for a deselected item.</summary>
-    public required int DeselectedPalette { get; init; }
-    /// <summary>Gets the upper-left coordinate of the minimap output region.</summary>
-    public required Position16<TilemapCells> MinimapAnchor { get; init; }
-    /// <summary>Gets the energy-tank visuals and anchors.</summary>
-    public required GameplayHudEnergyTankDocument EnergyTanks { get; init; }
-    /// <summary>Gets the health and ammunition digit visuals and anchors.</summary>
-    public required GameplayHudDigitDocument Digits { get; init; }
-    /// <summary>Gets the AUTO reserve-indicator visuals and anchors.</summary>
-    public required GameplayHudAutoReserveDocument AutoReserve { get; init; }
-    /// <summary>Gets item-icon documents keyed by their canonical names.</summary>
-    public required Dictionary<string, GameplayHudIconDocument> Icons { get; init; }
-}
-
-/// <summary>Serializable energy-tank cell definitions and HUD anchors.</summary>
-public sealed record GameplayHudEnergyTankDocument
-{
-    /// <summary>Gets the ordered energy-tank cell coordinates.</summary>
-    public required Position16<TilemapCells>[] Anchors { get; init; }
-    /// <summary>Gets the cell drawn for a filled energy tank.</summary>
-    public required GameplayHudCell Filled { get; init; }
-    /// <summary>Gets the cell drawn for an empty energy tank.</summary>
-    public required GameplayHudCell Empty { get; init; }
-}
-
-/// <summary>Serializable numeric glyphs and their gameplay-HUD anchors.</summary>
-public sealed record GameplayHudDigitDocument
-{
-    /// <summary>Gets the ten health-digit cells in numeral order.</summary>
-    public required GameplayHudCell[] Health { get; init; }
-    /// <summary>Gets the ten ammunition-digit cells in numeral order.</summary>
-    public required GameplayHudCell[] Ammo { get; init; }
-    /// <summary>Gets the anchor of the health digits.</summary>
-    public required Position16<TilemapCells> HealthAnchor { get; init; }
-    /// <summary>Gets the anchor of the missile digits.</summary>
-    public required Position16<TilemapCells> MissileAnchor { get; init; }
-    /// <summary>Gets the anchor of the Super Missile digits.</summary>
-    public required Position16<TilemapCells> SuperMissileAnchor { get; init; }
-    /// <summary>Gets the anchor of the Power Bomb digits.</summary>
-    public required Position16<TilemapCells> PowerBombAnchor { get; init; }
-}
-
-/// <summary>Serializable AUTO reserve-indicator cells and their HUD anchors.</summary>
-public sealed record GameplayHudAutoReserveDocument
-{
-    /// <summary>Gets the ordered AUTO indicator cell coordinates.</summary>
-    public required Position16<TilemapCells>[] Anchors { get; init; }
-    /// <summary>Gets the six cells drawn when reserve energy is available.</summary>
-    public required GameplayHudCell[] ContainsEnergy { get; init; }
-    /// <summary>Gets the six cells drawn when the reserve is empty.</summary>
-    public required GameplayHudCell[] Empty { get; init; }
-}
-
-/// <summary>Serializable item-icon anchor and tile cells.</summary>
-public sealed record GameplayHudIconDocument
-{
-    /// <summary>Gets the upper-left coordinate of the icon.</summary>
-    public required Position16<TilemapCells> Anchor { get; init; }
-    /// <summary>Gets the icon cells in row-major order.</summary>
-    public required GameplayHudCell[] Cells { get; init; }
-}
-
-/// <summary>Serializable components of one SNES BG tilemap word.</summary>
-public sealed record GameplayHudCell
-{
-    /// <summary>Gets the zero-based character column in the 32-by-32 character page.</summary>
-    public required int TileColumn { get; init; }
-    /// <summary>Gets the zero-based character row in the 32-by-32 character page.</summary>
-    public required int TileRow { get; init; }
-    /// <summary>Gets the three-bit BG palette index.</summary>
-    public required int Palette { get; init; }
-    /// <summary>Gets whether the BG tile uses high priority.</summary>
-    public required bool Priority { get; init; }
-    /// <summary>Gets whether the character is flipped horizontally.</summary>
-    public required bool FlipX { get; init; }
-    /// <summary>Gets whether the character is flipped vertically.</summary>
-    public required bool FlipY { get; init; }
 }

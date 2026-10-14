@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Game;
@@ -133,7 +132,6 @@ public sealed class PhantoonColorCatalog
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 
-
     /// <summary>Checks a palette row's length and five-bit channels before converting it to hardware color words.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
@@ -156,29 +154,4 @@ public sealed class PhantoonColorCatalog
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Phantoon color property {name}."));
-}
-
-/// <summary>JSON schema for Phantoon and Wrecked Ship power-transition colors.</summary>
-public sealed record PhantoonColorDocument
-{
-    /// <summary>Gets the schema version required by <see cref="PhantoonColorFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Gets eight health-band rows of sixteen editable RGB5 colors.</summary>
-    public required PaletteRgb5[][] HealthBands { get; init; }
-
-    /// <summary>Gets the sixteen-color target used while Phantoon fades out.</summary>
-    public required PaletteRgb5[] FadeOut { get; init; }
-
-    /// <summary>Gets the 112 colors forming seven powered Wrecked Ship palette rows.</summary>
-    public required PaletteRgb5[] PowerOn { get; init; }
-}
-
-/// <summary>Defines the installed Phantoon color resource contract.</summary>
-public static class PhantoonColorFormat
-{
-    /// <summary>Canonical Phantoon color asset file name.</summary>
-    public const string FileName = "phantoon-colors.json";
-    /// <summary>Supported Phantoon color schema version.</summary>
-    public const int Version = 1;
 }

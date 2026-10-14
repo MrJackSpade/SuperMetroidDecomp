@@ -1,8 +1,5 @@
 namespace SuperMetroid.ReachabilityAudit;
 
-/// <summary>One reported declaration and why it is reported.</summary>
-internal sealed record Finding(string Category, Declaration Declaration);
-
 /// <summary>
 /// Classifies declarations into report categories. Members of an unreachable type are reported
 /// once, as the type; shipped code reached only by tools is listed separately from dead code.

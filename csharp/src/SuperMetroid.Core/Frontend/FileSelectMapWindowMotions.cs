@@ -2,9 +2,6 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>Application-owned signed 16.16 window motion, in left/right/top/bottom order.</summary>
-internal readonly record struct FileSelectMapWindowMotion(ushort Timer, uint Left, uint Right, uint Top, uint Bottom);
-
 /// <summary>Calculates the native map-window velocities and timer from the stock label origin.</summary>
 internal static class FileSelectMapWindowMotions
 {

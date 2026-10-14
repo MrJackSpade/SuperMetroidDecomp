@@ -1,5 +1,4 @@
 using System.Collections;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -46,14 +45,4 @@ internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSp
     }
     /// <summary>Exposes the same shell pieces through non-generic enumeration.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-}
-
-/// <summary>Atlas origins used by early and late intro egg shell-remnant poses.</summary>
-internal static class IntroEggRemnantAtlas
-{
-    /// <summary>Tile$107, first early top-right remnant drawing;left pieces occupy the next atlas row.
-    /// The second pose reuses the first pose lower-right tile$108.</summary>
-    internal const int EarlyStrip = 0x107;
-    /// <summary>Tile$130, first of four adjacent three-by-two late-remnant atlas patches.</summary>
-    internal const int LatePatches = 0x130;
 }

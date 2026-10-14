@@ -1,10 +1,6 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Desktop;
-
-/// <summary>Result of updating one persistent GDI frame surface twice.</summary>
-public readonly record struct RgbaBitmapSmokeTestResult(Size BitmapSize, Color FinalPixel);
 
 /// <summary>
 /// Verifies channel order and in-place replacement without opening a WinForms window. This

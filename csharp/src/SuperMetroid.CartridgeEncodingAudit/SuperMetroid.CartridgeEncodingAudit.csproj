@@ -10,9 +10,8 @@
   </ItemGroup>
   <ItemGroup>
     <!-- The build analyzer and this tool share one scanner, so the baseline always matches what the build enforces. -->
-    <Compile Include="../SuperMetroid.EnsureAnalyzer/CartridgeEncodingScanner.cs" Link="Shared/CartridgeEncodingScanner.cs" />
-    <Compile Include="../SuperMetroid.EnsureAnalyzer/CartridgeEncodingBaseline.cs" Link="Shared/CartridgeEncodingBaseline.cs" />
-    <Compile Include="../SuperMetroid.ReachabilityAudit/SolutionLoader.cs" Link="Shared/SolutionLoader.cs" />
+    <Compile Include="../SuperMetroid.EnsureAnalyzer/CartridgeEncoding/**/*.cs" LinkBase="CartridgeEncoding" />
+    <Compile Include="../SuperMetroid.ReachabilityAudit/SolutionLoading/**/*.cs" LinkBase="SolutionLoading" />
   </ItemGroup>
   <Import Project="../../test-support/WindowsConsole.projitems" />
 </Project>

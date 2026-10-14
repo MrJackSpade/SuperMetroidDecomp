@@ -1,5 +1,4 @@
 using System.Collections;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -37,11 +36,4 @@ internal sealed class IntroRinkaParts(int frame) : IReadOnlyList<CompiledSpriteP
     }
     /// <summary>Exposes the same four-part ordering through the nongeneric collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-}
-
-/// <summary>Locates the first of three adjacent single-quadrant tiles used to calculate intro Rinka OAM.</summary>
-internal static class IntroRinkaAtlas
-{
-    /// <summary>Tile$196, first of three adjacent top-left Rinka quadrant drawings.</summary>
-    internal const int FirstQuadrant = 0x196;
 }

@@ -1,16 +1,6 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
-
-/// <summary>Selects the eye fade or body fade, which use opposite row-phase directions.</summary>
-internal enum CeresRidleyFadeKind
-{
-    /// <summary>The eye fade starts at its bright endpoint and descends toward black.</summary>
-    Eyes,
-    /// <summary>The body fade starts black and rises toward its selected endpoint.</summary>
-    Body,
-}
 
 /// <summary>Native $A6:E2AA..E469 channel fades. Eye and body channels share the same biased integer quantizer.</summary>
 internal sealed class CeresRidleyFadeColorDefinitions

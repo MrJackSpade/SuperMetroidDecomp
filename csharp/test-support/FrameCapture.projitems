@@ -1,0 +1,6 @@
+<Project>
+  <!-- Direct3D frame readback and pixel comparison for render captures. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)FrameCapture/**/*.cs" LinkBase="TestSupport/FrameCapture" />
+  </ItemGroup>
+</Project>

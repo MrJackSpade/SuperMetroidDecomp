@@ -1,31 +1,6 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Literal bank-$A8 vertical movement function stored in Atomic's common variable A.
-/// The original symbol calls this the X movement function even though both targets update Y;
-/// the debugger-facing name describes the behavior instead of perpetuating that label error.
-/// </summary>
-public enum AtomicVerticalMovement : ushort
-{
-    /// <summary>$A8:E405, Function_Atomic_MoveUp: add the stored negative whole/fraction speed to Y without terrain collision, selected when wrapped Samus-minus-enemy Y is signed-negative.</summary>
-    MoveUp = 0xe405,
-    /// <summary>$A8:E424, Function_Atomic_MoveDown: add the positive whole/fraction speed to Y without terrain collision, selected for signed-nonnegative Samus-minus-enemy Y, including equality.</summary>
-    MoveDown = 0xe424,
-}
-
-/// <summary>
-/// Literal bank-$A8 horizontal movement function stored in Atomic's common variable B.
-/// The original symbol calls this the Y movement function even though both targets update X.
-/// </summary>
-public enum AtomicHorizontalMovement : ushort
-{
-    /// <summary>$A8:E443, Function_Atomic_MoveLeft: add the stored negative whole/fraction speed to X without terrain collision, selected when wrapped Samus-minus-enemy X is signed-negative.</summary>
-    MoveLeft = 0xe443,
-    /// <summary>$A8:E462, Function_Atomic_MoveRight: add the positive whole/fraction speed to X without terrain collision, selected for signed-nonnegative Samus-minus-enemy X, including equality.</summary>
-    MoveRight = 0xe462,
-}
-
-/// <summary>
 /// Debugger-visible view of Atomic's two common function words and four bank-$7E speed words.
 /// Each speed is kept as the cartridge's separate whole/fraction pair. In particular, the
 /// negative pair comes from the ROM table and is not recomputed with host signed arithmetic.

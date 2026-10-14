@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Cartridge definitions for the final assembling Super Metroid icon.</summary>
@@ -56,22 +54,4 @@ internal static class EndingLogoDefinitions
     public const ushort Tilemap = 0x5400;
     /// <summary>F25E selects logo BG2 characters at VRAM word $6000.</summary>
     public const ushort Characters = 0x6000;
-}
-
-/// <summary>One native six-byte final-logo cinematic-object definition.</summary>
-internal readonly record struct EndingLogoActorDefinition(
-    ushort PreInstruction,
-    ushort InstructionList);
-
-/// <summary>Four mutually exclusive native logo roles, in E554..E569 allocation order.</summary>
-internal enum EndingLogoActorKind
-{
-    /// <summary>Upper S half approaches the final logo from its initial off-center position.</summary>
-    UpperS,
-    /// <summary>Lower S half moves toward the opposite landing point.</summary>
-    LowerS,
-    /// <summary>Stationary upper circle uses the right-wrap display list.</summary>
-    UpperCircle,
-    /// <summary>Stationary lower circle uses the left-wrap display list.</summary>
-    LowerCircle,
 }

@@ -1,12 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Immutable physical component of a Ceres steam extended frame.</summary>
-internal readonly record struct CeresSteamCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
-
-/// <summary>Immutable steam rectangle and native touch/shot callback identities.</summary>
-internal readonly record struct CeresSteamCollisionHitbox(
-    short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
-
 /// <summary>
 /// Bank-$A6 physical collision for all four Ceres steam directions. Each of the
 /// 28 extended frames has one zero-offset component. Its OAM pointer is deliberately

@@ -2,7 +2,6 @@ using System.Diagnostics;
 using System.Reflection;
 using SuperMetroid.Android;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -83,11 +82,4 @@ internal static class RoomPerformanceStateFixture
         }
         return 0;
     }
-}
-
-/// <summary>Cartridge entry identities used only by the bounded performance fixtures.</summary>
-internal static class RoomPerformanceFixtureDefinitions
-{
-    /// <summary>Bank-$83 door $8BDA enters the Crateria map station through its native setup.</summary>
-    internal const ushort CrateriaMapEntranceDoor = 0x8bda;
 }

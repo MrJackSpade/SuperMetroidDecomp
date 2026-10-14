@@ -2,11 +2,6 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>One replaceable Samus Eater block appearance in native run order.</summary>
-/// <param name="Id">Compiled floor/ceiling idle or chewing-pose identity.</param>
-/// <param name="Blocks">Eight metatile/flip words flattened by native run then word order; changed arrays are copied by the catalog.</param>
-public sealed record RoomPlmSamusEaterVisualEntry(string Id, ushort[] Blocks);
-
 /// <summary>
 /// Visual-only level words for all four floor and four ceiling plant poses.
 /// The compiled draw definitions retain their physical collision nibble and

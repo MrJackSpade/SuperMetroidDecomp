@@ -1,15 +1,5 @@
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>The two operations the 65816 can publish to Super Metroid's audio CPU.</summary>
-public enum CartridgeAudioCommandKind : byte
-{
-    /// <summary>Upload one cartridge music/SFX data stream into SPC RAM.</summary>
-    Upload,
-
-    /// <summary>Write one byte to SNES APU input port $2140-$2143.</summary>
-    WritePort,
-}
-
 /// <summary>
 /// One debugger-visible operation produced by the translated bank-$80 audio dispatcher.
 /// </summary>
@@ -38,22 +28,4 @@ public readonly record struct CartridgeAudioCommand(
     public ApuPort InputPort => Enum.IsDefined((ApuPort)Port)
         ? (ApuPort)Port
         : throw new InvalidDataException($"APU input port {Port} is outside $2140-$2143.");
-}
-
-/// <summary>Bytes returned by the SPC to the 65816 through APU ports $2140-$2143.</summary>
-public readonly record struct CartridgeAudioAcknowledgements(
-    byte Port0,
-    byte Port1,
-    byte Port2,
-    byte Port3)
-{
-    /// <summary>Gets the acknowledgement byte for APU output port zero through three.</summary>
-    public byte this[ApuPort port] => port switch
-    {
-        ApuPort.Music => Port0,
-        ApuPort.SoundLibrary1 => Port1,
-        ApuPort.SoundLibrary2 => Port2,
-        ApuPort.SoundLibrary3 => Port3,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ApuPort)} {(int)port}."),
-    };
 }

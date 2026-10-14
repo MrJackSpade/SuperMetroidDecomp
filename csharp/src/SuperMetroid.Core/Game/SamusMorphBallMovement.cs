@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -439,7 +438,6 @@ public static class SamusMorphBallMovement
         return result;
     }
 
-
     /// <summary>Rejects missing cartridge, level, or Samus state before entering a morph movement path.</summary>
     private static void Validate(
         ISnesAddressSpace bus,
@@ -451,9 +449,3 @@ public static class SamusMorphBallMovement
         Ensure.NotNull(samus);
     }
 }
-
-/// <summary>Collision and direction result produced by one ordinary Morph-Ball frame.</summary>
-public readonly record struct MorphBallMovementResult(
-    BlockMoveResult Vertical,
-    bool Landed,
-    bool HitCeiling);

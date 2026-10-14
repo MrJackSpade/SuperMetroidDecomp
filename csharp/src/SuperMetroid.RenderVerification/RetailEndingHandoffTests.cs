@@ -3,9 +3,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 
@@ -69,11 +67,4 @@ internal static class RetailEndingHandoffTests
         if (!sawFade || endingFrames != 60) throw new InvalidOperationException($"Ending fixture missed native escape fade/credits handoff: state={legacy.GameState}, fade={sawFade}, ending={endingFrames}, health={legacy.GameplayRuntimeForVerification.Player.IntroducedSamus.Health}, event={legacy.GameplayRuntimeForVerification.Enemies.GunshipBehavior.LastGunshipEvent}.");
         Console.WriteLine($"{device.Kind}: {frames + 1} exact gunship-event/fade/ending frames with matching PCM and frontend state.");
     }
-}
-
-/// <summary>Fixture position that places the gunship top hull near its escape completion threshold.</summary>
-internal static class EndingHandoffFixtureDefinitions
-{
-    /// <summary>Stage Samus near the gunship top-hull Y=256 escape threshold; the native attachment places the hull above her.</summary>
-    internal const ushort TakeoffBoundaryY = 256;
 }

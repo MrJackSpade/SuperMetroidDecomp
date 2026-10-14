@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -439,47 +438,3 @@ public sealed class BackgroundScrollState
     /// <summary>Interprets wrapped source-block subtraction as a signed 16-bit movement direction.</summary>
     private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
 }
-
-/// <summary>
-/// The room state header's per-axis layer-2 scroll modes: zero copies
-/// layer one, one fixes the axis, and other values are parallax multipliers over 128 whose
-/// odd bit suppresses dynamic background streaming on that axis.
-/// </summary>
-/// <param name="Horizontal">The horizontal-axis mode.</param>
-/// <param name="Vertical">The vertical-axis mode.</param>
-[SpatialComponents("Spatial value type: one layer-2 parallax mode per axis, as the room header stores them.")]
-public readonly record struct Layer2ScrollModes(byte Horizontal, byte Vertical);
-
-/// <summary>Which native tilemap producer must satisfy a streaming request.</summary>
-public enum BackgroundLayer
-{
-    /// <summary>The room's collision-backed level tilemap rendered on BG1.</summary>
-    Level,
-
-    /// <summary>The independently streamed room-background tilemap rendered on BG2.</summary>
-    Background,
-}
-
-/// <summary>Whether the native updater requested a 16-block column or row.</summary>
-public enum BackgroundUpdateAxis
-{
-    /// <summary>Transfers one vertical strip when horizontal scrolling crosses a 16-pixel boundary.</summary>
-    Column,
-
-    /// <summary>Transfers one horizontal strip when vertical scrolling crosses a 16-pixel boundary.</summary>
-    Row,
-}
-
-/// <summary>
-/// The four coordinate words passed through WRAM <c>$16-$1C</c> immediately before one of
-/// the update-level/background-data row/column calls at <c>$80:A413-$80:A4B5</c>.
-/// </summary>
-/// <param name="Layer">The tilemap producer that must satisfy the request.</param>
-/// <param name="Axis">Whether a column or a row is transferred.</param>
-/// <param name="SourceBlock">The first source level/background-data block of the strip.</param>
-/// <param name="VramBlock">The circular-tilemap block the strip begins at.</param>
-public readonly record struct BackgroundUpdateRequest(
-    BackgroundLayer Layer,
-    BackgroundUpdateAxis Axis,
-    Position16<RoomBlocks> SourceBlock,
-    Position16<TilemapBlocks> VramBlock);

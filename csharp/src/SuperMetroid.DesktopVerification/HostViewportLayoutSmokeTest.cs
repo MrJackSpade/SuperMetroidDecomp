@@ -1,12 +1,5 @@
 namespace SuperMetroid.Desktop;
 
-/// <summary>Result of changing status text above a fixed gameplay viewport.</summary>
-public readonly record struct HostViewportLayoutSmokeTestResult(
-    Rectangle BeforeCanvasBounds,
-    Rectangle AfterCanvasBounds,
-    Size BeforeToolbarPreferredSize,
-    Size AfterToolbarPreferredSize);
-
 /// <summary>
 /// Reproduces the one-column WinForms layout used by <see cref="PlayableGameControl"/>
 /// without loading a ROM, opening a window, or starting the emulation timer.

@@ -1,6 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -88,24 +86,4 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable JSON schema for the SR388 egg, remnants, and baby Metroid compositions.</summary>
-public sealed record IntroDiscoveryActorSpriteDocument
-{
-    /// <summary>Must match <see cref="IntroDiscoveryActorSpriteFormat.Version"/> before any frame is accepted.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Gets all twenty required named visual compositions in the compiled actor set.</summary>
-    public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
-}
-
-/// <summary>Installed file identity for the twenty SR388 egg and baby actor frames.</summary>
-public static class IntroDiscoveryActorSpriteFormat
-{
-    /// <summary>The supported discovery-actor sprite JSON schema version.</summary>
-    public const int Version = 1;
-
-    /// <summary>The embedded editable discovery-actor sprite asset file name.</summary>
-    public const string FileName = "intro-discovery-actor-sprites.json";
 }

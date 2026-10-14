@@ -1,6 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -92,29 +90,4 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable JSON schema for Ceres approach/destruction OAM compositions; scene scripts retain actor placement, motion, and frame-selection timing.</summary>
-public sealed record CeresFlightSpriteDocument
-{
-    /// <summary>Schema revision, which must equal <see cref="CeresFlightSpriteFormat.Version"/>.</summary>
-    public required int Version { get; init; }
-    /// <summary>Exactly six ordered-part compositions named <c>stars</c>, <c>large-asteroid</c>, <c>station-under-attack</c>, <c>small-asteroid</c>, <c>vortex-even</c>, and <c>vortex-odd</c>, each bounded by the 128-part OAM limit.</summary>
-    public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
-}
-
-/// <summary>One bank-$8C visual spritemap and its expected retail OAM entry count.</summary>
-/// <param name="Name">Stable asset name identifying the visual composition.</param>
-/// <param name="Pointer">Native 16-bit spritemap pointer in bank $8C, used as the runtime frame identity.</param>
-/// <param name="StockPartCount">Retail composition's OAM part count for source comparison, not a required count for independently edited artwork.</param>
-public readonly record struct CeresFlightSpriteFrameDefinition(
-    string Name, ushort Pointer, int StockPartCount);
-
-/// <summary>Installed visual-composition file for the approach-to-Ceres actor set.</summary>
-public static class CeresFlightSpriteFormat
-{
-    /// <summary>Supported revision of the six-composition Ceres flight sprite JSON schema.</summary>
-    public const int Version = 1;
-    /// <summary>Asset filename for the editable OAM compositions shared by the approach and destruction scenes.</summary>
-    public const string FileName = "ceres-flight-sprites.json";
 }

@@ -3,12 +3,9 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Desktop;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Spatial;
 
 /// <summary>Unpaced, room-local CPU baseline. Not a presentation, waveOut-underrun, or five-minute soak gate.</summary>
 internal static class SimulationProfile
@@ -134,11 +131,4 @@ internal static class SimulationProfile
     }
     /// <summary>Nearest-rank latency or allocation values at the reported percentiles and maximum.</summary>
     private readonly record struct Timing(double P50, double P95, double P99, double Maximum);
-}
-
-/// <summary>Retail room headers used by the unpaced simulation baseline.</summary>
-internal static class SimulationProfileRooms
-{
-    /// <summary>Retail $8F:CEFB room header: Maridia glass tube, logical room $04/$01.</summary>
-    internal const ushort MaridiaTube = 0xcefb;
 }

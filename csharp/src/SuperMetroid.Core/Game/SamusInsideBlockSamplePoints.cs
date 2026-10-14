@@ -1,18 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The body point whose block a <c>$94:9B60</c> inside reaction is running for.</summary>
-public enum SamusInsideBlockPoint
-{
-    /// <summary><c>InsideBlockReactionSamusPoint</c> = 0: one pixel above the bottom boundary.</summary>
-    Bottom,
-
-    /// <summary><c>InsideBlockReactionSamusPoint</c> = 1: Samus's Y position.</summary>
-    Center,
-
-    /// <summary><c>InsideBlockReactionSamusPoint</c> = 2: Y position minus the Y radius.</summary>
-    Top,
-}
-
 /// <summary>
 /// The Y sample sequence of <c>SamusBlockInsideHandling</c> ($94:9B60). Every inside
 /// reaction pass walks this one sequence so the native row-skip rules stay in one place.

@@ -1,9 +1,7 @@
-using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Desktop;
@@ -210,12 +208,3 @@ public static class GitHubErrorReporterSmokeTest
     /// <summary>Title and body captured from one fake issue creation.</summary>
     private sealed record CreatedIssue(string Title, string Body);
 }
-
-/// <summary>Fingerprint and fake-client operation counts after the reporter queue has been drained.</summary>
-/// <param name="Fingerprint">Stable identifier of the repeated fixture exception.</param>
-/// <param name="RemoteLookups">Recorded fingerprint lookups across distinct queued occurrences, not actual network requests.</param>
-/// <param name="IssuesCreated">Issue creations recorded by the fake client after deduplication.</param>
-public readonly record struct GitHubErrorReporterSmokeTestResult(
-    string Fingerprint,
-    int RemoteLookups,
-    int IssuesCreated);

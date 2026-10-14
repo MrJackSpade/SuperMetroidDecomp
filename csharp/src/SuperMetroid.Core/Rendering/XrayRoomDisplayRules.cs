@@ -1,27 +1,6 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rendering;
-
-/// <summary>Mutually exclusive X-ray blending routines selected by $91:D27F and bank $88.</summary>
-public enum XrayRoomBlendMode
-{
-    /// <summary>$88:817B substitutes the hidden-block BG2 map inside the beam.</summary>
-    RevealBlocks,
-    /// <summary>$88:81A4 preserves room backgrounds and does not substitute hidden blocks.</summary>
-    PreserveBackgrounds,
-    /// <summary>$88:81DB preserves the Fireflea darkness subtraction outside the beam.</summary>
-    Fireflea,
-}
-
-/// <summary>The two room headers CanXrayShowBlocks ($91:D143) explicitly excludes from revelation.</summary>
-public enum XrayExcludedRoom : ushort
-{
-    /// <summary>$8F:A66A, one of the two explicitly excluded room headers in $91:D143.</summary>
-    RoomA66A = 0xA66A,
-    /// <summary>$8F:CEFB, excluded from revelation; $88:81A4 additionally removes BG2 from TM.</summary>
-    HiddenBg2Room = 0xCEFB,
-}
 
 /// <summary>Room and enemy definition values used by CanXrayShowBlocks ($91:D143).</summary>
 public static class XrayRoomDisplayRules

@@ -3,24 +3,34 @@
 These MSBuild shared-source groups own fixtures used by multiple developer runners.
 They are deliberately not player dependencies and are not separate executables.
 
-- `RenderFixtures.projitems`: cartridge/render scenarios for RenderVerification.
-- `StateFixtures.projitems`: private fixture loading for IntegrationVerification and DesktopVerification.
-- `WindowsConsole.projitems`: non-interactive native error handling for Windows verification runners and the portable integration runner when hosted on Windows.
-- `VerificationAccess.Core.projitems`, `.Desktop.projitems`, `.Rendering.projitems`: views of
-  private production state, test drivers and oracle-only ROM constants that tests use and
-  production does not. Production carries no test-only members (#1273); these C# 14 extension
-  members reach private state through `PrivateState` reflection, by name, in one place.
-- `VerificationImporters.projitems`, `RoomHeaderImport.projitems`: cartridge importers that only verification fixtures read.
-- `RepositoryInstallation.projitems` and `WindowsConsole.projitems` are also linked into developer
-  tools. Their verifier-only parts live in `RepositoryInstallation.Verification.projitems` and
-  `WindowsConsole.Verification.projitems`, which only verification projects import, so a tool
-  compiles nothing it does not use (the reachability gate enforces this).
+Each group is one module: `X.projitems` compiles exactly the `X/` directory beside it
+(`X/**/*.cs`), so a new file belongs to a group by where it is placed, and no file sits outside one.
+
+- `VerificationAccess.Core`, `.Desktop`, `.Rendering`: views of private production state, test
+  drivers and oracle-only ROM constants that tests use and production does not. Production carries
+  no test-only members (#1273); these C# 14 extension members reach private state through
+  `PrivateState` reflection, by name, in one place. `VerificationAccess.Core/<Domain>/` mirrors the
+  Core directory of the type each view reaches (`Game`, `Rooms`, `Assets`, `Frontend`, ...); the
+  directory root holds the shared access infrastructure (`CoreAccess`, `CatalogFields`, `MetadataShape`).
+- `RenderFixtures`: cartridge/render scenarios for RenderVerification.
+- `FrameCapture`: Direct3D frame readback and pixel comparison for render captures.
+- `SaveMapFixtures`: the save-map presentation fixture shared by the save, desktop and render verifiers.
+- `ScenarioFixtures`, `CatalogInventories`: gameplay scenarios and retail catalog inventories that
+  DebugRunner records or prints and the verifier checks.
+- `VerificationOracles`: reference oracles and audits only the main verifier uses.
+- `CpuBusTestDoubles`: exact CPU-bus test doubles (#629).
+- `VerificationImporters`, `RoomHeaderImport`: cartridge importers that only verification fixtures read.
+- `WindowsConsole`: non-interactive native error handling for Windows verification runners and the
+  portable integration runner when hosted on Windows.
+- `RepositoryInstallation` and `WindowsConsole` are also linked into developer tools. Their
+  verifier-only parts live in `RepositoryInstallation.Verification` and `WindowsConsole.Verification`,
+  which only verification projects import, so a tool compiles nothing it does not use (the
+  reachability gate enforces this).
 - Code that tools need but players never run belongs in `src/SuperMetroid.Tooling`, not here:
   tests may use it, but it must have a tool consumer.
 
-Each consumer explicitly imports its group. These internal fixture types compile into each
-consumer; no runner reaches into another executable's source tree. The source audit retains
-its existing common owner under `csharp/tools`.
+Each consumer explicitly imports its groups. These internal fixture types compile into each
+consumer; no runner reaches into another executable's source tree.
 
 Production code is consumed through its owning assembly: portable Android session, import,
 policy and preference services live in Diagnostics; GameForm and desktop audio adapters live

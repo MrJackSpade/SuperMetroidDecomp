@@ -41,5 +41,3 @@ internal static class IntroEggEffectSpriteDefinitions
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
-/// <summary>Pointer and installed asset key for one shell-fragment or slime-drop OAM record.</summary>
-internal readonly record struct IntroEggEffectSpriteFrameDefinition(ushort Pointer, string Name);

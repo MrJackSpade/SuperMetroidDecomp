@@ -3,49 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Desktop;
-
-/// <summary>Observable milestones from replaying a desktop journal through the real SPC.</summary>
-/// <param name="FramesExecuted">Journal and neutral-tail updates consumed before the first door completed.</param>
-/// <param name="ProjectileFired">Whether replayed input fired a Samus projectile.</param>
-/// <param name="PowerBeamCommandObserved">Whether the audio engine received the Power Beam SFX request.</param>
-/// <param name="PowerBeamAcknowledged">Whether the SPC acknowledged that request.</param>
-/// <param name="FirstDoorBegan">Whether the recorded door transition started.</param>
-/// <param name="FirstDoorCompleted">Whether that transition completed during replay or its bounded neutral tail.</param>
-/// <param name="SourceRoom">Room pointer before the first door handoff.</param>
-/// <param name="DestinationRoom">Room pointer after the first door handoff.</param>
-public readonly record struct AudioInputReplaySmokeTestResult(
-    int FramesExecuted,
-    bool ProjectileFired,
-    bool PowerBeamCommandObserved,
-    bool PowerBeamAcknowledged,
-    bool FirstDoorBegan,
-    bool FirstDoorCompleted,
-    ushort SourceRoom,
-    ushort DestinationRoom);
-
-/// <summary>PCM measurements for one complete pause found in a recorded player session.</summary>
-/// <param name="EntryFrame">Recorded update that entered the pause transition.</param>
-/// <param name="ResumeFrame">Recorded update that resumed gameplay.</param>
-/// <param name="RoomPointer">Room active during the pause.</param>
-/// <param name="PauseOwnedFrames">Updates owned by pause frontend states.</param>
-/// <param name="MinimumPausedRms">Lowest PCM root-mean-square level while fully paused.</param>
-/// <param name="MaximumPausedRms">Highest PCM root-mean-square level while fully paused.</param>
-/// <param name="MeanPausedRms">Average per-frame PCM root-mean-square level while fully paused.</param>
-/// <param name="AudioCommands">Commands observed during pause-owned updates.</param>
-/// <param name="CommandTrace">Frame/state-tagged audio commands around the pause interval.</param>
-public readonly record struct RecordedPauseAudioResult(
-    int EntryFrame,
-    int ResumeFrame,
-    ushort RoomPointer,
-    int PauseOwnedFrames,
-    double MinimumPausedRms,
-    double MaximumPausedRms,
-    double MeanPausedRms,
-    int AudioCommands,
-    string CommandTrace);
 
 /// <summary>
 /// Replays one deterministic controller journal with native SPC acknowledgements but no GUI.

@@ -225,39 +225,3 @@ public sealed class IntroNarrationPresentation
         output.Write(bytes);
     }
 }
-
-/// <summary>Defines all six editable opening-narration pages.</summary>
-public sealed record IntroNarrationDocument
-{
-    /// <summary>Narration document schema revision checked before page compilation.</summary>
-    public required int Version { get; init; }
-    /// <summary>Six pages keyed by <see cref="IntroNarrationPageId"/> name.</summary>
-    public required Dictionary<string, IntroNarrationPage> Pages { get; init; }
-}
-
-/// <summary>Defines the ordered lines displayed on one opening-narration page.</summary>
-public sealed record IntroNarrationPage
-{
-    /// <summary>Nonempty lines in ascending tilemap-row order.</summary>
-    public required IntroNarrationLine[] Lines { get; init; }
-}
-
-/// <summary>Defines one line of opening-narration text and its tilemap row.</summary>
-public sealed record IntroNarrationLine
-{
-    /// <summary>Even tilemap row from the first through last supported text row.</summary>
-    public required int Row { get; init; }
-    /// <summary>Supported narration glyphs, bounded to the page's available columns.</summary>
-    public required string Text { get; init; }
-}
-
-/// <summary>Identifies one compiled character emitted in typewriter order.</summary>
-/// <param name="Column">Zero-based tilemap column for the character.</param>
-/// <param name="Row">Zero-based tilemap row for the character.</param>
-/// <param name="TilemapWord">Compiled BG tilemap word for the narration glyph.</param>
-/// <param name="IsSpace">Whether the source character is a space.</param>
-public readonly record struct IntroNarrationCharacter(
-    int Column,
-    int Row,
-    ushort TilemapWord,
-    bool IsSpace);

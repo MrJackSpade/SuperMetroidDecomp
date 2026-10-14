@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Text;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -204,9 +203,3 @@ public static class IndexedPng
             throw new ArgumentOutOfRangeException(nameof(size), "Indexed PNG dimensions must be between 1 and 2048.");
     }
 }
-
-/// <summary>Decoded source indexes and palette, before any SNES tile encoding or palette assignment.</summary>
-/// <param name="Size">Image width and height in pixels.</param>
-/// <param name="Pixels">Row-major unpacked palette indices, one byte per pixel; the array is exposed directly rather than copied by the record.</param>
-/// <param name="Palette">Ordered RGB/alpha entries addressed by the pixel indices; the array is exposed directly and is not itself a SNES CGRAM palette.</param>
-public sealed record IndexedPngImage(Extent16<ImagePixels> Size, byte[] Pixels, Rgba32[] Palette);

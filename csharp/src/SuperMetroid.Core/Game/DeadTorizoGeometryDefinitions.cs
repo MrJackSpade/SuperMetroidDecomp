@@ -2,9 +2,6 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One cropped tile row copied from the corpse sheet to its rotting surface.</summary>
-internal readonly record struct DeadTorizoGraphicsCopy(int SourceOffset, int DestinationOffset, int Length);
-
 /// <summary>
 /// Tile geometry shared by $A9:DE18-DEBF initialization and E272/E38B row motion.
 /// All crop edges derive from the immutable stationary composition's tile union.

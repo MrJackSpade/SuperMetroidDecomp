@@ -1,20 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>The five bank-$A9 <c>CorpseRottingTileRowOffsets</c> tables, valued by native address.</summary>
-internal enum CorpseRotationTable : ushort
-{
-    /// <summary>CorpseRottingTileRowOffsets.Torizo at $A9:E226; ten tiles per row.</summary>
-    Torizo = 0xe226,
-    /// <summary>CorpseRottingTileRowOffsets.Sidehopper at $A9:E240; five tiles per row.</summary>
-    Sidehopper = 0xe240,
-    /// <summary>CorpseRottingTileRowOffsets.Zoomer at $A9:E24C; three tiles per row.</summary>
-    Zoomer = 0xe24c,
-    /// <summary>CorpseRottingTileRowOffsets.Ripper at $A9:E252; three tiles per row.</summary>
-    Ripper = 0xe252,
-    /// <summary>CorpseRottingTileRowOffsets.Skree at $A9:E258; two tiles per row.</summary>
-    Skree = 0xe258,
-}
-
 /// <summary>Bounded, pinned bank-$A9 corpse-copy geometry and live-WRAM DMA descriptors.</summary>
 /// <remarks>No tile pixels or cartridge byte decoder are stored here.</remarks>
 internal static class DeadMonsterRottingDefinitions
@@ -161,15 +146,4 @@ internal static class DeadMonsterRottingDefinitions
     /// <summary>$A9:D69C: matching eight-word source strips are separated by$200 bytes.</summary>
     internal static ushort SandSource(ushort line) => line < 16
         ? (ushort)((line / 8) * 0x200 + (line % 8) * 2) : throw new ArgumentOutOfRangeException(nameof(line));
-}
-
-/// <summary>Native signed rectangle words retained as ushort for asymmetric overlap arithmetic.</summary>
-internal readonly record struct DeadCorpseTouchHitbox(ushort Left, ushort Top, ushort Right, ushort Bottom);
-
-/// <summary>One immutable DMA descriptor selecting live corpse WRAM, not immutable artwork.</summary>
-internal readonly record struct DeadMonsterVramTransferDefinition(
-    ushort SizeInBytes, ushort SourceBankWord, ushort SourceOffset, ushort EncodedVramDestination)
-{
-    /// <summary>Combines the live bank-$7E source word with its bank byte for DMA addressing.</summary>
-    internal int SourceAddress => ((SourceBankWord & 0xff00) << 8) | SourceOffset;
 }

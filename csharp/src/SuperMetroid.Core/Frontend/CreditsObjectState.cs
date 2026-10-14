@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -92,8 +91,3 @@ internal sealed class CreditsObjectState
     }
 
 }
-
-/// <summary>Reports whether a credits update copied a row and whether the source has ended.</summary>
-internal readonly record struct CreditsObjectStepResult(
-    bool CopiedRow,
-    bool Finished);

@@ -1,9 +1,5 @@
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Native setup and first-instruction pointers for one retail room PLM header.</summary>
-public readonly record struct RoomPlmHeaderDefinition(
-    PlmHeaderId Header, ushort Setup, ushort InitialInstruction);
-
 /// <summary>
 /// Named header-to-setup/list dispatch for the seventy distinct headers referenced by
 /// retail room populations. Each header denotes a native bank-$84 actor definition,

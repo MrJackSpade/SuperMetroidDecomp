@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Spatial;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Fixed actor and explosion-layout definitions for the intro Mother Brain scene.</summary>
@@ -47,12 +45,3 @@ internal static class IntroMotherBrainDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 }
-
-/// <summary>One native six-byte bank-$8B cinematic-object definition.</summary>
-internal readonly record struct IntroMotherBrainActorDefinition(
-    ushort InstructionList);
-
-/// <summary>One signed origin-offset and start-delay record for an intro explosion actor.</summary>
-internal readonly record struct IntroMotherBrainExplosionPlacement(
-    Offset16<ScreenPixels> Offset,
-    ushort StartTimer);

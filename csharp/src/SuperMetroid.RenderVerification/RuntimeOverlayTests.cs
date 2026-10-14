@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
-using SuperMetroid.Core.Spatial;
 
 /// <summary>Production capture and legacy composition agree through combined effect updates.</summary>
 internal static class RuntimeOverlayTests
@@ -65,11 +63,4 @@ internal static class RuntimeOverlayTests
             return (packet, expected);
         }
     }
-}
-
-/// <summary>Identifies a retail room used to compose several runtime overlays.</summary>
-internal static class OverlayFixtureRooms
-{
-    /// <summary>Retail Alpha Power Bomb room $01/$26, header $8F:A3AE.</summary>
-    internal const ushort AlphaPowerBomb = 0xa3ae;
 }

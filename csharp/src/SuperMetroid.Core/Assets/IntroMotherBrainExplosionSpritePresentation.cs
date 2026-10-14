@@ -1,6 +1,4 @@
 using System.Text.Json;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -81,24 +79,4 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
     }
-}
-
-/// <summary>Editable JSON schema for the opening flashback's fourth-hit explosion compositions.</summary>
-public sealed record IntroMotherBrainExplosionSpriteDocument
-{
-    /// <summary>Must match <see cref="IntroMotherBrainExplosionSpriteFormat.Version"/> before any frame is accepted.</summary>
-    public required int Version { get; init; }
-
-    /// <summary>Gets the twelve named <c>small-explosion-0..5</c> and <c>big-explosion-0..5</c> compositions.</summary>
-    public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
-}
-
-/// <summary>Installed file identity for twelve fourth-hit explosion frames.</summary>
-public static class IntroMotherBrainExplosionSpriteFormat
-{
-    /// <summary>The supported explosion-sprite JSON schema version.</summary>
-    public const int Version = 1;
-
-    /// <summary>The embedded editable explosion-sprite asset file name.</summary>
-    public const string FileName = "intro-mother-brain-explosion-sprites.json";
 }

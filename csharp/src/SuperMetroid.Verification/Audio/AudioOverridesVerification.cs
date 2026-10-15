@@ -64,11 +64,11 @@ internal static class AudioOverridesVerification
                 "instrument-only JSON edit changes selected audio identity");
             AssertEqual(
                 editedInstrument.PitchBase,
-                selected.GetInstrumentBank(AudioUploadAddresses.TitleSequence)[0].PitchBase,
+                selected.GetInstrumentBank(AudioBank.TitleSequence)[0].PitchBase,
                 "installed session selects persistent instrument edit");
             AssertTrue(
-                selected.GetInstrumentBank(AudioUploadAddresses.TitleSequence)[0].PitchBase !=
-                stock.GetInstrumentBank(AudioUploadAddresses.TitleSequence)[0].PitchBase,
+                selected.GetInstrumentBank(AudioBank.TitleSequence)[0].PitchBase !=
+                stock.GetInstrumentBank(AudioBank.TitleSequence)[0].PitchBase,
                 "selected audio differs from validated stock");
 
             // A stock repair replaces only game/audio. The persistent override remains selected.
@@ -76,7 +76,7 @@ internal static class AudioOverridesVerification
             CopyAudioDirectory(source, installation.AudioDirectory);
             AssertEqual(
                 editedInstrument.PitchBase,
-                installation.LoadAudio().GetInstrumentBank(AudioUploadAddresses.TitleSequence)[0].PitchBase,
+                installation.LoadAudio().GetInstrumentBank(AudioBank.TitleSequence)[0].PitchBase,
                 "stock repair preserves persistent audio edit");
             AssertEqual(
                 selected.ContentIdentity,

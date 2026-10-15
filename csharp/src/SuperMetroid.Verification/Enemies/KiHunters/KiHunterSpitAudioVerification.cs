@@ -23,7 +23,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks that one Ki-Hunter spit requests one sound and cannot prolong a door sound wait.</summary>
 internal static class KiHunterSpitAudioVerification
 {
-    /// <summary>Checks the native sound opcode, real projectile spawn, single APU write, and door transition.</summary>
+    /// <summary>Checks the native sound opcode, real projectile spawn, single SPC start, and door transition.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the KiHunter spit instruction that queues sound $4C")]
     internal static void VerifyKiHunterSpitAudio()
     {
@@ -56,20 +56,14 @@ internal static class KiHunterSpitAudioVerification
         game.runtime = runtime;
         game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
-        byte[] ports = new byte[4];
-        game.SoundAcknowledgements = new PortWriteEchoAcknowledgements(ports);
+        game.SoundAcknowledgements = new PortWriteEchoAcknowledgements(game.audio);
         var spit = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4c);
-        int requests = 0, writes = 0;
+        int requests = 0, starts = 0;
         void Step()
         {
             var frame = game.Step(0);
             requests += runtime.Enemies.Audio.SoundRequests.Count(request => request.SoundEffect == spit);
-            foreach (var command in frame.AudioCommands)
-            {
-                if (command.Kind != CartridgeAudioCommandKind.WritePort) continue;
-                ports[(int)command.InputPort] = command.Value;
-                if (command.InputPort == ApuPort.SoundLibrary2 && command.Value == 0x4c) writes++;
-            }
+            starts += frame.AudioEvents.Count(audioEvent => audioEvent.Kind == AudioEventKind.StartSoundEffect && audioEvent.SoundEffect == spit);
         }
         Step();
         AssertEqual(1, runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpitRight), "staged attack spawns one real acid projectile");
@@ -79,7 +73,7 @@ internal static class KiHunterSpitAudioVerification
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 8);
         body.InstructionTimer = NativeCountdown.Start(1);
         for (int frame = 1; frame < 20; frame++) Step();
-        Console.WriteLine($"One KiHunter spit: {requests} requests, {writes} APU writes over 20 frames.");
+        Console.WriteLine($"One KiHunter spit: {requests} requests, {starts} SPC starts over 20 frames.");
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
@@ -101,7 +95,7 @@ internal static class KiHunterSpitAudioVerification
         }
         Console.WriteLine($"Door sound wait: {waitFrames} frames; phase={game.DoorTransitionPhaseForVerification}.");
         AssertEqual(1, requests, "one native spit opcode publishes exactly one request, including door-wait frames");
-        AssertEqual(1, writes, "acknowledged spit is sent once to APU port two");
+        AssertEqual(1, starts, "the SPC starts the acknowledged spit once");
         AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification, "completed spit cannot refill the door sound wait");
         AssertTrue(waitFrames <= 1, "already-drained spit queue allows the first door sound-wait pass to finish");
     }

@@ -73,7 +73,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
                 scene.Phase != EndingCreditsPhase.OperationSuccessfulText; frame++)
             {
                 scene.Step();
-                audio.AdvanceFrame(guard, default);
+                audio.AdvanceFrame(default);
             }
             AssertEqual(EndingCreditsPhase.OperationSuccessfulText, scene.Phase,
                 "ending completion sprite edit reaches its actual scene");
@@ -91,7 +91,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
                 if (!visible)
                 {
                     scene.Step();
-                    audio.AdvanceFrame(guard, default);
+                    audio.AdvanceFrame(default);
                 }
             }
             AssertTrue(visible,

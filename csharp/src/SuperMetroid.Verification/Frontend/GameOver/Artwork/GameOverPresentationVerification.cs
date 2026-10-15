@@ -69,9 +69,9 @@ internal static class GameOverPresentationVerification
             native.Step(input);
             installed.Step(input);
             IReadOnlyList<CartridgeAudioCommand> nativeCommands =
-                nativeAudio.AdvanceFrame(bus, default);
+                nativeAudio.AdvanceFrame(default);
             IReadOnlyList<CartridgeAudioCommand> installedCommands =
-                installedAudio.AdvanceFrame(bus, default);
+                installedAudio.AdvanceFrame(default);
             AssertTrue(nativeCommands.SequenceEqual(installedCommands),
                 $"compiled game-over audio dispatch matches cartridge frame {tick}");
         }
@@ -115,8 +115,8 @@ internal static class GameOverPresentationVerification
         {
             originalMenu.Step(0);
             editedMenu.Step(0);
-            _ = originalEditAudio.AdvanceFrame(bus, default);
-            _ = editedAudio.AdvanceFrame(bus, default);
+            _ = originalEditAudio.AdvanceFrame(default);
+            _ = editedAudio.AdvanceFrame(default);
         }
         AssertTrue(!originalMenu.Render().SequenceEqual(editedMenu.Render()),
             "game-over tilemap, actor and anchor edits reach the real renderer");

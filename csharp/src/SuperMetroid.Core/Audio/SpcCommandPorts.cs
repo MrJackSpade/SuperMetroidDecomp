@@ -12,8 +12,9 @@ namespace SuperMetroid.Core.Audio;
 /// frames and is carried between them. Each poll acts on the value latched by the previous
 /// poll, echoes it to the acknowledgement port and latches the CPU's current write, so a
 /// write overwritten before a poll is never seen. The driver never reads DSP state back,
-/// so the acknowledgement bytes depend on this state alone. The music echo on port zero is
-/// published by the sequencer and is not part of this model.
+/// so the acknowledgement bytes depend on this state alone. The music command on port zero is
+/// consumed, and its echo published, by the sequencer at its own tempo ticks; an
+/// <see cref="IAudioBackend"/> receives it as an <see cref="AudioEvent"/> and is not part of this model.
 /// </remarks>
 [SpcMemoryBoundary("implementation: the SPC CPU-IO port latches and acknowledgement ports")]
 public sealed class SpcCommandPorts
@@ -72,14 +73,6 @@ public sealed class SpcCommandPorts
         soundEffectOutputPorts[0] = SpcDriverDefinitions.UploadReadyLibraryOnePort;
         for (int port = (int)ApuPort.SoundLibrary1; port < inputPorts.Length; port++)
             inputPorts[port] = 0;
-    }
-
-    /// <summary>Takes the music input latch for the sequencer, leaving it empty.</summary>
-    internal byte TakeMusicCommand()
-    {
-        byte command = inputPorts[(int)ApuPort.Music];
-        inputPorts[(int)ApuPort.Music] = (byte)MusicPortCommand.None;
-        return command;
     }
 
     /// <summary>

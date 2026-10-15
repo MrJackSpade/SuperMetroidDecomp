@@ -338,7 +338,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(expected.SequenceEqual(RenderForComparison(packet)),
                         $"ending reward {hours}, phase {legacy.Phase}, tick {tick} pixel parity");
                 }
-                audio.AdvanceFrame(bus, default); otherAudio.AdvanceFrame(otherBus, default);
+                audio.AdvanceFrame(default); otherAudio.AdvanceFrame(default);
                 AssertEqual(legacy.Phase, captured.Phase, "ending capture preserves phase");
                 AssertEqual(legacy.CinematicFrame, captured.CinematicFrame, "ending capture preserves timer");
                 AssertEqual(legacy.CreditsVerticalScroll, captured.CreditsVerticalScroll, "ending capture preserves half-pixel scroll result");

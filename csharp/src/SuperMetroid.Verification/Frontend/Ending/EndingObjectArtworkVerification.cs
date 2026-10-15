@@ -219,8 +219,8 @@ internal static class EndingObjectArtworkVerification
             }
             native.Step();
             installed.Step();
-            nativeAudio.AdvanceFrame(bus, default);
-            installedAudio.AdvanceFrame(guard, default);
+            nativeAudio.AdvanceFrame(default);
+            installedAudio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.FadeOutToCredits, native.Phase,
             "ending OBJ fixture reaches the completed-time credits handoff");
@@ -261,7 +261,7 @@ internal static class EndingObjectArtworkVerification
             cloudScene.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
         {
             cloudScene.Step();
-            cloudAudio.AdvanceFrame(guard, default);
+            cloudAudio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.EscapeSceneA, cloudScene.Phase,
             "ending cloud edit reaches visible first atmospheric scene");
@@ -281,7 +281,7 @@ internal static class EndingObjectArtworkVerification
             if (!visibleCloudEdit)
             {
                 cloudScene.Step();
-                cloudAudio.AdvanceFrame(guard, default);
+                cloudAudio.AdvanceFrame(default);
             }
         }
         AssertTrue(visibleCloudEdit,
@@ -324,13 +324,13 @@ internal static class EndingObjectArtworkVerification
             for (int frame = 0; frame < 10000 && scene.Phase != target; frame++)
             {
                 scene.Step();
-                audio.AdvanceFrame(sceneBus, default);
+                audio.AdvanceFrame(default);
             }
             AssertEqual(target, scene.Phase, $"ending {name} reaches its actual scene");
             for (int frame = 0; frame < 1200 && scene.Brightness == 0; frame++)
             {
                 scene.Step();
-                audio.AdvanceFrame(sceneBus, default);
+                audio.AdvanceFrame(default);
             }
             LayeredRenderSnapshot baseline = scene.Presentation.CaptureRenderSnapshot();
             EndingCreditsPhase baselinePhase = scene.Phase;
@@ -374,7 +374,7 @@ internal static class EndingObjectArtworkVerification
                             SoftwareLayeredSnapshotRenderer.Render(editedArt));
                 }
                 scene.Step();
-                audio.AdvanceFrame(sceneBus, default);
+                audio.AdvanceFrame(default);
             }
             AssertTrue(visibleEdit, $"edited {name} changes visible ending pixels");
             File.Delete(overridePath);

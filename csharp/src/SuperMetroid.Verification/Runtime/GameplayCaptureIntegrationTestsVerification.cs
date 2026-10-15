@@ -149,7 +149,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         {
             AssertEqual(expected.GameState, actual.Frame.GameState, "gameplay captured state cadence");
             AssertEqual(expected.Phase, actual.Frame.Phase, "gameplay captured phase");
-            AssertSequenceEqual(expected.AudioCommands, actual.Frame.AudioCommands, "gameplay capture audio command order");
+            AssertSequenceEqual(expected.AudioEvents, actual.Frame.AudioEvents, "gameplay capture audio event order");
             Rgba32[] pixels = actual.Snapshot is { } packet ? SoftwareFrameSnapshotRenderer.Render(packet) : actual.Frame.Pixels;
             AssertTrue(expected.Pixels.SequenceEqual(pixels), $"gameplay capture pixels in {expected.Phase}");
         }

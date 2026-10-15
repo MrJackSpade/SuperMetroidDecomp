@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Audio;
 internal static class GameplayAudioPublicationVerification
 {
     /// <summary>Uses native landing publishers to check queued echo order, repeated flushes, and suppressed echo accumulation.</summary>
-    internal static void VerifyGameplayAudioPublication(SuperMetroidAddressSpace audioBus)
+    internal static void VerifyGameplayAudioPublication()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -22,7 +22,7 @@ internal static class GameplayAudioPublicationVerification
         samus.LiquidPhysics.CinematicFunctionActive = false;
         samus.LiquidPhysics.BeginFrameSoundRequests();
         var audio = new CartridgeAudioState();
-        audio.AdvanceFrame(audioBus, default);
+        audio.AdvanceFrame(default);
         var publication = new GameplayAudioFramePublication(audio);
 
         // Use real native landing publishers, not direct injection into private lists.
@@ -39,8 +39,7 @@ internal static class GameplayAudioPublicationVerification
         byte acknowledgement = 0;
         for (int frame = 0; frame < 128; frame++)
         {
-            foreach (var command in audio.AdvanceFrame(audioBus,
-                new CartridgeAudioAcknowledgements(0, 0, 0, acknowledgement)))
+            foreach (var command in audio.AdvanceFrame(new CartridgeAudioAcknowledgements(0, 0, 0, acknowledgement)))
             {
                 bool recognized = false;
                 foreach (byte value in new byte[] { 0, 3, 4, 5 })

@@ -51,20 +51,20 @@ internal static class EtecoonFanfareVerification
         AssertEqual(15, request.MaximumQueued, "native wake request uses Max15");
         AssertEqual((ushort)256, (enemies.EtecoonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.EtecoonStates[0].")).FunctionTimer.RawValue, "wake begins flexing timer");
 
-        var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
+        var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         var queue = new CartridgeAudioState();
-        renderer.RenderFrame(queue.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
-        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
+        renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
+        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
         queue.QueueSound(request.SoundEffect, request.MaximumQueued);
         AssertTrue(queue.HasQueuedSounds, "post-fade fanfare reaches CPU queue");
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
         AssertEqual(0, enemies.Audio.SoundRequests.Count, "next frame does not repeat fanfare");
-        var channels = renderer.player.soundChannels;
+        var channels = renderer.PlayerForVerification.soundChannels;
         var notes = new HashSet<byte>();
         int peak = 0;
         for (int frame = 0; frame < 240; frame++)
         {
-            var pcm = renderer.RenderFrame(queue.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
+            var pcm = renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
             foreach (short sample in pcm) peak = Math.Max(peak, Math.Abs((int)sample));
             if (channels[1][0].Disabled == 0) notes.Add(channels[1][0].Note);
         }

@@ -23,23 +23,23 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 27170,
-    "PointerDispatch": 79,
+    "RawHexLiteral": 27162,
+    "PointerDispatch": 77,
     "OpaqueWordArray": 845,
-    "CatalogHexLiteral": 100294,
+    "CatalogHexLiteral": 100293,
     "JustifiedHexLiteral": 153,
     "RawWidthOperation": 44,
     "OwnedWidthOperation": 70,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 18,
-    "class:NumericQuantity": 56595,
-    "class:DomainIdentity": 7671,
+    "class:NumericQuantity": 56594,
+    "class:DomainIdentity": 7667,
     "class:ComposableBits": 996,
     "class:StructuredInstruction": 40157,
-    "class:CartridgeAddress": 22550,
+    "class:CartridgeAddress": 22544,
     "class:Unknown": 710,
-    "storageWidthMembers": 1522
+    "storageWidthMembers": 1524
   },
   "subsystems": [
     {
@@ -1721,15 +1721,15 @@
     {
       "name": "Audio",
       "totals": {
-        "CatalogHexLiteral": 902,
+        "CatalogHexLiteral": 901,
         "JustifiedHexLiteral": 117,
         "OwnedWidthOperation": 1,
         "class:NumericQuantity": 397,
         "class:DomainIdentity": 571,
         "class:ComposableBits": 21,
-        "class:CartridgeAddress": 29,
+        "class:CartridgeAddress": 28,
         "class:Unknown": 2,
-        "storageWidthMembers": 163
+        "storageWidthMembers": 165
       },
       "addressInterpretingTypes": [],
       "files": [
@@ -1743,12 +1743,19 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Audio/AudioEvent.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "storageWidthMembers": 1
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Audio/AudioRomData.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 16,
+            "CatalogHexLiteral": 15,
             "class:NumericQuantity": 12,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
@@ -1797,7 +1804,7 @@
             "class:DomainIdentity": 12,
             "class:ComposableBits": 20,
             "class:Unknown": 2,
-            "storageWidthMembers": 36
+            "storageWidthMembers": 37
           }
         },
         {
@@ -8200,19 +8207,19 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27127,
-        "PointerDispatch": 63,
+        "RawHexLiteral": 27119,
+        "PointerDispatch": 61,
         "OpaqueWordArray": 836,
         "CatalogHexLiteral": 3123,
         "RawWidthOperation": 44,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 11206,
-        "class:DomainIdentity": 506,
+        "class:NumericQuantity": 11205,
+        "class:DomainIdentity": 502,
         "class:ComposableBits": 525,
         "class:StructuredInstruction": 11413,
-        "class:CartridgeAddress": 7118,
+        "class:CartridgeAddress": 7113,
         "class:Unknown": 440,
         "storageWidthMembers": 84
       },
@@ -8328,8 +8335,8 @@
           "path": "csharp/src/SuperMetroid.DesktopVerification/Audio/AudioInputReplaySmokeTest.cs",
           "project": "SuperMetroid.DesktopVerification",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:DomainIdentity": 2,
+            "RawHexLiteral": 1,
+            "class:DomainIdentity": 1,
             "storageWidthMembers": 1
           }
         },
@@ -9025,8 +9032,8 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/RoomPlmInstructionListsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 2
+            "RawHexLiteral": 1,
+            "class:NumericQuantity": 1
           }
         },
         {
@@ -9522,9 +9529,9 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 1,
-            "PointerDispatch": 2,
+            "PointerDispatch": 1,
             "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -9532,9 +9539,9 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 2,
-            "PointerDispatch": 2,
+            "PointerDispatch": 1,
             "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -9613,11 +9620,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Audio/ManagedAudioVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 53,
+            "RawHexLiteral": 50,
             "OpaqueWordArray": 2,
             "class:NumericQuantity": 33,
             "class:StructuredInstruction": 13,
-            "class:CartridgeAddress": 3,
             "class:Unknown": 6
           }
         },
@@ -10544,9 +10550,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/BabyMetroidDeathCryVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 5,
+            "RawHexLiteral": 3,
             "class:NumericQuantity": 2,
-            "class:DomainIdentity": 2,
             "class:CartridgeAddress": 1
           }
         },
@@ -13085,10 +13090,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterSpitAudioVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 11,
+            "RawHexLiteral": 10,
             "OpaqueWordArray": 1,
             "class:NumericQuantity": 2,
-            "class:DomainIdentity": 1,
             "class:StructuredInstruction": 8,
             "class:CartridgeAddress": 1
           }

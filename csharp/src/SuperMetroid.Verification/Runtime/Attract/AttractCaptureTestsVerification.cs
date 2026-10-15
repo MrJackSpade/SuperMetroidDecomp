@@ -55,7 +55,7 @@ internal static class AttractCaptureTestsVerification
                 states.Add(expected.GameState);
                 AssertTrue(!actual.UsedLegacyRaster, $"demo capture never uses legacy pixels: tick {tick}, {expected.GameState}");
                 AssertEqual(expected.GameState, actual.Frame.GameState, "demo capture state");
-                AssertSequenceEqual(expected.AudioCommands, actual.Frame.AudioCommands, "demo capture audio order");
+                AssertSequenceEqual(expected.AudioEvents, actual.Frame.AudioEvents, "demo capture audio event order");
                 bool demo = expected.GameState is SuperMetroidGameState.TransitionToDemoA or SuperMetroidGameState.TransitionToDemoB
                     or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
                 if (demo || tick % 31 == 0)

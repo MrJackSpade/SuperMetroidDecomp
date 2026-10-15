@@ -46,7 +46,7 @@ internal static class EndingDmaVerification
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.Credits; frame++)
         {
             ending.Step();
-            audio.AdvanceFrame(bus, default);
+            audio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.Credits, ending.Phase, "ending reaches credits setup");
         byte[] reward = RomDataReader.Decompress(bus, 0x97b957, 0x8000);

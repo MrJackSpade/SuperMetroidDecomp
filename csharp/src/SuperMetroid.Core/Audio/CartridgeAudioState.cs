@@ -30,7 +30,7 @@ public sealed class CartridgeAudioState
     /// <summary>Per-library port handshake phase, from request through zero acknowledgement.</summary>
     internal readonly byte[] _soundStates = new byte[AudioRomData.Queues.SoundLibraryCount];
     /// <summary>Request byte currently awaiting each SPC library's acknowledgement.</summary>
-    private readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
+    internal readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
     /// <summary>Two-frame hold before a recognized SFX request is cleared from the APU port.</summary>
     private readonly byte[] _soundClearDelays =
         new byte[AudioRomData.Queues.SoundLibraryCount];
@@ -272,14 +272,12 @@ public sealed class CartridgeAudioState
         return accumulator;
     }
 
-    /// <summary>Runs selected audio dispatch owners and returns their pending APU writes.</summary>
-    public IReadOnlyList<CartridgeAudioCommand> AdvanceFrame(
-        ISnesAddressSpace bus,
+    /// <summary>Runs selected audio dispatch owners and returns their pending APU writes, which only the session's port model consumes.</summary>
+    internal IReadOnlyList<CartridgeAudioCommand> AdvanceFrame(
         CartridgeAudioAcknowledgements acknowledgements,
         bool advanceMusicQueue = true,
         int soundEffectHandlerCalls = 1)
     {
-        Ensure.NotNull(bus);
         Ensure.AtLeastZero(soundEffectHandlerCalls);
         List<CartridgeAudioCommand> commands = [.. _pendingImmediateCommands];
         _pendingImmediateCommands.Clear();
@@ -339,7 +337,7 @@ public sealed class CartridgeAudioState
                 MusicTrackIndex = byte.MaxValue;
                 AudioUploadAssetDefinition upload =
                     AudioAssetCatalogDefinitions.ResolveDataIndex(_musicEntry.DataIndex);
-                commands.Add(CartridgeAudioCommand.Upload(upload.SnesAddress));
+                commands.Add(CartridgeAudioCommand.Upload(upload.Bank));
                 MusicTrackIndex = 0;
                 // `$80:8F89-$8FA2` retires the data entry and returns. The timer stays zero,
                 // so the next entry is fetched only on the following call when it underflows.

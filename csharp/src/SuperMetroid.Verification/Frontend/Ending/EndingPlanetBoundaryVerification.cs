@@ -91,7 +91,7 @@ internal static class EndingPlanetBoundaryVerification
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)
         {
             ending.Step();
-            audio.AdvanceFrame(bus, default);
+            audio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Phase, "planet crossfade reached");
         // Rebuild the upper VRAM image from D8C1/D8E1/D901/D921/D941/D961.
@@ -139,7 +139,7 @@ internal static class EndingPlanetBoundaryVerification
                     RenderFrameSnapshotWriter.Serialize(new(new(frame + 1, 1, 0), ending.Presentation.CaptureRenderSnapshot())));
             }
             ending.Step();
-            audio.AdvanceFrame(bus, default);
+            audio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.PlanetEscapeFast, ending.Phase, "planet explosion reaches ship flyaway");
         Console.WriteLine($"Complete explosion: {differences} pixel mismatches against exact native upper-VRAM transfers.");

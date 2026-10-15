@@ -214,7 +214,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                 scene.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)
             {
                 scene.Step();
-                audio.AdvanceFrame(guard, default);
+                audio.AdvanceFrame(default);
             }
             AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, scene.Phase,
                 "ending explosion edit reaches its actual scene");
@@ -232,7 +232,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                 if (!visible)
                 {
                     scene.Step();
-                    audio.AdvanceFrame(guard, default);
+                    audio.AdvanceFrame(default);
                 }
             }
             AssertTrue(visible,

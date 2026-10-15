@@ -361,9 +361,10 @@ gameplay acknowledgement timing. Specify output mute and device-failure behavior
 without accidentally changing simulated audio progression.
 
 When output storage is reused, give the consumer a copy or an explicit ownership
-handoff. `CartridgeAudioRenderer.RenderFrame` returns an array borrowed until the
-next call. Enqueuing that same array repeatedly can overwrite queued samples.
-See [`CartridgeAudioRenderer`](../csharp/src/SuperMetroid.Core/Audio/CartridgeAudioRenderer.cs)
+handoff. The session reuses its PCM buffer, so `CartridgeAudioSession.CopyFrame`
+copies each update's samples into host-owned storage. Enqueuing one reused array
+repeatedly can overwrite queued samples.
+See [`CartridgeAudioSession`](../csharp/src/SuperMetroid.Core/Audio/CartridgeAudioSession.cs)
 and the current host frame loops.
 
 ### Simulation position and visible position

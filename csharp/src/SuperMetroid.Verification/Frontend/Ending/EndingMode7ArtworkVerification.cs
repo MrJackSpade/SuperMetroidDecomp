@@ -65,8 +65,8 @@ internal static class EndingMode7ArtworkVerification
             }
             native.Step();
             installed.Step();
-            nativeAudio.AdvanceFrame(nativeBus, default);
-            installedAudio.AdvanceFrame(guardedBus, default);
+            nativeAudio.AdvanceFrame(default);
+            installedAudio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, native.Phase,
             "ending art fixture reaches the post-explosion flyaway upload");
@@ -97,14 +97,14 @@ internal static class EndingMode7ArtworkVerification
             for (int frame = 0; frame < 10000 && state.Phase != target; frame++)
             {
                 state.Step();
-                audio.AdvanceFrame(sceneBus, default);
+                audio.AdvanceFrame(default);
             }
             AssertEqual(target, state.Phase, $"ending {id} override fixture reaches its scene");
             for (int visibleFrame = 0; visibleFrame < 1200 &&
                 state.Brightness == 0; visibleFrame++)
             {
                 state.Step();
-                audio.AdvanceFrame(sceneBus, default);
+                audio.AdvanceFrame(default);
             }
             LayeredRenderSnapshot baselineSnapshot = state.Presentation.CaptureRenderSnapshot();
             AssertTrue(baselineSnapshot.Brightness > 0,
@@ -142,14 +142,14 @@ internal static class EndingMode7ArtworkVerification
                     partial.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
                 {
                     partial.Step();
-                    partialAudio.AdvanceFrame(partialBus, default);
+                    partialAudio.AdvanceFrame(default);
                 }
                 AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, partial.Phase,
                     "explosion override fixture reaches partial flyaway DMA");
                 for (int chunk = 0; chunk < 9; chunk++)
                 {
                     partial.Step();
-                    partialAudio.AdvanceFrame(partialBus, default);
+                    partialAudio.AdvanceFrame(default);
                 }
                 byte[] partiallyUploaded = partial.Presentation.CaptureRenderSnapshot().Memory.Vram.ToArray();
                 partial.BindMode7Artwork(editedMap);

@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Audio;
 internal static class SoundQueueReturnVerification
 {
     /// <summary>Replays 64 occupancy and suppression rows through queueing, dequeue, and acknowledgement.</summary>
-    internal static void VerifySoundQueueAccumulator(SuperMetroidAddressSpace bus)
+    internal static void VerifySoundQueueAccumulator()
     {
         string fixture = Path.GetFullPath("csharp/test-fixtures/movement-release/soundqueue-return.csv");
         string[] rows = File.ReadAllLines(fixture);
@@ -21,7 +21,7 @@ internal static class SoundQueueReturnVerification
             int expectedCount = int.Parse(fields[3], CultureInfo.InvariantCulture);
             int expectedNewSound = int.Parse(fields[4], CultureInfo.InvariantCulture);
             var queue = new CartridgeAudioState();
-            queue.AdvanceFrame(bus, default);
+            queue.AdvanceFrame(default);
             for (int index = 0; index < occupancy; index++)
                 queue.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x22), 15);
             ushort actual = queue.QueueSoundAndGetAccumulator(
@@ -34,8 +34,7 @@ internal static class SoundQueueReturnVerification
             byte acknowledgement = 0;
             for (int frame = 0; frame < 256; frame++)
             {
-                foreach (var command in queue.AdvanceFrame(bus,
-                    new CartridgeAudioAcknowledgements(0, 0, 0, acknowledgement)))
+                foreach (var command in queue.AdvanceFrame(new CartridgeAudioAcknowledgements(0, 0, 0, acknowledgement)))
                 {
                     if (command == CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, 0)) acknowledgement = 0;
                     else if (command == CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, 0x22))

@@ -113,14 +113,14 @@ public static class ManagedAudioRegressionSmokeTest
         int frameCount,
         AudioCorpusTally tally)
     {
-        var engine = DesktopAccess.CreateAudioRenderer();
+        var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < frameCount; frame++)
         {
             IReadOnlyList<CartridgeAudioCommand> commands = frame == 0
                 ?
                 [
-                    CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.SnesAddress),
-                    CartridgeAudioCommand.Upload(bank.SnesAddress),
+                    CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank),
+                    CartridgeAudioCommand.Upload(bank.Bank),
                     CartridgeAudioCommand.WritePort(ApuPort.Music, 1),
                 ]
                 : Array.Empty<CartridgeAudioCommand>();
@@ -136,13 +136,13 @@ public static class ManagedAudioRegressionSmokeTest
         AudioCorpusTally tally,
         bool cancelHalfway = false)
     {
-        var engine = DesktopAccess.CreateAudioRenderer();
+        var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < ShortScenarioFrames; frame++)
         {
             List<CartridgeAudioCommand> commands = [];
             if (frame == 0)
             {
-                commands.Add(CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.SnesAddress));
+                commands.Add(CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank));
                 commands.AddRange(startCommands.Select(command =>
                     CartridgeAudioCommand.WritePort(command.Port, command.Command)));
             }
@@ -166,14 +166,14 @@ public static class ManagedAudioRegressionSmokeTest
     {
         AudioUploadAssetDefinition first = AudioAssetCatalogDefinitions.Music[3];
         AudioUploadAssetDefinition second = AudioAssetCatalogDefinitions.Music[4];
-        var engine = DesktopAccess.CreateAudioRenderer();
+        var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < LifecycleScenarioFrames; frame++)
         {
             List<CartridgeAudioCommand> commands = [];
             if (frame == 0)
             {
-                commands.Add(CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.SnesAddress));
-                commands.Add(CartridgeAudioCommand.Upload(first.SnesAddress));
+                commands.Add(CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank));
+                commands.Add(CartridgeAudioCommand.Upload(first.Bank));
                 commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }
             else if (frame == 120)
@@ -182,7 +182,7 @@ public static class ManagedAudioRegressionSmokeTest
             }
             else if (frame == 150)
             {
-                commands.Add(CartridgeAudioCommand.Upload(second.SnesAddress));
+                commands.Add(CartridgeAudioCommand.Upload(second.Bank));
                 commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }
             else if (frame == 270)
@@ -212,7 +212,7 @@ public static class ManagedAudioRegressionSmokeTest
     /// <summary>Feeds the scenario name, rendered PCM and four acknowledgement bytes into the corpus digests after one audio update.</summary>
     private static void HashFrame(
         string scenario,
-        CartridgeAudioRenderer engine,
+        CartridgeAudioSession engine,
         IReadOnlyList<CartridgeAudioCommand> commands,
         AudioCorpusTally tally)
     {
@@ -221,10 +221,12 @@ public static class ManagedAudioRegressionSmokeTest
         tally.Acknowledgements.AppendData(name);
         ReadOnlySpan<short> pcm = engine.RenderFrame(commands);
         tally.Pcm.AppendData(MemoryMarshal.AsBytes(pcm));
-        CartridgeAudioAcknowledgements acknowledgements = engine.ReadAcknowledgements();
+        CartridgeAudioAcknowledgements acknowledgements = engine.Acknowledgements;
         Span<byte> ports = stackalloc byte[AudioRomData.Apu.PortCount];
         foreach (ApuPort port in Enum.GetValues<ApuPort>())
             ports[(int)port] = acknowledgements[port];
+        // The corpus pinned port zero as the sequencer's music echo, which the session never publishes.
+        ports[(int)ApuPort.Music] = engine.PlayerForVerification.musicPortToSnes;
         tally.Acknowledgements.AppendData(ports);
         tally.Frames++;
         tally.Samples += pcm.Length;

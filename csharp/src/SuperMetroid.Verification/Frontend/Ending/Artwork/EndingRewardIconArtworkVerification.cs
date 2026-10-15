@@ -60,8 +60,8 @@ internal static class EndingRewardIconArtworkVerification
             }
             nativeScene.Step();
             installedScene.Step();
-            nativeAudio.AdvanceFrame(nativeBus, default);
-            installedAudio.AdvanceFrame(installedBus, default);
+            nativeAudio.AdvanceFrame(default);
+            installedAudio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.PostCreditsShot, nativeScene.Phase,
             "native reward reaches Mode-7 shot");
@@ -134,14 +134,14 @@ internal static class EndingRewardIconArtworkVerification
                     scene.Phase != EndingCreditsPhase.PostCreditsJump; frame++)
                 {
                     scene.Step();
-                    sceneAudio.AdvanceFrame(sceneBus, default);
+                    sceneAudio.AdvanceFrame(default);
                 }
                 AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Phase,
                     $"{name} override reaches the native reward jump");
                 for (int frame = 0; frame < 190; frame++)
                 {
                     scene.Step();
-                    sceneAudio.AdvanceFrame(sceneBus, default);
+                    sceneAudio.AdvanceFrame(default);
                 }
                 AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Phase,
                     $"{name} override fixture remains in the native landing upload");
@@ -156,7 +156,7 @@ internal static class EndingRewardIconArtworkVerification
                     scene.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
                 {
                     scene.Step();
-                    sceneAudio.AdvanceFrame(sceneBus, default);
+                    sceneAudio.AdvanceFrame(default);
                 }
                 AssertEqual(EndingCreditsPhase.PostCreditsShot, scene.Phase,
                     $"{name} edited icon reaches the native shooting phase");

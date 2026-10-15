@@ -29,15 +29,15 @@ internal static class PhantoonReport1196Verification
         enemies.CollectLegacyEnemyAudioRequests();
         AssertEqual(1, state.StartingFlamesSpawned, "intro producer actually spawns a starting flame");
         var audio = new CartridgeAudioState();
-        var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
-        renderer.RenderFrame(audio.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
-        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
+        var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
+        renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
+        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
         foreach (var request in enemies.Audio.SoundRequests)
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         var writes = new List<CartridgeAudioCommand>();
         for (int frame = 0; frame < 8; frame++)
         {
-            var commands = audio.AdvanceFrame(bus, renderer.ReadAcknowledgements());
+            var commands = audio.AdvanceFrame(renderer.Acknowledgements);
             writes.AddRange(commands.Where(command => command.Kind == CartridgeAudioCommandKind.WritePort));
             renderer.RenderFrame(commands);
         }

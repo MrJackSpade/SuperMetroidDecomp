@@ -44,7 +44,7 @@ internal static class FrontendRenderCaptureTestsVerification
             AssertEqual(expected.GameState, actual.Frame.GameState, "captured frontend state cadence");
             AssertEqual(expected.Phase, actual.Frame.Phase, "captured frontend phase cadence");
             AssertEqual(expected.FrameNumber, actual.Frame.FrameNumber, "captured frontend NMI identity");
-            AssertSequenceEqual(expected.AudioCommands, actual.Frame.AudioCommands, "captured frontend audio command order");
+            AssertSequenceEqual(expected.AudioEvents, actual.Frame.AudioEvents, "captured frontend audio event order");
             states.Add(expected.GameState);
             Rgba32[] actualPixels;
             if (actual.Snapshot is { } packet)
@@ -60,7 +60,7 @@ internal static class FrontendRenderCaptureTestsVerification
                 AssertEqual(expected.GameState, metadata.GameState, "metadata state");
                 AssertEqual(expected.Phase, metadata.Phase, "metadata phase");
                 AssertEqual(expected.FrameNumber, metadata.FrameNumber, "metadata frame identity");
-                AssertSequenceEqual(expected.AudioCommands, metadata.AudioCommands, "metadata preserves audio commands");
+                AssertSequenceEqual(expected.AudioEvents, metadata.AudioEvents, "metadata preserves audio events");
                 AssertEqual(tick + 1L, packet.Identity.Sequence, "host sequence is not cartridge frame");
                 AssertEqual(7L, packet.Identity.Generation, "host generation preserved");
                 AssertEqual(expected.FrameNumber, packet.Identity.SimulationFrame, "snapshot tracks completed simulation call");

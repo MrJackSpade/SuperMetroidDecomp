@@ -10,16 +10,16 @@ public sealed class ManagedPcmSampleBank
 
     /// <summary>Creates an immutable source-number mapping for one native sample upload.</summary>
     /// <param name="name">Stable upload or bank name used in diagnostics.</param>
-    /// <param name="uploadAddress">Native cartridge upload source identity.</param>
+    /// <param name="bank">The upload that installs this sample map.</param>
     /// <param name="samples">Managed samples keyed by S-DSP source number.</param>
     /// <param name="loopEntrySources">Optional mappings from a source's loop entry to another canonical source.</param>
-    public ManagedPcmSampleBank(string name, int uploadAddress, IReadOnlyDictionary<byte, ManagedPcmSample> samples,
+    public ManagedPcmSampleBank(string name, AudioBank bank, IReadOnlyDictionary<byte, ManagedPcmSample> samples,
         IReadOnlyDictionary<byte, byte>? loopEntrySources = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         Ensure.NotNull(samples);
         Name = name;
-        UploadAddress = uploadAddress;
+        Bank = bank;
         this.samples = new Dictionary<byte, ManagedPcmSample>(samples);
         this.loopEntrySources = loopEntrySources is null ? [] : new(loopEntrySources);
         foreach (var entry in this.loopEntrySources)
@@ -30,8 +30,8 @@ public sealed class ManagedPcmSampleBank
     /// <summary>Gets the stable upload or bank name.</summary>
     public string Name { get; }
 
-    /// <summary>Gets the native cartridge address identifying the sample upload.</summary>
-    public int UploadAddress { get; }
+    /// <summary>Gets the upload that installs this sample map.</summary>
+    public AudioBank Bank { get; }
 
     /// <summary>Gets the installed managed samples keyed by S-DSP source number.</summary>
     public IReadOnlyDictionary<byte, ManagedPcmSample> Samples => samples;
@@ -43,7 +43,7 @@ public sealed class ManagedPcmSampleBank
         samples.TryGetValue(sourceNumber, out ManagedPcmSample? sample)
             ? sample
             : throw new InvalidDataException(
-                $"PCM bank '{Name}' (${UploadAddress:X6}) does not map source ${sourceNumber:X2}.");
+                $"PCM bank '{Name}' ({Bank}) does not map source ${sourceNumber:X2}.");
 
     /// <summary>
     /// Resolves DIR's loop entry independently of key-on's start entry. A non-looping

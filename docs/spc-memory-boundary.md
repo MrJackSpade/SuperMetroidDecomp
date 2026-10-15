@@ -28,7 +28,7 @@ are the `ApuPort` enum end to end.
 | Uploads and compiled definitions | `WriteBytes`, `WriteByte` | 16-bit wrapping copy |
 | Driver reset work regions | `ClearDriverWorkRegions()` | the regions the native reset clears |
 | DSP sample/echo memory | `CreateDsp()` | the DSP shares APU RAM |
-| CPU→APU / APU→CPU ports | `WritePort(ApuPort, byte)`, `CartridgeAudioCommand.InputPort`; latches and sound-effect acknowledgement ports owned by `SpcCommandPorts`, which the game session's `CartridgeAudioSession` advances every update; tools read a player's ports through `CartridgeAudioRendererTooling.ReadPort(ApuPort)` | $2140-$2143 |
+| CPU→APU / APU→CPU ports | `SpcCommandPorts.WritePort(ApuPort, byte)`, `CartridgeAudioCommand.InputPort`; latches, sound-effect acknowledgement ports and the driver timer owned by `SpcCommandPorts`, which the game session's `CartridgeAudioSession` advances every update. The player receives only the music command (`WriteMusicPort`) and the tick schedule, as semantic `AudioEvent`s through `ManagedSpcAudioBackend` | $2140-$2143 |
 
 **Alias:** pan indices from 21 read past the 21 pan samples ($1E1D + 21 = $1E32) into the echo FIR
 preset table. `ReadPanVolumePair` and `ReadFirCoefficient` are separate views of those bytes.

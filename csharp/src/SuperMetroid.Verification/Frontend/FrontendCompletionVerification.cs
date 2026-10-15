@@ -389,7 +389,7 @@ internal static void VerifyEndingCreditsState()
     for (int frame = 0; frame < 60_000 && ending.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
     {
         ending.Step();
-        audio.AdvanceFrame(bus, default);
+        audio.AdvanceFrame(default);
         if (ending.Phase != previous)
         {
             previous = ending.Phase;

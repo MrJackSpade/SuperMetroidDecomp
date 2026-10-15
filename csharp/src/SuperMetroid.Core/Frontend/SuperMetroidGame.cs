@@ -389,9 +389,8 @@ public sealed class SuperMetroidGame
     private byte endingFadeBrightness = 15;
     /// <summary>Cadence counter for the ending fade.</summary>
     private int endingFadeCounter;
-    /// <summary>Audio commands published by the most recent frontend frame.</summary>
-    private IReadOnlyList<CartridgeAudioCommand> lastAudioCommands =
-        Array.Empty<CartridgeAudioCommand>();
+    /// <summary>Semantic audio events published by the most recent frontend frame.</summary>
+    private IReadOnlyList<AudioEvent> lastAudioEvents = Array.Empty<AudioEvent>();
     /// <summary>Runtime publication number last copied into the frontend audio queue.</summary>
     private ulong? lastAudioRuntimeGameplayPublication;
     /// <summary>Room-state pointer associated with the last copied audio publication.</summary>
@@ -1356,15 +1355,14 @@ public sealed class SuperMetroidGame
             // The opening dispatch's HandleSounds runs only once the routine returns.
             soundHandlers = 0;
         }
-        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = audio.AdvanceFrame(
-            bus, SoundAcknowledgements.ForNextFrame(audioSession.Acknowledgements),
+        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = audio.AdvanceFrame(SoundAcknowledgements.ForNextFrame(audioSession.Acknowledgements),
             advanceMusicQueue: musicHandler,
             soundEffectHandlerCalls: soundHandlers);
-        lastAudioCommands = prologueMusicCommands.Count == 0 ? trailingAudioCommands
+        IReadOnlyList<CartridgeAudioCommand> audioCommands = prologueMusicCommands.Count == 0 ? trailingAudioCommands
             : [.. prologueMusicCommands, .. trailingAudioCommands];
         // The SPC acts on this update's port writes and uploads during the update's own DSP
         // cycles; its echoes become visible to the next update's sound handlers.
-        audioSession.Advance(lastAudioCommands);
+        lastAudioEvents = audioSession.Advance(audioCommands);
         // $82:8AB0 runs after the pause dispatcher returns, even though Samus's
         // draw-time epilogue did not run. Preserve its held-only publication;
         // updating the press edge or auto-jump timer here would invent gameplay.
@@ -1373,11 +1371,11 @@ public sealed class SuperMetroidGame
         return CurrentFrame;
     }
 
-    /// <summary>Reads frontend status and audio commands without materializing a retained display.</summary>
+    /// <summary>Reads frontend status and audio events without materializing a retained display.</summary>
     public FrontendFrame CurrentFrameMetadata =>
-        new(GameState, PhaseName, FrameNumber, Array.Empty<Rgba32>(), lastAudioCommands);
+        new(GameState, PhaseName, FrameNumber, Array.Empty<Rgba32>(), lastAudioEvents);
 
-    /// <summary>Reads the current status, last audio commands, and display without advancing the dispatcher.</summary>
+    /// <summary>Reads the current status, last audio events, and display without advancing the dispatcher.</summary>
     /// <remarks>
     /// Pixels are the producer's reusable 256-by-224 buffer, not a copy; a host retaining them across another frame must copy them.
     /// When a display capture already owns the current image, the pixel array is empty and the host presents that capture instead.
@@ -1385,7 +1383,7 @@ public sealed class SuperMetroidGame
     public FrontendFrame CurrentFrame =>
         new(GameState, PhaseName, FrameNumber,
             display.CurrentPixels,
-            lastAudioCommands);
+            lastAudioEvents);
 
     /// <summary>
     /// Moves already-translated per-frame publishers into the single cartridge queue.

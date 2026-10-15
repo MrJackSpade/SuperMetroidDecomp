@@ -6875,6 +6875,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Audio.AudioBank",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/AudioBank.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.AudioBankMetadata",
       "kind": "record",
       "scope": "product",
@@ -6899,6 +6912,45 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.AudioEvent",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/AudioEvent.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.AudioEventKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/AudioEventKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.AudioFrameEvents",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/AudioFrameEvents.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Audio.AudioInstrumentMetadata",
@@ -7274,32 +7326,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Audio.CartridgeAudioRenderer",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/CartridgeAudioRenderer.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.CartridgeAudioRendererTooling",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Audio/CartridgeAudioRendererTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Audio.CartridgeAudioSession",
       "kind": "class",
       "scope": "product",
@@ -7311,6 +7337,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.CartridgeAudioSessionAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Audio/CartridgeAudioSessionAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.CartridgeAudioSessionAccess.extension(SuperMetroid.Core.Audio.CartridgeAudioSession)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Audio/CartridgeAudioSessionAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Audio.CartridgeAudioState",
@@ -7533,6 +7591,19 @@
       "disposition": "constructor-parameters"
     },
     {
+      "type": "SuperMetroid.Core.Audio.IAudioBackend",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/IAudioBackend.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.ISoundAcknowledgementSource",
       "kind": "interface",
       "scope": "product",
@@ -7641,6 +7712,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.ManagedSpcAudioBackend",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/ManagedSpcAudioBackend.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Audio.ManagedSpcMusicChannel",
@@ -7956,6 +8040,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.PortDrivenSpcPlayer",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Audio/PortDrivenSpcPlayer.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Audio.QueuedPcmSink",
@@ -53406,10 +53506,11 @@
         "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxAnimations.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions",
+      "disposition": "definition-catalog",
       "flags": [
         "large"
-      ]
+      ],
+      "review": "reviewed"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxAudioQueueLimits",
@@ -66213,8 +66314,7 @@
         "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmSlot.cs"
       ],
       "partial": "none",
-      "disposition": "state",
-      "review": "reviewed"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Plms.PlmSlotTable",
@@ -79257,10 +79357,11 @@
         "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileAnimations.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions",
+      "disposition": "definition-catalog",
       "flags": [
         "large"
-      ]
+      ],
+      "review": "reviewed"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileCooldownDefinitions",
@@ -90197,19 +90298,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Audio.HostIndependentAudioAcknowledgementsVerification.RendererAcknowledgements",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Audio/HostIndependentAudioAcknowledgementsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Verification.Audio.ManagedAudioVerification",

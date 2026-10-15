@@ -43,8 +43,8 @@ internal static class EndingFlyawayArtworkVerification
             }
             native.Step();
             installed.Step();
-            nativeAudio.AdvanceFrame(nativeBus, default);
-            installedAudio.AdvanceFrame(guard, default);
+            nativeAudio.AdvanceFrame(default);
+            installedAudio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.PlanetEscapeFast, native.Phase,
             "ending fixture reaches flyaway scene");
@@ -81,14 +81,14 @@ internal static class EndingFlyawayArtworkVerification
             restored.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)
         {
             restored.Step();
-            rebindAudio.AdvanceFrame(rebindGuard, default);
+            rebindAudio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, restored.Phase,
             "rebind fixture remains inside the native upload phase");
         for (int chunk = 0; chunk < 9; chunk++)
         {
             restored.Step();
-            rebindAudio.AdvanceFrame(rebindGuard, default);
+            rebindAudio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, restored.Phase,
             "first map chunk leaves seven scheduled uploads pending");

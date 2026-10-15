@@ -8,13 +8,13 @@ internal static class DoorSoundDisableVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
-        audio.AdvanceFrame(bus, default);
+        audio.AdvanceFrame(default);
         audio.QueueSound(SoundEffectLibrary1Sounds.StopSpinJump, 15);
         audio.DoorTransitionSoundsDisabled = true;
         ushort rejected = audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll, 15);
         AssertEqual((ushort)(0x0100 | SoundEffectLibrary1Sounds.CancelAll.Value), rejected,
             "Disabled queue retains the native post-threshold accumulator");
-        var commands = audio.AdvanceFrame(bus, default);
+        var commands = audio.AdvanceFrame(default);
         AssertTrue(commands.Any(c => c.Kind == CartridgeAudioCommandKind.WritePort && c.InputPort == ApuPort.SoundLibrary1 && c.Value == SoundEffectLibrary1Sounds.StopSpinJump.Value),
             "Disabling new sounds still submits an already queued request");
         AssertTrue(!audio.HasQueuedSounds, "Rejected request does not refill the drained ring");

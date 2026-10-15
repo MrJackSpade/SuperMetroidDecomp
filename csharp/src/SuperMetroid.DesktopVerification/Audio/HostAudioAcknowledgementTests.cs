@@ -56,16 +56,16 @@ internal static class HostAudioAcknowledgementTests
                 }
                 control.StepFrame(input);
                 FrontendFrame frame = reference.Step(input);
-                cursorRequests += frame.AudioCommands.Count(command =>
-                    command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary1 &&
-                    command.Value == SoundEffectLibrary1Sounds.MenuCursor.Value);
+                cursorRequests += frame.AudioEvents.Count(audioEvent =>
+                    audioEvent.Kind == AudioEventKind.StartSoundEffect &&
+                    audioEvent.SoundEffect == SoundEffectLibrary1Sounds.MenuCursor);
                 AssertSameAudio(control.game, reference, $"update {tick}");
             }
             Check(moves == FileSelectCursorMoves, "the fixture reaches the file-select cursor");
-            Check(cursorRequests > 0, "the file-select cursor sends its library-1 sound");
+            Check(cursorRequests > 0, "the SPC starts the file-select cursor's library-1 sound");
         }
         finally { await control.StopRendererAsync(); }
-        Console.WriteLine($"  Audio-disabled desktop host: SFX queues and acknowledgements match Core across {cursorRequests} cursor sound writes.");
+        Console.WriteLine($"  Audio-disabled desktop host: SFX queues and acknowledgements match Core across {cursorRequests} cursor sound starts.");
     }
 
     /// <summary>Requires both sessions to hold identical SFX queues and acknowledgements.</summary>

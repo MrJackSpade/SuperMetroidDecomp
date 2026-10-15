@@ -179,9 +179,9 @@ internal static class FileSelectPresentationVerification
             native.Step(input);
             installed.Step(input);
             IReadOnlyList<CartridgeAudioCommand> nativeCommands =
-                nativeAudio.AdvanceFrame(bus, default);
+                nativeAudio.AdvanceFrame(default);
             IReadOnlyList<CartridgeAudioCommand> installedCommands =
-                installedAudio.AdvanceFrame(bus, default);
+                installedAudio.AdvanceFrame(default);
             AssertTrue(nativeCommands.SequenceEqual(installedCommands),
                 $"installed file-select audio matches frame {comparedFrames}");
             comparedFrames++;

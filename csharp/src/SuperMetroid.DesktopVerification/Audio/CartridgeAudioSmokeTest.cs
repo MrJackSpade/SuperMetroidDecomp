@@ -21,11 +21,11 @@ public static class CartridgeAudioSmokeTest
         int nonZeroSamples = 0;
         int peakAmplitude = 0;
         CartridgeAudioAcknowledgements acknowledgements = default;
-        var engine = DesktopAccess.CreateAudioRenderer();
+        var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < frames; frame++)
         {
             IReadOnlyList<CartridgeAudioCommand> commands =
-                queue.AdvanceFrame(bus, acknowledgements);
+                queue.AdvanceFrame(acknowledgements);
             foreach (short sample in engine.RenderFrame(commands))
             {
                 if (sample != 0)
@@ -33,7 +33,7 @@ public static class CartridgeAudioSmokeTest
                 int amplitude = sample == short.MinValue ? 32768 : Math.Abs(sample);
                 peakAmplitude = Math.Max(peakAmplitude, amplitude);
             }
-            acknowledgements = engine.ReadAcknowledgements();
+            acknowledgements = engine.Acknowledgements;
         }
 
         if (nonZeroSamples == 0 || peakAmplitude == 0)
@@ -42,7 +42,7 @@ public static class CartridgeAudioSmokeTest
                 "The translated SPC/DSP engine generated silence for the title music sequence.");
         }
 
-        int powerBeamNonZeroSamples = VerifyPowerBeamSoundAndHandshake(bus);
+        int powerBeamNonZeroSamples = VerifyPowerBeamSoundAndHandshake();
         return new CartridgeAudioSmokeTestResult(
             frames,
             nonZeroSamples,
@@ -53,7 +53,7 @@ public static class CartridgeAudioSmokeTest
     /// <summary>
     /// Proves library one's real request/clear protocol using the ROM-selected power-beam ID.
     /// </summary>
-    private static int VerifyPowerBeamSoundAndHandshake(ISnesAddressSpace bus)
+    private static int VerifyPowerBeamSoundAndHandshake()
     {
         const byte powerBeamSound = 0x0b;
         const int auditFrames = 30;
@@ -69,19 +69,19 @@ public static class CartridgeAudioSmokeTest
         bool requestAcknowledged = false;
         bool clearAcknowledgedAfterRequest = false;
         int nonZeroSamples = 0;
-        var soundEngine = DesktopAccess.CreateAudioRenderer();
+        var soundEngine = DesktopAccess.CreateAudioSession();
 
         for (int frame = 0; frame < auditFrames; frame++)
         {
             IReadOnlyList<CartridgeAudioCommand> commands =
-                soundQueue.AdvanceFrame(bus, acknowledgements);
+                soundQueue.AdvanceFrame(acknowledgements);
             foreach (short sample in soundEngine.RenderFrame(commands))
             {
                 if (sample != 0)
                     nonZeroSamples++;
             }
 
-            acknowledgements = soundEngine.ReadAcknowledgements();
+            acknowledgements = soundEngine.Acknowledgements;
             if (acknowledgements[ApuPort.SoundLibrary1] == powerBeamSound)
                 requestAcknowledged = true;
             else if (requestAcknowledged && acknowledgements[ApuPort.SoundLibrary1] == 0)

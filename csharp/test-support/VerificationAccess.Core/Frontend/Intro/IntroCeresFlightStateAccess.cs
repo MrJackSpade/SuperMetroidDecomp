@@ -14,7 +14,7 @@ internal static class IntroCeresFlightStateAccess
         {
             self.Step();
             self.audio
-                .AdvanceFrame(self.bus, default);
+                .AdvanceFrame(default);
         }
     }
 }

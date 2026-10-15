@@ -8,16 +8,16 @@ namespace SuperMetroid.Core.Audio;
 internal sealed record ExtractedAudioAssetParts
 {
     /// <summary>Streams.</summary>
-    public required IReadOnlyDictionary<int, byte[]> Streams { get; init; }
+    public required IReadOnlyDictionary<AudioBank, byte[]> Streams { get; init; }
 
     /// <summary>Sample banks.</summary>
-    public required IReadOnlyDictionary<int, ManagedPcmSampleBank> SampleBanks { get; init; }
+    public required IReadOnlyDictionary<AudioBank, ManagedPcmSampleBank> SampleBanks { get; init; }
 
     /// <summary>Instrument banks.</summary>
-    public required IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>> InstrumentBanks { get; init; }
+    public required IReadOnlyDictionary<AudioBank, IReadOnlyList<AudioInstrumentMetadata>> InstrumentBanks { get; init; }
 
     /// <summary>Music banks.</summary>
-    public required IReadOnlyDictionary<int, AudioBankMetadata> MusicBanks { get; init; }
+    public required IReadOnlyDictionary<AudioBank, AudioBankMetadata> MusicBanks { get; init; }
 
     /// <summary>Decoded, address-stable authored SFX channel programs.</summary>
     public required IReadOnlyList<AudioSoundProgramMetadata> SoundPrograms { get; init; }

@@ -25,7 +25,7 @@ internal static class EndingCloudPlacementVerification
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.FadeInEscapeSceneB; frame++)
         {
             ending.Step();
-            audio.AdvanceFrame(bus, default);
+            audio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.FadeInEscapeSceneB, ending.Phase, "cloud scene setup reached");
         // $8B:D731 spawns EED3/EED9/EEDF/EEE5 with parameter zero.
@@ -90,7 +90,7 @@ internal static class EndingCloudPlacementVerification
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
         {
             ending.Step();
-            audio.AdvanceFrame(bus, default);
+            audio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.EscapeSceneA, ending.Phase, "takeoff color-math scene reached");
         for (int frame = 0; frame < 90; frame++) ending.Step();

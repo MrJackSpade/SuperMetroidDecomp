@@ -71,19 +71,18 @@ internal static class BabyMetroidDeathCryVerification
             }
         }
         var audio = new CartridgeAudioState();
-        var renderer = new CartridgeAudioRenderer(installation.LoadAudio());
-        renderer.RenderFrame(audio.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
-        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.MotherBrain)]);
+        var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(installation.LoadAudio());
+        renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
+        renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.MotherBrain)]);
         audio.QueueSound(request.SoundEffect, request.MaximumQueued);
-        var writes = new List<CartridgeAudioCommand>();
+        // The CPU rewrites the port each update until the SPC echoes it ($82:8A55); the SPC starts a
+        // sound only when its poll latches a changed value, so the starts it publishes are what it received.
+        var starts = new List<SoundEffectId>();
         for (int frame = 0; frame < 8; frame++)
-        {
-            var commands = audio.AdvanceFrame(bus, renderer.ReadAcknowledgements());
-            writes.AddRange(commands.Where(command => command.Kind == CartridgeAudioCommandKind.WritePort));
-            renderer.RenderFrame(commands);
-        }
-        AssertEqual(1, writes.Count(command => command.InputPort == ApuPort.SoundLibrary3 && command.Value == 0x19), "SPC receives exactly one library-three death cry");
-        AssertEqual(0, writes.Count(command => command.InputPort == ApuPort.SoundLibrary2 && command.Value == 0x19), "Death cry never reaches the wrong library");
+            starts.AddRange(renderer.Advance(audio.AdvanceFrame(renderer.Acknowledgements))
+                .Where(audioEvent => audioEvent.Kind == AudioEventKind.StartSoundEffect).Select(audioEvent => audioEvent.SoundEffect));
+        AssertEqual(1, starts.Count(sound => sound == request.SoundEffect), "SPC receives exactly one library-three death cry");
+        AssertEqual(0, starts.Count(sound => sound.Library != SoundEffectLibrary.Library3), "Death cry never reaches the wrong library");
         Console.WriteLine("Baby Metroid fatal blow: exact 28-color blackout, seven cartridge recovery rows, untouched sprite palettes, one-shot death cry and SPC publication passed.");
         return 0;
 

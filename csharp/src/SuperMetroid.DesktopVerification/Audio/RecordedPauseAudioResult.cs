@@ -8,7 +8,7 @@ namespace SuperMetroid.DesktopVerification.Audio;
 /// <param name="MinimumPausedRms">Lowest PCM root-mean-square level while fully paused.</param>
 /// <param name="MaximumPausedRms">Highest PCM root-mean-square level while fully paused.</param>
 /// <param name="MeanPausedRms">Average per-frame PCM root-mean-square level while fully paused.</param>
-/// <param name="AudioCommands">Commands observed during pause-owned updates.</param>
+/// <param name="AudioEvents">Bank loads, music commands and sound-effect starts observed during pause-owned updates.</param>
 /// <param name="CommandTrace">Frame/state-tagged audio commands around the pause interval.</param>
 public readonly record struct RecordedPauseAudioResult(
     int EntryFrame,
@@ -18,5 +18,5 @@ public readonly record struct RecordedPauseAudioResult(
     double MinimumPausedRms,
     double MaximumPausedRms,
     double MeanPausedRms,
-    int AudioCommands,
+    int AudioEvents,
     string CommandTrace);

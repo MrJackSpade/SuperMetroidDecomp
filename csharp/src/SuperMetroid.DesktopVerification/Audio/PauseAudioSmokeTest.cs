@@ -33,27 +33,25 @@ public static class PauseAudioSmokeTest
         int pauseFrames = 0;
         int commandCount = 0;
         var continuity = new StereoPcmContinuityMeter();
-        var pauseSetupPortWrites = new List<(ApuPort Port, byte Value)>();
+        var pauseSoundStarts = new List<SoundEffectId>();
 
         FrontendFrame Step(ushort input)
         {
             FrontendFrame next = game.Step(input);
             game.CopyAudioFrame(samples);
-            commandCount += next.AudioCommands.Count;
+            commandCount += next.AudioEvents.Count(audioEvent => audioEvent.Kind != AudioEventKind.DriverTick);
             continuity.Observe(samples);
             frames++;
             if (next.GameState is >= SuperMetroidGameState.PausingDarkening and
                 <= SuperMetroidGameState.Unpausing)
             {
                 pauseFrames++;
-                if (next.GameState == SuperMetroidGameState.PausedA)
-                {
-                    pauseSetupPortWrites.AddRange(next.AudioCommands
-                        .Where(command => command.Kind == CartridgeAudioCommandKind.WritePort)
-                        .Select(command => (command.InputPort, command.Value)));
-                }
-                if (next.AudioCommands.Any(command =>
-                        command.Kind == CartridgeAudioCommandKind.Upload))
+                // The driver starts the cancellations at a poll after the CPU writes them, so
+                // collect every start while the pause owns the frame, not only PausedA's.
+                pauseSoundStarts.AddRange(next.AudioEvents
+                    .Where(audioEvent => audioEvent.Kind == AudioEventKind.StartSoundEffect)
+                    .Select(audioEvent => audioEvent.SoundEffect));
+                if (next.AudioEvents.Any(audioEvent => audioEvent.Kind == AudioEventKind.LoadAudioBank))
                 {
                     throw new InvalidDataException(
                         $"Pause state {next.GameState} restarted an SPC data upload.");
@@ -101,27 +99,26 @@ public static class PauseAudioSmokeTest
 
         if (pauseFrames == 0 || commandCount == 0)
             throw new InvalidDataException("Pause PCM audit did not exercise audio or pause states.");
-        (ApuPort Port, byte Value)[] expectedCancellationWrites =
+        SoundEffectId[] expectedCancellations =
         [
-            (ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.CancelAll.Value),
-            (ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.CancelAll.Value),
-            (ApuPort.SoundLibrary3, SoundEffectLibrary3Sounds.CancelAll.Value),
+            SoundEffectLibrary1Sounds.CancelAll,
+            SoundEffectLibrary2Sounds.CancelAll,
+            SoundEffectLibrary3Sounds.CancelAll,
         ];
         int cancellationCursor = 0;
-        foreach ((ApuPort port, byte value) in pauseSetupPortWrites)
+        foreach (SoundEffectId start in pauseSoundStarts)
         {
-            if (cancellationCursor < expectedCancellationWrites.Length &&
-                (port, value) == expectedCancellationWrites[cancellationCursor])
+            if (cancellationCursor < expectedCancellations.Length &&
+                start == expectedCancellations[cancellationCursor])
             {
                 cancellationCursor++;
             }
         }
-        if (cancellationCursor != expectedCancellationWrites.Length)
+        if (cancellationCursor != expectedCancellations.Length)
         {
             throw new InvalidDataException(
-                "Pause setup did not send $82:BE17's library 1/2/3 cancellation commands " +
-                $"in order; writes=[{string.Join(',', pauseSetupPortWrites.Select(write =>
-                    $"{write.Port}:{write.Value:X2}"))}].");
+                "The SPC did not start $82:BE17's library 1/2/3 cancellation commands " +
+                $"in order during the pause; starts=[{string.Join(',', pauseSoundStarts)}].");
         }
         int maximumBoundaryDelta = continuity.MaximumBoundaryDelta;
         int maximumAdjacentDelta = continuity.MaximumWithinBufferDelta;

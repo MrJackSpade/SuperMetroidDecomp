@@ -4,6 +4,7 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -21,41 +22,36 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     private const int DoorFrames = 300;
 
     /// <summary>
-    /// The SFX handshake must not depend on whether a host renders audio (#1303). Three
+    /// The SFX handshake must not depend on whether a host renders audio (#1303). Two
     /// identical Landing Site sessions enter the same door with library 2 already waiting
-    /// for an echo. The oracle reads a separate renderer's acknowledgements, as the desktop
-    /// host fed them back before #1303 with audio enabled. The silent subject has no audio
-    /// catalog and no host audio calls (audio disabled or no device); the playing subject binds
-    /// the catalog and copies its PCM every update (audio enabled). Every frame must agree, the
-    /// sessions' own acknowledgement bytes must equal the renderer's, and the playing subject's
-    /// PCM must equal the renderer's.
+    /// for an echo. The silent subject has no audio catalog and no host audio calls (audio
+    /// disabled or no device); the playing subject binds the catalog and copies its PCM every
+    /// update (audio enabled). Every frame must agree. Backends publish no acknowledgements
+    /// (#1304), so the oracle for the playing subject's PCM is a separate backend driven only by
+    /// the silent subject's published audio events: the events a session publishes without
+    /// synthesis must reproduce the synthesizing session's sound exactly.
     /// </summary>
     internal static void VerifyHostIndependentAudioAcknowledgements()
     {
         var assets = RepositoryInstallation.Installation.LoadAudio();
-        var renderer = new CartridgeAudioRenderer(assets);
-        SuperMetroidGame oracle = CreateLandingSiteSession();
-        oracle.SoundAcknowledgements = new RendererAcknowledgements(renderer);
+        var oracle = new ManagedSpcAudioBackend(assets);
         SuperMetroidGame silent = CreateLandingSiteSession();
         SuperMetroidGame playing = CreateLandingSiteSession();
         playing.BindAudio(assets);
         SuperMetroidGame[] subjects = [silent, playing];
-        SuperMetroidGame[] sessions = [oracle, silent, playing];
+        SuperMetroidGame[] sessions = subjects;
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        var expectedPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         int update = 0;
 
         void StepAll()
         {
-            FrontendFrame frame = oracle.Step(0);
-            short[] expectedPcm = renderer.RenderFrame(frame.AudioCommands);
-            CartridgeAudioAcknowledgements expected = renderer.ReadAcknowledgements();
-            foreach (SuperMetroidGame subject in subjects)
-            {
-                subject.Step(0);
-                CartridgeAudioAcknowledgements actual = subject.AudioAcknowledgementsForVerification;
-                AssertEqual((expected.Port1, expected.Port2, expected.Port3), (actual.Port1, actual.Port2, actual.Port3),
-                    $"session acknowledgements after update {update}");
-            }
+            FrontendFrame silentFrame = silent.Step(0);
+            FrontendFrame playingFrame = playing.Step(0);
+            AssertSequenceEqual(silentFrame.AudioEvents, playingFrame.AudioEvents, $"published audio events after update {update}");
+            AssertEqual(silent.AudioAcknowledgementsForVerification, playing.AudioAcknowledgementsForVerification,
+                $"session acknowledgements after update {update}");
+            oracle.Render(new AudioFrameEvents(silentFrame.AudioEvents), expectedPcm);
             playing.CopyAudioFrame(pcm);
             AssertTrue(pcm.SequenceEqual(expectedPcm), $"session PCM after update {update}");
             update++;
@@ -72,34 +68,23 @@ internal static class HostIndependentAudioAcknowledgementsVerification
 
         foreach (SuperMetroidGame game in sessions)
             EnterLandingSiteDoor(game);
-        int oracleLeftSoundWait = -1;
+        int silentLeftSoundWait = -1;
         for (int frame = 0; frame < DoorFrames; frame++)
         {
             StepAll();
-            foreach (SuperMetroidGame subject in subjects)
-            {
-                AssertEqual(oracle.DoorTransitionPhaseForVerification, subject.DoorTransitionPhaseForVerification,
-                    $"door phase after door frame {frame}");
-                AssertEqual(oracle.AudioForVerification.HasQueuedSounds, subject.AudioForVerification.HasQueuedSounds,
-                    $"queued sounds after door frame {frame}");
-                for (int library = 0; library < 3; library++)
-                    AssertEqual(oracle.AudioForVerification.SoundQueueForVerification(library),
-                        subject.AudioForVerification.SoundQueueForVerification(library),
-                        $"library {library + 1} queue after door frame {frame}");
-            }
-            if (oracleLeftSoundWait < 0 && oracle.DoorTransitionPhaseForVerification > DoorTransitionPhase.WaitForSoundQueues)
-                oracleLeftSoundWait = frame;
+            AssertEqual(silent.DoorTransitionPhaseForVerification, playing.DoorTransitionPhaseForVerification,
+                $"door phase after door frame {frame}");
+            AssertEqual(silent.AudioForVerification.HasQueuedSounds, playing.AudioForVerification.HasQueuedSounds,
+                $"queued sounds after door frame {frame}");
+            for (int library = 0; library < 3; library++)
+                AssertEqual(silent.AudioForVerification.SoundQueueForVerification(library),
+                    playing.AudioForVerification.SoundQueueForVerification(library),
+                    $"library {library + 1} queue after door frame {frame}");
+            if (silentLeftSoundWait < 0 && silent.DoorTransitionPhaseForVerification > DoorTransitionPhase.WaitForSoundQueues)
+                silentLeftSoundWait = frame;
         }
-        AssertTrue(oracleLeftSoundWait >= 0, "the renderer-fed session leaves WaitForSoundQueues");
-        Console.WriteLine($"  Host-independent acknowledgements: all sessions left the door sound wait at door frame {oracleLeftSoundWait}.");
-    }
-
-    /// <summary>The pre-#1303 audio-enabled host path: acknowledgements read back from a separate renderer.</summary>
-    private sealed class RendererAcknowledgements(CartridgeAudioRenderer renderer) : ISoundAcknowledgementSource
-    {
-        /// <summary>Returns the renderer's acknowledgements in place of the session's modeled ones.</summary>
-        public CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled) =>
-            renderer.ReadAcknowledgements();
+        AssertTrue(silentLeftSoundWait >= 0, "the sessions leave WaitForSoundQueues");
+        Console.WriteLine($"  Host-independent acknowledgements: both sessions left the door sound wait at door frame {silentLeftSoundWait}.");
     }
 
     /// <summary>Builds a retail gameplay session standing in the Landing Site with a reset audio queue.</summary>

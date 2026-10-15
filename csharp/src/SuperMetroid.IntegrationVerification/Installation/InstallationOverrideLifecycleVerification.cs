@@ -249,7 +249,7 @@ internal static class InstallationOverrideLifecycleVerification
                 : value).ToArray(),
         };
         File.WriteAllText(audioPath, JsonSerializer.Serialize(edited, AudioAssetJson.Options));
-        return new(standard, font, selectedColor, bank.SnesAddress, source.Source, pcm[0],
+        return new(standard, font, selectedColor, AudioAssetCatalogDefinitions.ResolveSnesAddress(bank.SnesAddress).Bank, source.Source, pcm[0],
             instrument, program.Id, instructionIndex, arguments);
     }
 
@@ -283,6 +283,6 @@ internal static class InstallationOverrideLifecycleVerification
 
     /// <summary>Edited transfer, palette, and audio values expected to survive each installation transition.</summary>
     private sealed record OverrideExpectations(byte[] StandardObjects, byte[] Font, ushort Color,
-        int Bank, byte Source, short PcmFirstSample, AudioInstrumentMetadata Instrument,
+        AudioBank Bank, byte Source, short PcmFirstSample, AudioInstrumentMetadata Instrument,
         string SoundProgram, int SoundInstruction, byte[] SoundArguments);
 }

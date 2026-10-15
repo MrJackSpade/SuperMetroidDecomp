@@ -97,7 +97,7 @@ internal static class EndingRewardSpriteArtworkVerification
                 for (int frame = 0; frame < arrivalLimit && scene.Phase != target; frame++)
                 {
                     scene.Step();
-                    audio.AdvanceFrame(guard, default);
+                    audio.AdvanceFrame(default);
                 }
                 AssertEqual(target, scene.Phase,
                     $"reward sprite edit reaches {target}");
@@ -112,7 +112,7 @@ internal static class EndingRewardSpriteArtworkVerification
                             SoftwareLayeredSnapshotRenderer.Render(after)))
                         return true;
                     scene.Step();
-                    audio.AdvanceFrame(guard, default);
+                    audio.AdvanceFrame(default);
                 }
                 return false;
             }

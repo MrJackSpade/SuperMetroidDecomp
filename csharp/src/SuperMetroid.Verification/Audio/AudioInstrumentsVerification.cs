@@ -22,12 +22,12 @@ internal static class AudioInstrumentsVerification
         foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogDefinitions.All)
         {
             var rawPlayer = new ManagedSpcPlayer();
-            rawPlayer.Upload(stock.GetUpload(AudioUploadAddresses.SpcEngine).Span);
-            if (bank.SnesAddress != AudioUploadAddresses.SpcEngine)
-                rawPlayer.Upload(stock.GetUpload(bank.SnesAddress).Span);
+            rawPlayer.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
+            if (bank.Bank != AudioBank.SpcEngine)
+                rawPlayer.Upload(stock.GetUpload(bank.Bank).Span);
 
             IReadOnlyList<AudioInstrumentMetadata> definitions =
-                stock.GetInstrumentBank(bank.SnesAddress);
+                stock.GetInstrumentBank(bank.Bank);
             AssertEqual(
                 SpcDriverDefinitions.Ram.InstrumentCount,
                 definitions.Count,
@@ -86,12 +86,12 @@ internal static class AudioInstrumentsVerification
 
             ExtractedAudioAssetCatalog edited =
                 ExtractedAudioAssetCatalog.Load(editedDirectory);
-            var stockRenderer = new CartridgeAudioRenderer(stock);
-            var editedRenderer = new CartridgeAudioRenderer(edited);
+            var stockRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(stock);
+            var editedRenderer = CartridgeAudioSessionAccess.CreateSynthesizing(edited);
             CartridgeAudioCommand common =
-                CartridgeAudioCommand.Upload(AudioUploadAddresses.SpcEngine);
+                CartridgeAudioCommand.Upload(AudioBank.SpcEngine);
             CartridgeAudioCommand titleUpload =
-                CartridgeAudioCommand.Upload(AudioUploadAddresses.TitleSequence);
+                CartridgeAudioCommand.Upload(AudioBank.TitleSequence);
             CartridgeAudioCommand titleTrack = CartridgeAudioCommand.WritePort(
                 ApuPort.Music, AudioRomDataMusicTracks.Title);
             stockRenderer.RenderFrame([common]);
@@ -102,16 +102,16 @@ internal static class AudioInstrumentsVerification
             editedRenderer.RenderFrame([titleTrack]);
 
             IReadOnlyList<AudioInstrumentMetadata> installed =
-                edited.GetInstrumentBank(AudioUploadAddresses.TitleSequence);
+                edited.GetInstrumentBank(AudioBank.TitleSequence);
             for (int index = 0; index < installed.Count; index++)
             {
                 int address = SpcDriverDefinitions.Ram.InstrumentTable +
                     index * SpcDriverDefinitions.Ram.InstrumentRecordSize;
                 AssertEqual(SnesLittleEndian.HighByte(installed[index].PitchBase),
-                    editedRenderer.player.ReadApuByteForVerification(address + 4),
+                    editedRenderer.PlayerForVerification.ReadApuByteForVerification(address + 4),
                     $"edited title instrument {index} pitch high");
                 AssertEqual(unchecked((byte)installed[index].PitchBase),
-                    editedRenderer.player.ReadApuByteForVerification(address + 5),
+                    editedRenderer.PlayerForVerification.ReadApuByteForVerification(address + 5),
                     $"edited title instrument {index} pitch low");
             }
 

@@ -57,8 +57,8 @@ internal static class PostCreditsCharacterArtworkVerification
                 }
                 native.Step();
                 installed.Step();
-                nativeAudio.AdvanceFrame(nativeBus, default);
-                installedAudio.AdvanceFrame(guardedBus, default);
+                nativeAudio.AdvanceFrame(default);
+                installedAudio.AdvanceFrame(default);
             }
             AssertEqual(EndingCreditsPhase.PostCreditsShot, native.Phase,
                 $"native {hours}h reward reaches the post-credit shot");
@@ -77,8 +77,8 @@ internal static class PostCreditsCharacterArtworkVerification
             {
                 native.Step();
                 installed.Step();
-                nativeAudio.AdvanceFrame(nativeBus, default);
-                installedAudio.AdvanceFrame(guardedBus, default);
+                nativeAudio.AdvanceFrame(default);
+                installedAudio.AdvanceFrame(default);
                 if (frame < 47) continue;
                 LayeredRenderSnapshot expected = native.Presentation.CaptureRenderSnapshot();
                 LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
@@ -120,8 +120,8 @@ internal static class PostCreditsCharacterArtworkVerification
                     }
                     native.Step();
                     installed.Step();
-                    nativeAudio.AdvanceFrame(nativeBus, default);
-                    installedAudio.AdvanceFrame(guardedBus, default);
+                    nativeAudio.AdvanceFrame(default);
+                    installedAudio.AdvanceFrame(default);
                 }
                 AssertEqual(EndingCreditsPhase.ItemPercentage, native.Phase,
                     "native logo reaches item percentage");
@@ -213,8 +213,8 @@ internal static class PostCreditsCharacterArtworkVerification
                         $"edited {fileName} does not alter reward timing at frame {frame}");
                     stockState.Step();
                     editedState.Step();
-                    stockAudio.AdvanceFrame(stockBus, default);
-                    editedAudio.AdvanceFrame(editedBus, default);
+                    stockAudio.AdvanceFrame(default);
+                    editedAudio.AdvanceFrame(default);
                 }
                 AssertEqual(target, stockState.Phase,
                     $"edited {fileName} reaches the native reward scene");
@@ -258,8 +258,8 @@ internal static class PostCreditsCharacterArtworkVerification
                     }
                     stockState.Step();
                     editedState.Step();
-                    stockAudio.AdvanceFrame(stockBus, default);
-                    editedAudio.AdvanceFrame(editedBus, default);
+                    stockAudio.AdvanceFrame(default);
+                    editedAudio.AdvanceFrame(default);
                 }
                 if (!fragment)
                     AssertTrue(visible,

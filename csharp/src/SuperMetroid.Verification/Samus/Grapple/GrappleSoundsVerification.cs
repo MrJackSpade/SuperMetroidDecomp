@@ -48,10 +48,10 @@ internal static class GrappleSoundsVerification
         foreach (SamusSoundRequest request in new[] { SamusGrappleRomData.Sounds.Fire, SamusGrappleRomData.Sounds.Attach, SamusGrappleRomData.Sounds.Stop })
         {
             var audio = new CartridgeAudioState();
-            audio.AdvanceFrame(bus, default);
+            audio.AdvanceFrame(default);
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
             AssertEqual(CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary1, request.SoundEffect.Value),
-                audio.AdvanceFrame(bus, default).Single(), "grapple command reaches the actual APU sound port");
+                audio.AdvanceFrame(default).Single(), "grapple command reaches the actual APU sound port");
         }
     }
 

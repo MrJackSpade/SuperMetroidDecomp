@@ -47,9 +47,10 @@ internal static class SpcMemoryBoundaryVerification
         AssertEqual((byte)0xa5, panNext, "pan index 21's next entry aliases FIR preset byte 1");
 
         // Ports are typed; an out-of-range port is rejected.
-        player.WritePort(ApuPort.SoundLibrary3, 0x42);
-        AssertThrows<ArgumentOutOfRangeException>(() => player.WritePort((ApuPort)4, 0), "APU input ports are $2140-$2143");
-        AssertThrows<ArgumentOutOfRangeException>(() => player.ReadPort((ApuPort)4), "APU output ports are $2140-$2143");
+        var ports = new SpcCommandPorts();
+        ports.WritePort(ApuPort.SoundLibrary3, 0x42);
+        AssertThrows<ArgumentOutOfRangeException>(() => ports.WritePort((ApuPort)4, 0), "APU input ports are $2140-$2143");
+        AssertThrows<ArgumentOutOfRangeException>(() => ports.ReadSoundEffectPort((ApuPort)4), "APU output ports are $2140-$2143");
         AssertEqual(ApuPort.SoundLibrary2, CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, 1).InputPort, "port commands round-trip their port");
     }
 

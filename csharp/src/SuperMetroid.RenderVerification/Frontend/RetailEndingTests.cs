@@ -40,7 +40,7 @@ internal static class RetailEndingTests
                         $"{device.Kind}: ending hours={hours}, tick={tick}, phase={legacy.Phase}");
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "ending repeated GPU rendering");
                 }
-                leftAudio.AdvanceFrame(leftBus, default); rightAudio.AdvanceFrame(rightBus, default);
+                leftAudio.AdvanceFrame(default); rightAudio.AdvanceFrame(default);
                 if (legacy.Phase != captured.Phase || legacy.CinematicFrame != captured.CinematicFrame ||
                     legacy.CreditsVerticalScroll != captured.CreditsVerticalScroll)
                     throw new InvalidOperationException("GPU ending capture changed scene cadence.");

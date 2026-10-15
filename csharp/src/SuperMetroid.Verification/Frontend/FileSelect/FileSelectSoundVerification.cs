@@ -18,7 +18,7 @@ internal static class FileSelectSoundVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
         var menu = new FileSelectMenuState(bus, audio, RetailPresentationFixture());
-        var renderer = new CartridgeAudioRenderer(ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory));
+        var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory));
         int writes = 0, nonzero = 0;
         bool accepted = false;
         for (int frame = 0; frame < 180; frame++)
@@ -26,7 +26,7 @@ internal static class FileSelectSoundVerification
             // Accept on the first update the native main menu reads input.
             bool accept = !accepted && menu.Phase == FileSelectPhase.Main;
             menu.Step(accept ? (ushort)SnesButton.A : (ushort)0);
-            var commands = audio.AdvanceFrame(bus, renderer.ReadAcknowledgements());
+            var commands = audio.AdvanceFrame(renderer.Acknowledgements);
             writes += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value);
             var pcm = renderer.RenderFrame(commands);
             if (!accepted && !accept) AssertTrue(pcm.All(value => value == 0), "isolated selection must be silent before accept");
@@ -55,8 +55,9 @@ internal static class FileSelectSoundVerification
         var assets = ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory);
         game.BindAudio(assets);
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        var withoutSwoosh = new CartridgeAudioRenderer(assets);
-        int writes = 0, differentSamples = 0;
+        var withoutSwoosh = new ManagedSpcAudioBackend(assets);
+        var control = new short[CartridgeAudioSession.PcmSamplesPerFrame];
+        int starts = 0, differentSamples = 0;
         int firstSoundTick = -1, firstDifferenceTick = -1;
         bool reachedSavedMap = false;
         for (int tick = 0; tick < 500; tick++)
@@ -64,17 +65,17 @@ internal static class FileSelectSoundVerification
             SnesButton button = game.GameState == SuperMetroidGameState.FileSelectMenus ? accept : SnesButton.Start;
             var frame = game.StepCaptured(tick % 47 == 0 ? (ushort)button : (ushort)0, tick + 1, 1).Frame;
             reachedSavedMap |= frame.GameState == SuperMetroidGameState.FileSelectMap;
-            bool IsSwoosh(CartridgeAudioCommand command) => command.Kind == CartridgeAudioCommandKind.WritePort &&
-                command.InputPort == ApuPort.SoundLibrary1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value;
-            writes += frame.AudioCommands.Count(IsSwoosh);
-            if (frame.AudioCommands.Any(IsSwoosh) && firstSoundTick < 0)
+            static bool IsSwoosh(AudioEvent audioEvent) => audioEvent.Kind == AudioEventKind.StartSoundEffect &&
+                audioEvent.SoundEffect == SoundEffectLibrary1Sounds.FileSelectSwoosh;
+            starts += frame.AudioEvents.Count(IsSwoosh);
+            if (frame.AudioEvents.Any(IsSwoosh) && firstSoundTick < 0)
             {
                 firstSoundTick = tick;
-                AssertEqual(SuperMetroidGameState.FileSelectMenus, frame.GameState, "swoosh is requested on the file screen, not after loading");
+                AssertEqual(SuperMetroidGameState.FileSelectMenus, frame.GameState, "swoosh starts on the file screen, not after loading");
                 AssertEqual(nameof(FileSelectPhase.TurnSelectedHelmet), frame.Phase, "swoosh accompanies selected helmet turn");
             }
             game.CopyAudioFrame(pcm);
-            short[] control = withoutSwoosh.RenderFrame(frame.AudioCommands.Where(command => !IsSwoosh(command)).ToArray());
+            withoutSwoosh.Render(new AudioFrameEvents([.. frame.AudioEvents.Where(audioEvent => !IsSwoosh(audioEvent))]), control);
             for (int sample = 0; sample < pcm.Length; sample++)
                 if (pcm[sample] != control[sample])
                 {
@@ -82,15 +83,16 @@ internal static class FileSelectSoundVerification
                     if (firstDifferenceTick < 0) firstDifferenceTick = tick;
                 }
         }
-        // One request, rewritten once by $82:8A55 while the driver's echo is a service behind.
-        AssertEqual(2, writes, "full captured frontend emits one file acceptance sound");
+        // $82:8A55 rewrites the request once while the driver's echo is a service behind; the
+        // driver's change detection starts the swoosh once.
+        AssertEqual(1, starts, "full captured frontend starts one file acceptance sound");
         AssertTrue(differentSamples > 0, "selection changes PCM even with frontend music and bank uploads");
         // Report onset rather than impose a guessed one-frame bound: the native SPC
         // instruction stream may deliberately delay its first non-silent sample.
         AssertTrue(firstDifferenceTick >= firstSoundTick,
-            "suppressed sound cannot change PCM before its command is published");
+            "suppressed sound cannot change PCM before the driver starts it");
         AssertEqual(existingSave, reachedSavedMap, "fixture actually distinguishes saved-map and new-game routes");
-        Console.WriteLine($"Full frontend existing={existingSave} accept={accept}: {writes} requests at tick {firstSoundTick}; PCM begins {firstDifferenceTick}; {differentSamples} samples differ.");
+        Console.WriteLine($"Full frontend existing={existingSave} accept={accept}: {starts} start at tick {firstSoundTick}; PCM begins {firstDifferenceTick}; {differentSamples} samples differ.");
     }
 
     /// <summary>Runs the file-select sound verification command.</summary>

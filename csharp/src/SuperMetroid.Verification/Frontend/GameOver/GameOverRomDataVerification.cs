@@ -98,7 +98,7 @@ internal static class GameOverRomDataVerification
             frame =>
             {
                 menu.Step(0);
-                _ = audio.AdvanceFrame(bus, default);
+                _ = audio.AdvanceFrame(default);
             },
             maximumFrames: 160,
             "game-over menu fade-in");

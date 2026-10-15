@@ -103,7 +103,7 @@ internal static class CinematicSnapshotTestsVerification
                     else input = (ushort)SnesButton.A;
                 }
                 menu.Step(input);
-                audio.AdvanceFrame(bus, default);
+                audio.AdvanceFrame(default);
                 Compare(expected, snapshot, tick);
                 menuSamples++;
             }
@@ -154,9 +154,9 @@ internal static class CinematicSnapshotTestsVerification
             }
             ushort input = tick % 47 == 0 ? (ushort)SnesButton.A : (ushort)0;
             legacy.Step(input);
-            legacyAudio.AdvanceFrame(legacyBus, default);
+            legacyAudio.AdvanceFrame(default);
             captured.Step(input);
-            capturedAudio.AdvanceFrame(capturedBus, default);
+            capturedAudio.AdvanceFrame(default);
             AssertEqual(legacy.Phase, captured.Phase, "intro phase after draw");
             AssertEqual(legacy.MotherBrainHitCount, captured.MotherBrainHitCount, "intro hits after draw");
             AssertEqual(legacy.FlashbackSamusX, captured.FlashbackSamusX, "intro Samus X after draw");

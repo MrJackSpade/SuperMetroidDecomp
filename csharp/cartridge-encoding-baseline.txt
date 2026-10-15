@@ -34,7 +34,7 @@ csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileTrailDefinitions.cs	SME
 csharp/src/SuperMetroid.Core/Samus/Projectiles/SpacetimeBeamCopyDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.DebugRunner/Program.cs	SME6340	3
 csharp/src/SuperMetroid.DebugRunner/Tools/ShutterNativeArc.cs	SME6340	61
-csharp/src/SuperMetroid.DesktopVerification/Audio/AudioInputReplaySmokeTest.cs	SME6340	2
+csharp/src/SuperMetroid.DesktopVerification/Audio/AudioInputReplaySmokeTest.cs	SME6340	1
 csharp/src/SuperMetroid.DesktopVerification/Audio/CartridgeAudioSmokeTest.cs	SME6340	2
 csharp/src/SuperMetroid.DesktopVerification/Audio/ManagedAudioRegressionSmokeTest.cs	SME6340	2
 csharp/src/SuperMetroid.DesktopVerification/Diagnostics/DebuggerSaveStateSmokeTest.cs	SME6340	2
@@ -166,9 +166,9 @@ csharp/src/SuperMetroid.Verification/Assets/PaletteJsonContractsVisibleVerificat
 csharp/src/SuperMetroid.Verification/Assets/StandardObjectArtworkVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Assets/StandardObjectArtworkVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Audio/AudioInstrumentsVerification.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Audio/AudioInstrumentsVerification.cs	SME6341	2
+csharp/src/SuperMetroid.Verification/Audio/AudioInstrumentsVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Audio/AudioMusicProgramsVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Audio/AudioMusicProgramsVerification.cs	SME6341	2
+csharp/src/SuperMetroid.Verification/Audio/AudioMusicProgramsVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Audio/AudioOverridesVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Audio/AudioOverridesVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Audio/AudioSoundProgramsVerification.cs	SME6340	3
@@ -179,7 +179,7 @@ csharp/src/SuperMetroid.Verification/Audio/BrrLoopExtractionVerification.cs	SME6
 csharp/src/SuperMetroid.Verification/Audio/ContactDamageSoundVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Audio/DspRegisterBoundaryVerification.cs	SME6340	60
 csharp/src/SuperMetroid.Verification/Audio/GameplayAudioPublicationVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Audio/ManagedAudioVerification.cs	SME6340	53
+csharp/src/SuperMetroid.Verification/Audio/ManagedAudioVerification.cs	SME6340	50
 csharp/src/SuperMetroid.Verification/Audio/ManagedAudioVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Audio/SoundQueueReturnVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Audio/SpcAllocationAddressesVerification.cs	SME6340	9
@@ -296,7 +296,7 @@ csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidRoomVisualSelectionVerifi
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidRoomVisualsVerification.cs	SME6340	29
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidSinkScheduleVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidSuperMissileDamageVerification.cs	SME6340	14
-csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/BabyMetroidDeathCryVerification.cs	SME6340	5
+csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/BabyMetroidDeathCryVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/BabyMetroidDeathExplosionSoundVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/BabyMetroidFatalBlowShakeVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/BabyMetroidHeadTargetVerification.cs	SME6340	8
@@ -572,7 +572,7 @@ csharp/src/SuperMetroid.Verification/Enemies/Hoppers/HopperAnimationDefinitionsV
 csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterInstructionProgramDefinitionsVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterMotionDefinitionsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterMotionDefinitionsVerification.cs	SME6345	3
-csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterSpitAudioVerification.cs	SME6340	11
+csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterSpitAudioVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Enemies/KiHunters/KiHunterSpitAudioVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Enemies/LavaJumpers/NorfairLavaJumpDefinitionsVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Enemies/LookupSmallGameTablesVerification.cs	SME6340	19

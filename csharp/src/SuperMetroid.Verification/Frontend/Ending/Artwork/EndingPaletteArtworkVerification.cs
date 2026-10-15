@@ -269,8 +269,8 @@ internal static class EndingPaletteArtworkVerification
             }
             nativeState.Step();
             installedState.Step();
-            nativeAudio.AdvanceFrame(nativeBus, default);
-            installedAudio.AdvanceFrame(guardedBus, default);
+            nativeAudio.AdvanceFrame(default);
+            installedAudio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.SeeYouNextMission, nativeState.Phase,
             "native ending reaches final hold in palette parity fixture");
@@ -455,8 +455,8 @@ internal static class EndingPaletteArtworkVerification
                 $"edited ending palette-FX preserves cinematic phase at frame {frame}");
             editedScene.Step();
             stockScene.Step();
-            editedAudio.AdvanceFrame(guardedBus, default);
-            stockAudio.AdvanceFrame(nativeBus, default);
+            editedAudio.AdvanceFrame(default);
+            stockAudio.AdvanceFrame(default);
             if (frame % 3 != 0) continue;
             LayeredRenderSnapshot changed = editedScene.Presentation.CaptureRenderSnapshot();
             LayeredRenderSnapshot original = stockScene.Presentation.CaptureRenderSnapshot();
@@ -544,8 +544,8 @@ internal static class EndingPaletteArtworkVerification
         {
             editedState.Step();
             stockState.Step();
-            editedAudio.AdvanceFrame(guardedBus, default);
-            stockAudio.AdvanceFrame(nativeBus, default);
+            editedAudio.AdvanceFrame(default);
+            stockAudio.AdvanceFrame(default);
             if (stockState.Phase != EndingCreditsPhase.Credits || stockState.Brightness == 0 ||
                 frame % 19 != 0) continue;
             LayeredRenderSnapshot changed = editedState.Presentation.CaptureRenderSnapshot();
@@ -595,8 +595,8 @@ internal static class EndingPaletteArtworkVerification
         {
             editedState.Step();
             stockState.Step();
-            editedAudio.AdvanceFrame(guardedBus, default);
-            stockAudio.AdvanceFrame(nativeBus, default);
+            editedAudio.AdvanceFrame(default);
+            stockAudio.AdvanceFrame(default);
             if (stockState.Phase != EndingCreditsPhase.PostCreditsLogo || frame % 3 != 0)
                 continue;
             LayeredRenderSnapshot changed = editedState.Presentation.CaptureRenderSnapshot();

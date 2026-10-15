@@ -20,7 +20,7 @@ internal static class EndingExplosionSlotOrderVerification
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
             ending.Step();
-            audio.AdvanceFrame(bus, default);
+            audio.AdvanceFrame(default);
         }
         AssertEqual(EndingCreditsPhase.PlanetEscapeFast, ending.Phase, "native flyaway handoff reached");
         for (int frame = 0; frame < 100; frame++) ending.Step();

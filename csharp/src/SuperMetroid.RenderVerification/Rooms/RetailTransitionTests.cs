@@ -57,7 +57,7 @@ internal static class RetailTransitionTests
                     else if (!released) released = true;
                     else input = (ushort)SnesButton.A;
                 }
-                menu.Step(input); audio.AdvanceFrame(bus, default);
+                menu.Step(input); audio.AdvanceFrame(default);
                 Check(packet, expected, $"retained game-over tick {tick}");
             }
             if (menu.TitleRequested != chooseNo || menu.ContinueRequested == chooseNo)

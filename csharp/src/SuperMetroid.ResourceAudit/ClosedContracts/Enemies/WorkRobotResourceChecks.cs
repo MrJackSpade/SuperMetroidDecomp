@@ -48,7 +48,8 @@ internal static class WorkRobotResourceChecks
         }
         var legacyPrograms = EnemyProjectilePresentationFrameDefinitions.PreWorkRobot.ToDictionary(
             frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
-        Require(programs.Count - legacyPrograms.Count == WorkRobotLaserFrameDefinitions.PoseCount,
+        // The Work Robot's own schema generation is the one before the Polyp rock's: compare it, not the current one.
+        Require(EnemyProjectilePresentationFrameDefinitions.PrePolypRock.Length - legacyPrograms.Count == WorkRobotLaserFrameDefinitions.PoseCount,
             "the schema change must add only the seven identified Work Robot bindings");
         EnemyProjectilePresentationFrameDefinition edited = EnemyProjectilePresentationFrameDefinitions.PreWorkRobot[0];
         legacyPrograms[edited.Name] = [new SpriteVisualPart

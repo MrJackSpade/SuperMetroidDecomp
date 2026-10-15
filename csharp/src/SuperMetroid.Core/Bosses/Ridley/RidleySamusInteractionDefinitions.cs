@@ -21,7 +21,7 @@ internal static class RidleySamusInteractionDefinitions
         Morphed
     }
 
-    /// <summary>$A6:BD04..BD1F dispatches by the named Samus movement handler; unknown byte values retain the managed no-grab/default-release boundary.</summary>
+    /// <summary>$A6:BD04..BD1F classifies each of the 28 Samus movement types; no pose selects any other value, so one fails loudly.</summary>
     private static GrabPolicy Policy(SamusMovementType movement) => movement switch
     {
         SamusMovementType.MorphBallGround or SamusMovementType.UnusedGlitchBall or
@@ -34,9 +34,7 @@ internal static class RidleySamusInteractionDefinitions
         SamusMovementType.Moonwalking or SamusMovementType.WallJumping or SamusMovementType.RanIntoWall or
         SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
         SamusMovementType.Special => GrabPolicy.Ordinary,
-        SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping or
-            SamusMovementType.SpinJumping or SamusMovementType.MorphBallGround or
-            SamusMovementType.UnusedGlitchBall or SamusMovementType.Unused0B or SamusMovementType.Unused0C or
+        SamusMovementType.SpinJumping or SamusMovementType.Unused0B or SamusMovementType.Unused0C or
             SamusMovementType.Grappling or SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld => GrabPolicy.Immune,
         _ => throw new InvalidOperationException($"Undefined SamusMovementType {movement}."),
     };

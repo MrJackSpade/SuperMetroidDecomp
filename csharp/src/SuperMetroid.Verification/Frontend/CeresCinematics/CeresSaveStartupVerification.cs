@@ -66,7 +66,7 @@ internal static class CeresSaveStartupVerification
         AssertEqual(SuperMetroidGameState.CeresGoesBoom, game.GameState,
             "#1153 mode $22 dispatches the destruction cinematic, not the initial shaft/map");
         var runtime = game.GameplayRuntimeForVerification;
-        AssertTrue(runtime.Room.LoadedRoom is null, "#1153 destruction load creates no Ceres room");
+        AssertTrue(runtime.Room.ActiveRoom is null, "#1153 destruction load creates no Ceres room");
         AssertTrue(runtime.System.HasAnyBossBits(AreaId.Ceres, BossBits.AreaBoss),
             "#1153 destruction load retains the defeated-Ridley flag");
         AssertEqual((ushort)77, runtime.Player.IntroducedSamus.Health, "#1153 destruction load retains energy");

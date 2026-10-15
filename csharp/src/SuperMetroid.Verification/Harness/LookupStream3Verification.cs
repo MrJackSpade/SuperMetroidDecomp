@@ -1072,7 +1072,8 @@ internal static class LookupStream3Verification
         ushort[] sourceColors = Enumerable.Range(1, 256).Select(value => (ushort)value).ToArray();
         for (int group = 0; group < nativeDoorCopies.Length; group++)
         {
-            ushort[] actual = new ushort[256];
+            // The fade target the copy writes into; slots it leaves alone stay black.
+            Bgr555[] actual = ToColors(new ushort[256]);
             ushort[] expected = new ushort[256];
             foreach (int instruction in nativeDoorCopies[group])
             {
@@ -1083,11 +1084,11 @@ internal static class LookupStream3Verification
             }
             switch (group)
             {
-                case 0: DoorTransitionPaletteDefinitions.PreserveHud(ToColors(sourceColors), ToColors(actual)); break;
-                case 1: DoorTransitionPaletteDefinitions.PreserveCommonCre(ToColors(sourceColors), ToColors(actual)); break;
-                case 2: DoorTransitionPaletteDefinitions.PreserveEscapeTimer(ToColors(sourceColors), ToColors(actual)); break;
+                case 0: DoorTransitionPaletteDefinitions.PreserveHud(ToColors(sourceColors), actual); break;
+                case 1: DoorTransitionPaletteDefinitions.PreserveCommonCre(ToColors(sourceColors), actual); break;
+                case 2: DoorTransitionPaletteDefinitions.PreserveEscapeTimer(ToColors(sourceColors), actual); break;
             }
-            AssertTrue(expected.SequenceEqual(actual), "stream 3 exact native door fade preserved and black slots");
+            AssertTrue(ToColors(expected).SequenceEqual(actual), "stream 3 exact native door fade preserved and black slots");
         }
         // Confirm the replaced selector for its complete ushort input domain.
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
@@ -1362,6 +1363,8 @@ internal static class LookupStream3Verification
             var sequence = new MotherBrainRainbowBeamAttackSequence();
             sequence.Body.Position = sequence.Body.Position.WithX(0);
             sequence.PainfulWalkingStage = stage;
+            // As the stagger's setup does before each walk: the stage selects its delay (terminal stages keep the last).
+            sequence.PainfulWalkingAnimationDelay = MotherBrainPainfulWalkingDefinitions.AnimationDelay(Math.Min(stage, (ushort)7));
             sequence.StepPainfulWalking();
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * Math.Min(stage, (ushort)7))), sequence.PainfulWalkingFunctionTimer.RawValue,
                 "stream 3 real stagger timer clamps terminal stages");
@@ -1766,8 +1769,13 @@ internal static class LookupStream3Verification
             AssertTrue(endpoint.backLegs is null,
                 "revival rear endpoint calculates from reviewed normal/half-shadow paint");
         }
-        AssertTrue(!MetadataShape.DeclaresField(typeof(MotherBrainRainbowPalettePresentation.PaletteFrame), "<TrailingColor>k__BackingField", privateFields),
-            "revival trailing endpoint shares its calculated rear highlight");
+        // The trailing color keeps a backing field only for an independently edited endpoint; each revival endpoint must
+        // take the shared branch, reading its trailing ink from the rainbow rear source or its own drained or normal rear.
+        foreach (var endpoint in new[] { revivalFade.first, revivalFade.last })
+        {
+            AssertTrue(endpoint.rearSource is not null || endpoint.drainedRear || endpoint.normalRearSubset,
+                "revival trailing endpoint shares its calculated rear highlight");
+        }
         for (int frame = 0; frame < 8; frame++)
         for (int color = 0; color < 19; color++)
         for (int component = 0; component < 3; component++)
@@ -1804,10 +1812,6 @@ internal static class LookupStream3Verification
         MotherBrainRainbowPalettePresentation.BodyColors RainbowBody(int phase) => storedRainbow[phase].Body;
         if (RainbowBody(0).redOrigin is not { } redBasis)
             throw new InvalidOperationException("native rainbow actually selects calculated red-origin shades");
-        // RedOriginColors now stores named shades rather than a packed input array; this expectation predates that change.
-        AssertTrue(MetadataShape.DeclaresField(redBasis.GetType(), "inputs",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
-            "red-origin basis retains eleven packed independent words");
         int independentChannels = 0;
         foreach (int phase in new[] { 1, 2, 5, 6, 7 })
         {
@@ -1826,7 +1830,7 @@ internal static class LookupStream3Verification
             "stream 3 drain rear and trailing start share only matching rainbow content");
         AssertTrue(drainEnd.backLegs is null,
             "stream 3 drained rear endpoint calculates from approved normal rear lighting");
-        AssertTrue(drainEnd.TrailingColor is null,
+        AssertTrue((drainEnd.drainedRear || drainEnd.normalRearSubset) && drainEnd.TrailingColor == drainEnd.Leg(1),
             "stream 3 drained trailing word reuses its rear highlight without a stored value");
         foreach (var frame in storedRainbow)
             AssertTrue(frame.backLegs is null, "stream 3 rainbow shadow tables discarded");
@@ -2349,9 +2353,9 @@ internal static class LookupStream3Verification
                         "stream 3 independent final-room edit cannot change recovery content");
                     for (int phase = 0; phase < 2; phase++)
                     {
-                        ushort pointer = (ushort)(0xd046 + (frame * 2 + phase) * 4);
-                        stock.ApplyFlash(expected, pointer);
-                        edited.ApplyFlash(actual, pointer);
+                        int flashFrame = frame * 2 + phase;
+                        stock.ApplyFlash(expected, flashFrame);
+                        edited.ApplyFlash(actual, flashFrame);
                         AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                             "stream 3 independent final-room edit cannot change flash content");
                     }
@@ -2854,7 +2858,7 @@ internal static class LookupStream3Verification
             }
             for (int frame = 0; frame < document.Flash.Length; frame++)
             {
-                palette.ApplyFlash(colors, checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart + frame * 4)));
+                palette.ApplyFlash(colors, frame);
                 for (int color = 0; color < 24; color++)
                     AssertEqual(Word(document.Flash[frame][color]), colors.Colors[color < 12 ? 0x34 + color : 0x53 + color - 12], "final-room edit cannot alter supplied flash");
             }

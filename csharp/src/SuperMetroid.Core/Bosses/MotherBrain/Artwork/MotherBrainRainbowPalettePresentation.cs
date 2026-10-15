@@ -322,9 +322,9 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Whether every rear ink equals the full stock rear-leg palette.</summary>
         private readonly bool stockRear;
         /// <summary>Whether the drained rear subset equals half-intensity stock paint.</summary>
-        private readonly bool drainedRear;
+        internal readonly bool drainedRear;
         /// <summary>Whether the revival endpoint uses the stock rear-leg subset.</summary>
-        private readonly bool normalRearSubset;
+        internal readonly bool normalRearSubset;
         /// <summary>Rainbow phase supplying a drain-start rear subset and trailing color.</summary>
         internal readonly PaletteFrame? rearSource;
 

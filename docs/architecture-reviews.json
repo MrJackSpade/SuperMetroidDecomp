@@ -177,14 +177,6 @@
       "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "The bank-$86 enemy-projectile interpreter, its slot pool and shared movement routines."
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.RoomEnemyPopulationDefinitions",
       "flags": [
         "large"

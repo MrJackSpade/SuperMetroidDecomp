@@ -1798,11 +1798,17 @@ internal static class LookupStream4Verification
         ushort morphedFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc99), ordinaryFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc9e);
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
-            byte flags = raw < 28 ? rom.ReadCartridgeByte(0xa6bd04 + raw) : (byte)0;
             var movement = (SamusMovementType)raw;
-            AssertEqual((flags & 0x80) != 0, RidleySamusInteractionDefinitions.CanGrab(movement), "Named movement policy preserves complete byte-domain grabbability");
+            if (!Enum.IsDefined(movement))
+            {
+                // No pose selects a movement type past the 28-entry table; one is a defect, not a policy.
+                AssertThrows<InvalidOperationException>(() => RidleySamusInteractionDefinitions.CanGrab(movement), "Undefined movement types fail loudly");
+                continue;
+            }
+            byte flags = rom.ReadCartridgeByte(0xa6bd04 + raw);
+            AssertEqual((flags & 0x80) != 0, RidleySamusInteractionDefinitions.CanGrab(movement), "Named movement policy preserves each movement type's grabbability");
             AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames,
-                RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement), "Named movement policy preserves complete byte-domain release duration");
+                RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement), "Named movement policy preserves each movement type's release duration");
         }
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
@@ -1930,9 +1936,14 @@ internal static class LookupStream4Verification
             if (!GameplayMessageNoticeDefinitions.IsSaveConfirmation(id)) continue;
             for (int frame = 0; frame < 100 && state.Phase != GameplayMessageBoxPhase.AwaitingInput; frame++) state.Step(0);
             AssertEqual(GameplayMessageBoxPhase.AwaitingInput, state.Phase, "Save notice reaches existing input phase");
-            state.Step((ushort)SuperMetroid.Core.Input.SnesButton.Right);
+            // The selector reads the controller only after its two native lag frames ($85:84BA): hold Right until it does.
+            for (int frame = 0; frame < 3 && state.ConfirmationSelectionYes; frame++)
+                state.Step((ushort)SuperMetroid.Core.Input.SnesButton.Right);
+            AssertTrue(!state.ConfirmationSelectionYes, "Right moves the save selection to NO");
             for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x859601 + column * 2));
-            AssertTrue(expected.SequenceEqual(state.Tilemap), "Actual notice NO selection retains native row and neighboring content");
+            AssertTrue(expected.SequenceEqual(state.Tilemap), "Actual notice NO selection retains native row and neighboring content; differing cells " +
+                string.Join(", ", Enumerable.Range(0, expected.Length).Where(cell => expected[cell] != state.Tilemap[cell])
+                    .Select(cell => $"{cell}: expected {expected[cell]:X4}, got {state.Tilemap[cell]:X4}")));
         }
         var editedJson = RequiredJson.Parse(bytes);
         editedJson.Required("notices").Required(GameplayMessageId.MapDataAccessCompleted.ToString()).Required("text").Required(0)["text"] = "MAP TEST";
@@ -1981,6 +1992,12 @@ internal static class LookupStream4Verification
             if (raw is < 1 or > 27)
             {
                 AssertThrows<IndexOutOfRangeException>(() => GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
+                continue;
+            }
+            if (!Enum.IsDefined(id))
+            {
+                // The table's last entry is a native dummy no message selects; it is rejected as an undefined message.
+                AssertThrows<InvalidOperationException>(() => GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(id), "The dummy table entry is no message");
                 continue;
             }
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858749 + (raw - 1) * 2));
@@ -2411,7 +2428,7 @@ internal static class LookupStream4Verification
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86b6b1 + index * 2))), EyeDoorEnemyProjectileRomData.SweatVelocityWord(index), "eye-door native sweat velocity words");
             var target = DraygonCannonData.FiringTarget(
                 ClosedNativeWords.Decode<DraygonFiringCannon>((byte)index, "Draygon firing cannon"));
-            AssertEqual((ushort)(0x8804 + 2 * index), (ushort)target.DisabledWord, "Draygon original control-word selection");
+            AssertEqual(DraygonCannonWorkRamAddresses.Decode((ushort)(0x8804 + 2 * index)), target.DisabledWord, "Draygon original control-word selection");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e4 + 4 * index)), target.Origin.X, "Draygon original cannon X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa587e6 + 4 * index)), target.Origin.Y, "Draygon original cannon Y");
         }

@@ -386,7 +386,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         SpriteVisualPart[] skree = document.Frames["skree_debris"];
         skree[0] = skree[0] with { OffsetX = skree[0].OffsetX + 1 };
         EnemyProjectilePresentationFrameDefinition editableProgramFrame =
-            EnemyProjectileInstructionMechanicsDefinitions.VisualFrames[0];
+            EnemyProjectileFirstProgramFrameManifest.Frames[0];
         SpriteVisualPart[] shared = (document.ProgramFrames ?? throw new InvalidOperationException("Verification requires document.ProgramFrames."))[editableProgramFrame.Name];
         shared[0] = shared[0] with { OffsetX = shared[0].OffsetX + 1 };
         string ceresFrameName = EnemyProjectilePresentationFrameDefinitions.All
@@ -662,7 +662,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     editableProgramFrame.OperandAddress,
                     NewEnemyProjectileVisualGuard(bus)).LowTable),
             "version-two edits inherit stock shared-program frames");
-        var versionThreeFrames = EnemyProjectileInstructionMechanicsDefinitions.VisualFrames
+        var versionThreeFrames = EnemyProjectileFirstProgramFrameManifest.Frames
             .ToDictionary(frame => frame.Name,
                 frame => document.ProgramFrames[frame.Name], StringComparer.Ordinal);
         byte[] versionThreeJson = JsonSerializer.SerializeToUtf8Bytes(
@@ -935,8 +935,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                         nativeOam.ImageEquals(installedOam),
                         $"installed shared frame $86:{frame.OperandAddress:X4} matches ROM OAM at {originX:X4},{originY:X4}");
                 }
-                if (EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(
-                        frame.OperandAddress))
+                if (EnemyProjectileFirstProgramFrameManifest.Frames.Any(manifest => manifest.OperandAddress == frame.OperandAddress))
                 {
                     AssertTrue(DrawReferenceProgramFrame(frame.OperandAddress, bus)
                             .LowTable.SequenceEqual(DrawSharedFrame(artwork,

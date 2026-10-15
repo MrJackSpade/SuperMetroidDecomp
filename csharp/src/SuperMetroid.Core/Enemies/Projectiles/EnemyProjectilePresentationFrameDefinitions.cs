@@ -159,7 +159,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
     {
         var frames = new Dictionary<ushort, string>();
         foreach (EnemyProjectilePresentationFrameDefinition frame in
-                 EnemyProjectileInstructionMechanicsDefinitions.VisualFrames)
+                 EnemyProjectileFirstProgramFrameManifest.Frames)
             frames.Add(frame.OperandAddress, frame.Name);
 
         static void Add(Dictionary<ushort, string> target, string family, int count,

@@ -876,6 +876,42 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             c => ResolveMotherBrainHeadNormalBomb(c.Enemy, c.Bomb));
     }
 
+    /// <summary>Carries out one cue of Mother Brain's effect programs.</summary>
+    private void ApplyMotherBrainEffectCue(RoomEnemyProjectileSlot projectile, SamusState? samus, MotherBrainEffectCue cue)
+    {
+        switch (cue.Kind)
+        {
+            case MotherBrainEffectCueKind.SetRadius:
+                // The operand packs the X radius in its low byte and the Y radius in its high byte.
+                projectile.Radius = new(SnesLittleEndian.LowByte(cue.Value), SnesLittleEndian.HighByte(cue.Value));
+                break;
+            case MotherBrainEffectCueKind.UsePaletteZero:
+                projectile.GraphicsIndex = 0;
+                break;
+            case MotherBrainEffectCueKind.DropDrool:
+                // After changing to the falling pre-instruction, the released drool drops twelve pixels before its first
+                // falling frame.
+                projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 12)));
+                break;
+            case MotherBrainEffectCueKind.EndSmallPurpleBreath:
+                (_motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
+                    "Mother Brain's small purple breath ran without its encounter state."))
+                    .SmallPurpleBreathActive = false;
+                break;
+            case MotherBrainEffectCueKind.SetPreInstruction:
+                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                break;
+            case MotherBrainEffectCueKind.ClearPreInstruction:
+                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                break;
+            case MotherBrainEffectCueKind.Delete:
+                projectile.Clear();
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(MotherBrainEffectCueKind)} {cue.Kind}.");
+        }
+    }
+
     /// <summary>Registers the encounter-owned bombs, glass, beams, rings, turrets, tubes, and effects.</summary>
     internal void RegisterMotherBrainProjectiles(EnemyProjectileHandlerTable table)
     {
@@ -977,15 +1013,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             PinMotherBrainEscapeSubtitle(context.Projectile);
         }, EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction);
 
-        table.RegisterInstruction(EnemyProjectileInstruction.MotherBrainPurpleBreath_Inactive, projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
-                (_motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-                    "Mother Brain's small purple breath ran without its encounter state."))
-                    .SmallPurpleBreathActive = false;
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
+        table.RegisterCue<MotherBrainEffectCue>(ApplyMotherBrainEffectCue);
+        // A touched onion ring runs its typed impact program, the list its definition names.
+        table.RegisterTouchAnimation(RoomEnemyProjectileKind.MotherBrainOnionRing,
+            () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.OnionRingHit));
 
         table.RegisterCue<MotherBrainHandBeamCue>((projectile, samus, cue) =>
         {
@@ -1698,13 +1729,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
     internal void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)
     {
-        ushort instructionList =
-            MotherBrainDeathExplosionDefinitions.InstructionList(request.ProjectileParameter);
+        MiscDustProjectileProgram program = MotherBrainDeathExplosionDefinitions.Program(request.ProjectileParameter);
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return; // Native shared-pool exhaustion drops the spawn.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion, graphicsIndex: 0);
-        projectile.InstructionPointer = instructionList;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
+        projectile.StartAnimation(new MiscDustProjectileAnimation(program));
         // The native initializer keeps the body-relative offset in the velocity words.
         projectile.Velocity = new EightEightVector<RoomPixels>(request.Offset.X, request.Offset.Y);
         RunMotherBrainDeathExplosion(projectile);
@@ -3673,8 +3702,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             return;
 
         drool.Position = drool.Position.WithWholeY(unchecked((ushort)(drool.Position.Y.Whole - 4)));
-        drool.InstructionPointer = EnemyProjectileInstructionLists.MotherBrainDroolFalling;
-        drool.InstructionTimer = NativeCountdown.Start(1);
+        drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectProgram.DroolHitFloor));
     }
 
     /// <summary>

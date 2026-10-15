@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Enemies.Powamp;
 using SuperMetroid.Verification.Enemies.Metroids;
@@ -86,7 +87,6 @@ using static SuperMetroid.Verification.Frontend.Ending.EndingRewardGestureVerifi
 using static SuperMetroid.Verification.Frontend.Ending.EndingRewardInstructionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyFireballLaunchDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyLinearSpeedsVerification;
-using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileInstructionMechanicsDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyQuadraticSpeedsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkDraygonBg2FramesVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkDraygonOamCollisionVerification;
@@ -939,7 +939,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hand-beam oracle revision");
-        Suite(nameof(VerifyEnemyProjectileInstructionMechanicsDefinitions), () => VerifyEnemyProjectileInstructionMechanicsDefinitions());
+        Suite(nameof(MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior), () => MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior(rom));
         Console.WriteLine("Hand-beam command layout: stage/callback/visual order, exact byte ownership and production checks pass; selected holds remain required.");
         return 0;
     }

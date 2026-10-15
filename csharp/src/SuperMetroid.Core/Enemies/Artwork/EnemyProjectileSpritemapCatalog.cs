@@ -108,7 +108,7 @@ public sealed class EnemyProjectileSpritemapCatalog
             EnemyProjectilePresentationFrameDefinition[] definitions = version switch
             {
                 EnemyProjectileSpritemapVersion.FirstProgramFrame =>
-                    EnemyProjectileInstructionMechanicsDefinitions.VisualFrames.ToArray(),
+                    [.. EnemyProjectileFirstProgramFrameManifest.Frames],
                 EnemyProjectileSpritemapVersion.PreAlcoon =>
                     EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
                         .WhereToArray(frame => !IsAlcoonFireballOperand(frame.OperandAddress))

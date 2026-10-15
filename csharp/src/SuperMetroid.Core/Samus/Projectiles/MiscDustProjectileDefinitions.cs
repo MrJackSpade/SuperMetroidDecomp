@@ -5,9 +5,41 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Compiled cartridge definitions shared by room-graphics dust and explosions.</summary>
 internal static class MiscDustProjectileDefinitions
 {
-    /// <summary>Returns one of the thirty authored misc-dust animation lists.</summary>
-    internal static ushort InstructionList(MiscDustAnimation animation) =>
-        EnemyProjectileInstructionMechanicsDefinitions.MiscDustInitialPointer(animation);
+    /// <summary>The program each of the thirty native misc-dust selectors ($86:E42C) starts.</summary>
+    internal static MiscDustProjectileProgram Program(MiscDustAnimation animation) => animation switch
+    {
+        MiscDustAnimation.UnusedBeamCharge => MiscDustProjectileProgram.BeamCharge,
+        MiscDustAnimation.MotherBrainElbowChargeParticle => MiscDustProjectileProgram.ElbowChargeParticle,
+        MiscDustAnimation.MotherBrainElbowChargeEnergy => MiscDustProjectileProgram.ElbowChargeEnergy,
+        MiscDustAnimation.SmallExplosion => MiscDustProjectileProgram.SmallExplosion,
+        MiscDustAnimation.MotherBrainRainbowBeamExplosion => MiscDustProjectileProgram.RainbowBeamExplosion,
+        MiscDustAnimation.UnusedBeamTrail => MiscDustProjectileProgram.BeamTrail,
+        MiscDustAnimation.DudShotTinyExplosion => MiscDustProjectileProgram.DudShot,
+        MiscDustAnimation.UnusedPowerBomb => MiscDustProjectileProgram.PowerBomb,
+        MiscDustAnimation.UnusedElevatorPad => MiscDustProjectileProgram.ElevatorPad,
+        MiscDustAnimation.SmallDustCloud => MiscDustProjectileProgram.SmallDustCloud,
+        MiscDustAnimation.CorpseDustCloud => MiscDustProjectileProgram.CorpseDustCloud,
+        MiscDustAnimation.EyeDoorSweatDrop => MiscDustProjectileProgram.EyeDoorSweatDrop,
+        MiscDustAnimation.Smoke => MiscDustProjectileProgram.Smoke,
+        MiscDustAnimation.UnusedSmallEnergyDrop => MiscDustProjectileProgram.SmallEnergyDrop,
+        MiscDustAnimation.UnusedBigEnergyDrop => MiscDustProjectileProgram.BigEnergyDrop,
+        MiscDustAnimation.UnusedBomb => MiscDustProjectileProgram.Bomb,
+        MiscDustAnimation.UnusedWeirdEnergyDrop => MiscDustProjectileProgram.WeirdEnergyDrop,
+        MiscDustAnimation.RockParticles => MiscDustProjectileProgram.RockParticles,
+        MiscDustAnimation.ShortBigDustCloud => MiscDustProjectileProgram.ShortBigDustCloud,
+        MiscDustAnimation.UnusedCloudShortBeam => MiscDustProjectileProgram.ShortBeamCloud,
+        MiscDustAnimation.UnusedCloudMediumBeam => MiscDustProjectileProgram.MediumBeamCloud,
+        MiscDustAnimation.BigDustCloud => MiscDustProjectileProgram.BigDustCloud,
+        MiscDustAnimation.UnusedLongBeam => MiscDustProjectileProgram.LongBeam,
+        MiscDustAnimation.UnusedFlickerLongBeam => MiscDustProjectileProgram.FlickeringLongBeam,
+        MiscDustAnimation.LongDraygonBreathBubbles => MiscDustProjectileProgram.DraygonBreathBubbles,
+        MiscDustAnimation.UnusedSaveStationElectricity => MiscDustProjectileProgram.SaveStationElectricity,
+        MiscDustAnimation.UnusedExpandVerticalGate => MiscDustProjectileProgram.ExpandingGate,
+        MiscDustAnimation.UnusedContractVerticalGate => MiscDustProjectileProgram.ContractingGate,
+        MiscDustAnimation.UnusedLoopingElevatorPad => MiscDustProjectileProgram.LoopingElevatorPad,
+        MiscDustAnimation.BigExplosion => MiscDustProjectileProgram.BigExplosion,
+        _ => throw new ArgumentOutOfRangeException(nameof(animation), animation, "Undefined misc-dust animation."),
+    };
 
     /// <summary>$86:E47E: point, centered 8/16-pixel squares, then centered 16x32/32x64 smoke boxes.</summary>
     internal static MiscDustPlacementDefinition SmokePlacement(ushort placementIndex)

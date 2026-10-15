@@ -104,7 +104,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
     private static EnemyProjectilePresentationFrameDefinition[] HistoricalPrograms(EnemyProjectileSpritemapVersion version) => version switch
     {
         EnemyProjectileSpritemapVersion.CeresOnly or EnemyProjectileSpritemapVersion.PreProgramFrames => [],
-        EnemyProjectileSpritemapVersion.FirstProgramFrame => EnemyProjectileInstructionMechanicsDefinitions.VisualFrames.ToArray(),
+        EnemyProjectileSpritemapVersion.FirstProgramFrame => [.. EnemyProjectileFirstProgramFrameManifest.Frames],
         EnemyProjectileSpritemapVersion.PreAlcoon => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
             .WhereToArray(frame => !AlcoonFireballFrameDefinitions.TryFrame(frame.OperandAddress, out _)),
         EnemyProjectileSpritemapVersion.PreGoldenTorizo => EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo.ToArray(),

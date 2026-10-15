@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -16,7 +18,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + parameter * 2)),
-                MotherBrainDeathExplosionDefinitions.InstructionList(parameter),
+                MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Program(parameter)),
                 $"Mother Brain death explosion instruction {parameter}");
         }
 
@@ -37,8 +39,8 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
                 enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainDeathExplosion, projectile.Kind,
                 $"production Mother Brain death explosion kind {parameter}");
-            AssertEqual(MotherBrainDeathExplosionDefinitions.InstructionList(parameter),
-                projectile.InstructionPointer,
+            AssertTrue(projectile.Animation is MiscDustProjectileAnimation started &&
+                    started.Cursor.Program == MotherBrainDeathExplosionDefinitions.Program(parameter),
                 $"production Mother Brain death explosion instruction {parameter}");
             AssertEqual(0x00f9, projectile.Position.X.Whole,
                 $"production Mother Brain death explosion X {parameter}");
@@ -51,7 +53,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainDeathExplosionDefinitions.InstructionList(3),
+            () => MotherBrainDeathExplosionDefinitions.Program(3),
             "Mother Brain death explosion parameter past table");
         Console.WriteLine(
             "Mother Brain death explosions: three native program selectors and all three real body-relative spawns pass with the selector table forbidden.");

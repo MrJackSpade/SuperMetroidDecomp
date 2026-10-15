@@ -132,13 +132,13 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainOnionRing => new(
 0xC335,
-            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBlueRingInitial,
+            0xC432,
             0x0606, 0x3050,
-            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBlueRingTouch,
+            0xC464,
             0x84FC),
         RoomEnemyProjectileKind.MotherBrainBomb => new(
 0xC4C8,
-            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBombInitial,
+            0xC76E,
             0x0606, 0x40A0, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainHandBeamCharging => new(
@@ -149,14 +149,14 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0606, 0x1190, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging => new(
             0xC814,
-            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainRainbowBeamChargingInitial,
+            0xC829,
             0x0000,
             0x7000,
             0x0000,
             0x84FC),
         RoomEnemyProjectileKind.MotherBrainPurpleBreathBig => new(
 0xCAA3,
-            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainPurpleBreathInitial,
+            0xCAA4,
             0x0000, 0x3000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion => new(
@@ -166,20 +166,20 @@ internal static class EnemyProjectileDefinitionCatalog
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall => new(
             0xCAA3,
-            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainPurpleBreathSmallInitial,
+            0xCAC8,
             0x0000, 0x3000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainDrool => new(
 0xC84D,
-            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDroolInitial,
+            0xC8B0,
             0x0000, 0x7000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainDyingDrool => new(
 0xC84D,
-            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDroolInitial,
+            0xC8B0,
             0x0000, 0x7000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion => new(
 0xC94C,
-            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainRainbowExplosionInitial,
+            0xE152,
             0x0101, 0x7000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainTopRightTube => new(
 0xCBE7, MotherBrainTopTubeInstructionProgramDefinitions.TopRight,
@@ -458,12 +458,12 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.MotherBrainDeathExplosion => new(0xC914, 0x0000, 0x0000, 0x2000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment => new(
 0xC9D2,
-            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainEscapeDoorFragmentInitial,
+            0xCA22,
             0x0000, 0x3000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainEscapeSubtitle => new(
 0xCAFA,
-            EnemyProjectileInstructionMechanicsDefinitions.MotherBrainSubtitleInitial,
+            0xCB0D,
             0x0000, 0x1000, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         _ => throw new InvalidDataException(

@@ -1285,9 +1285,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
             RoomEnemyProjectileKind.MiscDustExplosion,
             graphicsIndex: 0);
         dust.Position = dust.Position.WithWhole(position);
-        dust.InstructionPointer = MiscDustProjectileDefinitions.InstructionList(
-            (MiscDustAnimation)Math.Min(variant, (ushort)MiscDustAnimation.BigExplosion));
-        dust.InstructionTimer = NativeCountdown.Start(1);
+        dust.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileDefinitions.Program(
+            (MiscDustAnimation)Math.Min(variant, (ushort)MiscDustAnimation.BigExplosion))));
     }
     /// <summary>Last item-drop request published by Ridley's terminal routine.</summary>
     public bool RidleyDeathDropRequested { get; private set; }

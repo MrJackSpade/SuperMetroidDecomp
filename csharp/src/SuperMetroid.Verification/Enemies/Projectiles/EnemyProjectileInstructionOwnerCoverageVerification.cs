@@ -81,7 +81,9 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 EnemyProjectileTypedStarts.Initial(kind) is not null;
             if (!typed)
                 VerifyEntry(definition.InitialInstructionList, "initial");
-            if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet))
+            // Mother Brain's onion ring starts a typed touch program too (#1292).
+            if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
+                RoomEnemyProjectileKind.MotherBrainOnionRing))
                 VerifyEntry(definition.TouchInstructionList, "touch");
             if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop or
                 RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
@@ -92,7 +94,9 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 // The Powamp spike's and the Magdollite lava's shot lists run as typed programs (#1291).
                 RoomEnemyProjectileKind.PowampSpike or RoomEnemyProjectileKind.LavaThrownByMagdollite or
                 // The Kago bug's shot list is typed too (#1292).
-                RoomEnemyProjectileKind.KagoBug or RoomEnemyProjectileKind.EyeDoorProjectile))
+                RoomEnemyProjectileKind.KagoBug or RoomEnemyProjectileKind.EyeDoorProjectile or
+                // A shot Draygon wall turret runs the typed misc-dust small explosion (#1292).
+                RoomEnemyProjectileKind.DraygonWallTurret))
                 VerifyEntry(definition.ShotInstructionList, "shot");
 
             void VerifyEntry(ushort address, string role)

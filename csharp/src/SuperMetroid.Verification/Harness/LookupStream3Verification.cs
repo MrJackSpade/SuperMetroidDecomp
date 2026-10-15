@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Enemies.Deaths;
 using SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Enemies.Sparks;
@@ -1290,10 +1291,10 @@ internal static class LookupStream3Verification
     private static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MotherBrainDeathExplosionDefinitions.InstructionList(parameter),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Program(parameter)),
                 "stream 3 native death explosion variant");
         foreach (ushort invalid in new ushort[] { 3, 4, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosionDefinitions.InstructionList(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosionDefinitions.Program(invalid),
                 "stream 3 death explosion selector bounds");
         // Confirm the retained visual payload's catalog move and the independent group arithmetic.
         for (int index = 0; index < 28; index++)

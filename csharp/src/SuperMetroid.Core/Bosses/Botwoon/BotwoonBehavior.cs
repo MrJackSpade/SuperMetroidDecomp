@@ -1073,7 +1073,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         segment.Position = segment.Position.WithWholeY(200);
         segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Landed));
         // The landed segment hands its animation to the shared big-explosion list.
-        segment.StartNativeProgram(BotwoonProjectileCodePointers.BodyLandedInstruction);
+        segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileProgram.BigExplosion));
         segment.GraphicsIndex = EnemyPaletteBits.Palette5;
         segment.CanDamageSamus = false;
         segment.CollisionOption = 2;

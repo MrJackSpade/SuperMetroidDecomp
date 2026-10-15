@@ -105,7 +105,7 @@ internal sealed class ClosedPresentationAudit
                 if (valid)
                     valid = new[] { typeof(EnemyProjectileSpritemapDefinitions).FullName,
                         typeof(SuperMetroid.Core.Enemies.Projectiles.EnemyProjectilePresentationFrameDefinitions).FullName,
-                        typeof(SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileInstructionMechanicsDefinitions).FullName }
+                        typeof(SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFirstProgramFrameManifest).FullName }
                         .All(type => compilation.GetTypeByMetadataName((type ?? throw new InvalidOperationException("Verification requires type."))) is { } dependency &&
                             dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                                 source.Path == declaration.SyntaxTree.FilePath)));

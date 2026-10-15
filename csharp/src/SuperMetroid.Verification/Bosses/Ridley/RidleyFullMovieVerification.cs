@@ -483,7 +483,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
         AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
-        AssertEqual(MiscDustProjectileDefinitions.InstructionList(MiscDustAnimation.SmallDustCloud), dust.InstructionPointer, "native impact selects variant nine");
+        AssertTrue(dust.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.SmallDustCloud }, "native impact selects variant nine");
         AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == SoundEffectLibrary2Sounds.RidleyTailTerrainImpact && request.MaximumQueued == 6), "native impact queues library-two sound 76");
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }

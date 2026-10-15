@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies.Projectiles;
+using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Samus.Movement.AerialSpreadTransitionVerification;
 using static SuperMetroid.Verification.Samus.Movement.AirSpikeAlphaRadiusVerification;
 using static SuperMetroid.Verification.Frontend.AndroidHostVerification;
@@ -101,7 +103,6 @@ using static SuperMetroid.Verification.Enemies.EnemyDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerification;
 using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileCodePointersVerification;
-using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileInstructionMechanicsDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyRomTablePointersVerification;
 using static SuperMetroid.Verification.Enemies.EnemyRoomListsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkVerification;
@@ -533,7 +534,10 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusGrabbedByDraygon), () => VerifySamusGrabbedByDraygon()),
         new(nameof(VerifyMotherBrainRainbowBeamSamusMovement), () => VerifyMotherBrainRainbowBeamSamusMovement()),
         new(nameof(VerifyMotherBrainRainbowBeamAttackSequence), () => VerifyMotherBrainRainbowBeamAttackSequence()),
-        new(nameof(VerifyEnemyProjectileInstructionMechanicsDefinitions), () => VerifyEnemyProjectileInstructionMechanicsDefinitions()),
+        new(nameof(MotherBrainEffectAnimationsVerification.VerifyMotherBrainEffectAnimations), () => MotherBrainEffectAnimationsVerification.VerifyMotherBrainEffectAnimations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
+        new(nameof(MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior), () => MotherBrainEffectBehaviorVerification.VerifyMotherBrainEffectBehavior(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
+        new(nameof(MiscDustProjectileAnimationsVerification.VerifyMiscDustProjectileAnimations), () => MiscDustProjectileAnimationsVerification.VerifyMiscDustProjectileAnimations(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
+        new(nameof(MiscDustProjectileBehaviorVerification.VerifyMiscDustProjectileBehavior), () => MiscDustProjectileBehaviorVerification.VerifyMiscDustProjectileBehavior(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom())),
         new(nameof(VerifyBabyMetroidCutsceneEntrance), () => VerifyBabyMetroidCutsceneEntrance()),
         new(nameof(VerifySamusSolidEnemyCollision), () => VerifySamusSolidEnemyCollision()),
         new(nameof(VerifySamusAerialMovement), () => VerifySamusAerialMovement()),

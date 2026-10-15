@@ -100,6 +100,12 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(projectile.Animation is DraygonProjectileAnimation { Cursor.Program: DraygonProjectileProgram.GoopTouch },
                     $"{kind} production touch starts the typed touch program");
             }
+            else if (kind == RoomEnemyProjectileKind.MotherBrainOnionRing)
+            {
+                // The onion ring's impact program is typed (#1292); VerifyMotherBrainEffectAnimations matches it.
+                AssertTrue(projectile.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.OnionRingHit },
+                    $"{kind} production touch starts the typed touch program");
+            }
             else if (kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet)
             {
                 // The turret bullet's impact program is typed (#1285); VerifyMotherBrainProjectileAnimations matches it.
@@ -209,6 +215,13 @@ internal static class EnemyProjectileDefinitionsVerification
                 // The bug's shot list spawns its drop; it is typed with its programs (#1292).
                 AssertTrue(projectile.Animation is KagoBugProjectileAnimation { Cursor.Program: KagoBugProjectileProgram.Shot },
                     $"{kind} production shot starts the typed shot program");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+            }
+            else if (kind == RoomEnemyProjectileKind.DraygonWallTurret)
+            {
+                // A shot wall turret runs the shared misc-dust small explosion (#1292).
+                AssertTrue(projectile.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.SmallExplosion },
+                    $"{kind} production shot starts the typed small explosion");
                 AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.EyeDoorProjectile)

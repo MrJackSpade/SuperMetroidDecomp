@@ -62,12 +62,6 @@ internal static class EnemyVisualProgramAudit
                 shape = "single";
                 addresses.Add(single);
             }
-            else if (type == typeof(EnemyProjectileInstructionMechanicsDefinitions))
-            {
-                shape = "typed-projectile-frames";
-                foreach (var frame in EnemyProjectileInstructionMechanicsDefinitions.VisualFrames)
-                    addresses.Add(frame.OperandAddress);
-            }
             else if (EnemyVisualProgramSpecializations.IsControlOnly(type))
                 shape = "control-only";
 

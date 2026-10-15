@@ -182,9 +182,8 @@ internal static class BotwoonAnimationsVerification
         body.Velocity = body.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Falling));
         runBody(body, 0);
         AssertEqual((ushort)BotwoonBodyFunction.Landed, body.Velocity.X.RawValue, "a landed body installs the cartridge RTS state");
-        AssertTrue(body.Animation is null, "a landed body leaves its typed animation");
-        AssertEqual(BotwoonProjectileCodePointers.BodyLandedInstruction, body.InstructionPointer,
-            "a landed body runs the shared big-explosion list");
+        AssertTrue(body.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.BigExplosion },
+            "a landed body runs the shared misc-dust big explosion");
         Pass(body);
 
         Console.WriteLine("  Botwoon projectile animations: 32 segment selectors and the spit match their native lists; landing hands off to the shared explosion.");

@@ -130,12 +130,13 @@ internal sealed class EyeDoorBehavior
         Position16<RoomBlocks> block)
     {
         byte listOffset = unchecked((byte)parameter);
-        ushort instructionList = MiscDustProjectileDefinitions.InstructionList((MiscDustAnimation)listOffset);
+        MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program((MiscDustAnimation)listOffset);
         MiscDustPlacementDefinition placement =
             MiscDustProjectileDefinitions.SmokePlacement((ushort)(SnesLittleEndian.HighByte(parameter)));
 
         ushort random = _room.Random.Read();
-        projectile.InstructionPointer = instructionList;
+        // Native stores only the list pointer, keeping the definition's one-update timer.
+        projectile.InstallAnimation(new MiscDustProjectileAnimation(program));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
             unchecked((short)(8 + placement.Base.X + (random & placement.RandomMask.X))),

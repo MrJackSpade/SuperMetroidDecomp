@@ -935,20 +935,6 @@ internal sealed class EnemyProjectileEngine
                     projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileInstruction.UsePalette0_Duplicate when projectile.Kind == RoomEnemyProjectileKind.MotherBrainOnionRing:
-                    // The alias clears the projectile's palette selection before the onion-ring impact frames.
-                    projectile.GraphicsIndex = 0;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.MotherBrainsDrool_MoveDownCPixels
-                    when projectile.Kind is
-                    RoomEnemyProjectileKind.MotherBrainDrool or
-                    RoomEnemyProjectileKind.MotherBrainDyingDrool:
-                    // After changing to the falling pre-instruction, the list lowers the
-                    // released sprite by twelve whole pixels before its first falling map.
-                    projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 12)));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
                 default:
                     throw new InvalidDataException(
                         $"Enemy projectile instruction $86:{word:X4} at $86:{cursor:X4} is not translated.");
@@ -995,13 +981,6 @@ internal sealed class EnemyProjectileEngine
             return sharedWord;
         }
 
-        if (EnemyProjectileInstructionMechanicsDefinitions.TryReadMechanicsWord(
-                address,
-                out ushort sharedImpactWord))
-        {
-            return sharedImpactWord;
-        }
-
         if (OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind))
             return OldTourianEscapeShaftWallExplosionDefinitions.ReadMechanicsWord(address);
 
@@ -1030,11 +1009,6 @@ internal sealed class EnemyProjectileEngine
         if (projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat)
         {
             return EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (EnemyProjectileInstructionMechanicsDefinitions.Owns(projectile.Kind))
-        {
-            return EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(address);
         }
 
         if (TourianStatueProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
@@ -1131,8 +1105,7 @@ internal sealed class EnemyProjectileEngine
         Position16<RoomPixels> position,
         MiscDustAnimation animation)
     {
-        ushort instructionList =
-            MiscDustProjectileDefinitions.InstructionList(animation);
+        MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program(animation);
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
@@ -1145,9 +1118,8 @@ internal sealed class EnemyProjectileEngine
 
         // EprojInit_DustCloudOrExplosion ignores the definition's placeholder list and
         // indexes this literal thirty-word table with the spawn parameter. Parameter three
-        // selects $E138 for Rinka; Boulder passes $11 for its impact cloud.
-        projectile.InstructionPointer = instructionList;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
+        // selects the small explosion for Rinka; Boulder passes $11 for its impact cloud.
+        projectile.StartAnimation(new MiscDustProjectileAnimation(program));
     }
 
     /// <summary>

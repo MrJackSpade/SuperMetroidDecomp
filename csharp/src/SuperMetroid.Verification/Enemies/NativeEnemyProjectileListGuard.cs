@@ -9,6 +9,10 @@ internal static class NativeEnemyProjectileListGuard
 {
     /// <summary>A read guard over <paramref name="rom"/> that rejects every byte of the family's bank-$86 list extent.</summary>
     internal static CartridgeReadGuard Forbidding(ISnesAddressSpace rom, (ushort First, ushort End) extent, string family) =>
-        new CartridgeReadGuard(rom).ForbidRange((int)new SnesAddress(SnesLittleEndian.BankByte(EnemyProjectileCodePointers.BankBase), extent.First),
+        new CartridgeReadGuard(rom).AlsoForbidding(extent, family);
+
+    /// <summary>Also rejects every byte of another family's bank-$86 list extent, for checks that run several families.</summary>
+    internal static CartridgeReadGuard AlsoForbidding(this CartridgeReadGuard guard, (ushort First, ushort End) extent, string family) =>
+        guard.ForbidRange((int)new SnesAddress(SnesLittleEndian.BankByte(EnemyProjectileCodePointers.BankBase), extent.First),
             extent.End - extent.First, address => $"Production read {family} list byte ${address:X6}.");
 }

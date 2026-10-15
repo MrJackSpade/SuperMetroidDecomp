@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Enemies.YappingMaws;
@@ -70,6 +72,18 @@ internal static class EnemyProjectileTypedStarts
         [RoomEnemyProjectileKind.NoobTubeCrack] = () => new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Crack),
         [RoomEnemyProjectileKind.NoobTubeShard] = () => new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Shard0),
         [RoomEnemyProjectileKind.NoobTubeReleasedAirBubble] = () => new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.ReleasedAirBubble),
+        [RoomEnemyProjectileKind.MotherBrainOnionRing] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.OnionRing),
+        [RoomEnemyProjectileKind.MotherBrainBomb] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.Bomb),
+        [RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.RainbowBeamCharging),
+        [RoomEnemyProjectileKind.MotherBrainPurpleBreathBig] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.PurpleBreathBig),
+        [RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.PurpleBreathSmall),
+        [RoomEnemyProjectileKind.MotherBrainDrool] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.Drool),
+        [RoomEnemyProjectileKind.MotherBrainDyingDrool] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.Drool),
+        [RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.EscapeDoorParticle),
+        [RoomEnemyProjectileKind.MotherBrainEscapeSubtitle] = () => new MotherBrainEffectAnimation(MotherBrainEffectProgram.EscapeSubtitle),
+        [RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion] = () => new MiscDustProjectileAnimation(MiscDustProjectileProgram.RainbowBeamExplosion),
+        [RoomEnemyProjectileKind.EyeDoorSmoke] = () => new MiscDustProjectileAnimation(MiscDustProjectileProgram.SmallExplosion),
+        [RoomEnemyProjectileKind.MiscDustExplosion] = () => new MiscDustProjectileAnimation(MiscDustProjectileProgram.BeamCharge),
     };
 
     /// <summary>A new animation running the typed initial program of <paramref name="kind"/>, or null when the kind has none.</summary>

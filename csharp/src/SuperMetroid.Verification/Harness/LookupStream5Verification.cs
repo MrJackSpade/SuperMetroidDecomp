@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Enemies.MorphBallEye;
 using SuperMetroid.Tooling;
@@ -168,12 +169,12 @@ internal static class LookupStream5Verification
                     int index = 3 - ordinal % 4;
                     ushort x = unchecked((ushort)(origin.X + (short)ReadVerificationWord(rom, 0xa6f840 + index * 4)));
                     ushort y = unchecked((ushort)(origin.Y + (short)ReadVerificationWord(rom, 0xa6f842 + index * 4)));
-                    ushort program = MiscDustProjectileDefinitions.InstructionList(ordinal % 2 == 0 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion);
+                    MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program(ordinal % 2 == 0 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion);
                     // Native pool allocation descends; identify each emission through its unique current ordinal below.
                     var particle = particles[emitted - ordinal - 1];
                     AssertEqual(x, particle.Position.X.Whole, "Actual produced native X including 16-bit wrap");
                     AssertEqual(y, particle.Position.Y.Whole, "Actual produced native Y including 16-bit wrap");
-                    AssertEqual(program, particle.InstructionPointer, "RNG changes animation only");
+                    AssertTrue(particle.Animation is MiscDustProjectileAnimation started && started.Cursor.Program == program, "RNG changes animation only");
                 }
                 AssertEqual(call == 49, slot.Properties.HasAny(EnemyProperties.Invisible), "Hide only at destruction expiry");
             }

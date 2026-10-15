@@ -1038,6 +1038,9 @@ internal sealed class DraygonBehavior : IEnemySpecies
             RunFlyingDraygonGoop(context.Projectile, context.Samus);
         }, EnemyProjectilePreInstruction.DraygonGoop);
 
+        // A shot wall turret runs the shared misc-dust small explosion, the list its definition names.
+        table.RegisterShotAnimation(RoomEnemyProjectileKind.DraygonWallTurret,
+            () => new MiscDustProjectileAnimation(MiscDustProjectileProgram.SmallExplosion));
         table.RegisterTouchAnimation(RoomEnemyProjectileKind.DraygonGoop,
             () => new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
         table.RegisterShotAnimation(RoomEnemyProjectileKind.DraygonGoop,

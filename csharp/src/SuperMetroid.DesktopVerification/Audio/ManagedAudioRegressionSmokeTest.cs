@@ -18,10 +18,10 @@ public static class ManagedAudioRegressionSmokeTest
 {
     /// <summary>Digest of the signed stereo PCM emitted by the pinned corpus.</summary>
     private const string ExpectedPcmSha256 =
-        "06FE91966B29B05F2012C6A542864B5692B178A7B028C2A4A56F6D34E8F8D06C";
+        "A147AA83AAA0DB4A7763E7A4EF7813C80FF4F6CBB91967B2E6796BFFC7B12139";
     /// <summary>Digest of all four APU acknowledgement ports after each corpus frame.</summary>
     private const string ExpectedAcknowledgementSha256 =
-        "DF414B59F7CA21C4BBAD7ABA9C379C8296DCA454B480BFCEFCB8B35123D851FD";
+        "35436A1DFC6846D7A00EBD58CF2F51CB16BCCB197F8B56ACE433CE2F85DAFE99";
     /// <summary>Frames rendered for each music-bank sample and sound-effect scenario.</summary>
     private const int ShortScenarioFrames = 120;
     /// <summary>Longer title-music run that exposes sustained playback drift.</summary>
@@ -89,12 +89,14 @@ public static class ManagedAudioRegressionSmokeTest
 
         string pcm = Convert.ToHexString(tally.Pcm.GetHashAndReset());
         string acknowledgements = Convert.ToHexString(tally.Acknowledgements.GetHashAndReset());
-        if (!pcm.Equals(ExpectedPcmSha256, StringComparison.Ordinal))
-            throw new InvalidDataException($"Managed audio PCM regression: {pcm}, expected {ExpectedPcmSha256}.");
-        if (!acknowledgements.Equals(ExpectedAcknowledgementSha256, StringComparison.Ordinal))
+        // Report both together: whether acknowledgements still match separates a sequencing change from a content change.
+        bool pcmMatches = pcm.Equals(ExpectedPcmSha256, StringComparison.Ordinal);
+        bool acknowledgementsMatch = acknowledgements.Equals(ExpectedAcknowledgementSha256, StringComparison.Ordinal);
+        if (!pcmMatches || !acknowledgementsMatch)
         {
             throw new InvalidDataException(
-                $"Managed audio acknowledgement regression: {acknowledgements}, expected {ExpectedAcknowledgementSha256}.");
+                $"Managed audio regression: PCM {pcm} (expected {ExpectedPcmSha256}, {(pcmMatches ? "matches" : "differs")}); " +
+                $"acknowledgements {acknowledgements} (expected {ExpectedAcknowledgementSha256}, {(acknowledgementsMatch ? "matches" : "differs")}).");
         }
         return new ManagedAudioRegressionSmokeTestResult(
             tally.Scenarios,

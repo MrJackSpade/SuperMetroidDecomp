@@ -1219,7 +1219,8 @@ public sealed class SuperMetroidGame
                     audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.StopSpinJump,
                         maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
                 }
-                else if ((controllerInput & SnesButton.X) == 0 &&
+                // `$90:F48A` tests $8B against the shot binding; the action latch holds it as X.
+                else if ((GameplayRuntime.Controller1.Current & SnesButton.X) == 0 &&
                     GameplayRuntime.Projectiles.Charge.FlareCounter < 16)
                 {
                     audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll,

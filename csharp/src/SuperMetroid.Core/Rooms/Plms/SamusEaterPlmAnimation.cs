@@ -1,0 +1,43 @@
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Fx;
+
+namespace SuperMetroid.Core.Rooms.Plms;
+
+/// <summary>A Brinstar plant's typed program (#1296).</summary>
+internal sealed class SamusEaterPlmAnimation(SamusEaterProgram program)
+    : PlmProgramAnimation<SamusEaterProgram, SamusEaterDraw, SamusEaterCue>(program)
+{
+    /// <inheritdoc/>
+    private protected override AnimationProgramSet<SamusEaterProgram, SamusEaterDraw, SamusEaterCue> Programs =>
+        SamusEaterPlmProgramDefinitions.Programs;
+
+    /// <inheritdoc/>
+    private protected override ushort DrawList(SamusEaterDraw frame) => (ushort)frame;
+
+    /// <inheritdoc/>
+    private protected override SamusEaterProgram? Publish(SamusEaterCue cue, PlmSlot slot, PlmAnimationContext context)
+    {
+        switch (cue)
+        {
+            case SamusEaterCue.HoldSamus:
+                slot.PreInstruction = SamusEaterPlmRomData.HoldPreInstruction;
+                break;
+            case SamusEaterCue.QueueChewSound:
+                context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, SamusEaterPlmRomData.ChewSound),
+                    SamusEaterPlmProgramDefinitions.ChewSoundMaximumQueued);
+                break;
+            case SamusEaterCue.DamageSamus:
+                context.Plms.SamusEater.DamageSamus();
+                break;
+            case SamusEaterCue.ReleaseSamus:
+                context.Plms.SamusEater.ReleaseSamus();
+                break;
+            case SamusEaterCue.ClearPreInstruction:
+                slot.PreInstruction = 0;
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(SamusEaterCue)} {cue}.");
+        }
+        return null;
+    }
+}

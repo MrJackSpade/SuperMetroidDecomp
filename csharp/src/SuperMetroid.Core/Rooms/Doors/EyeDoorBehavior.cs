@@ -180,9 +180,9 @@ internal sealed class EyeDoorBehavior
         if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0 && collidedVertically)
         {
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 4)));
-            SetEyeDoorEffectImpactList(
-                projectile,
-                EyeDoorSweatInstructionProgramDefinitions.Impact);
+            // The floor splash stops the drop's movement, as the native list switch does.
+            projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
+            projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatProgram.HitFloor));
             return;
         }
 
@@ -194,16 +194,6 @@ internal sealed class EyeDoorBehavior
     {
         short sample = EnemyTrigonometryTables.SignedSine(unchecked((byte)tableIndex));
         return unchecked((short)(sample >> 4));
-    }
-
-    /// <summary>Stops projectile movement and restarts its impact animation at the first instruction.</summary>
-    private static void SetEyeDoorEffectImpactList(
-        RoomEnemyProjectileSlot projectile,
-        ushort instructionList)
-    {
-        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
-        projectile.InstructionPointer = instructionList;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the native list switch does.</summary>
@@ -283,10 +273,12 @@ internal sealed class EyeDoorBehavior
     {
         if (movingBack)
         {
-            ushort face = unchecked((ushort)((edge | 0x000f) + 1 + radius));
+            // The far face of the blocking block: the last pixel of its sixteen, plus one.
+            ushort face = unchecked((ushort)((edge | 15) + 1 + radius));
             return face <= current ? face : current;
         }
-        ushort near = unchecked((ushort)((edge & 0xfff0) - radius));
+        // The near face of the blocking block: its first pixel.
+        ushort near = unchecked((ushort)((edge & ~15) - radius));
         return near >= current ? near : current;
     }
 
@@ -332,7 +324,7 @@ internal sealed class EyeDoorBehavior
     {
         int fixedBlock = unchecked((ushort)fixedAxisPixel) >> 4;
         int startBlock = unchecked((ushort)spanStartPixel) >> 4;
-        int extraBlocks = unchecked((ushort)(spanEndPixel - (spanStartPixel & 0xfff0))) >> 4;
+        int extraBlocks = unchecked((ushort)(spanEndPixel - (spanStartPixel & ~15))) >> 4;
         int width = level.Size.X;
         int linear = verticalEdge ? fixedBlock * width + startBlock : startBlock * width + fixedBlock;
         int step = verticalEdge ? 1 : width;

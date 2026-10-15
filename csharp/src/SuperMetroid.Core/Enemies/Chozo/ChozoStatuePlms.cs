@@ -89,7 +89,7 @@ internal sealed class ChozoStatuePlms
             slot.Active = true;
             slot.HeaderPointer = definition.HeaderPointer;
             slot.BlockIndex = index;
-            slot.InstructionPointer = definition.InstructionListPointer;
+            definition.Program.StartOn(slot);
             slot.InstructionTimer = NativeCountdown.Start(1);
             if (request.HeaderPointer == PlmHeaderId.WreckedShipChozoHand)
                 WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,

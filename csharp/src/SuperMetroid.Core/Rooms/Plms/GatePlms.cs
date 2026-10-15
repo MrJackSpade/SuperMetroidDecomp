@@ -44,6 +44,7 @@ internal sealed class GatePlms
     internal void SetupDownwardGateSlot(RoomLevelData level, PlmSlot slot)
     {
         slot.Gate = new DownwardGatePlmState();
+        slot.StartAnimation(new DownwardGatePlmAnimation(DownwardGateProgram.Closed));
 
         // Setup $C784 writes BTS $10 to the five vertically adjacent gate cells without
         // replacing their authored level words. C# block indexes are words, whereas the
@@ -66,7 +67,7 @@ internal sealed class GatePlms
     {
         DownwardGateShotBlockDefinition definition =
             DownwardGateShotBlockDefinitions.Resolve(slot.RoomArgument);
-        slot.InstructionPointer = definition.InstructionList;
+        slot.StartAnimation(new DownwardGatePlmAnimation(definition.Program));
 
         // Setup $C6E0 performs independent left and right writes even though every authored
         // row installs exactly one side. Preserve that ordering instead of deriving the side
@@ -158,6 +159,18 @@ internal sealed class GatePlms
         return true;
     }
 
+    /// <summary><c>$84:BBE1</c>: requests the moving gate projectile that slides the gate down from the slot's block.</summary>
+    internal void SpawnMovingGateProjectile(PlmSlot slot) =>
+        _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
+            DownwardGateProjectileOperation.Spawn, (ushort)RoomEnemyProjectileKind.DownwardGateMoving, slot.BlockIndex));
+
+    /// <summary>
+    /// <c>$84:BBF0</c>: wakes the gate projectile whose variable E holds this PLM's block, so it slides back up.
+    /// </summary>
+    internal void WakeGateProjectile(PlmSlot slot) =>
+        _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
+            DownwardGateProjectileOperation.Wake, DefinitionPointer: 0, slot.BlockIndex));
+
     /// <summary>Moves buffered rejected-shot sounds into the room sound queue in emission order.</summary>
     internal void PublishPendingDownwardGateSounds()
     {
@@ -185,8 +198,7 @@ internal sealed class GatePlms
         if (!wake)
             return;
 
-        slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.WakePastSleep();
         slot.PreInstruction = (ushort)DownwardGatePreInstruction.Inert;
     }
 

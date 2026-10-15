@@ -2,19 +2,19 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Named bank-$84 header cases for the two Samus Eater block actors. B6CB selects
-/// the B0DC floor setup and ACB8 program; B6CF selects B113 ceiling setup and ACF8.
+/// the B0DC floor setup and the floor bite; B6CF selects B113 ceiling setup and the ceiling bite.
 /// Mounting direction follows those native setup identities, including opposite
 /// alignment edges and held-Y adjustments. No indexed descriptor table is stored.
 /// </summary>
 internal static class SamusEaterPlmDefinitions
 {
-    /// <summary><c>$84:B6CB/$ACB8</c>, Brinstar floor plant and its initial instruction list.</summary>
+    /// <summary><c>$84:B6CB</c>, Brinstar floor plant and its first program.</summary>
     public static readonly SamusEaterPlmDefinition Floor =
-        new(0xacb8, Ceiling: false);
+        new(SamusEaterProgram.FloorBite, Ceiling: false);
 
-    /// <summary><c>$84:B6CF/$ACF8</c>, Brinstar ceiling plant and its initial instruction list.</summary>
+    /// <summary><c>$84:B6CF</c>, Brinstar ceiling plant and its first program.</summary>
     public static readonly SamusEaterPlmDefinition Ceiling =
-        new(0xacf8, Ceiling: true);
+        new(SamusEaterProgram.CeilingBite, Ceiling: true);
 
     /// <summary>Resolves one supported plant header without interpreting adjacent bank-$84 data.</summary>
     public static SamusEaterPlmDefinition Resolve(PlmHeaderId headerPointer) => headerPointer switch

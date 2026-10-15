@@ -1,8 +1,9 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupMotherBrainBackgroundVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupMotherBrainBoundaryVerification;
-using static SuperMetroid.Verification.Bosses.MotherBrain.LookupMotherBrainMutationProgramsVerification;
+using static SuperMetroid.Verification.Rooms.Plms.BossRoomPlmProgramsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupMotherBrainRegularDrawsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -25,8 +26,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain mutation oracle revision");
-        Suite(nameof(VerifyMotherBrainMutationProgramControls), () => VerifyMotherBrainMutationProgramControls(rom));
-        Suite(nameof(VerifyMotherBrainMutationProgramDraws), () => VerifyMotherBrainMutationProgramDraws(rom));
+        Suite(nameof(VerifyMotherBrainFakeDeathPrograms), () => VerifyMotherBrainFakeDeathPrograms(rom));
         Suite(nameof(VerifyMotherBrainRegularDrawMapping), () => VerifyMotherBrainRegularDrawMapping(rom));
         Suite(nameof(VerifyMotherBrainBackgroundGeometry), () => VerifyMotherBrainBackgroundGeometry(rom));
         Suite(nameof(VerifyMotherBrainBackgroundCollision), () => VerifyMotherBrainBackgroundCollision(rom));
@@ -39,51 +39,42 @@ internal static class MotherBrainFakeDeathPlmsVerification
             MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray();
         AssertEqual(22, draws.Length,
             "Mother Brain fake death owns twenty-two physical draws");
-        for (int programIndex = 0;
-             programIndex < MotherBrainFakeDeathPlmProgramDefinitions.ProgramCount;
-             programIndex++)
-        {
-            ushort pointer = checked((ushort)(
-                MotherBrainFakeDeathPlmProgramDefinitions.Start +
-                programIndex * MotherBrainFakeDeathPlmProgramDefinitions.ProgramByteLength + 2));
-            AssertTrue(MotherBrainFakeDeathPlmProgramDefinitions.TryReadMechanicsWord(
-                    pointer, out ushort drawPointer) &&
-                MotherBrainFakeDeathPlmDrawDefinitions.TryGet(drawPointer, out _),
-                $"Mother Brain program ${pointer - 2:X4} selects a compiled draw");
-        }
-        (PlmHeaderId Header, ushort Program)[] reachable =
+        foreach (MotherBrainFakeDeathProgram program in Enum.GetValues<MotherBrainFakeDeathProgram>())
+            AssertTrue(MotherBrainFakeDeathPlmDrawDefinitions.TryGet((ushort)MotherBrainFakeDeathPlmProgramDefinitions.Layout(program), out _),
+                $"Mother Brain program {program} selects a compiled draw");
+        (PlmHeaderId Header, MotherBrainFakeDeathProgram Program)[] reachable =
         [
-            (PlmHeaderId.FillMotherBrainsWall, RoomPlmInstructionLists.FillMotherBrainsWall),
-            (PlmHeaderId.MotherBrainsRoomEscapeDoor, RoomPlmInstructionLists.MotherBrainsRoomEscapeDoor),
-            (PlmHeaderId.MotherBrainsBackgroundRow2, RoomPlmInstructionLists.MotherBrainsBackgroundRow2),
-            (PlmHeaderId.MotherBrainsBackgroundRow3, RoomPlmInstructionLists.MotherBrainsBackgroundRow3),
-            (PlmHeaderId.MotherBrainsBackgroundRow4, RoomPlmInstructionLists.MotherBrainsBackgroundRow4),
-            (PlmHeaderId.MotherBrainsBackgroundRow5, RoomPlmInstructionLists.MotherBrainsBackgroundRow5),
-            (PlmHeaderId.MotherBrainsBackgroundRow6, RoomPlmInstructionLists.MotherBrainsBackgroundRow6),
-            (PlmHeaderId.MotherBrainsBackgroundRow7, RoomPlmInstructionLists.MotherBrainsBackgroundRow7),
-            (PlmHeaderId.MotherBrainsBackgroundRow8, RoomPlmInstructionLists.MotherBrainsBackgroundRow8),
-            (PlmHeaderId.MotherBrainsBackgroundRow9, RoomPlmInstructionLists.MotherBrainsBackgroundRow9),
-            (PlmHeaderId.MotherBrainsBackgroundRowA, RoomPlmInstructionLists.MotherBrainsBackgroundRowA),
-            (PlmHeaderId.MotherBrainsBackgroundRowB, RoomPlmInstructionLists.MotherBrainsBackgroundRowB),
-            (PlmHeaderId.MotherBrainsBackgroundRowC, RoomPlmInstructionLists.MotherBrainsBackgroundRowC),
-            (PlmHeaderId.MotherBrainsBackgroundRowD, RoomPlmInstructionLists.MotherBrainsBackgroundRowD),
-            (PlmHeaderId.ClearMotherBrainCeilingBlock, RoomPlmInstructionLists.ClearMotherBrainCeilingBlock),
-            (PlmHeaderId.ClearMotherBrainCeilingTube, RoomPlmInstructionLists.ClearMotherBrainCeilingTube),
-            (PlmHeaderId.ClearMotherBrainBottomMiddleSideTube, RoomPlmInstructionLists.ClearMotherBrainBottomMiddleSideTube),
-            (PlmHeaderId.ClearMotherBrainBottomMiddleTubes, RoomPlmInstructionLists.ClearMotherBrainBottomMiddleTubes),
-            (PlmHeaderId.ClearMotherBrainBottomLeftTube, RoomPlmInstructionLists.ClearMotherBrainBottomLeftTube),
-            (PlmHeaderId.ClearMotherBrainBottomRightTube, RoomPlmInstructionLists.ClearMotherBrainBottomRightTube),
+            (PlmHeaderId.FillMotherBrainsWall, MotherBrainFakeDeathProgram.FillWall),
+            (PlmHeaderId.MotherBrainsRoomEscapeDoor, MotherBrainFakeDeathProgram.EscapeDoor),
+            (PlmHeaderId.MotherBrainsBackgroundRow2, MotherBrainFakeDeathProgram.BackgroundRow2),
+            (PlmHeaderId.MotherBrainsBackgroundRow3, MotherBrainFakeDeathProgram.BackgroundRow3),
+            (PlmHeaderId.MotherBrainsBackgroundRow4, MotherBrainFakeDeathProgram.BackgroundRow4),
+            (PlmHeaderId.MotherBrainsBackgroundRow5, MotherBrainFakeDeathProgram.BackgroundRow5),
+            (PlmHeaderId.MotherBrainsBackgroundRow6, MotherBrainFakeDeathProgram.BackgroundRow6),
+            (PlmHeaderId.MotherBrainsBackgroundRow7, MotherBrainFakeDeathProgram.BackgroundRow7),
+            (PlmHeaderId.MotherBrainsBackgroundRow8, MotherBrainFakeDeathProgram.BackgroundRow8),
+            (PlmHeaderId.MotherBrainsBackgroundRow9, MotherBrainFakeDeathProgram.BackgroundRow9),
+            (PlmHeaderId.MotherBrainsBackgroundRowA, MotherBrainFakeDeathProgram.BackgroundRowA),
+            (PlmHeaderId.MotherBrainsBackgroundRowB, MotherBrainFakeDeathProgram.BackgroundRowB),
+            (PlmHeaderId.MotherBrainsBackgroundRowC, MotherBrainFakeDeathProgram.BackgroundRowC),
+            (PlmHeaderId.MotherBrainsBackgroundRowD, MotherBrainFakeDeathProgram.BackgroundRowD),
+            (PlmHeaderId.ClearMotherBrainCeilingBlock, MotherBrainFakeDeathProgram.ClearCeilingBlock),
+            (PlmHeaderId.ClearMotherBrainCeilingTube, MotherBrainFakeDeathProgram.ClearCeilingTube),
+            (PlmHeaderId.ClearMotherBrainBottomMiddleSideTube, MotherBrainFakeDeathProgram.ClearBottomMiddleSideTube),
+            (PlmHeaderId.ClearMotherBrainBottomMiddleTubes, MotherBrainFakeDeathProgram.ClearBottomMiddleTubes),
+            (PlmHeaderId.ClearMotherBrainBottomLeftTube, MotherBrainFakeDeathProgram.ClearBottomLeftTube),
+            (PlmHeaderId.ClearMotherBrainBottomRightTube, MotherBrainFakeDeathProgram.ClearBottomRightTube),
         ];
-        foreach ((PlmHeaderId header, ushort program) in reachable)
+        foreach ((PlmHeaderId header, MotherBrainFakeDeathProgram program) in reachable)
             VerifyMotherBrainFakeDeathMutation(header, program);
 
         Console.WriteLine(
-            "Mother Brain fake-death PLMs: 66 instruction words, 22 full draws, and 20 reachable production mutations match ROM without source reads.");
+            "Mother Brain fake-death PLMs: 22 typed programs, 22 full draws, and 20 reachable production mutations match ROM without source reads.");
     }
 
     /// <summary>Checks one spawned PLM's exact collision blocks, draw-frame lifetime, deletion, and source-read guard.</summary>
     private static void VerifyMotherBrainFakeDeathMutation(
-        PlmHeaderId header, ushort program)
+        PlmHeaderId header, MotherBrainFakeDeathProgram program)
     {
         const int width = 32;
         const int height = 16;
@@ -97,11 +88,10 @@ internal static class MotherBrainFakeDeathPlmsVerification
         ushort[] expected = Enumerable.Range(0, words.Length)
             .Select(index => level.GetCollisionBlockByIndex(index).LevelWord)
             .ToArray();
-        AssertTrue(MotherBrainFakeDeathPlmProgramDefinitions.TryReadMechanicsWord(
-                checked((ushort)(program + 2)), out ushort drawPointer),
-            $"Mother Brain mutation ${(int)header:X4} selects a compiled draw");
+        AssertTrue(plms.PopulationSlots.Single().Animation is MotherBrainFakeDeathPlmAnimation { Program: var started } && started == program,
+            $"Mother Brain mutation ${(int)header:X4} starts its typed program");
         AssertTrue(MotherBrainFakeDeathPlmDrawDefinitions.TryGet(
-                drawPointer, out var draw),
+                (ushort)MotherBrainFakeDeathPlmProgramDefinitions.Layout(program), out var draw),
             $"Mother Brain mutation ${(int)header:X4} has a physical draw");
         for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
         {
@@ -137,8 +127,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
         {
             int pointer = SnesAddressMath.OffsetInBank(address);
             return (SnesAddressMath.BankNumber(address)) == 0x84 &&
-                ((pointer >= MotherBrainFakeDeathPlmProgramDefinitions.Start &&
-                  pointer < MotherBrainFakeDeathPlmProgramDefinitions.EndExclusive) ||
+                (BossRoomPlmNativeListAddresses.IsTypedProgramByte(pointer) ||
                  MotherBrainFakeDeathPlmDrawDefinitions.All.Any(draw =>
                      pointer >= draw.Pointer && pointer < draw.Pointer +
                          draw.Runs.Span.Sum(run =>

@@ -9,13 +9,10 @@ internal static class TourianAccessPlmDefinitions
     /// <summary>
     /// <c>$84:AAE5</c>, initial list for the Tourian access-floor crumble sequence.
     /// </summary>
-    public const ushort CrumbleInstructionList = 0xaae5;
 
-    /// <summary><c>$84:AB0C</c>, initial list that immediately clears the access floor.</summary>
-    public const ushort ClearInstructionList = 0xab0c;
 
     /// <summary>Returns the complete native spawn identity for the requested floor state.</summary>
     public static TourianAccessPlmDefinition ForState(bool clear) => clear
-        ? new(PlmHeaderId.ClearAccessToTourianElevator, ClearInstructionList)
-        : new(PlmHeaderId.CrumbleAccessToTourianElevator, CrumbleInstructionList);
+        ? new(PlmHeaderId.ClearAccessToTourianElevator, TourianAccessProgram.Clear)
+        : new(PlmHeaderId.CrumbleAccessToTourianElevator, TourianAccessProgram.Crumble);
 }

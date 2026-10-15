@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Tourian;
@@ -38,10 +39,8 @@ internal static class TourianAccessPlmDefinitionsVerification
             AssertEqual(39, slot.NativeSlotIndex, "Tourian access uses the highest free native slot");
             AssertEqual(definition.HeaderPointer, slot.HeaderPointer, "Tourian access header identity");
             AssertEqual(12 * width + 6, slot.BlockIndex, "Tourian access fixed block coordinate");
-            AssertEqual(
-                definition.InstructionListPointer,
-                slot.InstructionPointer,
-                "Tourian access compiled initial instruction list");
+            AssertTrue(slot.Animation is TourianAccessPlmAnimation animation && animation.Program == definition.Program,
+                "Tourian access starts its typed program");
             AssertEqual(1, slot.InstructionTimer, "Tourian access starts on timer one");
         }
     }
@@ -64,9 +63,14 @@ internal static class TourianAccessPlmDefinitionsVerification
         {
             ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord(item.SpawnOperand);
             var actual = TourianAccessPlmDefinitions.ForState(item.Clear);
-            AssertEqual(instruction ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (header + 2))) : header,
-                instruction ? actual.InstructionListPointer : (ushort)actual.HeaderPointer,
-                $"Tourian native spawn selection clear={item.Clear} instruction={instruction}");
+            if (instruction)
+            {
+                ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (header + 2));
+                AssertEqual(RoomPlmNativeListAddresses.TourianAccessEntries.Single(entry => entry.Entry == list).Program, actual.Program,
+                    $"Tourian native spawn clear={item.Clear} starts its typed program");
+            }
+            else
+                AssertEqual(header, (ushort)actual.HeaderPointer, $"Tourian native spawn header clear={item.Clear}");
             AssertEqual((byte)6, rom.ReadCartridgeByte(item.SpawnOperand - 2), "Tourian native spawn column");
             AssertEqual((byte)12, rom.ReadCartridgeByte(item.SpawnOperand - 1), "Tourian native spawn row");
         }

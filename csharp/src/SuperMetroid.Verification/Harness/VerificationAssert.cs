@@ -160,7 +160,7 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidNailContourMappingsVeri
 using static SuperMetroid.Verification.Bosses.Kraid.KraidNailSiblingVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRockLaunchDefinitionsVerification;
-using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomProgramMappingVerification;
+using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualSelectionVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidSinkScheduleVerification;
 using static SuperMetroid.Verification.Areas.Ceres.LookupCeresHazeRampVerification;
@@ -179,7 +179,6 @@ using static SuperMetroid.Verification.Harness.LookupRomOraclesVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LookupSkyChunkPointersVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LookupSkySectionsVerification;
 using static SuperMetroid.Verification.Enemies.LookupSmallGameTablesVerification;
-using static SuperMetroid.Verification.Rooms.Plms.LookupSpeedEscapeProgramVerification;
 using static SuperMetroid.Verification.Harness.LookupStream1Verification;
 using static SuperMetroid.Verification.Harness.LookupStream2Verification;
 using static SuperMetroid.Verification.Harness.LookupStream3Verification;
@@ -3255,8 +3254,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Speed escape oracle revision");
-        Suite(nameof(VerifySpeedEscapeProgramControls), () => VerifySpeedEscapeProgramControls(rom));
-        Suite(nameof(VerifySpeedEscapeProgramCallbacks), () => VerifySpeedEscapeProgramCallbacks(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifySpeedBoosterEscapePrograms), () => RoomPlmProgramsVerification.VerifySpeedBoosterEscapePrograms(rom));
         Suite(nameof(VerifySpeedBoosterEscapePlm), () => VerifySpeedBoosterEscapePlm(new TestAddressSpace()));
         Console.WriteLine("Speed escape program: all native fields and complete address domain pass; production handoffs and lava completion pass.");
         return 0;
@@ -3750,7 +3748,7 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(roomProgramOracle.Rom)),
             "Kraid room program oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyKraidRoomProgramMapping), () => VerifyKraidRoomProgramMapping(roomProgramOracle));
+        Suite(nameof(BossRoomPlmProgramsVerification.VerifyKraidRoomPrograms), () => BossRoomPlmProgramsVerification.VerifyKraidRoomPrograms(roomProgramOracle));
         return 0;
     }
 

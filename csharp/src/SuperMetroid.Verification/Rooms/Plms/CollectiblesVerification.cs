@@ -310,7 +310,6 @@ internal static class CollectiblesVerification
         // Bomb-special BTS 8 reuses the freed item ID with the retail one-word delete
         // list. Seed that generic instruction because this synthetic item ROM otherwise
         // contains only collectible draw lists.
-        SeedPlmDeleteList(bus);
         for (int presentation = 0; presentation < 3; presentation++)
         {
             ushort firstHeader = presentation switch

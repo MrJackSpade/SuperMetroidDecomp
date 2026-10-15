@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -192,13 +193,13 @@ recordIndex,
                 out ColoredDoorColor color,
                 out ColoredDoorOrientation coloredOrientation))
         {
-            DoorPlms.SetupColoredDoorSlot(bus, level, system, slot, color, coloredOrientation);
+            DoorPlms.SetupColoredDoorSlot(level, slot, color, coloredOrientation);
             return true;
         }
 
         if (GreyDoorPlms.TryIdentifyGreyDoor(header, out ColoredDoorOrientation greyOrientation))
         {
-            GreyDoorPlms.SetupGreyDoorSlot(bus, level, system, slot, greyOrientation);
+            GreyDoorPlms.SetupGreyDoorSlot(level, slot, greyOrientation);
             return true;
         }
 
@@ -249,8 +250,9 @@ recordIndex,
         if (header == PlmHeaderId.WreckedShipAttic)
         {
             // Setup $84:BAFA deliberately performs no state mutation. Keeping an explicit
-            // branch matters: the actor must still consume its native slot and later run
-            // its ROM instruction list instead of being mistaken for an unknown header.
+            // branch matters: the actor must still consume its native slot and run its
+            // program instead of being mistaken for an unknown header.
+            slot.StartAnimation(new WreckedShipAtticPlmAnimation());
             return true;
         }
 

@@ -4,6 +4,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// One calculated downward-gate shot-block setup action for bank $84.
 /// </summary>
 internal readonly record struct DownwardGateShotBlockDefinition(
-    ushort InstructionList,
+    DownwardGateProgram Program,
     ushort LeftBlockWord,
     ushort RightBlockWord);

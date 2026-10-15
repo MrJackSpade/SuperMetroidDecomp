@@ -25,7 +25,8 @@ internal readonly record struct DoorCameraAlignmentState(
         if (lowByte == 0)
             return new DoorCameraAlignmentState(camera, Completed: true);
 
-        short step = (lowByte & 0x80) != 0 ? (short)1 : (short)-1;
+        // A coordinate past the middle of its 256-pixel screen moves on to the next screen; one before it moves back.
+        short step = lowByte >= 128 ? (short)1 : (short)-1;
         Offset16<RoomPixels> movement = alignsX ? new(step, 0) : new(0, step);
         return new DoorCameraAlignmentState(camera + movement, Completed: false);
     }

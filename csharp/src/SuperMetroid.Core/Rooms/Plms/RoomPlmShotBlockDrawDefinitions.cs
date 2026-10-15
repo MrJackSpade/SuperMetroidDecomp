@@ -18,6 +18,19 @@ internal static class RoomPlmShotBlockDrawDefinitions
     /// <summary>First square breakup draw list, <c>$84:A39D</c>.</summary>
     internal const ushort SquareFrame0 = 0xa39d;
 
+    /// <summary>The direction/count word's vertical flag: a vertical run writes down a column.</summary>
+    private const ushort VerticalRunBit = 0x8000;
+    /// <summary>The direction/count word's block count.</summary>
+    private const ushort RunCountBits = 0x7fff;
+    /// <summary>The most blocks a native run writes.</summary>
+    internal const int MaximumRunCount = 0xff;
+
+    /// <summary>Whether a run's direction/count word writes down a column.</summary>
+    internal static bool IsVerticalRun(ushort directionAndCount) => (directionAndCount & VerticalRunBit) != 0;
+
+    /// <summary>The blocks a run's direction/count word writes.</summary>
+    internal static int RunCount(ushort directionAndCount) => directionAndCount & RunCountBits;
+
     /// <summary>One native record: direction/count, complete level words, then the signed offset to the next record.</summary>
     internal readonly record struct Run(
         ushort DirectionAndCount,

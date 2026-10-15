@@ -31,6 +31,8 @@ internal sealed class SpeedBoosterEscapePlms
 
         if (_bindings.Events.Has(EventNumber.OutranSpeedBoosterLavaquake))
             PlmPopulationLoader.ClearSlot(slot);
+        else
+            slot.StartAnimation(new SpeedBoosterEscapePlmAnimation());
     }
 
     /// <summary>Dispatches the exact callback pointer installed by the cartridge list.</summary>
@@ -141,8 +143,7 @@ internal sealed class SpeedBoosterEscapePlms
     /// </summary>
     private static void WakeAtNextInstruction(PlmSlot slot)
     {
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+        slot.WakePastSleep();
         slot.LoopTimer = 0;
     }
 }

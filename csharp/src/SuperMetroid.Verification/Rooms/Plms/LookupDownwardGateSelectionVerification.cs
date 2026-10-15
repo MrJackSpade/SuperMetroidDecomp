@@ -33,13 +33,14 @@ internal static class LookupDownwardGateSelectionVerification
                 continue;
             }
             DownwardGateShotBlockDefinition action = DownwardGateShotBlockDefinitions.Resolve(argument);
-            ushort actual = field switch
+            ushort native = ReadSamusEaterPlmWord(rom, source + raw);
+            if (field == 0)
             {
-                0 => action.InstructionList,
-                1 => action.LeftBlockWord,
-                _ => action.RightBlockWord,
-            };
-            AssertEqual(ReadSamusEaterPlmWord(rom, source + raw), actual,
+                AssertEqual(RoomPlmNativeListAddresses.DownwardGateEntries.Single(entry => entry.Entry == native).Program, action.Program,
+                    $"Downward gate argument {raw} starts its trigger program");
+                continue;
+            }
+            AssertEqual(native, field == 1 ? action.LeftBlockWord : action.RightBlockWord,
                 $"Downward gate original field {field}, argument {raw}");
         }
     }

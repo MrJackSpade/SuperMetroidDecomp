@@ -25,7 +25,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitions
             // Every cell shows the same bomb tile. Children link left on the
             // parent's row and up on later rows; only the top-left cell is type F.
             int collision = row == 0 && column == 0 ? 0xf000 : row == 0 ? 0x5000 : 0xd000;
-            return (ushort)(collision | RoomPlmVisualBlockIndexes.CollisionBombParent);
+            return (ushort)(collision | RoomPlmVisualBlockDefinitions.CollisionBombParent);
         }
     }
 

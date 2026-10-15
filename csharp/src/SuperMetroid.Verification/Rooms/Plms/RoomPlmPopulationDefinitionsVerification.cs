@@ -45,7 +45,11 @@ internal static class RoomPlmPopulationDefinitionsVerification
             populatedPointer, useCompiled: false);
         AssertEqual(nativeCount, compiledCount,
             "compiled retail PLM load preserves sequential spawn count");
-        AssertTrue(nativeSlots.SequenceEqual(compiledSlots),
+        // Typed programs are separate objects per load; compare what they run.
+        AssertTrue(nativeSlots.Select(slot => slot with { Animation = null })
+                .SequenceEqual(compiledSlots.Select(slot => slot with { Animation = null })) &&
+            nativeSlots.Select(slot => (slot.Animation?.GetType(), slot.Animation?.RunningProgram))
+                .SequenceEqual(compiledSlots.Select(slot => (slot.Animation?.GetType(), slot.Animation?.RunningProgram))),
             "compiled retail PLM load preserves native slots and setup results");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "compiled retail PLM loader never reads bank-$8F population bytes");

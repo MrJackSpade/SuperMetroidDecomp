@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Botwoon;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -29,8 +30,9 @@ internal static class BotwoonPlmIdentityVerification
             AssertEqual(header, slot.HeaderPointer, "hardcoded Botwoon header identity survives allocation");
             AssertEqual(assets.LevelData.GetBlockIndex(new(15, 4)), slot.BlockIndex, "hardcoded Botwoon placement");
             AssertEqual((ushort)((i & 1) == 0 ? 1 : 64), slot.InstructionTimer, "header-specific Botwoon delay");
-            AssertEqual((i & 1) == 0 ? RoomPlmInstructionLists.ClearBotwoonWall : RoomPlmInstructionLists.CrumbleBotwoonWall,
-                slot.InstructionPointer, "header-specific Botwoon program");
+            AssertTrue(slot.Animation is BotwoonWallPlmAnimation { Program: var program } &&
+                program == ((i & 1) == 0 ? BotwoonWallProgram.Clear : BotwoonWallProgram.Crumble),
+                "header-specific Botwoon program");
         }
         var before = plms.PopulationSlots.ToArray();
         AssertTrue(!plms.BossRoomMutations.TrySpawnBotwoonWall(assets.LevelData, PlmHeaderId.ClearBotwoonWall), "full native PLM pool declines spawn");

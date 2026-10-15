@@ -21,7 +21,7 @@ public static class QuicksandDefinitions
     /// All select the shared delete list; unsupported pointers return false/default,
     /// including the unused surface clones between the named headers. No table is stored.
     /// </summary>
-    public static bool TryGetReaction(
+    internal static bool TryGetReaction(
         PlmHeaderId header,
         out QuicksandReactionDefinition definition)
     {
@@ -46,12 +46,12 @@ public static class QuicksandDefinitions
                 SpecialAirReactionSetup.SandFallsCollision,
             _ => throw new InvalidOperationException($"Undefined quicksand header {header}."),
         };
-        definition = new(setup, RoomPlmInstructionLists.Delete);
+        definition = new(setup, PlmProgramStart.Delete);
         return true;
     }
 
     /// <summary>Resolves one supported sand header or rejects an invalid allocator request.</summary>
-    public static QuicksandReactionDefinition ResolveReaction(PlmHeaderId header) =>
+    internal static QuicksandReactionDefinition ResolveReaction(PlmHeaderId header) =>
         TryGetReaction(header, out QuicksandReactionDefinition definition)
             ? definition
             : throw new ArgumentOutOfRangeException(

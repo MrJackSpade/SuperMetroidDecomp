@@ -27,8 +27,7 @@ internal sealed class TourianPlms
     internal static void SetupMetroidsClearedSlot(PlmSlot slot)
     {
         slot.PreInstruction = MetroidsClearedPlmRomData.ResolvePreInstruction(slot.RoomArgument);
-        slot.InstructionPointer =
-            RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired;
+        slot.StartAnimation(new RoomPlmSharedAnimation(RoomPlmSharedProgram.Sleep));
     }
 
     /// <summary>
@@ -135,7 +134,7 @@ internal sealed class TourianPlms
             slot.Active = true;
             slot.HeaderPointer = definition.HeaderPointer;
             slot.BlockIndex = level.GetBlockIndex(new(6, 12));
-            slot.InstructionPointer = definition.InstructionListPointer;
+            slot.StartAnimation(new TourianAccessPlmAnimation(definition.Program));
             slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }

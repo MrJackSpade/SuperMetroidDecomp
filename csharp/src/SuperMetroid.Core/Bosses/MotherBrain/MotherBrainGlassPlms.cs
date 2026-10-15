@@ -58,7 +58,7 @@ internal sealed class MotherBrainGlassPlms
                 $"argument=${record.RoomArgument:X4}.");
         }
 
-        slot.InstructionPointer = RoomPlmInstructionLists.MotherBrainGlass;
+        slot.StartAnimation(new MotherBrainGlassPlmAnimation());
         slot.RoomArgument = 0;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         ushort glassLevelWord = unchecked((ushort)((original.LevelWord & MotherBrainGlassBlockDefinitions.TileNumberBits) | MotherBrainGlassBlockDefinitions.GlassBlockType));
@@ -124,106 +124,32 @@ internal sealed class MotherBrainGlassPlms
             slot.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
         slot.LoopTimer = 0;
     }
+    /// <summary>Whether Mother Brain, the area boss, is dead.</summary>
+    internal bool IsBossDead() => _bindings.Bosses?.IsDefeated(BossBits.AreaBoss) == true;
 
-    /// <summary>Executes a supported glass PLM opcode, including branches, shatter spawns, and event writes.</summary>
-    internal bool TryExecuteMotherBrainGlassInstruction(
-        ISnesAddressSpace bus,
-        PlmSlot slot,
-        RoomPlmInstruction instruction)
-    {
-        if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass)
-            return false;
-
-        ushort cursor = slot.InstructionPointer;
-        if (instruction is not (
-            RoomPlmInstruction.InstallPreInstruction or
-            RoomPlmInstruction.GotoIfAreaBossBitSet or
-            RoomPlmInstruction.GotoIfEventSet or
-            RoomPlmInstruction.GotoIfRoomArgumentLess or
-            RoomPlmInstruction.SpawnFourMotherBrainGlassShards or
-            RoomPlmInstruction.SetEvent))
-            return false;
-
-        switch (instruction)
-        {
-            case RoomPlmInstruction.InstallPreInstruction:
-                slot.PreInstruction = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
-                slot.InstructionPointer = unchecked((ushort)(cursor + 4));
-                return true;
-
-            case RoomPlmInstruction.GotoIfAreaBossBitSet:
-                BossBits bossMask = BossBitMasks.FromCartridge(
-                    RoomPlmSystem.ReadProgramByte(bus, unchecked((ushort)(cursor + 2))),
-                    "Mother Brain glass area-boss branch");
-                ushort bossTarget = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 3)));
-                slot.InstructionPointer = _bindings.Bosses?.IsDefeated(bossMask) == true
-                    ? bossTarget
-                    : unchecked((ushort)(cursor + 5));
-                return true;
-
-            case RoomPlmInstruction.GotoIfEventSet:
-                ushort eventNumber = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
-                EventNumber namedEvent = ResolveMotherBrainGlassEvent(eventNumber);
-                ushort eventTarget = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
-                slot.InstructionPointer = _bindings.Events?.Has(namedEvent) == true
-                    ? eventTarget
-                    : unchecked((ushort)(cursor + 6));
-                return true;
-
-            case RoomPlmInstruction.GotoIfRoomArgumentLess:
-                ushort threshold = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
-                ushort retryTarget = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
-                slot.InstructionPointer = slot.RoomArgument < threshold
-                    ? retryTarget
-                    : unchecked((ushort)(cursor + 6));
-                return true;
-
-            case RoomPlmInstruction.SpawnFourMotherBrainGlassShards:
-                _sounds._soundRequests.Add(_sounds.CreateSoundRequest(RoomPlmSounds.MotherBrainGlassShattering, MaximumQueued: 15));
-                // The native fragment spawn carries both block coordinates as bytes.
-                Position16<RoomBlocks> glassBlock = new(checked((byte)(slot.BlockIndex % _motherBrainGlassRoomWidth)),
-                    checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth)));
-                for (int shard = 0; shard < 4; shard++)
-                {
-                    ushort parameter = RoomPlmSystem.ReadProgramWord(
-                        bus,
-                        unchecked((ushort)(cursor + 2 + shard * 2)));
-                    _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(
-                        (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
-                        parameter,
-                        glassBlock));
-                }
-                slot.InstructionPointer = unchecked((ushort)(cursor + 10));
-                return true;
-
-            case RoomPlmInstruction.SetEvent:
-                ushort setEventNumber = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
-                EventNumber eventToSet = ResolveMotherBrainGlassEvent(setEventNumber);
-                (_bindings.Events ?? throw new InvalidOperationException(
-                    "Mother Brain glass has no event writer.")).Set(eventToSet);
-                slot.InstructionPointer = unchecked((ushort)(cursor + 4));
-                return true;
-
-            default:
-                throw new InvalidOperationException($"Unhandled RoomPlmInstruction {instruction}.");
-        }
-    }
+    /// <summary>Whether the glass was destroyed on an earlier visit.</summary>
+    internal bool IsGlassDestroyed() => _bindings.Events?.Has(EventNumber.MotherBrainGlassDestroyed) == true;
 
     /// <summary>
-    /// The translated glass program is only valid for the proven event-$02 operand used by
-    /// the retail instruction stream. A changed ROM operand is corruption or unported code,
-    /// not permission to leak an integer into the named event API.
+    /// <c>$84:D30B</c>: queues the shatter sound and spawns a burst of four shard projectiles at the glass's block.
     /// </summary>
-    private static EventNumber ResolveMotherBrainGlassEvent(ushort eventNumber)
+    internal void SpawnShards(PlmSlot slot, IReadOnlyList<MotherBrainGlassShard> shards)
     {
-        if (eventNumber != (ushort)EventNumber.MotherBrainGlassDestroyed)
-        {
-            throw new InvalidDataException(
-                $"Mother Brain glass referenced event {eventNumber}, not the proven glass-destroyed event.");
-        }
-
-        return EventNumber.MotherBrainGlassDestroyed;
+        _sounds._soundRequests.Add(_sounds.CreateSoundRequest(RoomPlmSounds.MotherBrainGlassShattering, MaximumQueued: ShatterSoundMaximumQueued));
+        // The native fragment spawn carries both block coordinates as bytes.
+        Position16<RoomBlocks> glassBlock = new(checked((byte)(slot.BlockIndex % _motherBrainGlassRoomWidth)),
+            checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth)));
+        foreach (MotherBrainGlassShard shard in shards)
+            _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(
+                (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard, (ushort)shard, glassBlock));
     }
+
+    /// <summary>Sets the glass-destroyed event.</summary>
+    internal void SetGlassDestroyed() =>
+        (_bindings.Events ?? throw new InvalidOperationException("Mother Brain glass has no event writer.")).Set(EventNumber.MotherBrainGlassDestroyed);
+
+    /// <summary>The shatter sound's native queue cap.</summary>
+    private const int ShatterSoundMaximumQueued = 15;
 
     /// <summary>Room width in blocks used to turn the glass block index into shard spawn coordinates.</summary>
     private int _motherBrainGlassRoomWidth;

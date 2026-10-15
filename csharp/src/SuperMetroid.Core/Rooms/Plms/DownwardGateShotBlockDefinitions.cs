@@ -35,7 +35,7 @@ internal static class DownwardGateShotBlockDefinitions
         ushort blockWord = (ushort)(BlueLeftBlockWord + index);
         bool left = (index & 1) == 0;
         return new(
-            (ushort)(RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft + 6 * index),
+            DownwardGatePlmProgramDefinitions.TriggerPrograms[index],
             left ? blockWord : (ushort)0,
             left ? (ushort)0 : blockWord);
     }

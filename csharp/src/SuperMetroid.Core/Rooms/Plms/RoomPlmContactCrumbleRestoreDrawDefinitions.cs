@@ -23,7 +23,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
             // Every cell shows the same crumble tile. Children link left on the
             // parent's row and up on later rows; only the top-left cell is type B.
             int collision = row == 0 && column == 0 ? 0xb000 : row == 0 ? 0x5000 : 0xd000;
-            return (ushort)(collision | RoomPlmVisualBlockIndexes.ContactCrumbleParent);
+            return (ushort)(collision | RoomPlmVisualBlockDefinitions.ContactCrumbleParent);
         }
     }
 

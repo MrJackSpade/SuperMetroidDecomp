@@ -44,20 +44,6 @@ internal sealed class ProjectileTriggerPlms
                 slot.DraygonCannon.HasPendingHit = true;
             if (slot.EyeDoor?.Component == EyeDoorComponent.Eye)
                 slot.EyeDoor.HasPendingHit = true;
-            if (slot.ColoredDoor is not null && slot.ColoredDoor.Phase is not (
-                    ColoredDoorPhase.Opening or ColoredDoorPhase.Closing))
-            {
-                slot.ColoredDoor.PendingProjectileType = publishedType;
-                slot.ColoredDoor.HasPendingHit = true;
-            }
-            if (slot.GreyDoor is not null && slot.GreyDoor.Phase is not (
-                    GreyDoorPhase.Opening or
-                    GreyDoorPhase.ConvertToBlue or
-                    GreyDoorPhase.Closing))
-            {
-                slot.GreyDoor.PendingProjectileType = publishedType;
-                slot.GreyDoor.HasPendingHit = true;
-            }
 
             return true;
         }

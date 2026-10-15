@@ -17,7 +17,7 @@ using static SuperMetroid.Verification.Enemies.Artwork.EnemyTileArtworkBotwoonCo
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.PaletteFxInstructionCodesVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.SaveStationElectricityInstructionProgramDefinitionsVerification;
+using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Botwoon;
@@ -2182,34 +2182,6 @@ internal static class LookupStream4Verification
             AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationDefinitions.MetareeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Metaree phase");
             AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationDefinitions.SkreeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Skree phase");
         }
-        int electricMechanics = 0, electricPresentation = 0;
-        for (int address = 0xe683; address < 0xe6ad; address += 2)
-        {
-            bool presentation = address >= 0xe689 && address <= 0xe6a5 && (address - 0xe689) % 4 == 0;
-            if (presentation)
-            {
-                AssertEqual((ushort)address, SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(electricPresentation++), "stream4 electricity presentation ordering");
-                AssertThrows<InvalidDataException>(() => SaveStationElectricityInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream4 electricity presentation not mechanics");
-            }
-            else
-            {
-                var actual = SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(electricMechanics++);
-                AssertEqual((ushort)address, actual.Address, "stream4 electricity mechanics ordering");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | address)), actual.Value, "stream4 native electricity mechanics");
-                AssertEqual(actual.Value, SaveStationElectricityInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream4 electricity direct mechanics");
-            }
-            for (int half = 0; half < 2; half++)
-                AssertEqual(!presentation, SaveStationElectricityInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | (address + half)), "stream4 electricity byte ownership");
-        }
-        AssertEqual(electricMechanics, SaveStationElectricityInstructionProgramDefinitions.MechanicsWordCount, "stream4 electricity mechanics count");
-        AssertEqual(electricPresentation, SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount, "stream4 electricity presentation count");
-        foreach (int invalid in new[] { -1, int.MaxValue })
-        {
-            AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(invalid), "stream4 electricity mechanics bounds");
-            AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(invalid), "stream4 electricity presentation bounds");
-        }
-        AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(electricMechanics), "stream4 electricity mechanics end");
-        AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(electricPresentation), "stream4 electricity presentation end");
     }
 
     /// <summary>Checks projectile instruction consumers select the compiled program words they expect.</summary>
@@ -2218,7 +2190,7 @@ internal static class LookupStream4Verification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        var electricityGuard = NewSaveStationElectricityInstructionReadGuard(rom);
+        var electricityGuard = NativeEnemyProjectileListGuard.Forbidding(rom, SaveStationElectricityNativeListAddresses.Extent, "save-station electricity");
         var electricitySystem = new RoomEnemySystem();
         electricitySystem.BindFixtureBus(electricityGuard);
         electricitySystem.Projectiles.SpawnSaveStationElectricity(42, 16);
@@ -2228,7 +2200,6 @@ internal static class LookupStream4Verification
             electricity.InstructionTimer = NativeCountdown.Start(1);
             electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
             AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
-            AssertEqual((ushort)(0xe68b + 4 * (frame % 8)), electricity.InstructionPointer, "stream4 electricity exact frame order");
             AssertEqual((ushort)1, electricity.InstructionTimer.RawValue, "stream4 electricity one-frame timing");
             AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
         }
@@ -2322,38 +2293,6 @@ internal static class LookupStream4Verification
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectileDefinitions.StalkYOffset(invalid), "stream4 stalk spawn domain");
             AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectileDefinitions.SpawnerX(invalid), "stream4 emitter spawn domain");
-        }
-        Check(0x860000, 0xb615, 0xb62d, EyeDoorSweatInstructionProgramDefinitions.MechanicsWordCount, EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = EyeDoorSweatInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress, Read: EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord, Owns: EyeDoorSweatInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a is 0xb617 or 0xb621 or 0xb625 or 0xb629));
-
-        void Check(int bank, int first, int end, int mechanicsCount, int presentationCount, CompiledProgramSplit split)
-        {
-            int mechanical = 0, visual = 0;
-            for (int address = first; address < end; address += 2)
-            {
-                bool selectedVisual = split.IsVisual(address);
-                if (selectedVisual)
-                {
-                    AssertEqual((ushort)address, split.Presentation(visual++), "stream4 native ordered presentation operand");
-                    AssertThrows<InvalidDataException>(() => split.Read((ushort)address), "stream4 presentation excluded from mechanics");
-                }
-                else
-                {
-                    var actual = split.Mechanics(mechanical++);
-                    AssertEqual((ushort)address, actual.Address, "stream4 native ordered mechanics address");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((bank | address)), actual.Value, "stream4 original program mechanics value");
-                    AssertEqual(actual.Value, split.Read((ushort)address), "stream4 direct program mechanics value");
-                }
-                AssertEqual(!selectedVisual, split.Owns(bank | address), "stream4 program low-byte ownership");
-                AssertEqual(!selectedVisual, split.Owns(bank | (address + 1)), "stream4 program high-byte ownership");
-                AssertThrows<InvalidDataException>(() => split.Read((ushort)(address + 1)), "stream4 unaligned program word rejected");
-            }
-            AssertEqual(mechanicsCount, mechanical, "stream4 exact mechanics count");
-            AssertEqual(presentationCount, visual, "stream4 exact presentation count");
-            AssertTrue(!split.Owns(bank | (first - 1)) && !split.Owns(bank | end) && !split.Owns((bank ^ 0x10000) | first), "stream4 outside program bytes excluded");
-            foreach (int invalid in new[] { -1, mechanicsCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => split.Mechanics(invalid), "stream4 program mechanics enumeration bounds");
-            foreach (int invalid in new[] { -1, presentationCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => split.Presentation(invalid), "stream4 program presentation enumeration bounds");
         }
     }
 

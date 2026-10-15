@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -7,7 +8,6 @@ using static SuperMetroid.Verification.Areas.Escape.EscapeGateVisualsVerificatio
 using static SuperMetroid.Verification.Enemies.Elevator.LookupElevatorPlatformLayoutsVerification;
 using static SuperMetroid.Verification.Enemies.Elevator.LookupElevatorPlatformProgramVerification;
 using static SuperMetroid.Verification.Areas.Escape.LookupEscapeGateVerification;
-using static SuperMetroid.Verification.Rooms.Plms.LookupSpeedEscapeProgramVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupSpeedEscapeStagesVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyFullMovieVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -27,6 +27,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -81,7 +82,8 @@ internal static class RoomPlmPopulationVerification
             AssertEqual(header == 0, actual is null, "Non-closing table entries select no actor");
             if (list)
                 AssertEqual(header == 0 ? (ushort)0 : ReadSamusEaterPlmWord(rom, 0x840000 | (header + 2)),
-                    actual?.InitialInstructionList ?? 0, "Fallback original initial list or no-actor zero");
+                    actual is { } fallback ? PlmProgramStartOracle.NativeListOf(fallback.Start) : (ushort)0,
+                    "Fallback original initial list or no-actor zero");
             else
             {
                 AssertEqual(header, (ushort)(actual?.Header ?? PlmHeaderId.None), "Fallback original direction header");
@@ -125,8 +127,8 @@ internal static class RoomPlmPopulationVerification
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertEqual(expectedHeader, (ushort)slot.HeaderPointer,
                 $"door-closing direction {direction} installs compiled header");
-            AssertEqual(expectedList, slot.InstructionPointer,
-                $"door-closing direction {direction} installs compiled initial list");
+            AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStartOracle.ForNativeList(expectedList), slot),
+                $"door-closing direction {direction} starts the program of its compiled initial list");
         }
 
         AssertThrows<InvalidDataException>(
@@ -142,40 +144,38 @@ internal static class RoomPlmPopulationVerification
     }
 
     /// <summary>
-    /// Verifies the fixed header+4 relationship for every resident grey/coloured door,
-    /// then exercises the real room-population and transition redirect with that source
-    /// word deliberately absent from the sparse bus.
+    /// Verifies the fixed header+4 closing list of every resident door: a typed cap's closing program begins exactly
+    /// there, and the escape gate and eye doors resolve their closing start by identity. Each then runs the real
+    /// room-population load and transition redirect with that source word absent from the sparse bus.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for resident door closing definitions")]
     internal static void VerifyResidentDoorClosingDefinitions(SuperMetroidAddressSpace rom)
     {
-
-        AssertEqual(ResidentDoorClosingDefinitions.Count,
-            ResidentDoorClosingDefinitions.All.Count(),
-            "resident-door definition count");
-
         ushort[] headers = [0xbaf4,0xc842,0xc848,0xc84e,0xc854,0xc85a,0xc860,0xc866,0xc86c,
             0xc872,0xc878,0xc87e,0xc884,0xc88a,0xc890,0xc896,0xc89c,0xc8ca,0xdb4c,0xdb5a];
-        AssertTrue(ResidentDoorClosingDefinitions.All.Select(entry => (ushort)entry.Header).SequenceEqual(headers),
-            "Resident closing exact native header set and enumeration order");
+        PlmHeaderId[] resolved = [.. ResidentDoorClosingDefinitions.All.Select(entry => entry.Header)];
+        PlmHeaderId[] identityClosers = [PlmHeaderId.MotherBrainEscapeRoomGate, PlmHeaderId.EyeDoorFacingRight, PlmHeaderId.EyeDoorFacingLeft];
+        AssertTrue(resolved.SequenceEqual(identityClosers),
+            "Only the escape gate and the eye doors keep a closing start by identity");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
-            if (!headers.Contains((ushort)raw))
+            if (!resolved.Contains((PlmHeaderId)raw))
                 AssertThrows<InvalidDataException>(() => ResidentDoorClosingDefinitions.Resolve((PlmHeaderId)raw),
                     "Resident closing complete unsupported-header domain");
 
         int definitionIndex = 0;
-        foreach (ResidentDoorClosingDefinition definition in
-                 ResidentDoorClosingDefinitions.All)
+        foreach (ushort raw in headers)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.Header + 4))));
-            AssertEqual(expected, definition.ClosingInstructionList,
-                $"resident door $84:{(int)definition.Header:X4} closing list matches cartridge");
-            AssertEqual(expected,
-                ResidentDoorClosingDefinitions.Resolve((PlmHeaderId)definition.Header),
-                $"resident door $84:{(int)definition.Header:X4} resolves by identity");
+            PlmHeaderId header = (PlmHeaderId)raw;
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(raw + 4))));
+            ushort? typedClosing = DoorPlmNativeListAddresses.TypedClosingEntry(header);
+            if (typedClosing is { } typed)
+                AssertEqual(expected, typed, $"resident door $84:{raw:X4} closing program begins at its header's list");
+            else
+                AssertEqual(PlmProgramStartOracle.ForNativeList(expected), ResidentDoorClosingDefinitions.Resolve(header),
+                    $"resident door $84:{raw:X4} resolves by identity");
 
             // Typed placement metadata supplies the first list only. The transition
-            // must obtain its second list from the resident-door definition catalog,
+            // must obtain its closing program from the resident cap or catalog,
             // not from an arbitrary address space or a header+4 fixture byte.
             var bus = new TestAddressSpace();
             const ushort population = 0x9000;
@@ -186,9 +186,9 @@ internal static class RoomPlmPopulationVerification
                 // Two directional caps are not placed in any retail room population,
                 // so they are absent from the 70-header population catalog. Decode
                 // their setup/first-list metadata here, in the import-side oracle.
-                new RoomPlmPlacement(new RoomPlmHeaderDefinition((PlmHeaderId)definition.Header,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (ushort)definition.Header)),
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.Header + 2))))),
+                new RoomPlmPlacement(new RoomPlmHeaderDefinition(header,
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | raw)),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(raw + 2))))),
                     new(blockX, blockY), 0x8000), // Negative argument always closes.
             ]);
 
@@ -199,7 +199,7 @@ internal static class RoomPlmPopulationVerification
             var system = new Bank80SystemState();
             var plms = new RoomPlmSystem();
             AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), system, AreaId.Crateria), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
-                $"resident door $84:{(int)definition.Header:X4} loads through production setup");
+                $"resident door $84:{raw:X4} loads through production setup");
 
             var enteringDoor = new CartridgeDoorHeader(
                 Pointer: 0,
@@ -210,9 +210,13 @@ internal static class RoomPlmPopulationVerification
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
             AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
-                $"resident door $84:{(int)definition.Header:X4} accepts transition redirect");
-            AssertEqual(expected, plms.PopulationSlots.Single().InstructionPointer,
-                $"resident door $84:{(int)definition.Header:X4} installs compiled closing list");
+                $"resident door $84:{raw:X4} accepts transition redirect");
+            RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
+            AssertTrue(typedClosing is null
+                    ? PlmProgramStartOracle.IsRunning(ResidentDoorClosingDefinitions.Resolve(header), slot)
+                    : slot.Animation is ColoredDoorPlmAnimation { Program: ColoredDoorProgram.Closing }
+                        or GreyDoorPlmAnimation { Program: GreyDoorProgram.Closing },
+                $"resident door $84:{raw:X4} starts its closing program");
             definitionIndex++;
         }
 
@@ -225,8 +229,7 @@ internal static class RoomPlmPopulationVerification
     internal static void VerifySpeedBoosterEscapeStageDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifySpeedEscapeProgramControls), () => VerifySpeedEscapeProgramControls(rom));
-        Suite(nameof(VerifySpeedEscapeProgramCallbacks), () => VerifySpeedEscapeProgramCallbacks(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifySpeedBoosterEscapePrograms), () => RoomPlmProgramsVerification.VerifySpeedBoosterEscapePrograms(rom));
         Suite(nameof(VerifySpeedEscapeStageTargets), () => VerifySpeedEscapeStageTargets(rom));
         Suite(nameof(VerifySpeedEscapeStageHeights), () => VerifySpeedEscapeStageHeights(rom));
         Suite(nameof(VerifySpeedEscapeStageVelocities), () => VerifySpeedEscapeStageVelocities(rom));
@@ -404,8 +407,9 @@ internal static class RoomPlmPopulationVerification
             plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
         AssertEqual(GreyDoorPhase.Locked, plms.GreyDoorSnapshots.Single().Phase,
             "closing Goto hands the resident actor back to its grey-door family");
-        AssertEqual(initialList, plms.PopulationSlots.Single().InstructionPointer,
-            "rejoined actor retains the cartridge first-list pointer");
+        AssertEqual(initialList, RoomPlmProgramsVerification.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true),
+                GreyDoorProgram.Waiting),
+            "rejoined actor's waiting program stands for the cartridge first list");
         AssertEqual(0xc4ae, level.GetCollisionBlock(new(doorX, doorY)).LevelWord,
             "re-entry draws the locked grey-door frame in the same handler pass");
         AssertEqual(1, plms.SlotTable.ActiveCount,
@@ -507,8 +511,11 @@ internal static class RoomPlmPopulationVerification
 
         AssertEqual(GreyDoorPhase.Locked, plms.GreyDoorSnapshots.Single().Phase,
             "fall-through at $BE70 returns to the resident grey-door owner");
-        AssertEqual(initialList, plms.PopulationSlots.Single().InstructionPointer,
-            "door remains parked at its first list instead of dispatching $8A72 generically");
+        AssertEqual(initialList, RoomPlmProgramsVerification.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Left, BombTorizo: false),
+                GreyDoorProgram.Waiting),
+            "the grey door's waiting program stands for the cartridge first list");
+        AssertTrue(plms.PopulationSlots.Single().Animation is GreyDoorPlmAnimation { Program: GreyDoorProgram.Waiting or GreyDoorProgram.Sleep },
+            "the closing falls through into the grey door's own waiting program");
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "room $9B9D grey door remains resident after its entry-closing animation");
     }
@@ -527,28 +534,14 @@ internal static class RoomPlmPopulationVerification
         const int blockY = 4;
 
         SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.WreckedShipAttic + 2)),
-            RoomPlmInstructionLists.WreckedShipAttic);
+            RoomPlmNativeListAddresses.WreckedShipAtticEntries[0].Entry);
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
             : null;
+        if (rom is not null)
+            RoomPlmProgramsVerification.VerifyWreckedShipAtticPrograms(rom);
         for (int index = 0; index < 3; index++)
-        {
-            ushort address = checked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + index * 2));
-            AssertTrue(WreckedShipAtticPlmRomData.TryReadInstructionWord(address,
-                    out ushort compiled),
-                $"Wrecked Ship attic list word ${address:X4} is compiled");
-            if (rom is not null)
-            {
-                int source = 0x840000 | address;
-                AssertEqual(ReadRetailPlmProgramWord(rom, source),
-                    compiled,
-                    $"Wrecked Ship attic list word ${address:X4} matches cartridge");
-            }
-            SeedPlmProgramWords(bus, address, 0xdead);
-        }
-        AssertTrue(!WreckedShipAtticPlmRomData.TryReadInstructionWord(
-                checked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 6)), out _),
-            "Wrecked Ship attic list owner excludes its adjacent header");
+            SeedPlmProgramWords(bus, checked((ushort)(RoomPlmNativeListAddresses.WreckedShipAtticEntries[0].Entry + index * 2)), 0xdead);
         SeedRoomPlmPopulation(bus, population,
         [
             0x05, 0xbb, blockX, blockY, 0x34, 0x12,
@@ -567,8 +560,7 @@ internal static class RoomPlmPopulationVerification
         RoomPlmSlotSnapshot loaded = plms.PopulationSlots.Single();
         AssertEqual(39, loaded.NativeSlotIndex,
             "Wrecked Ship attic actor receives the native highest free slot");
-        AssertEqual(RoomPlmInstructionLists.WreckedShipAttic, loaded.InstructionPointer,
-            "Wrecked Ship attic actor starts at cartridge list BAFF");
+        AssertTrue(loaded.Animation is WreckedShipAtticPlmAnimation, "Wrecked Ship attic actor starts its typed program");
         AssertEqual(0, loaded.PreInstruction,
             "Wrecked Ship attic callback is not installed before its first handler pass");
 
@@ -577,10 +569,8 @@ internal static class RoomPlmPopulationVerification
         RoomPlmSlotSnapshot sleeping = plms.PopulationSlots.Single();
         AssertEqual(WreckedShipAtticPlmRomData.NoOpCallback, sleeping.PreInstruction,
             "Wrecked Ship attic list installs exact BAFA pre-instruction");
-        AssertEqual(
-            unchecked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 4)),
-            sleeping.InstructionPointer,
-            "Wrecked Ship attic actor sleeps permanently at list word BB03");
+        AssertTrue(sleeping.Animation is WreckedShipAtticPlmAnimation { Cursor.Position: 1 },
+            "Wrecked Ship attic actor sleeps permanently on its program's sleep");
         plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "inert attic callback leaves its resident actor alive");
@@ -607,12 +597,12 @@ internal static class RoomPlmPopulationVerification
         const int width = 16;
         const int height = 16;
 
-        SeedPlmProgramWords(bus, 0xb8ae, RoomPlmInstructionLists.SpeedBoosterEscape);
+        SeedPlmProgramWords(bus, 0xb8ae, RoomPlmNativeListAddresses.SpeedBoosterEscapeEntries[0].Entry);
         // Poison the old cartridge path: all three real handoffs must now use
         // the compiled list even when a synthetic address space disagrees.
-        for (int index = 0; index < SpeedBoosterEscapePlmProgramDefinitions.WordCount; index++)
+        for (int index = 0; index < RoomPlmNativeListAddresses.SpeedBoosterEscapeWordCount; index++)
         {
-            SeedPlmProgramWords(bus, unchecked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start + index * 2)),
+            SeedPlmProgramWords(bus, unchecked((ushort)(RoomPlmNativeListAddresses.SpeedBoosterEscapeEntries[0].Entry + index * 2)),
                 0xdead);
         }
         SeedRoomPlmPopulation(bus, population,
@@ -981,27 +971,11 @@ internal static class RoomPlmPopulationVerification
     internal static void VerifyMetroidsClearedStatePlm(TestAddressSpace bus)
     {
         const ushort population = 0x9500;
-        SeedPlmProgramWords(bus, 0xdb46, RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired);
+        SeedPlmProgramWords(bus, 0xdb46, RoomPlmNativeListAddresses.SharedEntries[1].Entry);
         SeedPlmProgramWords(bus, 0xdb42, 0xdead);
-        AssertTrue(MetroidsClearedPlmRomData.TryReadInstructionWord(
-                RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired,
-                out ushort compiledInstruction),
-            "Metroids-cleared resident list is compiled");
-        AssertEqual((ushort)RoomPlmInstruction.Sleep, compiledInstruction,
-            "Metroids-cleared resident list sleeps instead of reading poisoned fixture data");
-        AssertTrue(!MetroidsClearedPlmRomData.TryReadInstructionWord(
-                checked((ushort)(RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired + 2)),
-                out _),
-            "Metroids-cleared instruction owner excludes adjacent PLM header");
         if (File.Exists("Super Metroid.smc"))
-        {
-            SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
-                "Super Metroid.smc");
-            int source = 0x840000 | RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired;
-            ushort nativeInstruction = ReadRetailPlmProgramWord(rom, source);
-            AssertEqual(nativeInstruction, compiledInstruction,
-                "Metroids-cleared one-word list matches pinned cartridge");
-        }
+            RoomPlmProgramsVerification.VerifySharedPrograms(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         SeedRoomPlmPopulation(bus, population,
         [
             0x44, 0xdb, 0x01, 0x01, 0x10, 0x00,
@@ -1050,9 +1024,8 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(5, plms.SlotTable.ActiveCount,
             "Metroids-cleared observers remain resident on their sleep instruction");
         AssertTrue(plms.PopulationSlots.All(slot =>
-                slot.InstructionPointer ==
-                    RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired),
-            "Metroids-cleared observers retain the cartridge sleep list");
+                slot.Animation is RoomPlmSharedAnimation { Program: RoomPlmSharedProgram.Sleep }),
+            "Metroids-cleared observers sleep in the shared typed program");
 
         const ushort invalidPopulation = 0x9580;
         SeedRoomPlmPopulation(bus, invalidPopulation,
@@ -1296,9 +1269,8 @@ internal static class RoomPlmPopulationVerification
             OffsetX = 0, OffsetY = 0, TileColumn = 1, TileRow = 0,
             Size = 8, Priority = 1, Palette = 0, FlipX = false, FlipY = false,
         };
-        HashSet<ushort> electricityOperands = Enumerable.Range(0,
-            SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount)
-            .Select(SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress).ToHashSet();
+        HashSet<ushort> electricityOperands = Enumerable.Range(0, SaveStationElectricityFrameDefinitions.PoseCount)
+            .Select(index => SaveStationElectricityFrameDefinitions.PresentationKey(new(index))).ToHashSet();
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
             Version = (int)EnemyProjectileSpritemapVersion.Current,
@@ -1317,8 +1289,8 @@ internal static class RoomPlmPopulationVerification
             "save electricity starts two blocks above the station PLM");
 
         enemies.StepEnemyProjectiles(level, samus: null);
-        AssertEqual(SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(0),
-            electricity.PresentationOperandAddress, "save electricity selects its first installed frame through the compiled interpreter");
+        AssertEqual(SaveStationElectricityFrameDefinitions.PresentationKey(new(0)),
+            electricity.PresentationOperandAddress, "save electricity selects its first installed frame through its typed program");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,
             "installed program artwork does not retain a cartridge spritemap pointer");
         var oam = new OamBuffer();

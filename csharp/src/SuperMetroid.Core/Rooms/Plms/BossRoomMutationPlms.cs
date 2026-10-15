@@ -1,4 +1,8 @@
-﻿using SuperMetroid.Core.Bosses.MotherBrain;
+﻿using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -57,9 +61,9 @@ internal sealed class BossRoomMutationPlms
             // for owner queries and mixed populations, not just instruction dispatch.
             slot.HeaderPointer = header;
             slot.LoopTimer = 0;
-            slot.InstructionPointer = header == PlmHeaderId.ClearBotwoonWall
-                ? RoomPlmInstructionLists.ClearBotwoonWall
-                : RoomPlmInstructionLists.CrumbleBotwoonWall;
+            slot.StartAnimation(new BotwoonWallPlmAnimation(header == PlmHeaderId.ClearBotwoonWall
+                ? BotwoonWallProgram.Clear
+                : BotwoonWallProgram.Crumble));
 
             // SpawnHardcodedPLM initializes a new slot's instruction timer to one. Only the
             // live crumble header replaces it: setup `$84:AB28` writes $0040 to the separate
@@ -104,9 +108,9 @@ internal sealed class BossRoomMutationPlms
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
-            slot.InstructionPointer = header == PlmHeaderId.CrumbleSporeSpawnCeiling
-                ? RoomPlmInstructionLists.CrumbleSporeSpawnCeiling
-                : RoomPlmInstructionLists.ClearSporeSpawnCeiling;
+            slot.StartAnimation(new SporeSpawnCeilingPlmAnimation(header == PlmHeaderId.CrumbleSporeSpawnCeiling
+                ? SporeSpawnCeilingProgram.Crumble
+                : SporeSpawnCeilingProgram.Clear));
             slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }
@@ -127,21 +131,16 @@ internal sealed class BossRoomMutationPlms
         PlmHeaderId header)
     {
         Ensure.NotNull(level);
-        ushort instructionPointer = header switch
+        KraidRoomProgram program = header switch
         {
-            PlmHeaderId.CrumbleKraidCeilingIntoBackground1 =>
-                RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground1,
-            PlmHeaderId.CrumbleKraidPlatformVariant1 =>
-                RoomPlmInstructionLists.CrumbleKraidPlatformVariant1,
-            PlmHeaderId.CrumbleKraidCeilingIntoBackground2 =>
-                RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground2,
-            PlmHeaderId.CrumbleKraidPlatformVariant2 =>
-                RoomPlmInstructionLists.CrumbleKraidPlatformVariant2,
-            PlmHeaderId.CrumbleKraidCeilingIntoBackground3 =>
-                RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground3,
-            PlmHeaderId.ClearKraidCeiling => RoomPlmInstructionLists.ClearKraidCeiling,
-            PlmHeaderId.ClearKraidSpikes => RoomPlmInstructionLists.ClearKraidSpikes,
-            PlmHeaderId.CrumbleKraidSpikes => RoomPlmInstructionLists.CrumbleKraidSpikes,
+            PlmHeaderId.CrumbleKraidCeilingIntoBackground1 => KraidRoomProgram.CrumbleCeilingIntoBackground1,
+            PlmHeaderId.CrumbleKraidPlatformVariant1 => KraidRoomProgram.SetCeilingToBackground2,
+            PlmHeaderId.CrumbleKraidCeilingIntoBackground2 => KraidRoomProgram.CrumbleCeilingIntoBackground2,
+            PlmHeaderId.CrumbleKraidPlatformVariant2 => KraidRoomProgram.SetCeilingToBackground3,
+            PlmHeaderId.CrumbleKraidCeilingIntoBackground3 => KraidRoomProgram.CrumbleCeilingIntoBackground3,
+            PlmHeaderId.ClearKraidCeiling => KraidRoomProgram.ClearCeiling,
+            PlmHeaderId.ClearKraidSpikes => KraidRoomProgram.ClearSpikes,
+            PlmHeaderId.CrumbleKraidSpikes => KraidRoomProgram.CrumbleSpikes,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
@@ -159,13 +158,13 @@ internal sealed class BossRoomMutationPlms
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = instructionPointer;
+            slot.StartAnimation(new KraidRoomPlmAnimation(program));
             slot.InstructionTimer = NativeCountdown.Start(1);
 
             // PlmSetup_DeactivatePlm clears level-word bits 12..14, not all four collision
             // bits. Bit 15 is the independent tile priority flag and survives setup.
             ushort authored = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-            level.SetForegroundEntry(blockIndex, unchecked((ushort)(authored & 0x8fff)));
+            level.SetForegroundEntry(blockIndex, new RoomLevelWord(authored).WithPlmDeactivation().Raw);
             return true;
         }
 
@@ -187,13 +186,13 @@ internal sealed class BossRoomMutationPlms
         PlmHeaderId header)
     {
         Ensure.NotNull(level);
-        ushort instructionPointer = header switch
+        CrocomireArenaProgram program = header switch
         {
-            PlmHeaderId.ClearCrocomireBridge => RoomPlmInstructionLists.ClearCrocomireBridge,
-            PlmHeaderId.CrumbleCrocomireBridgeBlock => RoomPlmInstructionLists.CrumbleCrocomireBridgeBlock,
-            PlmHeaderId.ClearCrocomireBridgeBlock => RoomPlmInstructionLists.ClearCrocomireBridgeBlock,
-            PlmHeaderId.ClearCrocomireInvisibleWall => RoomPlmInstructionLists.ClearCrocomireInvisibleWall,
-            PlmHeaderId.CreateCrocomireInvisibleWall => RoomPlmInstructionLists.CreateCrocomireInvisibleWall,
+            PlmHeaderId.ClearCrocomireBridge => CrocomireArenaProgram.ClearBridge,
+            PlmHeaderId.CrumbleCrocomireBridgeBlock => CrocomireArenaProgram.CrumbleBridgeBlock,
+            PlmHeaderId.ClearCrocomireBridgeBlock => CrocomireArenaProgram.ClearBridgeBlock,
+            PlmHeaderId.ClearCrocomireInvisibleWall => CrocomireArenaProgram.ClearInvisibleWall,
+            PlmHeaderId.CreateCrocomireInvisibleWall => CrocomireArenaProgram.CreateInvisibleWall,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
@@ -212,7 +211,7 @@ internal sealed class BossRoomMutationPlms
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
-            slot.InstructionPointer = instructionPointer;
+            slot.StartAnimation(new CrocomireArenaPlmAnimation(program));
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.HeaderPointer = header;
             return true;
@@ -258,7 +257,7 @@ internal sealed class BossRoomMutationPlms
             slot.LoopTimer = 0;
             slot.PreInstruction = 0;
             slot.RoomArgument = 0;
-            slot.InstructionPointer = RoomPlmInstructionLists.Delete;
+            PlmProgramStart.Delete.StartOn(slot);
             slot.InstructionTimer = NativeCountdown.Start(1);
 
             // Both setup routines walk downward through ten blocks in the same column.
@@ -268,9 +267,9 @@ internal sealed class BossRoomMutationPlms
             {
                 int blockIndex = level.GetBlockIndex(block + new Offset16<RoomBlocks>(0, checked((short)rowOffset)));
                 ushort current = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-                ushort replacement = header == PlmHeaderId.CreateBabyMetroidInvisibleWall
-                    ? unchecked((ushort)((current & 0x0fff) | 0x8000))
-                    : unchecked((ushort)(current & 0x0fff));
+                ushort replacement = new RoomLevelWord(current).WithCollisionType(header == PlmHeaderId.CreateBabyMetroidInvisibleWall
+                    ? RoomCollisionType.SolidBlock
+                    : RoomCollisionType.Air).Raw;
                 level.SetForegroundEntry(blockIndex, replacement);
             }
             return true;
@@ -292,28 +291,28 @@ internal sealed class BossRoomMutationPlms
         PlmHeaderId header)
     {
         Ensure.NotNull(level);
-        ushort instructionPointer = header switch
+        MotherBrainFakeDeathProgram program = header switch
         {
-            PlmHeaderId.FillMotherBrainsWall => RoomPlmInstructionLists.FillMotherBrainsWall,
-            PlmHeaderId.MotherBrainsRoomEscapeDoor => RoomPlmInstructionLists.MotherBrainsRoomEscapeDoor,
-            PlmHeaderId.MotherBrainsBackgroundRow2 => RoomPlmInstructionLists.MotherBrainsBackgroundRow2,
-            PlmHeaderId.MotherBrainsBackgroundRow3 => RoomPlmInstructionLists.MotherBrainsBackgroundRow3,
-            PlmHeaderId.MotherBrainsBackgroundRow4 => RoomPlmInstructionLists.MotherBrainsBackgroundRow4,
-            PlmHeaderId.MotherBrainsBackgroundRow5 => RoomPlmInstructionLists.MotherBrainsBackgroundRow5,
-            PlmHeaderId.MotherBrainsBackgroundRow6 => RoomPlmInstructionLists.MotherBrainsBackgroundRow6,
-            PlmHeaderId.MotherBrainsBackgroundRow7 => RoomPlmInstructionLists.MotherBrainsBackgroundRow7,
-            PlmHeaderId.MotherBrainsBackgroundRow8 => RoomPlmInstructionLists.MotherBrainsBackgroundRow8,
-            PlmHeaderId.MotherBrainsBackgroundRow9 => RoomPlmInstructionLists.MotherBrainsBackgroundRow9,
-            PlmHeaderId.MotherBrainsBackgroundRowA => RoomPlmInstructionLists.MotherBrainsBackgroundRowA,
-            PlmHeaderId.MotherBrainsBackgroundRowB => RoomPlmInstructionLists.MotherBrainsBackgroundRowB,
-            PlmHeaderId.MotherBrainsBackgroundRowC => RoomPlmInstructionLists.MotherBrainsBackgroundRowC,
-            PlmHeaderId.MotherBrainsBackgroundRowD => RoomPlmInstructionLists.MotherBrainsBackgroundRowD,
-            PlmHeaderId.ClearMotherBrainCeilingBlock => RoomPlmInstructionLists.ClearMotherBrainCeilingBlock,
-            PlmHeaderId.ClearMotherBrainCeilingTube => RoomPlmInstructionLists.ClearMotherBrainCeilingTube,
-            PlmHeaderId.ClearMotherBrainBottomMiddleSideTube => RoomPlmInstructionLists.ClearMotherBrainBottomMiddleSideTube,
-            PlmHeaderId.ClearMotherBrainBottomMiddleTubes => RoomPlmInstructionLists.ClearMotherBrainBottomMiddleTubes,
-            PlmHeaderId.ClearMotherBrainBottomLeftTube => RoomPlmInstructionLists.ClearMotherBrainBottomLeftTube,
-            PlmHeaderId.ClearMotherBrainBottomRightTube => RoomPlmInstructionLists.ClearMotherBrainBottomRightTube,
+            PlmHeaderId.FillMotherBrainsWall => MotherBrainFakeDeathProgram.FillWall,
+            PlmHeaderId.MotherBrainsRoomEscapeDoor => MotherBrainFakeDeathProgram.EscapeDoor,
+            PlmHeaderId.MotherBrainsBackgroundRow2 => MotherBrainFakeDeathProgram.BackgroundRow2,
+            PlmHeaderId.MotherBrainsBackgroundRow3 => MotherBrainFakeDeathProgram.BackgroundRow3,
+            PlmHeaderId.MotherBrainsBackgroundRow4 => MotherBrainFakeDeathProgram.BackgroundRow4,
+            PlmHeaderId.MotherBrainsBackgroundRow5 => MotherBrainFakeDeathProgram.BackgroundRow5,
+            PlmHeaderId.MotherBrainsBackgroundRow6 => MotherBrainFakeDeathProgram.BackgroundRow6,
+            PlmHeaderId.MotherBrainsBackgroundRow7 => MotherBrainFakeDeathProgram.BackgroundRow7,
+            PlmHeaderId.MotherBrainsBackgroundRow8 => MotherBrainFakeDeathProgram.BackgroundRow8,
+            PlmHeaderId.MotherBrainsBackgroundRow9 => MotherBrainFakeDeathProgram.BackgroundRow9,
+            PlmHeaderId.MotherBrainsBackgroundRowA => MotherBrainFakeDeathProgram.BackgroundRowA,
+            PlmHeaderId.MotherBrainsBackgroundRowB => MotherBrainFakeDeathProgram.BackgroundRowB,
+            PlmHeaderId.MotherBrainsBackgroundRowC => MotherBrainFakeDeathProgram.BackgroundRowC,
+            PlmHeaderId.MotherBrainsBackgroundRowD => MotherBrainFakeDeathProgram.BackgroundRowD,
+            PlmHeaderId.ClearMotherBrainCeilingBlock => MotherBrainFakeDeathProgram.ClearCeilingBlock,
+            PlmHeaderId.ClearMotherBrainCeilingTube => MotherBrainFakeDeathProgram.ClearCeilingTube,
+            PlmHeaderId.ClearMotherBrainBottomMiddleSideTube => MotherBrainFakeDeathProgram.ClearBottomMiddleSideTube,
+            PlmHeaderId.ClearMotherBrainBottomMiddleTubes => MotherBrainFakeDeathProgram.ClearBottomMiddleTubes,
+            PlmHeaderId.ClearMotherBrainBottomLeftTube => MotherBrainFakeDeathProgram.ClearBottomLeftTube,
+            PlmHeaderId.ClearMotherBrainBottomRightTube => MotherBrainFakeDeathProgram.ClearBottomRightTube,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
@@ -333,7 +332,7 @@ internal sealed class BossRoomMutationPlms
             slot.BlockIndex = level.GetBlockIndex(block);
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
-            slot.InstructionPointer = instructionPointer;
+            slot.StartAnimation(new MotherBrainFakeDeathPlmAnimation(program));
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.HeaderPointer = header;
             if (header == PlmHeaderId.MotherBrainsRoomEscapeDoor)

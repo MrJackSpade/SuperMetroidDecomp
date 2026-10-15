@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
@@ -66,7 +68,9 @@ internal static class PhantoonDeathExplosionsVerification
                         AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1d + current * 4))), explosion.Position.X.Whole, "Real death explosion wrapped world X");
                         AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1e + current * 4))), explosion.Position.Y.Whole, "Real death explosion wrapped world Y");
                         int listAddress = 0x86e42c + type * 2;
-                        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), explosion.InstructionPointer, "Real explosion animation selection");
+                        AssertTrue(explosion.Animation is MiscDustProjectileAnimation { Cursor.Program: var explosionProgram } &&
+                                MiscDustProjectileNativeListAddresses.Entry(explosionProgram) == CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress),
+                            "Real explosion animation selection");
                     }
                 }
             }

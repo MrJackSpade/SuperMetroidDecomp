@@ -10,7 +10,7 @@ internal static class SpeedBoosterBlockPlmDrawDefinitionsAccess
         internal static bool TryGet(ushort pointer,
             out RoomPlmShotBlockDrawDefinitions.DrawList list)
         {
-            if (pointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw)
+            if (pointer == SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw)
             {
                 list = SpeedBoosterBlockPlmDrawDefinitions.BombReveal;
                 return true;

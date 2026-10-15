@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -166,8 +167,10 @@ internal static class QuicksandVerification
             }
             AssertEqual(actual, QuicksandDefinitions.ResolveReaction((PlmHeaderId)header), "quicksand allocator resolution");
             ushort native = ReadRomWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
-            AssertEqual(native, instruction ? actual.InstructionListPointer : (ushort)actual.SetupPointer,
-                $"quicksand header {(int)header:X4} instruction {instruction}");
+            if (instruction)
+                AssertEqual(PlmProgramStartOracle.ForNativeList(native), actual.Program, $"quicksand header {(int)header:X4} program");
+            else
+                AssertEqual(native, (ushort)actual.SetupPointer, $"quicksand header {(int)header:X4} setup");
         }
     }
 

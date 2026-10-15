@@ -182,8 +182,8 @@ internal sealed class NoobTubeBehavior
         RoomEnemyProjectileSlot projectile,
         ushort angleStep)
     {
-        ushort tableOffset = unchecked((ushort)((projectile.Velocity.X.RawValue & 0x01fe) | 0x0080));
-        short sine = EnemyTrigonometryTables.SignedSine((byte)(tableOffset >> 1));
+        // The native even table offset ORs in a quarter turn: the angle's bit 6.
+        short sine = EnemyTrigonometryTables.SignedSine(unchecked((byte)((projectile.Velocity.X.RawValue >> 1) | 64)));
         ushort horizontalVelocity = unchecked((ushort)(sine >> 2));
         (projectile.Variable1, projectile.Variable0) = EnemyMath.AddEightBitVelocity(
             projectile.Variable1,

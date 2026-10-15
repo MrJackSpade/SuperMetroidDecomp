@@ -1,42 +1,29 @@
+using SuperMetroid.Core.Fx;
+using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.SpeedBoosterEscapeProgram, SuperMetroid.Core.Rooms.Plms.PlmNoDraw, SuperMetroid.Core.Rooms.Plms.SpeedBoosterEscapePreInstruction>;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// The complete nine-word $84:B88A instruction list for the Speed Booster
-/// escape controller. The three sleeping handoffs remain resident PLM behavior,
-/// not editable presentation data. Each six-byte phase installs its named callback
-/// and sleeps. Only aligned words B88A..B89A are owned; no stored word table remains.
+/// The Speed Booster lavaquake's PLM program (#1296), in place of its bank-$84 list at $84:B88A: three phases, each
+/// installing the pre-instruction that watches for its end and sleeping until that pre-instruction wakes it.
 /// </summary>
 internal static class SpeedBoosterEscapePlmProgramDefinitions
 {
-    /// <summary><c>$84:B88A</c>: first instruction of the controller list.</summary>
-    internal const ushort Start = RoomPlmInstructionLists.SpeedBoosterEscape;
-
-    /// <summary>Three install, callback, sleep phases, each occupying three compiled instruction words.</summary>
-    internal const int WordCount = 9;
-
-    /// <summary>Reads only aligned mechanics words in the three-phase bank-$84 controller and leaves other addresses unowned.</summary>
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
-    {
-        int offset = address - Start;
-        if (offset >= 0 && (offset & 1) == 0 && offset / 2 < WordCount)
+    /// <summary>The lavaquake phases; each cue installs the named pre-instruction.</summary>
+    internal static AnimationProgramSet<SpeedBoosterEscapeProgram, PlmNoDraw, SpeedBoosterEscapePreInstruction> Programs { get; } = new(
+        new Dictionary<SpeedBoosterEscapeProgram, Step[]>
         {
-            // Three install/callback/sleep records hand control to the next phase.
-            value = (offset % 6) switch
-            {
-                0 => (ushort)RoomPlmInstruction.InstallPreInstruction,
-                4 => (ushort)RoomPlmInstruction.Sleep,
-                _ => (offset / 6) switch
-                {
-                    0 => (ushort)SpeedBoosterEscapePreInstruction.WaitForSpeedBooster,
-                    1 => (ushort)SpeedBoosterEscapePreInstruction.WaitForSamusLeft,
-                    2 => (ushort)SpeedBoosterEscapePreInstruction.AdvanceLava,
-                    _ => throw new InvalidOperationException("Invalid bounded escape phase."),
-                },
-            };
-            return true;
-        }
+            [SpeedBoosterEscapeProgram.WaitForSpeedBooster] = [Step.Publish(SpeedBoosterEscapePreInstruction.WaitForSpeedBooster), Step.Hold],
+            [SpeedBoosterEscapeProgram.WaitForSamusLeft] = [Step.Publish(SpeedBoosterEscapePreInstruction.WaitForSamusLeft), Step.Hold],
+            [SpeedBoosterEscapeProgram.AdvanceLava] = [Step.Publish(SpeedBoosterEscapePreInstruction.AdvanceLava), Step.Hold],
+        });
 
-        value = 0;
-        return false;
-    }
+    /// <summary>The phase a wake past <paramref name="phase"/>'s sleep continues with; the last phase never wakes.</summary>
+    internal static SpeedBoosterEscapeProgram? PhaseAfter(SpeedBoosterEscapeProgram phase) => phase switch
+    {
+        SpeedBoosterEscapeProgram.WaitForSpeedBooster => SpeedBoosterEscapeProgram.WaitForSamusLeft,
+        SpeedBoosterEscapeProgram.WaitForSamusLeft => SpeedBoosterEscapeProgram.AdvanceLava,
+        SpeedBoosterEscapeProgram.AdvanceLava => null,
+        _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterEscapeProgram)} {phase}."),
+    };
 }

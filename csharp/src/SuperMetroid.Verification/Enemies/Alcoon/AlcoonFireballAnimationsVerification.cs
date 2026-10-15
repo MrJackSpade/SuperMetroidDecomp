@@ -10,11 +10,13 @@ namespace SuperMetroid.Verification.Enemies.Alcoon;
 /// <summary>#641: Alcoon's fireball typed programs, each matched step by step to its native bank-$86 list.</summary>
 internal static class AlcoonFireballAnimationsVerification
 {
+    /// <summary>The family's typed programs beside their native lists.</summary>
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, AlcoonFireballAnimations.Programs, AlcoonFireballFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyAlcoonFireballAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProjectileProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Entries, AlcoonFireballAnimations.Programs,
-            AlcoonFireballFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+        int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         for (int pose = 0; pose < AlcoonFireballFrameDefinitions.PoseCount; pose++)
         {
             AlcoonFireballFrame frame = new(pose);

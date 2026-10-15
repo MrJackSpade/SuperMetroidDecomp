@@ -1,107 +1,96 @@
-using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
+using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.DownwardGateProgram, SuperMetroid.Core.Rooms.Plms.DownwardGateDraw, SuperMetroid.Core.Rooms.Plms.DownwardGateCue>;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Bounded decoder of $84:BC13..BC60 and BCAF..BCDE. Resident control actions
-/// are named cases; four timed closing/opening frames traverse the draw records
-/// in opposite directions, with sixteen-frame holds and a twenty-four-frame final
-/// hold. Eight trigger programs each draw for one frame then delete. Packed sound
-/// bytes change word alignment; only actual instruction/operand boundaries exist.
-/// No word, byte or generated lookup cache is stored.
+/// The downward gate's PLM programs (#1296), in place of its bank-$84 instruction lists. The resident gate alternates
+/// between an open and a closed sleep; a shot (or, when closed, Samus below it) wakes it past the sleep into the
+/// lowering or raising images while its bank-$86 projectile carries the collision. Each trigger draws its shot block
+/// once and deletes.
 /// </summary>
 internal static class DownwardGatePlmProgramDefinitions
 {
-    /// <summary>$84:BC13: open-and-wait list, entered again after opening completes.</summary>
-    internal const ushort OpenStart = 0xbc13;
-    /// <summary>$84:BC2A: first timed closing frame.</summary>
-    private const ushort ClosingFrames = 0xbc2a;
-    /// <summary>$84:BC4D: first timed opening frame.</summary>
-    private const ushort OpeningFrames = 0xbc4d;
-    /// <summary>$84:BC29: packed movement sound after the closing spawn command.</summary>
-    internal const ushort ClosingSoundAddress = 0xbc29;
-    /// <summary>$84:BC4C: packed movement sound after the opening wake command.</summary>
-    internal const ushort OpeningSoundAddress = 0xbc4c;
-    /// <summary>$84:BCDF: adjacent upward-trigger program, outside this decoder.</summary>
-    internal const ushort TriggerEnd = 0xbcdf;
+    /// <summary>How long the open gate shows before it starts lowering.</summary>
+    private const int CloseDelay = 16;
+    /// <summary>How long each lowering or raising image shows.</summary>
+    private const int MovementFrameDuration = 16;
+    /// <summary>How long the last lowering or raising image shows.</summary>
+    private const int LastMovementFrameDuration = 24;
+    /// <summary>The movement sound's native queue cap.</summary>
+    internal const byte MovementSoundMaximumQueued = 6;
 
-    /// <summary>The two movement-sound operands packed after the spawn and wake commands.</summary>
-    private enum PackedSound
+    /// <summary>The trigger programs, in the order the shot-block room argument selects them.</summary>
+    internal static IReadOnlyList<DownwardGateProgram> TriggerPrograms { get; } =
+    [
+        DownwardGateProgram.TriggerBlueLeft, DownwardGateProgram.TriggerBlueRight,
+        DownwardGateProgram.TriggerRedLeft, DownwardGateProgram.TriggerRedRight,
+        DownwardGateProgram.TriggerGreenLeft, DownwardGateProgram.TriggerGreenRight,
+        DownwardGateProgram.TriggerYellowLeft, DownwardGateProgram.TriggerYellowRight,
+    ];
+
+    /// <summary>Every downward gate program.</summary>
+    internal static AnimationProgramSet<DownwardGateProgram, DownwardGateDraw, DownwardGateCue> Programs { get; } = new(
+        new Dictionary<DownwardGateProgram, Step[]>
+        {
+            [DownwardGateProgram.Open] =
+            [
+                Step.Show(DownwardGateDraw.Open, 1),
+                Step.Publish(DownwardGateCue.ClearTrigger),
+                Step.Publish(DownwardGateCue.ArmWakeIfTriggered),
+                Step.Hold,
+            ],
+            [DownwardGateProgram.Close] =
+            [
+                Step.Show(DownwardGateDraw.Open, CloseDelay),
+                Step.Publish(DownwardGateCue.SpawnMovingGate),
+                Step.Publish(DownwardGateCue.QueueMovementSound),
+                Step.Show(DownwardGateDraw.Lowered1, MovementFrameDuration),
+                Step.Show(DownwardGateDraw.Lowered2, MovementFrameDuration),
+                Step.Show(DownwardGateDraw.Lowered3, MovementFrameDuration),
+                Step.Show(DownwardGateDraw.Lowered4, LastMovementFrameDuration),
+                Step.FallInto(DownwardGateProgram.Closed),
+            ],
+            [DownwardGateProgram.Closed] =
+            [
+                Step.Show(DownwardGateDraw.Closed, 1),
+                Step.Publish(DownwardGateCue.ClearTrigger),
+                Step.Publish(DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow),
+                Step.Hold,
+            ],
+            [DownwardGateProgram.Reopen] =
+            [
+                Step.Publish(DownwardGateCue.WakeGateProjectile),
+                Step.Publish(DownwardGateCue.QueueMovementSound),
+                Step.Show(DownwardGateDraw.Lowered4, MovementFrameDuration),
+                Step.Show(DownwardGateDraw.Lowered3, MovementFrameDuration),
+                Step.Show(DownwardGateDraw.Lowered2, MovementFrameDuration),
+                Step.Show(DownwardGateDraw.Lowered1, LastMovementFrameDuration),
+                Step.GoTo(DownwardGateProgram.Open),
+            ],
+            [DownwardGateProgram.TriggerBlueLeft] = Trigger(DownwardGateDraw.TriggerBlueLeft),
+            [DownwardGateProgram.TriggerBlueRight] = Trigger(DownwardGateDraw.TriggerBlueRight),
+            [DownwardGateProgram.TriggerRedLeft] = Trigger(DownwardGateDraw.TriggerRedLeft),
+            [DownwardGateProgram.TriggerRedRight] = Trigger(DownwardGateDraw.TriggerRedRight),
+            [DownwardGateProgram.TriggerGreenLeft] = Trigger(DownwardGateDraw.TriggerGreenLeft),
+            [DownwardGateProgram.TriggerGreenRight] = Trigger(DownwardGateDraw.TriggerGreenRight),
+            [DownwardGateProgram.TriggerYellowLeft] = Trigger(DownwardGateDraw.TriggerYellowLeft),
+            [DownwardGateProgram.TriggerYellowRight] = Trigger(DownwardGateDraw.TriggerYellowRight),
+        });
+
+    /// <summary>The program a wake past <paramref name="program"/>'s sleep continues with.</summary>
+    internal static DownwardGateProgram? ProgramAfterSleep(DownwardGateProgram program) => program switch
     {
-        /// <summary>Movement sound byte at $84:BC29 after the closing projectile spawn.</summary>
-        Closing,
-        /// <summary>Movement sound byte at $84:BC4C after the opening wake command.</summary>
-        Opening,
-    }
-
-    /// <summary>The two sound operands are separate byte positions within otherwise word-based programs.</summary>
-    private static readonly PackedSound[] PackedSounds = Enum.GetValues<PackedSound>();
-
-    /// <summary>Locates the closing or opening sound byte after its respective projectile command.</summary>
-    private static ushort AddressOf(PackedSound sound) => sound switch
-    {
-        PackedSound.Closing => ClosingSoundAddress,
-        PackedSound.Opening => OpeningSoundAddress,
-        _ => throw new InvalidOperationException($"Undefined {nameof(PackedSound)} {(int)sound}."),
+        DownwardGateProgram.Open => DownwardGateProgram.Close,
+        DownwardGateProgram.Closed => DownwardGateProgram.Reopen,
+        DownwardGateProgram.Close or DownwardGateProgram.Reopen
+            or DownwardGateProgram.TriggerBlueLeft or DownwardGateProgram.TriggerBlueRight
+            or DownwardGateProgram.TriggerRedLeft or DownwardGateProgram.TriggerRedRight
+            or DownwardGateProgram.TriggerGreenLeft or DownwardGateProgram.TriggerGreenRight
+            or DownwardGateProgram.TriggerYellowLeft or DownwardGateProgram.TriggerYellowRight => null,
+        _ => throw new InvalidOperationException($"Undefined {nameof(DownwardGateProgram)} {program}."),
     };
 
-    /// <summary>Supplies only the two packed movement-sound operands.</summary>
-    internal static bool TryReadMechanicsByte(ushort address, out byte value)
-    {
-        bool owned = false;
-        foreach (PackedSound sound in PackedSounds)
-            owned |= AddressOf(sound) == address;
-        value = owned ? DownwardGatePlmRomData.MovementSound : (byte)0;
-        return owned;
-    }
-
-    /// <summary>Decodes trigger programs, mirrored gate frames, and resident control words at their native boundaries.</summary>
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
-    {
-        int triggerOffset = address - RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft;
-        if (triggerOffset >= 0 && address < TriggerEnd && (triggerOffset & 1) == 0)
-        {
-            int trigger = triggerOffset / 6;
-            value = (triggerOffset % 6) switch
-            {
-                0 => 1,
-                2 => (ushort)(0xa5d7 + trigger / 2 * 20 + (trigger % 2) * 12),
-                _ => (ushort)RoomPlmInstruction.Delete,
-            };
-            return true;
-        }
-        int closingOffset = address - ClosingFrames, openingOffset = address - OpeningFrames;
-        bool closing = closingOffset is >= 0 and < 16 && (closingOffset & 1) == 0;
-        bool opening = openingOffset is >= 0 and < 16 && (openingOffset & 1) == 0;
-        if (closing || opening)
-        {
-            int offset = closing ? closingOffset : openingOffset;
-            int frame = offset / 4;
-            value = offset % 4 == 0 ? (ushort)(frame == 3 ? 24 : 16) :
-                (ushort)(closing ? 0xa525 + frame * 14 : 0xa54f - frame * 14);
-            return true;
-        }
-        value = address switch
-        {
-            0xbc13 or 0xbc3a => 1,
-            0xbc15 or 0xbc21 => 0xa517,
-            0xbc1f => 16,
-            0xbc3c => 0xa55d,
-            0xbc17 or 0xbc3e => (ushort)RoomPlmInstruction.ClearDownwardGateTrigger,
-            0xbc19 or 0xbc40 => (ushort)RoomPlmInstruction.InstallPreInstruction,
-            0xbc1b => (ushort)DownwardGatePreInstruction.WakeIfTriggered,
-            0xbc42 => (ushort)DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow,
-            0xbc1d or 0xbc44 => (ushort)RoomPlmInstruction.Sleep,
-            0xbc23 => (ushort)RoomPlmInstruction.SpawnDownwardGateProjectile,
-            0xbc25 => (ushort)RoomEnemyProjectileKind.DownwardGateMoving,
-            0xbc27 or 0xbc4a => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
-            0xbc46 => (ushort)RoomPlmInstruction.WakeDownwardGateProjectile,
-            // Native BBF0 advances over this operand without using its value.
-            0xbc48 => 0xe566,
-            0xbc5d => (ushort)RoomPlmInstruction.Goto,
-            0xbc5f => OpenStart,
-            _ => 0,
-        };
-        return value != 0;
-    }
+    /// <summary>Draws a trigger's shot block for one update, then deletes the PLM.</summary>
+    private static Step[] Trigger(DownwardGateDraw draw) => [Step.Show(draw, 1), Step.Stop];
 }

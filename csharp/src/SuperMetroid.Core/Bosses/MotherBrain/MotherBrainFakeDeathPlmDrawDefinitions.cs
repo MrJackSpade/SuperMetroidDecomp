@@ -165,21 +165,32 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// Retain under #1165's nonsense exception. Geometry and collision are calculated
     /// separately. Provenance and reconstruction are in motherBrainBackgroundArtworkReview.
     /// </summary>
-    private static readonly ushort[][] BackgroundVisuals =
+    private static readonly RoomLevelWord[][] BackgroundVisuals =
     [
-        [0x0241, 0x0242, 0x02fc, 0x02fc, 0x02fc, 0x0243, 0x0244, 0x02fc, 0x0245, 0x0642, 0x0241, 0x0241, 0x0246],
-        [0x09ef, 0x01b2, 0x01e5, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e5, 0x01e5, 0x05b2, 0x09ef, 0x09ef, 0x01b2],
-        [0x01b1, 0x01d2, 0x01c6, 0x01c7, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a6, 0x09ca, 0x060c, 0x05b1, 0x0a09],
-        [0x01d1, 0x01f2, 0x01a4, 0x01e7, 0x01a4, 0x0226, 0x0227, 0x01a5, 0x01a4, 0x020d, 0x0e09, 0x01b1, 0x01ab],
-        [0x01b1, 0x0212, 0x01c4, 0x01c9, 0x01c4, 0x0206, 0x0207, 0x01c5, 0x01c4, 0x0628, 0x01ac, 0x01ec, 0x01ec],
-        [0x01b1, 0x0a0c, 0x05ca, 0x0dc7, 0x01aa, 0x01a8, 0x01a8, 0x01a8, 0x01a8, 0x0628, 0x01ab, 0x01cd, 0x01cd],
-        [0x01d1, 0x01d0, 0x05ea, 0x00ff, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a7, 0x0a0d, 0x0609, 0x01eb, 0x01d0],
-        [0x01eb, 0x01eb, 0x05ea, 0x00ff, 0x00ff, 0x0206, 0x0207, 0x00ff, 0x01a6, 0x00ff, 0x0a2c, 0x0609, 0x01ae],
-        [0x01ec, 0x01af, 0x05ea, 0x05c7, 0x05c6, 0x0206, 0x0207, 0x01a8, 0x01a6, 0x01a8, 0x01a8, 0x05d2, 0x01ae],
-        [0x01ac, 0x01af, 0x01b2, 0x05e7, 0x01e5, 0x0226, 0x0227, 0x01e5, 0x01a6, 0x01e6, 0x01e5, 0x05b2, 0x01cd],
-        [0x060c, 0x01ef, 0x01b2, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e6, 0x01e5, 0x01e5, 0x01e5, 0x05b2, 0x01ef],
-        [0x0248, 0x0249, 0x024a, 0x024b, 0x0339, 0x024c, 0x024d, 0x0339, 0x024e, 0x0339, 0x0339, 0x024f, 0x0249],
+        [Tile(577), Tile(578), Tile(764), Tile(764), Tile(764), Tile(579), Tile(580), Tile(764), Tile(581), Tile(578, FlipX), Tile(577), Tile(577), Tile(582)],
+        [Tile(495, FlipY), Tile(434), Tile(485), Tile(485), Tile(486), Tile(485), Tile(485), Tile(485), Tile(485), Tile(434, FlipX), Tile(495, FlipY), Tile(495, FlipY), Tile(434)],
+        [Tile(433), Tile(466), Tile(454), Tile(455), Tile(255), Tile(518), Tile(519), Tile(255), Tile(422), Tile(458, FlipY), Tile(524, FlipX), Tile(433, FlipX), Tile(521, FlipY)],
+        [Tile(465), Tile(498), Tile(420), Tile(487), Tile(420), Tile(550), Tile(551), Tile(421), Tile(420), Tile(525), Tile(521, FlipXY), Tile(433), Tile(427)],
+        [Tile(433), Tile(530), Tile(452), Tile(457), Tile(452), Tile(518), Tile(519), Tile(453), Tile(452), Tile(552, FlipX), Tile(428), Tile(492), Tile(492)],
+        [Tile(433), Tile(524, FlipY), Tile(458, FlipX), Tile(455, FlipXY), Tile(426), Tile(424), Tile(424), Tile(424), Tile(424), Tile(552, FlipX), Tile(427), Tile(461), Tile(461)],
+        [Tile(465), Tile(464), Tile(490, FlipX), Tile(255), Tile(255), Tile(518), Tile(519), Tile(255), Tile(423), Tile(525, FlipY), Tile(521, FlipX), Tile(491), Tile(464)],
+        [Tile(491), Tile(491), Tile(490, FlipX), Tile(255), Tile(255), Tile(518), Tile(519), Tile(255), Tile(422), Tile(255), Tile(556, FlipY), Tile(521, FlipX), Tile(430)],
+        [Tile(492), Tile(431), Tile(490, FlipX), Tile(455, FlipX), Tile(454, FlipX), Tile(518), Tile(519), Tile(424), Tile(422), Tile(424), Tile(424), Tile(466, FlipX), Tile(430)],
+        [Tile(428), Tile(431), Tile(434), Tile(487, FlipX), Tile(485), Tile(550), Tile(551), Tile(485), Tile(422), Tile(486), Tile(485), Tile(434, FlipX), Tile(461)],
+        [Tile(524, FlipX), Tile(495), Tile(434), Tile(485), Tile(486), Tile(485), Tile(485), Tile(486), Tile(485), Tile(485), Tile(485), Tile(434, FlipX), Tile(495)],
+        [Tile(584), Tile(585), Tile(586), Tile(587), Tile(825), Tile(588), Tile(589), Tile(825), Tile(590), Tile(825), Tile(825), Tile(591), Tile(585)],
     ];
+
+    /// <summary>A mirrored mural cell.</summary>
+    private const LevelBlockFlipFlags FlipX = LevelBlockFlipFlags.Horizontal;
+    /// <summary>A vertically flipped mural cell.</summary>
+    private const LevelBlockFlipFlags FlipY = LevelBlockFlipFlags.Vertical;
+    /// <summary>A mural cell flipped both ways.</summary>
+    private const LevelBlockFlipFlags FlipXY = LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical;
+
+    /// <summary>One air mural cell: tileset tile <paramref name="index"/> with <paramref name="flips"/>.</summary>
+    private static RoomLevelWord Tile(ushort index, LevelBlockFlipFlags flips = LevelBlockFlipFlags.None) =>
+        RoomLevelWord.Create(index, flips, RoomCollisionType.Air);
 
     /// <summary>
     /// Twelve horizontal thirteen-cell rows at 84:9505..966C, spaced thirty
@@ -192,7 +203,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         internal ushort WordAt(int column)
         {
             if ((uint)column >= 13) throw new IndexOutOfRangeException();
-            return (ushort)(BackgroundVisuals[Row][column] | (Row is 0 or 11 ? 0x1000 : 0));
+            return (ushort)(BackgroundVisuals[Row][column].Raw | (Row is 0 or 11 ? 0x1000 : 0));
         }
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -23,9 +24,8 @@ internal static class TourianAccessPlmProgramsVerification
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tourian draw native oracle revision");
         Suite(nameof(VerifyTourianAccessPlmDefinitions), () => VerifyTourianAccessPlmDefinitions(rom));
-        Suite(nameof(VerifyTourianAccessProgramControls), () => VerifyTourianAccessProgramControls(rom));
-        Suite(nameof(VerifyTourianAccessProgramDraws), () => VerifyTourianAccessProgramDraws(rom));
-        Suite(nameof(VerifyTourianAccessProgramLoopCount), () => VerifyTourianAccessProgramLoopCount(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifyTourianAccessPrograms), () => RoomPlmProgramsVerification.VerifyTourianAccessPrograms(rom));
+        Suite(nameof(VerifyTourianAccessFrameSelector), () => VerifyTourianAccessFrameSelector(rom));
 
         Suite(nameof(VerifyTourianAccessPhysicalDrawMapping), () => VerifyTourianAccessPhysicalDrawMapping(rom));
 
@@ -35,14 +35,9 @@ internal static class TourianAccessPlmProgramsVerification
             "Tourian access PLMs: both native programs and five draws match ROM; complete clear and six-row crumble run without source reads.");
     }
 
-    /// <summary>Checks control words separately from the interleaved draw operands.</summary>
-    private static void VerifyTourianAccessProgramControls(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyTourianAccessProgramField), () => VerifyTourianAccessProgramField(rom, false));
-
-    /// <summary>Checks draw operands and bounded frame selectors against native program words.</summary>
-    private static void VerifyTourianAccessProgramDraws(SuperMetroidAddressSpace rom)
+    /// <summary>Checks the bounded crumble frame selector against the native program's draw operands.</summary>
+    private static void VerifyTourianAccessFrameSelector(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifyTourianAccessProgramField), () => VerifyTourianAccessProgramField(rom, true));
         ushort[] originalOperands = [0xaaea,0xaaee,0xaaf2,0xaaf6];
         for (int frame = 0; frame < originalOperands.Length; frame++)
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | originalOperands[frame]),
@@ -50,44 +45,6 @@ internal static class TourianAccessPlmProgramsVerification
         foreach (int invalid in new[] {int.MinValue,-1,4,5,255,256,int.MaxValue})
             AssertThrows<ArgumentOutOfRangeException>(() => TourianAccessPlmDrawDefinitions.CrumbleFramePointer(invalid),
                 "Tourian access frame selector bounds");
-    }
-
-    /// <summary>Checks complete word ownership and ROM values for controls or draw pointers in the mixed PLM stream.</summary>
-    private static void VerifyTourianAccessProgramField(SuperMetroidAddressSpace rom, bool draw)
-    {
-        ushort[] controls = [0xaae5,0xaae8,0xaaec,0xaaf0,0xaaf4,0xaaf8,0xaafa,0xaafc,0xaafe,0xab0c,0xab10];
-        ushort[] operands = [0xaaea,0xaaee,0xaaf2,0xaaf6,0xab0e];
-        ushort[] expectedOrder = [0xaae5,0xaae8,0xaaea,0xaaec,0xaaee,0xaaf0,0xaaf2,0xaaf4,0xaaf6,0xaaf8,0xaafa,0xaafc,0xaafe,0xab0c,0xab0e,0xab10];
-        AssertTrue(expectedOrder.SequenceEqual(TourianAccessPlmProgramDefinitions.NativeWordAddresses()),
-            "Tourian access original instruction enumeration");
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-        {
-            ushort address = (ushort)raw;
-            bool owned = controls.Contains(address) || operands.Contains(address);
-            AssertEqual(owned, TourianAccessPlmProgramDefinitions.TryReadMechanicsWord(address, out ushort actual),
-                "Tourian access complete word ownership including packed-byte gaps");
-            if (!owned) AssertEqual((ushort)0, actual, "Tourian access unowned word zero");
-            else if ((draw ? operands : controls).Contains(address))
-            {
-                AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | raw), actual, "Tourian access original program field");
-                AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "Tourian access shared word reader");
-                AssertEqual(actual, shared, "Tourian access shared reader value");
-            }
-        }
-    }
-
-    /// <summary>Checks that the packed loop-count byte alone is owned and matches bank 84.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access program loop count")]
-    private static void VerifyTourianAccessProgramLoopCount(SuperMetroidAddressSpace rom)
-    {
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-        {
-            AssertEqual(raw == 0xaae7,
-                TourianAccessPlmProgramDefinitions.TryReadMechanicsByte((ushort)raw, out byte actual),
-                "Tourian access byte ownership is exactly its loop-count operand");
-            AssertEqual(raw == 0xaae7 ? rom.ReadCartridgeByte(0x84aae7) : (byte)0, actual,
-                "Tourian access original loop count or cleared missing byte");
-        }
     }
 
     /// <summary>Checks five native draw spans, row shapes, physical words, and continuation offsets.</summary>
@@ -196,10 +153,8 @@ internal static class TourianAccessPlmProgramsVerification
             {
                 int pointer = SnesAddressMath.OffsetInBank(address);
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
-                    ((pointer >= TourianAccessPlmProgramDefinitions.Crumble &&
-                      pointer < (ushort)RoomPlmInstruction.MoveTourianAccessDown) ||
-                     (pointer >= TourianAccessPlmProgramDefinitions.Clear &&
-                      pointer < TourianAccessPlmProgramDefinitions.Clear + 6) ||
+                    ((pointer >= RoomPlmNativeListAddresses.TourianAccessEntries[0].Entry &&
+                      pointer < RoomPlmNativeListAddresses.TourianAccessEntries[2].Entry + 6) ||
                      (pointer >= (ushort)TourianAccessDraw.EmptyRow &&
                       pointer < 0x930f));
             },

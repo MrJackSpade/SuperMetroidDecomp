@@ -569,6 +569,20 @@ public sealed class Bank80SystemState
     }
 
     /// <summary>Returns one raw opened-door byte for cartridge-compatible SRAM encoding.</summary>
+    public ushort GetOpenedDoorWordRaw(int byteIndex)
+    {
+        if ((uint)byteIndex >= DoorBitByteCount - 1)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(byteIndex),
+                byteIndex,
+                "Opened-door word index must leave its high byte in the native 64-byte table.");
+        }
+
+        return SnesLittleEndian.Word(_openedDoorBits[byteIndex], _openedDoorBits[byteIndex + 1]);
+    }
+
+    /// <summary>Returns one raw opened-door byte from the native 64-byte table.</summary>
     public byte GetOpenedDoorByteRaw(int byteIndex)
     {
         if ((uint)byteIndex >= DoorBitByteCount)

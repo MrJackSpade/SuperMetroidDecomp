@@ -19,7 +19,7 @@ internal static class DraygonCannonPlmsVerification
 {
     /// <summary>
     /// Reproduces the exact four retail cannon records in a constructed 2x2-screen room.
-    /// Tiny draw lists isolate setup, hit filtering, destruction, slot order, and the shared
+    /// The typed programs run setup, hit filtering, destruction, slot order, and the shared
     /// bank-$84-to-bank-$A5 control-word writes from unrelated Draygon combat timing.
     /// </summary>
     internal static void VerifyDraygonCannonPlms()
@@ -100,7 +100,7 @@ internal static class DraygonCannonPlmsVerification
             "  Draygon cannons: retail slot order, setup, missile thresholds, terrain, and firing flags agree.");
     }
 
-    /// <summary>Installs the four retail cannon records and compact native-shaped PLM programs in the fixture bus.</summary>
+    /// <summary>Installs the four retail cannon records in the fixture bus.</summary>
     private static void SeedDraygonCannonFixture(TestAddressSpace bus)
     {
         SeedRoomPlmPopulation(bus, 0x9000, [
@@ -110,37 +110,6 @@ internal static class DraygonCannonPlmsVerification
             0x71, 0xdf, 29, 21, 0x08, 0x88,
             0, 0,
         ]);
-        SeedPlmProgramWords(bus, unchecked((ushort)((ushort)PlmHeaderId.DraygonCannonFacingRight + 2)), 0x0400);
-        SeedPlmProgramWords(bus, unchecked((ushort)((ushort)PlmHeaderId.DraygonCannonFacingRightDestroyed + 2)), 0x0440);
-        SeedPlmProgramWords(bus, unchecked((ushort)((ushort)PlmHeaderId.DraygonCannonFacingLeft + 2)), 0x0500);
-
-        SeedShieldedCannonList(bus, new ShieldedCannonLists { List = 0x0400, HitList = 0x0420, DestroyedList = 0x0440, DamageInstruction = (ushort)RoomPlmInstruction.DamageDraygonCannonFacingRight, IdleDraw = 0xf000, HitDraw = 0xf010, DestroyedDraw = 0xf020 });
-        SeedShieldedCannonList(bus, new ShieldedCannonLists { List = 0x0500, HitList = 0x0520, DestroyedList = 0x0540, DamageInstruction = (ushort)RoomPlmInstruction.DamageDraygonCannonFacingLeft, IdleDraw = 0xf100, HitDraw = 0xf110, DestroyedDraw = 0xf120 });
-    }
-
-    /// <summary>Writes one facing's idle, hit, and destroyed instruction lists with one-block draw payloads.</summary>
-    private static void SeedShieldedCannonList(TestAddressSpace bus, ShieldedCannonLists lists)
-    {
-        SeedPlmProgramBytes(bus, lists.List, [
-            0x24, 0x8a, unchecked((byte)lists.HitList), SnesLittleEndian.HighByte(lists.HitList),
-            0xc1, 0x86, 0x64, 0xdb,
-            0x01, 0x00, unchecked((byte)lists.IdleDraw), SnesLittleEndian.HighByte(lists.IdleDraw),
-            0xb4, 0x86,
-        ]);
-        SeedPlmProgramBytes(bus, lists.HitList, [
-            0xcd, 0x8a, 0x03,
-                unchecked((byte)lists.DestroyedList), SnesLittleEndian.HighByte(lists.DestroyedList),
-            0x01, 0x00, unchecked((byte)lists.HitDraw), SnesLittleEndian.HighByte(lists.HitDraw),
-            0x24, 0x87, unchecked((byte)lists.List), SnesLittleEndian.HighByte(lists.List),
-        ]);
-        SeedPlmProgramWords(bus, lists.DestroyedList, lists.DamageInstruction);
-        SeedPlmProgramBytes(bus, unchecked((ushort)(lists.DestroyedList + 2)), [
-            0x01, 0x00, unchecked((byte)lists.DestroyedDraw), SnesLittleEndian.HighByte(lists.DestroyedDraw),
-            0xb4, 0x86,
-        ]);
-        WriteOneBlockDraw(bus, lists.IdleDraw, 0xc044);
-        WriteOneBlockDraw(bus, lists.HitDraw, 0xc044);
-        WriteOneBlockDraw(bus, lists.DestroyedDraw, 0xa003);
     }
 
     /// <summary>Advances the PLM long enough to resolve a notified projectile hit and its follow-up draw.</summary>

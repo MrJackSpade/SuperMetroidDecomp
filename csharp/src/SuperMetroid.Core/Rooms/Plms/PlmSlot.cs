@@ -21,8 +21,24 @@ internal sealed class PlmSlot
     /// setup synthesizes the dimension-parent restoration word <c>$x058</c> instead.
     /// </summary>
     public ushort RestoreLevelWord { get; set; }
-    /// <summary>Current bank-$84 instruction-list position for the slot's generic interpreter.</summary>
-    public ushort InstructionPointer { get; set; }
+    /// <summary>
+    /// Current bank-$84 instruction-list position for the slot's generic interpreter; zero while a typed program runs.
+    /// Storing a list pointer ends any typed program, as a native list store replaces the running program.
+    /// </summary>
+    public ushort InstructionPointer
+    {
+        get;
+        set
+        {
+            field = value;
+            Animation = null;
+        }
+    }
+    /// <summary>
+    /// The typed program replacing this slot's native instruction list (#1296), or null when the bank-$84 interpreter
+    /// runs <see cref="InstructionPointer"/>.
+    /// </summary>
+    internal PlmAnimation? Animation { get; private set; }
     /// <summary>Countdown until the slot's next instruction-list step.</summary>
     public NativeCountdown InstructionTimer { get; set; }
     /// <summary>Native bank-$84 pre-instruction pointer run before the timer/list pass.</summary>
@@ -56,4 +72,37 @@ internal sealed class PlmSlot
     public DraygonCannonPlms.DraygonCannonPlmState? DraygonCannon { get; set; }
     /// <summary>Semantic owner for door-spawned Wrecked Ship treadmill PLMs.</summary>
     public WreckedShipTreadmillPlmState? Treadmill { get; set; }
+
+    /// <summary>Runs <paramref name="animation"/> in place of any native list; the caller keeps the slot's timer.</summary>
+    internal void StartAnimation(PlmAnimation animation)
+    {
+        InstructionPointer = 0;
+        Animation = Ensure.NotNull(animation);
+    }
+
+    /// <summary>
+    /// A pre-instruction's wake: the native list resumes at <see cref="LinkInstruction"/>, a typed program at the
+    /// program it linked, on the next pass.
+    /// </summary>
+    internal void WakeAtLink()
+    {
+        if (Animation is { } animation)
+            animation.WakeAtLink();
+        else
+            InstructionPointer = LinkInstruction;
+        InstructionTimer = NativeCountdown.Start(1);
+    }
+
+    /// <summary>
+    /// A pre-instruction's wake past the sleep the slot rests on: the native list steps over its sleep instruction, a
+    /// typed program over its hold, on the next pass.
+    /// </summary>
+    internal void WakePastSleep()
+    {
+        if (Animation is { } animation)
+            animation.WakePastSleep();
+        else
+            InstructionPointer = unchecked((ushort)(InstructionPointer + 2));
+        InstructionTimer = NativeCountdown.Start(1);
+    }
 }

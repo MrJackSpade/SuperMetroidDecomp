@@ -31,7 +31,7 @@ internal sealed class NoobTubePlms
         level.SetBehavior(
             slot.BlockIndex,
             RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
-        slot.InstructionPointer = RoomPlmInstructionLists.NoobTube;
+        slot.StartAnimation(new NoobTubePlmAnimation(NoobTubeProgram.Main));
     }
 
     /// <summary>Runs either of the two callbacks that can own the sleeping tube actor.</summary>
@@ -52,8 +52,7 @@ internal sealed class NoobTubePlms
                     new SamusProjectileTypeWord(slot.LoopTimer).Family;
                 if (projectileFamily == SamusProjectileFamily.PowerBomb)
                 {
-                    slot.InstructionPointer = slot.LinkInstruction;
-                    slot.InstructionTimer = NativeCountdown.Start(1);
+                    slot.WakeAtLink();
                 }
                 else if (slot.LoopTimer != 0)
                 {
@@ -69,8 +68,7 @@ internal sealed class NoobTubePlms
             case NoobTubePlmPreInstruction.WakeOnAcceptedInput:
                 if ((controllerNewInput & NoobTubePlmRomData.AcceptedWakeInputMask) != 0)
                 {
-                    slot.InstructionPointer = slot.LinkInstruction;
-                    slot.InstructionTimer = NativeCountdown.Start(1);
+                    slot.WakeAtLink();
                 }
                 return;
 
@@ -79,110 +77,47 @@ internal sealed class NoobTubePlms
         }
     }
 
-    /// <summary>Executes tube-only instructions, including crack, shatter, event, water, and control-lock effects.</summary>
-    internal bool TryExecuteNoobTubeInstruction(
-        ISnesAddressSpace bus,
-        PlmSlot slot,
-        RoomPlmInstruction instruction)
+    /// <summary>Whether the tube was broken on an earlier visit (its event is set).</summary>
+    internal bool IsBroken() => RequireNoobTubeEvents().Has(NoobTubePlmRomData.BrokenEvent);
+
+    /// <summary>Locks or unlocks Samus for the break sequence.</summary>
+    internal void SetSamusLocked(bool locked) =>
+        RequireNoobTubeSamus().ScriptLocks.SetStationaryScriptControlLock(locked);
+
+    /// <summary>Spawns the crack projectile at the tube.</summary>
+    internal void SpawnCrack(PlmSlot slot) => SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Crack, 0);
+
+    /// <summary>Spawns the ten glass shards and six released-air bubbles, each with its even native parameter.</summary>
+    internal void SpawnShardsAndBubbles(PlmSlot slot)
     {
-        if (slot.HeaderPointer != PlmHeaderId.NoobTube)
-            return false;
+        for (int shard = 0; shard < NoobTubePlmRomData.ShardCount; shard++)
+            SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Shard, (ushort)(shard * 2));
+        for (int bubble = 0; bubble < NoobTubePlmRomData.BubbleCount; bubble++)
+            SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.ReleasedAirBubble, (ushort)(bubble * 2));
+    }
 
-        ushort cursor = slot.InstructionPointer;
-        if (instruction is not (
-            RoomPlmInstruction.GotoIfEventSet or
-            RoomPlmInstruction.LinkInstruction or
-            RoomPlmInstruction.ClearPreInstruction or
-            RoomPlmInstruction.LockSamus or
-            RoomPlmInstruction.UnlockSamus or
-            RoomPlmInstruction.SpawnNoobTubeCrack or
-            RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles or
-            RoomPlmInstruction.TriggerNoobTubeEarthquake or
-            RoomPlmInstruction.SetEvent or
-            RoomPlmInstruction.EnableNoobTubeWaterPhysics))
-            return false;
+    /// <summary>Starts the break earthquake.</summary>
+    internal void TriggerEarthquake()
+    {
+        (_bindings.Earthquake ?? throw new InvalidOperationException(
+            "N00b tube has no earthquake-type writer.")).SetType(NoobTubePlmRomData.EarthquakeType);
+        (_bindings.Earthquake ?? throw new InvalidOperationException(
+            "N00b tube has no earthquake-timer writer.")).SetTimer(NoobTubePlmRomData.EarthquakeTimer);
+    }
 
-        switch (instruction)
-        {
-            case RoomPlmInstruction.GotoIfEventSet:
-                ushort eventNumber = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
-                if (eventNumber != (ushort)NoobTubePlmRomData.BrokenEvent)
-                {
-                    throw new InvalidDataException(
-                        $"N00b tube referenced event ${eventNumber:X4}, not event $000B.");
-                }
-                ushort target = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
-                slot.InstructionPointer = RequireNoobTubeEvents().Has(NoobTubePlmRomData.BrokenEvent)
-                    ? target
-                    : unchecked((ushort)(cursor + 6));
-                return true;
+    /// <summary>Sets the tube's broken event.</summary>
+    internal void SetBrokenEvent() =>
+        (_bindings.Events ?? throw new InvalidOperationException(
+            "N00b tube has no event writer.")).Set(NoobTubePlmRomData.BrokenEvent);
 
-            case RoomPlmInstruction.LinkInstruction:
-                slot.LinkInstruction = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
-                slot.InstructionPointer = unchecked((ushort)(cursor + 4));
-                return true;
-
-            case RoomPlmInstruction.ClearPreInstruction:
-                slot.PreInstruction = (ushort)NoobTubePlmPreInstruction.Inactive;
-                slot.InstructionPointer = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case RoomPlmInstruction.LockSamus:
-                RequireNoobTubeSamus().ScriptLocks.SetStationaryScriptControlLock(true);
-                slot.InstructionPointer = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case RoomPlmInstruction.UnlockSamus:
-                RequireNoobTubeSamus().ScriptLocks.SetStationaryScriptControlLock(false);
-                slot.InstructionPointer = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case RoomPlmInstruction.SpawnNoobTubeCrack:
-                SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Crack, 0);
-                slot.InstructionPointer = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles:
-                for (ushort parameter = 0; parameter <= 0x12; parameter += 2)
-                    SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Shard, parameter);
-                for (ushort parameter = 0; parameter <= 0x0a; parameter += 2)
-                    SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.ReleasedAirBubble, parameter);
-                slot.InstructionPointer = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case RoomPlmInstruction.TriggerNoobTubeEarthquake:
-                (_bindings.Earthquake ?? throw new InvalidOperationException(
-                    "N00b tube has no earthquake-type writer.")).SetType(NoobTubePlmRomData.EarthquakeType);
-                (_bindings.Earthquake ?? throw new InvalidOperationException(
-                    "N00b tube has no earthquake-timer writer.")).SetTimer(NoobTubePlmRomData.EarthquakeTimer);
-                slot.InstructionPointer = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case RoomPlmInstruction.SetEvent:
-                ushort setEvent = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
-                if (setEvent != (ushort)NoobTubePlmRomData.BrokenEvent)
-                {
-                    throw new InvalidDataException(
-                        $"N00b tube attempted to set event ${setEvent:X4}, not event $000B.");
-                }
-                (_bindings.Events ?? throw new InvalidOperationException(
-                    "N00b tube has no event writer.")).Set(NoobTubePlmRomData.BrokenEvent);
-                slot.InstructionPointer = unchecked((ushort)(cursor + 4));
-                return true;
-
-            case RoomPlmInstruction.EnableNoobTubeWaterPhysics:
-                RoomLayer3FxState roomFx = _bindings.RoomFx
-                    ?? throw new InvalidOperationException(
-                        "N00b tube has no room-FX owner for its water-physics write.");
-                roomFx.EnableWaterPhysics();
-                SamusState samus = RequireNoobTubeSamus();
-                roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
-                slot.InstructionPointer = unchecked((ushort)(cursor + 2));
-                return true;
-
-            default:
-                throw new InvalidOperationException($"Unhandled RoomPlmInstruction {instruction}.");
-        }
+    /// <summary>Enables the room's water physics and applies them to Samus.</summary>
+    internal void EnableWaterPhysics()
+    {
+        RoomLayer3FxState roomFx = _bindings.RoomFx
+            ?? throw new InvalidOperationException(
+                "N00b tube has no room-FX owner for its water-physics write.");
+        roomFx.EnableWaterPhysics();
+        roomFx.ApplyToSamusLiquidPhysics(RequireNoobTubeSamus().LiquidPhysics);
     }
 
     /// <summary>Requires the room event owner before testing the broken-tube event.</summary>

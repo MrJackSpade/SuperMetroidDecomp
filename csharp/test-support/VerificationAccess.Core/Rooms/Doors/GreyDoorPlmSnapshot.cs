@@ -10,6 +10,5 @@ internal readonly record struct GreyDoorPlmSnapshot(
     ColoredDoorOrientation Orientation,
     GreyDoorCondition Condition,
     GreyDoorPhase Phase,
-    ushort InitialList,
-    ushort FlashList,
-    ushort OpeningList);
+    byte HitCounter,
+    PlmAnimation? Animation);

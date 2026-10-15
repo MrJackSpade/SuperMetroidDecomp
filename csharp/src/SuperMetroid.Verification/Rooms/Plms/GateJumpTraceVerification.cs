@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -51,7 +52,7 @@ internal static class GateJumpTraceVerification
                 runtime.StepFrame(input);
                 var gate = runtime.Plms.PopulationSlots.Single(s => s.HeaderPointer == PlmHeaderId.DownwardGate);
                 activated |= gate.LoopTimer != 0;
-                string actual = $"{frame},{input:X4},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)samus.Pose:X2},{gate.LoopTimer},{gate.InstructionPointer:X4}";
+                string actual = $"{frame},{input:X4},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)samus.Pose:X2},{gate.LoopTimer},{NativeGateInstruction(bus, gate):X4}";
                 AssertEqual(expected[frame + 60], actual, $"Native gate jump shot={shootFrame}, frame={frame}");
             }
             AssertEqual(shootFrame == 8 && aimFrame == 0, samus.Position.X.Whole < 112, "Only native successful timing crosses opened gate");
@@ -60,6 +61,12 @@ internal static class GateJumpTraceVerification
         }
         Console.WriteLine("PASS 1120 original-CPU gate jump frames: ordinary/spin successes, adjacent misses and falling control.");
     }
+
+    /// <summary>The gate's native instruction pointer, or the address its typed program stands for.</summary>
+    private static ushort NativeGateInstruction(ISnesAddressSpace bus, RoomPlmSlotSnapshot gate) =>
+        gate.Animation is DownwardGatePlmAnimation typed
+            ? RoomPlmProgramsVerification.DownwardGateNativeInstruction(bus, typed)
+            : gate.InstructionPointer;
 
     /// <summary>Runs the focused gate-jump trace verification command.</summary>
     [VerificationCommand("--gate-jump-traces")]

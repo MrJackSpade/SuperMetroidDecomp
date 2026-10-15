@@ -63,14 +63,6 @@ internal static class SyntheticRoomCartridgeFixturesVerification
         bus.WriteBytes(0x840000 | pointer, bytes);
 
     /// <summary>
-    /// Seeds the retail one-word bank-$84 delete list (<c>PLMEntries_nothing</c>,
-    /// <see cref="RoomPlmInstructionLists.Delete"/>) in the sparse cartridge fixture: a single
-    /// <see cref="RoomPlmInstruction.Delete"/> instruction.
-    /// </summary>
-    internal static void SeedPlmDeleteList(TestAddressSpace bus) =>
-        SeedPlmProgramWords(bus, RoomPlmInstructionLists.Delete, (ushort)RoomPlmInstruction.Delete);
-
-    /// <summary>
     /// Seeds an empty bank-$A1 room enemy population (a lone <c>$FFFF</c> terminator) at
     /// <paramref name="population"/> in the sparse cartridge fixture.
     /// </summary>

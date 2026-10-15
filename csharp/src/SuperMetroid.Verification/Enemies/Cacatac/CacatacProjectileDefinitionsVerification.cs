@@ -49,7 +49,9 @@ internal static class CacatacProjectileDefinitionsVerification
             spawn(source, raw);
             RoomEnemyProjectileSlot actual = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
-            AssertEqual(native, actual.InstructionPointer, $"spawned Cacatac instruction {direction}");
+            AssertTrue(actual.Animation is CacatacProjectileAnimation { Cursor.Program: var spawned } &&
+                    CacatacProjectileNativeListAddresses.Entry(spawned) == native,
+                $"spawned Cacatac instruction {direction}");
             AssertEqual(expectedNegative, actual.Velocity.Y.RawValue, $"spawned Cacatac negative speed {direction}");
             AssertEqual(expectedPositive, actual.Velocity.X.RawValue, $"spawned Cacatac positive speed {direction}");
             AssertEqual(source.Position.X.Whole, actual.Position.X.Whole, $"spawned Cacatac X {direction}");

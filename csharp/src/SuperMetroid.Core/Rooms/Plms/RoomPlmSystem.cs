@@ -144,8 +144,8 @@ public sealed class RoomPlmSystem
         Stations = new StationPlms(Bindings, Drawing, SlotTable, Sounds);
         CollectiblePlms = new CollectiblePlms(Bindings, Drawing, SlotTable, Sounds);
         EyeDoors = new EyeDoorPlms(Bindings, Sounds);
-        GreyDoors = new GreyDoorPlms(Bindings, Drawing, Sounds);
         DoorPlms = new DoorPlms(Bindings, Drawing, SlotTable, Sounds);
+        GreyDoors = new GreyDoorPlms(Bindings, Drawing, Sounds, DoorPlms);
         Tourian = new TourianPlms(Bindings, SlotTable);
         PopulationLoader = new PlmPopulationLoader(new PlmPopulationLoaderDependencies { Bindings = Bindings, BombTorizoHand = BombTorizoHand, CollectiblePlms = CollectiblePlms, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
         BlockReactions = new BlockReactionPlms(Bindings, EscapeAnimals, SlotTable);
@@ -242,16 +242,8 @@ public sealed class RoomPlmSystem
                 continue;
             }
 
-            if (DoorPlms.TryStepColoredDoor(bus, level, streamer, slot, view))
-            {
-                continue;
-            }
-
-            if (GreyDoors.TryStepGreyDoor(bus, level, streamer, slot, view, frame.EnemyDeaths, frame.EnemyDeathQuota))
-            {
-                continue;
-            }
-
+            DoorPlms.RunColoredDoorPreInstruction(slot);
+            GreyDoors.RunGreyDoorPreInstruction(slot, frame.EnemyDeaths, frame.EnemyDeathQuota);
             Tourian.RunMetroidsClearedPreInstruction(slot, frame.EnemyDeaths, frame.EnemyDeathQuota);
             Shaktool.RunShaktoolRoomPreInstruction(slot, frame.Scrolls, frame.PowerBombExplosionStatus);
             SamusEater.RunSamusEaterPreInstruction(slot);
@@ -272,14 +264,17 @@ public sealed class RoomPlmSystem
             if (!slot.InstructionTimer.IsZero)
                 continue;
 
-            ExecuteInstructionStream(bus, level, streamer, slot, view, frame.Scrolls, frame.CollectedItems);
+            if (slot.Animation is { } animation)
+                animation.Advance(slot, new PlmAnimationContext(this, bus, level, streamer, view, frame));
+            else
+                ExecuteInstructionStream(bus, level, streamer, slot, view, frame.CollectedItems);
         }
 
         return Drawing._tilemapUpdates;
     }
 
     /// <summary>Dispatches bank-$84 controls until a timed draw pair is installed; rejects uncompiled or runaway chains.</summary>
-    private void ExecuteInstructionStream(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, RoomScrollGrid? scrolls, ushort collectedItems)
+    private void ExecuteInstructionStream(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, ushort collectedItems)
     {
         // An instruction list may execute multiple negative instruction words before it
         // reaches a positive timer/draw pair. The guard catches corrupt ROM/test data while
@@ -287,7 +282,7 @@ public sealed class RoomPlmSystem
         for (int dispatchCount = 0; dispatchCount < 16; dispatchCount++)
         {
             ushort instruction = ReadProgramWord(bus, slot.InstructionPointer);
-            if ((instruction & 0x8000) == 0)
+            if (!PlmListWordDefinitions.IsInstruction(instruction))
             {
                 ushort drawPointer = ReadProgramWord(
                     bus,
@@ -302,14 +297,6 @@ public sealed class RoomPlmSystem
                 instruction, "bank-$84 PLM instruction");
             switch (code)
             {
-                case RoomPlmInstruction.SamusEaterDamage:
-                    SamusEater.RequirePlantSamus().LiquidPhysics.AccumulatePeriodicDamage(0, 2);
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
-                case RoomPlmInstruction.SamusEaterReleaseImmunity:
-                    SamusEater.RequirePlantSamus().InvincibilityTimer = NativeCountdown.Start(0x30);
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
                 case RoomPlmInstruction.SetAnimalsEscapedEvent:
                     (Bindings.Events ?? throw new InvalidOperationException("Animal rescue requires the room event owner.")).Set(EventNumber.CrittersEscaped);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
@@ -379,29 +366,6 @@ public sealed class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
-                case RoomPlmInstruction.ClearDownwardGateTrigger:
-                    slot.LoopTimer = 0;
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
-
-                case RoomPlmInstruction.SpawnDownwardGateProjectile:
-                    Gates._downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-                        DownwardGateProjectileOperation.Spawn,
-                        ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 2))),
-                        slot.BlockIndex));
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
-                    continue;
-
-                case RoomPlmInstruction.WakeDownwardGateProjectile:
-                    // $BBF0 consumes but does not use the following list address. It locates
-                    // the actor whose variable-E stores this PLM's native block byte index.
-                    Gates._downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-                        DownwardGateProjectileOperation.Wake,
-                        DefinitionPointer: 0,
-                        slot.BlockIndex));
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
-                    continue;
-
                 case RoomPlmInstruction.Goto:
                     // `$84:8724` replaces Y with the following little-endian pointer. All
                     // eight collision entry lists use it to share their dimension-specific
@@ -409,10 +373,6 @@ public sealed class RoomPlmSystem
                     ushort gotoTarget = ReadProgramWord(
                         bus,
                         unchecked((ushort)(slot.InstructionPointer + 2)));
-                    if (DoorPlms.TryCompleteResidentDoorClosing(bus, level, streamer, slot, gotoTarget, view))
-                    {
-                        return;
-                    }
                     slot.InstructionPointer = gotoTarget;
                     continue;
 
@@ -427,8 +387,9 @@ public sealed class RoomPlmSystem
                 case RoomPlmInstruction.DecrementTimerAndGoto:
                     // `$84:873F` always decrements the independent PLM_Timers word. A
                     // nonzero result jumps through the following pointer; zero consumes it.
-                    slot.LoopTimer = unchecked((ushort)(slot.LoopTimer - 1));
-                    if (slot.LoopTimer != 0)
+                    NativeWordCounterStep counted = NativeWordCounter.Decrement(slot.LoopTimer);
+                    slot.LoopTimer = counted.Value;
+                    if (!counted.IsZero)
                     {
                         slot.InstructionPointer = ReadProgramWord(
                             bus,
@@ -440,18 +401,6 @@ public sealed class RoomPlmSystem
                     }
                     continue;
 
-                case RoomPlmInstruction.SetBotwoonScrollsBlue:
-                    if (scrolls is null)
-                    {
-                        throw new InvalidOperationException(
-                            "Botwoon's scroll PLM requires the active room scroll grid.");
-                    }
-                    // `$84:AB51` performs one 16-bit store of $0101 at Scrolls. Express the
-                    // two raw leading cells semantically while retaining the same WRAM mirror.
-                    scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
-                    scrolls.SetLogicalState(new(1, 0), RoomScrollState.Blue);
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
 
                 case RoomPlmInstruction.MoveRightFourBlocks:
                     // Eight bytes of native block index are four whole level words.
@@ -459,20 +408,6 @@ public sealed class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
-                case RoomPlmInstruction.MoveRightOneBlock:
-                    // The cartridge increments its byte offset twice; our index
-                    // already addresses whole level words. Drawing stays list-owned.
-                    slot.BlockIndex = checked(slot.BlockIndex + 1);
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
-
-                case RoomPlmInstruction.MoveBotwoonPlmDownOneBlock:
-                case RoomPlmInstruction.MoveTourianAccessDown:
-                    // Native PLM_BlockIndices are byte offsets, so AB59 adds room width
-                    // twice. C# stores logical word indexes; adding width once is identical.
-                    slot.BlockIndex = checked(slot.BlockIndex + level.Size.X);
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
 
                 case RoomPlmInstruction.GotoIfSamusHasNoBombs:
                     // Native receives Y on the operand after the JSR address. Owning Bombs
@@ -512,16 +447,7 @@ public sealed class RoomPlmSystem
                     return;
 
                 case RoomPlmInstruction.Delete:
-                    slot.Active = false;
-                    BombTorizoHandPlms.MarkBombTorizoHandDeleted(slot);
-                    MotherBrainGlass.OnPlmDeleted(slot);
-                    // Semantic family references are discriminators, not retained debug
-                    // history. A later allocation can reuse this physical native slot and
-                    // must never inherit door-only pre-handler behavior.
-                    slot.ColoredDoor = null;
-                    slot.GreyDoor = null;
-                    slot.EyeDoor = null;
-                    slot.DraygonCannon = null;
+                    DeletePlm(slot);
                     return;
 
                 case RoomPlmInstruction.Sleep:
@@ -529,22 +455,10 @@ public sealed class RoomPlmSystem
                     // animations use it as the linked idle target, so expose that semantic
                     // transition while retaining the self-rewinding instruction pointer.
                     slot.InstructionTimer = NativeCountdown.Start(1);
-                    if (slot.ColoredDoor is not null)
-                        slot.ColoredDoor.Phase = ColoredDoorPhase.Waiting;
                     return;
 
                 default:
                     if (ChozoStatue.TryExecuteChozoStatueInstruction(bus, level, slot, code))
-                        continue;
-                    if (BombTorizoHand.TryExecuteBombTorizoHandInstruction(bus, slot, code))
-                        continue;
-                    if (MotherBrainGlass.TryExecuteMotherBrainGlassInstruction(bus, slot, code))
-                        continue;
-                    if (NoobTube.TryExecuteNoobTubeInstruction(bus, slot, code))
-                        continue;
-                    if (EyeDoors.TryExecuteEyeDoorInstruction(bus, level, slot, code))
-                        continue;
-                    if (DraygonCannons.TryExecuteDraygonCannonInstruction(bus, level, slot, code))
                         continue;
                     throw new InvalidDataException(
                         $"Movement-owned PLM reached untranslated bank-$84 instruction ${instruction:X4}.");
@@ -552,6 +466,23 @@ public sealed class RoomPlmSystem
         }
 
         throw new InvalidDataException("Movement-owned PLM instruction chain did not reach a timer.");
+    }
+
+    /// <summary>
+    /// <c>$84:86BC Instruction_PLM_Delete</c>: releases the slot. Native lists and typed programs end a PLM the same way.
+    /// </summary>
+    internal void DeletePlm(PlmSlot slot)
+    {
+        slot.Active = false;
+        BombTorizoHandPlms.MarkBombTorizoHandDeleted(slot);
+        MotherBrainGlass.OnPlmDeleted(slot);
+        // Semantic family references are discriminators, not retained debug
+        // history. A later allocation can reuse this physical native slot and
+        // must never inherit door-only pre-handler behavior.
+        slot.ColoredDoor = null;
+        slot.GreyDoor = null;
+        slot.EyeDoor = null;
+        slot.DraygonCannon = null;
     }
 
     /// <summary>Reads a wrapped PLM instruction word through the low-bank live WRAM alias.</summary>
@@ -586,12 +517,15 @@ public sealed class RoomPlmSystem
     /// Shared Write_Level_Data_Block_Type_and_BTS operation: preserve visual index/flips,
     /// replace the collision nibble, and publish the independent low-byte behavior.
     /// </summary>
-    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, ushort typeAndBts)
+    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, ushort typeAndBts) =>
+        WritePlmCollisionTypeAndBts(level, blockIndex, new RoomLevelWord(typeAndBts).CollisionType, unchecked((byte)typeAndBts));
+
+    /// <summary>Replaces a block's collision type and BTS, keeping its visual payload.</summary>
+    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, RoomCollisionType collisionType, byte bts)
     {
         var original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord;
-        var replacement = new RoomLevelWord(typeAndBts);
         level.SetPlmForegroundEntry(blockIndex, RoomLevelWord.Create(original.VisualBlockIndex,
-            original.VisualFlipFlags, replacement.CollisionType).Raw);
-        level.SetPlmBehavior(blockIndex, unchecked((byte)typeAndBts));
+            original.VisualFlipFlags, collisionType).Raw);
+        level.SetPlmBehavior(blockIndex, bts);
     }
 }

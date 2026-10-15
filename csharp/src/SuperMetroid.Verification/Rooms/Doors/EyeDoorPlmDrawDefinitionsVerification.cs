@@ -5,7 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorPlmsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupEyeDoorLayoutsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.LookupEyeDoorProgramVerification;
+using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Rooms.Doors.LookupEyeDoorStockVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupEyeDoorVisualIdsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -73,18 +73,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
     /// <summary>Checks eye-door instruction control, timing, draw, callback, and hit-count words.</summary>
     private static void VerifyEyeDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifyEyeDoorProgramControl), () => VerifyEyeDoorProgramControl(rom));
-        Suite(nameof(VerifyEyeDoorProgramDuration), () => VerifyEyeDoorProgramDuration(rom));
-        Suite(nameof(VerifyEyeDoorProgramDraw), () => VerifyEyeDoorProgramDraw(rom));
-        Suite(nameof(VerifyEyeDoorProgramTarget), () => VerifyEyeDoorProgramTarget(rom));
-        Suite(nameof(VerifyEyeDoorProgramCallback), () => VerifyEyeDoorProgramCallback(rom));
-        Suite(nameof(VerifyEyeDoorProgramColumns), () => VerifyEyeDoorProgramColumns(rom));
-        Suite(nameof(VerifyEyeDoorProgramRows), () => VerifyEyeDoorProgramRows(rom));
-        Suite(nameof(VerifyEyeDoorProgramAttack), () => VerifyEyeDoorProgramAttack(rom));
-        Suite(nameof(VerifyEyeDoorProgramSweat), () => VerifyEyeDoorProgramSweat(rom));
-        Suite(nameof(VerifyEyeDoorProgramSound), () => VerifyEyeDoorProgramSound(rom));
-        Suite(nameof(VerifyEyeDoorProgramHitCount), () => VerifyEyeDoorProgramHitCount(rom));
-        Suite(nameof(VerifyEyeDoorProgramLoopCount), () => VerifyEyeDoorProgramLoopCount(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifyEyeDoorPrograms), () => RoomPlmProgramsVerification.VerifyEyeDoorPrograms(rom));
     }
 
     /// <summary>Checks each eye-door component's collision blocks and immediate edited tilemap update.</summary>

@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -14,149 +15,103 @@ internal sealed class GreyDoorPlms
     private readonly PlmBlockDrawing _drawing;
     /// <summary>Queues the cartridge's dud sound for shots rejected while the door is locked.</summary>
     private readonly PlmSoundQueue _sounds;
+    /// <summary>The coloured-door owner whose door-bit bookkeeping grey caps share.</summary>
+    private readonly DoorPlms _doors;
 
     /// <summary>Binds progression checks, block drawing, and PLM sound requests.</summary>
-    internal GreyDoorPlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSoundQueue sounds)
+    internal GreyDoorPlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSoundQueue sounds, DoorPlms doors)
     {
+        _doors = doors;
         _bindings = bindings;
         _drawing = drawing;
         _sounds = sounds;
     }
 
-    /// <summary>Handles condition gating, closed-blue conversion, and hit-triggered opening before shared instruction interpretation.</summary>
-    internal bool TryStepGreyDoor(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, ushort enemyDeaths, byte enemyDeathQuota)
+    /// <summary>
+    /// The grey cap's pre-instructions: an unlock check wakes the cap at its activation once the door's condition holds
+    /// (setting Zebes awake for the enemy quota), and otherwise plays the dud sound for a shot; once activated, any
+    /// shot wakes the cap at its hit. Each consumes the hit word.
+    /// </summary>
+    internal void RunGreyDoorPreInstruction(PlmSlot slot, ushort enemyDeaths, byte enemyDeathQuota)
     {
-        GreyDoorPlmState? door = slot.GreyDoor;
-        if (door is null)
-            return false;
-
-        // The ordinary grey-door closing list ends immediately before its first list and
-        // intentionally falls through to it; unlike Bomb Torizo's special list, there is
-        // no explicit Goto to intercept. Restore the same resident family when the native
-        // list cursor reaches that boundary. The final closing draw is already the fully
-        // closed frame, so marking it complete also avoids drawing it twice.
-        if (door.Phase == GreyDoorPhase.Closing &&
-            slot.InstructionPointer == door.InitialList)
+        if (slot.GreyDoor is null)
+            return;
+        GreyDoorPreInstruction preInstruction = ClosedNativeWords.Decode<GreyDoorPreInstruction>(
+            slot.PreInstruction, "grey-door pre-instruction");
+        switch (preInstruction)
         {
-            slot.PreInstruction = 0;
-            door.Phase = GreyDoorPhase.Locked;
-            door.InitialDrawCompleted = true;
-            door.HasPendingHit = false;
-        }
-
-        // Resident room-entry closers execute the header's second list in the common
-        // interpreter, then return to InitialList. Retaining this discriminator is what
-        // lets that return restore the ordinary condition-gated door owner.
-        if (door.Phase == GreyDoorPhase.Closing)
-            return false;
-
-        if (door.Phase == GreyDoorPhase.ConvertToBlue)
-        {
-            // Goto_if_room_argument_door_is_set selects the ordinary closed-blue list.
-            // Its PLM_BTS_Y opcode and single draw are observable immediately on reload.
-            byte blueBts = unchecked((byte)(
-                RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)door.Orientation));
-            ushort drawPointer = RoomPlmSystem.ReadProgramWord(
-                bus,
-                unchecked((ushort)(door.ClosedBlueList + 5)));
-            level.SetBehavior(slot.BlockIndex, blueBts);
-            _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, drawPointer, view);
-            slot.Active = false;
-            slot.GreyDoor = null;
-            return true;
-        }
-
-        if (!door.InitialDrawCompleted)
-        {
-            _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, door.ClosedGreyDraw, view);
-            door.InitialDrawCompleted = true;
-        }
-
-        if (door.Phase == GreyDoorPhase.Locked)
-        {
-            if (!IsGreyDoorConditionSatisfied(door.Condition, enemyDeaths, enemyDeathQuota))
-            {
-                // Play_Dud_Sound_if_Shot consumes the shared PLM timer whether or not it
-                // was nonzero. This is why a rejected shot never survives until unlock.
-                if (door.HasPendingHit)
-                    _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: 6));
-                door.HasPendingHit = false;
-                door.PendingProjectileType = default;
+            case GreyDoorPreInstruction.None:
+                return;
+            case GreyDoorPreInstruction.WakeWhenShot:
+                if (slot.LoopTimer == 0)
+                    return;
                 slot.LoopTimer = 0;
-                return true;
-            }
-
-            if (door.Condition == GreyDoorCondition.EnemyDeathQuota)
-            {
-                (_bindings.System ?? throw new InvalidOperationException(
-                    "A resident grey door has no progression-state owner."))
-                    .SetEvent(EventNumber.ZebesAwake);
-            }
-
-            // Goto_Link_Instruction clears shot status, sets timer one, and selects the
-            // activation link. That link installs the later shot link/pre-instruction and
-            // falls straight into the repeating flash list on this same PLM handler pass.
-            // Clearing the hit here is essential: the quota-completing frame cannot also
-            // open the door even if a projectile happened to collide during that frame.
-            door.HasPendingHit = false;
-            door.PendingProjectileType = default;
-            door.Phase = GreyDoorPhase.Flashing;
-            slot.InstructionPointer = door.FlashList;
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.LoopTimer = 0;
-            return false;
+                slot.WakeAtLink();
+                return;
+            case GreyDoorPreInstruction.PlayDudSound:
+                PlayDudSoundIfShot(slot);
+                return;
+            case GreyDoorPreInstruction.WakeIfAreaBossDead:
+            case GreyDoorPreInstruction.WakeIfAreaMiniBossDead:
+            case GreyDoorPreInstruction.WakeIfAreaTorizoDead:
+            case GreyDoorPreInstruction.WakeIfEnemiesDead:
+            case GreyDoorPreInstruction.WakeIfTourianStatueFinished:
+            case GreyDoorPreInstruction.WakeIfCrittersEscaped:
+                if (!IsUnlocked(preInstruction, enemyDeaths, enemyDeathQuota))
+                {
+                    PlayDudSoundIfShot(slot);
+                    return;
+                }
+                if (preInstruction == GreyDoorPreInstruction.WakeIfEnemiesDead)
+                    RequireSystem().SetEvent(EventNumber.ZebesAwake);
+                slot.LoopTimer = 0;
+                slot.WakeAtLink();
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(GreyDoorPreInstruction)} {preInstruction}.");
         }
-
-        if (door.Phase == GreyDoorPhase.Flashing && door.HasPendingHit)
-        {
-            door.HasPendingHit = false;
-            door.PendingProjectileType = default;
-            if (unchecked((short)slot.RoomArgument) >= 0)
-            {
-                (_bindings.System ?? throw new InvalidOperationException(
-                    "A resident grey door has no persistence-state owner."))
-                    .SetOpenedDoorBit(slot.RoomArgument);
-                slot.RoomArgument |= 0x8000;
-            }
-
-            // `$84:8A91` uses threshold one for every grey door. Its only successful
-            // branch target is the ROM pointer extracted above, so the shared interpreter
-            // remains responsible for sound seven, all four authored draws, and deletion.
-            door.Phase = GreyDoorPhase.Opening;
-            slot.InstructionPointer = door.OpeningList;
-            slot.InstructionTimer = NativeCountdown.Start(1);
-        }
-
-        // Flashing and opening streams contain only timer/draw pairs, Goto, sound, and
-        // Delete—all shared opcodes. Returning false deliberately hands those streams to
-        // the ordinary cartridge instruction interpreter below this semantic pre-pass.
-        return false;
     }
 
-    /// <summary>Evaluates boss, quota, statue, and event gates using live room progression state.</summary>
-    private bool IsGreyDoorConditionSatisfied(
-        GreyDoorCondition condition,
-        ushort enemyDeaths,
-        byte enemyDeathQuota)
+    /// <summary><c>$84:BDC4</c>: a shot on a locked cap queues the dud sound; the hit word is consumed either way.</summary>
+    private void PlayDudSoundIfShot(PlmSlot slot)
     {
-        Bank80SystemState system = _bindings.System ?? throw new InvalidOperationException(
-            "A resident grey door has no progression-state owner.");
-        return condition switch
+        if (slot.LoopTimer != 0)
+            _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: DudSoundMaximumQueued));
+        slot.LoopTimer = 0;
+    }
+
+    /// <summary>The dud sound's native queue cap.</summary>
+    private const int DudSoundMaximumQueued = 6;
+
+    /// <summary><c>$84:8A91</c>: counts a hit on a grey cap; true when it opens the door.</summary>
+    internal bool CountGreyDoorHit(PlmSlot slot)
+    {
+        GreyDoorPlmState door = slot.GreyDoor
+            ?? throw new InvalidOperationException("A grey cap's hit reached a slot without its door state.");
+        door.HitCounter = unchecked((byte)(door.HitCounter + 1));
+        if (door.HitCounter < GreyDoorPlmProgramDefinitions.HitThreshold)
+            return false;
+        _doors.MarkDoorOpened(slot);
+        return true;
+    }
+
+    /// <summary>The room's progression owner.</summary>
+    private Bank80SystemState RequireSystem() =>
+        _bindings.System ?? throw new InvalidOperationException("A resident grey door has no progression-state owner.");
+
+    /// <summary>Whether the unlock check <paramref name="preInstruction"/> passes.</summary>
+    private bool IsUnlocked(GreyDoorPreInstruction preInstruction, ushort enemyDeaths, byte enemyDeathQuota)
+    {
+        Bank80SystemState system = RequireSystem();
+        return preInstruction switch
         {
-            GreyDoorCondition.AreaBossDefeated =>
-                system.HasAnyBossBits(_bindings.Area, BossBits.AreaBoss),
-            GreyDoorCondition.AreaMiniBossDefeated =>
-                system.HasAnyBossBits(_bindings.Area, BossBits.AreaMiniBoss),
-            GreyDoorCondition.AreaTorizoDefeated =>
-                system.HasAnyBossBits(_bindings.Area, BossBits.AreaTorizo),
-            GreyDoorCondition.EnemyDeathQuota => enemyDeaths >= enemyDeathQuota,
-            GreyDoorCondition.Never => false,
-            GreyDoorCondition.TourianStatueFinished =>
-                _bindings.TourianStatue?.IsFinished == true,
-            GreyDoorCondition.CrittersEscaped =>
-                system.HasEvent(EventNumber.CrittersEscaped),
-            _ => throw new InvalidDataException(
-                $"Unknown grey-door condition {(byte)condition}.")
+            GreyDoorPreInstruction.WakeIfAreaBossDead => system.HasAnyBossBits(_bindings.Area, BossBits.AreaBoss),
+            GreyDoorPreInstruction.WakeIfAreaMiniBossDead => system.HasAnyBossBits(_bindings.Area, BossBits.AreaMiniBoss),
+            GreyDoorPreInstruction.WakeIfAreaTorizoDead => system.HasAnyBossBits(_bindings.Area, BossBits.AreaTorizo),
+            GreyDoorPreInstruction.WakeIfEnemiesDead => enemyDeaths >= enemyDeathQuota,
+            GreyDoorPreInstruction.WakeIfTourianStatueFinished => _bindings.TourianStatue?.IsFinished == true,
+            GreyDoorPreInstruction.WakeIfCrittersEscaped => system.HasEvent(EventNumber.CrittersEscaped),
+            _ => throw new InvalidOperationException($"{preInstruction} is not an unlock check."),
         };
     }
 
@@ -166,20 +121,21 @@ internal sealed class GreyDoorPlms
         // Setup_GreyDoor and Setup_ColoredDoor share the exact `$C044` collision write.
         // Preserve the authored visual payload while replacing only type and BTS.
         ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-        level.SetForegroundEntry(blockIndex, unchecked((ushort)((originalWord & 0x0fff) | 0xc000)));
+        level.SetForegroundEntry(blockIndex, new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.ShootableBlock).Raw);
         level.SetBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
     }
 
-    /// <summary>Runs Setup_GreyDoor on a slot allocated in native record order.</summary>
+    /// <summary>
+    /// Setup <c>$84:C794</c> for a grey cap: decodes its unlock condition from the room argument, installs its shootable
+    /// collision and starts its waiting program.
+    /// </summary>
     internal static void SetupGreyDoorSlot(
-        ISnesAddressSpace bus,
         RoomLevelData level,
-        Bank80SystemState system,
         PlmSlot slot,
         ColoredDoorOrientation orientation)
     {
         ushort rawRoomArgument = slot.RoomArgument;
-        int conditionOffset = ((SnesLittleEndian.HighByte(rawRoomArgument)) & 0x7c) >> 1;
+        int conditionOffset = GreyDoorRoomArgumentDefinitions.ConditionOffset(rawRoomArgument);
         if ((conditionOffset & 1) != 0 || conditionOffset > 12)
         {
             throw new InvalidDataException(
@@ -188,24 +144,11 @@ internal sealed class GreyDoorPlms
         }
 
         GreyDoorCondition condition = GreyDoorConditions.AtTableIndex(conditionOffset >> 1);
-        slot.RoomArgument = unchecked((ushort)(rawRoomArgument & 0x83ff));
+        slot.RoomArgument = GreyDoorRoomArgumentDefinitions.DoorBitArgument(rawRoomArgument);
         ApplyGreyDoorSetup(level, slot.BlockIndex);
-
-        ushort initialList = slot.InstructionPointer;
-        ushort closedBlueList = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(initialList + 2)));
-        ushort activationList = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(initialList + 6)));
-        ushort closedGreyDraw = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(initialList + 12)));
-        ushort openTriggerList = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(activationList + 2)));
-        ushort flashList = unchecked((ushort)(activationList + 8));
-        ushort openingList = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(openTriggerList + 3)));
-        bool wasOpened = unchecked((short)slot.RoomArgument) >= 0 &&
-            system.HasOpenedDoorBit(slot.RoomArgument);
-
-        slot.GreyDoor = new GreyDoorPlmState(
-            orientation,
-            condition,
-            new GreyDoorPrograms(initialList, closedBlueList, closedGreyDraw, flashList, openingList),
-            wasOpened ? GreyDoorPhase.ConvertToBlue : GreyDoorPhase.Locked);
+        slot.GreyDoor = new GreyDoorPlmState(orientation, condition);
+        var variant = new GreyDoorVariant(orientation, BombTorizo: slot.HeaderPointer == PlmHeaderId.BombTorizoGreyDoor);
+        slot.StartAnimation(new GreyDoorPlmAnimation(variant, GreyDoorProgram.Waiting));
     }
 
     /// <summary>Maps the four native grey-door headers and Bomb Torizo's special header to their orientation.</summary>

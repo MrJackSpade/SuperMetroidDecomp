@@ -2,51 +2,51 @@ using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The twenty-two contiguous fake-death mutation lists, valued by their $84 address.</summary>
-internal enum MotherBrainFakeDeathProgram : ushort
+/// <summary>Mother Brain's twenty-two fake-death room mutation programs (#1296), in authored order.</summary>
+internal enum MotherBrainFakeDeathProgram
 {
-    /// <inheritdoc cref="RoomPlmInstructionLists.FillMotherBrainsWall"/>
-    FillWall = RoomPlmInstructionLists.FillMotherBrainsWall,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsRoomEscapeDoor"/>
-    EscapeDoor = RoomPlmInstructionLists.MotherBrainsRoomEscapeDoor,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRow2"/>
-    BackgroundRow2 = RoomPlmInstructionLists.MotherBrainsBackgroundRow2,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRow3"/>
-    BackgroundRow3 = RoomPlmInstructionLists.MotherBrainsBackgroundRow3,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRow4"/>
-    BackgroundRow4 = RoomPlmInstructionLists.MotherBrainsBackgroundRow4,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRow5"/>
-    BackgroundRow5 = RoomPlmInstructionLists.MotherBrainsBackgroundRow5,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRow6"/>
-    BackgroundRow6 = RoomPlmInstructionLists.MotherBrainsBackgroundRow6,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRow7"/>
-    BackgroundRow7 = RoomPlmInstructionLists.MotherBrainsBackgroundRow7,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRow8"/>
-    BackgroundRow8 = RoomPlmInstructionLists.MotherBrainsBackgroundRow8,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRow9"/>
-    BackgroundRow9 = RoomPlmInstructionLists.MotherBrainsBackgroundRow9,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRowA"/>
-    BackgroundRowA = RoomPlmInstructionLists.MotherBrainsBackgroundRowA,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRowB"/>
-    BackgroundRowB = RoomPlmInstructionLists.MotherBrainsBackgroundRowB,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRowC"/>
-    BackgroundRowC = RoomPlmInstructionLists.MotherBrainsBackgroundRowC,
-    /// <inheritdoc cref="RoomPlmInstructionLists.MotherBrainsBackgroundRowD"/>
-    BackgroundRowD = RoomPlmInstructionLists.MotherBrainsBackgroundRowD,
-    /// <summary>$84:AC59, cartridge-unused background row E.</summary>
-    BackgroundRowE = 0xac59,
-    /// <summary>$84:AC5F, cartridge-unused background row F.</summary>
-    BackgroundRowF = 0xac5f,
-    /// <inheritdoc cref="RoomPlmInstructionLists.ClearMotherBrainCeilingBlock"/>
-    ClearCeilingBlock = RoomPlmInstructionLists.ClearMotherBrainCeilingBlock,
-    /// <inheritdoc cref="RoomPlmInstructionLists.ClearMotherBrainCeilingTube"/>
-    ClearCeilingTube = RoomPlmInstructionLists.ClearMotherBrainCeilingTube,
-    /// <inheritdoc cref="RoomPlmInstructionLists.ClearMotherBrainBottomMiddleSideTube"/>
-    ClearBottomMiddleSideTube = RoomPlmInstructionLists.ClearMotherBrainBottomMiddleSideTube,
-    /// <inheritdoc cref="RoomPlmInstructionLists.ClearMotherBrainBottomMiddleTubes"/>
-    ClearBottomMiddleTubes = RoomPlmInstructionLists.ClearMotherBrainBottomMiddleTubes,
-    /// <inheritdoc cref="RoomPlmInstructionLists.ClearMotherBrainBottomLeftTube"/>
-    ClearBottomLeftTube = RoomPlmInstructionLists.ClearMotherBrainBottomLeftTube,
-    /// <inheritdoc cref="RoomPlmInstructionLists.ClearMotherBrainBottomRightTube"/>
-    ClearBottomRightTube = RoomPlmInstructionLists.ClearMotherBrainBottomRightTube,
+    /// <summary>Fills the wall (header $B673).</summary>
+    FillWall,
+    /// <summary>Draws the opened escape door (header $B677).</summary>
+    EscapeDoor,
+    /// <summary>Installs background row two's thirteen-block layout.</summary>
+    BackgroundRow2,
+    /// <summary>Installs background row three's layout.</summary>
+    BackgroundRow3,
+    /// <summary>Installs background row four's layout.</summary>
+    BackgroundRow4,
+    /// <summary>Installs background row five's layout.</summary>
+    BackgroundRow5,
+    /// <summary>Installs background row six's layout.</summary>
+    BackgroundRow6,
+    /// <summary>Installs background row seven's layout.</summary>
+    BackgroundRow7,
+    /// <summary>Installs background row eight's layout.</summary>
+    BackgroundRow8,
+    /// <summary>Installs background row nine's layout.</summary>
+    BackgroundRow9,
+    /// <summary>Installs background row ten's layout.</summary>
+    BackgroundRowA,
+    /// <summary>Installs background row eleven's layout.</summary>
+    BackgroundRowB,
+    /// <summary>Installs background row twelve's layout.</summary>
+    BackgroundRowC,
+    /// <summary>Installs background row thirteen's layout.</summary>
+    BackgroundRowD,
+    /// <summary>The cartridge-unused background row fourteen.</summary>
+    BackgroundRowE,
+    /// <summary>The cartridge-unused background row fifteen.</summary>
+    BackgroundRowF,
+    /// <summary>Clears the ceiling block.</summary>
+    ClearCeilingBlock,
+    /// <summary>Clears the ceiling tube.</summary>
+    ClearCeilingTube,
+    /// <summary>Clears the lower middle side tube.</summary>
+    ClearBottomMiddleSideTube,
+    /// <summary>Clears the lower middle tubes.</summary>
+    ClearBottomMiddleTubes,
+    /// <summary>Clears the lower left tube.</summary>
+    ClearBottomLeftTube,
+    /// <summary>Clears the lower right tube.</summary>
+    ClearBottomRightTube,
 }

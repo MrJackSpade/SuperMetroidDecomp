@@ -1,6 +1,7 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidDrawMappingsVerification;
-using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomProgramMappingVerification;
+using static SuperMetroid.Verification.Rooms.Plms.BossRoomPlmProgramsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -19,7 +20,7 @@ internal static class KraidRoomPlmsVerification
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyKraidRoomProgramMapping), () => VerifyKraidRoomProgramMapping(rom));
+        Suite(nameof(VerifyKraidRoomPrograms), () => VerifyKraidRoomPrograms(rom));
 
         Suite(nameof(VerifyKraidDrawAddresses), () => VerifyKraidDrawAddresses());
         Suite(nameof(VerifyKraidDrawOwnerClassification), () => VerifyKraidDrawOwnerClassification(rom));
@@ -106,10 +107,7 @@ internal static class KraidRoomPlmsVerification
     internal static CartridgeReadGuard NewKraidRoomSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => (SnesAddressMath.BankNumber(address)) == 0x84 &&
-                (((SnesAddressMath.OffsetInBank(address)) >= KraidRoomPlmProgramDefinitions.CrumbleCeilingBackground1 &&
-                  (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmProgramDefinitions.MoveRightCallback) ||
-                 ((SnesAddressMath.OffsetInBank(address)) >= KraidRoomPlmProgramDefinitions.ClearSpikes &&
-                  (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmProgramDefinitions.EndExclusive) ||
+                (BossRoomPlmNativeListAddresses.IsTypedProgramByte(SnesAddressMath.OffsetInBank(address)) ||
                  ((SnesAddressMath.OffsetInBank(address)) >= (ushort)KraidRoomDraw.CrumbleFirst &&
                   (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmDrawDefinitions.EndExclusive)),
             address => $"Kraid mutation reread migrated source ${address:X6}.");

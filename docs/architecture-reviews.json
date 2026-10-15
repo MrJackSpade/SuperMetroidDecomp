@@ -289,14 +289,6 @@
       "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Plms.PlmSlot",
-      "flags": [
-        "context-bag"
-      ],
-      "disposition": "state",
-      "reason": "One native PLM slot: the per-family states it may carry are slot data, not services."
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Artwork.ProjectileSpriteDefinitions",
       "flags": [
         "large"
@@ -400,6 +392,22 @@
       ],
       "disposition": "entity-behaviour",
       "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxAnimations",
+      "flags": [
+        "large"
+      ],
+      "disposition": "definition-catalog",
+      "reason": "Generated typed program set: 167 palette-FX programs of colour records, cues, counters and branches, verified step by step against the cartridge, with no behaviour or mutable state."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileAnimations",
+      "flags": [
+        "large"
+      ],
+      "disposition": "definition-catalog",
+      "reason": "Generated typed program set: 145 Samus projectile programs of timed records, gotos and deletes, verified step by step against the cartridge, with no behaviour or mutable state."
     }
   ]
 }

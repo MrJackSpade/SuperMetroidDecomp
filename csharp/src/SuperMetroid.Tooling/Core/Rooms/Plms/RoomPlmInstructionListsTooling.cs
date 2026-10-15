@@ -12,7 +12,4 @@ internal static class RoomPlmInstructionListsTooling
     /// </summary>
     [AccessedByReflection]
     public const ushort MotherBrainEscapeRoomGateClosed = 0xbb34;
-    /// <summary>Entry two bytes into the scroll list after collision wakes it.</summary>
-    [AccessedByReflection]
-    public const ushort ScrollTriggerActivated = 0xaf8c;
 }

@@ -123,7 +123,7 @@ internal static class PlmProgramAudit
     private static string? TypedListRoute(string name) => name switch
     {
         nameof(RoomPlmInstructionLists.ScrollTriggerWaiting) or
-        nameof(RoomPlmInstructionListsTooling.ScrollTriggerActivated) => "TryStepScrollPlm",
+        nameof(RoomPlmInstructionLists.ScrollTriggerActivated) => "TryStepScrollPlm",
         nameof(RoomPlmInstructionLists.SaveStationIdleDraw) or
         nameof(RoomPlmInstructionLists.SaveStationAnimationFirstFrame) or
         nameof(RoomPlmInstructionLists.SaveStationAnimationSecondFrame) => "TryStepStation / SaveStationAnimationDefinitions",

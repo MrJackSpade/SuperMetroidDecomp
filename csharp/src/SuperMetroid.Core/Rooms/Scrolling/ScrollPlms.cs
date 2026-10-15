@@ -40,7 +40,7 @@ internal sealed class ScrollPlms
             {
                 slot.Scroll.Triggered = true;
                 slot.RestoreLevelWord = new RoomLevelWord(0).WithCollisionType(RoomCollisionType.SolidBlock).Raw;
-                slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerTriggered;
+                slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerActivated;
                 slot.InstructionTimer = NativeCountdown.Start(1);
             }
             return true;

@@ -19,7 +19,7 @@ public static class RoomPlmInstructionLists
     public const ushort ScrollTriggerWaiting = 0xaf8a;
 
     /// <summary><c>$84:AF8C</c>, inside <c>InstList_PLM_ScrollPLM_1</c>: the triggered trigger's continuation past its sleep.</summary>
-    public const ushort ScrollTriggerTriggered = 0xaf8c;
+    public const ushort ScrollTriggerActivated = 0xaf8c;
 
     /// <summary>Idle save-pod draw entry at $84:AFE8, before its trigger sleeps.</summary>
     public const ushort SaveStationIdleDraw = 0xafe8;

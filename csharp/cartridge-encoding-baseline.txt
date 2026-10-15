@@ -109,7 +109,7 @@ csharp/src/SuperMetroid.Tooling/Core/Rooms/Doors/DoorHeaderRomDataTooling.cs	SME
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionDefinitionsTooling.cs	SME6340	9
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionDefinitionsTooling.cs	SME6342	1
-csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/RoomPlmInstructionListsTooling.cs	SME6340	2
+csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/RoomPlmInstructionListsTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/RoomPlmMemoryLayoutTooling.cs	SME6340	2
 csharp/src/SuperMetroid.Tooling/Core/Rooms/RoomAssetRomDataGraphicsLayoutTooling.cs	SME6340	2
 csharp/src/SuperMetroid.Tooling/Core/Rooms/RoomHeaderPointersTooling.cs	SME6340	3

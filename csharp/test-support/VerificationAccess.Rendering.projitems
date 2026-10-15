@@ -1,5 +1,0 @@
-<Project>
-  <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess.Rendering/**/*.cs" LinkBase="TestSupport/VerificationAccess.Rendering" />
-  </ItemGroup>
-</Project>

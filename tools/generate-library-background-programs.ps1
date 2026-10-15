@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 try {
     $workspace = [IO.Path]::GetFullPath([IO.Path]::Combine($PSScriptRoot, '..'))
     $target = [IO.Path]::GetFullPath([IO.Path]::Combine($workspace, 'csharp', 'src',
-        'SuperMetroid.Core', 'Rooms', 'LibraryBackgroundProgramDefinitions.Generated.cs'))
+        'SuperMetroid.Core', 'Rooms', 'Backgrounds', 'LibraryBackgroundProgramDefinitions.Generated.cs'))
     if (-not $target.StartsWith($workspace + [IO.Path]::DirectorySeparatorChar,
         [StringComparison]::OrdinalIgnoreCase)) {
         throw "Generated catalog path escapes the repository: $target"
@@ -56,7 +56,7 @@ try {
     $lines.Add('//     Fixed command operands only; graphics and tilemaps remain installed presentation assets.')
     $lines.Add('// </auto-generated>')
     $lines.Add('#nullable enable')
-    $lines.Add('namespace SuperMetroid.Core.Rooms;')
+    $lines.Add('namespace SuperMetroid.Core.Rooms.Backgrounds;')
     $lines.Add('')
     $lines.Add('public static partial class LibraryBackgroundProgramDefinitions')
     $lines.Add('{')

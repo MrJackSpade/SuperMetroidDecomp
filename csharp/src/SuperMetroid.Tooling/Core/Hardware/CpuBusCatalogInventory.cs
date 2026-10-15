@@ -20,7 +20,7 @@ internal static class CpuBusCatalogInventory
     internal static IReadOnlyList<Assembly> ProductionAssemblies =>
     [
         typeof(CpuBusCell).Assembly,
-        typeof(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace).Assembly,
+        typeof(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace).Assembly,
         typeof(CpuBusCatalogInventory).Assembly,
     ];
 

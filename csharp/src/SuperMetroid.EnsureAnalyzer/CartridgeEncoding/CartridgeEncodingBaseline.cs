@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace SuperMetroid.EnsureAnalyzer;
+namespace SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
 
 /// <summary>
 /// The reviewed per-file counts of ratcheted cartridge encoding (#641). Each line is

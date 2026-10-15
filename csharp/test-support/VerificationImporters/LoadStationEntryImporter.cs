@@ -1,10 +1,10 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Cartridge;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Reads native load-station records only while importing or verifying a cartridge.</summary>
 [CpuBusBoundary("codec: ROM bank-$80 load-station pointer table and entries → LoadStationEntry")]

@@ -13,8 +13,9 @@
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
   <Import Project="../../test-support/RepositoryInstallation.Verification.projitems" />
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
+  <Import Project="../../test-support/VerificationAccess.Tooling.projitems" />
   <Import Project="../../test-support/VerificationAccess.Desktop.projitems" />
-  <Import Project="../../test-support/VerificationAccess.Rendering.projitems" />
+  <Import Project="../../test-support/VerificationAccess.Rendering.Direct3D11.projitems" />
   <Import Project="../../test-support/SaveMapFixtures.projitems" />
   <ItemGroup>
     <Using Include="SuperMetroid.Core.Spatial" />

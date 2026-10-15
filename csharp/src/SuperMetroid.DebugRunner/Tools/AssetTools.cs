@@ -1,3 +1,5 @@
+namespace SuperMetroid.DebugRunner.Tools;
+
 /// <summary>
 /// Developer tools that export cartridge source evidence and generate checked-in definition
 /// catalogs. They run from the repository root against the repository ROM; their outputs go to
@@ -10,6 +12,8 @@ internal static class AssetTools
     {
         switch (args)
         {
+            case ["--audio-clip-inventory", var audioDirectory, var inventoryDirectory]:
+                return AudioClipInventory.Run(audioDirectory, inventoryDirectory);
             case ["--dump-instruction-layouts", var outputPath]:
                 InstructionLayoutDump.DumpInstructionLayouts(outputPath);
                 return 0;

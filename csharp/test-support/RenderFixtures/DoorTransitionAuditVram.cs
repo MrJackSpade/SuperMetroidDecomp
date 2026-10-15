@@ -1,3 +1,5 @@
+namespace SuperMetroid.TestSupport.RenderFixtures;
+
 /// <summary>VRAM regions inspected by the door-transition visual regression.</summary>
 internal static class DoorTransitionAuditVram
 {

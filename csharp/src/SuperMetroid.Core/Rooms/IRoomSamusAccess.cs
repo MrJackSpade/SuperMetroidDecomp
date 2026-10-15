@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Rooms;
 

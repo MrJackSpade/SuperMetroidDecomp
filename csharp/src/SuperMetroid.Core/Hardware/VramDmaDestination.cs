@@ -8,10 +8,12 @@ namespace SuperMetroid.Core.Hardware;
 [PpuLayoutBoundary("codec: queued VRAM DMA destination word")]
 public readonly record struct VramDmaDestination
 {
-    /// <summary>Native DMA queue bit selecting 32-word column increments.</summary>
-    private const ushort ColumnFlag = 0x8000;
+    /// <summary>Native DMA queue bit 15, selecting 32-word column increments.</summary>
+    private const ushort ColumnFlag = 1 << 15;
     /// <summary>Native fifteen-bit VMADD address field.</summary>
-    private const ushort WordMask = 0x7fff;
+    private const ushort WordMask = SnesPpuLayout.VramWordCount - 1;
+    /// <summary>The words a column increment advances.</summary>
+    private const int ColumnIncrementWords = 32;
 
     /// <summary>Preserves an already encoded native DMA destination word.</summary>
     private VramDmaDestination(ushort encoded) => Encoded = encoded;
@@ -31,6 +33,12 @@ public readonly record struct VramDmaDestination
             throw new ArgumentOutOfRangeException(nameof(wordOffset), wordOffset, $"{cell.Name} holds {cell.Count} words.");
         return At(cell.Offset + wordOffset, increment);
     }
+
+    /// <summary>The VMADD word the transfer starts at.</summary>
+    internal int Word => Encoded & WordMask;
+
+    /// <summary>The words VMADD advances after each high-byte write: one for a row, 32 for a column.</summary>
+    internal int WordIncrement => (Encoded & ColumnFlag) == 0 ? 1 : ColumnIncrementWords;
 
     /// <summary>Decodes a native queue word read from cartridge or WRAM data.</summary>
     [PpuLayoutAccess]

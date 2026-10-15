@@ -1,11 +1,30 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Runtime.Attract;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -370,9 +389,8 @@ public sealed class SuperMetroidGame
     private byte endingFadeBrightness = 15;
     /// <summary>Cadence counter for the ending fade.</summary>
     private int endingFadeCounter;
-    /// <summary>Audio commands published by the most recent frontend frame.</summary>
-    private IReadOnlyList<CartridgeAudioCommand> lastAudioCommands =
-        Array.Empty<CartridgeAudioCommand>();
+    /// <summary>The most recent update's ordered semantic audio events; the session has already rendered them.</summary>
+    internal IReadOnlyList<AudioEvent> lastAudioEvents = Array.Empty<AudioEvent>();
     /// <summary>Runtime publication number last copied into the frontend audio queue.</summary>
     private ulong? lastAudioRuntimeGameplayPublication;
     /// <summary>Room-state pointer associated with the last copied audio publication.</summary>
@@ -430,9 +448,9 @@ public sealed class SuperMetroidGame
     /// its sound-effect acknowledgements whether or not audio is bound, so gameplay is identical
     /// with audio enabled, disabled, or without an output device.
     /// </remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="assets"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="clips"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The session already advanced without synthesis and has no player to continue.</exception>
-    public void BindAudio(ExtractedAudioAssetCatalog assets) => audioSession.BindSynthesis(assets);
+    public void BindAudio(ClipAudioCatalog clips) => audioSession.BindClips(clips);
 
     /// <summary>Copies the last update's 1,600 interleaved 48-kHz stereo samples into host-owned storage.</summary>
     /// <exception cref="InvalidOperationException">No audio catalog is bound.</exception>
@@ -473,7 +491,7 @@ public sealed class SuperMetroidGame
     public IDoorLoaderProgressSource DoorLoaderProgress { get; set; } = LagFreeDoorLoaderProgress.Instance;
 
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
-    public FrontendFrame Step(ushort controllerInput)
+    public FrontendFrame Step(SnesButton controllerInput)
     {
         // Derive the door-owned native disable flag before any producer can queue
         // audio. This also restores its meaning for legacy snapshots without adding
@@ -767,8 +785,8 @@ public sealed class SuperMetroidGame
                     audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
                     audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
                     audio.QueueMusicDelayed8(MusicCommand.Stop);
-                    audio.QueueMusicDelayed8(MusicCommand.LoadData(0x39));
-                    audio.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x000e));
+                    audio.QueueMusicDelayed8(MusicCommand.LoadData(SamusDeathRomData.Music.DataIndex));
+                    audio.QueueMusicDelayed(MusicCommand.SelectTrack(SamusDeathRomData.Music.TrackIndex), MusicCommandDelay.FromDelayedYArgument(14));
                     GameState = SuperMetroidGameState.DeathWaitForMusic;
                 }
                 break;
@@ -1201,7 +1219,7 @@ public sealed class SuperMetroidGame
                     audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.StopSpinJump,
                         maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
                 }
-                else if ((controllerInput & (ushort)SnesButton.X) == 0 &&
+                else if ((controllerInput & SnesButton.X) == 0 &&
                     GameplayRuntime.Projectiles.Charge.FlareCounter < 16)
                 {
                     audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll,
@@ -1337,15 +1355,14 @@ public sealed class SuperMetroidGame
             // The opening dispatch's HandleSounds runs only once the routine returns.
             soundHandlers = 0;
         }
-        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = audio.AdvanceFrame(
-            bus, SoundAcknowledgements.ForNextFrame(audioSession.Acknowledgements),
+        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = audio.AdvanceFrame(SoundAcknowledgements.ForNextFrame(audioSession.Acknowledgements),
             advanceMusicQueue: musicHandler,
             soundEffectHandlerCalls: soundHandlers);
-        lastAudioCommands = prologueMusicCommands.Count == 0 ? trailingAudioCommands
+        IReadOnlyList<CartridgeAudioCommand> audioCommands = prologueMusicCommands.Count == 0 ? trailingAudioCommands
             : [.. prologueMusicCommands, .. trailingAudioCommands];
         // The SPC acts on this update's port writes and uploads during the update's own DSP
         // cycles; its echoes become visible to the next update's sound handlers.
-        audioSession.Advance(lastAudioCommands);
+        lastAudioEvents = audioSession.Advance(audioCommands);
         // $82:8AB0 runs after the pause dispatcher returns, even though Samus's
         // draw-time epilogue did not run. Preserve its held-only publication;
         // updating the press edge or auto-jump timer here would invent gameplay.
@@ -1354,19 +1371,18 @@ public sealed class SuperMetroidGame
         return CurrentFrame;
     }
 
-    /// <summary>Reads frontend status and audio commands without materializing a retained display.</summary>
+    /// <summary>Reads frontend status without materializing a retained display.</summary>
     public FrontendFrame CurrentFrameMetadata =>
-        new(GameState, PhaseName, FrameNumber, Array.Empty<Rgba32>(), lastAudioCommands);
+        new(GameState, PhaseName, FrameNumber, Array.Empty<Rgba32>());
 
-    /// <summary>Reads the current status, last audio commands, and display without advancing the dispatcher.</summary>
+    /// <summary>Reads the current status and display without advancing the dispatcher.</summary>
     /// <remarks>
     /// Pixels are the producer's reusable 256-by-224 buffer, not a copy; a host retaining them across another frame must copy them.
     /// When a display capture already owns the current image, the pixel array is empty and the host presents that capture instead.
     /// </remarks>
     public FrontendFrame CurrentFrame =>
         new(GameState, PhaseName, FrameNumber,
-            display.CurrentPixels,
-            lastAudioCommands);
+            display.CurrentPixels);
 
     /// <summary>
     /// Moves already-translated per-frame publishers into the single cartridge queue.
@@ -1457,11 +1473,11 @@ public sealed class SuperMetroidGame
             if (samus.CrystalFlash.ConsumeActivationSoundRequest())
                 audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
             if (samus.Xray.ConsumeActivationSoundRequest())
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x09), maximumQueued: 6);
+                audio.QueueSound(SoundEffectLibrary1Sounds.XrayStart, maximumQueued: 6);
             if (samus.Xray.ConsumeDeactivationSoundRequest())
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x0a), maximumQueued: 6);
+                audio.QueueSound(SoundEffectLibrary1Sounds.XrayEnd, maximumQueued: 6);
             if (samus.DeathSequence.ConsumeSpinJumpSoundRequest())
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x32), maximumQueued: 6);
+                audio.QueueSound(SoundEffectLibrary1Sounds.StopSpinJump, maximumQueued: 6);
         }
 
         if (runtime.Projectiles.LastFrameResult.QueuedSoundEffect is { } projectileSound)
@@ -1612,7 +1628,7 @@ public sealed class SuperMetroidGame
                !samus.Xray.TimeIsFrozen &&
                !runtime.RoomLoader.HasPendingDoorTransition &&
                runtime.Room.ActiveRoom.AreaIndex != AreaId.Ceres &&
-               (runtime.Controller1.NewlyPressed & (ushort)SnesButton.Start) != 0;
+               (runtime.Controller1.NewlyPressed & SnesButton.Start) != 0;
     }
 
     /// <summary>
@@ -1636,7 +1652,7 @@ public sealed class SuperMetroidGame
     /// <c>GameState_8_MainGameplay</c>: one gameplay frame and the state publications its
     /// routines make. State $12 (<c>$82:93A1</c>) calls the same routine before fading in.
     /// </summary>
-    private void RunMainGameplayState(ushort controllerInput, GameplayAudioFramePublication gameplayAudio)
+    private void RunMainGameplayState(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         // DisplayMessageBox is a nested NMI-waiting coroutine inside gameplay
         // state eight. Its final acknowledgement returns below the normal bank-$90
@@ -1797,7 +1813,7 @@ public sealed class SuperMetroidGame
         ReadOnlySpan<Bgr555> current = new CgramPalettes(runtime.Cgram).Image;
         // `$82:DCA3-$DCB3` restores only palette-buffer colors $C0-$CF into the otherwise
         // black target. Suitless row $F0 and all room/OBJ rows therefore fade away.
-        current.Slice(0xc0, 0x10).CopyTo(target.AsSpan(0xc0, 0x10));
+        current.Slice(192, 16).CopyTo(target.AsSpan(192, 16));
         deathPaletteFade = new CartridgePaletteTransition(target, denominator: 6, runtime.Enemies.Presentation.GradualColorChange);
     }
 
@@ -1824,7 +1840,7 @@ public sealed class SuperMetroidGame
     /// supplies sequence/generation outside the saved game graph, so restoring game
     /// state must not rewind presentation identity. This is a staged migration API.
     /// </summary>
-    public CapturedFrontendFrame StepCaptured(ushort controllerInput, long hostSequence, long hostGeneration)
+    public CapturedFrontendFrame StepCaptured(SnesButton controllerInput, long hostSequence, long hostGeneration)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostSequence);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostGeneration);
@@ -2073,10 +2089,10 @@ public sealed class SuperMetroidGame
             // Preserve the appearance track sequence, but upload the room's bank first
             // just as ordinary room loading does; track numbers alone are bank-local.
             audio.QueueRoomMusicData(loadedState.MusicDataIndex);
-            audio.QueueMusicDelayed(MusicCommand.SelectTrack(1), MusicCommandDelay.FromDelayedYArgument(0x000e));
+            audio.QueueMusicDelayed(MusicCommand.SelectTrack(1), MusicCommandDelay.FromDelayedYArgument(14));
             audio.QueueMusicDelayed(
                 MusicCommand.SelectTrackOrStop(loadedState.MusicTrackIndex),
-                MusicCommandDelay.FromDelayedYArgument(0x0168 + 5));
+                MusicCommandDelay.FromDelayedYArgument(360 + 5));
             lastAudioRoomStatePointer = loadedState.Pointer;
             return false;
         }
@@ -2185,7 +2201,7 @@ public sealed class SuperMetroidGame
     private bool demoHasNextScene;
 
     /// <summary>Advances demo loading, scripted gameplay, holds, cancellation, and title return.</summary>
-    private void StepAttractDemo(ushort controllerInput, GameplayAudioFramePublication gameplayAudio)
+    private void StepAttractDemo(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         switch (GameState)
         {
@@ -2319,7 +2335,7 @@ public sealed class SuperMetroidGame
             return location + "; Samus=not initialized";
         return location + $"; pose=${(int)samus.Pose:X2}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RawValue}; " +
             $"animationList=${samus.AnimationDelayListAddress:X6}; position={samus.Position.X.Whole},{samus.Position.Y.Whole}; " +
-            $"input=${runtime.Controller1.Current:X4}; newlyPressed=${runtime.Controller1.NewlyPressed:X4}; inputLocked={samus.InputLocked}; " +
+            $"input=${runtime.Controller1.Current:X}; newlyPressed=${runtime.Controller1.NewlyPressed:X}; inputLocked={samus.InputLocked}; " +
             $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +
             $"escapeTimer={runtime.EscapeTimer.State}; fx={samus.LiquidPhysics.FxType}; medium={samus.LiquidPhysics.LiquidPhysicsType}; " +
             $"waterY=${samus.LiquidPhysics.FxYPosition:X4}; acidY=${samus.LiquidPhysics.LavaAcidYPosition:X4}";
@@ -2354,7 +2370,7 @@ public sealed class SuperMetroidGame
     /// One native loading wait: the accepted NMI reads the controller and performs its
     /// transfers; no dispatcher runs. The last wait returns into the state store.
     /// </summary>
-    private void StepGameLoadingWait(ushort controllerInput)
+    private void StepGameLoadingWait(SnesButton controllerInput)
     {
         GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
         if (--gameLoadingWaitsRemaining != 0)
@@ -2392,7 +2408,7 @@ public sealed class SuperMetroidGame
     /// Runs this dispatch's state-$09 door function. Returns true when it sets carry, so
     /// state $0A runs in the same dispatch.
     /// </summary>
-    private bool StepHitDoorBlockFunction(ushort controllerInput)
+    private bool StepHitDoorBlockFunction(SnesButton controllerInput)
     {
         if (!waitingForDownwardsElevator)
         {
@@ -2426,7 +2442,7 @@ public sealed class SuperMetroidGame
     public void ApplyHostOptions(SuperMetroidGameOptions hostOptions)
     {
         Ensure.NotNull(hostOptions);
-        runtime?.ApplyHostOptions(hostOptions);
+        runtime?.ApplyHostOptions(hostOptions.RuntimeOverrides(forAttractDemo: false));
         ConfiguredOptions = hostOptions;
     }
 

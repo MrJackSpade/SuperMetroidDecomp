@@ -2,7 +2,7 @@ using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 
-namespace SuperMetroid.ReachabilityAudit;
+namespace SuperMetroid.ReachabilityAudit.SolutionLoading;
 
 /// <summary>Loads and compiles every project listed in a .slnx solution, failing on any load or compile error.</summary>
 internal static class SolutionLoader

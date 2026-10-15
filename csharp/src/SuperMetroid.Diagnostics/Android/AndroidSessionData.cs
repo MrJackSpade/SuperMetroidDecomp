@@ -1,11 +1,14 @@
+using SuperMetroid.Core.Input;
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Desktop;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Diagnostics.Recording;
+using SuperMetroid.Diagnostics.SaveStates;
 
-namespace SuperMetroid.Android;
+namespace SuperMetroid.Diagnostics.Android;
 
 /// <summary>
 /// Worker-owned game and diagnostic state. No Activity/View references are persisted.
@@ -19,11 +22,11 @@ internal sealed class AndroidSessionData : IDisposable
     /// <summary>Atomic JSON save path for the session's live SRAM.</summary>
     private readonly string savePath;
     /// <summary>Installed audio catalog retained across debugger state loads.</summary>
-    private readonly ExtractedAudioAssetCatalog assets;
+    private readonly ClipAudioCatalog assets;
     /// <summary>Installed map presentation used for save migration and persistence.</summary>
-    private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog maps;
+    private readonly SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog maps;
     /// <summary>Installed projectile art contributing to the session content identity.</summary>
-    private readonly SuperMetroid.AssetExtraction.InstalledProjectilePresentation projectiles;
+    private readonly SuperMetroid.AssetExtraction.Samus.InstalledProjectilePresentation projectiles;
     /// <summary>Installed visual catalog rebound to a game loaded from debugger state.</summary>
     private readonly GameArtwork artwork;
     /// <summary>State store tied to the session's options and installed content identity.</summary>
@@ -38,8 +41,8 @@ internal sealed class AndroidSessionData : IDisposable
         // A caller-provided cartridge is an import input only. The session always
         // opens the extracted installation and a RAM-only address space.
         if (cartridgePath is not null)
-            SuperMetroid.AssetExtraction.GameAssetInstaller.Install(cartridgePath, root);
-        var installation = new SuperMetroid.AssetExtraction.GameInstallation(root);
+            SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.Install(cartridgePath, root);
+        var installation = new SuperMetroid.AssetExtraction.Installation.GameInstallation(root);
         savePath = Path.Combine(root, "SuperMetroid.save.json");
         string ini = Path.Combine(root, "SuperMetroid.ini");
         if (!File.Exists(ini)) File.WriteAllText(ini, SuperMetroidGameOptionsIni.DefaultFileContents);
@@ -57,10 +60,10 @@ internal sealed class AndroidSessionData : IDisposable
         Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
         Game.SaveRamChanged += PersistSave;
         assets = audioDirectory is null
-            ? installation.LoadAudio()
-            : ExtractedAudioAssetCatalog.Load(audioDirectory);
-        ContentIdentity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(
-            assets, maps, projectiles, SuperMetroid.AssetExtraction.InstalledArtworkIdentity.Create(artwork));
+            ? installation.LoadAudioClips()
+            : ClipAudioCatalog.Load(audioDirectory);
+        ContentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
+            assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork));
         Console.WriteLine(
             $"Installed content: {ContentIdentity.CompositeSha256}; " +
             $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +
@@ -84,12 +87,12 @@ internal sealed class AndroidSessionData : IDisposable
     /// <summary>Live game graph owned by the session worker.</summary>
     public SuperMetroidGame Game { get; private set; }
     /// <summary>Fingerprint of installed audio, maps, projectiles, and artwork.</summary>
-    public SuperMetroid.AssetExtraction.GameContentIdentity ContentIdentity { get; }
+    public SuperMetroid.AssetExtraction.Installation.GameContentIdentity ContentIdentity { get; }
     /// <summary>Capture generation incremented whenever the live game graph is replaced.</summary>
     public long Generation { get; private set; } = 1;
 
     /// <summary>Appends one consumed controller word to the active session recording.</summary>
-    public void Record(ushort input) => recorder.RecordFrame(input);
+    public void Record(SnesButton input) => recorder.RecordFrame(input);
     /// <summary>Atomically writes the live SRAM through the installed map save format.</summary>
     public void PersistSave() => GameSaveFileStore.WriteAtomic(Bus, savePath, maps);
     /// <summary>Flushes accepted input frames after a worker failure.</summary>
@@ -123,7 +126,7 @@ internal sealed class AndroidSessionData : IDisposable
         if (!states.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
             return $"Slot {DebuggerSaveStateStore.SlotName(slot)} is empty. No state to load.";
         // All decoding/validation happens before replacing the live game, including the
-        // audio binding, which rejects a state whose session never synthesized. Retain the
+        // audio binding, which rejects a state whose session never bound clips. Retain the
         // precise seed before future saves can overwrite this user-visible slot.
         loaded.Game.BindAudio(assets);
         recorder.Dispose();

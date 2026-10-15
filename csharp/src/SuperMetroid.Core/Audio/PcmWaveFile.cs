@@ -3,7 +3,7 @@ using System.Text;
 
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>Strict mono PCM16 RIFF/WAVE codec used by extracted and replacement samples.</summary>
+/// <summary>Strict PCM16 RIFF/WAVE codec: mono for extracted and replacement samples, interleaved stereo for rendered clips (#1305).</summary>
 public static class PcmWaveFile
 {
     /// <summary>RIFF format code one, required to exclude compressed WAVE encodings.</summary>
@@ -19,7 +19,17 @@ public static class PcmWaveFile
     /// <exception cref="OverflowException">A declared length or rate cannot be represented by the checked integer arithmetic.</exception>
     public static (int SampleRate, short[] Samples) ReadMonoPcm16(
         ReadOnlySpan<byte> bytes,
-        string sourceName)
+        string sourceName) =>
+        ReadPcm16(bytes, sourceName, PcmSampleFormat.ChannelCount);
+
+    /// <summary>Decodes uncompressed interleaved stereo PCM16 with the same validation as <see cref="ReadMonoPcm16"/>.</summary>
+    /// <returns>The sampling frequency and the interleaved left/right samples.</returns>
+    /// <exception cref="InvalidDataException">The container, chunk layout, PCM encoding, or declared size/rate fields are inconsistent.</exception>
+    public static (int SampleRate, short[] Samples) ReadStereoPcm16(ReadOnlySpan<byte> bytes, string sourceName) =>
+        ReadPcm16(bytes, sourceName, PcmSampleFormat.StereoChannelCount);
+
+    /// <summary>Decodes uncompressed PCM16 with exactly <paramref name="channelCount"/> interleaved channels.</summary>
+    private static (int SampleRate, short[] Samples) ReadPcm16(ReadOnlySpan<byte> bytes, string sourceName, ushort channelCount)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceName);
         if (bytes.Length < 12 || !bytes[..4].SequenceEqual("RIFF"u8) ||
@@ -53,19 +63,19 @@ public static class PcmWaveFile
                 int byteRate = checked((int)ReadDword(chunk, 8));
                 ushort blockAlign = ReadWord(chunk, 12);
                 ushort bits = ReadWord(chunk, 14);
-                if (format != PcmFormat || channels != PcmSampleFormat.ChannelCount ||
+                if (format != PcmFormat || channels != channelCount ||
                     bits != PcmSampleFormat.BitsPerSample ||
-                    blockAlign != sizeof(short) || sampleRate <= 0 ||
-                    byteRate != checked(sampleRate * sizeof(short)))
+                    blockAlign != channelCount * sizeof(short) || sampleRate <= 0 ||
+                    byteRate != checked(sampleRate * channelCount * sizeof(short)))
                 {
                     throw new InvalidDataException(
-                        $"PCM sample '{sourceName}' must be uncompressed 16-bit mono PCM.");
+                        $"PCM sample '{sourceName}' must be uncompressed 16-bit PCM with {channelCount} channel(s).");
                 }
                 foundFormat = true;
             }
             else if (id.SequenceEqual("data"u8))
             {
-                if (foundData || (length & 1) != 0)
+                if (foundData || length % (channelCount * sizeof(short)) != 0)
                     throw new InvalidDataException($"PCM sample '{sourceName}' has an invalid data chunk.");
                 sampleBytes = chunk;
                 foundData = true;
@@ -88,11 +98,22 @@ public static class PcmWaveFile
     /// <exception cref="ArgumentNullException">The sample collection is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The sample rate is zero or negative.</exception>
     /// <exception cref="OverflowException">The sample count cannot be represented as a signed integer byte length.</exception>
-    public static void WriteMonoPcm16(string path, int sampleRate, IReadOnlyList<short> samples)
+    public static void WriteMonoPcm16(string path, int sampleRate, IReadOnlyList<short> samples) =>
+        WritePcm16(path, sampleRate, PcmSampleFormat.ChannelCount, samples);
+
+    /// <summary>Writes interleaved left/right samples as a minimal uncompressed stereo PCM16 WAV file.</summary>
+    /// <exception cref="ArgumentException"><paramref name="samples"/> holds an odd count.</exception>
+    public static void WriteStereoPcm16(string path, int sampleRate, IReadOnlyList<short> samples) =>
+        WritePcm16(path, sampleRate, PcmSampleFormat.StereoChannelCount, samples);
+
+    /// <summary>Writes a minimal PCM16 RIFF header for <paramref name="channelCount"/> interleaved channels, then the samples.</summary>
+    private static void WritePcm16(string path, int sampleRate, ushort channelCount, IReadOnlyList<short> samples)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         Ensure.NotNull(samples);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sampleRate);
+        if (samples.Count % channelCount != 0)
+            throw new ArgumentException($"{samples.Count} samples do not fill whole {channelCount}-channel frames.", nameof(samples));
         int dataBytes = checked(samples.Count * sizeof(short));
         using FileStream stream = File.Create(path);
         using BinaryWriter writer = new(stream, Encoding.ASCII, leaveOpen: false);
@@ -101,10 +122,10 @@ public static class PcmWaveFile
         writer.Write(Encoding.ASCII.GetBytes("WAVEfmt "));
         writer.Write(MinimumFormatChunkBytes);
         writer.Write(PcmFormat);
-        writer.Write(PcmSampleFormat.ChannelCount);
+        writer.Write(channelCount);
         writer.Write(sampleRate);
-        writer.Write(sampleRate * sizeof(short));
-        writer.Write(unchecked((ushort)sizeof(short)));
+        writer.Write(sampleRate * channelCount * sizeof(short));
+        writer.Write(unchecked((ushort)(channelCount * sizeof(short))));
         writer.Write(PcmSampleFormat.BitsPerSample);
         writer.Write(Encoding.ASCII.GetBytes("data"));
         writer.Write(dataBytes);

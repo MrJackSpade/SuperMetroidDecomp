@@ -15,16 +15,16 @@ internal static class SnesDmaSourceMap
         if (bank is >= LoRomMemoryBankLayout.FirstWorkRamBank and
             <= LoRomMemoryBankLayout.LastWorkRamBank)
             return SnesDmaSourceKind.WorkRam;
-        if ((bank & LoRomExpansionReadMap.MirrorBankMask) < LoRomExpansionReadMap.SystemBankLimit &&
-            offset < LoRomExpansionReadMap.WorkRamMirrorEnd)
+        if ((bank & SnesBusLayout.MirrorBankMask) < SnesBusLayout.SystemBankLimit &&
+            offset < SnesBusLayout.WorkRamMirrorEnd)
             return SnesDmaSourceKind.WorkRam;
         if ((bank is >= LoRomMemoryBankLayout.FirstSaveRamLowBank and
                 <= LoRomMemoryBankLayout.LastSaveRamLowBank or
                  >= LoRomMemoryBankLayout.FirstSaveRamHighBank and
                 <= LoRomMemoryBankLayout.LastSaveRamHighBank) &&
-            offset < LoRomExpansionReadMap.RomStart)
+            offset < SnesBusLayout.RomWindowStart)
             return SnesDmaSourceKind.SaveRam;
-        return offset >= LoRomExpansionReadMap.RomStart
+        return offset >= SnesBusLayout.RomWindowStart
             ? SnesDmaSourceKind.Cartridge
             : SnesDmaSourceKind.Unmapped;
     }

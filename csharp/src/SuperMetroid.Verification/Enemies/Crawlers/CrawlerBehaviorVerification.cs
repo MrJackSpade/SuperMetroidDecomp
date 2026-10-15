@@ -1,0 +1,79 @@
+using SuperMetroid.Core.Programs;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Crawlers;
+using SuperMetroid.Core.Enemies.Crawlers.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
+namespace SuperMetroid.Verification.Enemies.Crawlers;
+using SuperMetroid.Verification.Harness;
+
+/// <summary>Checks each crawler family's surface animations through the real initializers.</summary>
+internal static class CrawlerBehaviorVerification
+{
+    /// <summary>
+    /// For every crawler family and surface, the real initializer starts that surface's animation; its first step
+    /// installs the movement function (vertical crawling on the side walls, horizontal on floors and ceilings, with the
+    /// orange Zoomer's own functions) and its poses then loop on time. Every pose has installed artwork when supplied.
+    /// </summary>
+    internal static void VerifyCrawlerBehavior(SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
+    {
+        (CrawlerAnimationFamily Family, EnemyDefinitionId Definition, ushort? SpeciesOffset)[] families =
+        [
+            (CrawlerAnimationFamily.Shared, EnemyDefinitionId.Zoomer, null),
+            (CrawlerAnimationFamily.Viola, EnemyDefinitionId.Viola, 6),
+            (CrawlerAnimationFamily.Sciser, EnemyDefinitionId.Sciser, 8),
+            (CrawlerAnimationFamily.Zero, EnemyDefinitionId.Zero, 10),
+            (CrawlerAnimationFamily.HZoomer, EnemyDefinitionId.HZoomer, null),
+        ];
+        foreach ((CrawlerAnimationFamily family, EnemyDefinitionId definition, ushort? speciesOffset) in families)
+        foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
+        {
+            var enemies = new RoomEnemySystem { TileArtwork = artwork };
+            enemies.BindFixtureBus(rom);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.EnemyDefinitionPointer = definition;
+            slot.Definition = default(RoomEnemyDefinition) with { Bank = CrawlerFrameToolingDefinitions.Bank };
+            // The population parameter, read before initialization, selects the surface; InitAI_Viola reads the property bits.
+            slot.CurrentInstruction = (ushort)orientation;
+            if (family == CrawlerAnimationFamily.Viola)
+                slot.Properties = (ushort)orientation;
+            if (family == CrawlerAnimationFamily.HZoomer)
+                enemies.CrawlersBehavior.InitializeHZoomer(slot);
+            else
+                enemies.CrawlersBehavior.InitializeCrawler(slot, family, speciesOffset);
+            CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
+            CrawlerProgram program = CrawlerAnimationDefinitions.InitialProgram(family, orientation);
+            string context = $"{family} {orientation}";
+            AssertEqual(AnimationProgramCursor<CrawlerProgram>.Start(program), state.Program, $"{context} starts its surface animation");
+
+            CrawlerProgram loop = CrawlerAnimations.Programs.Steps(program)
+                .Single(step => step.Kind is AnimationProgramStepKind.FallInto or AnimationProgramStepKind.GoTo).Target;
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Programs, loop, CrawlerFrameDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Programs, loop)), $"{context} loop");
+            bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;
+            CrawlerEnemyFunction expected = family == CrawlerAnimationFamily.HZoomer
+                ? sideWall ? CrawlerEnemyFunction.HZoomerCrawlingVertically : CrawlerEnemyFunction.HZoomerCrawlingHorizontally
+                : sideWall ? CrawlerEnemyFunction.CrawlingVertically : CrawlerEnemyFunction.CrawlingHorizontally;
+            AssertEqual(expected, state.Function, $"{context} installs its movement function");
+            if (artwork is not null)
+                foreach (ushort pose in CrawlerAnimations.Spritemaps(loop))
+                    AssertTrue((artwork.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(CrawlerFrameToolingDefinitions.Bank, pose, out _),
+                        $"{context} pose ${pose:X4} has installed artwork");
+        }
+        Console.WriteLine("  Crawler behavior: all five families' four surfaces start, install their movement functions and loop on time.");
+    }
+
+    /// <summary>Runs the crawler behavior check and the program oracle against the local retail cartridge.</summary>
+    [VerificationCommand("--crawler-instruction-programs")]
+    internal static int CrawlerBehaviorCommand()
+    {
+        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyCrawlerBehavior), () => VerifyCrawlerBehavior(rom));
+        Suite(nameof(CrawlerAnimationsVerification.VerifyCrawlerAnimations), () => CrawlerAnimationsVerification.VerifyCrawlerAnimations(rom));
+        return 0;
+    }
+}

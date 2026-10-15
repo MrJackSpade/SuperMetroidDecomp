@@ -75,5 +75,9 @@ public enum VramAssetId
     /// <summary>$9A:C421..C520, the bounded Chainsaw selection $0D tile upload.</summary>
     BeamChainsawTiles,
     /// <summary>$9A:C401..C500, the bounded SpaceTime selection $0E tile upload.</summary>
-    BeamSpacetimeTiles
+    BeamSpacetimeTiles,
+    /// <summary>The standard OBJ character sheet $82:8318 uploads to VRAM $6000.</summary>
+    StandardObjectTiles,
+    /// <summary>The gameplay HUD's immutable first tilemap row, DMAed from $80:988B.</summary>
+    HudTopRowTilemap
 }

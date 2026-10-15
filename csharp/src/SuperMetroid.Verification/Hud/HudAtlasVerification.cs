@@ -1,0 +1,130 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Diagnostics.SaveStates;
+namespace SuperMetroid.Verification.Hud;
+
+/// <summary>Checks installed HUD artwork against native VRAM transfer bytes and rendered minimap pixels.</summary>
+internal static class HudAtlasVerification
+{
+    /// <summary>Checks NMI upload gating, visible PNG edits, and artwork rebind for displayed and pending HUD states.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed HUD tile atlas")]
+    internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
+        AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules,
+        GameplayBasePaletteCatalog initialPalettes,
+        MapPresentationInstalledRoomAssets fixtureAssets)
+    {
+        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount);
+        AssertTrue(source.SequenceEqual(original.Resolve(VramAssetId.StandardHudTiles).Span), "HUD PNG and compiled padding match all native transfer bytes");
+        var guard = NewMapDataGuard(bus, rules);
+        var native = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
+        {
+            Artwork = { MapPresentation = original },
+        };
+        var installed = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
+        {
+            Artwork = { MapPresentation = original },
+        };
+        fixtureAssets.Bind(native);
+        fixtureAssets.Bind(installed);
+        Initialize(native); Initialize(installed);
+        byte[] beforeNmi = installed.Vram.Bytes.ToArray();
+        installed.NmiHandler.RunNmi(0, mainLoopRequestedNmi: false);
+        AssertTrue(beforeNmi.SequenceEqual(installed.Vram.Bytes), "lag NMI does not publish installed HUD artwork");
+        native.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        installed.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        AssertTrue(native.Vram.ImageEquals(installed.Vram), "accepted NMI matches all VRAM bytes with HUD artwork ROM blocked");
+        Rgba32[] baseline = Render(native);
+        AssertTrue(baseline.SequenceEqual(Render(installed)), "stock installed HUD/minimap renders identical pixels");
+
+        Directory.CreateDirectory(overrides);
+        string replacement = Path.Combine(overrides, HudTileAtlasFormat.FileName);
+        IndexedPngImage image;
+        using (var input = File.OpenRead(Path.Combine(stock, HudTileAtlasFormat.FileName)))
+            image = IndexedPng.Read(input, new(MapTileAtlasFormat.Width, MapTileAtlasFormat.Height));
+        for (int i = 0; i < image.Pixels.Length; i++) image.Pixels[i] = (byte)((image.Pixels[i] + 1) % 4);
+        using (var output = File.Create(replacement)) IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
+        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        // Unlike the pending-upload case below, this snapshot already contains the
+        // old HUD. The original transfer's clearing half now belongs to room data.
+        using var displayedSnapshot = new MemoryStream();
+        DebuggerObjectGraphSerializer.Serialize(displayedSnapshot, installed);
+        displayedSnapshot.Position = 0;
+        var displayed = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(displayedSnapshot);
+        fixtureAssets.Bind(displayed);
+        int characterStart = GameplayVramLayout.HudCharacterWord * 2;
+        int characterEnd = characterStart + HudTileAtlasFormat.CharacterByteCount;
+        displayed.Vram.LoadBytes(characterEnd, Enumerable.Repeat((byte)0x5a, HudTileAtlasFormat.CharacterByteCount).ToArray());
+        byte[] previousDisplay = displayed.Vram.Bytes.ToArray();
+        displayed.Artwork.MapPresentation = edited;
+        AssertTrue(previousDisplay.SequenceEqual(displayed.Vram.Bytes), "catalog binding does not publish outside NMI");
+        displayed.NmiHandler.RunNmi(0, false);
+        AssertTrue(previousDisplay.SequenceEqual(displayed.Vram.Bytes), "lag NMI retains already displayed HUD");
+        displayed.NmiHandler.RunNmi(0, true);
+        AssertTrue(edited.Resolve(VramAssetId.StandardHudTiles).Span[..HudTileAtlasFormat.CharacterByteCount]
+            .SequenceEqual(displayed.Vram.Bytes.Slice(characterStart, HudTileAtlasFormat.CharacterByteCount)),
+            "accepted NMI refreshes already displayed HUD from newly bound PNG");
+        AssertTrue(previousDisplay.AsSpan(0, characterStart).SequenceEqual(displayed.Vram.Bytes[..characterStart]) &&
+            previousDisplay.AsSpan(characterEnd).SequenceEqual(displayed.Vram.Bytes[characterEnd..]),
+            "HUD rebind preserves every VRAM byte outside characters, including live room tilemaps");
+        var pending = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
+        {
+            Artwork = { MapPresentation = original },
+        };
+        fixtureAssets.Bind(pending);
+        Initialize(pending);
+        using var snapshot = new MemoryStream();
+        DebuggerObjectGraphSerializer.Serialize(snapshot, pending);
+        snapshot.Position = 0;
+        var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(snapshot);
+        fixtureAssets.Bind(restored);
+        restored.Artwork.MapPresentation = edited;
+        restored.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        AssertTrue(edited.Resolve(VramAssetId.StandardHudTiles).Span.SequenceEqual(
+            restored.Vram.Bytes.Slice(GameplayVramLayout.HudCharacterWord * 2, HudTileAtlasFormat.TransferByteCount)),
+            "restored pending HUD upload uses newly bound PNG, not captured old pixels");
+        Rgba32[] modified = Render(restored);
+        AssertTrue(Render(displayed).SequenceEqual(modified),
+            "already displayed HUD rebind renders the same edited pixels as a fresh pending upload");
+        AssertTrue(Enumerable.Range(8, 24).Any(y => Enumerable.Range(216, 40).Any(x => baseline[y * 256 + x] != modified[y * 256 + x])),
+            "edited HUD PNG changes rendered minimap region after accepted NMI");
+        var alreadyQueued = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
+        {
+            Artwork = { MapPresentation = original },
+        };
+        fixtureAssets.Bind(alreadyQueued);
+        Initialize(alreadyQueued);
+        alreadyQueued.Artwork.MapPresentation = edited;
+        AssertTrue(alreadyQueued.VramWrites.Entries.Any(entry => entry.AssetId == VramAssetId.StandardHudTiles), "binding retains the pending installed HUD upload");
+        alreadyQueued.NmiHandler.RunNmi(0, true);
+        AssertTrue(Render(alreadyQueued).SequenceEqual(modified), "pending HUD upload follows current installed artwork after rebind");
+        File.WriteAllText(replacement, "broken HUD PNG");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "broken HUD override has no silent fallback");
+        Console.WriteLine("HUD PNG: exact native NMI/VRAM/pixel parity, lag gating, visible minimap edit and current-content pending-state rebind pass.");
+
+        void Initialize(SuperMetroidRuntime runtime)
+        {
+            // No room palette has been installed in this focused runtime fixture.
+            // Give every BG3 color a distinct grayscale value so a changed index is
+            // observable, rather than accepting parity between two black HUDs.
+            for (int i = 0; i < 32; i++) runtime.Cgram.SetColor(i, Bgr555.FromWord((ushort)(i * 0x421)));
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.Hud.UpdateMinimap(guard, runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
+            runtime.Hud.QueueUpload(guard, runtime.VramWrites);
+        }
+        static Rgba32[] Render(SuperMetroidRuntime runtime) => SnesBgTilemapRenderer.Render2Bpp(runtime.Vram, runtime.Cgram,
+            GameplayVramLayout.HudTilemapWord, GameplayVramLayout.HudCharacterWord, 4);
+    }
+}

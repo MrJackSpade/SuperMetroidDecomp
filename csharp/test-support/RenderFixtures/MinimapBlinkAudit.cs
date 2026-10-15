@@ -1,10 +1,8 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Hardware;
+namespace SuperMetroid.TestSupport.RenderFixtures;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>Checks the current-position cell in actual published gameplay HUD pixels.</summary>
 internal static class MinimapBlinkAudit
@@ -21,7 +19,7 @@ internal static class MinimapBlinkAudit
     /// <summary>Keeps Samus on one map cell and compares the rendered HUD cell through two blink cycles.</summary>
     private static void VerifyRoom(string romPath, ushort room, Func<SuperMetroidRuntime, Rgba32[]> render)
     {
-        var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));
+        var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom();

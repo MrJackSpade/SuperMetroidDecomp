@@ -1,0 +1,66 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.Core.Samus.Palettes.SamusPaletteRomData;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Gameplay;
+namespace SuperMetroid.Verification.Samus.Abilities;
+
+/// <summary>Compares Crystal Flash palette timing and actual body/window contributions in a captured frame.</summary>
+internal static class CrystalFlashVisualsVerification
+{
+    /// <summary>Checks authored body and bubble palette rows, then isolates visible body and color-window pixels.</summary>
+    internal static (bool Body, bool Window) VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, int elapsed)
+    {
+        var samus = runtime.Player.IntroducedSamus;
+        var bus = runtime.AddressSpace;
+        var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
+        if (samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash)
+        {
+            // Independent timeline lookup: expand authored durations into a cycle
+            // and index elapsed calls, rather than reading the production timers.
+            int cycleLength = Enumerable.Range(0, CrystalFlash.BodyRecordCount)
+                .Sum(i => Word(CrystalFlash.BodyRecords + i * CrystalFlash.BodyRecordByteCount + 2));
+            int remaining = elapsed % cycleLength, record = 0;
+            while (remaining >= Word(CrystalFlash.BodyRecords + record * CrystalFlash.BodyRecordByteCount + 2))
+                remaining -= Word(CrystalFlash.BodyRecords + record++ * CrystalFlash.BodyRecordByteCount + 2);
+            int body = Banks.Palette | Word(CrystalFlash.BodyRecords + record * CrystalFlash.BodyRecordByteCount);
+            int bubble = Banks.Palette | Word(CrystalFlash.BubblePointers + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
+            for (int color = 0; color < CrystalFlash.BodyColorCount; color++)
+                AssertEqual(Word(body + color * 2), packet.Memory.Cgram[CrystalFlash.BodyCgramStart + color],
+                    $"runtime Crystal Flash body palette at frame {elapsed}");
+            for (int color = 0; color < CrystalFlash.BubbleColorCount; color++)
+                AssertEqual(Word(bubble + color * 2), packet.Memory.Cgram[CrystalFlash.BubbleCgramStart + color],
+                    $"runtime Crystal Flash bubble palette at frame {elapsed}");
+        }
+
+        var pixels = SoftwareLayeredSnapshotRenderer.Render(packet);
+        var colors = packet.Memory.Cgram.ToArray();
+        Array.Clear(colors, CrystalFlash.BodyCgramStart, Common.ColorsPerObjPalette);
+        var mutedMemory = new PpuMemorySnapshot(packet.Memory.Vram, colors, packet.Memory.Oam, packet.Memory.ModeledSpriteCount);
+        var mutedBody = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(mutedMemory,
+            packet.Layers, packet.ObjectSelection, packet.Brightness));
+        int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.X;
+        int centerY = samus.Position.Y.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.Y;
+        AssertTrue(centerX is >= 32 and <= 223 && centerY is >= 64 and <= 191,
+            "visual fixture keeps the entire Crystal Flash sprite in the viewport");
+        bool bodyVisible = Enumerable.Range(centerY - 32, 64)
+            .Any(y => Enumerable.Range(centerX - 32, 64)
+                .Any(x => pixels[y * 256 + x] != mutedBody[y * 256 + x]));
+        bool windowVisible = false;
+        if (runtime.BombProjectiles.PowerBombExplosion.Phase is PowerBombExplosionPhase.CrystalFlashExplosion or PowerBombExplosionPhase.CrystalFlashAfterglow)
+        {
+            // Remove only the captured color window, retaining identical OAM,
+            // palette, terrain and camera to isolate its actual visible contribution.
+            var withoutWindow = SoftwareLayeredSnapshotRenderer.Render(packet.Without<ScanlineColorAddRenderLayer>());
+            AssertTrue(pixels.AsSpan(0, 32 * 256).SequenceEqual(withoutWindow.AsSpan(0, 32 * 256)),
+                "Crystal Flash window preserves HUD pixels");
+            windowVisible = !pixels.SequenceEqual(withoutWindow);
+        }
+        return (bodyVisible, windowVisible);
+
+        ushort Word(int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+    }
+}

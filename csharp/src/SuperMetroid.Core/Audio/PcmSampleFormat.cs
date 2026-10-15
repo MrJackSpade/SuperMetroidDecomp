@@ -15,6 +15,9 @@ public static class PcmSampleFormat
     /// <summary>Runtime sample assets are mono because voice panning remains a live DSP property.</summary>
     public const ushort ChannelCount = 1;
 
+    /// <summary>Interleaved left/right channels of a rendered stereo clip (#1305).</summary>
+    public const ushort StereoChannelCount = 2;
+
     /// <summary>Signed PCM16 preserves every value produced by the SNES BRR decoder.</summary>
     public const ushort BitsPerSample = 16;
 

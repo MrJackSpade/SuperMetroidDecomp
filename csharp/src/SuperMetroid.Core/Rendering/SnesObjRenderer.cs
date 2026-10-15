@@ -12,6 +12,13 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("backend: software PPU OBJ rasterizer (OAM evaluation and OBJ character fetch)")]
 public static class SnesObjRenderer
 {
+    /// <summary>The ninth OBJ character-name bit, selecting the second name table.</summary>
+    private const int NameSelectBit = 1 << 8;
+    /// <summary>The values of OAM's nine-bit X: the upper half lies left of the screen.</summary>
+    private const int XRange = 512;
+    /// <summary>The values of OAM's eight-bit Y.</summary>
+    private const int YRange = 256;
+
     /// <summary>Sentinel used when no opaque OBJ owns a raster pixel.</summary>
     public const byte TransparentPriority = byte.MaxValue;
 
@@ -159,8 +166,8 @@ public static class SnesObjRenderer
         // OAM X is a signed/modular 9-bit coordinate: $1F0 means -16. Y is similarly an
         // 8-bit coordinate, but the visible NTSC field ends at 223, so $E0-$FF wraps above
         // the screen. Converting before clipping naturally draws partially visible OBJs.
-        int objectX = entry.X >= 0x100 ? entry.X - 0x200 : entry.X;
-        int objectY = entry.Y >= 0xe0 ? entry.Y - 0x100 : entry.Y;
+        int objectX = entry.X >= XRange / 2 ? entry.X - XRange : entry.X;
+        int objectY = entry.Y >= SnesPpuLayout.ScreenHeightPixels ? entry.Y - YRange : entry.Y;
 
         for (int destinationY = 0; destinationY < objectHeight; destinationY++)
         {
@@ -182,7 +189,7 @@ public static class SnesObjRenderer
                 // OBJ character names occupy a conceptual 16-tile-wide grid. Horizontal
                 // subtiles increment the low nibble and vertical subtiles add $10. The
                 // ninth name-select bit stays fixed if the low byte wraps at $FF.
-                int tileNumber = (entry.TileNumber & 0x100)
+                int tileNumber = (entry.TileNumber & NameSelectBit)
                     | unchecked((byte)(entry.TileNumber + tileRow * 16 + tileColumn));
                 byte colorIndex = Decode4BppPixel(
                     vram,
@@ -233,7 +240,7 @@ public static class SnesObjRenderer
     /// <summary>Resolves a nine-bit OBJ character name through OBSEL into byte VRAM.</summary>
     public static int ResolveTileByteAddress(int tileNumber, byte obsel)
     {
-        if ((uint)tileNumber > 0x1ff)
+        if ((uint)tileNumber >= 2 * NameSelectBit)
             throw new ArgumentOutOfRangeException(nameof(tileNumber));
 
         // OBSEL bits 0-2 choose the base in $2000-word ($4000-byte) units. A set ninth
@@ -242,11 +249,11 @@ public static class SnesObjRenderer
         int baseWord = (obsel & 7) << 13;
         int nameSelectWordOffset = (((obsel >> 3) & 3) + 1) << 12;
         int tileWord = baseWord + unchecked((byte)tileNumber) * 16;
-        if ((tileNumber & 0x100) != 0)
+        if ((tileNumber & NameSelectBit) != 0)
             tileWord += nameSelectWordOffset;
 
         // Physical VRAM has only 15 word-address bits, so register arithmetic wraps.
-        return (tileWord & 0x7fff) * 2;
+        return (tileWord & (SnesPpuLayout.VramWordCount - 1)) * 2;
     }
 
     /// <summary>The requested raster, which must be non-empty; the visible screen when omitted.</summary>

@@ -5,6 +5,9 @@ stride, field masks and register encodings live in `SnesDspRegisterMap`, `Manage
 typed controls in `SnesDspControls.cs`; the sound-driver port (`ManagedSpcPlayer`) and everything else
 use `SnesDspControls.Global` and `SnesDspControls.Voice(index)`.
 
+Since #1305 the S-DSP and its typed controls are part of the offline clip renderer in
+`SuperMetroid.AssetExtraction/Audio/Synthesis`; nothing at runtime writes DSP registers.
+
 ## Boundary and enforcement
 
 - `[DspRegisterAccess]`: `ManagedSnesDsp.WriteRegister`, `SnesDspRegisterMap`, `DspGlobalRegister`,

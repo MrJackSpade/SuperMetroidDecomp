@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Rendering;
 

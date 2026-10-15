@@ -1,6 +1,9 @@
-using SuperMetroid.Game;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Desktop;
+using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Desktop.Diagnostics;
+using SuperMetroid.Desktop.Window;
+
+namespace SuperMetroid.Game;
 
 /// <summary>Starts the desktop game, optional deterministic replay, and no-dialog error reporting.</summary>
 internal static class Program
@@ -13,9 +16,9 @@ internal static class Program
         // stderr. This is especially important under a debugger, where a modal native dialog can
         // otherwise steal focus from both Visual Studio and the game window.
         NativeGameProcess.SetErrorMode(
-            NativeGameProcess.SemFailCriticalErrors |
-            NativeGameProcess.SemNoGpFaultErrorBox |
-            NativeGameProcess.SemNoOpenFileErrorBox);
+            ProcessErrorModes.FailCriticalErrors |
+            ProcessErrorModes.NoGpFaultErrorBox |
+            ProcessErrorModes.NoOpenFileErrorBox);
 
         DesktopSessionLog? sessionLog = null;
         GitHubErrorReporter? githubErrorReporter = null;

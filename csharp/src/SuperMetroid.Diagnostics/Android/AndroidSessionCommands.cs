@@ -1,4 +1,4 @@
-namespace SuperMetroid.Android;
+namespace SuperMetroid.Diagnostics.Android;
 
 /// <summary>
 /// Atomically closes the worker's UI command mailbox. Testing only Task.IsCompleted

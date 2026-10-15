@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Verification access to <see cref="RoomCallbackDefinitions"/> members production does not use.</summary>
 internal static class RoomCallbackDefinitionsAccess

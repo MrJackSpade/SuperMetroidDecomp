@@ -1,8 +1,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.EnsureAnalyzer;
-using SuperMetroid.ReachabilityAudit;
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
+using SuperMetroid.EnsureAnalyzer.SourceLayout;
 
 namespace SuperMetroid.ArchitectureAudit;
 

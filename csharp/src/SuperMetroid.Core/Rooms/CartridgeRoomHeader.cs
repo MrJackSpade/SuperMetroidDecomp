@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
 

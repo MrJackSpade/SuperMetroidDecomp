@@ -1,8 +1,14 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using System.Buffers;
 using System.Runtime.CompilerServices;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -10,6 +16,9 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("backend: software PPU gameplay frame compositor")]
 public static class SnesGameplayFrameRenderer
 {
+    /// <summary>The gameplay OBSEL: 8x8 and 16x16 OBJs, character base 3.</summary>
+    private const byte DefaultObjectSelection = 3;
+
     /// <summary>Visible SNES viewport width in pixels.</summary>
     public const int Width = SnesPpuLayout.ScreenWidthPixels;
     /// <summary>Visible SNES viewport height in physical scanlines.</summary>
@@ -26,7 +35,7 @@ public static class SnesGameplayFrameRenderer
         SnesCgram cgram,
         OamBuffer oam,
         OrdinaryGameplayRenderLayer layer,
-        byte obsel = 0x03,
+        byte obsel = DefaultObjectSelection,
         Rgba32[]? outputBuffer = null)
     {
         Ensure.NotNull(layer);
@@ -241,7 +250,6 @@ public static class SnesGameplayFrameRenderer
                     }
                 }
 
-
                 output[destination] = winner;
             }
         }
@@ -310,7 +318,7 @@ public static class SnesGameplayFrameRenderer
     /// interleaved VRAM as Mode-1 4-bpp tiles produces regular one-pixel color stripes—the
     /// conspicuous failure this dedicated path prevents.
     /// </remarks>
-    public static Rgba32[] RenderHudMode7AndObjs(SnesVram vram, SnesCgram cgram, OamBuffer oam, Mode7RenderRegisters registers, byte obsel = 0x03, Rgba32[]? outputBuffer = null)
+    public static Rgba32[] RenderHudMode7AndObjs(SnesVram vram, SnesCgram cgram, OamBuffer oam, Mode7RenderRegisters registers, byte obsel = DefaultObjectSelection, Rgba32[]? outputBuffer = null)
     {
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
         SnesMode7Renderer.CompositeViewport(output, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
@@ -329,7 +337,7 @@ public static class SnesGameplayFrameRenderer
     /// generic Mode-7 elevator path does not have: BG3 owns the HUD, Mode 7 owns the arena,
     /// and the final sixteen scanlines switch back to Mode 1 with only BG2 and OBJ enabled.
     /// </summary>
-    public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(SnesVram vram, SnesCgram cgram, OamBuffer oam, Mode7RenderRegisters registers, CeresGetawayFloor floor, byte obsel = 0x03, Rgba32[]? outputBuffer = null)
+    public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(SnesVram vram, SnesCgram cgram, OamBuffer oam, Mode7RenderRegisters registers, CeresGetawayFloor floor, byte obsel = DefaultObjectSelection, Rgba32[]? outputBuffer = null)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
@@ -650,7 +658,7 @@ public static class SnesGameplayFrameRenderer
             return null;
 
         var result = Enumerable.Repeat(bg2Scroll.X, Height - HudHeight).ToArray();
-        int verticalPhase = bg2Scroll.Y & 0x000f;
+        int verticalPhase = bg2Scroll.Y & 15;
         for (int screenY = Math.Max(HudHeight, fx.WaterSurfaceScreenY + 1);
              screenY < Height;
              screenY++)
@@ -714,7 +722,7 @@ public static class SnesGameplayFrameRenderer
         bool verticalWave)
     {
         var result = new ushort[Height - HudHeight];
-        int verticalPhase = bg2VerticalScroll & 0x000f;
+        int verticalPhase = bg2VerticalScroll & 15;
         for (int line = 0; line < result.Length; line++)
         {
             // `$88:C0B1` is 16 one-scanline indirect entries repeated through the frame.
@@ -843,7 +851,7 @@ public static class SnesGameplayFrameRenderer
 
     /// <summary>Replicates low color bits to expand one SNES five-bit channel to host eight-bit color.</summary>
     private static byte ExpandFiveBit(byte value) =>
-        (byte)(((value & 0x1f) << 3) | ((value & 0x1f) >> 2));
+        Bgr555.ExpandChannel(value);
 
     /// <summary>Adds two expanded color channels with a white ceiling.</summary>
     private static byte SaturatingAdd(byte left, byte right) =>

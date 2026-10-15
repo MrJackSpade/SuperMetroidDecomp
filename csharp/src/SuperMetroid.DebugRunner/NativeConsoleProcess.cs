@@ -1,5 +1,7 @@
 using System.Runtime.InteropServices;
 
+namespace SuperMetroid.DebugRunner;
+
 /// <summary>
 /// Makes the command-line tools genuinely non-interactive on Windows. The CLR retains
 /// its ordinary stderr stack trace and exit code; only OS-owned modal error boxes are barred.

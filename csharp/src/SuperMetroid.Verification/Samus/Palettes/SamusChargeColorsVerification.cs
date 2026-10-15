@@ -1,0 +1,599 @@
+using SuperMetroid.Tooling;
+using System.Text.Json;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Palettes;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+namespace SuperMetroid.Verification.Samus.Palettes;
+
+/// <summary>Checks extracted Samus charge palettes, editable overrides, native phase selection, and guarded runtime color updates.</summary>
+internal static class SamusChargeColorsVerification
+{
+    /// <summary>Edits representative charge and Hyper colors, then checks installed identity and CGRAM output without rereading native palette words.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus charge palette color words")]
+    internal static void VerifySamusChargeColorOverride(string stockDirectory,
+        string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
+    {
+        byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
+        var native = SamusChargeColorCatalog.Load(new MemoryStream(extracted, writable: false));
+        var forbidden = new HashSet<int>();
+        forbidden.UnionWith(VerifySamusChargeColorPhases(rom));
+        for (int frame = 0; frame < SamusChargeColorFormat.HyperFrameCount; frame++)
+        {
+            ushort offset = (ushort)(SamusChargePaletteDefinitions.LastHyperTableByteOffset -
+                frame * sizeof(ushort));
+            ushort pointer = BlockWord(SamusProjectileRomData.Palettes.HyperBeamShotPointers + offset);
+            AssertTrue(SamusChargePaletteDefinitions.TryHyperShot(offset, out ushort compiledPointer),
+                "all native Hyper-shot entries are compiled");
+            AssertEqual(pointer, compiledPointer, $"Hyper-shot frame {frame} pointer");
+            for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
+            {
+                int address = SamusProjectileRomData.Banks.PaletteAndTrailData |
+                    (pointer + color * sizeof(ushort));
+                AssertEqual(BlockWord(address), native.ResolveHyper(frame, color),
+                    $"Hyper-shot frame {frame} color {color}");
+            }
+        }
+
+        SamusChargeColorDocument document = JsonSerializer.Deserialize<SamusChargeColorDocument>(
+            File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName)),
+            ArtworkJson.Options)
+            ?? throw new InvalidDataException("Stock charge colors are null.");
+        Paint(document.ChargedBeam[0][0]);
+        Paint(document.PseudoScrew[0][0]);
+        Paint(document.HyperShot[0]);
+        string replacement = Path.Combine(overrideDirectory, SamusChargeColorFormat.FileName);
+        File.WriteAllBytes(replacement, SamusChargeColorCatalog.Write(document));
+        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        AssertTrue(edited.ContentIdentity != original.ContentIdentity,
+            "charge colors change installed content identity");
+        var guarded = NewChargeColorReadGuard(rom, forbidden);
+        var samus = new SamusState
+        {
+            Pose = SamusPoseId.FacingRightNormalPose,
+            EquippedBeams = (ushort)SamusBeamFlags.Charge,
+            Presentation = { ChargeColors = edited.SamusChargeColors },
+        };
+        var projectiles = new SamusProjectileSystem();
+        projectiles.Charge.FlareCounter = (ushort)60;
+        var cgram = new SnesCgram();
+        ushort[] suits = [0, 1, 0x20];
+        for (int family = 0; family < 2; family++)
+        for (int suit = 0; suit < suits.Length; suit++)
+        {
+            samus.EquippedItems = suits[suit];
+            samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? SamusContactDamageIndex.None : SamusContactDamageIndex.PseudoScrew;
+            for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
+            {
+                // The live charge-palette index holds twice the phase this call applies.
+                int appliedPhase = projectiles.Charge.SamusChargePaletteIndex / 2;
+                var step = projectiles.UpdateBeamChargePalette(guarded, cgram, samus);
+                AssertEqual(family == 0 ? SamusBeamChargePaletteAction.ChargeCycle :
+                    SamusBeamChargePaletteAction.PseudoScrewCycle, step.Action,
+                    $"installed family {family} suit {suit} phase {phase}");
+                AssertEqual(phase, appliedPhase,
+                    $"installed charge phase {family}/{suit}/{phase}");
+                for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
+                    AssertEqual(edited.SamusChargeColors.ResolveCharge(family != 0, suit, phase, color),
+                        cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                        $"edited charge CGRAM {family}/{suit}/{phase}/{color}");
+            }
+        }
+        AssertEqual(0, projectiles.Charge.SamusChargePaletteIndex, "six charge phases wrap");
+        samus.HyperBeam = 0x8000;
+        projectiles.Charge.ChargedShotGlowTimer = NativeCountdown.Start((ushort)0x8014);
+        for (int call = 0; call < 20; call++)
+        {
+            Bgr555[] before = cgram.Colors.ToArray();
+            ushort glowTimerBefore = projectiles.Charge.ChargedShotGlowTimer.RawValue;
+            var step = projectiles.UpdateBeamChargePalette(guarded, cgram, samus);
+            if ((call & 1) != 0)
+            {
+                AssertEqual(SamusBeamChargePaletteAction.HyperHold, step.Action,
+                    $"Hyper-shot call {call} holds");
+                AssertSequenceEqual(before, cgram.Colors.ToArray(),
+                    $"Hyper-shot call {call} does not repaint");
+                continue;
+            }
+            int frame = call / 2;
+            AssertEqual(SamusBeamChargePaletteAction.HyperPalette, step.Action,
+                $"Hyper-shot call {call} paints");
+            // Even low-five-bit timer offsets $14..$02 select Hyper palettes 0..9.
+            AssertEqual(0x14 - frame * 2, glowTimerBefore & 0x001e, $"Hyper-shot playback frame {frame}");
+            for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
+                AssertEqual(edited.SamusChargeColors.ResolveHyper(frame, color),
+                    cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
+                    $"edited Hyper-shot CGRAM {frame}/{color}");
+        }
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "installed charge and Hyper-shot avoid extracted source reads");
+        PaletteRgb5 previous = document.HyperShot[0][1];
+        document.HyperShot[0][1] = previous with { Blue = 32 };
+        AssertThrows<InvalidDataException>(() => SamusChargeColorCatalog.Write(document),
+            "charge colors reject invalid RGB5 channels");
+
+        string replacementStock = Path.Combine(
+            Path.GetDirectoryName(stockDirectory) ?? throw new InvalidOperationException("Stock maps have no parent."),
+            "charge-color-reextract");
+        byte[] overrideBeforeRepair = File.ReadAllBytes(replacement);
+        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(rom, replacementStock, "test-provenance");
+        AreaMapPresentationCatalog repaired = AreaMapPresentationCatalog.Load(replacementStock, overrideDirectory);
+        AssertEqual(edited.ContentIdentity, repaired.ContentIdentity,
+            "stock re-extraction preserves charge color override");
+        AssertTrue(overrideBeforeRepair.SequenceEqual(File.ReadAllBytes(replacement)),
+            "stock re-extraction does not rewrite charge colors");
+        File.Delete(replacement);
+        AreaMapPresentationCatalog restored = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
+        AssertEqual(original.ContentIdentity, restored.ContentIdentity,
+            "removing charge override restores stock identity");
+        Console.WriteLine("Samus charge colors: 736 ROM words, 36 charge phases, 20 Hyper calls, edited CGRAM, source-read guard and stock repair pass.");
+
+        ushort BlockWord(int address)
+        {
+            forbidden.Add(address);
+            forbidden.Add(address + 1);
+            return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+        }
+        static void Paint(PaletteRgb5[] colors)
+        {
+            PaletteRgb5 existing = colors[1];
+            colors[1] = existing with { Blue = existing.Blue == 31 ? 30 : existing.Blue + 1 };
+        }
+    }
+
+    /// <summary>Checks all suit and charge phases against ROM, including canonical shared pointers and the runtime six-step palette cadence.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus charge color phases")]
+    internal static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
+    {
+        byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
+        var catalog = SamusChargeColorCatalog.Load(new MemoryStream(extracted));
+        var forbidden = new HashSet<int>();
+        var expected = new ushort[2, 3, 6, 16];
+        var cgram = new SnesCgram();
+        for (int family = 0; family < 2; family++)
+        {
+            var input = family == 0 ? catalog.chargedBeam : catalog.pseudoScrew;
+            var stored = input.colors;
+            AssertEqual(family == 0 ? 25 : 24, stored.Count, "Charge catalog stores each native phase input once");
+            var tintInputs = input.fadeInputs;
+            AssertEqual(family == 0 ? 0 : 2, tintInputs.Count, "Only Power/Varia pseudo-Screw ink2 need tint input overrides");
+            if (family != 0)
+            {
+                foreach (var entry in tintInputs)
+                {
+                    AssertTrue(entry.Key is 2 or 98, "Pseudo-Screw tint input belongs to Power/Varia ink2");
+                    foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+                        AssertEqual(field.Name == "blue", field.GetValue(entry.Value) is not null, "Only differing blue channel remains stored");
+                }
+            }
+            for (int suit = 0; suit < 3; suit++)
+            {
+                int table = family == 0 ? SamusProjectileRomData.Palettes.BeamChargePointers : SamusProjectileRomData.Palettes.PseudoScrewPointers;
+                ushort list = Word(table + suit * 2);
+                for (int phase = 0; phase < 6; phase++)
+                {
+                    ushort pointer = Word(0x910000 | (list + phase * 2));
+                    int firstPhase = 0;
+                    while (Word(0x910000 | (list + firstPhase * 2)) != pointer) firstPhase++;
+                    AssertEqual(firstPhase, SamusChargeColorFormat.CanonicalPhase(family != 0, phase), "Canonical phase matches first native pointer identity");
+                    bool found = family == 0
+                        ? SamusChargePaletteDefinitions.TryChargedBeam((ushort)(suit * 2), (ushort)(phase * 2), out ushort compiled)
+                        : SamusChargePaletteDefinitions.TryPseudoScrew((ushort)(suit * 2), (ushort)(phase * 2), out compiled);
+                    AssertTrue(found, "Native charge pointer supported");
+                    AssertEqual(pointer, compiled, "Native charge pointer selection");
+                    for (int index = 0; index < 256; index++) cgram.SetColor(index, Bgr555.FromWord(0x1234));
+                    catalog.ApplyCharge(cgram, family != 0, suit, phase);
+                    for (int color = 0; color < 16; color++)
+                    {
+                        ushort native = Word(0x9b0000 | (pointer + color * 2));
+                        expected[family, suit, phase, color] = native;
+                        AssertEqual(native, catalog.ResolveCharge(family != 0, suit, phase, color), "Native charge color");
+                        AssertEqual((family == 0 ? phase == 0 : phase == 3) && (suit == 0 || native != expected[family, 0, phase, color]), stored.ContainsKey((suit * 6 + phase) * 16 + color), "Only canonical phase owns stock input");
+                    }
+                    for (int index = 0; index < 256; index++)
+                        AssertEqual(index is >= 192 and < 208 ? expected[family, suit, phase, index - 192] : (ushort)0x1234,
+                            cgram.Colors[index], "Charge copy changes exactly its sixteen native colors");
+                }
+            }
+        }
+        var deathSuited = new ushort[3][][];
+        var deathSuitless = new ushort[10][];
+        for (int suit = 0; suit < 3; suit++)
+        {
+            deathSuited[suit] = new ushort[10][];
+            for (int palette = 0; palette < 10; palette++)
+            {
+                ushort pointer = Word(SamusPaletteRomData.Death.SuitPointers + (suit * 10 + palette) * 2);
+                deathSuited[suit][palette] = Enumerable.Range(0, 16).Select(color => Word(0x9b0000 | (pointer + color * 2))).ToArray();
+            }
+        }
+        for (int palette = 0; palette < 10; palette++)
+        {
+            ushort pointer = Word(SamusPaletteRomData.Death.SuitlessPointers + palette * 2);
+            deathSuitless[palette] = Enumerable.Range(0, 16).Select(color => Word(0x9b0000 | (pointer + color * 2))).ToArray();
+        }
+        var whiteout = Enumerable.Range(0, SamusPaletteRomData.Death.WhiteoutShadeCount)
+            .Select(index => Word(SamusPaletteRomData.Death.WhiteoutShades + index * 2)).ToArray();
+        var selectors = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
+            .Select(index => (ushort)rom.ReadCartridgeByte(SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices + 2 * index + 1)).ToArray();
+        var death = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), selectors);
+        foreach (var inputs in new[] { death.suitedFadeInputs, death.suitlessFadeInputs })
+            AssertEqual(0, inputs.Count, "Original death shades need no correction inputs");
+        foreach (var (stored, count) in new[] { (death.suited.Count, 25), (death.suitless.Count, 3), (death.explosionPaletteIndices.Count, 0) })
+            AssertEqual(count, stored, "Only independent death rows remain stored");
+        var deathTintInputs = death.tintShadeInputs;
+        AssertEqual(3, deathTintInputs.Count, "Two interior intensities and dark-endpoint red/blue remain supplied");
+        foreach (var entry in deathTintInputs)
+        {
+            AssertTrue(entry.Key is 7 or 9 or 10, "Only the tint endpoint and two interior inks have inputs");
+            foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+                AssertEqual(field.Name == "blue" || entry.Key == 10 && field.Name == "red",
+                    field.GetValue(entry.Value) is not null, "Only independent native tint channels remain stored");
+        }
+        for (int brightGreen = 0; brightGreen < 32; brightGreen++)
+        for (int brightBlue = 0; brightBlue < 32; brightBlue++)
+        for (int darkBlue = 0; darkBlue < 32; darkBlue++)
+        {
+            ushort bright = (ushort)(brightGreen << 5 | brightBlue << 10);
+            ushort dark = (ushort)(31 - darkBlue | darkBlue << 10);
+            bool valid = SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(Bgr555.FromWord(checked((ushort)(bright))), Bgr555.FromWord(checked((ushort)(dark))), out Bgr555 result);
+            int expectedGreen = brightGreen - (brightBlue - darkBlue);
+            AssertEqual(expectedGreen is >= 0 and <= 31, valid, "Complete endpoint balance bounds");
+            if (valid)
+            {
+                AssertEqual(dark & 0x7c1f, result.ToWord() & 0x7c1f, "Endpoint keeps independent red/blue");
+                AssertEqual(brightGreen - brightBlue, (result.ToWord() >> 5 & 31) - (result.ToWord() >> 10), "Endpoint preserves green-blue balance");
+            }
+            else AssertEqual((ushort)0, result, "Unrepresentable endpoint is not clamped or wrapped");
+        }
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0), out _), "Invalid bright tint endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintEndpoint(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid))), out _), "Invalid dark tint endpoint");
+        }
+        var deathWarmInputs = death.warmShadeInputs;
+        AssertEqual(1, deathWarmInputs.Count, "Only warm dark-endpoint components remain stored");
+        foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+            AssertEqual(field.Name != "blue", field.GetValue(deathWarmInputs[4]) is not null, "Warm endpoint stores only independent red/green");
+        for (int blue = 0; blue < 32; blue++)
+        for (int redGreen = 0; redGreen < 1024; redGreen++)
+        {
+            Bgr555 actual = SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint(Bgr555.FromWord(checked((ushort)((ushort)(blue << 10)))), Bgr555.FromWord(checked((ushort)((ushort)(redGreen | (31 - blue) << 10)))));
+            AssertEqual(blue, actual.ToWord() >> 10, "Warm endpoint takes bright blue");
+            AssertEqual(redGreen, actual.ToWord() & 1023, "Warm endpoint preserves dark red/green");
+        }
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0)), "Invalid bright warm endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmEndpoint(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid)))), "Invalid dark warm endpoint");
+        }
+        for (int first = 0; first < 32; first++)
+        for (int last = 0; last < 32; last++)
+        for (int channel = 0; channel < 3; channel++)
+            AssertEqual((ushort)((int)decimal.Floor((first + last) / 2m) << (channel * 5)),
+                SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint(Bgr555.FromWord(checked((ushort)((ushort)(first << (channel * 5))))), Bgr555.FromWord(checked((ushort)((ushort)(last << (channel * 5)))))),
+                "Suitless tint midpoint floors each independent RGB5 channel");
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0)), "Invalid midpoint first endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessTintMidpoint(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid)))), "Invalid midpoint last endpoint");
+        }
+        foreach (int ink in new[] { 6, 7, 8, 9, 10 })
+        for (int channel = 0; channel < 3; channel++)
+        for (int intensity = 0; intensity < 32; intensity++)
+        {
+            var rows = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+            rows[0][ink] = (ushort)((rows[0][ink] & ~(31 << (5 * channel))) | intensity << (5 * channel));
+            var editedTint = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(rows), ToColors(whiteout), selectors);
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(rows[palette][color], editedTint.SuitlessColor(palette, color), "Each endpoint/intensity/channel edit preserves independently supplied tint and fade rows");
+        }
+        foreach (int ink in new[] { 7, 8, 9 })
+        {
+            AssertTrue(!SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(Bgr555.FromWord(0x001f), Bgr555.FromWord(0x001f), 31, ink, out _), "Tint red overflow remains explicit input");
+            AssertTrue(!SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(Bgr555.FromWord(0x7c00), Bgr555.FromWord(0x7c00), 0, ink, out _), "Tint red/green underflow remains explicit input");
+        }
+        foreach (int invalid in new[] { -1, 6, 10, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), 0, invalid, out _), "Invalid tint ink");
+        foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), invalid, 7, out _), "Invalid tint blue");
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0), 0, 7, out _), "Invalid tint first endpoint");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.TrySuitlessTintShade(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid))), 0, 7, out _), "Invalid tint last endpoint");
+        }
+        var neutralInputs = death.neutralInputs;
+        AssertEqual(2, neutralInputs.Count, "Only gray peak and final neutral intensities remain");
+        foreach (var entry in neutralInputs)
+        {
+            AssertTrue(entry.Key is 11 or 144, "Only native gray roots store shared intensity inputs");
+            foreach (var field in MetadataShape.Fields(typeof(LoadingPaletteInputView.Channels), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic))
+                AssertEqual(field.Name == "red", field.GetValue(entry.Value) is not null, "Neutral stock inputs store one intensity only");
+        }
+        for (int peak = 0; peak < 32; peak++)
+        for (int color = 11; color < 16; color++)
+            AssertEqual((int)decimal.Ceiling(peak * ((16 - color) / 5m)),
+                SamusDeathPaletteArtworkCatalog.SuitlessGrayIntensity(peak, color), "Complete suitless gray intensity domain");
+        for (int peak = 0; peak < 32; peak++)
+        {
+            var rows = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+            rows[0][11] = (ushort)((rows[0][11] & ~31) | peak);
+            var editedPeak = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(rows), ToColors(whiteout), selectors);
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(rows[palette][color], editedPeak.SuitlessColor(palette, color), "Editing only gray peak keeps every supplied dependent ink independent");
+        }
+        foreach (int invalid in new[] { -1, 32, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessGrayIntensity(invalid, 11), "Invalid gray peak");
+        foreach (int invalid in new[] { -1, 0, 10, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessGrayIntensity(19, invalid), "Invalid gray ink");
+        for (int first = 0; first < 32; first++)
+        for (int last = 0; last < 32; last++)
+        for (int color = 2; color <= 3; color++)
+        {
+            // Complemented/swapped channel pairs exercise independent RGB packing.
+            ushort a = (ushort)(first | (31 - first) << 5 | last << 10);
+            ushort b = (ushort)(last | (31 - last) << 5 | first << 10);
+            Bgr555 actual = SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(Bgr555.FromWord(checked((ushort)(a))), Bgr555.FromWord(checked((ushort)(b))), color);
+            for (int channel = 0; channel < 3; channel++)
+            {
+                int start = a >> (5 * channel) & 31, end = b >> (5 * channel) & 31;
+                int expectedChannel = (int)decimal.Floor(((decimal)start * (4 - color) + (decimal)end * (color - 1)) / 3);
+                AssertEqual(expectedChannel, actual.ToWord() >> (5 * channel) & 31, "All suitless warm-ramp channel endpoints");
+            }
+        }
+        foreach (int invalid in new[] { -1, 0, 1, 4, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(new Bgr555(0, 0, 0), new Bgr555(0, 0, 0), invalid), "Invalid warm shade ink");
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(Bgr555.FromWord(checked((ushort)(invalid))), new Bgr555(0, 0, 0), 2), "Invalid warm start");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.SuitlessWarmShade(new Bgr555(0, 0, 0), Bgr555.FromWord(checked((ushort)(invalid))), 2), "Invalid warm end");
+        }
+        foreach (int endpoint in new[] { 1, 4 })
+        for (int channel = 0; channel < 3; channel++)
+        for (int intensity = 0; intensity < 32; intensity++)
+        {
+            var rows = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+            rows[0][endpoint] = (ushort)((rows[0][endpoint] & ~(31 << (5 * channel))) | intensity << (5 * channel));
+            var editedWarm = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(rows), ToColors(whiteout), selectors);
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(rows[palette][color], editedWarm.SuitlessColor(palette, color), "Warm endpoint-only edits preserve supplied middle inks and fades");
+        }
+        var whiteoutInput = death.whiteout;
+        var whiteoutOverrides = whiteoutInput.inputs;
+        AssertEqual(0, whiteoutOverrides.Count, "Native whiteout has no interpolation or neutral-channel corrections");
+        for (int index = 0; index < whiteout.Length; index++)
+        {
+            AssertEqual(whiteout[index], death.WhiteoutColor(index), "Every original whiteout RGB word");
+            AssertEqual(whiteout[index], SamusDeathPaletteArtworkCatalog.DefaultWhiteoutColor(index), "Calculated two-rate whiteout matches original ROM");
+            for (int channel = 0; channel < 3; channel++)
+            for (int intensity = 0; intensity < 32; intensity++)
+            {
+                var shades = (ushort[])whiteout.Clone();
+                shades[index] = (ushort)((shades[index] & ~(31 << (channel * 5))) | intensity << (channel * 5));
+                var editedWhiteout = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(deathSuitless), ToColors(shades), selectors);
+                for (int other = 0; other < shades.Length; other++)
+                    AssertEqual(shades[other], editedWhiteout.WhiteoutColor(other), "Every whiteout shade/channel edit remains independent");
+            }
+        }
+        foreach (int invalid in new[] { -1, 22, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => death.WhiteoutColor(invalid), "Invalid whiteout selector");
+            AssertThrows<IndexOutOfRangeException>(() => SamusDeathPaletteArtworkCatalog.DefaultWhiteoutColor(invalid), "Invalid calculated whiteout selector");
+        }
+        for (int channel = 0; channel < 3; channel++)
+        for (int intensity = 0; intensity < 32; intensity++)
+        {
+            var rows = deathSuited.Select(suit => suit.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
+            rows[0][1][0] = (ushort)((rows[0][1][0] & ~(31 << (channel * 5))) | intensity << (channel * 5));
+            var editedFlash = new SamusDeathPaletteArtworkCatalog(ToColors(rows), ToColors(deathSuitless), ToColors(whiteout), selectors);
+            for (int suit = 0; suit < 3; suit++)
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(rows[suit][palette][color], editedFlash.SuitedColor(suit, palette, color), "Each flash-root channel edit preserves independently supplied colors");
+        }
+        for (int scope = 0; scope < 5; scope++)
+        {
+            ushort[][][] suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
+            ushort[][] suitless = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+            for (int family = 0; family < 4; family++)
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+            {
+                ushort[][] rows = family < 3 ? suited[family] : suitless;
+                if (scope == 0 || scope == 1 && palette != 0 || scope == 2 && palette == 0) continue;
+                rows[palette][color] = (ushort)((rows[palette][color] + 37 * (1 + family + palette + color)) & 0x7fff);
+            }
+            if (scope == 3)
+            {
+                // Only shared color roots change: all other supplied words stay original.
+                suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
+                suitless = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+                suited[0][1][0] ^= 0x421;
+                suitless[9][0] ^= 0x421;
+            }
+            if (scope == 4)
+            {
+                suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
+                suitless = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+                for (int color = 0; color < 16; color++) suited[0][0][color] ^= 0x421;
+            }
+            ushort[] editedSelectors = (ushort[])selectors.Clone();
+            if (scope != 0)
+                for (int frame = 0; frame < editedSelectors.Length; frame++)
+                    editedSelectors[frame] = (ushort)((editedSelectors[frame] + scope) % 10);
+            ushort[] editedWhiteout = (ushort[])whiteout.Clone();
+            for (int index = 0; index < editedWhiteout.Length; index++)
+            {
+                bool anchor = index is 0 or 6 or 7 or 8 or 21;
+                if (scope == 0 || scope == 2 && !anchor || scope == 3 && anchor) continue;
+                editedWhiteout[index] = (ushort)((editedWhiteout[index] + 137 * (index + 1)) & 0x7fff);
+            }
+            var editedDeath = new SamusDeathPaletteArtworkCatalog(ToColors(suited), ToColors(suitless), ToColors(editedWhiteout), editedSelectors);
+            for (int index = 0; index < editedWhiteout.Length; index++)
+                AssertEqual(editedWhiteout[index], editedDeath.WhiteoutColor(index), "Independent whiteout and endpoint-only edits");
+            for (int frame = 0; frame < editedSelectors.Length; frame++)
+                AssertEqual(editedSelectors[frame], editedDeath.ExplosionPaletteIndex(frame), "Original and independently edited death selectors");
+            for (int family = 0; family < 4; family++)
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual((family < 3 ? suited[family] : suitless)[palette][color],
+                    family < 3 ? editedDeath.SuitedColor(family, palette, color) : editedDeath.SuitlessColor(palette, color),
+                    "Original death palette view and independent edits");
+            string originalIdentity = SelectedPresentationHash.Create(nameof(SamusDeathPaletteArtworkCatalog), content =>
+            {
+                foreach (ushort[][] rows in suited)
+                foreach (ushort[] row in rows) content.AppendWords("suited row", row);
+                foreach (ushort[] row in suitless) content.AppendWords("suitless row", row);
+                content.AppendWords("whiteout", editedWhiteout);
+                content.AppendWords("explosion palette indices", editedSelectors);
+            });
+            AssertEqual(originalIdentity, editedDeath.ContentIdentity, "Death color identity preserves original row serialization");
+            Bgr555 before = editedDeath.SuitedColor(0, 0, 0);
+            suited[0][0][0] ^= 1;
+            AssertEqual(before, editedDeath.SuitedColor(0, 0, 0), "Death catalog copies inputs instead of retaining caller arrays");
+        }
+        for (int channel = 0; channel < 3; channel++)
+        for (int intensity = 0; intensity < 32; intensity++)
+        {
+            var rows = deathSuitless.Select(row => (ushort[])row.Clone()).ToArray();
+            foreach (int ink in new[] { 5, 11, 12, 13, 14, 15 })
+                rows[0][ink] = (ushort)((rows[0][ink] & ~(31 << (5 * channel))) | intensity << (5 * channel));
+            rows[9][0] = (ushort)((rows[9][0] & ~(31 << (5 * channel))) | intensity << (5 * channel));
+            var neutralEdited = new SamusDeathPaletteArtworkCatalog(ToColors(deathSuited), ToColors(rows), ToColors(whiteout), selectors);
+            for (int palette = 0; palette < 10; palette++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(rows[palette][color], neutralEdited.SuitlessColor(palette, color), "Each neutral channel edit stays independent of fades and final aliases");
+            for (int suit = 0; suit < 3; suit++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(deathSuited[suit][9][color], neutralEdited.SuitedColor(suit, 9, color), "Editing final neutral root preserves independently supplied suited finals");
+        }
+        for (int rgb = 0; rgb <= 0x7fff; rgb++)
+        for (int shade = 0; shade < 8; shade++)
+        {
+            Bgr555 actual = SamusPaletteFade.EighthTowardWhite(Bgr555.FromWord(checked((ushort)((ushort)rgb))), shade);
+            for (int channel = 0; channel < 3; channel++)
+            {
+                int basis = rgb >> (channel * 5) & 31;
+                int interpolated = (int)decimal.Floor(basis + (31 - basis) * (shade / 8m));
+                AssertEqual(interpolated, actual.ToWord() >> (channel * 5) & 31, "Complete RGB5 eighth whitening arithmetic");
+            }
+        }
+        foreach (int invalid in new[] { -1, 8, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(new Bgr555(0, 0, 0), invalid), "Invalid fade shade");
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusPaletteFade.EighthTowardWhite(Bgr555.FromWord(checked((ushort)(invalid))), 0), "Invalid fade RGB5");
+        foreach (int invalid in new[] { -1, 9, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => death.ExplosionPaletteIndex(invalid), "Invalid explosion frame");
+        foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => death.SuitedColor(0, invalid, 0), "Invalid suited death palette");
+            AssertThrows<IndexOutOfRangeException>(() => death.SuitlessColor(invalid, 0), "Invalid suitless death palette");
+        }
+        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => death.SuitedColor(invalid, 0, 0), "Invalid death suit");
+        foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => death.SuitedColor(0, 0, invalid), "Invalid suited color");
+            AssertThrows<IndexOutOfRangeException>(() => death.SuitlessColor(0, invalid), "Invalid suitless color");
+        }
+        // Distinct edits, source-only edits and repeated-phase-only edits must remain independent.
+        for (int editScope = 0; editScope < 5; editScope++)
+        {
+            var document = RequiredJson.Deserialize<SamusChargeColorDocument>(extracted, ArtworkJson.Options);
+            for (int family = 0; family < 2; family++)
+            for (int suit = 0; suit < 3; suit++)
+            for (int phase = 0; phase < 6; phase++)
+            for (int color = 0; color < 16; color++)
+            {
+                bool isSource = family == 0 ? phase < 4 : phase is 0 or 3;
+                if (editScope == 1 && !isSource || editScope == 2 && isSource || editScope == 3 && suit != 0 || editScope == 4 && (family != 1 || phase != 3)) continue;
+                var rows = family == 0 ? document.ChargedBeam : document.PseudoScrew;
+                ushort value = expected[family, suit, phase, color];
+                int delta = 1 + (suit * 6 + phase) % 31;
+                rows[suit][phase][color] = new PaletteRgb5 { Red = ((value & 31) + delta) % 32,
+                    Green = ((value >> 5 & 31) + delta) % 32, Blue = ((value >> 10 & 31) + delta) % 32 };
+            }
+            var edited = SamusChargeColorCatalog.Load(new MemoryStream(SamusChargeColorCatalog.Write(document)));
+            for (int family = 0; family < 2; family++)
+            for (int suit = 0; suit < 3; suit++)
+            for (int phase = 0; phase < 6; phase++)
+            for (int color = 0; color < 16; color++)
+            {
+                PaletteRgb5 rgb = (family == 0 ? document.ChargedBeam : document.PseudoScrew)[suit][phase][color];
+                AssertEqual((ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10), edited.ResolveCharge(family != 0, suit, phase, color), "Independent charge phase edit");
+            }
+        }
+        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(invalid, 1, new Bgr555(0, 0, 0)), "Invalid pseudo tint suit");
+        foreach (int invalid in new[] { -1, 0, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(0, invalid, new Bgr555(0, 0, 0)), "Invalid pseudo tint ink");
+        foreach (ushort invalid in new ushort[] { 0x8000, 0xffff })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.PseudoScrewBrightColor(0, 1, Bgr555.FromWord(checked((ushort)(invalid)))), "Invalid pseudo tint RGB5");
+        foreach (bool pseudo in new[] { false, true })
+        foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusChargeColorFormat.CanonicalPhase(pseudo, invalid), "Invalid phase rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(pseudo, 0, invalid, 0), "Invalid charge phase rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ApplyCharge(cgram, pseudo, 0, invalid), "Invalid apply phase rejected");
+        }
+        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(false, invalid, 0, 0), "Invalid suit rejected");
+        foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(false, 0, 0, invalid), "Invalid color rejected");
+        var guarded = NewChargeColorReadGuard(rom, forbidden);
+        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose,
+            EquippedBeams = (ushort)SamusBeamFlags.Charge, Presentation = { ChargeColors = catalog } };
+        var projectiles = new SamusProjectileSystem();
+        projectiles.Charge.FlareCounter = (ushort)60;
+        ushort[] suits = [0, 1, 0x20];
+        for (int family = 0; family < 2; family++)
+        for (int suit = 0; suit < 3; suit++)
+        {
+            samus.EquippedItems = suits[suit];
+            samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? SamusContactDamageIndex.None : SamusContactDamageIndex.PseudoScrew;
+            for (int phase = 0; phase < 6; phase++)
+            {
+                int appliedPhase = projectiles.Charge.SamusChargePaletteIndex / 2;
+                var step = projectiles.UpdateBeamChargePalette(guarded, cgram, samus);
+                AssertEqual(phase, appliedPhase, "Native charge phase order");
+                AssertEqual(family == 0 ? SamusBeamChargePaletteAction.ChargeCycle : SamusBeamChargePaletteAction.PseudoScrewCycle,
+                    step.Action, "Native charge family action");
+                for (int color = 0; color < 16; color++)
+                    AssertEqual(expected[family, suit, phase, color], cgram.Colors[192 + color], "Guarded runtime charge color");
+            }
+        }
+        AssertEqual(0, projectiles.Charge.SamusChargePaletteIndex, "Charge phase wraps after six calls");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "Runtime charge uses no palette ROM reads");
+        Console.WriteLine("Charge/death palettes: 1216 original colors, shared fade arithmetic, edits, identity, bounds and36 guarded charge calls pass.");
+        return forbidden;
+
+        ushort Word(int address)
+        {
+            forbidden.Add(address);
+            forbidden.Add(address + 1);
+            return ReadVerificationWord(rom, address);
+        }
+    }
+    /// <summary>Rejects runtime reads from the native palette bytes already checked against extracted charge colors.</summary>
+    private static CartridgeReadGuard NewChargeColorReadGuard(ISnesAddressSpace inner, HashSet<int> forbidden) =>
+        new CartridgeReadGuard(inner).Forbid(forbidden.Contains,
+            address => $"Charge palette reread ${address:X6}.");
+}

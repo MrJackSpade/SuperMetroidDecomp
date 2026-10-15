@@ -1,0 +1,16 @@
+namespace SuperMetroid.Core.Areas.Tourian.Artwork;
+
+/// <summary>
+/// The presentation boundary of the Tourian entrance statue's programs (#641): the bank-$AA spritemap each
+/// <see cref="TourianEntranceStatueFrame"/> pose shows, in ascending spritemap order.
+/// </summary>
+internal static class TourianEntranceStatueFrameDefinitions
+{
+
+    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
+    internal static ushort Spritemap(TourianEntranceStatueFrame frame) => frame.Pose switch
+    {
+
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Tourian entrance statue pose."),
+    };
+}

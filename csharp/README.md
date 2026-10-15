@@ -484,34 +484,33 @@ Asset operations share the DebugRunner developer executable under the `assets` s
 ```powershell
 dotnet run --project src/SuperMetroid.DebugRunner -- assets ../standalone-assets/raw ../standalone-assets/png
 dotnet run --project src/SuperMetroid.DebugRunner -- assets audio ../standalone-assets/raw ../standalone-assets/audio
-dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-replace ../standalone-assets/audio sample-00-00 replacement.wav preserve
 dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-override-init "$env:LOCALAPPDATA\SuperMetroid"
-dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-replace "$env:LOCALAPPDATA\SuperMetroid\overrides\audio" sample-00-00 replacement.wav preserve
+dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-replace "$env:LOCALAPPDATA\SuperMetroid" music-0f-track-05 brinstar.wav 2563200
+dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-replace "$env:LOCALAPPDATA\SuperMetroid" sfx-1-0b power-beam.wav none
 dotnet run --project src/SuperMetroid.DebugRunner -- assets room ../standalone-assets/raw ../standalone-assets/rooms/LandingSite.png
 ```
 
 The extractor produces named raw chunks, PNGs, manifests, composed-room diagnostics, exact SPC
-upload streams, audio metadata, and canonical decoded PCM WAVs. The `audio-replace` command
-validates an uncompressed mono PCM16 WAV, retains the named sample ID and every bank alias,
-updates its rate/count/hash, and defaults to preserving the loop time across sample-rate changes.
-Pass `none` to disable looping or a non-negative PCM frame index to set it explicitly. Supported
-replacement rates are 8-384 kHz; the managed mixer normalizes pitch to the source rate. Running
-the ordinary `audio` extraction again restores every stock WAV and instrument definition.
+upload streams, audio metadata, and canonical decoded PCM WAVs. Installation then renders every
+song and every sound effect, in every bank context, into finished 16-bit stereo clips at the
+native 32,040 Hz (`game/audio/clips`, listed in `audio-clips.json`); the game plays those clips.
 
-For the installed game, initialize `overrides/audio` once with `audio-override-init`, then point
-`audio-replace` at that directory or edit its manifest. Startup validates the immutable
-`game/audio` catalog first and the override second; corrupt stock or user content fails loudly
-instead of silently choosing the other copy. The override sits outside the replaceable `game/`
-directory, survives stock repair/application updates, and is selected by both Windows and
-Android after restart. Initialization refuses to overwrite an existing override directory.
+Audio is modded by replacing finished clips. Initialize `overrides/audio` once with
+`audio-override-init`, then install each replacement with `audio-replace`, naming the clip by its
+stable identity: `music-{data index}-track-{nn}` for a song (the data index in hexadecimal, as
+the extracted catalog names tracks) or `sfx-{library}-{command}` for a sound effect (the command
+in hexadecimal; it replaces the sound in every bank context). A replacement must be an
+uncompressed 16-bit stereo WAV at 32,040 Hz. The optional last argument is the frame a song loops
+back to, or `none` to play it once; a sound that never ends on the cartridge needs a loop, and a
+one-shot sound cannot have one. Each edit is validated against the stock clips before it replaces
+the override, so a rejected edit leaves the previous override in place.
 
-Instrument edits currently live in `audio-manifest.json`, under the desired bank's
-`instruments` array. Every bank must retain exactly instruments `0` through `41`. `usesNoise`
-must match bit 7 of `sourceOrNoiseRate`; the remaining low bits select either the PCM source or
-the SNES noise rate. `adsr1`, `adsr2`, and `gain` are native DSP bytes, while `pitchBase` is the
-native unsigned 16-bit pitch scale. Restart the game after editing so the immutable catalog is
-validated and rebound. Direct edits inside `game/audio` are stock-content diagnostics and can be
-replaced by repair; installed presentation edits belong in `overrides/audio`.
+Startup validates the immutable `game/audio` clips first and the override second; corrupt stock
+or user content fails loudly instead of silently choosing the other copy. The override sits
+outside the replaceable `game/` directory, survives stock repair and application updates, and is
+selected by both Windows and Android after restart. Initialization refuses to overwrite an
+existing override directory. Instrument, sample and sequence edits are not overrides: they are
+stock-content diagnostics in `game/audio` and are replaced by repair.
 
 Sound effects are decoded into the manifest's `soundPrograms` catalog. Each effect in
 `soundLibraries` has a stable ID such as `sfx-1-01` and names the channel programs it routes.

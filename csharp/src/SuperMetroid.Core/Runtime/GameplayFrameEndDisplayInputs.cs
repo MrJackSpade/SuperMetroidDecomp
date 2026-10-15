@@ -1,6 +1,10 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Fx.Artwork;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 

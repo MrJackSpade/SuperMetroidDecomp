@@ -1,3 +1,8 @@
+namespace SuperMetroid.DebugRunner;
+using SuperMetroid.DebugRunner.Assets;
+using SuperMetroid.DebugRunner.Tools;
+
+
 /// <summary>
 /// Developer tools that operate on caller-supplied files: asset installation and extraction,
 /// generated-definition writers, state-fixture exporters, and captured-frame comparisons.

@@ -1,8 +1,8 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.EnsureAnalyzer;
-using SuperMetroid.ReachabilityAudit;
+using SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
 
 namespace SuperMetroid.CartridgeEncodingAudit;
 

@@ -1,6 +1,9 @@
 ﻿using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Map;
+
+namespace SuperMetroid.DebugRunner.Assets;
 
 /// <summary>
 /// Exports each area map as its lossless cartridge tilemap and station-reveal mask, plus a
@@ -14,13 +17,13 @@ internal static class MapAssetExtractor
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
         ArgumentException.ThrowIfNullOrWhiteSpace(outputDirectory);
 
-        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         string areasDirectory = Path.Combine(outputDirectory, "areas");
         Directory.CreateDirectory(areasDirectory);
         int areas = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area);
+            AreaMapCartridgeData map = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, area);
             string stem = Path.Combine(areasDirectory, FileStem(area));
             File.WriteAllBytes(stem + ".tilemap.bin", map.RawTilemapBytes);
             File.WriteAllBytes(stem + ".station-reveal-mask.bin", map.StationRevealMaskBytes);

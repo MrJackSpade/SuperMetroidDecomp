@@ -1,4 +1,4 @@
-using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.Game;
 

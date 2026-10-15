@@ -1,0 +1,52 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.WorkRobots;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.AssetExtraction.Enemies;
+
+/// <summary>Extracts the four RGB5 words preceding each compiled Work Robot timer.</summary>
+[CpuBusBoundary("codec: ROM Work Robot palette-cycle colors → Work Robot palette cycle")]
+public static class WorkRobotPaletteCycleExtractor
+{
+    /// <summary>Exports the four color operands of each of the six Work Robot palette records at $A8:CCC1, excluding their timer words and terminator.</summary>
+    /// <param name="bus">Non-null import-capable cartridge source for six ten-byte color/timer records.</param>
+    /// <returns>A new UTF-8 JSON buffer with six ordered four-color RGB5 frames for OBJ-row colors nine through twelve, with channels 0..31.</returns>
+    /// <remarks>The other twelve OBJ colors, compiled 64/16/16-update cadence, and wrap at the separate terminator are not imported into this artwork document.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="bus"/> lacks cartridge import access.</exception>
+    /// <exception cref="InvalidDataException">A source color sets unrepresentable bit 15.</exception>
+    public static byte[] Extract(ISnesAddressSpace bus)
+    {
+        Ensure.NotNull(bus);
+        var frames = new PaletteRgb5[WorkRobotPaletteTimingDefinitions.RecordCount][];
+        for (int frame = 0; frame < frames.Length; frame++)
+        {
+            frames[frame] = new PaletteRgb5[WorkRobotPaletteRomData.ColorCount];
+            for (int color = 0; color < frames[frame].Length; color++)
+            {
+                int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
+                    frame * WorkRobotPaletteTimingDefinitions.RecordByteCount +
+                    color * sizeof(ushort);
+                ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
+                if (!Bgr555.IsColorWord(native))
+                    throw new InvalidDataException(
+                        $"Work Robot color ${source:X6} has an unrepresentable high bit.");
+                frames[frame][color] = new PaletteRgb5
+                {
+                    Red = native & 31,
+                    Green = native >> 5 & 31,
+                    Blue = native >> 10 & 31,
+                };
+            }
+        }
+        return WorkRobotPaletteCycle.Write(new WorkRobotPaletteCycleDocument
+        {
+            Version = WorkRobotPaletteCycleFormat.Version,
+            Frames = frames,
+        });
+    }
+}

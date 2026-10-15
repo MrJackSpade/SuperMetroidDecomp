@@ -1,6 +1,22 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.RenderVerification.Bosses;
+using SuperMetroid.RenderVerification.Device;
+using SuperMetroid.RenderVerification.Enemies;
+using SuperMetroid.RenderVerification.Frontend;
+using SuperMetroid.RenderVerification.Harness;
+using SuperMetroid.RenderVerification.PpuFeatures;
+using SuperMetroid.RenderVerification.Rooms;
+using SuperMetroid.RenderVerification.Samus;
+using SuperMetroid.Rendering.Direct3D11.Device;
+using SuperMetroid.Rendering.Direct3D11.Frames;
+namespace SuperMetroid.RenderVerification;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RenderFixtures;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.WindowsConsole;
 
 /// <summary>
 /// Direct3D 11 renderer verification against the software renderer.

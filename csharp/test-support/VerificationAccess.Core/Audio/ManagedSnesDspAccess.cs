@@ -1,4 +1,5 @@
-using SuperMetroid.Core.Audio;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
+namespace SuperMetroid.Core.Audio;
 
 /// <summary>Verification access to <see cref="ManagedSnesDsp"/> members production does not use.</summary>
 internal static class ManagedSnesDspAccess

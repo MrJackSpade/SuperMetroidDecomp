@@ -1,0 +1,376 @@
+using SuperMetroid.Core.Hardware;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+using static SuperMetroid.Verification.Audio.AudioBankTransitionVerification;
+using static SuperMetroid.Verification.Audio.AudioInstrumentsVerification;
+using static SuperMetroid.Verification.Audio.AudioMusicProgramsVerification;
+using static SuperMetroid.Verification.Audio.AudioOverridesVerification;
+using static SuperMetroid.Verification.Audio.AudioSoundProgramsVerification;
+using static SuperMetroid.Verification.Audio.BrrLoopExtractionVerification;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
+namespace SuperMetroid.Verification.Audio;
+using SuperMetroid.Verification.Harness;
+
+/// <summary>Checks managed SPC, DSP, PCM replacement, and audio editor boundaries.</summary>
+internal static class ManagedAudioVerification
+{
+    /// <summary>Runs the focused managed audio checks for playback, looping, effects, and installation.</summary>
+    internal static void VerifyManagedSnesDsp()
+    {
+        Suite(nameof(VerifyManagedDspResetProducesSilence), () => VerifyManagedDspResetProducesSilence());
+        Suite(nameof(VerifyManagedDspPlaysConstructedPcmSample), () => VerifyManagedDspPlaysConstructedPcmSample());
+        Suite(nameof(VerifyManagedDspUsesLiveSourceAtLoop), () => VerifyManagedDspUsesLiveSourceAtLoop());
+        Suite(nameof(VerifyManagedDspUsesIndependentLoopEntry), () => VerifyManagedDspUsesIndependentLoopEntry());
+        Suite(nameof(VerifyReleasedVoiceBankSwitch), () => VerifyReleasedVoiceBankSwitch());
+        Suite(nameof(VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement), () => VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement());
+        Suite(nameof(VerifyManagedDspRejectsInvalidBoundaries), () => VerifyManagedDspRejectsInvalidBoundaries());
+        Suite(nameof(VerifyLinearStereoResampler), () => VerifyLinearStereoResampler());
+        Suite(nameof(VerifyStereoPcmContinuityMeter), () => VerifyStereoPcmContinuityMeter());
+        Suite(nameof(VerifyManagedSpcUsesAddressedFirCoefficients), () => VerifyManagedSpcUsesAddressedFirCoefficients());
+        Suite(nameof(VerifyManagedSpcSoundOwnershipPreservesPhase), () => VerifyManagedSpcSoundOwnershipPreservesPhase());
+        Suite(nameof(VerifyBrrLoopExtractionRetainsPredictorHistory), () => VerifyBrrLoopExtractionRetainsPredictorHistory());
+        Suite(nameof(VerifyEditableAudioInstruments), () => VerifyEditableAudioInstruments());
+        Suite(nameof(VerifyPersistentAudioOverrides), () => VerifyPersistentAudioOverrides());
+        Suite(nameof(VerifyEditableSoundEffectPrograms), () => VerifyEditableSoundEffectPrograms());
+        Suite(nameof(VerifyEditableMusicPrograms), () => VerifyEditableMusicPrograms());
+    }
+
+    /// <summary>Checks that a source-number write affects the next live loop without restarting a voice.</summary>
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
+    private static void VerifyManagedDspUsesLiveSourceAtLoop()
+    {
+        var dsp = new ManagedSnesDsp(new byte[0x10000]);
+        dsp.SetSampleBank(new ManagedPcmSampleBank("live-source", 0,
+            new Dictionary<byte, ManagedPcmSample>
+            {
+                [0] = new("positive", 32_000, Enumerable.Repeat((short)8000, 16).ToArray(), 0),
+                [1] = new("negative", 32_000, Enumerable.Repeat((short)-8000, 16).ToArray(), 0),
+            }));
+        ConfigureAudibleVoiceZero(dsp);
+        for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
+        byte outputRegister = SnesDspRegisterLayout.Voice.SampleOutput;
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) > 0, "initial source is positive");
+        // SRCN is not a key-on operation. The existing interpolation window remains
+        // audible until END/LOOP resolves the live directory entry (native dsp_decodeBrr).
+        dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 1);
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) > 0, "source write does not reset voice output");
+        for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) < 0, "loop follows live source without another key-on");
+    }
+
+    /// <summary>Separates a sample's key-on start from its independently mapped loop entry.</summary>
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
+    internal static void VerifyManagedDspUsesIndependentLoopEntry()
+    {
+        var dsp = new ManagedSnesDsp(new byte[65536]);
+        var sources = new Dictionary<byte, ManagedPcmSample>
+        {
+            [0] = new("initial", 32000, Enumerable.Repeat((short)8000, 16).ToArray(), 0),
+            [1] = new("key-on-positive", 32000, Enumerable.Repeat((short)8000, 256).ToArray(), null),
+            [2] = new("loop-entry-negative", 32000, Enumerable.Repeat((short)-8000, 256).ToArray(), null),
+        };
+        dsp.SetSampleBank(new ManagedPcmSampleBank("independent-loop-entry", 0, sources,
+            new Dictionary<byte, byte> { [1] = 2 }));
+        ConfigureAudibleVoiceZero(dsp);
+        for (int tick = 0; tick < 32; tick++) dsp.Cycle();
+        dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 1);
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterLayout.Voice.SampleOutput)) > 0,
+            "source change retains current interpolation window");
+        for (int tick = 0; tick < 32; tick++) dsp.Cycle();
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterLayout.Voice.SampleOutput)) < 0,
+            "END/LOOP uses the independent directory loop address, not the selected source start");
+
+        var keyOn = new ManagedSnesDsp(new byte[65536]);
+        keyOn.SetSampleBank(new ManagedPcmSampleBank("independent-key-on", 0, sources,
+            new Dictionary<byte, byte> { [1] = 2 }));
+        ConfigureAudibleVoiceZero(keyOn, sourceNumber: 1);
+        for (int tick = 0; tick < 32; tick++) keyOn.Cycle();
+        AssertTrue(unchecked((sbyte)keyOn.ReadRegister(SnesDspRegisterLayout.Voice.SampleOutput)) > 0,
+            "key-on uses directory start rather than its independent loop destination");
+        AssertThrows<InvalidDataException>(() => new ManagedPcmSampleBank("invalid-loop", 0, sources,
+            new Dictionary<byte, byte> { [1] = 3 }), "loop aliases require a mapped destination");
+    }
+
+    /// <summary>Checks channel-local seams and within-buffer deltas without stereo separation overflow.</summary>
+    private static void VerifyStereoPcmContinuityMeter()
+    {
+        var meter = new StereoPcmContinuityMeter();
+        // Opposite full-scale channels are individually constant, including at seams.
+        short[] constant = [short.MaxValue, short.MinValue, short.MaxValue, short.MinValue];
+        meter.Observe(constant);
+        meter.Observe([]);
+        meter.Observe(constant);
+        AssertEqual(0, meter.MaximumWithinBufferDelta, "stereo separation is not temporal noise");
+        AssertEqual(0, meter.MaximumBoundaryDelta, "boundary compares matching channels");
+
+        meter.Observe([short.MaxValue, short.MaxValue]);
+        AssertEqual(65535, meter.MaximumBoundaryDelta, "right-only full-range seam is measured without overflow");
+        meter.Observe([short.MaxValue, short.MaxValue, short.MaxValue, short.MinValue]);
+        AssertEqual(65535, meter.MaximumWithinBufferDelta, "right-only within-buffer step is measured");
+        AssertThrows<ArgumentException>(() => meter.Observe(new short[1]), "half stereo frame rejected");
+    }
+
+    /// <summary>
+    /// Covers the two adjacent SPC bytes whose omission reproduced issue #54 in the exact
+    /// player recording. The SFX owner must retain both ordinary volume and the packed
+    /// left/right phase flags before it overwrites the shared music voice.
+    /// </summary>
+    private static void VerifyManagedSpcSoundOwnershipPreservesPhase()
+    {
+        var music = new ManagedSpcMusicChannel
+        {
+            FinalVolume = 0x67,
+            PanFlags = 0x8a,
+        };
+        var sound = new ManagedSpcSoundChannel
+        {
+            Volume = 0xff,
+            PhaseInvert = 0xff,
+        };
+
+        ManagedSpcSoundOwnership.CaptureBorrowedMusicState(music, sound);
+
+        AssertEqual(0x67, sound.Volume, "borrowed SFX voice saved music volume");
+        AssertEqual(0x8a, sound.PhaseInvert, "borrowed SFX voice saved music phase flags");
+    }
+
+    /// <summary>
+    /// Reproduces Kraid's post-defeat `$F7 02 0A 0A` command with a minimal APU image.
+    /// Preset `$0A` deliberately lands beyond the four conventional filters and must read
+    /// the resident bytes at `$1E82`, exactly as the SPC's indexed load does.
+    /// </summary>
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
+    private static void VerifyManagedSpcUsesAddressedFirCoefficients()
+    {
+        const ushort topLevel = 0x6000;
+        const ushort patternTable = 0x6100;
+        const ushort channelPattern = 0x6200;
+        byte[] expectedCoefficients = [0x56, 0x65, 0x72, 0x20, 0x53, 0x31, 0x2e, 0x32];
+        var upload = new List<byte>();
+
+        AddSpcUploadRecord(upload, SpcDriverDefinitions.Ram.DefaultMusicPointer,
+            [unchecked((byte)topLevel), SnesLittleEndian.HighByte(topLevel)]);
+        AddSpcUploadRecord(upload, SpcDriverDefinitionsRamConstants.MusicTrackPointerTable,
+            [unchecked((byte)topLevel), SnesLittleEndian.HighByte(topLevel)]);
+        AddSpcUploadRecord(upload, topLevel,
+            [unchecked((byte)patternTable), SnesLittleEndian.HighByte(patternTable)]);
+        AddSpcUploadRecord(upload, patternTable,
+            [
+                unchecked((byte)channelPattern), SnesLittleEndian.HighByte(channelPattern),
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ]);
+        AddSpcUploadRecord(upload, channelPattern,
+            [(byte)SpcMusicEffect.ConfigureEcho, 0x02, 0x0a, 0x0a, 1, SpcDriverDefinitions.Music.RestNote]);
+        AddSpcUploadRecord(
+            upload,
+            SpcDriverDefinitions.Echo.FirCoefficientTableAddress + 10 * SpcDriverDefinitions.Echo.FirTapCount,
+            expectedCoefficients);
+        upload.Add(0);
+        upload.Add(0);
+
+        var player = new PortDrivenSpcPlayer();
+        player.Upload(CollectionsMarshal.AsSpan(upload));
+        player.WritePort(ApuPort.Music, 1);
+        short[] pcm = new short[SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2];
+        // The SPC starts at tempo $10 and requires multiple 64-cycle timer carries before
+        // the two-tick track startup handshake reaches the first pattern command.
+        for (int frame = 0; frame < 60; frame++)
+            player.GenerateFrame(pcm);
+
+        for (int tap = 0; tap < expectedCoefficients.Length; tap++)
+        {
+            byte register = unchecked((byte)(SnesDspRegisterLayout.FirstFirCoefficient +
+                tap * SnesDspRegisterLayout.VoiceStride));
+            AssertEqual(
+                expectedCoefficients[tap],
+                player.Player.ReadDspRegisterForVerification(register),
+                $"addressed FIR coefficient {tap}");
+        }
+    }
+
+    /// <summary>Appends a length, destination, and payload in the SPC upload protocol's byte order.</summary>
+    private static void AddSpcUploadRecord(List<byte> stream, ushort target, byte[] payload)
+    {
+        stream.Add(unchecked((byte)payload.Length));
+        stream.Add(SnesLittleEndian.HighByte(unchecked((ushort)payload.Length)));
+        stream.Add(unchecked((byte)target));
+        stream.Add(SnesLittleEndian.HighByte(target));
+        stream.AddRange(payload);
+    }
+
+    /// <summary>
+    /// A reset S-DSP is muted. This catches accidental output from uninitialised voices,
+    /// interpolation history, echo RAM, or the noise generator.
+    /// </summary>
+    private static void VerifyManagedDspResetProducesSilence()
+    {
+        byte[] apuRam = new byte[0x10000];
+        ManagedSnesDsp dsp = new(apuRam);
+        for (int index = 0; index < ManagedSnesDsp.NativeStereoFramesPerVideoFrame; index++)
+            dsp.Cycle();
+
+        short[] output = new short[1_600];
+        dsp.CopyResampledSamples(output, 800);
+        for (int index = 0; index < output.Length; index++)
+            AssertEqual(0, output[index], $"reset managed S-DSP output sample {index}");
+    }
+
+    /// <summary>
+    /// Exercises PCM source lookup, Gaussian interpolation, direct-gain envelope, pitch
+    /// stepping, stereo volumes, and the end/loop path without a cartridge room.
+    /// </summary>
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
+    private static void VerifyManagedDspPlaysConstructedPcmSample()
+    {
+        byte[] apuRam = new byte[0x10000];
+        ManagedSnesDsp dsp = new(apuRam);
+        short[] waveform = Enumerable.Range(0, 16)
+            .Select(index => unchecked((short)((index & 1) == 0 ? 14_336 : -16_384)))
+            .ToArray();
+        dsp.SetSampleBank(new ManagedPcmSampleBank(
+            "constructed",
+            AudioBank.SpcEngine,
+            new Dictionary<byte, ManagedPcmSample>
+            {
+                [0] = new ManagedPcmSample("constructed-loop", 32_000, waveform, 0),
+            }));
+        ConfigureAudibleVoiceZero(dsp);
+
+        for (int index = 0; index < ManagedSnesDsp.NativeStereoFramesPerVideoFrame; index++)
+            dsp.Cycle();
+
+        short[] output = new short[1_600];
+        dsp.CopyResampledSamples(output, 800);
+        AssertTrue(output.Any(sample => sample != 0), "constructed PCM waveform is audible");
+        AssertEqual(output[0], output[1], "constructed PCM waveform uses equal stereo volumes");
+        AssertTrue((dsp.ReadRegister(0x7c) & 1) != 0, "constructed PCM loop raises ENDX");
+    }
+
+    /// <summary>
+    /// Reproduces the zero-order hold behind issue #54 without a room or audio device. A
+    /// monotonic native-rate signal must remain monotonic at 48 kHz; duplicating 266 of its
+    /// 799 output intervals is the audible imaging/static defect, not valid source content.
+    /// </summary>
+    private static void VerifyLinearStereoResampler()
+    {
+        short[] source = new short[ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 2];
+        for (int frame = 0; frame < source.Length / 2; frame++)
+        {
+            source[frame * 2] = unchecked((short)((frame - 267) * 100));
+            source[frame * 2 + 1] = unchecked((short)((267 - frame) * 100));
+        }
+        short[] output = new short[SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2];
+        PcmFrameResampler.ResampleStereoLinear(source, output);
+
+        int repeatedStereoFrames = 0;
+        for (int frame = 1; frame < output.Length / 2; frame++)
+        {
+            int previous = (frame - 1) * 2;
+            int current = frame * 2;
+            if (output[current] == output[previous] && output[current + 1] == output[previous + 1])
+                repeatedStereoFrames++;
+        }
+
+        AssertEqual(-26_700, output[0], "linear resampler first left sample");
+        AssertEqual(-26_634, output[2], "linear resampler interpolated left sample");
+        AssertTrue(
+            repeatedStereoFrames <= 1,
+            $"linear 32.04-to-48-kHz ramp duplicated {repeatedStereoFrames}/799 intervals");
+    }
+
+    /// <summary>
+    /// A replacement WAV may carry more source frames than the stock 32-kHz decode. The DSP
+    /// normalizes phase advance, applies the same live envelope/pan path, and still obeys key-off.
+    /// </summary>
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
+    private static void VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement()
+    {
+        ManagedSnesDsp dsp = new(new byte[0x10000]);
+        short[] waveform = Enumerable.Range(0, 96)
+            .Select(index => unchecked((short)(Math.Sin(index * Math.PI / 12) * 20_000)))
+            .ToArray();
+        dsp.SetSampleBank(new ManagedPcmSampleBank(
+            "hd-replacement",
+            AudioBank.TitleSequence,
+            new Dictionary<byte, ManagedPcmSample>
+            {
+                [0] = new ManagedPcmSample("sample-00-00", 48_000, waveform, 24),
+            }));
+        ConfigureAudibleVoiceZero(dsp);
+
+        for (int index = 0; index < ManagedSnesDsp.NativeStereoFramesPerVideoFrame; index++)
+            dsp.Cycle();
+        short[] output = new short[1_600];
+        dsp.CopyResampledSamples(output, 800);
+        AssertTrue(output.Any(sample => sample != 0), "48-kHz replacement waveform is audible");
+
+        dsp.WriteRegister(0x5c, 1);
+        for (int index = 0; index < 300; index++)
+            dsp.Cycle();
+        AssertEqual(0, dsp.ReadRegister(0x08), "replacement voice reaches silence after key-off");
+    }
+
+    /// <summary>Sets voice zero to audible direct gain with equal stereo volume and key-on.</summary>
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
+    internal static void ConfigureAudibleVoiceZero(ManagedSnesDsp dsp, byte sourceNumber = 0)
+    {
+        dsp.WriteRegister(0x00, 0x7f);
+        dsp.WriteRegister(0x01, 0x7f);
+        dsp.WriteRegister(0x02, 0xff);
+        dsp.WriteRegister(0x03, 0x3f);
+        dsp.WriteRegister(0x04, sourceNumber);
+        dsp.WriteRegister(0x05, 0);
+        dsp.WriteRegister(0x07, 0x7f);
+        dsp.WriteRegister(0x0c, 0x7f);
+        dsp.WriteRegister(0x1c, 0x7f);
+        dsp.WriteRegister(0x6c, 0x20);
+        dsp.WriteRegister(0x4c, 1);
+    }
+
+    /// <summary>Checks invalid APU RAM, register, waveform, sample-rate, and WAV boundaries.</summary>
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
+    private static void VerifyManagedDspRejectsInvalidBoundaries()
+    {
+        AssertThrows<ArgumentException>(
+            () => _ = new ManagedSnesDsp(new byte[0xffff]),
+            "managed DSP rejects non-64-KiB APU RAM");
+
+        ManagedSnesDsp dsp = new(new byte[0x10000]);
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => dsp.WriteRegister(0x80, 0),
+            "managed DSP rejects registers beyond $7F");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => dsp.CopyResampledSamples(new short[2], 0),
+            "managed DSP rejects an empty host frame");
+        dsp.SetSampleBank(new ManagedPcmSampleBank(
+            "missing-source",
+            AudioBank.SpcEngine,
+            new Dictionary<byte, ManagedPcmSample>()));
+        AssertThrows<InvalidDataException>(
+            () => dsp.WriteRegister(0x4c, 1),
+            "managed DSP rejects an unmapped source at key-on");
+        AssertThrows<InvalidDataException>(
+            () => _ = new ManagedPcmSample(
+                "bad-rate",
+                PcmSampleFormat.MinimumReplacementSampleRate - 1,
+                [0],
+                null),
+            "managed PCM rejects unsupported sample rate");
+        AssertThrows<InvalidDataException>(
+            () => _ = new ManagedPcmSample("bad-loop", 32_000, [0], 1),
+            "managed PCM rejects loop outside waveform");
+        AssertThrows<InvalidDataException>(
+            () => PcmWaveFile.ReadMonoPcm16("not-wave"u8, "constructed invalid WAV"),
+            "managed PCM rejects malformed WAV container");
+    }
+
+    /// <summary>Runs the independent PCM loop-entry verification by command.</summary>
+    [VerificationCommand("--pcm-loop-entry")]
+    internal static int PcmLoopEntryCommand()
+    {
+        Suite(nameof(VerifyManagedDspUsesIndependentLoopEntry), () => VerifyManagedDspUsesIndependentLoopEntry());
+        return 0;
+    }
+}

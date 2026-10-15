@@ -1,5 +1,9 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.ScenarioFixtures;
 
 /// <summary>Exports bounded production traces and seeds for native comparison of reported movement cases.</summary>
 internal static class NativeCaptureSeeds
@@ -20,7 +24,7 @@ internal static class NativeCaptureSeeds
             var scenario = new BombSpreadTransitionScenario(RepositoryInstallation.CreateRuntime(bus), bus, left, timingCase, wallRoute);
             for (int frame = 0; frame < scenario.FrameCount; frame++, frames++)
             {
-                ushort input = scenario.Input(frame);
+                SnesButton input = scenario.Input(frame);
                 scenario.Runtime.StepFrame(input, new RuntimeFrameRequest());
                 output.WriteLine(scenario.Row(frame, input));
                 if (!scenario.RecordsBombs(frame))

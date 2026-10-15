@@ -1,7 +1,16 @@
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Desktop;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Diagnostics.SaveStates;
+namespace SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.SaveMapFixtures;
 
 /// <summary>#441: real frontend loading from identical in-memory SRAM, with varied file-map waits.</summary>
 internal static class SaveLoadRandomAudit
@@ -11,7 +20,7 @@ internal static class SaveLoadRandomAudit
     {
         foreach (int wait in new[] { 0, 1, 2 })
         {
-            var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
+            var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(rom);
             var save = new SuperMetroidSaveSnapshot
             {
                 Area = (ushort)AreaId.Tourian, SaveStation = 0,
@@ -29,7 +38,7 @@ internal static class SaveLoadRandomAudit
             long dispatches = 0;
             // Each main-loop dispatch calls GenerateRandomNumber once; an update that only
             // resumes a menu or loading dispatch after its NMI wait does not.
-            void Step(ushort input)
+            void Step(SnesButton input)
             {
                 if (!game.NextUpdateResumesNmiWait) dispatches++;
                 game.StepCaptured(input, ++sequence, 1);
@@ -51,7 +60,7 @@ internal static class SaveLoadRandomAudit
                         bindPresentation(game);
                     }
                 }
-                Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
+                Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
             }
             var runtime = game.RuntimeForVerification;
             if (!insertedWait || runtime?.Player.Samus is null)
@@ -80,7 +89,7 @@ internal static class SaveLoadRandomAudit
             game.GameState = SuperMetroidGameState.FileSelectMap;
             for (int tick = 0; tick < 1000 && (game.RuntimeForVerification is null || ReferenceEquals(runtime, game.RuntimeForVerification)); tick++)
             {
-                game.StepCaptured(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0, ++sequence, 1);
+                game.StepCaptured(tick % 47 == 0 ? SnesButton.Start : (ushort)0, ++sequence, 1);
                 expected.NextRandom();
                 if (game.DispatcherRandomNumber != expected.RandomNumber)
                     throw new InvalidDataException("Continued save lost the live runtime RNG at the file-map/load handoff.");

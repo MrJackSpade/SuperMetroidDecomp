@@ -1,13 +1,37 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core;
 using System.Runtime.CompilerServices;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.SpacePirates;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
+
+namespace SuperMetroid.Core;
 
 /// <summary>
 /// Verification views of private Core state. Each member reads exactly the private state its
@@ -30,6 +54,8 @@ internal static class CoreAccess
         internal CartridgeAudioState AudioForVerification => game.audio;
         /// <summary>The acknowledgements the session's SPC port model published for the next update.</summary>
         internal CartridgeAudioAcknowledgements AudioAcknowledgementsForVerification => game.audioSession.Acknowledgements;
+        /// <summary>The most recent update's ordered semantic audio events.</summary>
+        internal IReadOnlyList<AudioEvent> AudioEventsForVerification => game.lastAudioEvents;
         /// <summary>Reads the menu NMI frame counter used by frontend animation timing.</summary>
         internal ushort MenuNmiFrameCounterForVerification => game.menuNmi.FrameCounter;
         /// <summary>Reads the active Ceres destruction cinematic, if that phase owns the frontend.</summary>
@@ -41,7 +67,7 @@ internal static class CoreAccess
         /// upload, which the lag-free port does not spend as an update. Only that proven wait
         /// is accepted; replays of any other hardware stall must establish their own contract.
         /// </summary>
-        internal void AcceptDoorMusicWaitControllerRead(ushort controllerInput)
+        internal void AcceptDoorMusicWaitControllerRead(SnesButton controllerInput)
         {
             SuperMetroidRuntime? runtime = game.RuntimeForVerification;
             if (game.GameState != SuperMetroidGameState.LoadingNextRoomB || runtime is null)
@@ -427,7 +453,7 @@ internal static class CoreAccess
     }
 
     /// <summary>Exposes the two byte-sized timer operands following Crateria lightning SetTimer instructions.</summary>
-    extension(CrateriaLightningPaletteFxProgramDefinition self)
+    extension(CrateriaLightningPaletteFxColorDefinition self)
     {
         /// <summary>
         /// The two timer-duration bytes that follow each <c>SetTimer</c> instruction: duration

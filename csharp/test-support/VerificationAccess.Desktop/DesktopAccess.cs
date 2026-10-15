@@ -1,8 +1,13 @@
 using System.Diagnostics;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Frontend.Recording;
+using SuperMetroid.Desktop.Audio;
+using SuperMetroid.Desktop.Diagnostics;
+using SuperMetroid.Desktop.Window;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Verification views of private desktop audio and error-reporting state.</summary>
 internal static class DesktopAccess
@@ -66,9 +71,13 @@ internal static class DesktopAccess
     internal static ExtractedAudioAssetCatalog LoadAudioAssets(string? audioDirectory = null) =>
         ExtractedAudioAssetCatalog.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
 
-    /// <summary>A standalone renderer over that audio, for fixtures that drive the cartridge audio types directly.</summary>
-    internal static CartridgeAudioRenderer CreateAudioRenderer(string? audioDirectory = null) =>
-        new(LoadAudioAssets(audioDirectory));
+    /// <summary>The installed pre-rendered clips beside that audio (#1305), which a game binds.</summary>
+    internal static ClipAudioCatalog LoadAudioClips(string? audioDirectory = null) =>
+        ClipAudioCatalog.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
+
+    /// <summary>A standalone synthesizing session over that audio, for fixtures that drive the cartridge audio types directly.</summary>
+    internal static SynthesizingAudioSession CreateAudioSession(string? audioDirectory = null) =>
+        CartridgeAudioSessionAccess.CreateSynthesizing(LoadAudioAssets(audioDirectory));
 
     /// <summary>
     /// A game control over the installation beside a ROM path, importing it on first use, or over
@@ -83,6 +92,9 @@ internal static class DesktopAccess
         string? dataDirectory = null) =>
         new(InstallationFor(romPath, dataDirectory), gameOptions, replay, errorReporter, audioDirectory);
 
+    /// <summary>Directory beside a ROM where <see cref="InstallationFor"/> opens or creates its installation.</summary>
+    internal const string InstallationDirectoryName = "SuperMetroid-installed";
+
     /// <summary>Uses an explicit extracted directory or repairs and opens the installation beside a ROM.</summary>
     internal static GameInstallation InstallationFor(string romPath, string? dataDirectory = null)
     {
@@ -90,7 +102,7 @@ internal static class DesktopAccess
             return new GameInstallation(Path.GetFullPath(dataDirectory));
         string fullRomPath = Path.GetFullPath(romPath);
         string root = Path.Combine(Path.GetDirectoryName(fullRomPath)
-            ?? throw new InvalidOperationException("Cartridge path has no parent directory."), "SuperMetroid-installed");
+            ?? throw new InvalidOperationException("Cartridge path has no parent directory."), InstallationDirectoryName);
         return GameAssetInstaller.OpenOrRepair(root) ?? GameAssetInstaller.Install(fullRomPath, root);
     }
 

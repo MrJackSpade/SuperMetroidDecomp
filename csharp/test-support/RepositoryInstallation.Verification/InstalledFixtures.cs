@@ -1,10 +1,24 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+
+namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>Installation fixtures only the verifiers use; the developer tools link only the shared part.</summary>
 internal static class InstalledFixtures

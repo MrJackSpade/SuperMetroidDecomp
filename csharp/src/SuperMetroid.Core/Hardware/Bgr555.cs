@@ -21,7 +21,7 @@ public readonly record struct Bgr555
     public const int MaxChannel = 31;
 
     /// <summary>Mask for the fifteen CGRAM color bits, excluding the unused high bit.</summary>
-    private const ushort ColorBits = 0x7fff;
+    private const ushort ColorBits = (1 << 15) - 1;
 
     /// <summary>Validated packed SNES color word.</summary>
     private readonly ushort word;
@@ -37,6 +37,10 @@ public readonly record struct Bgr555
 
     /// <summary>Black: every channel zero.</summary>
     public static Bgr555 Black => default;
+
+    /// <summary>Expands a five-bit channel to eight bits by replicating its high bits into the low ones.</summary>
+    public static byte ExpandChannel(int fiveBit) =>
+        (byte)(((fiveBit & MaxChannel) << 3) | ((fiveBit & MaxChannel) >> 2));
 
     /// <summary>White: every channel at <see cref="MaxChannel"/>.</summary>
     public static Bgr555 White => new(ColorBits);

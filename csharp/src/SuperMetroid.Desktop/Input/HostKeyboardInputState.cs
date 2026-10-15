@@ -1,0 +1,90 @@
+using SuperMetroid.Core.Input;
+
+namespace SuperMetroid.Desktop.Input;
+
+/// <summary>
+/// Converts Windows key messages into the single cartridge-format controller word consumed
+/// by the emulated NMI.
+/// </summary>
+/// <remarks>
+/// This state belongs above individual child controls. A canvas-only KeyDown handler stops
+/// receiving Enter and the arrows as soon as a debugger toolbar item owns focus, allowing
+/// WinForms dialog/navigation behavior to mutate the host UI instead of the SNES pad.
+/// </remarks>
+internal sealed class HostKeyboardInputState
+{
+    /// <summary>The Win32 keyboard window messages that carry gameplay key transitions.</summary>
+    internal enum KeyboardWindowMessage
+    {
+        /// <summary><c>WM_KEYDOWN</c>.</summary>
+        KeyDown = 0x0100,
+        /// <summary><c>WM_KEYUP</c>.</summary>
+        KeyUp = 0x0101,
+        /// <summary><c>WM_SYSKEYDOWN</c>.</summary>
+        SystemKeyDown = 0x0104,
+        /// <summary><c>WM_SYSKEYUP</c>.</summary>
+        SystemKeyUp = 0x0105,
+    }
+
+    /// <summary>Event-owned keys currently held by Windows, independent of the polled gamepad word.</summary>
+    private readonly HashSet<Keys> heldKeys = [];
+
+    /// <summary>
+    /// Captures one key message. True means the message belongs exclusively to gameplay and
+    /// must not continue into ToolStrip, ComboBox, default-button, or dialog navigation.
+    /// </summary>
+    public bool ApplyWindowMessage(int message, Keys key)
+    {
+        Keys keyCode = key & Keys.KeyCode;
+        // Every other window message continues through normal WinForms processing.
+        if (!IsGameplayKey(keyCode) || !Enum.IsDefined((KeyboardWindowMessage)message))
+            return false;
+
+        switch ((KeyboardWindowMessage)message)
+        {
+            case KeyboardWindowMessage.KeyDown:
+            case KeyboardWindowMessage.SystemKeyDown:
+                heldKeys.Add(keyCode);
+                return true;
+
+            case KeyboardWindowMessage.KeyUp:
+            case KeyboardWindowMessage.SystemKeyUp:
+                heldKeys.Remove(keyCode);
+                return true;
+
+            default:
+                throw new InvalidOperationException($"Undefined keyboard window message {message}.");
+        }
+    }
+
+    /// <summary>Releases all event-owned keys after a host focus or session discontinuity.</summary>
+    public void Clear() => heldKeys.Clear();
+
+    /// <summary>Merges the keyboard producer into an already-polled gamepad sample.</summary>
+    public SnesButton BuildControllerWord(SnesButton gamepadInput)
+    {
+        SnesButton input = gamepadInput;
+        if (heldKeys.Contains(Keys.Left)) input |= SnesButton.Left;
+        if (heldKeys.Contains(Keys.Right)) input |= SnesButton.Right;
+        if (heldKeys.Contains(Keys.Up)) input |= SnesButton.Up;
+        if (heldKeys.Contains(Keys.Down)) input |= SnesButton.Down;
+        if (heldKeys.Contains(Keys.Z)) input |= SnesButton.B;
+
+        // Space is a discoverable desktop jump alias; X retains the compact four-face-
+        // button layout printed below the viewport. Both become the retail SNES A bit.
+        if (heldKeys.Contains(Keys.X) || heldKeys.Contains(Keys.Space)) input |= SnesButton.A;
+        if (heldKeys.Contains(Keys.A)) input |= SnesButton.Y;
+        if (heldKeys.Contains(Keys.S)) input |= SnesButton.X;
+        if (heldKeys.Contains(Keys.Q)) input |= SnesButton.L;
+        if (heldKeys.Contains(Keys.W)) input |= SnesButton.R;
+        if (heldKeys.Contains(Keys.Enter)) input |= SnesButton.Start;
+        if (heldKeys.Contains(Keys.ShiftKey)) input |= SnesButton.Select;
+        return input;
+    }
+
+    /// <summary>Limits message interception to the keys mapped to SNES controls.</summary>
+    private static bool IsGameplayKey(Keys key) => key is
+        Keys.Left or Keys.Right or Keys.Up or Keys.Down or
+        Keys.Z or Keys.X or Keys.Space or Keys.A or Keys.S or Keys.Q or Keys.W or
+        Keys.Enter or Keys.ShiftKey;
+}

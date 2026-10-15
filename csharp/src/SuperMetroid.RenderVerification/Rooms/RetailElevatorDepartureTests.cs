@@ -1,0 +1,78 @@
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Rendering.Direct3D11.Device;
+using SuperMetroid.Rendering.Direct3D11.Frames;
+namespace SuperMetroid.RenderVerification.Rooms;
+using SuperMetroid.TestSupport.FrameCapture;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+
+/// <summary>Focused downward ride, staged on the carrier rather than reached by a multi-room trace.</summary>
+internal static class RetailElevatorDepartureTests
+{
+    /// <summary>Captures each departure and arrival frame of the Blue Brinstar elevator through the Morph Ball room transition.</summary>
+    internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
+    {
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = RepositoryInstallation.CreateRuntime(bus);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializePostCeresZebesRoom();
+        var samus = runtime.Player.IntroducedSamus;
+        samus.InputLocked = false;
+        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.Presentation.InitializeAnimation(bus);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BlueBrinstarElevatorRoom);
+        var actor = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
+        samus.Position = samus.Position.WithWhole(new(actor.Position.X.Whole, unchecked((ushort)(actor.Position.Y.Whole - ElevatorCaptureFixtureDefinitions.SamusAttachmentOffset))));
+        samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
+        runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();
+        int samples = 0, departure = 0, scrolling = 0, returning = 0;
+        void Compare(string phase)
+        {
+            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+            var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
+                GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()) ?? throw new InvalidOperationException("Missing elevator capture."));
+            packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
+            PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
+                $"{device.Kind}: downward elevator {phase}, sample={samples}");
+        }
+        runtime.StepFrame(SnesButton.Down);
+        Compare("departure start");
+        if (runtime.Enemies.ElevatorBehavior.LastElevatorEvent != ElevatorFrameEvent.DepartureStarted)
+            throw new InvalidOperationException("Downward elevator did not accept the input edge.");
+        while (!runtime.RoomLoader.HasPendingDoorTransition && departure < 240)
+        {
+            runtime.StepFrame(0); departure++; Compare("departure");
+        }
+        if (!runtime.RoomLoader.HasPendingDoorTransition) throw new InvalidOperationException("Elevator never reached its exit.");
+        var transition = new DoorTransitionState();
+        var audio = new CartridgeAudioState();
+        transition.Begin(runtime);
+        int doorFrames = 0;
+        while (transition.IsActive && doorFrames++ < 512)
+        {
+            if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrolling++;
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance); Compare(transition.Phase.ToString());
+        }
+        if (transition.IsActive || scrolling < 12 || runtime.Room.ActiveRoom?.Pointer != RoomHeaderPointers.MorphBallRoom)
+            throw new InvalidOperationException("Downward elevator did not complete the authored transition.");
+        while (runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive && returning < 1200)
+        {
+            runtime.StepFrame(0); returning++; Compare("arrival");
+        }
+        if (returning == 0 || runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive || samus.InputLocked)
+            throw new InvalidOperationException("Downward arrival did not restore control.");
+        for (int tick = 0; tick < 8; tick++) { runtime.StepFrame(0); Compare("settled"); }
+        Console.WriteLine($"{device.Kind}: downward elevator {samples} exact frames, {departure} departure, " +
+            $"{scrolling} scroll and {returning} return frames; control released.");
+    }
+}

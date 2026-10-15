@@ -1,10 +1,13 @@
 using System.Text.Json;
-using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
+namespace SuperMetroid.DebugRunner.Assets;
+using SuperMetroid.AssetExtraction.Compression;
+using SuperMetroid.AssetExtraction.ReferenceRendering;
 
 /// <summary>Debug-runner commands for installing, extracting, previewing and replacing cartridge-derived assets.</summary>
 internal static class AssetCommands
@@ -41,19 +44,12 @@ if (args.Length == 3 && args[0].Equals("maps", StringComparison.OrdinalIgnoreCas
 
 if (args.Length is 4 or 5 && args[0].Equals("audio-replace", StringComparison.OrdinalIgnoreCase))
 {
-    string audioDirectory = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
+    var installation = new GameInstallation(ResolveWorkspacePath(args[1], mustAlreadyExist: true));
     string replacementPath = ResolveWorkspacePath(args[3], mustAlreadyExist: true);
-    PcmSampleLoopReplacement loop = args.Length == 4
-        ? PcmSampleLoopReplacement.PreserveTime
-        : ParseLoopReplacement(args[4]);
-    AudioCanonicalSampleMetadata installed = PcmSampleReplacementInstaller.Install(
-        audioDirectory,
-        args[2],
-        replacementPath,
-        loop);
+    long? loopStart = args.Length == 4 ? null : ParseLoopStart(args[4]);
+    AudioClipOverride installed = AudioAssetOverrideInstaller.Replace(installation, args[2], replacementPath, loopStart);
     Console.WriteLine(
-        $"Installed {installed.Id}: {installed.SampleRate} Hz, {installed.SampleCount} samples, " +
-        $"loop={installed.LoopSampleIndex?.ToString() ?? "none"}, SHA-256 {installed.Sha256}.");
+        $"Installed {installed.Id} from {installed.File}, loop={installed.LoopStart?.ToString() ?? "none"}; restart the game to hear it.");
     return 0;
 }
 
@@ -61,10 +57,10 @@ if (args.Length == 2 && args[0].Equals("audio-override-init", StringComparison.O
 {
     var installation = new GameInstallation(ResolveWorkspacePath(args[1], mustAlreadyExist: true));
     string overrideDirectory = AudioAssetOverrideInstaller.Initialize(installation);
-    Console.WriteLine($"Editable audio override initialized at {overrideDirectory}");
+    Console.WriteLine($"Audio clip override initialized at {overrideDirectory}");
     Console.WriteLine(
-        $"Use 'assets audio-replace \"{overrideDirectory}\" <sample-id> <wav> [preserve|none|loop-sample]' " +
-        "or edit its audio-manifest.json, then restart the game.");
+        "Use 'assets audio-replace <installed-app-data-directory> <clip-id> <wav> [none|loop-frame]' with a " +
+        "16-bit stereo WAV at 32,040 Hz, then restart the game.");
     return 0;
 }
 
@@ -100,7 +96,7 @@ if (args.Length != 2)
     Console.Error.WriteLine("  SuperMetroid.DebugRunner assets <raw-assets-directory> <png-output-directory>");
     Console.Error.WriteLine("  SuperMetroid.DebugRunner assets audio <raw-assets-directory> <audio-output-directory>");
     Console.Error.WriteLine(
-        "  SuperMetroid.DebugRunner assets audio-replace <audio-directory> <sample-id> <wav> [preserve|none|loop-sample]");
+        "  SuperMetroid.DebugRunner assets audio-replace <installed-app-data-directory> <clip-id> <wav> [none|loop-frame]");
     Console.Error.WriteLine(
         "  SuperMetroid.DebugRunner assets audio-override-init <installed-app-data-directory>");
     Console.Error.WriteLine("  SuperMetroid.DebugRunner assets room <raw-assets-directory> <room.png>");
@@ -222,20 +218,14 @@ static string ResolveWorkspacePath(string argument, bool mustAlreadyExist)
     return Path.GetFullPath(Path.Combine(repositoryRoot, argument));
 }
 
-/// <summary>Accepts preserved timing, no loop, or a nonnegative explicit PCM sample index.</summary>
-static PcmSampleLoopReplacement ParseLoopReplacement(string value)
+/// <summary>Parses a clip override's loop argument: <c>none</c>, or the frame it loops back to.</summary>
+static long? ParseLoopStart(string value)
 {
-    if (value.Equals("preserve", StringComparison.OrdinalIgnoreCase))
-        return PcmSampleLoopReplacement.PreserveTime;
     if (value.Equals("none", StringComparison.OrdinalIgnoreCase))
-        return PcmSampleLoopReplacement.Disabled;
-    if (int.TryParse(value, System.Globalization.NumberStyles.None,
-            System.Globalization.CultureInfo.InvariantCulture, out int sampleIndex) && sampleIndex >= 0)
-    {
-        return PcmSampleLoopReplacement.At(sampleIndex);
-    }
-    throw new ArgumentException(
-        $"Replacement loop '{value}' must be 'preserve', 'none', or a non-negative PCM sample index.");
+        return null;
+    if (long.TryParse(value, out long frame) && frame >= 0)
+        return frame;
+    throw new ArgumentException($"Loop '{value}' must be 'none' or a non-negative frame index.");
 }
 
 /// <summary>Recognizes the repository-owned standalone-assets path segment in either slash style.</summary>

@@ -1,4 +1,8 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend;
 

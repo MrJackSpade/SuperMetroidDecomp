@@ -1,8 +1,14 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+
+namespace SuperMetroid.TestSupport.ScenarioFixtures;
 
 /// <summary>
 /// Issue #415: earning a charged bomb spread by morphing in the air, either while turning around
@@ -63,35 +69,35 @@ internal sealed class BombSpreadTransitionScenario
     }
 
     /// <summary>Controller word for <paramref name="frame"/>.</summary>
-    internal ushort Input(int frame)
+    internal SnesButton Input(int frame)
     {
         var bindings = Runtime.Options.ControllerBindings;
-        ushort input = bindings.Shoot;
+        SnesButton input = bindings.Shoot;
         if (!WallRoute)
         {
             if (frame is >= 70 and < 125) input |= bindings.Jump;
             if (frame >= 76 && frame < 105 && frame != 78 + Delay)
-                input |= (ushort)SnesButton.Down;
-            if (frame is >= 78 and < 125) input |= (ushort)(Left ? SnesButton.Right : SnesButton.Left);
+                input |= SnesButton.Down;
+            if (frame is >= 78 and < 125) input |= (Left ? SnesButton.Right : SnesButton.Left);
             return input;
         }
         int morphDelay = TimingCase >= 12 ? 0 : Delay;
-        input = TimingCase == 12 || frame < 87 || frame >= 94 + morphDelay ? bindings.Shoot : (ushort)0;
+        input = TimingCase == 12 || frame < 87 || frame >= 94 + morphDelay ? bindings.Shoot : SnesButton.None;
         if (frame is >= 70 and < 86 or >= 89 and < 200) input |= bindings.Jump;
-        if (frame is >= 68 and < 87) input |= (ushort)(Left ? SnesButton.Left : SnesButton.Right);
-        if (frame is >= 87 and < 140) input |= (ushort)(Left ? SnesButton.Right : SnesButton.Left);
+        if (frame is >= 68 and < 87) input |= (Left ? SnesButton.Left : SnesButton.Right);
+        if (frame is >= 87 and < 140) input |= (Left ? SnesButton.Right : SnesButton.Left);
         if (TimingCase == 13 && frame == 93)
         {
-            input &= unchecked((ushort)~(SnesButton.Left | SnesButton.Right));
-            input |= (ushort)(Left ? SnesButton.Left : SnesButton.Right);
+            input &= ~(SnesButton.Left | SnesButton.Right);
+            input |= (Left ? SnesButton.Left : SnesButton.Right);
         }
-        if (frame >= 94 + morphDelay && frame < 115 + morphDelay) input |= (ushort)SnesButton.Down;
+        if (frame >= 94 + morphDelay && frame < 115 + morphDelay) input |= SnesButton.Down;
         return input;
     }
 
     /// <summary>Samus row after <paramref name="frame"/> ran with <paramref name="input"/>.</summary>
-    internal string Row(int frame, ushort input) =>
-        $"{(Left ? 1 : 0)},{Delay},{frame},{input:X4},{(int)Samus.Pose:X4},{Samus.Position.X.Whole:X4},{Samus.Kinematics.Position.X.Fraction:X4},{Samus.Position.Y.Whole:X4},{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.ProjectileFlareCounter:X4},{Samus.BombSpreadChargeTimeoutCounter:X4},{Runtime.BombProjectiles.BombCounter:X4}";
+    internal string Row(int frame, SnesButton input) =>
+        $"{(Left ? 1 : 0)},{Delay},{frame},{input:X},{(int)Samus.Pose:X4},{Samus.Position.X.Whole:X4},{Samus.Kinematics.Position.X.Fraction:X4},{Samus.Position.Y.Whole:X4},{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.ProjectileFlareCounter:X4},{Samus.BombSpreadChargeTimeoutCounter:X4},{Runtime.BombProjectiles.BombCounter:X4}";
 
     /// <summary>Whether <paramref name="frame"/> also records every bomb slot: the release window onward.</summary>
     internal bool RecordsBombs(int frame) => WallRoute ? frame >= 115 : Delay == 6 && frame >= 105;

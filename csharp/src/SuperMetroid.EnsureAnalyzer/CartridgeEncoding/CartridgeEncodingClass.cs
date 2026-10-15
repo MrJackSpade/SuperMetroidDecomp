@@ -1,4 +1,4 @@
-namespace SuperMetroid.EnsureAnalyzer;
+namespace SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
 
 /// <summary>The six #641 audit classes. The scanner proposes one per occurrence and names its basis.</summary>
 internal enum CartridgeEncodingClass

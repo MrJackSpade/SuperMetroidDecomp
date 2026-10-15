@@ -1,7 +1,7 @@
 {
   "reviews": [
     {
-      "type": "InstalledSamusIsolationTests.Actor",
+      "type": "SuperMetroid.RenderVerification.Samus.InstalledSamusIsolationTests.Actor",
       "flags": [
         "context-bag"
       ],
@@ -17,7 +17,7 @@
       "reason": "Android audio-focus and input-device listener; the platform calls it, and it forwards to its activity."
     },
     {
-      "type": "SuperMetroid.AssetExtraction.ProjectilePresentationFiles.ProjectilePresentationSourceFiles",
+      "type": "SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.ProjectilePresentationSourceFiles",
       "flags": [
         "context-bag"
       ],
@@ -25,7 +25,7 @@
       "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
     },
     {
-      "type": "SuperMetroid.AssetExtraction.RoomPlmVisualCatalogSet",
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomPlmVisualCatalogSet",
       "flags": [
         "context-bag"
       ],
@@ -33,71 +33,7 @@
       "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
     },
     {
-      "type": "SuperMetroid.Core.Assets.EndingPaletteCatalog",
-      "flags": [
-        "context-bag"
-      ],
-      "disposition": "data-aggregate",
-      "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.EnemySpritemapDefinitions",
-      "flags": [
-        "large"
-      ],
-      "disposition": "definition-catalog",
-      "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.EnemyTileArtworkParts",
-      "flags": [
-        "context-bag"
-      ],
-      "disposition": "data-aggregate",
-      "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.IntroCinematicArtworkCatalog",
-      "flags": [
-        "context-bag"
-      ],
-      "disposition": "data-aggregate",
-      "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.MapSpriteCatalog.FrameSet",
-      "flags": [
-        "context-bag"
-      ],
-      "disposition": "data-aggregate",
-      "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.PauseReserveTankPresentation.FrameSet",
-      "flags": [
-        "context-bag"
-      ],
-      "disposition": "data-aggregate",
-      "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.ProjectileSpriteDefinitions",
-      "flags": [
-        "large"
-      ],
-      "disposition": "definition-catalog",
-      "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.SamusAtmosphericArtworkCatalog.FrameSequence",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Assets.SamusAtmosphericArtworkCatalog"
-      ],
-      "disposition": "nested-data",
-      "reason": "A frame sequence of the catalog that owns it, constructed while loading that catalog."
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.ManagedSpcPlayer",
+      "type": "SuperMetroid.AssetExtraction.Audio.Synthesis.ManagedSpcPlayer",
       "flags": [
         "large"
       ],
@@ -105,15 +41,183 @@
       "reason": "The SPC700 sound driver translation: one byte/word state model whose port echoes, voice borrowing and DSP-write order are observable; typed APU-RAM views and channel types are already separate."
     },
     {
-      "type": "SuperMetroid.Core.Frontend.EndingCreditsPresentation",
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireBehavior",
       "flags": [
-        "back-reference:SuperMetroid.Core.Frontend.EndingCreditsState"
+        "large"
+      ],
+      "disposition": "cartridge-routine-family",
+      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonBehavior",
+      "flags": [
+        "large"
+      ],
+      "disposition": "cartridge-routine-family",
+      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidBehavior",
+      "flags": [
+        "large"
+      ],
+      "disposition": "cartridge-routine-family",
+      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBehavior",
+      "flags": [
+        "large"
+      ],
+      "disposition": "cartridge-routine-family",
+      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRainbowBeamAttackSequence",
+      "flags": [
+        "large"
+      ],
+      "disposition": "cartridge-routine-family",
+      "reason": "The rainbow-beam attack's native HDMA and palette script, one sequence with its own state."
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaBehavior",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
+      ],
+      "disposition": "dispatch-interface",
+      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior",
+      "flags": [
+        "large"
+      ],
+      "disposition": "cartridge-routine-family",
+      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyBehavior",
+      "flags": [
+        "large"
+      ],
+      "disposition": "cartridge-routine-family",
+      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBehavior",
+      "flags": [
+        "large"
+      ],
+      "disposition": "cartridge-routine-family",
+      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Torizo.BombTorizoBehavior",
+      "flags": [
+        "large"
+      ],
+      "disposition": "cartridge-routine-family",
+      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoAnimations",
+      "flags": [
+        "large"
+      ],
+      "disposition": "definition-catalog",
+      "reason": "Generated typed program set: 120 body programs of frames, cues and branches, verified step by step against the cartridge, with no behaviour or mutable state."
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinitions",
+      "flags": [
+        "large"
+      ],
+      "disposition": "definition-catalog",
+      "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkParts",
+      "flags": [
+        "context-bag"
+      ],
+      "disposition": "data-aggregate",
+      "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyCollision",
+      "flags": [
+        "large"
+      ],
+      "disposition": "cartridge-routine-family",
+      "reason": "Samus/projectile/enemy collision and the shared touch and shot reaction routines of bank $A0."
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyDeathsAndDrops",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
+      ],
+      "disposition": "dispatch-interface",
+      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyInstructionInterpreter",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
+      ],
+      "disposition": "dispatch-interface",
+      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyPopulationLoader",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
+      ],
+      "disposition": "dispatch-interface",
+      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.RoomEnemyPopulationDefinitions",
+      "flags": [
+        "large"
+      ],
+      "disposition": "definition-catalog",
+      "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.RoomEnemySystem",
+      "flags": [
+        "large"
+      ],
+      "disposition": "coordinator",
+      "reason": "Composition root of the enemy owners plus the AI registration manifests; behaviour lives in the owners."
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.StandaloneRoomEnemyServices",
+      "flags": [
+        "context-bag"
+      ],
+      "disposition": "test-fixture",
+      "reason": "Verification composition of the standalone room-enemy services a fixture hands to production owners; carrying them without behavior is its purpose."
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingPaletteCatalog",
+      "flags": [
+        "context-bag"
+      ],
+      "disposition": "data-aggregate",
+      "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingCreditsPresentation",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Frontend.Ending.EndingCreditsState"
       ],
       "disposition": "scene-presentation",
       "reason": "Draws the ending scene state it belongs to; it never changes it."
     },
     {
-      "type": "SuperMetroid.Core.Frontend.EndingCreditsState",
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingCreditsState",
       "flags": [
         "large"
       ],
@@ -129,12 +233,36 @@
       "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
     },
     {
-      "type": "SuperMetroid.Core.Frontend.IntroCinematicState",
+      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroCinematicArtworkCatalog",
+      "flags": [
+        "context-bag"
+      ],
+      "disposition": "data-aggregate",
+      "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicState",
       "flags": [
         "large"
       ],
       "disposition": "scene-state-machine",
       "reason": "One frontend scene: the intro's ordered phases over one scene state."
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteCatalog.FrameSet",
+      "flags": [
+        "context-bag"
+      ],
+      "disposition": "data-aggregate",
+      "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveTankPresentation.FrameSet",
+      "flags": [
+        "context-bag"
+      ],
+      "disposition": "data-aggregate",
+      "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
     },
     {
       "type": "SuperMetroid.Core.Frontend.SuperMetroidGame",
@@ -145,240 +273,7 @@
       "reason": "The bank-$82 game-state dispatcher: each state hands work to a scene or the runtime; display, fade timing, NMI counters and artwork are separate owners."
     },
     {
-      "type": "SuperMetroid.Core.Game.BombTorizoBehavior",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.CeresRidleyBehavior",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.CrocomireBehavior",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.DraygonBehavior",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.EnemyCollision",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "Samus/projectile/enemy collision and the shared touch and shot reaction routines of bank $A0."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.EnemyDeathsAndDrops",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.RoomEnemySystem"
-      ],
-      "disposition": "dispatch-interface",
-      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.EnemyInstructionInterpreter",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.RoomEnemySystem"
-      ],
-      "disposition": "dispatch-interface",
-      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.EnemyPopulationLoader",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.RoomEnemySystem"
-      ],
-      "disposition": "dispatch-interface",
-      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.EnemyProjectileEngine",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "The bank-$86 enemy-projectile interpreter, its slot pool and shared movement routines."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.GrappleBehavior",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.RoomEnemySystem"
-      ],
-      "disposition": "dispatch-interface",
-      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.KraidBehavior",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.MotherBrainBehavior",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.MotherBrainRainbowBeamAttackSequence",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "The rainbow-beam attack's native HDMA and palette script, one sequence with its own state."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.PhantoonBehavior",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.RidleyBehavior",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "One enemy's complete bank AI translation: its phases, instruction handlers and reactions share one encounter state, so splitting it would scatter a single native routine family. Shared services are injected owners."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.RinkaBehavior",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.RoomEnemySystem"
-      ],
-      "disposition": "dispatch-interface",
-      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.RoomEnemyPopulationDefinitions",
-      "flags": [
-        "large"
-      ],
-      "disposition": "definition-catalog",
-      "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.RoomEnemySystem",
-      "flags": [
-        "large"
-      ],
-      "disposition": "coordinator",
-      "reason": "Composition root of the enemy owners plus the AI registration manifests; behaviour lives in the owners."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.SamusGrappleMovement",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "The grapple beam's native movement, swing and block-reaction routines over one grapple state."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.SamusHudSelection",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.SamusState"
-      ],
-      "disposition": "entity-behaviour",
-      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.SamusInputSnapshot",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.SamusState"
-      ],
-      "disposition": "entity-behaviour",
-      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.SamusKinematicsState",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.SamusState"
-      ],
-      "disposition": "entity-behaviour",
-      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.SamusPoseMetadata",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.SamusState"
-      ],
-      "disposition": "entity-behaviour",
-      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.SamusPoseTransitions",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.SamusState",
-        "large"
-      ],
-      "disposition": "entity-behaviour",
-      "reason": "Samus's pose transitions over the state aggregate it belongs to; its size is the native transition table's grounded, aerial and posture handlers."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.SamusPresentation",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.SamusState"
-      ],
-      "disposition": "entity-behaviour",
-      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.SamusScriptLocks",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Game.SamusState"
-      ],
-      "disposition": "entity-behaviour",
-      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.SpacetimeBeamCopyDefinitions",
-      "flags": [
-        "large"
-      ],
-      "disposition": "definition-catalog",
-      "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
-    },
-    {
-      "type": "SuperMetroid.Core.Game.TorizoInstructionProgramDefinitions",
-      "flags": [
-        "large"
-      ],
-      "disposition": "definition-catalog",
-      "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.PlmSlot",
-      "flags": [
-        "context-bag"
-      ],
-      "disposition": "state",
-      "reason": "One native PLM slot: the per-family states it may carry are slot data, not services."
-    },
-    {
-      "type": "SuperMetroid.Core.Runtime.ActiveRoomState",
+      "type": "SuperMetroid.Core.Rooms.ActiveRoomState",
       "flags": [
         "context-bag"
       ],
@@ -386,7 +281,7 @@
       "reason": "The loaded room's state (room, level data, camera, door); its members are room data the runtime owners read."
     },
     {
-      "type": "SuperMetroid.Core.Runtime.PlmShotBlockVisuals",
+      "type": "SuperMetroid.Core.Rooms.Plms.PlmShotBlockVisuals",
       "flags": [
         "context-bag"
       ],
@@ -394,12 +289,125 @@
       "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
     },
     {
-      "type": "SuperMetroid.Core.Runtime.SamusFramePhases",
+      "type": "SuperMetroid.Core.Samus.Artwork.ProjectileSpriteDefinitions",
+      "flags": [
+        "large"
+      ],
+      "disposition": "definition-catalog",
+      "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Artwork.SamusAtmosphericArtworkCatalog.FrameSequence",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Samus.Artwork.SamusAtmosphericArtworkCatalog"
+      ],
+      "disposition": "nested-data",
+      "reason": "A frame sequence of the catalog that owns it, constructed while loading that catalog."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Drawing.SamusPresentation",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Samus.SamusState"
+      ],
+      "disposition": "entity-behaviour",
+      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Grapple.GrappleBehavior",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
+      ],
+      "disposition": "dispatch-interface",
+      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Grapple.SamusGrappleMovement",
+      "flags": [
+        "large"
+      ],
+      "disposition": "cartridge-routine-family",
+      "reason": "The grapple beam's native movement, swing and block-reaction routines over one grapple state."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Hud.SamusHudSelection",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Samus.SamusState"
+      ],
+      "disposition": "entity-behaviour",
+      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Movement.SamusKinematicsState",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Samus.SamusState"
+      ],
+      "disposition": "entity-behaviour",
+      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseMetadata",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Samus.SamusState"
+      ],
+      "disposition": "entity-behaviour",
+      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseTransitions",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Samus.SamusState",
+        "large"
+      ],
+      "disposition": "entity-behaviour",
+      "reason": "Samus's pose transitions over the state aggregate it belongs to; its size is the native transition table's grounded, aerial and posture handlers."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamCopyDefinitions",
+      "flags": [
+        "large"
+      ],
+      "disposition": "definition-catalog",
+      "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.SamusFramePhases",
       "flags": [
         "large"
       ],
       "disposition": "frame-phase",
       "reason": "Samus's per-frame handler phases (alpha, beta, animation transitions) in native order over a SamusHandlerFrame."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.SamusInputSnapshot",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Samus.SamusState"
+      ],
+      "disposition": "entity-behaviour",
+      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.SamusScriptLocks",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Samus.SamusState"
+      ],
+      "disposition": "entity-behaviour",
+      "reason": "Behaviour of the Samus state aggregate it is constructed by and operates on; it reaches no other part of the game through it."
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxAnimations",
+      "flags": [
+        "large"
+      ],
+      "disposition": "definition-catalog",
+      "reason": "Generated typed program set: 167 palette-FX programs of colour records, cues, counters and branches, verified step by step against the cartridge, with no behaviour or mutable state."
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileAnimations",
+      "flags": [
+        "large"
+      ],
+      "disposition": "definition-catalog",
+      "reason": "Generated typed program set: 145 Samus projectile programs of timed records, gotos and deletes, verified step by step against the cartridge, with no behaviour or mutable state."
     }
   ]
 }

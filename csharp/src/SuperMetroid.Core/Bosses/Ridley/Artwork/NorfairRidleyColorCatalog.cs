@@ -1,0 +1,131 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
+
+/// <summary>Editable initial OBJ colors and fifteen rows of fourteen arena-reveal BG colors for Lower Norfair Ridley.</summary>
+public sealed class NorfairRidleyColorCatalog
+{
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
+        {
+            Span<Bgr555> initialWords = stackalloc Bgr555[NorfairRidleyPaletteRomData.InitialColorCount];
+            for (int color = 0; color < initialWords.Length; color++) initialWords[color] = initial.ColorAt(color);
+            content.AppendColors("initial", initialWords);
+            Bgr555[][] revealWords = new Bgr555[NorfairRidleyPaletteRomData.RevealRowCount][];
+            for (int row = 0; row < revealWords.Length; row++)
+            {
+                revealWords[row] = new Bgr555[NorfairRidleyPaletteRomData.RevealColorCount];
+                for (int color = 0; color < revealWords[row].Length; color++) revealWords[row][color] = reveal.ColorAt(row, color);
+            }
+            content.AppendColorFrames("reveal", revealWords);
+        });
+
+    /// <summary>Compiled initial OBJ colors, with shared paint relationships retained by the selector.</summary>
+    internal readonly NorfairRidleyInitialPaintDefinitions initial;
+    /// <summary>Fifteen ordered arena background rows, excluding the runtime terminator.</summary>
+    internal readonly NorfairRidleyRevealPaintDefinitions reveal;
+
+    /// <summary>Copies validated initial and reveal RGB5 colors into independent paint selectors.</summary>
+    private NorfairRidleyColorCatalog(Bgr555[] initial, Bgr555[][] reveal)
+    {
+        this.initial = new(initial);
+        this.reveal = new(reveal);
+    }
+
+    /// <summary>Uses stable camel-case JSON and rejects unknown authoring properties.</summary>
+    private static readonly JsonSerializerOptions Options = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        WriteIndented = true,
+    };
+
+    /// <summary>Installs the 32 initial RGB5 colors in CGRAM entries 160..191 (OBJ palettes 2 and 3), matching the native copy from <c>$A6:E1CF</c>; subsequent palette clearing is the caller's responsibility.</summary>
+    /// <param name="cgram">Destination color memory to update.</param>
+    public void ApplyInitial(SnesCgram cgram)
+    {
+        Ensure.NotNull(cgram);
+        for (int color = 0; color < NorfairRidleyPaletteRomData.InitialColorCount; color++)
+            new RidleyPalettes(cgram).NorfairInitial.Write(color, initial.ColorAt(color));
+    }
+
+    /// <summary>Copies one arena-reveal row to CGRAM entries 113..126 (BG palette 7, colors 1..14), matching <c>FadeInRidleyRoomBackground</c> at <c>$A6:A4D6</c>; does not advance the reveal timer or process its terminator.</summary>
+    /// <param name="cgram">Destination color memory to update.</param>
+    /// <param name="row">Zero-based reveal row, from 0 through 14; row 15 is the runtime terminator, not a color row.</param>
+    public void ApplyReveal(SnesCgram cgram, int row)
+    {
+        NorfairRidleyRevealPaintDefinitions.ValidateRow(row);
+        Ensure.NotNull(cgram);
+        for (int color = 0; color < NorfairRidleyPaletteRomData.RevealColorCount; color++)
+            new RidleyPalettes(cgram).NorfairReveal.Write(color, reveal.ColorAt(row, color));
+    }
+
+    /// <summary>Reads the versioned color document, rejecting duplicate or unknown properties, missing palette entries, and RGB channels outside 0..31, then compiles the colors to SNES RGB5 words.</summary>
+    /// <param name="json">UTF-8 JSON stream containing the initial palette and all reveal rows.</param>
+    /// <returns>The validated editable color catalog.</returns>
+    public static NorfairRidleyColorCatalog Load(Stream json)
+    {
+        NorfairRidleyColorDocument document;
+        try
+        {
+            using JsonDocument parsed = JsonDocument.Parse(json);
+            RejectDuplicates(parsed.RootElement);
+            document = parsed.RootElement.Deserialize<NorfairRidleyColorDocument>(Options)
+                ?? throw new InvalidDataException("Norfair Ridley colors are null.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException("Invalid Norfair Ridley color JSON.", error);
+        }
+
+        if (document.Version != NorfairRidleyColorFormat.Version ||
+            document.Initial is null ||
+            document.Initial.Length != NorfairRidleyPaletteRomData.InitialColorCount ||
+            document.Reveal is null ||
+            document.Reveal.Length != NorfairRidleyPaletteRomData.RevealRowCount)
+            throw new InvalidDataException("Norfair Ridley colors require the initial palette and all reveal rows.");
+
+        Bgr555[] initial = Compile(document.Initial, "initial");
+        var reveal = new Bgr555[document.Reveal.Length][];
+        for (int row = 0; row < reveal.Length; row++)
+        {
+            if (document.Reveal[row] is null ||
+                document.Reveal[row].Length != NorfairRidleyPaletteRomData.RevealColorCount)
+                throw new InvalidDataException($"Norfair Ridley reveal row {row} requires fourteen colors.");
+            reveal[row] = Compile(document.Reveal[row], $"reveal row {row}");
+        }
+        return new(initial, reveal);
+    }
+
+    /// <summary>Serializes a color document as indented camel-case UTF-8 JSON and validates the result through <see cref="Load"/> before returning it.</summary>
+    /// <param name="document">Palette document to serialize; it must satisfy the loader's version, dimensions, and RGB5 constraints.</param>
+    /// <returns>Validated JSON bytes suitable for the catalog asset file.</returns>
+    public static byte[] Write(NorfairRidleyColorDocument document)
+    {
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        _ = Load(new MemoryStream(bytes, writable: false));
+        return bytes;
+    }
+
+    /// <summary>Validates each RGB5 channel and packs one authored row into SNES color words.</summary>
+    private static Bgr555[] Compile(PaletteRgb5[] colors, string label)
+    {
+        var words = new Bgr555[colors.Length];
+        for (int color = 0; color < words.Length; color++)
+        {
+            PaletteRgb5? rgb = colors[color];
+            if (rgb is null || (uint)rgb.Red > 31 ||
+                (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
+                throw new InvalidDataException($"Norfair Ridley {label} color {color} requires RGB5 channels.");
+            words[color] = rgb.ToBgr555();
+        }
+        return words;
+    }
+
+    /// <summary>Detects repeated JSON property names before deserialization can overwrite color arrays.</summary>
+    private static void RejectDuplicates(JsonElement value) =>
+        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
+            name => new InvalidDataException("Duplicate Norfair Ridley color property."));
+}

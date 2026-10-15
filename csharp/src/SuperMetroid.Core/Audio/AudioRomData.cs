@@ -6,8 +6,8 @@ public static class AudioRomData
     /// <summary>Initial SPC driver upload identity, separate from the subsequently selected music-data banks.</summary>
     public static class Assets
     {
-        /// <summary><c>SPC_Engine</c> at <c>$CF:8000</c>; the boot-time upload stream containing the SPC engine and its shared audio data.</summary>
-        public const int InitialAudioBank = 0xcf8000;
+        /// <summary><c>SPC_Engine</c>: the boot-time upload containing the SPC engine and its shared audio data.</summary>
+        public const AudioBank InitialAudioBank = AudioBank.SpcEngine;
     }
 
     /// <summary>Ring-buffer sizes and update-counted scheduling values used by the bank-$80 music and sound handlers.</summary>
@@ -48,8 +48,6 @@ public static class AudioRomData
         public const ushort TrackMask = 0x007f;
         /// <summary>Largest canonical track selector, $7F; zero instead denotes stopping music.</summary>
         public const byte MaximumTrack = 0x7f;
-        /// <summary>Music-timer sign bit tested after decrement at <c>$80:8F12</c>; a set bit takes the next-entry fetch path, rather than continuing an active positive countdown.</summary>
-        public const ushort ActiveTimerBit = 0x8000;
     }
 
     /// <summary>Physical shape and safety bounds of a native APU upload stream.</summary>
@@ -76,10 +74,6 @@ public static class AudioRomData
         /// <summary>Number of byte-wide bidirectional APU I/O ports, indexed zero through three and mapped to SNES registers <c>$2140-$2143</c>.</summary>
         public const int PortCount = 4;
 
-        /// <summary>SPC driver command that freezes music sequencing without discarding it.</summary>
-        public const byte PauseMusic = 0xf0;
 
-        /// <summary>SPC driver command that resumes a previously paused sequence.</summary>
-        public const byte ResumeMusic = 0xf1;
     }
 }

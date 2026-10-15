@@ -1,11 +1,38 @@
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Areas.Maridia;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Runtime.Attract;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -110,9 +137,6 @@ public sealed class SuperMetroidRuntime
     /// presentation data are separate from the emulated memory owner.
     /// </summary>
     internal ISnesAddressSpace AddressSpace => _addressSpace;
-
-    /// <summary>Live WRAM/SRAM for NMI DMA and the typed domain memory views.</summary>
-    internal ISnesMemoryBus MemoryBus => RuntimeMemory.RequireBus(_addressSpace);
 
     /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
     /// <param name="addressSpace">Cartridge definition source and mutable WRAM/SRAM owner used by translated systems.</param>
@@ -256,7 +280,7 @@ public sealed class SuperMetroidRuntime
     /// $90:F4A2 test it from inside the outer frame; runtime-only hosts run state eight.
     /// </summary>
     [field: NonSerialized]
-    public ushort DispatchGameState { get; set; } = (ushort)Frontend.SuperMetroidGameState.MainGameplay;
+    public ushort DispatchGameState { get; set; } = (ushort)SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay;
 
     /// <summary>
     /// Native power-bomb explosion status at WRAM <c>$0CE2</c>. X-ray setup rejects every
@@ -344,7 +368,7 @@ public sealed class SuperMetroidRuntime
     public BackgroundScrollState BackgroundScroll { get; } = new();
 
     /// <summary>Runs one accepted NMI and publishes an empty finalized OAM frame without advancing gameplay owners.</summary>
-    public void RunBlankGameplayFrame(ushort controllerInput)
+    public void RunBlankGameplayFrame(SnesButton controllerInput)
     {
         NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
         Oam.BeginFrame();
@@ -355,7 +379,7 @@ public sealed class SuperMetroidRuntime
     /// <summary>Runs one accepted NMI followed by the translated per-frame timer logic, as <paramref name="request"/> asks.</summary>
     /// <param name="controller1Input">Host-provided raw SNES controller word, normalized through action bindings when the accepted NMI latches player input; attract playback publishes its independent scripted words later.</param>
     /// <param name="request">The state policy, audio calls and post-NMI host work for this frame.</param>
-    public RuntimeFrameResult StepFrame(ushort controller1Input, RuntimeFrameRequest request)
+    public RuntimeFrameResult StepFrame(SnesButton controller1Input, RuntimeFrameRequest request)
     {
         Ensure.NotNull(request);
         Tester.ApplyTesterInventory();
@@ -381,7 +405,7 @@ public sealed class SuperMetroidRuntime
     /// frame-exit ammo guard remains active through translated callbacks.
     /// </summary>
     private RuntimeFrameResult StepFrameGuarded(
-        ushort controller1Input,
+        SnesButton controller1Input,
         RuntimeFrameRequest frameRequest,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
@@ -1143,14 +1167,13 @@ public sealed class SuperMetroidRuntime
     /// <summary>State-eight tail parked when a PLM opens a message box during a gameplay frame.</summary>
     internal SuspendedGameplayFrameTail? _suspendedFrameTail;
 
-
     /// <summary>Updates live host guards without reconstructing any cartridge-owned state.</summary>
-    internal void ApplyHostOptions(SuperMetroidGameOptions options)
+    internal void ApplyHostOptions(HostGameplayOverrides options)
     {
-        if (!Enum.IsDefined(options.MapReveal))
+        if (!Enum.IsDefined(options.MapRevealMode))
             throw new ArgumentOutOfRangeException(nameof(options), "Unknown map reveal mode.");
-        Options.PlayerInvincibilityEnabled = options.Invincibility;
-        Options.InfiniteAmmoEnabled = options.InfiniteAmmo;
+        Options.PlayerInvincibilityEnabled = options.PlayerInvincibilityEnabled;
+        Options.InfiniteAmmoEnabled = options.InfiniteAmmoEnabled;
         if (!Tester.GrantAllEquipmentEnabled && options.GrantAllEquipment) Tester.testerInventoryRecipient = null;
         Tester.GrantAllEquipmentEnabled = options.GrantAllEquipment;
         bool openingTourian = !Tester.UnlockTourianEnabled && options.UnlockTourian;
@@ -1158,7 +1181,7 @@ public sealed class SuperMetroidRuntime
         Tester.ApplyTesterInventory();
         if (openingTourian && TourianStatues.Enabled) TourianStatues.Load();
         Options.PreventEscapeTimeout = options.PreventEscapeTimeout;
-        Options.MapRevealMode = options.MapReveal;
+        Options.MapRevealMode = options.MapRevealMode;
     }
 
     /// <summary>Room-owned native statue tile programs and HDMA descent.</summary>
@@ -1169,7 +1192,7 @@ public sealed class SuperMetroidRuntime
     /// suspended dispatch, whose remaining owners already ran when the box opened.
     /// </summary>
     internal RuntimeFrameResult StepMessageBoxFrame(
-        ushort controller1Input,
+        SnesButton controller1Input,
         RuntimeFramePolicy policy,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {

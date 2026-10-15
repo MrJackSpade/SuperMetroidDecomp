@@ -1,4 +1,5 @@
-using SuperMetroid.Core.Audio;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
+namespace SuperMetroid.Core.Audio;
 
 /// <summary>Cartridge values of <see cref="SpcMusicTables"/> that only verification reads.</summary>
 internal static class SpcMusicTablesConstants

@@ -1,0 +1,143 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Palettes;
+
+namespace SuperMetroid.Core.Samus.Artwork;
+
+/// <summary>Three editable, full-body normal suit palettes; suit selection remains gameplay code.</summary>
+/// <remarks>Issue #1165 retains the22 distinct opaque ink colors and two
+/// transparent-slot payloads from $9B:9400/9520/9800 under the nonsense exception.
+/// $91:DD5B copies those words to fixed OBJ palette slots. Sprite tile pixels
+/// choose categorical ink indices, not a time, distance, light level or shade
+/// magnitude from which RGB can be calculated. For example, the yellow Power
+/// inks at slots1/2/10/11/12 have intensities8/29/21/11/18: the order identifies
+/// painted pixel classes, not samples of a brightness ramp. Their common hue
+/// does not determine those chosen intensities. An index fit would encode the
+/// painting. Color-zero payloads are also selected source data; OBJ rendering
+/// skips zero-index pixels before reading their color. Shared suit words are
+/// removed independently, and generated animation/tint rows are reviewed in
+/// their own owners. This exception covers these base inks, not all palettes.</remarks>
+public sealed class SamusSuitColorCatalog
+{
+    /// <summary>Complete authored Power suit palette, including its transparent-slot payload.</summary>
+    private readonly Bgr555[] power;
+    /// <summary>Only Varia slots differing from the Power palette's shared inks.</summary>
+    internal readonly Dictionary<int, Bgr555> varia;
+    /// <summary>Only Gravity slots differing from the Power palette's shared inks.</summary>
+    internal readonly Dictionary<int, Bgr555> gravity;
+
+    /// <summary>Stores a Power palette and only differing colors for the other suits.</summary>
+    /// <remarks>Original $9B:9400/9520/9800 share twelve of sixteen slots
+    /// per secondary suit. Native suit selection is categorical; named owners
+    /// replace the palette roster. Comparing supplied values preserves arbitrary
+    /// independent player edits. This removes duplicated words; the remaining
+    /// base-ink disposition is documented on the catalog.</remarks>
+    private SamusSuitColorCatalog(Bgr555[] power, Bgr555[] varia, Bgr555[] gravity)
+    {
+        this.power = power;
+        this.varia = Differences(varia, power);
+        this.gravity = Differences(gravity, power);
+    }
+
+    /// <summary>Finds independently selected suit inks while omitting slots that reuse the Power palette word.</summary>
+    private static Dictionary<int, Bgr555> Differences(Bgr555[] supplied, Bgr555[] power)
+    {
+        var differences = new Dictionary<int, Bgr555>();
+        for (int index = 0; index < supplied.Length; index++)
+            if (supplied[index] != power[index]) differences.Add(index, supplied[index]);
+        return differences;
+    }
+
+    /// <summary>Uses stable camel-case resource output and rejects unknown suit-color properties.</summary>
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        WriteIndented = true,
+    };
+
+    /// <summary>Resolves one packed RGB555 color from the selected normal suit palette.</summary>
+    /// <param name="suitTableOffset">Native categorical table offset: 0 for Power, 2 for Varia, or 4 for Gravity.</param>
+    /// <param name="colorIndex">OBJ palette slot from 0 through 15, including the transparent slot.</param>
+    /// <returns>The selected packed SNES RGB555 word.</returns>
+    public Bgr555 Resolve(ushort suitTableOffset, int colorIndex)
+    {
+        Dictionary<int, Bgr555>? differences = suitTableOffset switch
+        {
+            0 => null,
+            2 => varia,
+            4 => gravity,
+            _ => throw new ArgumentOutOfRangeException(nameof(suitTableOffset)),
+        };
+        if ((uint)colorIndex >= SamusSuitColorFormat.ColorsPerSuit)
+            throw new ArgumentOutOfRangeException(nameof(colorIndex));
+        return differences is not null && differences.TryGetValue(colorIndex, out Bgr555 color)
+            ? color : power[colorIndex];
+    }
+
+    /// <summary>Writes only Samus's sixteen OBJ colors; no equipment or phase state changes.</summary>
+    public void Apply(SnesCgram cgram, ushort suitTableOffset)
+    {
+        Ensure.NotNull(cgram);
+        for (int index = 0; index < SamusSuitColorFormat.ColorsPerSuit; index++)
+            new SamusPalettes(cgram).Suit.Write(index,
+                Resolve(suitTableOffset, index));
+    }
+
+    /// <summary>Loads and validates the three complete normal-suit palettes from JSON.</summary>
+    /// <param name="json">Caller-owned stream containing the suit-color document.</param>
+    /// <returns>The compiled suit-color catalog.</returns>
+    public static SamusSuitColorCatalog Load(Stream json)
+    {
+        Ensure.NotNull(json);
+        SamusSuitColorDocument document;
+        try
+        {
+            using JsonDocument parsed = JsonDocument.Parse(json);
+            RejectDuplicates(parsed.RootElement);
+            document = parsed.RootElement.Deserialize<SamusSuitColorDocument>(JsonOptions)
+                ?? throw new InvalidDataException("Samus suit color JSON is null.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException("Invalid Samus suit color JSON.", error);
+        }
+        if (document.Version != SamusSuitColorFormat.Version)
+            throw new InvalidDataException("Samus suit colors require the supported version.");
+        return new(Compile(document.Power, "Power"), Compile(document.Varia, "Varia"),
+            Compile(document.Gravity, "Gravity"));
+    }
+
+    /// <summary>Validates and serializes a suit-color document as UTF-8 JSON.</summary>
+    /// <param name="document">Document containing all three 16-color palettes.</param>
+    /// <returns>A new caller-owned JSON byte array.</returns>
+    public static byte[] Write(SamusSuitColorDocument document)
+    {
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
+        _ = Load(new MemoryStream(bytes, writable: false));
+        return bytes;
+    }
+
+    /// <summary>Validates all sixteen RGB5 slots, including color zero, and packs them into native words.</summary>
+    private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
+    {
+        if (source is null || source.Length != SamusSuitColorFormat.ColorsPerSuit)
+            throw new InvalidDataException($"Samus {name} suit requires sixteen RGB5 colors.");
+        var result = new Bgr555[source.Length];
+        for (int index = 0; index < source.Length; index++)
+        {
+            PaletteRgb5? color = source[index];
+            if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
+                (uint)color.Blue > 31)
+                throw new InvalidDataException($"Samus {name} color {index} requires RGB components 0..31.");
+            result[index] = color.ToBgr555();
+        }
+        return result;
+    }
+
+    /// <summary>Detects duplicate JSON properties before a suit palette can be silently replaced.</summary>
+    private static void RejectDuplicates(JsonElement value) =>
+        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
+            name => new InvalidDataException($"Duplicate Samus suit color property {name}."));
+}

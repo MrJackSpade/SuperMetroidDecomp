@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rendering;
 
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
 /// Writes <see cref="RenderFrameSnapshot"/>s as SMFRAME packets that <see cref="RenderFrameSnapshotCodec"/> reads back.

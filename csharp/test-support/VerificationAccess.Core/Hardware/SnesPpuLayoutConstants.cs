@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Cartridge values of <see cref="SnesPpuLayout"/> that only verification reads.</summary>
 internal static class SnesPpuLayoutConstants

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+namespace SuperMetroid.Core.Audio;
 
 /// <summary>Verification access to <see cref="CartridgeAudioState"/> queues, which production reads only to dispatch.</summary>
 internal static class CartridgeAudioStateQueueAccess
@@ -15,6 +15,9 @@ internal static class CartridgeAudioStateQueueAccess
         /// <summary>One entry of an SFX library's queue ($0643+).</summary>
         internal byte SoundQueueEntryForVerification(int queue, int index) =>
             self._soundQueues[queue, index];
+
+        /// <summary>The request byte one SFX library's dispatcher last wrote to its APU port.</summary>
+        internal byte CurrentSoundForVerification(int queue) => self._currentSounds[queue];
 
         /// <summary>Queue start/next indices and dispatcher state of one SFX library ($0643+/$0646+/$0649+).</summary>
         internal (byte Start, byte Next, byte State) SoundQueueForVerification(int queue) =>

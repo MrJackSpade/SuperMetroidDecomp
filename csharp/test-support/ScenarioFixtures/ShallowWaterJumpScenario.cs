@@ -1,8 +1,12 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
+
+namespace SuperMetroid.TestSupport.ScenarioFixtures;
 
 /// <summary>
 /// Issue #1258: an unequipped Samus standing in shallow water holds jump for 60 frames.
@@ -52,7 +56,7 @@ internal sealed class ShallowWaterJumpScenario
         uint apex = Samus.Kinematics.Position.Y.RawValue;
         for (int frame = 0; frame < JumpFrameCount; frame++)
         {
-            Runtime.StepFrame((ushort)SnesButton.A, new RuntimeFrameRequest());
+            Runtime.StepFrame(SnesButton.A, new RuntimeFrameRequest());
             apex = Math.Min(apex, Samus.Kinematics.Position.Y.RawValue);
             rows.Add($"{frame},{(int)Samus.Pose:X2},{Samus.Kinematics.Position.Y.RawValue:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{(int)Samus.Kinematics.YDirection},{Samus.Kinematics.Radius.Y},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
         }

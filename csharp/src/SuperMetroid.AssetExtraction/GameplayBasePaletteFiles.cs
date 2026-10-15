@@ -1,9 +1,9 @@
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.AssetExtraction;
 

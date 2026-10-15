@@ -1,3 +1,5 @@
+namespace SuperMetroid.TestSupport.RenderFixtures;
+
 /// <summary>
 /// Named world positions used to put Samus immediately before a real cartridge doorway.
 /// These positions replace only the controller approach; the production collision and door

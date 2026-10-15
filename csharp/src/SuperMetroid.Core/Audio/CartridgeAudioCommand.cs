@@ -1,22 +1,23 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// One debugger-visible operation produced by the translated bank-$80 audio dispatcher.
+/// One operation produced by the translated bank-$80 audio dispatcher: a CPU-to-APU port
+/// write or a bank upload. These stay inside Core; <see cref="CartridgeAudioSession"/> applies
+/// them to its <see cref="SpcCommandPorts"/> and publishes <see cref="AudioEvent"/>s instead (#1304).
 /// </summary>
 /// <remarks>
-/// Upload commands retain the 24-bit cartridge source address instead of copying opaque
-/// blobs into every frontend frame. Port zero selects music; ports one through three are
-/// the retail sound-effect libraries. Unused fields are zero for a given command kind.
+/// Port zero selects music; ports one through three are the retail sound-effect libraries.
+/// Unused fields are zero for a given command kind.
 /// </remarks>
-public readonly record struct CartridgeAudioCommand(
+internal readonly record struct CartridgeAudioCommand(
     CartridgeAudioCommandKind Kind,
-    int UploadAddress,
+    AudioBank Bank,
     [property: SpcMemoryAccess] byte Port,
     byte Value)
 {
-    /// <summary>Creates an upload command retaining the 24-bit cartridge stream identity.</summary>
-    public static CartridgeAudioCommand Upload(int cartridgeAddress) =>
-        new(CartridgeAudioCommandKind.Upload, cartridgeAddress, 0, 0);
+    /// <summary>Creates an upload command installing one audio bank.</summary>
+    public static CartridgeAudioCommand Upload(AudioBank bank) =>
+        new(CartridgeAudioCommandKind.Upload, bank, 0, 0);
 
     /// <summary>Creates a CPU-to-APU write for one of ports zero through three.</summary>
     [SpcMemoryBoundary("codec: a port command stores its port number as the debugger-visible byte")]

@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Diagnostics.Android;
 
 namespace SuperMetroid.Android;
 
@@ -105,7 +105,7 @@ internal sealed class AndroidGameSession
         try
         {
             using var data = new AndroidSessionData(root);
-            var rasterBuffer = new SuperMetroid.Core.Assets.Rgba32[FrontendFrame.Width * FrontendFrame.Height];
+            var rasterBuffer = new SuperMetroid.Core.Hardware.Rgba32[FrontendFrame.Width * FrontendFrame.Height];
             // Host-owned PCM storage; the session copies each update's samples into it.
             var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
             RefreshEffectiveOptions(data);
@@ -159,7 +159,7 @@ internal sealed class AndroidGameSession
                     output = new AndroidPcmOutput(resumeTrace);
                 }
                 double start = clock.Elapsed.TotalMilliseconds;
-                ushort input = Input.Sample();
+                SnesButton input = Input.Sample();
                 data.Record(input);
                 var previousGameState = data.Game.GameState;
                 CapturedFrontendFrame frame = data.Game.StepCaptured(input, ++sequence, data.Generation);

@@ -29,6 +29,7 @@ public static class SnesButtons
     /// that a standard SNES controller cannot produce. This makes corrupt recordings and
     /// accidental non-input words fail at their source instead of influencing gameplay.
     /// </summary>
+    [ControllerWordBoundary("the validated conversion every inbound controller word passes through")]
     public static SnesButton FromRaw(ushort rawInput, string sourceContext)
     {
         const ushort knownMask = (ushort)All;

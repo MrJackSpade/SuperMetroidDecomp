@@ -3,6 +3,12 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>Named, proven sound sequences in cartridge SFX library one.</summary>
 public static class SoundEffectLibrary1Sounds
 {
+    /// <summary>Library-one sound $09, the X-ray scope switching on.</summary>
+    public static readonly SoundEffectId XrayStart = new(SoundEffectLibrary.Library1, 0x09); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>Library-one sound $0A, the X-ray scope switching off.</summary>
+    public static readonly SoundEffectId XrayEnd = new(SoundEffectLibrary.Library1, 0x0a); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$A0:A7CB / $A7:B0EB: library-one $3D, a shot absorbed without damage.</summary>
     public static readonly SoundEffectId DudShot = new(SoundEffectLibrary.Library1, 0x3d); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

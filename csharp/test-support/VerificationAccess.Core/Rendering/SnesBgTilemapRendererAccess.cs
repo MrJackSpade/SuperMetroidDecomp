@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
+
+namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Verification access to <see cref="SnesBgTilemapRenderer"/> members production does not use.</summary>
 internal static class SnesBgTilemapRendererAccess

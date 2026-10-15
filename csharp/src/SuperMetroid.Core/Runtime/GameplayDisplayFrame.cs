@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Runtime;

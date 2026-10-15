@@ -2,13 +2,16 @@ using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text.Json;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Desktop;
-using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Frontend.Recording;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Diagnostics;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>
 /// Replays one explicitly selected journal from an Android export without extracting
@@ -35,11 +38,11 @@ internal static class AndroidBundleReplay
             throw new InvalidDataException("Recording seed must name a sibling preserved debugger state.");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
-        var importBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
+        var importBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         SuperMetroidAddressSpace bus = importBus;
         if (!SHA256.HashData(importBus.Rom).SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Local ROM does not match Android recording digest.");
-        var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
+        ClipAudioCatalog assets = RepositoryInstallation.Installation.LoadAudioClips();
         string temporary = Directory.CreateTempSubdirectory("SuperMetroid-android-replay-").FullName;
         try
         {
@@ -52,7 +55,7 @@ internal static class AndroidBundleReplay
             else
             {
                 GameInstallation installation = RepositoryInstallation.Installation;
-                var identity = GameContentIdentity.Create(installation.LoadAudio(), installation.LoadMaps(), installation.LoadProjectiles());
+                var identity = GameContentIdentity.Create(installation.LoadAudioClips(), installation.LoadMaps(), installation.LoadProjectiles());
                 var store = DebuggerSaveStateStoreTooling.ForCartridge(romPath, importBus.Rom, identity, temporary);
                 using (var output = File.Create(store.GetSlotPath(0)))
                 using (var input = Required(bundle, "input-recordings/" + seed).Open()) input.CopyTo(output);
@@ -69,7 +72,7 @@ internal static class AndroidBundleReplay
             using var audioHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             for (int tick = 0; tick < recording.ControllerInputs.Length; tick++)
             {
-                var frame = game.StepCaptured(recording.ControllerInputs[tick], tick + 1, 1);
+                var frame = game.StepCaptured(recording.InputAt(tick), tick + 1, 1);
                 var pixels = frame.Snapshot is { } snapshot
                     ? SoftwareFrameSnapshotRenderer.Render(snapshot) : frame.Frame.Pixels;
                 game.CopyAudioFrame(samples);

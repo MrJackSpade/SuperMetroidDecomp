@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Desktop;
 
 /// <summary>Finds extracted audio beside the working or executable directory for verification hosts.</summary>
@@ -17,12 +18,12 @@ internal static class ExtractedAudioAssetLocator
                     Path.Combine(directory.FullName, "standalone-assets", "audio"),
                 })
                 {
-                    if (File.Exists(Path.Combine(nested, SuperMetroid.Core.Audio.ExtractedAudioAssetCatalog.ManifestFileName)))
+                    if (File.Exists(Path.Combine(nested, SuperMetroid.AssetExtraction.Audio.Synthesis.ExtractedAudioAssetCatalog.ManifestFileName)))
                         return nested;
                 }
                 // Published builds copy the contents under an adjacent audio directory.
                 string adjacent = Path.Combine(directory.FullName, "audio");
-                if (File.Exists(Path.Combine(adjacent, SuperMetroid.Core.Audio.ExtractedAudioAssetCatalog.ManifestFileName)))
+                if (File.Exists(Path.Combine(adjacent, SuperMetroid.AssetExtraction.Audio.Synthesis.ExtractedAudioAssetCatalog.ManifestFileName)))
                     return adjacent;
             }
         }

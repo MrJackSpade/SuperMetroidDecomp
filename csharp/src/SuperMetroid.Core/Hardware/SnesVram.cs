@@ -13,6 +13,9 @@ public sealed class SnesVram
     /// <summary>Two bytes per word gives the physical 64 KiB storage size.</summary>
     public const int ByteCount = SnesPpuLayout.VramByteCount;
 
+    /// <summary>VMADD's fifteen address bits: register arithmetic wraps within the VRAM words.</summary>
+    private const int WordAddressMask = WordCount - 1;
+
     /// <summary>Physical VRAM image addressed as 64 KiB of bytes behind the PPU's word ports.</summary>
     private readonly byte[] _bytes = new byte[ByteCount];
 
@@ -75,13 +78,13 @@ public sealed class SnesVram
         if (wordIncrement is not (1 or 32))
             throw new ArgumentOutOfRangeException(nameof(wordIncrement), "Known tilemap DMA increments are one or 32 words.");
 
-        int destination = destinationWord & 0x7fff;
+        int destination = destinationWord & WordAddressMask;
         foreach (ushort word in words)
         {
             int byteOffset = destination * 2;
             _bytes[byteOffset] = (byte)word;
             _bytes[byteOffset + 1] = SnesLittleEndian.HighByte(word);
-            destination = (destination + wordIncrement) & 0x7fff;
+            destination = (destination + wordIncrement) & WordAddressMask;
         }
     }
 
@@ -104,11 +107,11 @@ public sealed class SnesVram
         writeGeneration++;
         if (bytes.Length > WordCount)
             throw new ArgumentOutOfRangeException(nameof(bytes));
-        int destination = destinationWord & 0x7fff;
+        int destination = destinationWord & WordAddressMask;
         foreach (byte value in bytes)
         {
             _bytes[destination * 2 + 1] = value;
-            destination = (destination + 1) & 0x7fff;
+            destination = (destination + 1) & WordAddressMask;
         }
     }
 
@@ -118,11 +121,11 @@ public sealed class SnesVram
         writeGeneration++;
         if (bytes.Length > WordCount)
             throw new ArgumentOutOfRangeException(nameof(bytes));
-        int destination = destinationWord & 0x7fff;
+        int destination = destinationWord & WordAddressMask;
         foreach (byte value in bytes)
         {
             _bytes[destination * 2] = value;
-            destination = (destination + 1) & 0x7fff;
+            destination = (destination + 1) & WordAddressMask;
         }
     }
 
@@ -132,11 +135,11 @@ public sealed class SnesVram
         writeGeneration++;
         if ((uint)wordCount > WordCount)
             throw new ArgumentOutOfRangeException(nameof(wordCount));
-        int destination = destinationWord & 0x7fff;
+        int destination = destinationWord & WordAddressMask;
         for (int index = 0; index < wordCount; index++)
         {
             _bytes[destination * 2] = value;
-            destination = (destination + 1) & 0x7fff;
+            destination = (destination + 1) & WordAddressMask;
         }
     }
 
@@ -158,7 +161,7 @@ public sealed class SnesVram
         ushort encodedDestination)
     {
         Ensure.NotNull(memory);
-        if ((uint)sourceAddress > 0x00ff_ffff)
+        if ((uint)sourceAddress > SnesBusLayout.MaximumAddress)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "DMA source must be a 24-bit CPU address.");
         if (sizeInBytes == 0)
             throw new ArgumentOutOfRangeException(nameof(sizeInBytes), "A zero size is the original queue terminator, not a transfer.");
@@ -181,13 +184,14 @@ public sealed class SnesVram
         ushort encodedDestination)
     {
         writeGeneration++;
-        if (sizeInBytes is <= 0 or > 0x10000)
+        if (sizeInBytes is <= 0 or > SnesBusLayout.BankBytes)
             throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
 
         // $80:8CAA-$80:8CB2 uses the destination sign bit to choose VMAIN. The bit is
         // harmless when written to VMADD because VRAM contains only 15 address bits.
-        int destinationWord = encodedDestination & 0x7fff;
-        int wordIncrement = (encodedDestination & 0x8000) == 0 ? 1 : 32;
+        VramDmaDestination destination = VramDmaDestination.FromNative(encodedDestination);
+        int destinationWord = destination.Word;
+        int wordIncrement = destination.WordIncrement;
 
         for (int byteIndex = 0; byteIndex < sizeInBytes; byteIndex++)
         {
@@ -212,7 +216,7 @@ public sealed class SnesVram
             if (writesHighByte)
             {
                 // VMADD wraps at 15 bits because physical VRAM has $8000 words.
-                destinationWord = (destinationWord + wordIncrement) & 0x7fff;
+                destinationWord = (destinationWord + wordIncrement) & WordAddressMask;
             }
         }
     }
@@ -222,13 +226,14 @@ public sealed class SnesVram
     {
         writeGeneration++;
         if (bytes.Length is <= 0 or > ushort.MaxValue) throw new ArgumentOutOfRangeException(nameof(bytes));
-        int destinationWord = encodedDestination & 0x7fff;
-        int increment = (encodedDestination & 0x8000) == 0 ? 1 : 32;
+        VramDmaDestination destination = VramDmaDestination.FromNative(encodedDestination);
+        int destinationWord = destination.Word;
+        int increment = destination.WordIncrement;
         for (int i = 0; i < bytes.Length; i++)
         {
             bool high = (i & 1) != 0;
             _bytes[destinationWord * 2 + (high ? 1 : 0)] = bytes[i];
-            if (high) destinationWord = (destinationWord + increment) & 0x7fff;
+            if (high) destinationWord = (destinationWord + increment) & WordAddressMask;
         }
     }
 

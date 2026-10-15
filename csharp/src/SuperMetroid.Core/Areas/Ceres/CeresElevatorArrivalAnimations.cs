@@ -1,0 +1,38 @@
+using P = SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalProgram;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Programs;
+
+namespace SuperMetroid.Core.Areas.Ceres;
+
+/// <summary>
+/// The Ceres elevator arrival projectiles' typed programs (#641): the pad alternates two poses and the platform holds
+/// one, each for one update at a time, until landing redirects both to the delete.
+/// </summary>
+internal static class CeresElevatorArrivalAnimations
+{
+    /// <summary>Every arrival program.</summary>
+    internal static AnimationProgramSet<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue> Programs { get; } = new(
+        new Dictionary<CeresElevatorArrivalProgram, AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>[]>
+    {
+        // $86:A28D
+        [P.Pad] =
+        [
+            Show(CeresElevatorArrivalPose.PadFirst, 1),
+            Show(CeresElevatorArrivalPose.PadSecond, 1),
+            AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.GoTo(P.Pad),
+        ],
+        // $86:A299
+        [P.Platform] =
+        [
+            Show(CeresElevatorArrivalPose.Platform, 1),
+            AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.GoTo(P.Platform),
+        ],
+        // $86:A28B
+        [P.Delete] = [AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.Stop],
+    });
+
+    /// <summary>Shows <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue> Show(
+        CeresElevatorArrivalPose pose, int duration) =>
+        AnimationProgramStep<CeresElevatorArrivalProgram, CeresElevatorArrivalPose, NoAnimationCue>.Show(pose, duration);
+}

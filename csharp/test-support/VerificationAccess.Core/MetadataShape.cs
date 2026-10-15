@@ -1,5 +1,6 @@
-using SuperMetroid.Core;
 using System.Reflection;
+
+namespace SuperMetroid.Core;
 
 /// <summary>
 /// Declared shape of a type, for audits that assert what a type stores, such as "stock data keeps no stored

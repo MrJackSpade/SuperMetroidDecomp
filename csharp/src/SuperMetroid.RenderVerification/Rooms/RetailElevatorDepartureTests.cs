@@ -38,9 +38,9 @@ internal static class RetailElevatorDepartureTests
         int samples = 0, departure = 0, scrolling = 0, returning = 0;
         void Compare(string phase)
         {
-            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
-                GameplayDisplayCapture.CaptureFrame(runtime) ?? throw new InvalidOperationException("Missing elevator capture."));
+                GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()) ?? throw new InvalidOperationException("Missing elevator capture."));
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                 $"{device.Kind}: downward elevator {phase}, sample={samples}");

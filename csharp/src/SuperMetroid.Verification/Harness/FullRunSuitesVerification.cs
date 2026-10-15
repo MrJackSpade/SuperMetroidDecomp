@@ -1,5 +1,6 @@
 using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Bosses.MotherBrain;
+using static SuperMetroid.Verification.Runtime.GameplayDisplayFrameTestsVerification;
 using static SuperMetroid.Verification.Samus.Movement.AerialSpreadTransitionVerification;
 using static SuperMetroid.Verification.Samus.Movement.AirSpikeAlphaRadiusVerification;
 using static SuperMetroid.Verification.Frontend.AndroidHostVerification;
@@ -417,6 +418,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEyeWindowSnapshots), () => VerifyEyeWindowSnapshots()),
         new(nameof(VerifyRoomFxSnapshots), () => VerifyRoomFxSnapshots()),
         new(nameof(VerifyGameplayCaptureIntegration), () => VerifyGameplayCaptureIntegration()),
+        new(nameof(VerifyGameplayDisplayFrame), () => VerifyGameplayDisplayFrame()),
         new(nameof(VerifyMode7GameplaySnapshots), () => VerifyMode7GameplaySnapshots()),
         new(nameof(VerifyEndingRenderSnapshots), () => VerifyEndingRenderSnapshots()),
         new(nameof(VerifyFileMapSnapshots), () => VerifyFileMapSnapshots()),

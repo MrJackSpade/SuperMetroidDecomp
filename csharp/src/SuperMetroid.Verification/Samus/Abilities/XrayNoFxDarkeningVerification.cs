@@ -52,7 +52,7 @@ internal static class XrayNoFxDarkeningVerification
         runtime.Cgram.SetColor(1, new Bgr555(24, 20, 16));
         // Native Clear_FX_Tilemap's $184E selects BG3 palette six, color three.
         runtime.Cgram.SetColor(6 * 4 + 3, new Bgr555(0, 0, 0));
-        var snapshot = GameplayDisplayCapture.CaptureFrame(runtime);
+        var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
         var expected = new Rgba32(99, 82, 66, 255); // RGB5(12,10,8)
         foreach (int index in new[] { 80 * 256 + 64, 120 * 256 + 128, 180 * 256 + 192 })
@@ -63,11 +63,13 @@ internal static class XrayNoFxDarkeningVerification
         // A transparent replacement must still take the hardware fixed-color fallback.
         runtime.Vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)0x006f, 0x780).ToArray(), 0x5880, 1);
         runtime.Vram.LoadBytes(runtime.Display.GameplayHudCharacterBaseWord * 2 + 0x6f * 16, new byte[16]);
-        var transparent = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureFrame(runtime));
+        var transparent = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
         AssertEqual(new Rgba32(255, 222, 189, 255), transparent[80 * 256 + 64],
             "transparent BG3 preserves native fixed-color fallback without halving");
         runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
-        var fireflea = GameplayDisplayCapture.CaptureFrame(runtime);
+        // The X-ray blending branch the FX selects reaches the PPU at the accepted NMI (#1307).
+        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        var fireflea = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var firefleaMath = (GameplayColorMathRenderLayer)fireflea.Layers[0];
         AssertTrue(!firefleaMath.AddSubscreen && firefleaMath.Subscreen is null,
             "Fireflea retains fixed-color subtraction without a BG3 operand");

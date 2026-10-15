@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <para>
 /// The cartridge writes the light beam into a 256-word WH0/WH1 table at WRAM <c>$7E:9E00</c>.
 /// Nothing in gameplay reads that table, so this owner publishes the beam's shape, progress
-/// and fixed color as <see cref="Flash"/> instead, and the renderer rasterizes it.
+/// and fixed color as <c>Flash</c> instead, and the renderer rasterizes it.
 /// </para>
 /// </remarks>
 public sealed class SamusSuitPickupState
@@ -73,11 +73,6 @@ public sealed class SamusSuitPickupState
 
     /// <summary>Light-beam outline and progress produced by the most recent stage.</summary>
     public SamusSuitPickupBeam Beam { get; private set; }
-
-    /// <summary>Value-only render input while the transformation is active; null once it ends.</summary>
-    public SamusSuitPickupFlash? Flash => IsActive
-        ? new(Beam, FixedColorRed, FixedColorGreen, FixedColorBlue)
-        : null;
 
     /// <summary>
     /// Executes <c>VariaSuitPickup</c> or <c>GravitySuitPickup</c> after its message closes.

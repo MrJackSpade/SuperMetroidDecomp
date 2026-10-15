@@ -39,7 +39,7 @@ internal static class RuntimeOverlayTests
         for (int tick = 0; tick < 13; tick++) runtime.MessageBox.Step(0);
         runtime.SuitPickup.Begin(bus, runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
-        var initial = GameplayDisplayCapture.CaptureFrame(runtime);
+        var initial = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         if (initial.Layers.Length != 4 || initial.Layers[0] is not OrdinaryGameplayRenderLayer
             || initial.Layers[1] is not ScanlineColorAddRenderLayer
             || initial.Layers[2] is not MessageBoxRenderLayer
@@ -62,8 +62,8 @@ internal static class RuntimeOverlayTests
 
         (RenderFrameSnapshot Packet, Rgba32[] Pixels) Check(string context)
         {
-            Rgba32[] expected = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();
-            var packet = new RenderFrameSnapshot(new(++sequence, 1, 0), GameplayDisplayCapture.CaptureFrame(runtime));
+            Rgba32[] expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()).ToArray();
+            var packet = new RenderFrameSnapshot(new(++sequence, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, SoftwareFrameSnapshotRenderer.Render(packet), $"software: {context}");
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: {context}");

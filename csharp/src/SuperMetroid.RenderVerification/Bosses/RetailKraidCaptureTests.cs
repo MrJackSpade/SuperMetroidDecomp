@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -43,8 +44,8 @@ internal static class RetailKraidCaptureTests
             bool mainLoop = body.VariableA == (ushort)KraidAiFunction.MainloopThinking;
             if (changed || tick % 8 == 0 || mainLoop)
             {
-                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.CaptureFrame(runtime));
+                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: Kraid rise tick={tick}, AI={body.VariableA:X4}");
@@ -76,8 +77,8 @@ internal static class RetailKraidCaptureTests
             bool finished = body.VariableA == (ushort)KraidAiFunction.SecondPhaseThinking;
             if (changed || tick % 4 == 0 || finished)
             {
-                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.CaptureFrame(runtime));
+                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid growth tick={tick}, AI={body.VariableA:X4}");
                 growthSamples++;
@@ -106,8 +107,8 @@ internal static class RetailKraidCaptureTests
             bool changed = deathPhases.Add(body.VariableA);
             if (changed || tick % 4 == 0 || boss.DeathSequenceComplete)
             {
-                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.CaptureFrame(runtime));
+                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid death tick={tick}, AI={body.VariableA:X4}");
                 deathSamples++;
@@ -145,7 +146,8 @@ internal static class RetailKraidCaptureTests
         shot.Damage = 100; shot.Direction = (ushort)SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + left + 2)), unchecked((ushort)(body.Position.Y.Whole + (top + bottom) / 2))));
         shot.Radius = new(2, 2);
-        shot.Cursor = SamusProjectileProgramAddresses.CursorAt(KraidCaptureDefinitions.AuditLiveInstruction);
+        // Any live missile program marks the slot active; this staged shot only enters collision, not animation.
+        shot.Cursor = AnimationProgramCursor<SamusProjectileProgram>.Start(SamusProjectileProgram.MissileRight);
         shot.InstructionTimer = NativeCountdown.Start(1);
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
         shots.SlotTable.ProjectileCounter = (ushort)1;

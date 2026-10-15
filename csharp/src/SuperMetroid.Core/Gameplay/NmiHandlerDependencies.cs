@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
@@ -16,6 +18,9 @@ internal sealed record NmiHandlerDependencies
 
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
+
+    /// <summary>Bomb projectiles, owner of the power-bomb explosion.</summary>
+    public required SamusBombProjectileSystem BombProjectiles { get; init; }
 
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }
@@ -43,6 +48,12 @@ internal sealed record NmiHandlerDependencies
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
+
+    /// <summary>Active room, door, and scrolling sky.</summary>
+    public required ActiveRoomState Room { get; init; }
+
+    /// <summary>Suit pickup.</summary>
+    public required SamusSuitPickupState SuitPickup { get; init; }
 
     /// <summary>Room layer3 fx.</summary>
     public required RoomLayer3FxState RoomLayer3Fx { get; init; }

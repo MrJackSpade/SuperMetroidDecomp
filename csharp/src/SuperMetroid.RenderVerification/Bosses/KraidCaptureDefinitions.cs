@@ -7,6 +7,4 @@ internal static class KraidCaptureDefinitions
     internal const ushort IncomingDoor = 0x91b6;
     /// <summary>Live missile type word used by the established Kraid collision audit.</summary>
     internal const ushort AuditMissileType = 0x8100;
-    /// <summary>Nonzero instruction sentinel; this staged projectile only enters collision, not animation.</summary>
-    internal const ushort AuditLiveInstruction = 0x9000;
 }

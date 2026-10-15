@@ -30,7 +30,7 @@ internal static class OceanSkyVerification
         // mutable scroll state. Draining only VRAM left the BG2 scanline window at
         // its zero-initialized 0..0 range, so both page layouts rendered no sky.
         runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
-        var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
+        var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
         Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2MapSize.X}x{ordinary.Registers.Bg2MapSize.Y}, sky={runtime.Room.ScrollingSky is not null}");
 
@@ -60,7 +60,7 @@ internal static class OceanSkyVerification
                 }
             }
         }
-        scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
+        scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
         var bgOnly = new OrdinaryGameplayRenderLayer(ordinary.Registers with { MainScreenLayers = SnesMainScreenLayers.Bg2 },
             ordinary.Bg2LineScrolls);

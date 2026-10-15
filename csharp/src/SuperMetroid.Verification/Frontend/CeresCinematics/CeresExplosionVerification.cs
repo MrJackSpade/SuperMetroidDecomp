@@ -53,7 +53,7 @@ internal static class CeresExplosionVerification
                 var actual = scene.CaptureRenderSnapshot()
                     .LayersOf<ScanlineColorAddRenderLayer>().SingleOrDefault();
                 var expected = SnesGameplayFrameRenderer.CapturePowerBombColorMath(
-                    bus, reference, new Position16<RoomPixels>(0, 0), firstVisibleScanline: 0);
+                    PowerBombRenderSnapshot.Capture(reference), new Position16<RoomPixels>(0, 0), firstVisibleScanline: 0);
                 AssertEqual(expected is null, actual is null, "Ceres blast window lifetime");
                 if (expected is not null && actual is not null)
                 {

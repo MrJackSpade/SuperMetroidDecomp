@@ -10,6 +10,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 
@@ -80,7 +81,7 @@ internal static class AcidStatueFirstEntryVerification
             RoomLayer3FxRenderSnapshot? displayed = runtime.Display.DisplayedRoomLayer3Fx;
             if (activeRoom != destinationRoom)
                 continue;
-            LayeredRenderSnapshot? snapshot = GameplayDisplayCapture.CaptureFrame(runtime);
+            LayeredRenderSnapshot? snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             if (snapshot is null)
                 continue;
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
@@ -114,7 +115,7 @@ internal static class AcidStatueFirstEntryVerification
         {
             runtime.StepFrame(0);
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(
-                GameplayDisplayCapture.CaptureFrame(runtime));
+                GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
 
         }
         AssertEqual(drainedAcidY, runtime.RoomLayer3Fx.CurrentYPosition,

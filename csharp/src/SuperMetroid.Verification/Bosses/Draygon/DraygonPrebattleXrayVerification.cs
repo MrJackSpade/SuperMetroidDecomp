@@ -44,7 +44,7 @@ internal static class DraygonPrebattleXrayVerification
         for (int frame = 0; frame < 40; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         var boss = runtime.Enemies.DraygonBehavior.Draygon;
         AssertEqual(DraygonAiFunction.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Function, "X-Ray preserves the pre-battle phase");
-        var scene = GameplayDisplayCapture.CaptureFrame(runtime);
+        var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var math = (GameplayColorMathRenderLayer)scene.Layers[0];
         var r = math.Gameplay.Registers;
         AssertTrue(!math.RevealBlocks, "native boss exclusion preserves the original BG2 artwork");
@@ -70,7 +70,7 @@ internal static class DraygonPrebattleXrayVerification
         runtime.StepFrame(0); // Build the authored swoop path.
         int descentFrames = boss.SwoopPathEntryCount;
         for (int frame = 0; frame < descentFrames + 2; frame++) runtime.StepFrame(0);
-        var combat = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
+        var combat = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var ordinary = (OrdinaryGameplayRenderLayer)combat.Layers[0];
         var combatWithoutBg2 = new LayeredRenderSnapshot(combat.Memory,
             new RenderLayer[] { new OrdinaryGameplayRenderLayer(ordinary.Registers with

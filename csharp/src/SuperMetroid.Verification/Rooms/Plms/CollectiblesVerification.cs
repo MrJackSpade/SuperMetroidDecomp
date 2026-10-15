@@ -575,7 +575,7 @@ internal static class CollectiblesVerification
         var frame = new SuperMetroid.Core.Hardware.Rgba32[256 * 224];
         message.Step(0); // radius 0
         message.Step(0); // radius 2: visible scanlines 122-125
-        GameplayMessageBoxRenderer.Composite(frame, message, vram, cgram);
+        GameplayMessageBoxRendererConstants.Composite(frame, message, vram, cgram);
         AssertEqual(default(SuperMetroid.Core.Hardware.Rgba32), frame[121 * 256],
             "message HDMA clip leaves scanline above radius untouched");
         AssertEqual(
@@ -600,7 +600,7 @@ internal static class CollectiblesVerification
         message.Step(0);
         message.Step(0);
         Array.Clear(frame);
-        GameplayMessageBoxRenderer.Composite(frame, message, vram, cgram);
+        GameplayMessageBoxRendererConstants.Composite(frame, message, vram, cgram);
 
         // Completion notices $14/$15/$16/$18 use the short `$000A` wait at
         // `$85:847A`; item descriptions use `$0168`. Prove the map-station path reaches

@@ -49,8 +49,8 @@ internal static class RetailElevatorReturnTests
         var actorPositions = new HashSet<ushort>();
         void Compare(string phase)
         {
-            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-            var capture = GameplayDisplayCapture.CaptureFrame(runtime)
+            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+            var capture = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())
                 ?? throw new InvalidOperationException("Elevator return omitted its display capture.");
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples), capture);
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -29,15 +30,23 @@ internal static class RetailCrocomireCaptureTests
         var death = runtime.Enemies.CrocomireBehavior.CrocomireDeath;
         // Before either melting object is spawned, BG2 must use the actor's ordinary
         // scroll register. Comparing two renderers alone missed this shared defect.
+        int latchedScrollChanges = 0;
         for (int tick = 0; tick < 60; tick++)
         {
+            // Crocomire AI writes the BG2HOFS/BG2VOFS shadows during the main loop; the
+            // next accepted NMI uploads them with the rest of that frame's latch (#1307).
+            Position16<Bg2Pixels> previousScroll = runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll;
             runtime.StepFrame(0);
-            var scene = GameplayDisplayCapture.CaptureFrame(runtime);
+            GameplayDisplayFrame published = runtime.PublishDisplayFrame();
+            if (published.Latched.Bosses.CrocomireBg2Scroll != previousScroll)
+                throw new InvalidOperationException($"Crocomire BG2 scroll was not published by the following NMI at tick {tick}.");
+            if (previousScroll != runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll) latchedScrollChanges++;
+            var scene = GameplayDisplayCapture.Capture(published);
             var baseLayer = (OrdinaryGameplayRenderLayer)scene.Layers[0];
             if (!baseLayer.Bg2LineScrolls.Vertical.IsEmpty || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingHdmaActive)
                 throw new InvalidOperationException("Crocomire fight incorrectly enabled melting HDMA.");
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), scene);
-            PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime),
+            PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(packet), $"{device.Kind}: Crocomire fight {tick}");
         }
         // Reuse the cartridge audit's bridge threshold, then let the complete
@@ -61,8 +70,8 @@ internal static class RetailCrocomireCaptureTests
             complete = boss.DeathSequenceIndex == CrocomireDeathPhase.InertCorpse;
             if (changed || firstDistortion || tick % 16 == 0 || complete)
             {
-                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.CaptureFrame(runtime));
+                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: Crocomire tick={tick}, phase={(int)boss.DeathSequenceIndex:X2}");
@@ -72,6 +81,6 @@ internal static class RetailCrocomireCaptureTests
         if (!complete || !distorted || !phases.Contains(CrocomireDeathPhase.DissolveFirstImage) ||
             !phases.Contains(CrocomireDeathPhase.DissolveSecondImage) || !phases.Contains(CrocomireDeathPhase.BreakSpikeWall))
             throw new InvalidOperationException($"Crocomire fixture incomplete: phase={(int)boss.DeathSequenceIndex:X2}, distortion={distorted}.");
-        Console.WriteLine($"{device.Kind}: {samples} exact Crocomire death samples across {phases.Count} phases, both dissolves, scanline distortion and skeleton completion.");
+        Console.WriteLine($"{device.Kind}: {samples} exact Crocomire death samples across {phases.Count} phases, both dissolves, scanline distortion and skeleton completion; {latchedScrollChanges} fight frames displayed the preceding main loop's BG2 scroll.");
     }
 }

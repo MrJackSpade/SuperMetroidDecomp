@@ -43,7 +43,8 @@ internal static class XrayWindowGeometryVerification
             Array.Fill(reference, source);
             SnesGameplayFrameRenderer.ApplyXrayWindowColorMath(reference, bus, samus.Xray, samus,
                 new Position16<RoomPixels>((ushort)scroll.Item1, (ushort)scroll.Item2));
-            var lines = SnesGameplayFrameRenderer.CaptureXrayWindowLines(bus, samus,
+            var lines = SnesGameplayFrameRenderer.CaptureXrayWindowLines(
+                SamusXrayDisplaySnapshot.Capture(samus, null, bus) ?? throw new InvalidOperationException("Active X-ray has no display snapshot."),
                 new Position16<RoomPixels>((ushort)scroll.Item1, (ushort)scroll.Item2));
             for (int y = 32; y < 224; y++)
             for (int x = 0; x < 256; x++)

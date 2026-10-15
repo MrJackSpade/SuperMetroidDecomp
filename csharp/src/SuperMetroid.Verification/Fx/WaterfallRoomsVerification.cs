@@ -39,7 +39,7 @@ internal static class WaterfallRoomsVerification
             var registers = runtime.GameplayWindows.DisplayedGameplayWindowRegisters;
             AssertEqual((byte)0x11, registers.MainScreen, "waterfall native TM");
             AssertEqual((byte)0x06, runtime.CachedGameplaySubscreen, "waterfall native TS");
-            var snapshot = GameplayDisplayCapture.CaptureFrame(runtime)
+            var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())
                 ?? throw new InvalidDataException("Waterfall room capture is absent.");
             var math = snapshot.Layers[0] as GameplayColorMathRenderLayer
                 ?? throw new InvalidDataException("Waterfall room still captures an ordinary opaque background.");

@@ -57,8 +57,8 @@ internal static class RoomArtworkRenderParityVerification
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
             AssertTrue(native.Vram.ImageEquals(installed.Vram),
                 $"{name} installed artwork preserves the complete displayed VRAM");
-            Rgba32[] nativeFrame = SuperMetroidRuntimeFrameRenderer.Render(native);
-            Rgba32[] installedFrame = SuperMetroidRuntimeFrameRenderer.Render(installed);
+            Rgba32[] nativeFrame = SuperMetroidRuntimeFrameRenderer.Render(native.PublishDisplayFrame());
+            Rgba32[] installedFrame = SuperMetroidRuntimeFrameRenderer.Render(installed.PublishDisplayFrame());
             AssertTrue(nativeFrame.Length == installedFrame.Length &&
                 nativeFrame.SequenceEqual(installedFrame),
                 $"{name} installed artwork preserves every rendered pixel");
@@ -93,7 +93,7 @@ internal static class RoomArtworkRenderParityVerification
                         IndexedPng.Write(editedPng, new(characterImage.Size.X, characterImage.Size.Y),
                             characterImage.Pixels, characterImage.Palette);
                     SuperMetroidRuntime changed = LoadRoom(installedArt: true);
-                    Rgba32[] changedFrame = SuperMetroidRuntimeFrameRenderer.Render(changed);
+                    Rgba32[] changedFrame = SuperMetroidRuntimeFrameRenderer.Render(changed.PublishDisplayFrame());
                     AssertTrue(!nativeFrame.SequenceEqual(changedFrame),
                         "Landing Site character PNG override changes rendered pixels");
                     AssertGameplayPlanesUnchanged(changed, "character PNG");
@@ -119,7 +119,7 @@ internal static class RoomArtworkRenderParityVerification
                 {
                     File.WriteAllText(blockOverridePath, blocks.ToJsonString());
                     SuperMetroidRuntime changed = LoadRoom(installedArt: true);
-                    Rgba32[] changedFrame = SuperMetroidRuntimeFrameRenderer.Render(changed);
+                    Rgba32[] changedFrame = SuperMetroidRuntimeFrameRenderer.Render(changed.PublishDisplayFrame());
                     AssertTrue(!nativeFrame.SequenceEqual(changedFrame),
                         "Landing Site visual block override changes rendered pixels");
                     AssertGameplayPlanesUnchanged(changed, "visual block JSON");

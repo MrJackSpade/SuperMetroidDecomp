@@ -128,7 +128,7 @@ internal sealed class DoorTransitionRunner
                 // than relying on the destination loader's defensive state reset: this is
                 // the cartridge routine that owns the transition back to normal rendering.
                 _display.ActiveSamusMode7Transform = null;
-                _display.DisplayedSamusMode7Transform = null;
+                _display.PublishDoorMode7(null);
                 _ceresElevatorShaft.Reset(active: false, _room.RoomMainScratch);
                 return;
 

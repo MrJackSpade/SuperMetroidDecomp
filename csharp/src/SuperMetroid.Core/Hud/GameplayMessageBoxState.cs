@@ -93,9 +93,6 @@ public sealed class GameplayMessageBoxState
     /// <summary>Unelapsed mandatory frames before controller input is inspected.</summary>
     public int MinimumDisplayFramesRemaining { get; private set; }
 
-    /// <summary>Number of consecutive 32-tile rows in the ROM-built box.</summary>
-    public int TilemapRowCount => _tilemap.Length / GameplayMessageRomData.Layout.TilemapWidth;
-
     /// <summary>Read-only final tilemap after border and configured-button substitution.</summary>
     public ReadOnlySpan<ushort> Tilemap => _tilemap;
 

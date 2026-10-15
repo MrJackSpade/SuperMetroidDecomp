@@ -33,8 +33,8 @@ internal static class FirefleaEyeVerification
         oam.FinalizeFrame();
         AssertTrue(oam.LastFinalizedSpriteCount > 0, "retail rock eye emits sprites");
         var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, oam);
-        var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
-        var actualDarkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.CaptureFrame(runtime).Layers[0];
+        var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
+        var actualDarkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual((byte)0xa2, (byte)actualDarkness.ColorMath, "reported room captures the native OBJ-excluding blend mask");
         var baseLayer = (OrdinaryGameplayRenderLayer)source.Layers[0];
         // Isolate the actual room OBJ pixels on a black backdrop, retaining the

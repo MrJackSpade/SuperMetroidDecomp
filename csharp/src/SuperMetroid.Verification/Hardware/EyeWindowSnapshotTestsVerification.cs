@@ -26,8 +26,7 @@ internal static class EyeWindowSnapshotTestsVerification
                 AssertEqual((long)expected[^1], right, "integer window floor endpoint");
             }
         }
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        VerifyReportedEyeNativeEndpoints(bus);
+        VerifyReportedEyeNativeEndpoints();
         var cgram = new SnesCgram(); cgram.SetColor(0, Bgr555.FromWord(0x392a));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         var memory = PpuMemorySnapshot.Capture(new SnesVram(), cgram, oam);
@@ -41,8 +40,7 @@ internal static class EyeWindowSnapshotTestsVerification
         foreach (ushort width in new ushort[] { 0, 1, 24 })
             Check(x, y, angle, width);
         foreach (MorphBallEyeBeamPhase phase in new[] { MorphBallEyeBeamPhase.Inactive, MorphBallEyeBeamPhase.PendingInitialization })
-            AssertTrue(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus,
-                new(phase, Position16<RoomPixels>.Zero, SnesAngle.Zero, 0, 0, 0, 0), new Position16<RoomPixels>(0, 0)) is null, "unpublished eye beam emits no operation");
+            AssertTrue(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(new(phase, Position16<RoomPixels>.Zero, SnesAngle.Zero, 0, 0, 0, 0), new Position16<RoomPixels>(0, 0)) is null, "unpublished eye beam emits no operation");
         Console.WriteLine($"  Eye window snapshots: {samples} backend/codec cases agree; cartridge endpoint assertions also pass.");
 
         void Check(int x, int y, int angle, ushort width)
@@ -52,8 +50,8 @@ internal static class EyeWindowSnapshotTestsVerification
                 new(unchecked((ushort)(x + 512)), unchecked((ushort)(y + 768))),
                 SnesAngle.FromTableIndex((byte)angle), width, 0x3f, 0x4c, 0x81);
             Rgba32[] expected = baseline.ToArray();
-            SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(expected, bus, beam, new Position16<RoomPixels>(512, 768));
-            ScanlineColorAddRenderLayer layer = (SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>(512, 768)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>...."));
+            SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(expected, beam, new Position16<RoomPixels>(512, 768));
+            ScanlineColorAddRenderLayer layer = (SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(512, 768)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>...."));
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, [(layer ?? throw new InvalidOperationException("Verification requires layer."))], 3, 15));
             Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));
             AssertTrue(expected.SequenceEqual(actual), $"eye capture origin {x},{y}; angle {angle}; width {width}");
@@ -61,7 +59,7 @@ internal static class EyeWindowSnapshotTestsVerification
     }
 
     /// <summary>Compares selected $88:E987 cartridge endpoints with captured scanline windows.</summary>
-    private static void VerifyReportedEyeNativeEndpoints(ISnesAddressSpace bus)
+    private static void VerifyReportedEyeNativeEndpoints()
     {
         // These endpoints were emitted by executing ROM $88:E987, not by the
         // production builder. Keep this small oracle in the ordinary suite while
@@ -80,7 +78,7 @@ internal static class EyeWindowSnapshotTestsVerification
         {
             var beam = new MorphBallEyeBeamRenderSnapshot(MorphBallEyeBeamPhase.Full,
                 new(552, 616), SnesAngle.FromTableIndex(sample.Angle), sample.Width, 31, 31, 0);
-            ColorAddWindow row = (SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>(384, 512)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>....")).Windows[sample.Y];
+            ColorAddWindow row = (SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(384, 512)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>....")).Windows[sample.Y];
             for (int x = 0; x < 256; x++)
                 AssertEqual(x >= sample.Left && x <= sample.Right, x >= row.Left && x <= row.Right,
                     $"native reported-eye angle {sample.Angle}, width {sample.Width}, pixel {x},{sample.Y}");

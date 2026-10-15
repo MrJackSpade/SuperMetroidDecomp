@@ -5,6 +5,37 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using System.Collections.Immutable;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Areas.Maridia;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Runtime.Attract;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -161,5 +192,7 @@ internal static class SuperMetroidRuntimeAccess
             else
                 self.Artwork.MapPresentation.EscapeTimerTiles.QueueTo(self.VramWrites);
         }
+        /// <summary>Live WRAM/SRAM for NMI DMA and the typed domain memory views.</summary>
+        internal ISnesMemoryBus MemoryBus => RuntimeMemory.RequireBus(self._addressSpace);
     }
 }

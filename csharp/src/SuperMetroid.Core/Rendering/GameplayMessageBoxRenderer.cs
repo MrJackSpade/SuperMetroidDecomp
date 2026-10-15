@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Rendering;
 public static class GameplayMessageBoxRenderer
 {
     /// <summary>Width of the gameplay raster receiving the BG3 message overlay.</summary>
-    private const int ScreenWidth = SnesGameplayFrameRenderer.Width;
+    internal const int ScreenWidth = SnesGameplayFrameRenderer.Width;
     /// <summary>Height of the gameplay raster used for centered message clipping.</summary>
-    private const int ScreenHeight = SnesGameplayFrameRenderer.Height;
+    internal const int ScreenHeight = SnesGameplayFrameRenderer.Height;
 
     /// <summary>Copies the currently exposed message; inactive/zero-radius messages emit no overlay.</summary>
     public static MessageBoxRenderLayer? Capture(GameplayMessageBoxState messageBox)
@@ -26,38 +26,14 @@ public static class GameplayMessageBoxRenderer
         CompositeTilemap(frame, layer.Tilemap, layer.RowCount, layer.RadiusPixels, vram, cgram);
     }
 
-    /// <summary>
-    /// Draws the currently exposed scanline band. The original uses BG3 vertical-scroll
-    /// HDMA to reveal a centered box; evaluating the resulting clipped raster directly is
-    /// equivalent and avoids mutating the gameplay HUD tilemap in modeled VRAM.
-    /// </summary>
-    public static void Composite(
-        Span<Rgba32> frame,
-        GameplayMessageBoxState messageBox,
-        SnesVram vram,
-        SnesCgram cgram)
-    {
-        Ensure.NotNull(messageBox);
-        Ensure.NotNull(vram);
-        Ensure.NotNull(cgram);
-        Ensure.LengthEqual(frame, ScreenWidth * ScreenHeight);
-        if (!messageBox.IsActive || messageBox.RadiusPixels == 0)
-            return;
-
-        ReadOnlySpan<ushort> tilemap = messageBox.Tilemap;
-        int rowCount = messageBox.TilemapRowCount;
-        CompositeTilemap(frame, tilemap, rowCount, messageBox.RadiusPixels, vram, cgram);
-    }
-
     /// <summary>Draws the centered 2bpp message rows through a radius-limited scanline band with temporary message colors.</summary>
     [PpuLayoutBoundary("backend: software PPU BG3 message-box rasterizer")]
-    private static void CompositeTilemap(Span<Rgba32> frame, ReadOnlySpan<ushort> tilemap,
+    internal static void CompositeTilemap(Span<Rgba32> frame, ReadOnlySpan<ushort> tilemap,
         int rowCount, int radiusPixels, SnesVram vram, SnesCgram cgram)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
-        if (frame.Length != ScreenWidth * ScreenHeight)
-            throw new ArgumentException("A message overlay requires exactly 256x224 pixels.", nameof(frame));
+        Ensure.LengthEqual<Rgba32>(frame, ScreenWidth * ScreenHeight);
         // InitializePpuForMessageBoxes overwrites only CGRAM $19/$1A, then
         // RestorePpuForMessageBox restores the gameplay palette: the box sees CGRAM
         // with those two temporary colors applied.

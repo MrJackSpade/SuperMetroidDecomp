@@ -26,10 +26,10 @@ internal static class NorfairGlowCaptureTests
         for (int tick = 0; tick < 232; tick++)
         {
             runtime.StepFrame(0);
-            var scene = GameplayDisplayCapture.CaptureFrame(runtime);
+            var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             original ??= scene;
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), scene);
-            PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime),
+            PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(packet), $"{device.Kind}: Norfair glow frame {tick}");
 
             // Freeze geometry, camera, objects, and every unrelated palette entry.

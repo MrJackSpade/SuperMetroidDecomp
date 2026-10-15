@@ -5,6 +5,7 @@ using static SuperMetroid.Core.Samus.Palettes.SamusPaletteRomData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 /// <summary>Compares Crystal Flash palette timing and actual body/window contributions in a captured frame.</summary>
@@ -15,7 +16,7 @@ internal static class CrystalFlashVisualsVerification
     {
         var samus = runtime.Player.IntroducedSamus;
         var bus = runtime.AddressSpace;
-        var packet = GameplayDisplayCapture.CaptureFrame(runtime);
+        var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         if (samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash)
         {
             // Independent timeline lookup: expand authored durations into a cycle

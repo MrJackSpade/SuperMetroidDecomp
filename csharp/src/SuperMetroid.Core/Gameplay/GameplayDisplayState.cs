@@ -27,18 +27,11 @@ internal sealed class GameplayDisplayState
     public SamusMode7Transform? ActiveSamusMode7Transform { get; set; }
 
     /// <summary>
-    /// Ceres Mode 7 matrix made PPU-visible by the most recent accepted NMI. This is the
-    /// register-phase companion to <see cref="SuperMetroidRuntime.DisplayedOam"/>: software rendering must use
-    /// both displayed values together rather than mixing current main-loop shadow words
-    /// with the preceding NMI's sprites.
+    /// Everything the most recent accepted (or forced-blank) NMI made PPU-visible. A lag NMI
+    /// leaves it unchanged. Door setup that writes registers before a room becomes visible
+    /// updates it through <see cref="PublishDoorMode7"/>.
     /// </summary>
-    public SamusMode7Transform? DisplayedSamusMode7Transform { get; internal set; }
-
-    /// <summary>
-    /// Ordinary BG scroll registers and room-shake deltas published by the most recent
-    /// accepted NMI. These belong to the same PPU-visible frame as <see cref="SuperMetroidRuntime.DisplayedOam"/>.
-    /// </summary>
-    public GameplayPpuRenderSnapshot DisplayedGameplayPpu { get; internal set; }
+    public GameplayNmiDisplayLatch Latched { get; internal set; } = InitialLatch;
 
     /// <summary>
     /// BG3 character base selected by gameplay initialization or a room's library-
@@ -49,14 +42,25 @@ internal sealed class GameplayDisplayState
     public ushort GameplayHudCharacterBaseWord { get; internal set; } =
         GameplayVramLayout.HudCharacterWord;
 
-    /// <summary>Room-FX BG3 state published by the most recent accepted NMI.</summary>
-    public RoomLayer3FxRenderSnapshot? DisplayedRoomLayer3Fx { get; internal set; }
-
     /// <summary>
-    /// Morph-ball eye beam geometry published with <see cref="SuperMetroidRuntime.DisplayedOam"/>. A nullable
-    /// record distinguishes a genuinely inactive beam from a malformed active slot.
+    /// Door setup's direct write of the Mode 7 registers and BGMODE before the room is exposed
+    /// (<c>$8F:E4E0</c>, or <c>$8F:E513</c> clearing them). Later room-main changes reach the
+    /// display only through the NMI latch.
     /// </summary>
-    public MorphBallEyeBeamRenderSnapshot? DisplayedMorphBallEyeBeam { get; internal set; }
+    internal void PublishDoorMode7(SamusMode7Transform? transform) =>
+        Latched = Latched with
+        {
+            SamusMode7Transform = transform,
+            Scene = Latched.Scene with { CeresElevatorMode7 = transform is not null },
+        };
+
+    /// <summary>The latch in effect before any NMI: power-on registers and no active effects.</summary>
+    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
+    private static GameplayNmiDisplayLatch InitialLatch => new(
+        default, default, null, null, null, null, 0,
+        new GameplayLatchedSceneRegisters(false, false, GameplayVramLayout.HudCharacterWord, default,
+            LayerBlendingConfiguration.Unconfigured, null, null, 0),
+        default, default, null);
 
     /// <summary>The BG3 character region at the base BG34NBA currently selects (Kraid's room moves it to word $2000).</summary>
     [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]

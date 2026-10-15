@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Areas.Escape;
 
 /// <summary>Checks escape-room explosion sprites, earthquake offsets, and rescue exit behavior.</summary>
@@ -36,7 +37,7 @@ internal static class EscapeRoomEffectsVerification
                 offsets.Add((shake.Bg1.X, shake.Bg1.Y));
                 if (frame % 10 == 9)
                 {
-                    var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
+                    var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
                     var layer = (OrdinaryGameplayRenderLayer)capture.Layers[0];
                     var actual = SoftwareLayeredSnapshotRenderer.Render(capture);
                     var noObjects = new OrdinaryGameplayRenderLayer(layer.Registers with

@@ -72,12 +72,12 @@ internal static class GameplaySnapshotTestsVerification
         runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        AssertThrows<InvalidOperationException>(() => GameplayDisplayCapture.CaptureOrdinaryBase(runtime),
+        AssertThrows<InvalidOperationException>(() => GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()),
             "Mode-7 shaft cannot silently capture as ordinary tiles");
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
         runtime.NmiHandler.RunNmi(0, true);
-        Rgba32[] retail = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-        LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
+        Rgba32[] retail = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+        LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),
             "ordinary retail room capture matches full renderer with inactive effects");
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);

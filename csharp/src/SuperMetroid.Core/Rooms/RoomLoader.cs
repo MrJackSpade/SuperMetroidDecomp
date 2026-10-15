@@ -889,7 +889,7 @@ internal sealed class RoomLoader
         // `$8F:E4E0` writes the initial matrix as part of door setup before the shaft is
         // exposed. Initialize the displayed copy as well; subsequent room-main changes
         // reach it only through RunNmi, matching the normal shadow-register path.
-        _display.DisplayedSamusMode7Transform = initialMode7Transform;
+        _display.PublishDoorMode7(initialMode7Transform);
         _room.LevelData = assets.LevelData;
         ScrollBoundaryCamera? previousCamera = _room.Camera;
         _room.Camera = new ScrollBoundaryCamera(assets.Scrolls);

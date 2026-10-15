@@ -11,7 +11,7 @@ internal static class MinimapBlinkAudit
     public static int Run(string romPath, Func<SuperMetroidRuntime, Rgba32[]>? render = null)
     {
         foreach (ushort room in MapCrossViewAuditDefinitions.RepresentativeRooms)
-            VerifyRoom(romPath, room, render ?? SuperMetroidRuntimeFrameRenderer.Render);
+            VerifyRoom(romPath, room, render ?? (runtime => SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame())));
         Console.WriteLine("Minimap blink: four retail areas, exact eight-frame cadence, and two distinct rendered center-cell palettes pass.");
         return 0;
     }

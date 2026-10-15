@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 using SuperMetroid.Verification.Harness;
 

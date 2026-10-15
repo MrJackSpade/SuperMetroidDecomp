@@ -52,10 +52,13 @@ internal static class RetailRidleyEscapeTests
                 // frames. Completion is captured before leaving the room-local fixture.
                 if (tick % 8 == 0 || newPhase || ridley.Mode7Active || finished)
                 {
-                    var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
-                    var scene = GameplayDisplayCapture.CaptureFrame(runtime)
+                    GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
+                    var expected = SuperMetroidRuntimeFrameRenderer.Render(frame);
+                    var scene = GameplayDisplayCapture.Capture(frame)
                         ?? throw new InvalidOperationException("Ridley escape omitted capture.");
-                    if (ridley.Mode7Active && scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null })
+                    // The Mode 7 shadows reach the screen at the NMI after the main loop that wrote them (#1307),
+                    // so the published frame, not the live getaway, decides whether this picture is Mode 7.
+                    if (frame.Latched.Bosses.CeresRidleyMode7 is not null && scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null })
                         throw new InvalidOperationException("Native Mode-7 escape omitted its preserved floor layer.");
                     var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), scene);
                     packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));

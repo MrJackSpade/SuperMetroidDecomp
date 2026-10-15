@@ -24,13 +24,4 @@ public readonly struct FixedColorMemory(ISnesMemoryBus bus)
         get => new WramByte(bus, PpuFixedColorMirrorAddresses.Blue).Read();
         set => new WramByte(bus, PpuFixedColorMirrorAddresses.Blue).Write(value);
     }
-
-    /// <summary>The five-bit intensity of <see cref="Red"/>.</summary>
-    public byte RedIntensity => (byte)(Red & 31);
-
-    /// <summary>The five-bit intensity of <see cref="Green"/>.</summary>
-    public byte GreenIntensity => (byte)(Green & 31);
-
-    /// <summary>The five-bit intensity of <see cref="Blue"/>.</summary>
-    public byte BlueIntensity => (byte)(Blue & 31);
 }

@@ -46,7 +46,7 @@ internal static class MessageSnapshotTestsVerification
                     previousRadius = state.RadiusPixels;
                     previousYes = state.ConfirmationSelectionYes;
                     Rgba32[] expected = baseline.ToArray();
-                    GameplayMessageBoxRenderer.Composite(expected, state, vram, cgram);
+                    GameplayMessageBoxRendererConstants.Composite(expected, state, vram, cgram);
                     MessageBoxRenderLayer? layer = GameplayMessageBoxRenderer.Capture(state);
                     RenderLayer[] layers = layer is null ? [] : [layer];
                     var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick),

@@ -1,4 +1,15 @@
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Samus.Projectiles;
+using System.Collections.Immutable;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Phantoon;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
@@ -22,7 +33,9 @@ internal sealed class NmiHandler
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Latches remapped controller input only for a main-loop-requested NMI.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>Retains accepted-NMI PPU, Mode 7, layer-three, and eye-beam snapshots.</summary>
+    /// <summary>Supplies the power-bomb explosion whose COLDATA color is latched.</summary>
+    private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Retains the accepted-NMI display latch.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Last finalized OAM image uploaded by an accepted NMI.</summary>
     private readonly OamBuffer _displayedOam;
@@ -40,6 +53,10 @@ internal sealed class NmiHandler
     private readonly SamusFrameState _player;
     /// <summary>Captures the layer-three room effect visible at the NMI boundary.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Supplies the loaded room, door, and scrolling sky whose register shadows are latched.</summary>
+    private readonly ActiveRoomState _room;
+    /// <summary>Supplies the suit pickup whose COLDATA color is latched.</summary>
+    private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Latches the Tourian statue scene's displayed state.</summary>
     private readonly TourianStatueSequence _tourianStatues;
     /// <summary>Receives Samus tile DMA and drained video-queue writes.</summary>
@@ -56,6 +73,7 @@ internal sealed class NmiHandler
     {
         _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
+        _bombProjectiles = dependencies.BombProjectiles;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
         _displayedOam = dependencies.DisplayedOam;
@@ -65,7 +83,9 @@ internal sealed class NmiHandler
         _oam = dependencies.Oam;
         _options = dependencies.Options;
         _player = dependencies.Player;
+        _room = dependencies.Room;
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
+        _suitPickup = dependencies.SuitPickup;
         _tourianStatues = dependencies.TourianStatues;
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
@@ -160,22 +180,32 @@ internal sealed class NmiHandler
         // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
         _displayedOam.CopyFinalizedFrom(_oam);
         _gameplayWindows.Cache.LatchNmi(mainLoopRequestedNmi: true);
-        _display.DisplayedSamusMode7Transform = _display.ActiveSamusMode7Transform;
         var bg2Window = _enemies.DraygonBehavior.Draygon is { } boss
             ? DraygonMainScreenWindow.Select(boss.Body.Position.Whole, _backgroundScroll.Layer1Position,
                 boss.Body.Properties.HasAny(EnemyProperties.Deleted))
             : (First: 32, End: 224);
-        _display.DisplayedGameplayPpu = new GameplayPpuRenderSnapshot(
+        var ppu = new GameplayPpuRenderSnapshot(
             _backgroundScroll.Layer1Position,
             _backgroundScroll.Bg1Scroll,
             _backgroundScroll.Bg2Scroll,
             _enemies.Earthquake.LastRoomShake, bg2Window.First, bg2Window.End);
-        _display.DisplayedRoomLayer3Fx = _roomLayer3Fx.CaptureForDisplay();
+        RoomLayer3FxRenderSnapshot? roomLayer3Fx = _roomLayer3Fx.CaptureForDisplay();
         _enemies.PhantoonBehavior.Phantoon?.Wave.LatchDisplay();
         if (_enemies.PhantoonBehavior.Phantoon is { } phantoonDisplay)
             phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicRegister);
         _tourianStatues.LatchDisplay();
-        _display.DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
+        _display.Latched = new GameplayNmiDisplayLatch(
+            ppu,
+            _gameplayWindows.DisplayedGameplayWindowRegisters,
+            _display.ActiveSamusMode7Transform,
+            roomLayer3Fx,
+            CaptureMorphBallEyeBeamForDisplay(),
+            _enemies.PhantoonBehavior.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
+            _tourianStatues.DisplayedVerticalOffset,
+            CaptureSceneRegisters(),
+            CaptureBossBackgrounds(),
+            CaptureFixedColors(),
+            CaptureXrayRevealTilemap());
         _player.Samus?.Presentation.TileTransfers.TransferToVram(_addressSpace, _vram);
         _artwork.PublishReboundHudArtwork();
         _vramWrites.DrainTo(_vram, RuntimeMemory.RequireBus(_addressSpace), _artwork);
@@ -185,6 +215,63 @@ internal sealed class NmiHandler
         _artwork.PublishReboundTrailArtwork();
         _xray.TransferXrayBg1Read();
     }
+
+    /// <summary>
+    /// Room-level register shadows uploaded by <c>$80:91EE</c>: BGMODE (Ceres elevator Mode 7),
+    /// BG12NBA (setup ASM <c>$8F:C97B</c> selects word $6000 for the Ceres Ridley arena), BG34NBA,
+    /// the layer-blending selectors behind TM/TS/CGWSEL/CGADSUB (<c>$88:8000</c>), and the sky's
+    /// BG2SC and BG2VOFS mirror (<c>$88:AFB2</c>).
+    /// </summary>
+    private GameplayLatchedSceneRegisters CaptureSceneRegisters()
+    {
+        var room = _room.ActiveRoom;
+        return new(
+            _room.ActiveDoor?.UsesCeresElevatorMode7 == true,
+            room?.State.SetupCallback == RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze,
+            _display.GameplayHudCharacterBaseWord,
+            _roomLayer3Fx.Type,
+            _roomLayer3Fx.LayerBlendConfiguration,
+            ScrollingSkyRegisterSnapshot.Capture(_room.ScrollingSky),
+            room?.Pointer,
+            _enemies.RoomStatus.BossId);
+    }
+
+    /// <summary>
+    /// Boss BG register shadows: Ceres Ridley's M7A..M7Y (written by room main <c>$A6:AAAF</c>,
+    /// uploaded with BGMODE's fake Mode 7 HDMA byte by <c>$80:91EE</c>), Kraid's and Crocomire's
+    /// BG2SC/BG2HOFS/BG2VOFS, and Mother Brain's BG2SC and TM BG2 bit.
+    /// </summary>
+    private GameplayLatchedBossBackgrounds CaptureBossBackgrounds()
+    {
+        CeresRidleyMode7Snapshot? ridley = CeresRidleyMode7Snapshot.Capture(_enemies.RidleyEncounter.CeresRidley);
+        var motherBrain = _enemies.MotherBrainEncounter.MotherBrain;
+        return new(
+            ridley,
+            _enemies.KraidBehavior.Kraid is { OwnsBg2Tilemap: true } kraid ? kraid.Bg2Scroll : null,
+            _enemies.CrocomireBehavior.Crocomire is not null ? _enemies.CrocomireBehavior.CrocomireBg2Scroll : null,
+            motherBrain is { HasBg2ScrollOverride: true },
+            motherBrain is { DeathBg2Hidden: true });
+    }
+
+    /// <summary>COLDATA shadows the HDMA pre-instructions wrote during the previous main loop.</summary>
+    private GameplayLatchedFixedColors CaptureFixedColors()
+    {
+        SamusPowerBombExplosionState explosion = _bombProjectiles.PowerBombExplosion;
+        return new(
+            FixedColorRegisterSnapshot.Capture(new FixedColorMemory(RuntimeMemory.RequireBus(_addressSpace))),
+            new FixedColorRegisterSnapshot(explosion.FixedColorRed, explosion.FixedColorGreen, explosion.FixedColorBlue),
+            new FixedColorRegisterSnapshot(_suitPickup.FixedColorRed, _suitPickup.FixedColorGreen, _suitPickup.FixedColorBlue),
+            _enemies.MotherBrainEncounter.MotherBrain?.RainbowBeamHdma.Color);
+    }
+
+    /// <summary>
+    /// The reveal tilemap the X-ray setup calls queue for VRAM upload. It is copied while X-ray
+    /// is active; otherwise the displayed BG2 tilemap is the room's own.
+    /// </summary>
+    private ImmutableArray<ushort>? CaptureXrayRevealTilemap() =>
+        _player.Samus?.Xray.IsActive == true
+            ? ImmutableArray.Create(new XrayMemory(RuntimeMemory.RequireBus(_addressSpace)).RevealTilemap.ToArray())
+            : null;
 
     /// <summary>
     /// Captures the exact eye-body and HDMA-object values that become visible alongside

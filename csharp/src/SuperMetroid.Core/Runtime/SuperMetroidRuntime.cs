@@ -1,5 +1,14 @@
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using System.Collections.Immutable;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
@@ -129,9 +138,6 @@ public sealed class SuperMetroidRuntime
     /// </summary>
     internal ISnesAddressSpace AddressSpace => _addressSpace;
 
-    /// <summary>Live WRAM/SRAM for NMI DMA and the typed domain memory views.</summary>
-    internal ISnesMemoryBus MemoryBus => RuntimeMemory.RequireBus(_addressSpace);
-
     /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
     /// <param name="addressSpace">Cartridge definition source and mutable WRAM/SRAM owner used by translated systems.</param>
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
@@ -157,7 +163,7 @@ public sealed class SuperMetroidRuntime
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Display = Display, Enemies = Enemies, Hud = Hud, Player = Player, Vram = Vram, VramWrites = VramWrites, AddressSpace = _addressSpace });
         GameplayWindows = new GameplayWindowRegisters(Enemies, Projectiles, Room, RoomLayer3Fx);
         Xray = new XrayReveal(BackgroundScroll, Player, Plms, Room, System, Vram, _addressSpace);
-        NmiHandler = new NmiHandler(new NmiHandlerDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DisplayedOam = DisplayedOam, Enemies = Enemies, GameplayWindows = GameplayWindows, Nmi = Nmi, Oam = Oam, Options = Options, Player = Player, RoomLayer3Fx = RoomLayer3Fx, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, Xray = Xray, AddressSpace = _addressSpace });
+        NmiHandler = new NmiHandler(new NmiHandlerDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Controller1 = Controller1, Display = Display, DisplayedOam = DisplayedOam, Enemies = Enemies, GameplayWindows = GameplayWindows, Nmi = Nmi, Oam = Oam, Options = Options, Player = Player, Room = Room, RoomLayer3Fx = RoomLayer3Fx, SuitPickup = SuitPickup, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, Xray = Xray, AddressSpace = _addressSpace });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room, Vram);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Cgram = Cgram, Controller1 = Controller1, Display = Display, Enemies = Enemies, Freeze = Freeze, Nmi = Nmi, Oam = Oam, Player = Player, Projectiles = Projectiles, Room = Room, VramWrites = VramWrites, AddressSpace = _addressSpace });
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, Enemies = Enemies, EscapeTimer = EscapeTimer, Player = Player, Plms = Plms, Room = Room, RoomLayer3Fx = RoomLayer3Fx, RoomPaletteFx = RoomPaletteFx, System = System, AddressSpace = _addressSpace });
@@ -1102,6 +1108,41 @@ public sealed class SuperMetroidRuntime
         infiniteAmmoGuard.Complete(Player.Samus);
 
         return new RuntimeFrameResult();
+    }
+
+    /// <summary>
+    /// Publishes the gameplay display at the end of a logic frame: the most recent NMI latch,
+    /// the inputs the cartridge reads while the frame is displayed (IRQ register writes and
+    /// HDMA tables), and the PPU memory image. Publishing never advances simulation, and the
+    /// result shares no storage with it.
+    /// </summary>
+    public GameplayDisplayFrame PublishDisplayFrame()
+    {
+        if (Room.ActiveDoor is null)
+            throw new InvalidOperationException("A cartridge room and door must be loaded before publishing gameplay.");
+        CrocomireDeathState? crocomireDeath = Enemies.CrocomireBehavior.Crocomire is not null
+            ? Enemies.CrocomireBehavior.CrocomireDeath : null;
+        MotherBrainEnemyState? motherBrain = Enemies.MotherBrainEncounter.MotherBrain;
+        ScrollingSkyState? sky = Room.ScrollingSky;
+        var frameEnd = new GameplayFrameEndDisplayInputs(
+            Room.DoorTransitionMainScreenLayers,
+            sky is { HorizontalHdmaConfigured: true }
+                ? ImmutableArray.Create(sky.BuildGameplayHorizontalScrolls(Room.Camera?.PixelPosition.Y
+                    ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")))
+                : null,
+            crocomireDeath is { MeltingHdmaActive: true } melting
+                ? ImmutableArray.CreateRange(melting.Bg2ScrollByScanline) : null,
+            motherBrain is not null,
+            motherBrain is { RisingHdmaActive: true },
+            motherBrain?.RainbowBeamHdma.RenderSnapshot,
+            CeresHazeRenderSnapshot.Capture(CeresHaze),
+            Artwork.MapPresentation?.RoomFxPaletteBlends,
+            PowerBombRenderSnapshot.Capture(BombProjectiles.PowerBombExplosion),
+            GameplayMessageBoxRenderer.Capture(MessageBox),
+            SuitPickup.IsActive ? SuitPickup.Beam : null,
+            SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep, _addressSpace),
+            TourianStatues.Enabled);
+        return new(Display.Latched, frameEnd, PpuMemorySnapshot.Capture(Vram, Cgram, DisplayedOam));
     }
 
     /// <summary>

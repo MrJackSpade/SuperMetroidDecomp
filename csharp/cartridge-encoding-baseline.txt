@@ -35,7 +35,6 @@ csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlms.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlms.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonFireballInstructionProgramDefinitions.cs	SME6341	5
 csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacProjectileInstructionProgramDefinitions.cs	SME6341	2
-csharp/src/SuperMetroid.Core/Enemies/Choot/ChootFallingPathDefinitions.cs	SME6342	3
 csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoTourianDustInstructionProgramDefinitions.cs	SME6341	6
 csharp/src/SuperMetroid.Core/Enemies/CommonEnemyProjectileInstructionProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonFireballInstructionProgramDefinitions.cs	SME6341	3
@@ -47,7 +46,6 @@ csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipBehavior.cs	SME6349	3
 csharp/src/SuperMetroid.Core/Enemies/Kago/KagoBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Enemies/Kago/KagoBugProjectileInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAcidSpitInstructionProgramDefinitions.cs	SME6341	2
-csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumpDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteLavaInstructionProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdollitePhaseDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleProjectileInstructionProgramDefinitions.cs	SME6341	2

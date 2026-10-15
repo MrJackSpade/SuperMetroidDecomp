@@ -14,9 +14,12 @@ internal static class ChootFallingPathDefinitions
     /// <summary>Additional copies of each plateau sample in the very-slow native path.</summary>
     private const int VerySlowPlateauFrames = 30;
 
+    /// <summary>The <c>$8000,$8000</c> sample that ends a path loop.</summary>
+    private static readonly Offset16<RoomPixels> End = new(short.MinValue, short.MinValue);
+
     /// <summary>
     /// <c>ChootFallingPatternData_0_Normal</c> at <c>$A2:D84C-$A2:D973</c>.
-    /// Each adjacent pair is a signed X/Y word; the final X word is the terminator.
+    /// Each sample is a signed X/Y offset; the final <see cref="End"/> sample is the terminator.
     /// </summary>
     /// <remarks>
     /// The pinned NTSC J/U v1.0 ROM matches all 73 motion pairs and the final
@@ -24,27 +27,19 @@ internal static class ChootFallingPathDefinitions
     /// adds its signed offsets to the 16-bit path origin; the following
     /// <c>$D974</c> word is the loop Y distance, outside this path.
     /// </remarks>
-    private static ReadOnlySpan<ushort> Normal =>
+    private static readonly Offset16<RoomPixels>[] Normal =
     [
-        0x0000, 0x0000, 0x0001, 0x0001, 0x0002, 0x0001, 0x0003, 0x0002,
-        0x0004, 0x0002, 0x0005, 0x0002, 0x0006, 0x0003, 0x0007, 0x0003,
-        0x0008, 0x0003, 0x0009, 0x0003, 0x000a, 0x0003, 0x000b, 0x0003,
-        0x000c, 0x0003, 0x000c, 0x0003, 0x000d, 0x0003, 0x000d, 0x0003,
-        0x000d, 0x0003, 0x000e, 0x0003, 0x000e, 0x0003, 0x000e, 0x0003,
-        0x000f, 0x0003, 0x000f, 0x0003, 0x0010, 0x0003, 0x0010, 0x0003,
-        0x0010, 0x0003, 0x0010, 0x0003, 0x0011, 0x0003, 0x0011, 0x0003,
-        0x0010, 0x0005, 0x000f, 0x0006, 0x000e, 0x0008, 0x000c, 0x0009,
-        0x000b, 0x000a, 0x000a, 0x000c, 0x0008, 0x000d, 0x0007, 0x000e,
-        0x0006, 0x000e, 0x0004, 0x000f, 0x0003, 0x0010, 0x0002, 0x0010,
-        0x0001, 0x0011, 0x0000, 0x0011, 0xffff, 0x0011, 0xfffe, 0x0012,
-        0xfffc, 0x0012, 0xfffc, 0x0012, 0xfffb, 0x0012, 0xfffa, 0x0012,
-        0xfff9, 0x0012, 0xfff8, 0x0012, 0xfff7, 0x0012, 0xfff7, 0x0012,
-        0xfff7, 0x0012, 0xfff6, 0x0012, 0xfff6, 0x0012, 0xfff5, 0x0012,
-        0xfff5, 0x0012, 0xfff4, 0x0012, 0xfff4, 0x0012, 0xfff4, 0x0012,
-        0xfff3, 0x0012, 0xfff3, 0x0012, 0xfff3, 0x0012, 0xfff4, 0x0014,
-        0xfff5, 0x0016, 0xfff6, 0x0017, 0xfff7, 0x0019, 0xfff9, 0x001a,
-        0xfffa, 0x001b, 0xfffb, 0x001c, 0xfffd, 0x001d, 0xfffe, 0x001e,
-        0xffff, 0x001f, 0x8000, 0x8000,
+        new(0, 0), new(1, 1), new(2, 1), new(3, 2), new(4, 2), new(5, 2), new(6, 3), new(7, 3),
+        new(8, 3), new(9, 3), new(10, 3), new(11, 3), new(12, 3), new(12, 3), new(13, 3), new(13, 3),
+        new(13, 3), new(14, 3), new(14, 3), new(14, 3), new(15, 3), new(15, 3), new(16, 3), new(16, 3),
+        new(16, 3), new(16, 3), new(17, 3), new(17, 3), new(16, 5), new(15, 6), new(14, 8), new(12, 9),
+        new(11, 10), new(10, 12), new(8, 13), new(7, 14), new(6, 14), new(4, 15), new(3, 16), new(2, 16),
+        new(1, 17), new(0, 17), new(-1, 17), new(-2, 18), new(-4, 18), new(-4, 18), new(-5, 18), new(-6, 18),
+        new(-7, 18), new(-8, 18), new(-9, 18), new(-9, 18), new(-9, 18), new(-10, 18), new(-10, 18), new(-11, 18),
+        new(-11, 18), new(-12, 18), new(-12, 18), new(-12, 18), new(-13, 18), new(-13, 18), new(-13, 18), new(-12, 20),
+        new(-11, 22), new(-10, 23), new(-9, 25), new(-7, 26), new(-6, 27), new(-5, 28), new(-3, 29), new(-2, 30),
+        new(-1, 31),
+        End,
     ];
 
     /// <summary><c>ChootFallingPatternData_1_Wide</c> at <c>$A2:D976-$A2:DA9D</c>.</summary>
@@ -53,27 +48,19 @@ internal static class ChootFallingPathDefinitions
     /// match the pinned NTSC J/U v1.0 ROM. Selector 1 consumes one pair per
     /// frame; the following <c>$DA9E</c> word is its loop Y distance.
     /// </remarks>
-    private static ReadOnlySpan<ushort> Wide =>
+    private static readonly Offset16<RoomPixels>[] Wide =
     [
-        0x0000, 0x0000, 0x0003, 0x0000, 0x0005, 0x0001, 0x0007, 0x0001,
-        0x0009, 0x0002, 0x000b, 0x0002, 0x000d, 0x0002, 0x000e, 0x0002,
-        0x0010, 0x0003, 0x0012, 0x0003, 0x0013, 0x0003, 0x0015, 0x0003,
-        0x0016, 0x0003, 0x0017, 0x0003, 0x0018, 0x0003, 0x0019, 0x0003,
-        0x0019, 0x0003, 0x001a, 0x0003, 0x001b, 0x0003, 0x001c, 0x0003,
-        0x001d, 0x0003, 0x001e, 0x0003, 0x001e, 0x0003, 0x001f, 0x0003,
-        0x001f, 0x0003, 0x0020, 0x0003, 0x0020, 0x0003, 0x0020, 0x0003,
-        0x001e, 0x0004, 0x001c, 0x0006, 0x001a, 0x0007, 0x0017, 0x0008,
-        0x0015, 0x000a, 0x0013, 0x000b, 0x0010, 0x000c, 0x000e, 0x000c,
-        0x000b, 0x000d, 0x0009, 0x000e, 0x0007, 0x000e, 0x0005, 0x000f,
-        0x0002, 0x000f, 0x0000, 0x0010, 0xfffe, 0x0010, 0xfffc, 0x0010,
-        0xfffa, 0x0010, 0xfff9, 0x0011, 0xfff7, 0x0011, 0xfff5, 0x0011,
-        0xfff4, 0x0011, 0xfff2, 0x0011, 0xfff1, 0x0011, 0xfff0, 0x0011,
-        0xfff0, 0x0011, 0xffef, 0x0011, 0xffee, 0x0011, 0xffed, 0x0011,
-        0xffec, 0x0011, 0xffeb, 0x0011, 0xffea, 0x0011, 0xffea, 0x0011,
-        0xffe9, 0x0011, 0xffe8, 0x0011, 0xffe8, 0x0011, 0xffea, 0x0013,
-        0xffec, 0x0014, 0xffee, 0x0016, 0xfff0, 0x0017, 0xfff2, 0x0018,
-        0xfff5, 0x0019, 0xfff7, 0x001a, 0xfffa, 0x001b, 0xfffc, 0x001c,
-        0xfffe, 0x001d, 0x8000, 0x8000,
+        new(0, 0), new(3, 0), new(5, 1), new(7, 1), new(9, 2), new(11, 2), new(13, 2), new(14, 2),
+        new(16, 3), new(18, 3), new(19, 3), new(21, 3), new(22, 3), new(23, 3), new(24, 3), new(25, 3),
+        new(25, 3), new(26, 3), new(27, 3), new(28, 3), new(29, 3), new(30, 3), new(30, 3), new(31, 3),
+        new(31, 3), new(32, 3), new(32, 3), new(32, 3), new(30, 4), new(28, 6), new(26, 7), new(23, 8),
+        new(21, 10), new(19, 11), new(16, 12), new(14, 12), new(11, 13), new(9, 14), new(7, 14), new(5, 15),
+        new(2, 15), new(0, 16), new(-2, 16), new(-4, 16), new(-6, 16), new(-7, 17), new(-9, 17), new(-11, 17),
+        new(-12, 17), new(-14, 17), new(-15, 17), new(-16, 17), new(-16, 17), new(-17, 17), new(-18, 17), new(-19, 17),
+        new(-20, 17), new(-21, 17), new(-22, 17), new(-22, 17), new(-23, 17), new(-24, 17), new(-24, 17), new(-22, 19),
+        new(-20, 20), new(-18, 22), new(-16, 23), new(-14, 24), new(-11, 25), new(-9, 26), new(-6, 27), new(-4, 28),
+        new(-2, 29),
+        End,
     ];
 
     /// <summary><c>ChootFallingPatternData_2_VeryWide</c> at <c>$A2:DAA0-$A2:DBC7</c>.</summary>
@@ -82,27 +69,19 @@ internal static class ChootFallingPathDefinitions
     /// match the pinned NTSC J/U v1.0 ROM. Selector 2 consumes one pair per
     /// frame; the following <c>$DBC8</c> word is its loop Y distance.
     /// </remarks>
-    private static ReadOnlySpan<ushort> VeryWide =>
+    private static readonly Offset16<RoomPixels>[] VeryWide =
     [
-        0x0000, 0x0000, 0x0003, 0x0001, 0x0006, 0x0001, 0x0009, 0x0002,
-        0x000c, 0x0002, 0x000f, 0x0003, 0x0011, 0x0003, 0x0014, 0x0003,
-        0x0016, 0x0003, 0x0018, 0x0003, 0x001a, 0x0003, 0x001c, 0x0004,
-        0x001e, 0x0004, 0x0020, 0x0004, 0x0022, 0x0004, 0x0023, 0x0004,
-        0x0024, 0x0004, 0x0025, 0x0004, 0x0026, 0x0004, 0x0028, 0x0004,
-        0x0029, 0x0004, 0x002a, 0x0004, 0x002a, 0x0004, 0x002b, 0x0004,
-        0x002c, 0x0003, 0x002d, 0x0003, 0x002d, 0x0003, 0x002d, 0x0003,
-        0x002a, 0x0005, 0x0027, 0x0007, 0x0024, 0x0009, 0x0021, 0x000a,
-        0x001e, 0x000b, 0x001a, 0x000d, 0x0017, 0x000e, 0x0014, 0x000f,
-        0x0010, 0x000f, 0x000d, 0x0010, 0x000a, 0x0011, 0x0006, 0x0011,
-        0x0003, 0x0012, 0x0000, 0x0012, 0xfffd, 0x0013, 0xfffb, 0x0013,
-        0xfff8, 0x0013, 0xfff6, 0x0013, 0xfff3, 0x0013, 0xfff1, 0x0014,
-        0xffef, 0x0014, 0xffed, 0x0014, 0xffeb, 0x0014, 0xffe9, 0x0014,
-        0xffe8, 0x0014, 0xffe7, 0x0014, 0xffe5, 0x0014, 0xffe4, 0x0014,
-        0xffe3, 0x0014, 0xffe2, 0x0014, 0xffe1, 0x0013, 0xffe0, 0x0013,
-        0xffdf, 0x0013, 0xffde, 0x0013, 0xffde, 0x0013, 0xffe1, 0x0015,
-        0xffe4, 0x0017, 0xffe7, 0x0018, 0xffea, 0x001a, 0xffee, 0x001b,
-        0xfff1, 0x001c, 0xfff4, 0x001d, 0xfff8, 0x001e, 0xfffb, 0x001f,
-        0xfffe, 0x0020, 0x8000, 0x8000,
+        new(0, 0), new(3, 1), new(6, 1), new(9, 2), new(12, 2), new(15, 3), new(17, 3), new(20, 3),
+        new(22, 3), new(24, 3), new(26, 3), new(28, 4), new(30, 4), new(32, 4), new(34, 4), new(35, 4),
+        new(36, 4), new(37, 4), new(38, 4), new(40, 4), new(41, 4), new(42, 4), new(42, 4), new(43, 4),
+        new(44, 3), new(45, 3), new(45, 3), new(45, 3), new(42, 5), new(39, 7), new(36, 9), new(33, 10),
+        new(30, 11), new(26, 13), new(23, 14), new(20, 15), new(16, 15), new(13, 16), new(10, 17), new(6, 17),
+        new(3, 18), new(0, 18), new(-3, 19), new(-5, 19), new(-8, 19), new(-10, 19), new(-13, 19), new(-15, 20),
+        new(-17, 20), new(-19, 20), new(-21, 20), new(-23, 20), new(-24, 20), new(-25, 20), new(-27, 20), new(-28, 20),
+        new(-29, 20), new(-30, 20), new(-31, 19), new(-32, 19), new(-33, 19), new(-34, 19), new(-34, 19), new(-31, 21),
+        new(-28, 23), new(-25, 24), new(-22, 26), new(-18, 27), new(-15, 28), new(-12, 29), new(-8, 30), new(-5, 31),
+        new(-2, 32),
+        End,
     ];
 
     /// <summary>Returns the exact physical sample selected by a native path pointer and frame.</summary>
@@ -112,7 +91,7 @@ internal static class ChootFallingPathDefinitions
     /// <summary>Returns the exact physical sample of one falling path at one frame.</summary>
     internal static ChootFallingPathPoint At(ChootFallingPath pointer, int frameIndex)
     {
-        ReadOnlySpan<ushort> path;
+        Offset16<RoomPixels>[] path;
         int expandedFrames = 0;
         switch (pointer)
         {
@@ -138,15 +117,13 @@ internal static class ChootFallingPathDefinitions
         }
 
         int sourceFrame = CollapseExpandedPlateaus(frameIndex, expandedFrames);
-        int wordIndex = sourceFrame * 2;
-        if ((uint)(wordIndex + 1) >= (uint)path.Length)
+        if ((uint)sourceFrame >= (uint)path.Length)
         {
             throw new InvalidDataException(
                 $"Choot falling-pattern frame {frameIndex} exceeds stream ${(int)pointer:X4}.");
         }
 
-        return new ChootFallingPathPoint(new(
-            unchecked((short)path[wordIndex]), unchecked((short)path[wordIndex + 1])));
+        return new ChootFallingPathPoint(path[sourceFrame]);
     }
 
     /// <summary>Maps a slow-path physical frame back to the normal stream, repeating the two authored plateau samples.</summary>

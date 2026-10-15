@@ -369,9 +369,7 @@ internal sealed class ProjectileMotion
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.NonBeam.SuperMissileLinkDataPointers + 4);
         link.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
-        link.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            SamusProjectileRomData.Banks.Projectile |
-                unchecked((ushort)(dataPointer + 2)));
+        link.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaderDefinitions.Program(dataPointer, 0));
         link.InstructionTimer = NativeCountdown.Start(1);
         link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 

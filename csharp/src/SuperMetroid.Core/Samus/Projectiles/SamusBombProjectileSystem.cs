@@ -567,7 +567,7 @@ public sealed class SamusBombProjectileSystem
         if ((slot.Damage & 0x8000) != 0)
             throw new InvalidDataException($"Bomb data at $93:{dataPointer:X4} has crash-marker damage ${slot.Damage:X4}.");
 
-        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(AddWithinBank(dataAddress, 2));
+        slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaderDefinitions.Program(dataPointer, 0));
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -602,10 +602,10 @@ public sealed class SamusBombProjectileSystem
         bool explosionStarted = false;
         if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
-            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(
-                slot.BombTimer.RawValue, slot.InstructionPointer, PowerBombExplosion.Flag);
+            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.BombTimer.RawValue, PowerBombExplosion.Flag);
             slot.BombTimer = NativeCountdown.FromRaw(fuse.Timer);
-            slot.InstructionPointer = fuse.InstructionPointer;
+            if (fuse.FastAnimation)
+                slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);
             if (fuse.DeleteProjectile)
             {
                 ClearProjectile(slot);
@@ -624,14 +624,13 @@ public sealed class SamusBombProjectileSystem
             {
                 // The slow and fast lists have identical four-frame layouts and differ by
                 // $1C bytes. Adding to the live next-instruction pointer preserves phase.
-                slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 0x001c));
+                slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);
             }
             else if (slot.BombTimer.IsZero)
             {
                 // $93:814E reads the pointer word embedded in the bomb-explosion data
                 // record at $93:8683 and resets the instruction timer to one.
-                slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-                    SamusProjectileRomData.NonBeam.BombExplosionInstructionPointer);
+                slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BombExplosion);
                 slot.InstructionTimer = NativeCountdown.Start(1);
                 explosionStarted = true;
             }
@@ -1088,59 +1087,20 @@ public sealed class SamusBombProjectileSystem
         if (!slot.InstructionTimer.IsZero)
             return false;
 
-        ushort pointer = slot.InstructionPointer;
-        for (int operationCount = 0; operationCount < 16; operationCount++)
+        AnimationProgramCursor<SamusProjectileProgram> cursor = slot.Cursor
+            ?? throw new InvalidOperationException("An inactive bomb has no list to run.");
+        if (SamusProjectilePrograms.RunToNextRecord(ref cursor, out int duration) is not { } record)
         {
-            ushort durationOrOpcode = SamusProjectileInstructionDefinitions.ReadWord(
-                SamusProjectileRomData.Banks.Projectile | pointer);
-            if ((durationOrOpcode & 0x8000) == 0)
-            {
-                if (durationOrOpcode == 0)
-                    throw new InvalidDataException($"Projectile instruction at $93:{pointer:X4} has zero duration.");
-
-                slot.InstructionTimer = NativeCountdown.FromRaw(durationOrOpcode);
-                slot.SpritemapPointer = FrameBindings?.Resolve(pointer) ??
-                    SamusProjectileInstructionDefinitions.ReadWord(
-                        SamusProjectileRomData.Banks.Projectile |
-                        unchecked((ushort)(pointer + 2)));
-                slot.Radius = slot.Radius.WithX(SamusProjectileRadiusDefinitions.ReadByte(
-                    (int)new SnesAddress(
-                        SamusProjectileRomData.Banks.ProjectileNumber,
-                        unchecked((ushort)(pointer + 4)))));
-                slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
-                    (int)new SnesAddress(
-                        SamusProjectileRomData.Banks.ProjectileNumber,
-                        unchecked((ushort)(pointer + 5)))));
-                slot.InstructionPointer = unchecked((ushort)(pointer + 8));
-                return false;
-            }
-
-            // The complete referenced bank-$93 projectile interpreter exposes
-            // delete ($822F) and goto ($8239); its only third routine ($8240) is
-            // unreferenced data excluded from the retail build. A different word
-            // in an active bomb list is consequently corrupt ROM/list state.
-            SamusProjectileInstruction instruction = ClosedNativeWords.Decode<SamusProjectileInstruction>(
-                durationOrOpcode, "bomb projectile list opcode");
-            switch (instruction)
-            {
-                case SamusProjectileInstruction.Delete:
-                    ClearProjectile(slot);
-                    return true;
-
-                case SamusProjectileInstruction.GoTo:
-                    // The handler increments Y past the opcode before the instruction
-                    // routine reads [[Y]]. Its target is another bank-$93 16-bit pointer.
-                    pointer = SamusProjectileInstructionDefinitions.ReadWord(
-                        SamusProjectileRomData.Banks.Projectile |
-                            unchecked((ushort)(pointer + 2)));
-                    break;
-
-                default:
-                    throw new InvalidOperationException($"Undefined SamusProjectileInstruction {instruction}.");
-            }
+            ClearProjectile(slot);
+            return true;
         }
-
-        throw new InvalidDataException("Bomb projectile instruction list did not reach a timed frame within 16 operations.");
+        if (duration == 0)
+            throw new InvalidDataException($"Bomb record $93:{record.Address:X4} has zero duration.");
+        slot.InstructionTimer = NativeCountdown.FromRaw((ushort)duration);
+        slot.SpritemapPointer = FrameBindings?.Resolve(record.Address) ?? record.Spritemap;
+        slot.Radius = record.Radius;
+        slot.Cursor = cursor;
+        return false;
     }
 
     /// <summary>Scans bombs in ascending slot order and publishes the last overlapping bomb's Samus launch direction.</summary>

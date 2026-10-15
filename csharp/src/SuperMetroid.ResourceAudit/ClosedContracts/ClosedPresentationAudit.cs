@@ -137,9 +137,9 @@ internal sealed class ClosedPresentationAudit
             if (valid && contract.Type == typeof(ProjectileFrameBindingCatalog).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
-                        .Where(name => name.Identifier.ValueText == "TimedRecordPointers")
+                        .Where(name => name.Identifier.ValueText == "TimedRecordAddresses")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IPropertySymbol property &&
-                            property.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Samus.Projectiles.SamusProjectileRadiusDefinitions).FullName));
+                            property.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Samus.Projectiles.SamusProjectileRecordDefinitions).FullName));
             if (valid && contract.Type == typeof(SamusArmCannonArtworkCatalog).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()

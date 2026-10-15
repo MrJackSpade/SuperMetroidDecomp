@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Samus.Projectiles;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using SuperMetroid.Core.Hardware;
@@ -147,7 +148,7 @@ internal static class ShotCallbackDefinitionsVerification
             projectile.Direction = 2;
             projectile.Position = projectile.Position.WithWhole(enemy.Position.Whole);
             projectile.Radius = new(4, 4);
-            projectile.InstructionPointer = 0x9000;
+            projectile.Cursor = ProjectileFixtureCursors.Active;
             projectile.InstructionTimer = NativeCountdown.Start(1);
 
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(

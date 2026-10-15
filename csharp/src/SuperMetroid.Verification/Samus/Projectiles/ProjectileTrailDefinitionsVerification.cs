@@ -28,7 +28,7 @@ internal static class ProjectileTrailDefinitionsVerification
             var projectile = new SamusProjectileSlot(0)
             {
                 Type = (ushort)selection,
-                InstructionPointer = 0x86e3,
+                Cursor = SamusProjectileProgramAddresses.CursorAt(0x86e3),
                 Position = new(new(100, 0), new(200, 0)),
             };
             projectiles.Trails.SpawnTrail(NewTrailSelectorGuard(start, end), projectile);

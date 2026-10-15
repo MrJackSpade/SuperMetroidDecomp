@@ -94,28 +94,18 @@ internal static class ProjectileRadiiVerification
         var guard = NewProjectileRadiusReadGuard(rom, addresses);
         foreach (int address in addresses)
         {
-            AssertEqual(rom.ReadCartridgeByte(address), SamusProjectileRadiusDefinitions.ReadByte(address), "Native X radius");
-            AssertEqual(rom.ReadCartridgeByte(address + 1), SamusProjectileRadiusDefinitions.ReadByte(address + 1), "Native Y radius");
+            Extent16<RoomPixels> radius = SamusProjectileProgramsVerification.RecordAt((ushort)(address - 4)).Radius;
+            AssertEqual(rom.ReadCartridgeByte(address), (byte)radius.X, "Native X radius");
+            AssertEqual(rom.ReadCartridgeByte(address + 1), (byte)radius.Y, "Native Y radius");
         }
-        AssertEqual(ReadMurderBeamRadiusMirrorByte(rom, SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress),
-            SamusProjectileRadiusDefinitions.ReadByte(
-                SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress),
-            "bounded Murder Beam X-radius observation");
-        AssertEqual(ReadMurderBeamRadiusMirrorByte(rom, SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress + 1),
-            SamusProjectileRadiusDefinitions.ReadByte(
-                SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress + 1),
-            "bounded Murder Beam Y-radius observation");
-        foreach (int address in new[] { 0x938000, 0x9386de, 0x9386e1, 0x93ffff })
-            AssertThrows<InvalidDataException>(
-                () => SamusProjectileRadiusDefinitions.ReadByte(address),
-                "Unknown radius address fails instead of reading mixed cartridge data");
+        AssertEqual(Extent16<RoomPixels>.Zero, SamusProjectilePrograms.InitialRadius(null), "bounded Murder Beam zero-list radii");
 
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(stockJson));
         var editedDocument = RequiredJson.Deserialize<ProjectileFrameBindingDocument>(stockJson,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         ushort[] replacementSprites = ProjectileSpriteDefinitions.NativePointers.ToArray();
-        foreach (ushort frame in SamusProjectileRadiusDefinitions.TimedRecordPointers)
+        foreach (ushort frame in SamusProjectileRecordDefinitions.TimedRecordAddresses)
             editedDocument.Frames[ProjectileFrameBindingFormat.FrameName(frame)] =
                 ProjectileSpriteDefinitions.Name(stock.Resolve(frame) == replacementSprites[0]
                     ? replacementSprites[1] : replacementSprites[0]);
@@ -137,7 +127,7 @@ internal static class ProjectileRadiiVerification
                 ushort expectedSprite = replaceArt
                     ? (nativeSprite == replacementSprites[0] ? replacementSprites[1] : replacementSprites[0])
                     : nativeSprite;
-                var slot = new SamusProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), InstructionPointer = pointer, Damage = 30 };
+                var slot = new SamusProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Damage = 30 };
                 AssertEqual(false, projectiles.Animation.RunProjectileInstructionHandler(slot), "Timed projectile record survives");
                 AssertEqual(duration, slot.InstructionTimer.RawValue, "Frame duration unchanged");
                 AssertEqual(expectedSprite, slot.SpritemapPointer, "Artwork reference changes independently");
@@ -149,7 +139,7 @@ internal static class ProjectileRadiiVerification
                 // The bomb owner deliberately rejects zero-duration records. Keep that
                 // existing contract instead of treating arbitrary beam records as bombs.
                 if (duration == 0) continue;
-                var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), InstructionPointer = pointer, Type = 0x0500 };
+                var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Type = 0x0500 };
                 AssertEqual(false, bombs.RunProjectileInstructionHandler(bomb), "Bomb timed record survives");
                 AssertEqual(duration, bomb.InstructionTimer.RawValue, "Bomb duration unchanged");
                 AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb artwork reference changes independently");

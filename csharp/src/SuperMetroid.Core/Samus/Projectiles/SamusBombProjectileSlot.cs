@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>One semantic view over a physical WRAM bomb slot.</summary>
@@ -23,8 +24,10 @@ public sealed class SamusBombProjectileSlot
     public SamusProjectileTypeWord PackedType => new(Type);
     /// <summary>Native damage word at <c>$0C36 + 2*Index</c>, initialized from bank-$93 projectile data; zero excludes the slot from damage-bearing overlap tests.</summary>
     public ushort Damage { get; internal set; }
-    /// <summary>Bank-$93 instruction-list cursor at <c>$0C4A + 2*Index</c>; zero marks an inactive slot, and a consumed timed frame advances the cursor to its following record.</summary>
-    public ushort InstructionPointer { get; internal set; }
+    /// <summary>Where the slot's projectile program resumes; null marks an inactive slot, and a consumed timed frame advances it past that record.</summary>
+    internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
+    /// <summary>The bank-$93 instruction pointer at <c>$0C4A + 2*Index</c> the cursor stands for; zero marks an inactive slot.</summary>
+    public ushort InstructionPointer => SamusProjectileProgramAddresses.Address(Cursor);
     /// <summary>Wrapping sixteen-bit duration countdown at <c>$0C5E + 2*Index</c>, decremented once per unfrozen projectile update; reaching zero runs the next bank-$93 instruction.</summary>
     public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Current bank-$93 spritemap identity at <c>$0CC2 + 2*Index</c>, selected by the timed-frame interpreter or installed frame binding and resolved through the sprite catalog when drawing.</summary>
@@ -61,7 +64,7 @@ public sealed class SamusBombProjectileSlot
     public NativeCountdown BombTimer { get; internal set; }
 
     /// <summary>Instruction pointer is the native active-slot sentinel.</summary>
-    public bool IsActive => InstructionPointer != 0;
+    public bool IsActive => Cursor is not null;
 
     /// <summary>Zeroes the complete per-slot native projectile state before reuse or deletion.</summary>
     internal void ClearFields()
@@ -70,7 +73,7 @@ public sealed class SamusBombProjectileSlot
         Direction = 0;
         Type = 0;
         Damage = 0;
-        InstructionPointer = 0;
+        Cursor = null;
         InstructionTimer = NativeCountdown.Start(0);
         SpritemapPointer = 0;
         Radius = Extent16<RoomPixels>.Zero;

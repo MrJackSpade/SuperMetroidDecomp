@@ -60,7 +60,7 @@ internal static class ClosedPresentationIdentityDefinitions
             .Select(frame => (int)unchecked((ushort)(frame + 4))).Concat(new[] { (int)ProjectileTrailDefinitions.Empty,
                 ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave,
                 ProjectileTrailDefinitions.Missile }).Distinct().ToArray(),
-        ("ProjectileFrameBindingCatalog", "Resolve", "instructionPointer") => SamusProjectileRadiusDefinitions.TimedRecordPointers
+        ("ProjectileFrameBindingCatalog", "Resolve", "instructionPointer") => SamusProjectileRecordDefinitions.TimedRecordAddresses
             .Select(pointer => (int)pointer).ToArray(),
         ("ProjectileSpriteCatalog", "Draw", "id") => ProjectileSpriteDefinitions.NativePointers.Select(pointer => (int)pointer).ToArray(),
         ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),

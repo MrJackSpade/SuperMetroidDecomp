@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -41,7 +43,7 @@ internal static class MotherBrainBodyHitboxesVerification
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x9018; shot.Damage = 1000; shot.Direction = 7;
         shot.Position = shot.Position.WithWhole(new(0x008e, 0x0061)); shot.Radius = new(0x1c, 8);
-        shot.InstructionPointer = 0x9000; shot.InstructionTimer = NativeCountdown.Start(1);
+        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus);
         AssertTrue((shot.Direction & 0x0010) != 0, "the beam stops on the body's arm rectangle");
         AssertEqual((ushort)0x8020, head.Health, "a body hit is a dud and never damages the head");

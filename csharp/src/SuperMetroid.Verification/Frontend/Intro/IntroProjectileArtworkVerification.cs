@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text;
@@ -35,7 +36,7 @@ internal static class IntroProjectileArtworkVerification
         {
             projectiles.Reset();
             var shot = projectiles.Slots[0];
-            shot.Type = family; shot.InstructionPointer = 1; shot.SpritemapPointer = sprite;
+            shot.Type = family; shot.Cursor = ProjectileFixtureCursors.Active; shot.SpritemapPointer = sprite;
             shot.Position = shot.Position.WithWhole(new(100, 100));
             game.BindArtwork(game.Artwork with
             {

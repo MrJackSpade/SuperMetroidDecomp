@@ -21,7 +21,7 @@ public static class ProjectileFrameBindingExtractor
         Ensure.NotNull(bus);
         var frames = new Dictionary<string, string>();
         var legalSprites = ProjectileSpriteDefinitions.NativePointers.ToHashSet();
-        foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
+        foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
             ushort sprite = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusProjectileRomData.Banks.Projectile | unchecked((ushort)(pointer + 2)));

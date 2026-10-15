@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -84,7 +85,7 @@ internal static class MotherBrainPlasmaImpactVerification
         {
             shot.Type = 0x8018; shot.Damage = 450; shot.Direction = 2;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
-            shot.InstructionPointer = 0x9000; shot.InstructionTimer = NativeCountdown.Start(1);
+            shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
             shot.PreInstruction = SamusProjectilePreInstruction.NoWaveBeam;
         }
     }

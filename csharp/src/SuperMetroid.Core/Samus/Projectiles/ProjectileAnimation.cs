@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
@@ -26,49 +27,21 @@ internal sealed class ProjectileAnimation
         slot.InstructionTimer = slot.InstructionTimer.Decrement().Remaining;
         if (!slot.InstructionTimer.IsZero)
             return false;
-
-        ushort pointer = slot.InstructionPointer;
-        while (true)
+        AnimationProgramCursor<SamusProjectileProgram> cursor = slot.Cursor
+            ?? throw new InvalidOperationException("An inactive projectile has no list to run.");
+        if (SamusProjectilePrograms.RunToNextRecord(ref cursor, out int duration) is not { } record)
         {
-            ushort instructionOrTimer = SamusProjectileInstructionDefinitions.ReadWord(SamusProjectileRomData.Banks.Projectile | pointer);
-            if (!SamusProjectileInstructionDefinitions.IsInstruction(instructionOrTimer))
-            {
-                slot.InstructionTimer = NativeCountdown.FromRaw(instructionOrTimer);
-                slot.SpritemapPointer = FrameBindings?.Resolve(pointer) ??
-                    SamusProjectileInstructionDefinitions.ReadWord(
-                        SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));
-                slot.Radius = slot.Radius.WithX(SamusProjectileRadiusDefinitions.ReadByte(
-                    (int)new SnesAddress(
-                        SamusProjectileRomData.Banks.ProjectileNumber,
-                        unchecked((ushort)AddWithinBank(pointer, 4)))));
-                slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
-                    (int)new SnesAddress(
-                        SamusProjectileRomData.Banks.ProjectileNumber,
-                        unchecked((ushort)AddWithinBank(pointer, 5)))));
-                slot.AnimationFrame = SamusProjectileInstructionDefinitions.ReadWord(
-                    SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 6));
-                slot.InstructionPointer = unchecked((ushort)(pointer + 8));
-                return false;
-            }
-
-            if (instructionOrTimer == (ushort)SamusProjectileInstruction.Delete)
-            {
-                ClearProjectile(slot);
-                return true;
-            }
-
-            if (instructionOrTimer == (ushort)SamusProjectileInstruction.GoTo)
-            {
-                pointer = SamusProjectileInstructionDefinitions.ReadWord(
-                    SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));
-                continue;
-            }
-
-            throw new InvalidOperationException(
-                $"Unsupported bank-$93 projectile instruction ${instructionOrTimer:X4} " +
-                $"at $93:{pointer:X4}.");
+            ClearProjectile(slot);
+            return true;
         }
+        slot.InstructionTimer = NativeCountdown.FromRaw((ushort)duration);
+        slot.SpritemapPointer = FrameBindings?.Resolve(record.Address) ?? record.Spritemap;
+        slot.Radius = record.Radius;
+        slot.AnimationFrame = record.AnimationFrame;
+        slot.Cursor = cursor;
+        return false;
     }
+
 
     /// <summary>Clears a projectile slot and decrements the shared active count without underflow.</summary>
     internal void ClearProjectile(SamusProjectileSlot slot)

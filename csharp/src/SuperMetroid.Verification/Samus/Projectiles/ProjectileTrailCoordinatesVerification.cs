@@ -71,12 +71,12 @@ internal static class ProjectileTrailCoordinatesVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for trail family, direction and reflected list-start pointer tables")]
     private static void VerifyCoordinateSpawn(ISnesAddressSpace bus)
     {
-        ReadOnlySpan<ushort> compiledFrameWordAddresses =
-        [
-            0x86e1, 0x8743, 0x8759, 0x8761, 0x873b, 0x8771, 0x8779, 0x8781,
-            0x8789, 0x8791, 0x8799, 0x87a1, 0x87a9, 0x87b1, 0x87b9, 0x86db,
-            0x9541, 0x9549, 0x9551, 0x9559, 0x9561, 0x9569,
-        ];
+        // For each animation frame, the list position just past the first record that installs it: a trail spawned there
+        // reads that frame.
+        var records = Enumerable.Range(0, SamusProjectileRecordDefinitions.RecordCount)
+            .Select(index => SamusProjectileRecordDefinitions.Get(new SamusProjectileFrame(index))).OrderBy(record => record.Address).ToArray();
+        var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(
+            records.First(record => record.AnimationFrame == frame).Address + SamusProjectileRomData.Instructions.AnimationRecordByteCount)))).ToArray();
         var system = new SamusProjectileSystem();
         var spawn = new Action<ISnesAddressSpace, SamusProjectileSlot>(system.Trails.SpawnTrail);
         int cases = 0;
@@ -97,7 +97,7 @@ internal static class ProjectileTrailCoordinatesVerification
             {
                 Type = type,
                 Direction = direction,
-                InstructionPointer = unchecked((ushort)(compiledFrameWordAddresses[frame] + 2)),
+                Cursor = afterFrame[frame],
                 Position = new(new(origin, 0), new(origin, 0)),
             };
             spawn(NewTrailCoordinateGuard(bus), shot);
@@ -126,7 +126,7 @@ internal static class ProjectileTrailCoordinatesVerification
             system.Reset();
             var shot = new SamusProjectileSlot(0)
             {
-                Type = type, Direction = direction, InstructionPointer = listStart, Position = new(new(0x0100, 0), new(0x0100, 0)),
+                Type = type, Direction = direction, Cursor = SamusProjectileProgramAddresses.CursorAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
             };
             (ushort, ushort, ushort, ushort) expected;
             try { expected = (Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y))); }

@@ -66,12 +66,10 @@ internal sealed class ChainsawWindow
                 SamusProjectileRomData.Instructions.AnimationRecordByteCount));
         ChainsawWindowRegisters.StoreProjectileIndexedWord(slot.NativeByteIndex, inheritedY);
 
-        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(
-            slot.Variable,
-            slot.InstructionPointer,
-            sharedProjectiles.PowerBombExplosion.Flag);
+        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.Variable, sharedProjectiles.PowerBombExplosion.Flag);
         slot.Variable = fuse.Timer;
-        slot.InstructionPointer = fuse.InstructionPointer;
+        if (fuse.FastAnimation)
+            slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);
 
         if (fuse.SpawnExplosion)
             sharedProjectiles.PowerBombExplosion.Spawn(slot.Position.Whole);

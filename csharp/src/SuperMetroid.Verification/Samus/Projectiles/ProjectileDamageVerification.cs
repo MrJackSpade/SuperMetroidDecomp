@@ -27,7 +27,7 @@ internal static class ProjectileDamageVerification
         foreach (int address in headers)
             AssertEqual(Word(address), SamusProjectileDamageDefinitions.Read(address), "Compiled native damage header");
         for (int address = 0x9383c1; address < 0x9386db; address += 2)
-            AssertEqual(Word(address), SamusProjectileSelectionDefinitions.ReadWord(address), "All 357 selectors and 40 adjacent damage headers avoid ROM reads");
+            AssertEqual(Word(address), SamusProjectileProgramsVerification.SelectionWord(address), "All 357 selectors and 40 adjacent damage headers avoid ROM reads");
         foreach (int address in new[] { 0x938000, 0x938432, 0x9386db, 0x93ffff })
         {
             AssertThrows<InvalidDataException>(

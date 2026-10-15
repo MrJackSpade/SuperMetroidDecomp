@@ -116,14 +116,9 @@ internal sealed class ProjectileEnemyImpacts
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(dataPointerTable + dataPointerIndex * 2);
         int data = SamusProjectileRomData.Banks.Projectile | dataPointer;
         slot.Damage = SamusProjectileDamageDefinitions.Read(data);
-        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            AddWithinBank(data, 2 + slot.PackedDirection.DirectionIndex * 2));
-        slot.Radius = slot.Radius.WithX(SamusProjectileRadiusDefinitions.ReadByte(
-            SamusProjectileRomData.Banks.Projectile |
-                unchecked((ushort)(slot.InstructionPointer + 4))));
-        slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
-            SamusProjectileRomData.Banks.Projectile |
-                unchecked((ushort)(slot.InstructionPointer + 5))));
+        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, slot.PackedDirection.DirectionIndex);
+        slot.Cursor = SamusProjectilePrograms.Start(program);
+        slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
 
         if (family == SamusProjectileFamily.Missile)

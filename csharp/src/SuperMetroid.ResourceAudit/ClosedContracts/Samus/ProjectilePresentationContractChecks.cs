@@ -49,7 +49,7 @@ internal static class ProjectilePresentationContractChecks
                     sprites.Draw(0, oam, 0, 0);
                 }
             }
-            """.Replace("FIRST_TIMED", SamusProjectileRadiusDefinitions.TimedRecordPointers[0].ToString(
+            """.Replace("FIRST_TIMED", SamusProjectileRecordDefinitions.TimedRecordAddresses[0].ToString(
                 System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal);
         SyntaxTree calls = CSharpSyntaxTree.ParseText(consumer, path: "fixture-projectile-consumer.cs");
         trees.Add(calls);
@@ -91,7 +91,7 @@ internal static class ProjectilePresentationContractChecks
 
         SyntaxTree mutablePointers = CSharpSyntaxTree.ParseText("""
             class ExternalTimedPointers {
-                void Change() { ((ushort[])SamusProjectileRadiusDefinitions.TimedRecordPointers)[0] = 0; }
+                void Change() { ((ushort[])SamusProjectileRecordDefinitions.TimedRecordAddresses)[0] = 0; }
             }
             """, path: "fixture-external-projectile-pointers.cs");
         AuditReport mutable = Inspect(Compile(trees.Append(mutablePointers)), true);

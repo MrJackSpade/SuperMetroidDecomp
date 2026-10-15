@@ -124,24 +124,6 @@ internal static class SamusProjectileRomDataVerification
                 SamusProjectileRomData.NonBeam.AccelerationRecordByteCount,
             "Super Missile acceleration records");
 
-        foreach (int pointerCell in new[]
-        {
-            SamusProjectileRomData.NonBeam.BeamExplosionInstructionPointer,
-            SamusProjectileRomData.NonBeam.MissileExplosionInstructionPointer,
-            SamusProjectileRomData.NonBeam.BombExplosionInstructionPointer,
-            SamusProjectileRomData.NonBeam.SuperMissileExplosionInstructionPointer,
-        })
-        {
-            ushort instructionPointer = ReadProjectileWord(bus, pointerCell);
-            AssertTrue(instructionPointer >= 0x8000,
-                $"explosion pointer at ${pointerCell:X6} remains in bank $93 ROM");
-            TouchRange(
-                bus,
-                SamusProjectileRomData.Banks.Projectile | instructionPointer,
-                SamusProjectileRomData.Beams.InstructionRecordByteCount,
-                $"explosion instruction from ${pointerCell:X6}");
-        }
-
         TouchRange(bus, SamusProjectileRomData.Trails.LeftInstructionPointers,
             SamusProjectileRomData.Trails.InstructionPointerCount * sizeof(ushort),
             "left trail instruction pointers");

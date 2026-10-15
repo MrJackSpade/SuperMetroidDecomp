@@ -21,10 +21,10 @@ internal static class ProjectileFrameBindingsVerification
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(stockJson, writable: false));
         AssertEqual(ProjectileFrameBindingFormat.FrameCount,
-            SamusProjectileRadiusDefinitions.TimedRecordPointers.Count,
+            SamusProjectileRecordDefinitions.TimedRecordAddresses.Count,
             "physical timed records and visual frame bindings have identical coverage");
         var blocked = new HashSet<int>();
-        foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
+        foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
             int address = SamusProjectileRomData.Banks.Projectile | unchecked((ushort)(pointer + 2));
             blocked.Add(address);
@@ -34,29 +34,29 @@ internal static class ProjectileFrameBindingsVerification
                 $"timed projectile $93:{pointer:X4} keeps its native sprite reference");
         }
         var guard = NewProjectileFrameBindingReadGuard(rom, blocked);
-        foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
+        foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
             int record = SamusProjectileRomData.Banks.Projectile | pointer;
             ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record + offset), CpuBusRegionRead.Read(rom, record + offset + 1)));
             var nativeShot = new SamusProjectileSlot(0)
             {
-                InstructionPointer = unchecked((ushort)(pointer + 8)),
+                Cursor = SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(pointer + 8))),
                 InstructionTimer = NativeCountdown.FromRaw(Word(0)), SpritemapPointer = Word(2),
                 Radius = new(CpuBusRegionRead.Read(rom, record + 4), CpuBusRegionRead.Read(rom, record + 5)),
                 AnimationFrame = Word(6), Damage = 30,
             };
             var nativeBomb = new SamusBombProjectileSlot(0)
             {
-                InstructionPointer = nativeShot.InstructionPointer,
+                Cursor = nativeShot.Cursor,
                 InstructionTimer = nativeShot.InstructionTimer,
                 SpritemapPointer = nativeShot.SpritemapPointer,
                 Radius = new(nativeShot.Radius.X, nativeShot.Radius.Y),
                 Type = 0x0500, Damage = 30,
             };
             var installedShot = new SamusProjectileSlot(0)
-                { InstructionPointer = pointer, InstructionTimer = NativeCountdown.Start(1), Damage = 30 };
+                { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = NativeCountdown.Start(1), Damage = 30 };
             var installedBomb = new SamusBombProjectileSlot(0)
-                { InstructionPointer = pointer, InstructionTimer = NativeCountdown.Start(1), Type = 0x0500, Damage = 30 };
+                { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = NativeCountdown.Start(1), Type = 0x0500, Damage = 30 };
             var shots = new SamusProjectileSystem { Animation = { FrameBindings = stock } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             AssertTrue(nativeShot.InstructionTimer.RawValue is > 0 and < 0x8000,
@@ -87,7 +87,7 @@ internal static class ProjectileFrameBindingsVerification
 
         var document = RequiredJson.Deserialize<ProjectileFrameBindingDocument>(stockJson,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        ushort editedPointer = SamusProjectileRadiusDefinitions.TimedRecordPointers[0];
+        ushort editedPointer = SamusProjectileRecordDefinitions.TimedRecordAddresses[0];
         string frameName = ProjectileFrameBindingFormat.FrameName(editedPointer);
         ushort originalSprite = stock.Resolve(editedPointer);
         ProjectileSpriteCatalog compositions = ProjectileSpriteCatalog.Load(
@@ -105,14 +105,14 @@ internal static class ProjectileFrameBindingsVerification
         byte[] editedJson = ProjectileFrameBindingCatalog.Write(document);
         var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(editedJson));
         var editedShot = new SamusProjectileSlot(0)
-            { InstructionPointer = editedPointer, InstructionTimer = NativeCountdown.Start(1), Damage = 30 };
+            { Cursor = SamusProjectileProgramAddresses.CursorAt(editedPointer), InstructionTimer = NativeCountdown.Start(1), Damage = 30 };
         new SamusProjectileSystem { Animation = { FrameBindings = edited } }
             .Animation.RunProjectileInstructionHandler(editedShot);
         AssertEqual(replacement, editedShot.SpritemapPointer,
             "edited frame binding reaches the actual projectile instruction handler");
-        AssertEqual(SamusProjectileInstructionDefinitions.ReadWord(
-                SamusProjectileRomData.Banks.Projectile | editedPointer),
-            editedShot.InstructionTimer.RawValue, "visual edit does not change frame duration");
+        var editedRecord = SamusProjectileProgramAddresses.CursorAt(editedPointer) ?? throw new InvalidDataException("A record address is never zero.");
+        AssertEqual(SamusProjectileAnimations.Programs.Steps(editedRecord.Program)[editedRecord.Position].Duration,
+            (int)editedShot.InstructionTimer.RawValue, "visual edit does not change frame duration");
         var editedOam = new OamBuffer();
         compositions.Draw(editedShot.SpritemapPointer, editedOam, new(100, 100));
         AssertTrue(!editedOam.LowTable.SequenceEqual(stockOam.LowTable) ||

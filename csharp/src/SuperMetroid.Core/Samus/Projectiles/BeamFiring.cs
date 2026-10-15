@@ -303,17 +303,9 @@ internal sealed class BeamFiring
                 ? SamusProjectileRomData.Beams.ChargedDataPointers
                 : SamusProjectileRomData.Beams.UnchargedDataPointers) + beamType.TableIndex * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
-        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            SamusProjectileRomData.Banks.Projectile |
-                unchecked((ushort)(dataPointer + 2 + direction * 2)));
-        slot.Radius = slot.Radius.WithX(SamusProjectileRadiusDefinitions.ReadByte(
-            (int)new SnesAddress(
-                SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 4)))));
-        slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
-            (int)new SnesAddress(
-                SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 5)))));
+        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, direction);
+        slot.Cursor = SamusProjectilePrograms.Start(program);
+        slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
 
         // $90:B8ED checks Charge equipment and both input-edge latches before
@@ -402,17 +394,9 @@ internal sealed class BeamFiring
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.Beams.ChargedDataPointers + hyperBeamType.TableIndex * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
-        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            SamusProjectileRomData.Banks.Projectile |
-                unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
-        slot.Radius = slot.Radius.WithX(SamusProjectileRadiusDefinitions.ReadByte(
-            (int)new SnesAddress(
-                SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 4)))));
-        slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
-            (int)new SnesAddress(
-                SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 5)))));
+        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, slot.PackedDirection.DirectionIndex);
+        slot.Cursor = SamusProjectilePrograms.Start(program);
+        slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Damage = 1000;
 
@@ -506,17 +490,9 @@ internal sealed class BeamFiring
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.NonBeam.DataPointers + samus.SelectedHudItem * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
-        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            SamusProjectileRomData.Banks.Projectile |
-                unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
-        slot.Radius = slot.Radius.WithX(SamusProjectileRadiusDefinitions.ReadByte(
-            (int)new SnesAddress(
-                SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 4)))));
-        slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
-            (int)new SnesAddress(
-                SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 5)))));
+        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, slot.PackedDirection.DirectionIndex);
+        slot.Cursor = SamusProjectilePrograms.Start(program);
+        slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.PreInstruction = isSuperMissile
             ? SamusProjectilePreInstruction.SuperMissile

@@ -962,12 +962,6 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Projectile program oracle revision");
-        Suite(nameof(VerifyLookupStream1PowerProgramLayout), () => VerifyLookupStream1PowerProgramLayout(rom));
-        Suite(nameof(VerifyLookupStream1WaveIceProgramLayout), () => VerifyLookupStream1WaveIceProgramLayout(rom));
-        Suite(nameof(VerifyLookupStream1SpazerProgramLayout), () => VerifyLookupStream1SpazerProgramLayout(rom));
-        Suite(nameof(VerifyLookupStream1PlasmaProgramLayout), () => VerifyLookupStream1PlasmaProgramLayout(rom));
-        Suite(nameof(VerifyLookupStream1ChargedProgramLayout), () => VerifyLookupStream1ChargedProgramLayout(rom));
-        Suite(nameof(VerifyLookupStream1NonBeamProgramLayout), () => VerifyLookupStream1NonBeamProgramLayout(rom));
         return 0;
     }
 

@@ -104,29 +104,19 @@ internal static class ProjectileInstructionsVerification
         var guard = NewProjectileInstructionReadGuard(rom, words);
         var trailFrame = new Func<SamusProjectileSlot, ushort>(ProjectileTrails.GetTrailAnimationFrame);
         var trailSlot = new SamusProjectileSlot(0);
-        foreach (int address in words)
+        // A trail reads the word just before the shot's next list position: the last record's animation frame, or the
+        // word preceding a freshly installed list.
+        foreach (ushort entry in entries)
         {
-            trailSlot.InstructionPointer = unchecked((ushort)(address + 2));
+            trailSlot.Cursor = SamusProjectileProgramAddresses.CursorAt(entry);
             foreach (ushort timer in new ushort[] { 0, 1, 2, ushort.MaxValue })
             {
                 trailSlot.InstructionTimer = NativeCountdown.FromRaw(timer);
                 trailSlot.AnimationFrame = 0xbeef;
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address), trailFrame(trailSlot), "Trail owner consumes compiled previous-record word regardless of timer or cached frame");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x930000 | (entry - 2)), trailFrame(trailSlot), "Trail owner consumes the previous list word regardless of timer or cached frame");
                 AssertEqual(timer, trailSlot.InstructionTimer.RawValue, "Trail frame lookup leaves timer unchanged");
                 AssertEqual((ushort)0xbeef, trailSlot.AnimationFrame, "Trail lookup must not substitute or alter the cached frame");
             }
-        }
-        foreach (int a in words)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(a), SamusProjectileInstructionDefinitions.ReadWord(a), "Compiled instruction word matches cartridge");
-        foreach (int address in new[] { 0x938000, 0x9386dc, 0x9386dd, 0x93ffff })
-        {
-            AssertThrows<InvalidDataException>(
-                () => SamusProjectileInstructionDefinitions.ReadWord(address),
-                "Unknown instruction mechanics address fails instead of reading mixed cartridge data");
-            trailSlot.InstructionPointer = unchecked((ushort)(address + 2));
-            AssertThrows<InvalidDataException>(
-                () => trailFrame(trailSlot),
-                "Unknown trail-frame owner address fails instead of reading mixed cartridge data");
         }
 
         var system = CreateProjectileFixture();
@@ -134,8 +124,8 @@ internal static class ProjectileInstructionsVerification
         int frames = 0;
         foreach (ushort entry in entries)
         {
-            var slot = new SamusProjectileSlot(0) { InstructionPointer = entry, InstructionTimer = NativeCountdown.Start(1), Damage = 30 };
-            var bomb = new SamusBombProjectileSlot(0) { InstructionPointer = entry, InstructionTimer = NativeCountdown.Start(1), Type = 0x0500, Damage = 30 };
+            var slot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), InstructionTimer = NativeCountdown.Start(1), Damage = 30 };
+            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), InstructionTimer = NativeCountdown.Start(1), Type = 0x0500, Damage = 30 };
             ushort timer = 1, pointer = entry, sprite = 0, x = 0, y = 0, trail = 0;
             for (int frame = 0; frame < 64; frame++)
             {

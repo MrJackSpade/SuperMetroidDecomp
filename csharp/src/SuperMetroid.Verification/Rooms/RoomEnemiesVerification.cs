@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Ripper;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -350,7 +351,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     owner.Damage = 0x012c;
     owner.Direction = (ushort)SamusProjectileDirection.Right;
     owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
-    owner.InstructionPointer = 0x9f3b;
+    owner.Cursor = SamusProjectileProgramAddresses.CursorAt(0x9f3b);
     owner.InstructionTimer = NativeCountdown.Start(15);
     owner.SpritemapPointer = 0xae0f;
     owner.PreInstruction = SamusProjectilePreInstruction.SuperMissile;
@@ -360,7 +361,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     link.Damage = 0x012c;
     link.Direction = (ushort)SamusProjectileDirection.Right;
     link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
-    link.InstructionPointer = 0x9f7b;
+    link.Cursor = SamusProjectileProgramAddresses.CursorAt(0x9f7b);
     link.InstructionTimer = NativeCountdown.Start(1);
     link.SpritemapPointer = 0;
     link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
@@ -624,7 +625,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         projectile.Direction = 2;
         projectile.Position = projectile.Position.WithWhole(target.Position.Whole);
         projectile.Radius = new(4, 4);
-        projectile.InstructionPointer = 0x9000;
+        projectile.Cursor = ProjectileFixtureCursors.Active;
         projectile.InstructionTimer = NativeCountdown.Start(1);
     }
 

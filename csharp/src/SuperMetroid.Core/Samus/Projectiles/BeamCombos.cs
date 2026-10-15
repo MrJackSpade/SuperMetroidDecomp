@@ -109,12 +109,11 @@ internal sealed class BeamCombos
         int data = SamusProjectileRomData.Banks.Projectile | SamusProjectileSelectionDefinitions.ReadWord(table + index * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(data);
         if ((slot.Damage & 0x8000) != 0) throw new InvalidDataException("Negative native combo projectile damage.");
-        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(data + 2 + (ordinary || echo ? (slot.Direction & 15) * 2 : 0));
+        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program((ushort)data, ordinary || echo ? slot.Direction & 15 : 0);
+        slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         if (ordinary)
-        {
-            slot.Radius = new(SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 4)), SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 5)));
-        }
+            slot.Radius = SamusProjectilePrograms.InitialRadius(program);
     }
     /// <summary>Runs $90:CF09/$CF7A for one Ice combo slot and returns its optional library-one sound request.</summary>
     internal ushort StepIceCombo(ISnesAddressSpace bus, SamusState samus,

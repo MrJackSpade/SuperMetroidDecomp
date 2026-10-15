@@ -5,6 +5,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Fixed trail timing/commands in bank $90; appearance words remain external presentation.</summary>
 public static class ProjectileTrailProgramDefinitions
 {
+    /// <summary>Bit 15 of a trail list word: set for an instruction, clear for a frame duration.</summary>
+    private const ushort InstructionBit = 1 << 15;
+
+    /// <summary>Whether a trail list word is an instruction rather than a frame duration, as the interpreter's <c>BPL</c> decides.</summary>
+    public static bool IsInstruction(ushort instructionOrTimer) => (instructionOrTimer & InstructionBit) != 0;
+
     /// <summary>Each ice list contains seventeen poses and ten downward steps before its terminator.</summary>
     public const int IceTerminatorOffset = 17 * 4 + 10 * 2;
     /// <summary>Wave and missile each contain four four-byte timed records.</summary>

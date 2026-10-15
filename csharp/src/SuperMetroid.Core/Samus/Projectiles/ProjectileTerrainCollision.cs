@@ -501,8 +501,7 @@ internal sealed class ProjectileTerrainCollision
             slot.Position += new Offset16<RoomPixels>(0, unchecked((short)slot.Radius.Y));
 
         slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.BeamExplosion);
-        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            SamusProjectileRomData.NonBeam.BeamExplosionInstructionPointer);
+        slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BeamExplosion);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Damage = 8;
         slot.PreInstruction = SamusProjectilePreInstruction.None;
@@ -530,10 +529,8 @@ internal sealed class ProjectileTerrainCollision
         _impactAudio.RequestMissileImpactSound(sharedProjectiles.PowerBombExplosion);
         bool wasSuperMissile = slot.PackedType.IsFamily(SamusProjectileFamily.SuperMissile);
         slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.MissileExplosion);
-        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            wasSuperMissile
-                ? SamusProjectileRomData.NonBeam.SuperMissileExplosionInstructionPointer
-                : SamusProjectileRomData.NonBeam.MissileExplosionInstructionPointer);
+        slot.Cursor = SamusProjectilePrograms.Start(
+            wasSuperMissile ? SamusProjectileProgram.SuperMissileExplosion : SamusProjectileProgram.MissileExplosion);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Damage = 8;
         slot.PreInstruction = SamusProjectilePreInstruction.None;

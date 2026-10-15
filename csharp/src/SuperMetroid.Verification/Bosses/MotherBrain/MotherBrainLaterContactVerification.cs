@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -63,7 +64,7 @@ internal static class MotherBrainLaterContactVerification
             var shot = shots.Slots[0];
             shot.Type = type; shot.Damage = 100; shot.Direction = 2;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
-            shot.InstructionPointer = 0x9000; shot.InstructionTimer = NativeCountdown.Start(1);
+            shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
             shot.PreInstruction = type == 0x8100 ? SamusProjectilePreInstruction.Missile : SamusProjectilePreInstruction.NoWaveBeam;
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), new SamusState()),
                 "Mother Brain body accepts the projectile collision callback");

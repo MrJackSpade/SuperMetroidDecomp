@@ -91,8 +91,8 @@ internal sealed class ProjectileTrails
     {
         // $93:81D8-$81E3 unconditionally reads (instruction pointer - 8) + 6.
         // The upstream C port's timer-one lookahead is absent from the pinned ROM.
-        ushort frameAddress = unchecked((ushort)(projectile.InstructionPointer - 2));
-        return SamusProjectileInstructionDefinitions.ReadWord(SamusProjectileRomData.Banks.Projectile | frameAddress);
+        return SamusProjectilePrograms.PrecedingAnimationFrame(projectile.Cursor
+            ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."));
     }
 
     /// <summary>Applies a signed byte displacement and fixed bias with 16-bit position wrap.</summary>
@@ -124,7 +124,7 @@ internal sealed class ProjectileTrails
                     ushort instructionOrTimer = ProjectileTrailProgramDefinitions.Read(
                         bus,
                         SamusProjectileRomData.Banks.Movement | pointer);
-                    if (!SamusProjectileInstructionDefinitions.IsInstruction(instructionOrTimer))
+                    if (!ProjectileTrailProgramDefinitions.IsInstruction(instructionOrTimer))
                     {
                         side.InstructionTimer = NativeCountdown.FromRaw(instructionOrTimer);
                         if (instructionOrTimer == 0)

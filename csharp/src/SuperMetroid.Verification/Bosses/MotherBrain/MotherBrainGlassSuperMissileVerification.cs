@@ -53,7 +53,7 @@ internal static class MotherBrainGlassSuperMissileVerification
             var shot = shots.Slots[slot];
             shot.Type = 0x8200; shot.Damage = 300; shot.Direction = 7;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(pair[slot].Radius, pair[slot].Radius);
-            shot.InstructionPointer = pair[slot].List; shot.InstructionTimer = NativeCountdown.Start(1);
+            shot.Cursor = SamusProjectileProgramAddresses.CursorAt(pair[slot].List); shot.InstructionTimer = NativeCountdown.Start(1);
             shot.PreInstruction = pair[slot].Pre;
         }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>One debugger-readable ordinary slot corresponding to a native even byte index.</summary>
@@ -39,8 +40,10 @@ public sealed class SamusProjectileSlot
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
-    /// <summary>Bank-$93 instruction-list pointer; zero marks the slot inactive for animation.</summary>
-    public ushort InstructionPointer { get; internal set; }
+    /// <summary>Where the slot's projectile program resumes; null marks the slot inactive for animation.</summary>
+    internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
+    /// <summary>The bank-$93 instruction pointer the cursor stands for; zero marks the slot inactive.</summary>
+    public ushort InstructionPointer => SamusProjectileProgramAddresses.Address(Cursor);
     /// <summary>Updates remaining before the current projectile instruction advances.</summary>
     public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Bank-relative pointer to the projectile's current spritemap.</summary>
@@ -57,7 +60,7 @@ public sealed class SamusProjectileSlot
     public SamusProjectilePreInstruction PreInstruction { get; internal set; }
 
     /// <summary>Bank-$93 considers a nonzero instruction pointer allocated and drawable.</summary>
-    public bool IsActive => InstructionPointer != 0;
+    public bool IsActive => Cursor is not null;
 
     /// <summary>
     /// Bank-$A0 enemy collision admits a nonzero beam, missile, or Super Missile type even
@@ -80,7 +83,7 @@ public sealed class SamusProjectileSlot
         Position = FixedPosition<RoomPixels>.Zero;
         Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
-        InstructionPointer = 0;
+        Cursor = null;
         InstructionTimer = NativeCountdown.Start(0);
         SpritemapPointer = 0;
         AnimationFrame = 0;
@@ -102,7 +105,7 @@ public sealed class SamusProjectileSlot
         Radius = Extent16<RoomPixels>.Zero;
         Type = 0;
         Damage = 0;
-        InstructionPointer = 0;
+        Cursor = null;
         InstructionTimer = NativeCountdown.Start(0);
         Variable = 0;
         SpritemapPointer = 0;

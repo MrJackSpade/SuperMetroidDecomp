@@ -446,14 +446,14 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.NoobTubeCrack => new(
-0x84FB, NoobTubeProjectileInstructionProgramDefinitions.Crack,
+0x84FB, 0xD3D7,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.NoobTubeShard => new(
 0xD7FD,
-            NoobTubeProjectileInstructionProgramDefinitions.ShardInstructionLists[0],
+            0xD47D,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => new(
-0x84FB, NoobTubeProjectileInstructionProgramDefinitions.ReleasedAirBubble,
+0x84FB, 0xD652,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MotherBrainDeathExplosion => new(0xC914, 0x0000, 0x0000, 0x2000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment => new(

@@ -67,6 +67,8 @@ internal static class NativeEnemyProjectileListDefinitions
         [(ushort)EnemyProjectileInstruction.Spores_SpawnEnemyDrops] = WordKind.Callback,
         [(ushort)EnemyProjectileInstruction.MagdolliteFlame_SpawnDrops] = WordKind.Callback,
         [(ushort)EnemyProjectileInstruction.KagoBugStartJumpInstruction] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.NoobTubeShardAssignFallingAngle] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle] = WordKind.Callback,
         [(ushort)EnemyProjectileInstruction.CalculateDirectionTowardsSamus] = WordKind.Callback,
         [(ushort)EnemyProjectileInstruction.DownwardGateSetYVelocityInstruction] = WordKind.CallbackWithWord,
         [(ushort)EnemyProjectileInstruction.KagoBugStartIdleInstruction] = WordKind.Callback,

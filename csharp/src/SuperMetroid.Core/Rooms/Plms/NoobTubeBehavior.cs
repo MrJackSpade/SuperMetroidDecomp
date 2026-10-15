@@ -8,6 +8,15 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>The Noob tube species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class NoobTubeBehavior
 {
+    /// <summary>The program each native even shard spawn parameter ($00-$12) selects, by parameter / 2.</summary>
+    private static readonly NoobTubeProjectileProgram[] ShardPrograms =
+    [
+        NoobTubeProjectileProgram.Shard0, NoobTubeProjectileProgram.Shard1, NoobTubeProjectileProgram.Shard2,
+        NoobTubeProjectileProgram.Shard3, NoobTubeProjectileProgram.Shard4, NoobTubeProjectileProgram.Shard5,
+        NoobTubeProjectileProgram.Shard6, NoobTubeProjectileProgram.Shard7, NoobTubeProjectileProgram.Shard8,
+        NoobTubeProjectileProgram.Shard9,
+    ];
+
     /// <summary>Provides room-load state and the native RNG for shard and bubble launch angles.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates and advances crack, glass shard, and released-air-bubble projectiles.</summary>
@@ -74,9 +83,7 @@ internal sealed class NoobTubeBehavior
                 projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
                     blockY * 16 + NoobTubeProjectileRomData.CrackYOffset +
                     NoobTubeProjectileRomData.ShardOffsets[index].Y)));
-                projectile.InstructionPointer =
-                    NoobTubeProjectileRomData.ShardInstructionLists[index];
-                projectile.InstructionTimer = NativeCountdown.Start(1);
+                projectile.StartAnimation(new NoobTubeProjectileAnimation(ShardPrograms[index]));
                 projectile.Velocity = NoobTubeProjectileRomData.ShardVelocities[index];
                 return;
             }
@@ -200,23 +207,45 @@ internal sealed class NoobTubeBehavior
         }, EnemyProjectilePreInstruction.NoobTubeCrackFlickering, EnemyProjectilePreInstruction.NoobTubeCrackFalling, EnemyProjectilePreInstruction.NoobTubeShardFlying, EnemyProjectilePreInstruction.NoobTubeShardFalling, EnemyProjectilePreInstruction.NoobTubeBubbleFalling, EnemyProjectilePreInstruction.NoobTubeBubbleFlying);
     }
 
-    /// <summary>Registers shard and bubble instruction words that choose an RNG-derived horizontal angle; shards also receive falling speed.</summary>
-    internal void RegisterFallingAngleInstructions(EnemyProjectileHandlerTable table)
-    {
-        table.RegisterInstruction(EnemyProjectileInstruction.NoobTubeShardAssignFallingAngle, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
-                projectile.Velocity = new(new SnesSignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())), new SnesSignedEightEight(NoobTubeProjectileRomData.ShardFallYVelocity));
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
+    /// <summary>Carries out the cues of the crack, shard and bubble programs.</summary>
+    internal void RegisterNoobTubeProjectileCues(EnemyProjectileHandlerTable table) =>
+        table.RegisterCue<NoobTubeProjectileCue>(ApplyNoobTubeProjectileCue);
 
-        table.RegisterInstruction(EnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
+    /// <summary>Carries out one cue of the crack, shard and bubble programs.</summary>
+    private void ApplyNoobTubeProjectileCue(RoomEnemyProjectileSlot projectile, SamusState? samus, NoobTubeProjectileCue cue)
+    {
+        bool oddFrame = (_projectiles.CurrentFrame8 & 1) != 0;
+        switch (cue.Kind)
+        {
+            case NoobTubeProjectileCueKind.FlickerReflected:
+                // Odd frames show the first pose at the shard's column; even frames the reflected pose, mirrored across the tube.
+                projectile.Position = projectile.Position.WithWholeX(oddFrame
+                    ? projectile.Variable1
+                    : unchecked((ushort)(NoobTubeProjectileRomData.ShardMirrorSpan - projectile.Variable1)));
+                ShardAnimation(projectile).ShowsReflectedPose = !oddFrame;
+                break;
+            case NoobTubeProjectileCueKind.FlickerHidden:
+                projectile.Position = projectile.Position.WithWholeX(oddFrame ? projectile.Variable1 : NoobTubeProjectileRomData.HiddenXPosition);
+                break;
+            case NoobTubeProjectileCueKind.AssignShardFallingAngle:
+                projectile.Velocity = new(new SnesSignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())), new SnesSignedEightEight(NoobTubeProjectileRomData.ShardFallYVelocity));
+                break;
+            case NoobTubeProjectileCueKind.AssignBubbleFallingAngle:
                 projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesLittleEndian.HighByte(_room.Random.Generate())));
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
+                break;
+            case NoobTubeProjectileCueKind.SetPreInstruction:
+                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                break;
+            case NoobTubeProjectileCueKind.Delete:
+                projectile.Clear();
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(NoobTubeProjectileCueKind)} {cue.Kind}.");
+        }
     }
+
+    /// <summary>The typed animation a shard's flicker cue runs in.</summary>
+    private static NoobTubeProjectileAnimation ShardAnimation(RoomEnemyProjectileSlot projectile) =>
+        projectile.Animation as NoobTubeProjectileAnimation
+        ?? throw new InvalidOperationException($"A n00b-tube flicker cue ran outside its typed program; the slot runs {projectile.Animation}.");
 }

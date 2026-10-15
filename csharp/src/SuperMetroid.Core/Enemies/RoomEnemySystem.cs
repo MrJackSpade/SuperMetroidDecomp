@@ -1652,7 +1652,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
         OldTourianEscapeShaftWallBehavior.RegisterWallExplosionSoundInstruction(table);
 
-        NoobTubeBehavior.RegisterFallingAngleInstructions(table);
+        NoobTubeBehavior.RegisterNoobTubeProjectileCues(table);
 
 
         RidleyProjectiles.RegisterFireballCues(table);

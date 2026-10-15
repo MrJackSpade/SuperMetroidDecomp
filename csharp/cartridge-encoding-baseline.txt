@@ -41,7 +41,7 @@ csharp/src/SuperMetroid.Core/Enemies/Kago/KagoBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Enemies/Kago/KagoBugProjectileInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdollitePhaseDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleProjectileInstructionProgramDefinitions.cs	SME6341	2
-csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileEngine.cs	SME6340	46
+csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileEngine.cs	SME6340	45
 csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileInstructionMechanicsDefinitions.cs	SME6341	7
 csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolProjectileInstructionProgramDefinitions.cs	SME6341	7
 csharp/src/SuperMetroid.Core/Enemies/Shutters/ShuttersBehavior.cs	SME6349	1

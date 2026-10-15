@@ -921,25 +921,6 @@ internal sealed class EnemyProjectileEngine
                         unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case EnemyProjectileInstruction.NoobTubeShardReflectFlicker:
-                    projectile.Position = projectile.Position.WithWholeX((CurrentFrame8 & 1) != 0
-                        ? projectile.Variable1
-                        : unchecked((ushort)(0x0100 - projectile.Variable1)));
-                    SetEnemyProjectileVisualOperand(projectile,
-                        unchecked((ushort)(cursor +
-                            ((CurrentFrame8 & 1) != 0 ? 2 : 4))));
-                    projectile.InstructionPointer = unchecked((ushort)(cursor + 6));
-                    projectile.InstructionTimer = NativeCountdown.Start(1);
-                    return;
-                case EnemyProjectileInstruction.NoobTubeShardFlicker:
-                    projectile.Position = projectile.Position.WithWholeX((CurrentFrame8 & 1) != 0
-                        ? projectile.Variable1
-                        : NoobTubeProjectileRomData.HiddenXPosition);
-                    SetEnemyProjectileVisualOperand(projectile,
-                        unchecked((ushort)(cursor + 2)));
-                    projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
-                    projectile.InstructionTimer = NativeCountdown.Start(1);
-                    return;
                 case EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius:
                     MoveEnemyProjectileRandomlyWithinRadius(projectile, cursor);
                     cursor = unchecked((ushort)(cursor + 6));
@@ -1034,11 +1015,6 @@ internal sealed class EnemyProjectileEngine
         {
             return SaveStationElectricityInstructionProgramDefinitions.ReadMechanicsWord(
                 address);
-        }
-
-        if (NoobTubeProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return NoobTubeProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (MotherBrainTopTubeInstructionProgramDefinitions.Owns(projectile.Kind))

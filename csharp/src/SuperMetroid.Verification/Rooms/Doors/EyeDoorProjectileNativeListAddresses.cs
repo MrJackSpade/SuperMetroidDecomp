@@ -1,5 +1,5 @@
-using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Verification.Enemies;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 

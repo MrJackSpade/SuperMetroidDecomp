@@ -1074,9 +1074,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.Variable1 = 128;
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.GraphicsIndex = FixtureGraphicsIndex;
-            slot.InstructionPointer = unchecked((ushort)(
-                NoobTubeProjectileInstructionProgramDefinitions.ShardInstructionLists[0] + 4));
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            // The first shard's flying loop opens with its reflecting flicker.
+            slot.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Shard0Loop));
             enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(), Position16<RoomPixels>.Zero);
             var oam = new OamBuffer();
             oam.BeginFrame();

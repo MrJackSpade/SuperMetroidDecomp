@@ -19,9 +19,11 @@ public static class NoobTubeProjectileRomData
     /// <summary>Signed 8.8 initial velocities for parameters $00-$12.</summary>
     public static ReadOnlySpan<EightEightVector<RoomPixels>> ShardVelocities => ShardVelocityWords;
 
-    /// <summary>Bank-$86 animation-list pointers selected by shard parameter.</summary>
-    public static NoobTubeShardProgramSequence ShardInstructionLists =>
-        NoobTubeProjectileInstructionProgramDefinitions.ShardInstructionLists;
+    /// <summary>
+    /// Twice the column a reflecting shard flicker mirrors about: on even frames the shard shows at this span less its
+    /// own column.
+    /// </summary>
+    public const ushort ShardMirrorSpan = 256;
 
     /// <summary>Offsets from the spawning PLM block origin for the six released-air bubbles.</summary>
     public static ReadOnlySpan<Offset16<RoomPixels>> BubbleOffsets => BubbleOffsetWords;

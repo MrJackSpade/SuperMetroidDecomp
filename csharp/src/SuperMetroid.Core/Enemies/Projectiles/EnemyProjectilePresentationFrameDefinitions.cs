@@ -203,8 +203,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             index => KagoBugProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "kraid_rock", KraidRockVisualDefinitions.ProjectileFrameCount,
             index => KraidRockVisualDefinitions.PresentationKey(KraidRockVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "noob_tube", NoobTubeProjectileInstructionProgramDefinitions.PresentationWordCount,
-            NoobTubeProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "noob_tube", NoobTubeProjectileFrameDefinitions.PoseCount,
+            index => NoobTubeProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "nuclear_waffle", NuclearWaffleProjectileFrameDefinitions.PoseCount,
             index => NuclearWaffleProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "phantoon", PhantoonFlameVisualDefinitions.ProjectileFrameCount,

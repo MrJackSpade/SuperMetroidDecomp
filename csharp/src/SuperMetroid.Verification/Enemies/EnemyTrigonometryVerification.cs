@@ -178,7 +178,6 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTopTubeInst
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTurretDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.NinjaSpacePirateInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.NoobTubePlmDrawDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.NoobTubeProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.LavaJumpers.NorfairLavaJumpDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.NorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleDefinitionsVerification;
@@ -381,7 +380,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyEnemyInstructionOwnerCoverage), () => VerifyEnemyInstructionOwnerCoverage()),
         new(nameof(DownwardGateProjectileAnimationsVerification.VerifyDownwardGateProjectileAnimations), () => DownwardGateProjectileAnimationsVerification.VerifyDownwardGateProjectileAnimations(LoadRepositoryRom())),
         new(nameof(DownwardGateProjectileBehaviorVerification.VerifyDownwardGateProjectileBehavior), () => DownwardGateProjectileBehaviorVerification.VerifyDownwardGateProjectileBehavior(LoadRepositoryRom())),
-        new(nameof(VerifyNoobTubeProjectileInstructionProgramDefinitions), () => VerifyNoobTubeProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(NoobTubeProjectileAnimationsVerification.VerifyNoobTubeProjectileAnimations), () => NoobTubeProjectileAnimationsVerification.VerifyNoobTubeProjectileAnimations(LoadRepositoryRom())),
+        new(nameof(NoobTubeProjectileBehaviorVerification.VerifyNoobTubeProjectileBehavior), () => NoobTubeProjectileBehaviorVerification.VerifyNoobTubeProjectileBehavior(LoadRepositoryRom())),
         new(nameof(VerifyMotherBrainTopTubeInstructionProgramDefinitions), () => VerifyMotherBrainTopTubeInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyGunshipDustAnimations), () => VerifyGunshipDustAnimations(LoadRepositoryRom())),
         new(nameof(CacatacAnimationsVerification.VerifyCacatacAnimations), () => CacatacAnimationsVerification.VerifyCacatacAnimations(LoadRepositoryRom())),

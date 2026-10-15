@@ -27,12 +27,17 @@ internal static class NativeEnemyProjectileProgramOracle
     /// <param name="programs">The typed programs.</param>
     /// <param name="presentationKey">The installed artwork key a frame shows: its native operand's address.</param>
     /// <param name="rules">How the family's commands are read and compared.</param>
+    /// <param name="reflectedPresentationKey">
+    /// The installed artwork key of a flicker frame's reflected pose, or null for a frame without one; required when
+    /// <paramref name="rules"/> name flicker commands.
+    /// </param>
     internal static int CompareAll<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
         (TProgram Program, ushort Entry)[] entries,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         Func<TFrame, ushort> presentationKey,
-        NativeEnemyProjectileCueRules<TCue> rules)
+        NativeEnemyProjectileCueRules<TCue> rules,
+        Func<TFrame, ushort?>? reflectedPresentationKey = null)
         where TProgram : struct, Enum
         where TFrame : struct
         where TCue : notnull
@@ -41,7 +46,7 @@ internal static class NativeEnemyProjectileProgramOracle
         for (int index = 0; index < entries.Length; index++)
             AssertEqual(Enum.GetValues<TProgram>()[index], entries[index].Program, $"the {typeof(TProgram).Name} values are declared in authored order");
         AssertTrue(entries.Zip(entries.Skip(1)).All(pair => pair.First.Entry < pair.Second.Entry), $"native {typeof(TProgram).Name} entries ascend");
-        var family = new Family<TProgram, TFrame, TCue>(cartridge, entries, programs, presentationKey, rules);
+        var family = new Family<TProgram, TFrame, TCue>(cartridge, entries, programs, presentationKey, rules, reflectedPresentationKey);
         return entries.Sum(item => Compare(family, item.Program, item.Entry));
     }
 
@@ -51,7 +56,8 @@ internal static class NativeEnemyProjectileProgramOracle
         (TProgram Program, ushort Entry)[] Entries,
         AnimationProgramSet<TProgram, TFrame, TCue> Programs,
         Func<TFrame, ushort> PresentationKey,
-        NativeEnemyProjectileCueRules<TCue> Rules)
+        NativeEnemyProjectileCueRules<TCue> Rules,
+        Func<TFrame, ushort?>? ReflectedPresentationKey)
         where TProgram : struct, Enum
         where TFrame : struct
         where TCue : notnull;
@@ -68,7 +74,7 @@ internal static class NativeEnemyProjectileProgramOracle
         where TCue : notnull
     {
         (IImportCartridgeSource cartridge, (TProgram Program, ushort Entry)[] entries, AnimationProgramSet<TProgram, TFrame, TCue> programs,
-            Func<TFrame, ushort> presentationKey, NativeEnemyProjectileCueRules<TCue> rules) = family;
+            Func<TFrame, ushort> presentationKey, NativeEnemyProjectileCueRules<TCue> rules, Func<TFrame, ushort?>? reflectedPresentationKey) = family;
         var steps = programs.Steps(program);
         ushort cursor = entry;
         int index = 0;
@@ -129,6 +135,17 @@ internal static class NativeEnemyProjectileProgramOracle
             AssertEqual(AnimationProgramStepKind.Cue, cue.Kind, $"{at}: command");
             byte[] operands = [.. Enumerable.Range(0, count).Select(item => SnesLittleEndian.LowByte(cartridge.ReadCartridgeWord(address + 2 + item)))];
             rules.CompareCue(word, operands, cue.PublishedCue, at);
+            if (rules.ShowsFrame?.Invoke(word) == true)
+            {
+                // A flicker shows its first operand's pose (or, by parity, its second's) for one update.
+                var show = Next("flicker frame");
+                AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: flicker frame");
+                AssertEqual(1, show.Duration, $"{at}: flicker duration");
+                AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(show.Frame), $"{at}: flicker presentation key");
+                Func<TFrame, ushort?> reflected = reflectedPresentationKey ??
+                    throw new InvalidOperationException($"{at}: a flicker family supplies its reflected presentation keys.");
+                AssertEqual(count == 4 ? (ushort?)unchecked((ushort)(cursor + 4)) : null, reflected(show.Frame), $"{at}: flicker reflected presentation key");
+            }
             cursor = unchecked((ushort)(cursor + 2 + count));
             if (rules.EndsList?.Invoke(cue.PublishedCue) != true)
                 continue;

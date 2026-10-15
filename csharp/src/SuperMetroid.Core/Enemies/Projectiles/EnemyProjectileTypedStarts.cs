@@ -67,6 +67,9 @@ internal static class EnemyProjectileTypedStarts
         [RoomEnemyProjectileKind.EyeDoorProjectile] = () => new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Initial),
         [RoomEnemyProjectileKind.DownwardGateMoving] = () => new DownwardGateProjectileAnimation(DownwardGateProjectileProgram.Moving),
         [RoomEnemyProjectileKind.DownwardGateClosed] = () => new DownwardGateProjectileAnimation(DownwardGateProjectileProgram.Closed),
+        [RoomEnemyProjectileKind.NoobTubeCrack] = () => new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Crack),
+        [RoomEnemyProjectileKind.NoobTubeShard] = () => new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Shard0),
+        [RoomEnemyProjectileKind.NoobTubeReleasedAirBubble] = () => new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.ReleasedAirBubble),
     };
 
     /// <summary>A new animation running the typed initial program of <paramref name="kind"/>, or null when the kind has none.</summary>

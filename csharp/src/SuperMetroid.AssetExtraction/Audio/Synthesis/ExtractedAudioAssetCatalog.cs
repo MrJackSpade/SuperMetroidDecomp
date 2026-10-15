@@ -210,32 +210,6 @@ public sealed class ExtractedAudioAssetCatalog
         public override void SetLength(long value) => throw new NotSupportedException();
     }
 
-    /// <summary>
-    /// Validates immutable stock audio first, then selects a complete compatible catalog from
-    /// the persistent override directory when one exists. An invalid override never silently
-    /// falls back to stock, and a valid override never conceals broken stock installation data.
-    /// </summary>
-    /// <param name="stockDirectory">Complete stock catalog, validated before override selection.</param>
-    /// <param name="overrideDirectory">Persistent replacement catalog root; absence of its manifest selects stock without merging individual files.</param>
-    /// <returns>The complete validated override catalog when present and compatible, otherwise the validated stock catalog.</returns>
-    /// <exception cref="InvalidDataException">Stock or selected content is invalid, or overrides change fixed upload, bank, sample-source, or program/routing identities.</exception>
-    public static ExtractedAudioAssetCatalog Load(string stockDirectory, string overrideDirectory)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
-        ArgumentException.ThrowIfNullOrWhiteSpace(overrideDirectory);
-        string stockRoot = Path.GetFullPath(stockDirectory);
-        string overrideRoot = Path.GetFullPath(overrideDirectory);
-        ExtractedAudioAssetCatalog stock = Load(stockRoot);
-        string overrideManifestPath = Path.Combine(overrideRoot, ManifestFileName);
-        if (!File.Exists(overrideManifestPath))
-            return stock;
-
-        AudioAssetManifest stockManifest = ReadManifest(stockRoot);
-        AudioAssetManifest overrideManifest = ReadManifest(overrideRoot);
-        ValidateOverrideCompatibility(stockManifest, overrideManifest, overrideManifestPath);
-        return Load(overrideRoot);
-    }
-
     /// <summary>Returns the exact terminated upload stream of one bank.</summary>
     /// <exception cref="InvalidDataException"><paramref name="bank"/> is not a loaded bank.</exception>
     public ReadOnlyMemory<byte> GetUpload(AudioBank bank) =>
@@ -524,12 +498,6 @@ public sealed class ExtractedAudioAssetCatalog
         return path;
     }
 
-    /// <summary>Opens the selected audio root's manifest for streaming deserialization.</summary>
-    private static AudioAssetManifest ReadManifest(string root)
-    {
-        return DeserializeManifest(Path.Combine(root, ManifestFileName));
-    }
-
     /// <summary>
     /// Streams the multi-megabyte manifest from its UTF-8 file rather than decoding it into one
     /// UTF-16 string first; the stream reader accepts the same optional byte-order mark.
@@ -541,85 +509,4 @@ public sealed class ExtractedAudioAssetCatalog
             ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
     }
 
-    /// <summary>Allows audible asset edits while keeping stock upload, bank, sample-source, and SFX routing identities fixed.</summary>
-    private static void ValidateOverrideCompatibility(
-        AudioAssetManifest stock,
-        AudioAssetManifest selected,
-        string selectedPath)
-    {
-        if (selected.FormatVersion != stock.FormatVersion)
-        {
-            throw new InvalidDataException(
-                $"Audio override '{selectedPath}' uses format {selected.FormatVersion}; " +
-                $"installed stock uses format {stock.FormatVersion}.");
-        }
-        if (selected.Uploads.Count != stock.Uploads.Count ||
-            !selected.Uploads.Zip(stock.Uploads).All(pair => pair.First == pair.Second))
-        {
-            throw new InvalidDataException(
-                $"Audio override '{selectedPath}' changes opaque SPC uploads or their identity. " +
-                "Only decoded samples, instruments, and authored sequence definitions are replaceable.");
-        }
-        if (selected.Banks.Count != stock.Banks.Count)
-            throw new InvalidDataException($"Audio override '{selectedPath}' changes the bank catalog.");
-        for (int index = 0; index < stock.Banks.Count; index++)
-        {
-            AudioBankMetadata expected = stock.Banks[index];
-            AudioBankMetadata actual = selected.Banks[index];
-            if (actual.Name != expected.Name || actual.DataIndex != expected.DataIndex ||
-                actual.SnesAddress != expected.SnesAddress ||
-                !actual.TrackPointers.SequenceEqual(expected.TrackPointers) ||
-                actual.MusicTracks.Count != expected.MusicTracks.Count ||
-                !actual.MusicTracks.Zip(expected.MusicTracks).All(pair =>
-                    pair.First.Track == pair.Second.Track &&
-                    pair.First.Id == pair.Second.Id &&
-                    pair.First.Address == pair.Second.Address &&
-                    pair.First.ByteCapacity == pair.Second.ByteCapacity) ||
-                actual.MusicPhrases.Count != expected.MusicPhrases.Count ||
-                !actual.MusicPhrases.Zip(expected.MusicPhrases).All(pair =>
-                    pair.First.Id == pair.Second.Id &&
-                    pair.First.Address == pair.Second.Address &&
-                    pair.First.ChannelPrograms.SequenceEqual(
-                        pair.Second.ChannelPrograms, StringComparer.Ordinal)) ||
-                actual.MusicPrograms.Count != expected.MusicPrograms.Count ||
-                !actual.MusicPrograms.Zip(expected.MusicPrograms).All(pair =>
-                    pair.First.Id == pair.Second.Id &&
-                    pair.First.Address == pair.Second.Address &&
-                    pair.First.ByteCapacity == pair.Second.ByteCapacity) ||
-                actual.Samples.Count != expected.Samples.Count ||
-                !actual.Samples.Zip(expected.Samples).All(pair => pair.First == pair.Second))
-            {
-                throw new InvalidDataException(
-                    $"Audio override '{selectedPath}' changes routing or sample-source identity " +
-                    $"for stock bank '{expected.Name}'.");
-            }
-        }
-        if (selected.CanonicalSamples.Count != stock.CanonicalSamples.Count ||
-            !selected.CanonicalSamples.Select(sample => sample.Id).SequenceEqual(
-                stock.CanonicalSamples.Select(sample => sample.Id), StringComparer.Ordinal))
-        {
-            throw new InvalidDataException(
-                $"Audio override '{selectedPath}' changes stable canonical sample IDs.");
-        }
-        if (selected.SoundPrograms.Count != stock.SoundPrograms.Count ||
-            !selected.SoundPrograms.Zip(stock.SoundPrograms).All(pair =>
-                pair.First.Id == pair.Second.Id &&
-                pair.First.Address == pair.Second.Address &&
-                pair.First.ByteCapacity == pair.Second.ByteCapacity) ||
-            selected.SoundLibraries.Count != stock.SoundLibraries.Count ||
-            !selected.SoundLibraries.Zip(stock.SoundLibraries).All(pair =>
-                pair.First.Library == pair.Second.Library &&
-                pair.First.Effects.Count == pair.Second.Effects.Count &&
-                pair.First.Effects.Zip(pair.Second.Effects).All(effect =>
-                    effect.First.Command == effect.Second.Command &&
-                    effect.First.Id == effect.Second.Id &&
-                    effect.First.StreamPointer == effect.Second.StreamPointer &&
-                    effect.First.Configuration == effect.Second.Configuration &&
-                    effect.First.ChannelPrograms.SequenceEqual(
-                        effect.Second.ChannelPrograms, StringComparer.Ordinal))))
-        {
-            throw new InvalidDataException(
-                $"Audio override '{selectedPath}' changes compiled SFX routing metadata.");
-        }
-    }
 }

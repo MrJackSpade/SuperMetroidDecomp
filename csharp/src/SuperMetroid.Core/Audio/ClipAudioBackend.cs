@@ -28,8 +28,8 @@ public sealed class ClipAudioBackend
     /// <summary>The installed clips.</summary>
     private readonly ClipAudioCatalog catalog;
 
-    /// <summary>Clip samples already read, by clip path.</summary>
-    private readonly Dictionary<string, short[]> samples = new(StringComparer.Ordinal);
+    /// <summary>Clip samples already read, by clip (a replacement may share a stock clip's relative path).</summary>
+    private readonly Dictionary<AudioClipFile, short[]> samples = [];
 
     /// <summary>The update's native mix.</summary>
     private readonly short[] native = new short[FramesPerUpdate * PcmSampleFormat.StereoChannelCount];
@@ -335,8 +335,8 @@ public sealed class ClipAudioBackend
     /// <summary>A clip's samples, read and hash-checked on first use.</summary>
     private short[] Samples(AudioClipFile clip)
     {
-        if (!samples.TryGetValue(clip.Path, out short[]? pcm))
-            samples[clip.Path] = pcm = catalog.ReadClip(clip);
+        if (!samples.TryGetValue(clip, out short[]? pcm))
+            samples[clip] = pcm = catalog.ReadClip(clip);
         return pcm;
     }
 

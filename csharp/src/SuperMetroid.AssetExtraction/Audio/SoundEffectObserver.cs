@@ -5,8 +5,8 @@ namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
 /// Follows one sound-effect request through the driver (#1305): the poll that accepts it, its
-/// library's logical end, its key-ons, the first repeated state of the whole driver (E1, E2, E3)
-/// and of each allocated channel. Positions are native stereo frames from the accepting poll.
+/// library's logical end, its key-ons and each allocated channel's first repeated state.
+/// Positions are native stereo frames from the accepting poll.
 /// </summary>
 /// <param name="libraryIndex">The library's zero-based queue index.</param>
 /// <param name="command">The request byte.</param>
@@ -15,8 +15,6 @@ internal sealed class SoundEffectObserver(int libraryIndex, byte command) : ISpc
     /// <summary>Most channels any library allocates (library 1).</summary>
     private const int MaximumChannels = 4;
 
-    /// <summary>Whole-driver poll-state arrivals by state key.</summary>
-    private readonly Dictionary<string, List<long>> states = [];
     /// <summary>Reusable snapshot buffer.</summary>
     private readonly List<byte> state = [];
     /// <summary>Key-ons of the sound's voices.</summary>
@@ -33,8 +31,6 @@ internal sealed class SoundEffectObserver(int libraryIndex, byte command) : ISpc
     private bool polled;
     /// <summary>Whether the tick being serviced carries the request as a changed poll.</summary>
     private bool requested;
-    /// <summary>The first whole-driver state seen twice, once found.</summary>
-    private string? anchor;
     /// <summary>Whether a poll has processed the sound since its start, allocating its channels.</summary>
     private bool processed;
 
@@ -43,9 +39,6 @@ internal sealed class SoundEffectObserver(int libraryIndex, byte command) : ISpc
 
     /// <summary>Absolute sample of the tick at which the library's logical end came.</summary>
     internal long? EndSample { get; private set; }
-
-    /// <summary>E1, E2 and E3 of the whole driver's first repeated poll state, once found.</summary>
-    internal List<long> Arrivals { get; } = [];
 
     /// <summary>Key-ons of the sound's voices, relative to the start.</summary>
     internal IReadOnlyList<(long Sample, byte Voices)> KeyOns => keyOns;
@@ -106,8 +99,6 @@ internal sealed class SoundEffectObserver(int libraryIndex, byte command) : ISpc
             return;
         processed = true;
         RecordChannelStates(player, relative);
-        if (Arrivals.Count < 3)
-            RecordDriverState(player, relative);
     }
 
     /// <summary>Records each allocated channel's state and notes its first repeat.</summary>
@@ -133,21 +124,4 @@ internal sealed class SoundEffectObserver(int libraryIndex, byte command) : ISpc
         AllChannelLoopsFound = all;
     }
 
-    /// <summary>Records the whole driver's state and notes E1, E2 and E3 of its first repeat.</summary>
-    private void RecordDriverState(ManagedSpcPlayer player, long relative)
-    {
-        state.Clear();
-        player.WriteSequencerState(state, includeTempoPhase: false);
-        string key = Convert.ToBase64String([.. state]);
-        if (!states.TryGetValue(key, out List<long>? list))
-            states[key] = list = [];
-        list.Add(relative);
-        if (anchor is null && list.Count == 2)
-            anchor = key;
-        if (anchor == key)
-        {
-            Arrivals.Clear();
-            Arrivals.AddRange(list);
-        }
-    }
 }

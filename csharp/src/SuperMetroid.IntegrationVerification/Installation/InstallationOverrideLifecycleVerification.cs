@@ -12,7 +12,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Audio.Synthesis;
+using SuperMetroid.AssetExtraction.Audio;
 namespace SuperMetroid.IntegrationVerification.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -53,7 +53,7 @@ internal static class InstallationOverrideLifecycleVerification
             using (var session = new SuperMetroid.Diagnostics.Android.AndroidSessionData(installation.Root))
             {
                 Assert(session.ContentIdentity.MapContentSha256 == selected[nameof(GameInstallation.LoadMaps)] &&
-                    session.ContentIdentity.AudioContentSha256 == selected[nameof(GameInstallation.LoadAudio)],
+                    session.ContentIdentity.AudioContentSha256 == selected[nameof(GameInstallation.LoadAudioClips)],
                     "fresh portable Android session binds selected map/font and audio identities");
                 Assert(!MetadataShape.DeclaresProperty(session.Bus.GetType(), "Rom"),
                     "fresh portable session retains no cartridge payload");
@@ -83,7 +83,7 @@ internal static class InstallationOverrideLifecycleVerification
 
             VerifyInvalidOverrideIsRetained(installation, overrideFiles);
             Console.WriteLine($"PASS override lifecycle: {domains.Length} installed directories, {selected.Count} catalog loaders, " +
-                $"{overrideFiles.Count} override files; PNG/font/palette/WAV/authored-SFX/instrument edits survive " +
+                $"{overrideFiles.Count} override files; PNG/font/palette/replacement-clip edits survive " +
                 "ROM-unavailable startup, fresh host binding, stock repair and extraction upgrade. No gameplay probes.");
             return 0;
         }
@@ -92,6 +92,12 @@ internal static class InstallationOverrideLifecycleVerification
             Directory.Delete(temporary, recursive: true);
         }
     }
+
+    /// <summary>
+    /// Installed domains that hold gameplay data rather than presentation, so they have no
+    /// persistent override: room level streams are the block and collision data rooms run on (#1332).
+    /// </summary>
+    private static readonly string[] StockOnlyGameplayDomains = [nameof(GameInstallationLayout.RoomLevelStreamDirectoryName)];
 
     /// <summary>Copies every declared installed domain into persistent overrides and adds an unrecognized user note.</summary>
     [ReflectionAudit("public coverage discovery: every override directory the installation exposes must match a declared installed domain")]
@@ -104,11 +110,12 @@ internal static class InstallationOverrideLifecycleVerification
             .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         string[] declared = MetadataShape.Fields(typeof(GameInstallationLayout), BindingFlags.Public | BindingFlags.Static)
             .Where(field => field.FieldType == typeof(string) && field.Name.EndsWith("DirectoryName", StringComparison.Ordinal) &&
-                field.Name != nameof(GameInstallationLayout.ContentDirectoryName))
+                field.Name != nameof(GameInstallationLayout.ContentDirectoryName) &&
+                !StockOnlyGameplayDomains.Contains(field.Name))
             .Select(field => (string)(field.GetValue(null) ?? throw new InvalidOperationException("Verification requires field.GetValue(null)."))).Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal).ToArray();
         Assert(directories.SequenceEqual(declared), "every declared installed domain exposes a persistent override directory");
-        foreach (string directory in directories)
+        foreach (string directory in directories.Where(directory => directory != GameInstallationLayout.AudioDirectoryName))
         foreach (string file in Directory.EnumerateFiles(Path.Combine(installation.ContentDirectory, directory), "*", SearchOption.AllDirectories))
         {
             string target = Path.Combine(installation.Root, "overrides", directory,
@@ -116,6 +123,8 @@ internal static class InstallationOverrideLifecycleVerification
             Directory.CreateDirectory((Path.GetDirectoryName(target) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(target).")));
             File.Copy(file, target);
         }
+        // The audio override holds replacement clips, not a copy of the stock catalog (#1305 Q3); an empty one selects stock.
+        _ = AudioAssetOverrideInstaller.Initialize(installation);
         File.WriteAllText(Path.Combine(installation.Root, "overrides", "artist-note.txt"), "preserve unrecognized user files");
         return directories;
     }
@@ -164,7 +173,7 @@ internal static class InstallationOverrideLifecycleVerification
     /// <summary>Requires only map, audio, standard-object, and gameplay-palette identities to change after the selected edits.</summary>
     private static void AssertOnlyEditedCatalogsChanged(Dictionary<string, string> baseline, Dictionary<string, string> selected)
     {
-        string[] changed = [nameof(GameInstallation.LoadMaps), nameof(GameInstallation.LoadAudio),
+        string[] changed = [nameof(GameInstallation.LoadMaps), nameof(GameInstallation.LoadAudioClips),
             nameof(GameInstallation.LoadStandardObjects), nameof(GameInstallation.LoadGameplayBasePalettes)];
         foreach ((string loader, string digest) in baseline)
             Assert((selected[loader] != digest) == changed.Contains(loader), "isolated presentation edits: " + loader);
@@ -201,7 +210,7 @@ internal static class InstallationOverrideLifecycleVerification
         if (!condition) throw new InvalidDataException(message);
     }
 
-    /// <summary>Authors isolated PNG, font, RGB5, WAV, instrument, and sound-program changes and records their expected values.</summary>
+    /// <summary>Authors isolated PNG, font, RGB5 and replacement-clip changes and records their expected values.</summary>
     private static OverrideExpectations EditPresentation(GameInstallation installation)
     {
         byte[] standard = EditPng(Path.Combine(installation.StandardObjectOverrideDirectory,
@@ -220,38 +229,15 @@ internal static class InstallationOverrideLifecycleVerification
         File.WriteAllBytes(palettePath, GameplayBasePaletteCatalog.Write(palette));
         ushort selectedColor = (ushort)(palette.Initial[0].Red | palette.Initial[0].Green << 5 | palette.Initial[0].Blue << 10);
 
-        string audioPath = Path.Combine(installation.AudioOverrideDirectory, ExtractedAudioAssetCatalog.ManifestFileName);
-        AudioAssetManifest manifest = RequiredJson.Deserialize<AudioAssetManifest>(File.ReadAllText(audioPath), AudioAssetJson.Options);
-        AudioCanonicalSampleMetadata sample = manifest.CanonicalSamples[0];
-        string wavePath = Path.Combine(installation.AudioOverrideDirectory, sample.WavFile.Replace('/', Path.DirectorySeparatorChar));
-        (int rate, short[] pcm) = PcmWaveFile.ReadMonoPcm16(File.ReadAllBytes(wavePath), wavePath);
-        pcm[0] = unchecked((short)(pcm[0] ^ 1));
-        PcmWaveFile.WriteMonoPcm16(wavePath, rate, pcm);
-        AudioBankMetadata bank = manifest.Banks.First(candidate => candidate.Samples.Any(value => value.SampleId == sample.Id));
-        AudioSampleMetadata source = bank.Samples.First(value => value.SampleId == sample.Id);
-        AudioInstrumentMetadata instrument = bank.Instruments[0] with { PitchBase = (ushort)(bank.Instruments[0].PitchBase ^ 1) };
-        AudioSoundProgramMetadata program = manifest.SoundPrograms.First(value =>
-            value.Instructions.Any(instruction => instruction.Operation == AudioSoundInstructionOperations.PlayNote));
-        int instructionIndex = program.Instructions.ToList().FindIndex(value => value.Operation == AudioSoundInstructionOperations.PlayNote);
-        byte[] arguments = program.Instructions[instructionIndex].Arguments.ToArray();
-        // PlayNote's last byte is duration. Preserve identity, instrument/routing,
-        // encoded capacity and flow while authoring a different audible duration.
-        arguments[^1] = (byte)(arguments[^1] == byte.MaxValue ? byte.MaxValue - 1 : arguments[^1] + 1);
-        AudioSoundInstructionMetadata instruction = program.Instructions[instructionIndex] with { Arguments = arguments };
-        AudioAssetManifest edited = manifest with
-        {
-            CanonicalSamples = manifest.CanonicalSamples.Select(value => value.Id == sample.Id
-                ? value with { Sha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(wavePath))) } : value).ToArray(),
-            Banks = manifest.Banks.Select(value => value.SnesAddress == bank.SnesAddress
-                ? value with { Instruments = value.Instruments.Select(item => item.Instrument == instrument.Instrument ? instrument : item).ToArray() }
-                : value).ToArray(),
-            SoundPrograms = manifest.SoundPrograms.Select(value => value.Id == program.Id
-                ? value with { Instructions = value.Instructions.Select((item, index) => index == instructionIndex ? instruction : item).ToArray() }
-                : value).ToArray(),
-        };
-        File.WriteAllText(audioPath, JsonSerializer.Serialize(edited, AudioAssetJson.Options));
-        return new(standard, font, selectedColor, AudioAssetCatalogDefinitions.ResolveSnesAddress(bank.SnesAddress).Bank, source.Source, pcm[0],
-            instrument, program.Id, instructionIndex, arguments);
+        ClipAudioCatalog clips = installation.LoadAudioClips();
+        MusicClipEntry song = clips.Manifest.Music[0];
+        short[] samples = clips.ReadClip(song.Clip);
+        samples[0] = unchecked((short)(samples[0] ^ 1));
+        string replacement = Path.Combine(installation.Root, "replacement-song.wav");
+        PcmWaveFile.WriteStereoPcm16(replacement, clips.Manifest.SampleRate, samples);
+        _ = AudioAssetOverrideInstaller.Replace(installation, ClipAudioOverrides.MusicId(song.Bank, song.Track), replacement, song.LoopStart);
+        File.Delete(replacement);
+        return new(standard, font, selectedColor, song.Bank, song.Track, samples[0]);
     }
 
     /// <summary>Changes the first indexed pixel of an override PNG and returns its encoded SNES tile bytes.</summary>
@@ -273,17 +259,12 @@ internal static class InstallationOverrideLifecycleVerification
         Assert(installation.LoadStandardObjects().Transfer.Span.SequenceEqual(expected.StandardObjects), phase + ": actual PNG transfer");
         Assert(installation.LoadMaps().IntroFont.Transfer.Span.SequenceEqual(expected.Font), phase + ": actual font transfer");
         Assert(installation.LoadGameplayBasePalettes().Initial[0] == Bgr555.FromWord(expected.Color), phase + ": actual palette word");
-        ExtractedAudioAssetCatalog audio = installation.LoadAudio();
-        Assert(audio.GetSampleBank(expected.Bank).Resolve(expected.Source).Samples.Span[0] == expected.PcmFirstSample,
-            phase + ": actual replaced WAV sample");
-        Assert(audio.GetInstrumentBank(expected.Bank)[expected.Instrument.Instrument] == expected.Instrument,
-            phase + ": actual authored instrument");
-        Assert(audio.SoundPrograms.Single(value => value.Id == expected.SoundProgram).Instructions[expected.SoundInstruction]
-            .Arguments.SequenceEqual(expected.SoundArguments), phase + ": actual authored SFX operation");
+        ClipAudioCatalog audio = installation.LoadAudioClips();
+        Assert(audio.ReadClip(audio.GetMusic(expected.MusicBank, expected.MusicTrack).Clip)[0] == expected.ClipFirstSample,
+            phase + ": actual replacement clip sample");
     }
 
     /// <summary>Edited transfer, palette, and audio values expected to survive each installation transition.</summary>
     private sealed record OverrideExpectations(byte[] StandardObjects, byte[] Font, ushort Color,
-        AudioBank Bank, byte Source, short PcmFirstSample, AudioInstrumentMetadata Instrument,
-        string SoundProgram, int SoundInstruction, byte[] SoundArguments);
+        AudioBank MusicBank, int MusicTrack, short ClipFirstSample);
 }

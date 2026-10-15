@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Frontend;
-using static SuperMetroid.Verification.Audio.AudioInstrumentsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation;
@@ -12,123 +12,116 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks persistent audio overrides and their contribution to installed content identity.</summary>
 internal static class AudioOverridesVerification
 {
-    /// <summary>Checks initialization, instrument edits, stock repair, and malformed override rejection.</summary>
+    /// <summary>The replaced song: Green Brinstar track 3.</summary>
+    private const int ReplacedTrack = 3;
+
+    /// <summary>Frames in the synthetic replacement tone.</summary>
+    private const int ToneFrames = 2000;
+
+    /// <summary>The tone's loop start.</summary>
+    private const long ToneLoop = 100;
+
+    /// <summary>
+    /// Checks clip-level overrides (#1305 Q3) on a small exported stock fixture: initialization
+    /// outside the replaceable content, a song replaced and played, untouched sounds, survival of a
+    /// stock repair, rejected edits that leave the override in place, and loud failures for corrupt
+    /// stock or a missing replacement.
+    /// </summary>
     internal static void VerifyPersistentAudioOverrides()
     {
-        string source = RepositoryInstallation.Installation.AudioDirectory;
+        ExtractedAudioAssetCatalog extracted = RepositoryInstallation.Installation.LoadAudio();
         using var rootScratch = new TestScratchDirectory("audio-override");
-        string root = rootScratch.Root;
-        var installation = new GameInstallation(root);
-        CopyAudioDirectory(source, installation.AudioDirectory);
-        try
+        var installation = new GameInstallation(rootScratch.Root);
+        void ExportStock()
         {
-            ExtractedAudioAssetCatalog stock = installation.LoadAudio();
-            AssertEqual(
-                stock.ContentIdentity,
-                installation.LoadAudio().ContentIdentity,
-                "stock audio identity is stable across reload");
-            string selectedDirectory = AudioAssetOverrideInstaller.Initialize(installation);
-            AssertEqual(
-                Path.GetFullPath(installation.AudioOverrideDirectory),
-                Path.GetFullPath(selectedDirectory),
-                "audio override initializes outside replaceable game content");
-            AssertThrows<IOException>(
-                () => AudioAssetOverrideInstaller.Initialize(installation),
-                "audio override initialization refuses to overwrite user content");
-
-            string overrideManifestPath = Path.Combine(
-                installation.AudioOverrideDirectory,
-                ExtractedAudioAssetCatalog.ManifestFileName);
-            AudioAssetManifest manifest = ReadAudioManifest(overrideManifestPath);
-            AudioBankMetadata title = manifest.Banks.Single(
-                bank => bank.SnesAddress == AudioUploadAddresses.TitleSequence);
-            AudioInstrumentMetadata editedInstrument = title.Instruments[0] with
-            {
-                PitchBase = unchecked((ushort)(title.Instruments[0].PitchBase + 0x0100)),
-            };
-            AudioAssetManifest edited = manifest with
-            {
-                Banks = manifest.Banks.Select(bank => bank.SnesAddress == title.SnesAddress
-                    ? bank with
-                    {
-                        Instruments = bank.Instruments.Select(instrument => instrument.Instrument == 0
-                            ? editedInstrument
-                            : instrument).ToArray(),
-                    }
-                    : bank).ToArray(),
-            };
-            WriteAudioManifest(overrideManifestPath, edited);
-
-            ExtractedAudioAssetCatalog selected = installation.LoadAudio();
-            AssertTrue(
-                selected.ContentIdentity != stock.ContentIdentity,
-                "instrument-only JSON edit changes selected audio identity");
-            AssertEqual(
-                editedInstrument.PitchBase,
-                selected.GetInstrumentBank(AudioBank.TitleSequence)[0].PitchBase,
-                "installed session selects persistent instrument edit");
-            AssertTrue(
-                selected.GetInstrumentBank(AudioBank.TitleSequence)[0].PitchBase !=
-                stock.GetInstrumentBank(AudioBank.TitleSequence)[0].PitchBase,
-                "selected audio differs from validated stock");
-
-            // A stock repair replaces only game/audio. The persistent override remains selected.
-            Directory.Delete(installation.AudioDirectory, recursive: true);
-            CopyAudioDirectory(source, installation.AudioDirectory);
-            AssertEqual(
-                editedInstrument.PitchBase,
-                installation.LoadAudio().GetInstrumentBank(AudioBank.TitleSequence)[0].PitchBase,
-                "stock repair preserves persistent audio edit");
-            AssertEqual(
-                selected.ContentIdentity,
-                installation.LoadAudio().ContentIdentity,
-                "stock repair preserves selected audio identity");
-
-            AudioAssetManifest incompatible = edited with
-            {
-                Uploads = edited.Uploads.Select((upload, index) => index == 0
-                    ? upload with { ByteLength = upload.ByteLength + 1 }
-                    : upload).ToArray(),
-            };
-            WriteAudioManifest(overrideManifestPath, incompatible);
-            AssertThrows<InvalidDataException>(
-                () => installation.LoadAudio(),
-                "override cannot replace opaque upload mechanics");
-            WriteAudioManifest(overrideManifestPath, edited);
-
-            string stockManifestPath = Path.Combine(
+            Directory.CreateDirectory(installation.AudioDirectory);
+            AudioClipExporter.Export(
+                extracted,
                 installation.AudioDirectory,
-                ExtractedAudioAssetCatalog.ManifestFileName);
-            File.AppendAllText(stockManifestPath, "corrupt");
-            AssertThrows<System.Text.Json.JsonException>(
-                () => installation.LoadAudio(),
-                "valid override cannot conceal corrupt stock");
-            File.Copy(
-                Path.Combine(source, ExtractedAudioAssetCatalog.ManifestFileName),
-                stockManifestPath,
-                overwrite: true);
+                [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, ReplacedTrack)],
+                [
+                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.PowerBeam.Value),
+                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library3, SoundEffectLibrary3Sounds.SpeedBoosterEcho.Value),
+                ]);
+        }
+        ExportStock();
 
-            AudioCanonicalSampleMetadata firstSample = edited.CanonicalSamples[0];
-            string missingWave = Path.Combine(
-                installation.AudioOverrideDirectory,
-                firstSample.WavFile.Replace('/', Path.DirectorySeparatorChar));
-            File.Delete(missingWave);
-            AssertThrows<FileNotFoundException>(
-                () => installation.LoadAudio(),
-                "invalid override never silently falls back to stock");
-        }
-        finally
-        {
-            if (Directory.Exists(root))
-                Directory.Delete(root, recursive: true);
-        }
+        ClipAudioCatalog stock = installation.LoadAudioClips();
+        AssertEqual(stock.ContentIdentity, installation.LoadAudioClips().ContentIdentity, "stock clip identity is stable across reload");
+        string selectedDirectory = AudioAssetOverrideInstaller.Initialize(installation);
+        AssertEqual(
+            Path.GetFullPath(installation.AudioOverrideDirectory),
+            Path.GetFullPath(selectedDirectory),
+            "audio override initializes outside replaceable game content");
+        AssertThrows<IOException>(
+            () => AudioAssetOverrideInstaller.Initialize(installation),
+            "audio override initialization refuses to overwrite user content");
+        AssertEqual(
+            stock.GetMusic(AudioBank.GreenBrinstar, ReplacedTrack).Clip,
+            installation.LoadAudioClips().GetMusic(AudioBank.GreenBrinstar, ReplacedTrack).Clip,
+            "an empty override selects the stock clips");
+        AssertEqual(stock.ContentIdentity, installation.LoadAudioClips().ContentIdentity, "an empty override keeps the stock identity");
+
+        short[] tone = new short[ToneFrames * 2];
+        for (int sample = 0; sample < tone.Length; sample++)
+            tone[sample] = unchecked((short)(sample * 37 % 20000 - 10000));
+        string tonePath = Path.Combine(rootScratch.Root, "tone.wav");
+        PcmWaveFile.WriteStereoPcm16(tonePath, ClipSampleRate(stock), tone);
+        string songId = ClipAudioOverrides.MusicId(AudioBank.GreenBrinstar, ReplacedTrack);
+        AudioAssetOverrideInstaller.Replace(installation, songId, tonePath, ToneLoop);
+
+        ClipAudioCatalog selected = installation.LoadAudioClips();
+        MusicClipEntry song = selected.GetMusic(AudioBank.GreenBrinstar, ReplacedTrack);
+        AssertEqual((long)ToneFrames, song.Clip.Frames, "the replacement's length selects the song");
+        AssertEqual<long?>(ToneLoop, song.LoopStart, "the replacement's loop selects the song");
+        AssertSequenceEqual(tone, selected.ReadClip(song.Clip), "the session plays the replacement's samples");
+        AssertTrue(selected.ContentIdentity != stock.ContentIdentity, "a replacement changes the selected audio identity");
+        AssertSequenceEqual(
+            stock.GetSoundEffect(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.PowerBeam.Value).Layers.Select(layer => layer.Clip),
+            selected.GetSoundEffect(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.PowerBeam.Value).Layers.Select(layer => layer.Clip),
+            "unreplaced sounds stay stock");
+
+        // A stock repair replaces only game/audio; the persistent override remains selected.
+        Directory.Delete(installation.AudioDirectory, recursive: true);
+        ExportStock();
+        AssertEqual(selected.ContentIdentity, installation.LoadAudioClips().ContentIdentity, "stock repair preserves the selected audio");
+
+        AssertThrows<InvalidDataException>(
+            () => AudioAssetOverrideInstaller.Replace(installation, "music-ff-track-99", tonePath, null),
+            "an unknown song is rejected");
+        AssertThrows<InvalidDataException>(
+            () => AudioAssetOverrideInstaller.Replace(installation,
+                ClipAudioOverrides.SoundEffectId(SoundEffectLibrary.Library3, SoundEffectLibrary3Sounds.SpeedBoosterEcho.Value), tonePath, null),
+            "a never-ending sound's replacement needs a loop");
+        string monoPath = Path.Combine(rootScratch.Root, "mono.wav");
+        PcmWaveFile.WriteMonoPcm16(monoPath, ClipSampleRate(stock), tone);
+        AssertThrows<InvalidDataException>(
+            () => AudioAssetOverrideInstaller.Replace(installation, songId, monoPath, null),
+            "a mono replacement is rejected");
+        AssertEqual(selected.ContentIdentity, installation.LoadAudioClips().ContentIdentity, "rejected edits leave the override in place");
+
+        string stockManifestPath = Path.Combine(installation.AudioDirectory, ClipAudioCatalog.ManifestFileName);
+        File.AppendAllText(stockManifestPath, "corrupt");
+        AssertThrows<System.Text.Json.JsonException>(
+            () => installation.LoadAudioClips(),
+            "a valid override cannot conceal corrupt stock");
+        Directory.Delete(installation.AudioDirectory, recursive: true);
+        ExportStock();
+
+        File.Delete(Path.Combine(installation.AudioOverrideDirectory, "clips", songId + ".wav"));
+        AssertThrows<FileNotFoundException>(
+            () => installation.LoadAudioClips(),
+            "an invalid override never silently falls back to stock");
 
         Suite(nameof(VerifyGameContentIdentityComposition), () => VerifyGameContentIdentityComposition());
 
         Console.WriteLine(
-            "Persistent audio overrides: isolated initialization, selection, stock repair, " +
-            "stable installation identity, compatibility guards and loud corruption failures pass.");
+            "Persistent audio overrides: isolated initialization, clip replacement, stock repair, " +
+            "rejected edits and loud corruption failures pass.");
     }
+
+    /// <summary>The clips' sample rate.</summary>
+    private static int ClipSampleRate(ClipAudioCatalog clips) => clips.Manifest.SampleRate;
 
     /// <summary>Checks component digests and build identity affect compatibility warnings independently.</summary>
     internal static void VerifyGameContentIdentityComposition()

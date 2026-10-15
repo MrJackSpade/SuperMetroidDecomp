@@ -18,7 +18,6 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -51,12 +50,9 @@ public sealed record GameInstallation(string Root)
     public string AudioDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.AudioDirectoryName);
     /// <summary>Persistent editable audio content, outside the replaceable stock installation.</summary>
     public string AudioOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.AudioDirectoryName);
-    /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays.</summary>
-    /// <exception cref="InvalidDataException">The clip manifest or a clip's size is invalid.</exception>
-    public ClipAudioCatalog LoadAudioClips() => ClipAudioCatalog.Load(AudioDirectory);
-    /// <summary>Validates stock content, then selects a complete compatible user override when present.</summary>
-    public ExtractedAudioAssetCatalog LoadAudio() =>
-        ExtractedAudioAssetCatalog.Load(AudioDirectory, AudioOverrideDirectory);
+    /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays, with the persistent clip override when one exists.</summary>
+    /// <exception cref="InvalidDataException">The stock clips or the override are invalid.</exception>
+    public ClipAudioCatalog LoadAudioClips() => ClipAudioCatalog.Load(AudioDirectory, AudioOverrideDirectory);
     /// <summary>Stock area-map artwork and exploration masks under the replaceable content tree.</summary>
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
     /// <summary>Stock starting CGRAM and room-entry sprite palettes under the replaceable content tree.</summary>

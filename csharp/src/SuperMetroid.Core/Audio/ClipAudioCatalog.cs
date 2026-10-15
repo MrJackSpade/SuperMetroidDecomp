@@ -38,11 +38,14 @@ public sealed class ClipAudioCatalog
     private readonly Dictionary<(SoundEffectLibrary Library, byte Command), SoundEffectClipPolicy> policies = [];
     /// <summary>Effects with no clip in a context, by (bank context, library, command).</summary>
     private readonly Dictionary<(AudioBank? Context, SoundEffectLibrary Library, byte Command), UnrenderableSoundEffect> unrenderable;
+    /// <summary>Each override replacement clip's absolute path; every other clip lives beneath <see cref="root"/>.</summary>
+    private readonly IReadOnlyDictionary<AudioClipFile, string> overrideFiles;
 
     /// <summary>Creates a catalog over a validated manifest.</summary>
-    private ClipAudioCatalog(string root, AudioClipManifest manifest, string contentIdentity)
+    private ClipAudioCatalog(string root, AudioClipManifest manifest, string contentIdentity, IReadOnlyDictionary<AudioClipFile, string> overrideFiles)
     {
         this.root = root;
+        this.overrideFiles = overrideFiles;
         Manifest = manifest;
         ContentIdentity = contentIdentity;
         music = [];
@@ -74,13 +77,25 @@ public sealed class ClipAudioCatalog
     /// <summary>The validated manifest.</summary>
     public AudioClipManifest Manifest { get; }
 
-    /// <summary>SHA-256 of the manifest file: it names every clip's hash, so any audible change alters it.</summary>
+    /// <summary>
+    /// SHA-256 of the stock manifest file, which names every clip's hash, and of the selected
+    /// override's manifest and replacement files; any audible change alters it.
+    /// </summary>
     public string ContentIdentity { get; }
 
-    /// <summary>Loads and validates <see cref="ManifestFileName"/> beneath <paramref name="audioDirectory"/>.</summary>
+    /// <summary>Loads and validates the stock clips beneath <paramref name="audioDirectory"/>.</summary>
     /// <exception cref="FileNotFoundException">The manifest or a clip file is missing.</exception>
     /// <exception cref="InvalidDataException">The format, rate, an identity, a path, a duplicate key, loop bounds or a file size is invalid.</exception>
-    public static ClipAudioCatalog Load(string audioDirectory)
+    public static ClipAudioCatalog Load(string audioDirectory) => Load(audioDirectory, null);
+
+    /// <summary>
+    /// Loads the stock clips, validates them, then selects the persistent override in
+    /// <paramref name="overrideDirectory"/> when that directory exists (#1305 Q3). Corrupt stock fails
+    /// even with a valid override, and an invalid override never falls back to stock.
+    /// </summary>
+    /// <exception cref="FileNotFoundException">A manifest or a clip file is missing.</exception>
+    /// <exception cref="InvalidDataException">The stock or the override is invalid.</exception>
+    public static ClipAudioCatalog Load(string audioDirectory, string? overrideDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
         string root = Path.GetFullPath(audioDirectory);
@@ -122,7 +137,15 @@ public sealed class ClipAudioCatalog
                 }
             }
         }
-        return new ClipAudioCatalog(root, manifest, Convert.ToHexString(SHA256.HashData(manifestBytes)));
+        string stockIdentity = Convert.ToHexString(SHA256.HashData(manifestBytes));
+        if (overrideDirectory is null || !Directory.Exists(overrideDirectory))
+            return new ClipAudioCatalog(root, manifest, stockIdentity, new Dictionary<AudioClipFile, string>());
+        ClipAudioOverrides.Selection selection = ClipAudioOverrides.Apply(manifest, overrideDirectory);
+        // An override without replacements is audibly stock and keeps the stock identity.
+        string identity = selection.Files.Count == 0
+            ? stockIdentity
+            : Convert.ToHexString(SHA256.HashData(Convert.FromHexString(stockIdentity + selection.Identity)));
+        return new ClipAudioCatalog(root, selection.Manifest, identity, selection.Files);
     }
 
     /// <summary>Loads the catalog and reads every clip, checking every file's SHA-256: the installer's stock validation.</summary>
@@ -171,7 +194,7 @@ public sealed class ClipAudioCatalog
     public short[] ReadClip(AudioClipFile clip)
     {
         Ensure.NotNull(clip);
-        string path = ResolveContainedPath(root, clip.Path);
+        string path = overrideFiles.TryGetValue(clip, out string? replacement) ? replacement : ResolveContainedPath(root, clip.Path);
         byte[] bytes = File.ReadAllBytes(path);
         string hash = Convert.ToHexString(SHA256.HashData(bytes));
         if (!hash.Equals(clip.Sha256, StringComparison.OrdinalIgnoreCase))

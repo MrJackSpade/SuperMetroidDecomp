@@ -106,8 +106,7 @@ internal static class AudioClipExporter
         ConcurrentDictionary<string, Lazy<AudioClipFile>> files,
         MusicKey key)
     {
-        ushort pointer = catalog.GetMusicBank(key.Bank).TrackPointers[key.Track];
-        MusicTrackAnalysis track = MusicTrackAnalysis.Analyze(catalog, key.Bank, key.Track, pointer);
+        MusicTrackAnalysis track = MusicTrackAnalysis.Analyze(catalog, key.Bank, key.Track);
         short[] pcm = MusicTrackRendering.RenderClip(catalog, track);
         long start = track.StartSample;
         long clipFrames = pcm.Length / 2;

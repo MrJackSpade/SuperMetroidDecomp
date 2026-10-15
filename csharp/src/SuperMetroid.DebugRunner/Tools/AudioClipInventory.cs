@@ -1,20 +1,22 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Audio;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.DebugRunner.Tools;
 
 /// <summary>
-/// The #1305 stage-1 audio inventory: every music track's loop structure, PCM seam and entry-state
-/// sensitivity, and every sound effect's state dependence, logical end, loop and key-on markers in
-/// each bank context, measured with <see cref="SpcAudioClipRenderer"/> over an installed audio
-/// catalog. It writes <c>audio-clip-inventory.json</c> (all measurements) and
-/// <c>audio-clip-inventory.md</c> (the gate answer and summary tables).
+/// The #1305 audio clip inventory: every music track's loop structure, shipped-loop seam and
+/// tempo-phase period, the static sound-program scan for inherited state, and every sound effect's
+/// clips in every bank context, measured over an installed extracted catalog with the same
+/// analysis and renderers the installer's clip export uses. It writes
+/// <c>audio-clip-inventory.json</c> and <c>audio-clip-inventory.md</c>.
 /// </summary>
 internal static class AudioClipInventory
 {
@@ -26,139 +28,64 @@ internal static class AudioClipInventory
     {
         ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(Path.GetFullPath(audioDirectory));
         Directory.CreateDirectory(outputDirectory);
-        var timings = new List<(string Phase, double WallSeconds, double SummedSeconds)>();
+        var timings = new List<PhaseTiming>();
 
-        // Music structure: sequencer-only, per distinct (bank, pointer).
-        var trackKeys = new List<(AudioBank Bank, int Track, ushort Pointer)>();
-        foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogDefinitions.Music)
+        IReadOnlyList<AudioClipExporter.MusicKey> trackKeys = AudioClipExporter.AllTracks(catalog);
+        MusicRow[] music = Timed(timings, "music (structure, clip, seam, tempo phase)", trackKeys.Count, index =>
         {
-            IReadOnlyList<ushort> pointers = catalog.GetMusicBank(bank.Bank).TrackPointers;
-            for (int track = 1; track < pointers.Count; track++)
-            {
-                if (pointers[track] != 0)
-                    trackKeys.Add((bank.Bank, track, pointers[track]));
-            }
-        }
-        MusicTrackAnalysis[] tracks = Timed(timings, "music structure (sequencer only)", trackKeys.Count, index =>
-            MusicTrackAnalysis.Analyze(catalog, trackKeys[index].Bank, trackKeys[index].Track, trackKeys[index].Pointer));
-
-        // Loop passes until the tempo phase recurs: the shortest sample-exact loop for a drifting track.
-        MusicTrackAnalysis[] looping = [.. tracks.Where(track => track.Shape == MusicTrackShape.Loops)];
-        int[] phasePeriods = Timed(timings, "music tempo-phase periods (sequencer only)", looping.Length, index =>
-            MusicTrackAnalysis.TempoPhasePeriod(catalog, looping[index]));
-        string[] phaseLines = [.. looping.Select((track, index) => (track, period: phasePeriods[index]))
-            .Where(entry => entry.period > 1)
-            .Select(entry => $"{entry.track.Bank} track {entry.track.Track}: {entry.period} passes of {Seconds(entry.track.LoopSamples)} s")];
-
-        // Music PCM: canonical render, seam check and entry-state perturbations with fixed donors.
-        MusicTrackAnalysis[] periodic = [.. tracks.Where(track => track.Shape != MusicTrackShape.NoPeriodFound)];
-        MusicTrackAnalysis echoDonor = periodic
-            .OrderByDescending(track => track.MaximumEchoDelay)
-            .ThenByDescending(track => BitCount(track.EchoVoices))
-            .First();
-        MusicTrackAnalysis? noiseDonor = periodic
-            .Where(track => track.NoiseVoices != 0)
-            .OrderByDescending(track => BitCount(track.NoiseVoices))
-            .FirstOrDefault();
-        ManagedSpcPlayer echoDonorPlayer = MusicTrackRendering.DonorAtLoopPoint(catalog, echoDonor);
-        ManagedSpcPlayer? noiseDonorPlayer = noiseDonor is null ? null : MusicTrackRendering.DonorAtLoopPoint(catalog, noiseDonor);
-        var pcmResults = new MusicPcmResult[periodic.Length];
-        Timed(timings, "music PCM (canonical, seam, entry perturbations)", periodic.Length, index =>
-        {
-            MusicTrackAnalysis track = periodic[index];
-            short[] canonical = MusicTrackRendering.RenderCanonical(catalog, track);
-            SeamProfile? seam = track.Shape == MusicTrackShape.Loops ? MusicTrackRendering.CompareSeam(track, canonical) : null;
-            SeamProfile? earlySeam = track.Shape == MusicTrackShape.Loops ? MusicTrackRendering.CompareEarlySeam(track, canonical) : null;
-            long clipEnd = track.Shape == MusicTrackShape.Loops ? track.Arrivals[2] : track.IntroSamples;
-            string clipHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
-                System.Runtime.InteropServices.MemoryMarshal.AsBytes(canonical.AsSpan(0, (int)(clipEnd * 2)))));
-            string earlyClipHash = track.Shape == MusicTrackShape.Loops
-                ? Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
-                    System.Runtime.InteropServices.MemoryMarshal.AsBytes(canonical.AsSpan(0, (int)(track.Arrivals[1] * 2)))))
-                : clipHash;
-            SeamProfile echo = MusicTrackRendering.EntryDifference(catalog, track, canonical, SpcEntryStateGroup.Echo, echoDonorPlayer);
-            SeamProfile? noise = noiseDonorPlayer is null
-                ? null
-                : MusicTrackRendering.EntryDifference(catalog, track, canonical, SpcEntryStateGroup.Noise, noiseDonorPlayer);
-            SeamProfile channels = MusicTrackRendering.EntryDifference(catalog, track, canonical, SpcEntryStateGroup.Channels, echoDonorPlayer);
-            pcmResults[index] = new MusicPcmResult(track.Bank, track.Track, canonical.Length / 2,
-                seam, earlySeam, clipHash, earlyClipHash, echo, noise, channels);
-            return pcmResults[index];
+            AudioClipExporter.MusicKey key = trackKeys[index];
+            MusicTrackAnalysis track = MusicTrackAnalysis.Analyze(catalog, key.Bank, key.Track);
+            if (track.Shape == MusicTrackShape.NoPeriodFound)
+                return new MusicRow(key.Bank, key.Track, track.Shape, 0, null, null, null, "");
+            short[] clip = MusicTrackRendering.RenderClip(catalog, track);
+            bool loops = track.Shape == MusicTrackShape.Loops;
+            return new MusicRow(
+                key.Bank, key.Track, track.Shape, clip.Length / 2,
+                loops ? track.Arrivals[1] - track.Arrivals[0] : null,
+                loops ? AudioClipMeasurements.ShippedLoopSeam(catalog, track) : null,
+                loops ? AudioClipMeasurements.TempoPhasePeriod(catalog, track) : null,
+                Hash(clip));
         });
 
-        // Sound effects: static program scan, then every effect in every bank context.
-        Dictionary<string, SoundEffectProgramScan> scans = catalog.SoundPrograms
-            .ToDictionary(program => program.Id, SoundEffectProgramScan.Scan);
-        var contexts = new List<AudioBank?> { null };
-        contexts.AddRange(AudioAssetCatalogDefinitions.Music.Select(bank => (AudioBank?)bank.Bank));
-        var effectKeys = new List<(AudioBank? Context, SoundEffectLibrary Library, AudioSoundEffectMetadata Effect, bool Forever)>();
-        var unmapped = new List<UnmappedEffect>();
-        foreach (AudioSoundLibraryMetadata library in catalog.SoundLibraries)
+        SoundEffectStateScan[] scans = [.. catalog.SoundPrograms.Select(SoundEffectStateScan.Scan)];
+        Dictionary<string, SoundEffectProgramScan> exportScans = catalog.SoundPrograms.ToDictionary(program => program.Id, SoundEffectProgramScan.Scan);
+        IReadOnlyList<AudioClipExporter.SoundEffectKey> effectKeys = AudioClipExporter.AllSoundEffects(catalog);
+        SoundEffectRow[] effects = Timed(timings, "sound effects (clips in every bank context)", effectKeys.Count, index =>
         {
-            SoundEffectLibrary id = LibraryOf(library.Library);
-            foreach (AudioSoundEffectMetadata effect in library.Effects)
+            AudioClipExporter.SoundEffectKey key = effectKeys[index];
+            AudioSoundEffectMetadata effect = catalog.SoundLibraries
+                .Single(library => library.Library == SoundEffectLibraries.ToQueueIndex(key.Library) + 1)
+                .Effects.Single(candidate => candidate.Command == key.Command);
+            AudioBank bank = key.Context ?? AudioAssetCatalogDefinitions.Common.Bank;
+            string[] missing = [.. effect.ChannelPrograms
+                .SelectMany(program => exportScans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)))
+                .Distinct()];
+            if (missing.Length != 0)
+                return new SoundEffectRow(key.Context, key.Library, key.Command, null, [], [], missing);
+            if (effect.ChannelPrograms.Any(program => exportScans[program].RepeatsForever))
             {
-                bool forever = effect.ChannelPrograms.Any(program => scans[program].RepeatsForever);
-                foreach (AudioBank? context in contexts)
-                {
-                    AudioBank bank = context ?? AudioAssetCatalogDefinitions.Common.Bank;
-                    string[] missing = [.. effect.ChannelPrograms
-                        .SelectMany(program => scans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)))
-                        .Distinct()];
-                    if (missing.Length != 0)
-                        unmapped.Add(new UnmappedEffect(context, id, effect.Command, missing));
-                    else
-                        effectKeys.Add((context, id, effect, forever));
-                }
+                IReadOnlyList<SoundEffectRendering.LoopingLayer> layers = SoundEffectRendering.RenderLoopingLayers(
+                    catalog, key.Context, key.Library, key.Command, effect.ChannelPrograms.Count);
+                return new SoundEffectRow(key.Context, key.Library, key.Command, null,
+                    [.. layers.Select(layer => layer.Clip.Length / 2L)], [.. layers.Select(layer => Hash(layer.Clip))], []);
             }
-        }
-        SoundEffectAnalysis[] effects = Timed(timings, "sound effects (PCM, every bank context)", effectKeys.Count, index =>
-            SoundEffectAnalysis.Analyze(catalog, effectKeys[index].Context, effectKeys[index].Library,
-                effectKeys[index].Effect.Command, effectKeys[index].Forever));
+            SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, key.Context, key.Library, key.Command);
+            return new SoundEffectRow(key.Context, key.Library, key.Command, shot.ActiveFrames,
+                shot.Clip.Length == 0 ? [] : [shot.Clip.Length / 2L], shot.Clip.Length == 0 ? [] : [Hash(shot.Clip)], []);
+        });
 
-        var inventory = new InventoryDocument(
-            tracks, pcmResults,
-            echoDonor is null ? null : $"{echoDonor.Bank} track {echoDonor.Track}",
-            noiseDonor is null ? null : $"{noiseDonor.Bank} track {noiseDonor.Track}",
-            [.. scans.Values.OrderBy(scan => scan.ProgramId, StringComparer.Ordinal)],
-            effects,
-            unmapped,
-            [.. timings.Select(timing => new PhaseTiming(timing.Phase, timing.WallSeconds, timing.SummedSeconds))]);
+        var document = new InventoryDocument(music, scans, effects, timings);
         var options = new JsonSerializerOptions { WriteIndented = true, IncludeFields = true };
         options.Converters.Add(new JsonStringEnumConverter());
-        File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.json"), JsonSerializer.Serialize(inventory, options));
-        var phaseSection = new System.Text.StringBuilder();
-        string[] allEchoStates = [.. tracks.SelectMany(track => track.EchoStates).Distinct()];
-        MusicPcmResult[] echoSensitive = [.. pcmResults.Where(result => !result.EchoEntryDifference.Exact)];
-        phaseSection.AppendLine();
-        phaseSection.AppendLine("## Echo entry states");
-        phaseSection.AppendLine();
-        phaseSection.AppendLine($"- Distinct echo states held by any track after its start: {allEchoStates.Length}.");
-        phaseSection.AppendLine($"- Tracks per number of echo states: {string.Join(", ", tracks.GroupBy(track => track.EchoStates.Count).OrderBy(group => group.Key).Select(group => $"{group.Key}: {group.Count()}"))}.");
-        phaseSection.AppendLine($"- Echo-sensitive entries: {echoSensitive.Length}; distinct clips among them: {echoSensitive.Select(result => result.ClipSha256).Distinct().Count()}.");
-        foreach (MusicPcmResult result in echoSensitive.DistinctBy(result => result.ClipSha256))
-        {
-            MusicTrackAnalysis analysis = tracks.First(track => track.Bank == result.Bank && track.Track == result.Track);
-            long clipEnd = analysis.Shape == MusicTrackShape.Loops ? analysis.Arrivals[1] : analysis.IntroSamples;
-            phaseSection.AppendLine(
-                $"  - {result.Bank} track {result.Track}: differs {Seconds(result.EchoEntryDifference.FirstDifference)}-{Seconds(result.EchoEntryDifference.LastDifference)} s " +
-                $"of a {Seconds(clipEnd)} s clip ({result.EchoEntryDifference.DifferingFrames} frames), echo states held {analysis.EchoStates.Count}");
-        }
-        phaseSection.AppendLine();
-        phaseSection.AppendLine("## Tempo-phase periods");
-        phaseSection.AppendLine();
-        phaseSection.AppendLine($"Looping tracks whose tempo phase recurs only after more than one pass: {phaseLines.Length}");
-        phaseSection.AppendLine();
-        foreach (string line in phaseLines)
-            phaseSection.AppendLine("- " + line);
-        string summary = Summarize(catalog, inventory, contexts) + phaseSection;
+        File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.json"), JsonSerializer.Serialize(document, options));
+        string summary = Summarize(catalog, document);
         File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.md"), summary);
         Console.WriteLine(summary);
         return 0;
     }
 
     /// <summary>Runs <paramref name="work"/> over <paramref name="count"/> items in parallel, recording wall and summed per-item time.</summary>
-    private static T[] Timed<T>(List<(string, double, double)> timings, string phase, int count, Func<int, T> work)
+    private static T[] Timed<T>(List<PhaseTiming> timings, string phase, int count, Func<int, T> work)
     {
         var results = new T[count];
         var itemTicks = new ConcurrentBag<long>();
@@ -169,234 +96,142 @@ internal static class AudioClipInventory
             results[index] = work(index);
             itemTicks.Add(Stopwatch.GetTimestamp() - start);
         });
-        timings.Add((phase, wall.Elapsed.TotalSeconds, itemTicks.Sum() / (double)Stopwatch.Frequency));
+        timings.Add(new PhaseTiming(phase, count, wall.Elapsed.TotalSeconds, itemTicks.Sum() / (double)Stopwatch.Frequency));
         return results;
     }
 
-    /// <summary>The library identity of the manifest's one-based library number.</summary>
-    private static SoundEffectLibrary LibraryOf(int library) => library switch
-    {
-        1 => SoundEffectLibrary.Library1,
-        2 => SoundEffectLibrary.Library2,
-        3 => SoundEffectLibrary.Library3,
-        _ => throw new InvalidDataException($"Unknown sound library {library}."),
-    };
+    /// <summary>SHA-256 of a clip's samples, identifying identical clips.</summary>
+    private static string Hash(short[] pcm) => Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(pcm.AsSpan())));
 
-    /// <summary>Number of set voice bits.</summary>
-    private static int BitCount(byte voices) => System.Numerics.BitOperations.PopCount(voices);
+    /// <summary>Seconds of native audio in <paramref name="frames"/> stereo frames.</summary>
+    private static string Seconds(long frames) => (frames / (double)SpcAudioClipRenderer.NativeSampleRate).ToString("0.00");
 
-    /// <summary>Seconds of native audio in <paramref name="samples"/> stereo frames.</summary>
-    private static string Seconds(long samples) => (samples / (double)SpcAudioClipRenderer.NativeSampleRate).ToString("0.00");
-
-    /// <summary>Writes the gate answer and the summary tables.</summary>
-    private static string Summarize(ExtractedAudioAssetCatalog catalog, InventoryDocument inventory, List<AudioBank?> contexts)
+    /// <summary>Writes the gate answer, the summary tables, sizes and timings.</summary>
+    private static string Summarize(ExtractedAudioAssetCatalog catalog, InventoryDocument document)
     {
         var text = new StringBuilder();
-        text.AppendLine("# #1305 stage 1 audio inventory");
+        text.AppendLine("# #1305 audio clip inventory");
         text.AppendLine();
 
-        // Gate.
-        MusicTrackAnalysis[] noPeriod = [.. inventory.Tracks.Where(track => track.Shape == MusicTrackShape.NoPeriodFound)];
-        SoundEffectProgramScan[] dependentPrograms = [.. inventory.Programs.Where(scan => scan.DependsOnPriorStateInAnyContext)];
-        var noiseRateDependent = new List<string>();
-        foreach (SoundEffectProgramScan scan in inventory.Programs.Where(scan => scan.EnablesNoise))
-        {
-            string[] dependentContexts = [.. contexts
-                .Where(context => scan.UsesInheritedNoiseRate(context is null
-                    ? catalog.GetInstrumentBank(AudioAssetCatalogDefinitions.Common.Bank)
-                    : catalog.GetInstrumentBank(context.Value)))
-                .Select(context => context?.ToString() ?? "common")];
-            if (dependentContexts.Length != 0)
-                noiseRateDependent.Add($"{scan.ProgramId} ({string.Join(", ", dependentContexts)})");
-        }
+        MusicRow[] noPeriod = [.. document.Music.Where(row => row.Shape == MusicTrackShape.NoPeriodFound)];
+        SoundEffectStateScan[] dependent = [.. document.Programs.Where(scan => scan.DependsOnPriorStateInAnyContext)];
+        var contexts = new List<AudioBank?> { null };
+        contexts.AddRange(AudioAssetCatalogDefinitions.Music.Select(bank => (AudioBank?)bank.Bank));
+        string[] inheritedNoise = [.. document.Programs
+            .Where(scan => contexts.Any(context => scan.UsesInheritedNoiseRate(
+                catalog.GetInstrumentBank(context ?? AudioAssetCatalogDefinitions.Common.Bank))))
+            .Select(scan => scan.ProgramId)];
         text.AppendLine("## Gate");
         text.AppendLine();
         text.AppendLine($"- Tracks with no finite loop period found: {noPeriod.Length}" +
-            (noPeriod.Length == 0 ? "" : ": " + string.Join(", ", noPeriod.Select(track => $"{track.Bank} {track.Track}"))));
-        text.AppendLine($"- Sound programs with (b) retained note, (c) repeat without start, or (e) percussion instrument: {dependentPrograms.Length}");
-        foreach (SoundEffectProgramScan scan in dependentPrograms)
-        {
-            var reasons = new List<string>();
-            if (scan.RetainsPreviousNote)
-                reasons.Add("(b) first note is $F6");
-            if (scan.RepeatsWithoutStart)
-                reasons.Add("(c) repeat before repeat start");
-            if (scan.PercussionInstruments.Count != 0)
-                reasons.Add("(e) percussion instrument " + string.Join(", ", scan.PercussionInstruments.Select(value => $"${value:X2}")));
-            text.AppendLine($"  - {scan.ProgramId}: {string.Join("; ", reasons)}; used by {string.Join(", ", EffectsUsing(catalog, scan.ProgramId))}");
-        }
-        text.AppendLine($"- Sound programs with (d) noise at an inherited rate: {noiseRateDependent.Count}");
-        foreach (string entry in noiseRateDependent)
-            text.AppendLine($"  - {entry}");
+            (noPeriod.Length == 0 ? "" : ": " + string.Join(", ", noPeriod.Select(row => $"{row.Bank} {row.Track}"))));
+        text.AppendLine($"- Sound programs with (b) retained note, (c) repeat without start, or (e) percussion instrument: {dependent.Length}" +
+            (dependent.Length == 0 ? "" : ": " + string.Join(", ", dependent.Select(scan => scan.ProgramId))));
+        text.AppendLine($"- Sound programs with (d) noise at an inherited rate: {inheritedNoise.Length}" +
+            (inheritedNoise.Length == 0 ? "" : ": " + string.Join(", ", inheritedNoise)));
         text.AppendLine();
 
-        // Music.
-        int loops = inventory.Tracks.Count(track => track.Shape == MusicTrackShape.Loops);
-        int ends = inventory.Tracks.Count(track => track.Shape == MusicTrackShape.Ends);
         text.AppendLine("## Music");
         text.AppendLine();
-        text.AppendLine($"{inventory.Tracks.Count} (bank, track) entries: {loops} loop, {ends} end, {noPeriod.Length} without a period found.");
-        text.AppendLine($"Entry-state donors: echo and channels from {inventory.EchoDonor}; noise from {inventory.NoiseDonor ?? "none (no track keys noise)"}.");
+        text.AppendLine("Seam: differing stereo frames / largest difference in the first 64 frames / largest difference between the shipped loop [E1, E2) and the cartridge's next pass.");
         text.AppendLine();
-        text.AppendLine("Seam columns: differing stereo frames / largest difference in the first 64 frames / largest difference, for loop [E2, E3) and for the shorter loop [E1, E2).");
-        text.AppendLine();
-        text.AppendLine("| Bank | Track | Shape | Intro s | Loop s | E1 s | Tempo phase repeats | Seam [E2,E3) | Seam [E1,E2) | Echo voices | Noise voices | Echo entry | Noise entry | Channel entry |");
-        text.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
-        foreach (MusicTrackAnalysis track in inventory.Tracks)
+        text.AppendLine("| Bank | Track | Shape | Clip s | Loop s | Seam | Tempo-phase period (passes) |");
+        text.AppendLine("|---|---|---|---|---|---|---|");
+        foreach (MusicRow row in document.Music)
         {
-            MusicPcmResult? pcm = inventory.MusicPcm.FirstOrDefault(result => result.Bank == track.Bank && result.Track == track.Track);
-            string Entry(SeamProfile? difference) => pcm is null || difference is null ? "-" : difference.Exact ? "same"
-                : $"differs {Seconds(difference.FirstDifference)}-{Seconds(difference.LastDifference)} s";
-            text.AppendLine(
-                $"| {track.Bank} | {track.Track} | {track.Shape} | {Seconds(track.IntroSamples)} | {Seconds(track.LoopSamples)} | " +
-                $"{(track.Arrivals.Count == 3 ? Seconds(track.Arrivals[0]) : "-")} | " +
-                $"{(track.Shape == MusicTrackShape.Loops ? track.TempoPhaseRepeats ? "yes" : "no" : "-")} | " +
-                $"{Seam(pcm?.Seam)} | {Seam(pcm?.EarlySeam)} | " +
-                $"${track.EchoVoices:X2} | ${track.NoiseVoices:X2} | {Entry(pcm?.EchoEntryDifference)} | {Entry(pcm?.NoiseEntryDifference)} | {Entry(pcm?.ChannelEntryDifference)} |");
+            string seam = row.Seam is null ? "-" : row.Seam.Exact ? "exact" : $"{row.Seam.DifferingFrames} / {row.Seam.WrapDifference} / {row.Seam.MaximumDifference}";
+            text.AppendLine($"| {row.Bank} | {row.Track} | {row.Shape} | {Seconds(row.ClipFrames)} | " +
+                $"{(row.LoopFrames is long loop ? Seconds(loop) : "-")} | {seam} | {row.TempoPhasePeriod?.ToString() ?? "-"} |");
         }
         text.AppendLine();
 
-        // Sound effects.
-        var byEffect = inventory.SoundEffects.GroupBy(effect => (effect.Library, effect.Command)).ToList();
-        int looping = byEffect.Count(group => group.First().ActiveSamples is null);
-        int contextDependent = byEffect.Count(group => group.Select(effect => effect.PcmSha256).Distinct().Count() > 1);
-        var distinctClips = inventory.SoundEffects
-            .GroupBy(effect => effect.PcmSha256)
-            .Select(group => group.First())
-            .ToList();
-        int loopSeamsInexact = inventory.SoundEffects.Count(effect => effect.Seam is { Exact: false });
+        SoundEffectRow[] rendered = [.. document.SoundEffects.Where(row => row.Missing.Count == 0)];
+        SoundEffectRow[] unrenderable = [.. document.SoundEffects.Where(row => row.Missing.Count != 0)];
         text.AppendLine("## Sound effects");
         text.AppendLine();
-        text.AppendLine($"- {byEffect.Count} effects × {contexts.Count} bank contexts = {inventory.SoundEffects.Count} renders; {distinctClips.Count} distinct clips.");
-        text.AppendLine($"- Never-ending (forever repeat): {looping}; renders whose loop seam is not sample-exact: {loopSeamsInexact}.");
-        text.AppendLine($"- Effects whose PCM differs between bank contexts: {contextDependent}.");
-        text.AppendLine($"- (effect, context) pairs not rendered because the context does not map a source the effect keys: {inventory.Unmapped.Count}.");
-        foreach (var group in inventory.Unmapped.GroupBy(entry => entry.Context))
+        text.AppendLine($"- {document.SoundEffects.Count} (bank context, effect) pairs: {rendered.Length} rendered, {unrenderable.Length} without a clip because the context does not upload a sample they key.");
+        text.AppendLine($"- Never-ending effects (per-channel looping layers): {rendered.Count(row => row.ActiveFrames is null)}; silent one-shots: {rendered.Count(row => row.ActiveFrames is not null && row.LayerFrames.Count == 0)}.");
+        foreach (var group in unrenderable.GroupBy(row => row.Context))
         {
-            text.AppendLine($"  - {group.Key?.ToString() ?? "common"}: " + string.Join(", ", group.Select(entry =>
-                $"{entry.Library} ${entry.Command:X2} ({string.Join("; ", entry.Missing)})")));
-        }
-        text.AppendLine();
-        text.AppendLine("| Library | Command | Active s | Loop E2/E3 s | Seam [E2,E3) | Channel loops E1/E2 s | Key-ons | Distinct clips across contexts |");
-        text.AppendLine("|---|---|---|---|---|---|---|---|");
-        foreach (var group in byEffect)
-        {
-            SoundEffectAnalysis common = group.FirstOrDefault(effect => effect.Context is null) ?? group.First();
-            text.AppendLine(
-                $"| {group.Key.Library} | ${group.Key.Command:X2} | {(common.ActiveSamples is long active ? Seconds(active) : "loops")} | " +
-                $"{(common.Arrivals.Count == 3 ? $"{Seconds(common.Arrivals[1])}/{Seconds(common.Arrivals[2])}" : "-")} | " +
-                $"{Seam(common.Seam)} | " +
-                $"{(common.ChannelLoops.Count == 0 ? "-" : string.Join(", ", common.ChannelLoops.Select(loop => $"{Seconds(loop.First)}/{Seconds(loop.Second)}")))} | " +
-                $"{common.KeyOns.Count} | {group.Select(effect => effect.PcmSha256).Distinct().Count()} |");
+            text.AppendLine($"  - {group.Key?.ToString() ?? "common"}: " + string.Join(", ", group.Select(row =>
+                $"{row.Library} ${row.Command:X2} ({string.Join("; ", row.Missing)})")));
         }
         text.AppendLine();
 
-        // Size and cost.
-        long musicBytes = inventory.MusicPcm.Sum(result => (long)result.RenderedSamples) * BytesPerStereoFrame;
-        Dictionary<(AudioBank, int), MusicTrackAnalysis> byTrack = inventory.Tracks.ToDictionary(track => (track.Bank, track.Track));
-        long musicClipBytes = inventory.MusicPcm
-            .Sum(result => ClipFrames(byTrack[(result.Bank, result.Track)], early: false) * BytesPerStereoFrame);
-        long dedupedMusicBytes = inventory.MusicPcm
-            .GroupBy(result => result.ClipSha256)
-            .Sum(group => ClipFrames(byTrack[(group.First().Bank, group.First().Track)], early: false) * BytesPerStereoFrame);
-        long dedupedEarlyMusicBytes = inventory.MusicPcm
-            .GroupBy(result => result.EarlyClipSha256)
-            .Sum(group => ClipFrames(byTrack[(group.First().Bank, group.First().Track)], early: true) * BytesPerStereoFrame);
-        int distinctMusic = inventory.MusicPcm.Select(result => result.ClipSha256).Distinct().Count();
-        long effectBytes = distinctClips.Sum(effect => effect.ClipSamples * BytesPerStereoFrame);
-        long oneShotEffectBytes = distinctClips.Where(effect => effect.ActiveSamples is not null).Sum(effect => effect.ClipSamples * BytesPerStereoFrame);
-        long perChannelLoopBytes = distinctClips
-            .Where(effect => effect.ActiveSamples is null)
-            .Sum(effect => effect.ChannelLoops.Sum(loop => (2 * loop.Second - loop.First) * BytesPerStereoFrame));
+        long musicBytes = document.Music.Where(row => row.ClipHash.Length != 0)
+            .GroupBy(row => row.ClipHash).Sum(group => group.First().ClipFrames * BytesPerStereoFrame);
+        var effectClips = new Dictionary<string, long>(StringComparer.Ordinal);
+        foreach (SoundEffectRow row in rendered)
+        {
+            for (int layer = 0; layer < row.LayerHashes.Count; layer++)
+                effectClips[row.LayerHashes[layer]] = row.LayerFrames[layer];
+        }
+        long effectBytes = effectClips.Values.Sum() * BytesPerStereoFrame;
         text.AppendLine("## Size and render cost");
         text.AppendLine();
-        text.AppendLine($"- Music clips (intro [0, E2) plus loop [E2, E3), or to the end), one per (bank, track): {musicClipBytes / 1048576.0:0.0} MiB at 16-bit stereo 32,040 Hz.");
-        text.AppendLine($"- The same, deduplicated by PCM hash: {distinctMusic} distinct clips, {dedupedMusicBytes / 1048576.0:0.0} MiB.");
-        text.AppendLine($"- With the shorter loop [E1, E2) (intro [0, E1)), deduplicated: {dedupedEarlyMusicBytes / 1048576.0:0.0} MiB.");
-        text.AppendLine($"- Distinct sound-effect clips: {effectBytes / 1048576.0:0.0} MiB, of which one-shot sounds {oneShotEffectBytes / 1048576.0:0.0} MiB.");
-        text.AppendLine($"- Looping sounds as one clip per channel (each to its own E2 plus one loop): {perChannelLoopBytes / 1048576.0:0.0} MiB instead of {(effectBytes - oneShotEffectBytes) / 1048576.0:0.0} MiB.");
-        text.AppendLine($"- Music PCM rendered for the seam check: {musicBytes / 1048576.0:0.0} MiB of audio.");
+        text.AppendLine($"- Music: {document.Music.Select(row => row.ClipHash).Where(hash => hash.Length != 0).Distinct().Count()} distinct clips, {musicBytes / 1048576.0:0.0} MiB at 16-bit stereo 32,040 Hz.");
+        text.AppendLine($"- Sound effects: {effectClips.Count} distinct clips, {effectBytes / 1048576.0:0.0} MiB.");
         text.AppendLine();
         text.AppendLine("| Phase | Items | Wall s | Summed single-thread s |");
         text.AppendLine("|---|---|---|---|");
-        foreach (PhaseTiming timing in inventory.Timings)
-            text.AppendLine($"| {timing.Phase} | | {timing.WallSeconds:0.0} | {timing.SummedSeconds:0.0} |");
+        foreach (PhaseTiming timing in document.Timings)
+            text.AppendLine($"| {timing.Phase} | {timing.Items} | {timing.WallSeconds:0.0} | {timing.SummedSeconds:0.0} |");
         text.AppendLine();
-        text.AppendLine($"Measured on this desktop with {Environment.ProcessorCount} logical processors; Android was not measured.");
+        text.AppendLine($"Measured on this desktop with {Environment.ProcessorCount} logical processors.");
         return text.ToString();
     }
 
-    /// <summary>A seam cell: exact, or differing frames / wrap difference / largest difference.</summary>
-    private static string Seam(SeamProfile? seam) =>
-        seam is null ? "-" : seam.Exact ? "exact" : $"{seam.DifferingFrames} / {seam.WrapDifference} / {seam.MaximumDifference}";
-
-    /// <summary>A track's clip length in stereo frames: E3 (or E2 for the shorter loop) when looping, else its end.</summary>
-    private static long ClipFrames(MusicTrackAnalysis track, bool early) => track.Shape switch
-    {
-        MusicTrackShape.Loops => early ? track.Arrivals[1] : track.Arrivals[2],
-        MusicTrackShape.Ends => track.IntroSamples,
-        MusicTrackShape.NoPeriodFound => 0,
-        _ => throw new InvalidOperationException($"Unknown track shape {track.Shape}."),
-    };
-
-    /// <summary>The effects whose channel programs include <paramref name="programId"/>.</summary>
-    private static IEnumerable<string> EffectsUsing(ExtractedAudioAssetCatalog catalog, string programId) =>
-        catalog.SoundLibraries.SelectMany(library => library.Effects
-            .Where(effect => effect.ChannelPrograms.Contains(programId))
-            .Select(effect => $"lib{library.Library} ${effect.Command:X2}"));
-
-    /// <summary>A music track's PCM-level measurements.</summary>
+    /// <summary>One music track's measurements.</summary>
     /// <param name="Bank">The track's bank.</param>
     /// <param name="Track">The track number.</param>
-    /// <param name="RenderedSamples">Stereo frames rendered for the canonical clip and seam check.</param>
-    /// <param name="Seam">How loop [E2, E3) differs from the following pass; null for an ending track.</param>
-    /// <param name="EarlySeam">How the shorter loop [E1, E2) differs from [E2, E3); null for an ending track.</param>
-    /// <param name="ClipSha256">Hash of the clip PCM [0, E3), or to the end for an ending track.</param>
-    /// <param name="EarlyClipSha256">Hash of the shorter clip PCM [0, E2), or to the end for an ending track.</param>
-    /// <param name="EchoEntryDifference">How the echo donor's entry state changes the render.</param>
-    /// <param name="NoiseEntryDifference">How the noise donor's entry state changes the render, or null with no donor.</param>
-    /// <param name="ChannelEntryDifference">How the donor's music-voice fields change the render.</param>
-    private sealed record MusicPcmResult(
+    /// <param name="Shape">Whether it loops, ends or has no period found.</param>
+    /// <param name="ClipFrames">The exported clip's stereo frames.</param>
+    /// <param name="LoopFrames">The shipped loop's stereo frames, or null when the track ends.</param>
+    /// <param name="Seam">The shipped loop against the cartridge's next pass, or null when the track ends.</param>
+    /// <param name="TempoPhasePeriod">Loop passes until the tempo phase recurs, or null when the track ends.</param>
+    /// <param name="ClipHash">The clip's sample hash, or empty without a period.</param>
+    private sealed record MusicRow(
         AudioBank Bank,
         int Track,
-        long RenderedSamples,
+        MusicTrackShape Shape,
+        long ClipFrames,
+        long? LoopFrames,
         SeamProfile? Seam,
-        SeamProfile? EarlySeam,
-        string ClipSha256,
-        string EarlyClipSha256,
-        SeamProfile EchoEntryDifference,
-        SeamProfile? NoiseEntryDifference,
-        SeamProfile ChannelEntryDifference);
+        int? TempoPhasePeriod,
+        string ClipHash);
 
-    /// <summary>Wall and summed per-item seconds of one phase.</summary>
-    /// <param name="Phase">The phase's name.</param>
-    /// <param name="WallSeconds">Elapsed seconds with parallel items.</param>
-    /// <param name="SummedSeconds">Sum of each item's elapsed seconds, approximating one core.</param>
-    private sealed record PhaseTiming(string Phase, double WallSeconds, double SummedSeconds);
-
-    /// <summary>The complete inventory written as JSON.</summary>
-    /// <param name="Tracks">Music structure per (bank, track).</param>
-    /// <param name="MusicPcm">PCM measurements per periodic track.</param>
-    /// <param name="EchoDonor">The track whose loop-point state perturbs echo and channels.</param>
-    /// <param name="NoiseDonor">The track whose loop-point state perturbs noise, if any keys noise.</param>
-    /// <param name="Programs">Static scans of every sound program.</param>
-    /// <param name="SoundEffects">Every effect in every bank context whose sources it maps.</param>
-    /// <param name="Unmapped">(effect, context) pairs whose instruments key sources the context does not map.</param>
-    /// <param name="Timings">Phase timings.</param>
-    private sealed record InventoryDocument(
-        IReadOnlyList<MusicTrackAnalysis> Tracks,
-        IReadOnlyList<MusicPcmResult> MusicPcm,
-        string? EchoDonor,
-        string? NoiseDonor,
-        IReadOnlyList<SoundEffectProgramScan> Programs,
-        IReadOnlyList<SoundEffectAnalysis> SoundEffects,
-        IReadOnlyList<UnmappedEffect> Unmapped,
-        IReadOnlyList<PhaseTiming> Timings);
-
-    /// <summary>An effect that keys a BRR source its bank context does not map, so it is not rendered there.</summary>
+    /// <summary>One sound effect in one bank context.</summary>
     /// <param name="Context">The music bank uploaded after the common upload, or null for the common upload alone.</param>
     /// <param name="Library">The effect's library.</param>
     /// <param name="Command">The effect's request byte.</param>
-    /// <param name="Missing">Each instrument whose source the context lacks.</param>
-    private sealed record UnmappedEffect(AudioBank? Context, SoundEffectLibrary Library, byte Command, IReadOnlyList<string> Missing);
+    /// <param name="ActiveFrames">Frames to the logical end, or null for a never-ending effect.</param>
+    /// <param name="LayerFrames">Each clip layer's stereo frames.</param>
+    /// <param name="LayerHashes">Each clip layer's sample hash.</param>
+    /// <param name="Missing">Instruments whose samples the context lacks; empty when rendered.</param>
+    private sealed record SoundEffectRow(
+        AudioBank? Context,
+        SoundEffectLibrary Library,
+        byte Command,
+        long? ActiveFrames,
+        IReadOnlyList<long> LayerFrames,
+        IReadOnlyList<string> LayerHashes,
+        IReadOnlyList<string> Missing);
+
+    /// <summary>Wall and summed per-item seconds of one phase.</summary>
+    /// <param name="Phase">The phase's name.</param>
+    /// <param name="Items">Items measured.</param>
+    /// <param name="WallSeconds">Elapsed seconds with parallel items.</param>
+    /// <param name="SummedSeconds">Sum of each item's elapsed seconds, approximating one core.</param>
+    private sealed record PhaseTiming(string Phase, int Items, double WallSeconds, double SummedSeconds);
+
+    /// <summary>The complete inventory written as JSON.</summary>
+    /// <param name="Music">Every track's measurements.</param>
+    /// <param name="Programs">Every sound program's inherited-state scan.</param>
+    /// <param name="SoundEffects">Every effect in every bank context.</param>
+    /// <param name="Timings">Phase timings.</param>
+    private sealed record InventoryDocument(
+        IReadOnlyList<MusicRow> Music,
+        IReadOnlyList<SoundEffectStateScan> Programs,
+        IReadOnlyList<SoundEffectRow> SoundEffects,
+        IReadOnlyList<PhaseTiming> Timings);
 }

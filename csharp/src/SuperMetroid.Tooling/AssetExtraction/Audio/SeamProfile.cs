@@ -24,10 +24,6 @@ internal sealed record SeamProfile(
     /// <summary>Whether the candidate loop repeats the cartridge's audio sample-exactly.</summary>
     internal bool Exact => DifferingFrames == 0;
 
-    /// <summary>Compares the first <paramref name="length"/> stereo frames of two renders.</summary>
-    internal static SeamProfile Compare(IReadOnlyList<short> expected, IReadOnlyList<short> actual, long length) =>
-        Compare(index => expected[index], index => actual[index], 0, 0, length);
-
     /// <summary>Compares <paramref name="length"/> stereo frames of <paramref name="pcm"/> at two stereo-frame offsets.</summary>
     internal static SeamProfile Compare(IReadOnlyList<short> pcm, long loopStart, long nextStart, long length) =>
         Compare(index => pcm[index], index => pcm[index], loopStart, nextStart, length);

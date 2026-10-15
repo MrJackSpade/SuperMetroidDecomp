@@ -39,9 +39,6 @@ public static class SoundEffectLibrary2Sounds
     /// <summary>Opens the standard horizontal or vertical room door actor.</summary>
     public static readonly SoundEffectId DoorOpening = new(SoundEffectLibrary.Library2, 0x57); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
-    /// <summary>Etecoon cry (#1305's clip-fidelity fixture); its sample is absent from the EmptyCrateria upload.</summary>
-    public static readonly SoundEffectId Etecoon = new(SoundEffectLibrary.Library2, 0x35); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
-
     /// <summary>Plays when Samus acquires a permanent equipment item.</summary>
     public static readonly SoundEffectId PermanentItemAcquisition = new(SoundEffectLibrary.Library2, 0x0a); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

@@ -400,6 +400,32 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Audio.AudioClipMeasurements",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/Audio/AudioClipMeasurements.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Audio.AudioClipMeasurements.PhasePeriodObserver",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/Audio/AudioClipMeasurements.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Audio.BrrExtractionLimits",
       "kind": "static class",
       "scope": "product",
@@ -427,19 +453,6 @@
     },
     {
       "type": "SuperMetroid.AssetExtraction.Audio.MusicTrackAnalysis.LoopObserver",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Audio/MusicTrackAnalysis.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Audio.MusicTrackAnalysis.PhasePeriodObserver",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -480,25 +493,12 @@
     {
       "type": "SuperMetroid.AssetExtraction.Audio.SeamProfile",
       "kind": "record",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.AssetExtraction"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Audio/SeamProfile.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Audio.SoundEffectAnalysis",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Audio/SoundEffectAnalysis.cs"
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/Audio/SeamProfile.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -564,6 +564,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Audio/SoundEffectRendering.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Audio.SoundEffectStateScan",
+      "kind": "record",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/Audio/SoundEffectStateScan.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -1429,19 +1442,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Audio.Synthesis.SpcEntryStateGroup",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Audio/Synthesis/SpcEntryStateGroup.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Audio.Synthesis.SpcFixedPoint",
@@ -8101,6 +8101,32 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Audio.AudioClipOverride",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/AudioClipOverride.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.AudioClipOverrideManifest",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/AudioClipOverrideManifest.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.AudioEvent",
       "kind": "record struct",
       "scope": "product",
@@ -8444,6 +8470,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Audio.ClipAudioOverrides",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/ClipAudioOverrides.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.ClipAudioOverrides.Selection",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/ClipAudioOverrides.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.ClipLibraryState",
       "kind": "class",
       "scope": "product",
@@ -8741,45 +8793,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Audio.PcmSampleLoopReplacement",
-      "kind": "record struct",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Audio/PcmSampleLoopReplacement.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.PcmSampleLoopReplacementKind",
-      "kind": "enum",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Audio/PcmSampleLoopReplacementKind.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.PcmSampleReplacementInstaller",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Audio/PcmSampleReplacementInstaller.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Audio.PcmWaveFile",
       "kind": "static class",
       "scope": "product",
@@ -9016,6 +9029,38 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Audio.SoundEffectLibrary2SoundsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Audio/SoundEffectLibrary2SoundsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.SoundEffectLibrary2SoundsConstants.extension(SuperMetroid.Core.Audio.SoundEffectLibrary2Sounds)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Audio/SoundEffectLibrary2SoundsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.SoundEffectLibrary3Sounds",
       "kind": "static class",
       "scope": "product",
@@ -9027,6 +9072,38 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.SoundEffectLibrary3SoundsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Audio/SoundEffectLibrary3SoundsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.SoundEffectLibrary3SoundsConstants.extension(SuperMetroid.Core.Audio.SoundEffectLibrary3Sounds)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Audio/SoundEffectLibrary3SoundsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Audio.SoundEffectPriorityEffect",
@@ -82300,7 +82377,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.DebugRunner.Tools.AudioClipInventory.MusicPcmResult",
+      "type": "SuperMetroid.DebugRunner.Tools.AudioClipInventory.MusicRow",
       "kind": "record",
       "scope": "tool",
       "assemblies": [
@@ -82326,7 +82403,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.DebugRunner.Tools.AudioClipInventory.UnmappedEffect",
+      "type": "SuperMetroid.DebugRunner.Tools.AudioClipInventory.SoundEffectRow",
       "kind": "record",
       "scope": "tool",
       "assemblies": [
@@ -89356,6 +89433,40 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.RepositoryInstallation.GameInstallationAudioAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DebugRunner",
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/RepositoryInstallation/GameInstallationAudioAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.RepositoryInstallation.GameInstallationAudioAccess.extension(SuperMetroid.AssetExtraction.Installation.GameInstallation)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DebugRunner",
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/RepositoryInstallation/GameInstallationAudioAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.TestSupport.RepositoryInstallation.InstalledRuntimeBindings",

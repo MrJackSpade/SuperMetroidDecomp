@@ -25,7 +25,6 @@ internal static class ManagedAudioVerification
         Suite(nameof(VerifyManagedDspUsesIndependentLoopEntry), () => VerifyManagedDspUsesIndependentLoopEntry());
         Suite(nameof(VerifyReleasedVoiceBankSwitch), () => VerifyReleasedVoiceBankSwitch());
         Suite(nameof(VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement), () => VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement());
-        Suite(nameof(VerifyPcmReplacementPreservesStableIdentity), () => VerifyPcmReplacementPreservesStableIdentity());
         Suite(nameof(VerifyManagedDspRejectsInvalidBoundaries), () => VerifyManagedDspRejectsInvalidBoundaries());
         Suite(nameof(VerifyLinearStereoResampler), () => VerifyLinearStereoResampler());
         Suite(nameof(VerifyStereoPcmContinuityMeter), () => VerifyStereoPcmContinuityMeter());
@@ -328,77 +327,6 @@ internal static class ManagedAudioVerification
         dsp.WriteRegister(0x1c, 0x7f);
         dsp.WriteRegister(0x6c, 0x20);
         dsp.WriteRegister(0x4c, 1);
-    }
-
-    /// <summary>
-    /// Exercises the build-stage replacement seam: the ID and bank aliases remain stable while
-    /// a higher-rate WAV, rescaled loop position, sample count, and integrity hash replace data.
-    /// </summary>
-    private static void VerifyPcmReplacementPreservesStableIdentity()
-    {
-        using var directoryScratch = new TestScratchDirectory("pcm-replacement");
-        string directory = directoryScratch.Root;
-        string samplesDirectory = Path.Combine(directory, "samples");
-        Directory.CreateDirectory(samplesDirectory);
-        try
-        {
-            string target = Path.Combine(samplesDirectory, "sample-00-00.wav");
-            short[] stock = Enumerable.Range(0, 16).Select(index => unchecked((short)index)).ToArray();
-            PcmWaveFile.WriteMonoPcm16(target, 32_000, stock);
-            var original = new AudioCanonicalSampleMetadata(
-                "sample-00-00",
-                "samples/sample-00-00.wav",
-                32_000,
-                stock.Length,
-                8,
-                Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(target))));
-            var manifest = new AudioAssetManifest(
-                AudioAssetManifest.CurrentFormatVersion,
-                [],
-                [original],
-                [],
-                [],
-                []);
-            File.WriteAllText(
-                Path.Combine(directory, ExtractedAudioAssetCatalog.ManifestFileName),
-                JsonSerializer.Serialize(manifest, new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true,
-                }));
-
-            string replacement = Path.Combine(directory, "replacement.wav");
-            short[] hd = Enumerable.Range(0, 32)
-                .Select(index => unchecked((short)(index * 257)))
-                .ToArray();
-            PcmWaveFile.WriteMonoPcm16(replacement, 48_000, hd);
-            AudioCanonicalSampleMetadata installed = PcmSampleReplacementInstaller.Install(
-                directory,
-                original.Id,
-                replacement,
-                PcmSampleLoopReplacement.PreserveTime);
-
-            AssertEqual(original.Id, installed.Id, "PCM replacement stable sample ID");
-            AssertEqual(48_000, installed.SampleRate, "PCM replacement sample rate");
-            AssertEqual(32, installed.SampleCount, "PCM replacement sample count");
-            AssertEqual(12, installed.LoopSampleIndex, "PCM replacement time-scaled loop");
-            (int rate, short[] samples) = PcmWaveFile.ReadMonoPcm16(File.ReadAllBytes(target), target);
-            AssertEqual(48_000, rate, "installed PCM WAV rate");
-            AssertTrue(samples.SequenceEqual(hd), "installed PCM WAV content");
-
-            AssertThrows<InvalidDataException>(
-                () => PcmSampleReplacementInstaller.Install(
-                    directory,
-                    original.Id,
-                    replacement,
-                    PcmSampleLoopReplacement.At(hd.Length)),
-                "PCM replacement rejects loop at end of sample");
-        }
-        finally
-        {
-            if (Directory.Exists(directory))
-                Directory.Delete(directory, recursive: true);
-        }
     }
 
     /// <summary>Checks invalid APU RAM, register, waveform, sample-rate, and WAV boundaries.</summary>

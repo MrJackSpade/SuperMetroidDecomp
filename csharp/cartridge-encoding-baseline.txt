@@ -169,8 +169,6 @@ csharp/src/SuperMetroid.Verification/Audio/AudioInstrumentsVerification.cs	SME63
 csharp/src/SuperMetroid.Verification/Audio/AudioInstrumentsVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Audio/AudioMusicProgramsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Audio/AudioMusicProgramsVerification.cs	SME6341	1
-csharp/src/SuperMetroid.Verification/Audio/AudioOverridesVerification.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Audio/AudioOverridesVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Audio/AudioSoundProgramsVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Audio/AudioUploadCatalogVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Audio/AudioVerification.cs	SME6340	39

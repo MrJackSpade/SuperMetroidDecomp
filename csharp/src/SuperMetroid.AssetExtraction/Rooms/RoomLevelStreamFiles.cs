@@ -123,7 +123,7 @@ public static class RoomLevelStreamFiles
             if (!streams.ContainsKey(source))
                 throw new InvalidDataException(
                     $"Room-level stream manifest {manifestPath} lacks {Path.Combine(directory, SourceFileName(source))}.");
-        return new RoomLevelStreamCatalog(streams);
+        return new RoomLevelStreamCatalog(streams, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(manifestPath))));
     }
 
     /// <summary>Loads and validates every stock stream through <see cref="Load"/> with no cartridge reads or file writes.</summary>

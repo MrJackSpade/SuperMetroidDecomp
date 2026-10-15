@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Puyo.Artwork;
 /// </summary>
 internal static class PuyoFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa2;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(PuyoFrame frame) => frame.Pose switch

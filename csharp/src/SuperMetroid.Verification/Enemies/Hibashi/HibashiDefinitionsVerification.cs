@@ -97,7 +97,7 @@ internal static class HibashiDefinitionsVerification
             EnemyInstructionRunner.Process(programSystem, hitboxArguments);
             shownSpritemaps.Add(programHitbox.SpritemapPointer);
         }
-        AssertTrue(shownSpritemaps.SetEquals(HibashiVisualDefinitions.Spritemaps()), "the Hibashi shows every authored pose");
+        AssertTrue(shownSpritemaps.SetEquals(HibashiVisualDefinitionsTooling.Spritemaps()), "the Hibashi shows every authored pose");
         AssertEqual(HibashiAnimations.Spritemaps(HibashiProgram.Graphics).Last(), programGraphics.SpritemapPointer,
             "Hibashi finish retains the last graphics sprite");
         AssertEqual(HibashiDefinitions.EruptionSoundEffect,

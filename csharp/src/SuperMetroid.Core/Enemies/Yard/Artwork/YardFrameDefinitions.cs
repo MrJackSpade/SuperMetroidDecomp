@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Yard.Artwork;
 /// </summary>
 internal static class YardFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa3;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(YardFrame frame) => frame.Pose switch

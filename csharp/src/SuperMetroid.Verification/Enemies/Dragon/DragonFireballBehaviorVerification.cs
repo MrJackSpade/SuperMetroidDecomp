@@ -26,7 +26,7 @@ internal static class DragonFireballBehaviorVerification
 
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
-        body.Definition = default(RoomEnemyDefinition) with { Bank = DragonFrameDefinitions.Bank };
+        body.Definition = default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank };
         body.Position = body.Position.WithWhole(new(384, 160));
         body.VramTilesIndex = 512;
         body.PaletteIndex = 2560;

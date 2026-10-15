@@ -70,7 +70,7 @@ internal static class MorphBallEyeBehaviorVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = MorphBallEyeFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = MorphBallEyeFrameToolingDefinitions.Bank };
         slot.Parameter1 = parameter1;
         slot.Parameter2 = parameter2;
         enemies.MorphBallEyeBehavior.InitializeMorphBallEye(slot);

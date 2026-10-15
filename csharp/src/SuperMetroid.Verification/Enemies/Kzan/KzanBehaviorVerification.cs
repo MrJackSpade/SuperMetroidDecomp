@@ -24,7 +24,7 @@ internal static class KzanBehaviorVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.KzanTop;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = KzanFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = KzanFrameToolingDefinitions.Bank };
         slot.Position = slot.Position.WithWholeY(128);
         enemies.KzanBehavior.InitializeKzanTop(slot);
         AssertEqual(AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle),

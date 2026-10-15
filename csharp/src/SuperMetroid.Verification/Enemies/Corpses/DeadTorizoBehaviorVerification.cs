@@ -23,7 +23,7 @@ internal static class DeadTorizoBehaviorVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.EnemyDefinitionPointer = EnemyDefinitionId.CorpseTorizo;
-        corpse.Definition = default(RoomEnemyDefinition) with { Bank = SuperMetroid.Core.Enemies.Corpses.Artwork.DeadTorizoFrameDefinitions.Bank };
+        corpse.Definition = default(RoomEnemyDefinition) with { Bank = SuperMetroid.Core.Enemies.Corpses.Artwork.DeadTorizoFrameToolingDefinitions.Bank };
         enemies.DeadTorizoBehavior.InitializeDeadTorizo(corpse);
         AssertEqual(AnimationProgramCursor<DeadTorizoProgram>.Start(DeadTorizoProgram.Stationary),
             enemies.DeadTorizoBehavior._deadTorizoProgram, "real Dead Torizo initializer starts the stationary pose");

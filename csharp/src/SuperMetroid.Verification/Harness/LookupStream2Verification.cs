@@ -1289,7 +1289,7 @@ internal static class LookupStream2Verification
         Suite(nameof(PipeBugAnimationsVerification.VerifyPipeBugAnimations), () => PipeBugAnimationsVerification.VerifyPipeBugAnimations(rom));
         ushort[] poses = PipeBugAnimations.Spritemaps(Enum.GetValues<PipeBugProgram>()).Distinct().ToArray();
         foreach (ushort pose in poses)
-            AssertEqual((ushort)1, ReadVerificationWord(rom, (int)new SnesAddress(PipeBugFrameDefinitions.Bank, pose)), "Native seven-byte single-part composition");
+            AssertEqual((ushort)1, ReadVerificationWord(rom, (int)new SnesAddress(PipeBugFrameToolingDefinitions.Bank, pose)), "Native seven-byte single-part composition");
         Console.WriteLine($"Pipe Bug visual geometry: {poses.Length} native single-part poses and the typed loops pass.");
     }
 

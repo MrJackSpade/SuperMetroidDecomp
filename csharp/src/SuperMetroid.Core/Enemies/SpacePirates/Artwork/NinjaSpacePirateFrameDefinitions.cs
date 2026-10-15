@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 /// </summary>
 internal static class NinjaSpacePirateFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xb2;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(NinjaSpacePirateFrame frame) => frame.Pose switch

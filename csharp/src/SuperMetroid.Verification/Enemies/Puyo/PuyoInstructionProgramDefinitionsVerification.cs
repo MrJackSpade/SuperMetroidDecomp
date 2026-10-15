@@ -37,7 +37,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         }
         if (artwork is not null)
             foreach (ushort pose in PuyoAnimations.Spritemaps(Enum.GetValues<PuyoProgram>()).Distinct())
-                AssertTrue((artwork.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(PuyoFrameDefinitions.Bank, pose, out _),
+                AssertTrue((artwork.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(PuyoFrameToolingDefinitions.Bank, pose, out _),
                     $"Puyo pose ${pose:X4} has installed artwork");
         Console.WriteLine("  Puyo: the fast-loop start, three grounded loops and five airborne poses pass.");
     }
@@ -49,7 +49,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Puyo;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = PuyoFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = PuyoFrameToolingDefinitions.Bank };
         enemies.PuyoBehavior.InitializePuyo(slot);
         return (enemies, slot, enemies.PuyoStates[0] ?? throw new InvalidOperationException("Puyo has no state."));
     }

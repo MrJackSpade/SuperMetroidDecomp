@@ -23,7 +23,7 @@ internal static class BullBehaviorVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Bull;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = BullFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = BullFrameToolingDefinitions.Bank };
         enemies.BullBehavior.InitializeBull(slot);
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException("Bull initializer did not publish typed state.");
         AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal), state.Program, "Bull initializer animation");

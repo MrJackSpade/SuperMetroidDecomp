@@ -595,7 +595,7 @@ internal static class PaletteFxInstructionCodesVerification
     {
 
         foreach (TourianEscapeSharedRedFlashPaletteFxColorDefinition definition in
-                 TourianEscapeSharedRedFlashPaletteFxColorDefinitionsTooling.All)
+                 TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All)
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
@@ -773,7 +773,7 @@ internal static class PaletteFxInstructionCodesVerification
         ISnesAddressSpace bus)
     {
         foreach (TourianStatueGreyPaletteFxColorDefinition definition in
-                 TourianStatueGreyPaletteFxColorDefinitionsTooling.All)
+                 TourianStatueGreyPaletteFxColorToolingDefinitions.All)
         {
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();

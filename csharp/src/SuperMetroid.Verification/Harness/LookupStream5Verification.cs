@@ -1796,9 +1796,9 @@ internal static class LookupStream5Verification
         }
         CheckEntries(CinematicGlowPaletteFxColorDefinitions.All,
             entry => (entry.DefinitionPointer, entry.ProgramStart), 2);
-        CheckEntries(TourianEscapeSharedRedFlashPaletteFxColorDefinitionsTooling.All,
+        CheckEntries(TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All,
             entry => (entry.DefinitionPointer, entry.ProgramStart), 2);
-        CheckEntries(TourianStatueGreyPaletteFxColorDefinitionsTooling.All,
+        CheckEntries(TourianStatueGreyPaletteFxColorToolingDefinitions.All,
             entry => (entry.DefinitionPointer, entry.ProgramStart), 4);
         Console.WriteLine("Stream 5 palette entries: all eleven entry identities, original controls and collection bounds pass.");
 

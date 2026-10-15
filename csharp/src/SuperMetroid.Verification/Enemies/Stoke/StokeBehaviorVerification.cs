@@ -55,7 +55,7 @@ internal static class StokeBehaviorVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Stoke;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = StokeFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = StokeFrameToolingDefinitions.Bank };
         slot.Parameter1 = (ushort)direction;
         slot.Position = slot.Position.WithWhole(new(128, 128));
         enemies.StokeBehavior.InitializeStoke(slot);

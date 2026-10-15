@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal static class RinkaFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa2;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(RinkaFrame frame) => frame.Pose switch

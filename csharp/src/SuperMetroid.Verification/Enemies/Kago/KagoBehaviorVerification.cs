@@ -24,7 +24,7 @@ internal static class KagoBehaviorVerification
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Kago;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = KagoFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = KagoFrameToolingDefinitions.Bank };
         slot.Parameter1 = 10;
         enemies.KagoBehavior.InitializeKago(slot);
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException("Kago initializer did not publish typed state.");

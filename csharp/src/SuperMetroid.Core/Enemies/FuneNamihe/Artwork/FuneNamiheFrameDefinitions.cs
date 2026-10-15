@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 /// </summary>
 internal static class FuneNamiheFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa8;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(FuneNamiheFrame frame) => frame.Pose switch

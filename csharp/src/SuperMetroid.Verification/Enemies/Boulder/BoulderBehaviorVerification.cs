@@ -20,7 +20,7 @@ internal static class BoulderBehaviorVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Boulder;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = BoulderFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = BoulderFrameToolingDefinitions.Bank };
         slot.CurrentInstruction = 8;
         slot.Parameter1 = 256;
         slot.Parameter2 = 264;

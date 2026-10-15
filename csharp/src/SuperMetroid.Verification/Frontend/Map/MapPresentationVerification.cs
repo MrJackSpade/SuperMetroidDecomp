@@ -1016,7 +1016,7 @@ internal static class MapPresentationVerification
                 $"{torizoDefinition.Owner} belly");
         }
         TourianStatueGreyPaletteFxColorDefinition statueDefinition =
-            TourianStatueGreyPaletteFxColorDefinitionsTooling.All[0];
+            TourianStatueGreyPaletteFxColorToolingDefinitions.All[0];
         AssertOverride(statueDefinition.DefinitionPointer,
             statueDefinition.ColorByteIndex, "Tourian statue grey-out");
         foreach (CrateriaLightningPaletteFxColorDefinition lightningDefinition in
@@ -1146,7 +1146,7 @@ internal static class MapPresentationVerification
                 $"Tourian escape {flashDefinition.Owner}");
         }
         foreach (TourianEscapeSharedRedFlashPaletteFxColorDefinition sharedDefinition in
-                 TourianEscapeSharedRedFlashPaletteFxColorDefinitionsTooling.All)
+                 TourianEscapeSharedRedFlashPaletteFxColorToolingDefinitions.All)
         {
             AssertOverride(sharedDefinition.DefinitionPointer, sharedDefinition.ColorByteIndex,
                 $"Tourian escape shared {sharedDefinition.Owner}");

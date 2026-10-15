@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Kago.Artwork;
 /// </summary>
 internal static class KagoFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa8;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(KagoFrame frame) => frame.Pose switch

@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Hoppers.Artwork;
 /// </summary>
 internal static class HopperFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa3;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(HopperFrame frame) => frame.Pose switch

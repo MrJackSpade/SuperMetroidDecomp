@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Dragon.Artwork;
 /// </summary>
 internal static class DragonFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa2;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(DragonFrame frame) => frame.Pose switch

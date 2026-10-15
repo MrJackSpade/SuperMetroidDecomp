@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Boulder.Artwork;
 /// </summary>
 internal static class BoulderFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa6;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(BoulderFrame frame) => frame.Pose switch

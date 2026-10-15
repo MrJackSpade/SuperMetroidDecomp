@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Zoa.Artwork;
 /// </summary>
 internal static class ZoaFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa3;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(ZoaFrame frame) => frame.Pose switch

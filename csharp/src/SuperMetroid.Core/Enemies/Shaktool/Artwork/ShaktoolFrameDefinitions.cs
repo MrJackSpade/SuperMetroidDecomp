@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Shaktool.Artwork;
 /// </summary>
 internal static class ShaktoolFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xaa;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(ShaktoolFrame frame) => frame.Pose switch

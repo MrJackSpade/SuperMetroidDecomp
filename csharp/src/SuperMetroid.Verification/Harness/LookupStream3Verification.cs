@@ -2384,7 +2384,7 @@ internal static class LookupStream3Verification
             "stream 3 room flash keeps no per-instance selected paint");
         for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; frame++)
         {
-            ushort entry = checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart + frame * MotherBrainRoomColorRomData.TimedEntryByteCount));
+            ushort entry = checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart + frame * MotherBrainRoomColorRomDataTooling.TimedEntryByteCount));
             int operand = MotherBrainRoomColorRomData.SourceBank + entry + MotherBrainRoomColorRomDataTooling.PaletteOperandByteOffset;
             int source = (MotherBrainRoomColorRomData.SourceBank|CartridgeImportSource.Require(rom).ReadCartridgeWord(operand));
             var actual = new SnesCgram();

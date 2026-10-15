@@ -20,7 +20,7 @@ internal static class FirefleaBehaviorVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Fireflea;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = FirefleaFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = FirefleaFrameToolingDefinitions.Bank };
         slot.Parameter1 = 0;
         slot.Parameter2 = 0;
         enemies.FirefleaBehavior.InitializeFireflea(slot);

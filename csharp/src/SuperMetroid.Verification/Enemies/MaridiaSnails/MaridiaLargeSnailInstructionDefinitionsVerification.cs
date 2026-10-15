@@ -82,7 +82,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Oum;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = MaridiaLargeSnailFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = MaridiaLargeSnailFrameToolingDefinitions.Bank };
         enemies.MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail(slot);
         return (enemies, slot, enemies.MaridiaLargeSnailStates[0] ?? throw new InvalidOperationException("Oum has no state."));
     }

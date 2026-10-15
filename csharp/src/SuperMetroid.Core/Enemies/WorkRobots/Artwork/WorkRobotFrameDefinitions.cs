@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 /// </summary>
 internal static class WorkRobotFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa8;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(WorkRobotFrame frame) => frame.Pose switch

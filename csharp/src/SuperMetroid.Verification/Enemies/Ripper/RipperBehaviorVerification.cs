@@ -126,7 +126,7 @@ internal static class RipperBehaviorVerification
     {
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = definition;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = RipperFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = RipperFrameToolingDefinitions.Bank };
         return slot;
     }
 

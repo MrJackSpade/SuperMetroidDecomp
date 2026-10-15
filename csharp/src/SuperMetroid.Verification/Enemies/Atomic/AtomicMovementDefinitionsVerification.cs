@@ -36,7 +36,7 @@ internal static class AtomicMovementDefinitionsVerification
         enemies.BindFixtureBus(NewAtomicInstructionReadGuard(new TestAddressSpace()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Atomic;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = AtomicFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = AtomicFrameToolingDefinitions.Bank };
 
         for (ushort selector = 0; selector < 4; selector++)
         {

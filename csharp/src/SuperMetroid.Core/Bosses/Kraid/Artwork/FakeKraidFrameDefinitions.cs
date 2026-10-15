@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 /// </summary>
 internal static class FakeKraidFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa6;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(FakeKraidFrame frame) => frame.Pose switch

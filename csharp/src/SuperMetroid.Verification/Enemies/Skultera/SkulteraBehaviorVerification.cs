@@ -29,7 +29,7 @@ internal static class SkulteraBehaviorVerification
             enemies.BindFixtureBus(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Skultera;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = SkulteraFrameDefinitions.Bank };
+            slot.Definition = default(RoomEnemyDefinition) with { Bank = SkulteraFrameToolingDefinitions.Bank };
             slot.Parameter1 = startsLeft ? SkulteraNativeValues.StartsLeftParameter : (ushort)0;
             // The room spawn primes the instruction timer before the species initializer runs.
             slot.InstructionTimer = NativeCountdown.Start(1);

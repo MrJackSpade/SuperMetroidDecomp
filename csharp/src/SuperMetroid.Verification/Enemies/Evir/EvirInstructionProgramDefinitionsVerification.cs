@@ -103,7 +103,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         EvirProgram program)
     {
         slot.EnemyDefinitionPointer = definition;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = EvirFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = EvirFrameToolingDefinitions.Bank };
         slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new EvirEnemyState(slot)
         {

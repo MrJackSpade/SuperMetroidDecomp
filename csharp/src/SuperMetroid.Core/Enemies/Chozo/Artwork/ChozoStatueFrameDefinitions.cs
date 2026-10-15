@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Chozo.Artwork;
 /// </summary>
 internal static class ChozoStatueFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xaa;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(ChozoStatueFrame frame) => frame.Pose switch

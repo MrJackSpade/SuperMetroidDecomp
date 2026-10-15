@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx.PaletteFx;
+﻿namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>The mutually exclusive Tourian escape entry into the shared red-flash loop.</summary>
 public enum TourianEscapeSharedRedFlashPaletteOwner

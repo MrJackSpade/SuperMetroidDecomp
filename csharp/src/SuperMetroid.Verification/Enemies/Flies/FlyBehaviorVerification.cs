@@ -27,7 +27,7 @@ internal static class FlyBehaviorVerification
             enemies.BindFixtureBus(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = definition;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = FlyFrameDefinitions.Bank };
+            slot.Definition = default(RoomEnemyDefinition) with { Bank = FlyFrameToolingDefinitions.Bank };
             enemies.FliesBehavior.InitializeFly(slot);
             AssertEqual(AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight),
                 (enemies.FliesBehavior._flyStates[0] ?? throw new InvalidOperationException("The fly has no state.")).Program,

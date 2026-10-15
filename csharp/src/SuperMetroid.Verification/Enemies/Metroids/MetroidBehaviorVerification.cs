@@ -23,7 +23,7 @@ internal static class MetroidBehaviorVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = MetroidFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = MetroidFrameToolingDefinitions.Bank };
         // The room spawn primes the instruction timer before the species initializer runs.
         slot.InstructionTimer = NativeCountdown.Start(1);
         enemies.MetroidBehavior.InitializeMetroid(slot);

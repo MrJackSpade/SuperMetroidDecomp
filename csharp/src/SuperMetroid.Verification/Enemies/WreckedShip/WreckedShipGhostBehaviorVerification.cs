@@ -21,7 +21,7 @@ internal static class WreckedShipGhostBehaviorVerification
         enemies.Presentation._cgram = new SnesCgram();
         RoomEnemySlot ghost = enemies.SlotTable.Slots[0];
         ghost.EnemyDefinitionPointer = EnemyDefinitionId.Coven;
-        ghost.Definition = default(RoomEnemyDefinition) with { Bank = WreckedShipGhostFrameDefinitions.Bank };
+        ghost.Definition = default(RoomEnemyDefinition) with { Bank = WreckedShipGhostFrameToolingDefinitions.Bank };
         enemies.WreckedShipGhostBehavior.InitializeWreckedShipGhost(ghost);
         AssertEqual(AnimationProgramCursor<WreckedShipGhostProgram>.Start(WreckedShipGhostProgram.Floating),
             (enemies.WreckedShipGhostBehavior._wreckedShipGhostStates[0] ?? throw new InvalidOperationException("The ghost has no state.")).Program,

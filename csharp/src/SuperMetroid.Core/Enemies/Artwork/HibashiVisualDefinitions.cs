@@ -14,8 +14,5 @@ internal static class HibashiVisualDefinitions
     internal static EnemySpritemapDefinition[] Frames() =>
         CompiledEnemyCompositionDefinitions.FramesFromSpritemaps(Bank,
             HibashiAnimations.Spritemaps(Enum.GetValues<HibashiProgram>()), FrameCount, "hibashi");
-
-    /// <summary>The spritemaps the Hibashi's programs show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps() => HibashiAnimations.Spritemaps(Enum.GetValues<HibashiProgram>());
 }
 

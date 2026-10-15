@@ -25,7 +25,7 @@ internal static class ChootBehaviorVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Choot;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = ChootFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = ChootFrameToolingDefinitions.Bank };
         slot.Parameter1 = 1;
         slot.Parameter2 = 0;
         slot.Position = slot.Position.WithWhole(new(256, 256));

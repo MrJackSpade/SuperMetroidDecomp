@@ -36,7 +36,7 @@ internal static class CrawlerBehaviorVerification
             enemies.BindFixtureBus(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = definition;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = CrawlerFrameDefinitions.Bank };
+            slot.Definition = default(RoomEnemyDefinition) with { Bank = CrawlerFrameToolingDefinitions.Bank };
             // The population parameter, read before initialization, selects the surface; InitAI_Viola reads the property bits.
             slot.CurrentInstruction = (ushort)orientation;
             if (family == CrawlerAnimationFamily.Viola)
@@ -61,7 +61,7 @@ internal static class CrawlerBehaviorVerification
             AssertEqual(expected, state.Function, $"{context} installs its movement function");
             if (artwork is not null)
                 foreach (ushort pose in CrawlerAnimations.Spritemaps(loop))
-                    AssertTrue((artwork.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(CrawlerFrameDefinitions.Bank, pose, out _),
+                    AssertTrue((artwork.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(CrawlerFrameToolingDefinitions.Bank, pose, out _),
                         $"{context} pose ${pose:X4} has installed artwork");
         }
         Console.WriteLine("  Crawler behavior: all five families' four surfaces start, install their movement functions and loop on time.");

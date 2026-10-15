@@ -53,7 +53,7 @@ internal static class DragonBehaviorVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = DragonFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank };
         slot.Parameter1 = selector is DragonAnimationSelector.WingsFacingLeft or DragonAnimationSelector.WingsFacingRight ? (ushort)1 : (ushort)0;
         enemies.DragonBehavior.InitializeDragon(slot);
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Dragon has no state.");

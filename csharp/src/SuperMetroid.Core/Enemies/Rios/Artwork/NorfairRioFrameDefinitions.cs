@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Rios.Artwork;
 /// </summary>
 internal static class NorfairRioFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa2;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(NorfairRioFrame frame) => frame.Pose switch

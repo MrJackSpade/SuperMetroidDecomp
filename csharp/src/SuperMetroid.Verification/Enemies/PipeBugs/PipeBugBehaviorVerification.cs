@@ -57,7 +57,7 @@ internal static class PipeBugBehaviorVerification
     private static PipeBugEnemyState Initialize(RoomEnemySystem enemies, RoomEnemySlot slot, EnemyDefinitionId definition, ushort parameter)
     {
         slot.EnemyDefinitionPointer = definition;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = PipeBugFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = PipeBugFrameToolingDefinitions.Bank };
         slot.Parameter1 = parameter;
         switch (definition)
         {

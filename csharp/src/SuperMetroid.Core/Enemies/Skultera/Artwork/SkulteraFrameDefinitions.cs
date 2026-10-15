@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Skultera.Artwork;
 /// </summary>
 internal static class SkulteraFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa3;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(SkulteraFrame frame) => frame.Pose switch

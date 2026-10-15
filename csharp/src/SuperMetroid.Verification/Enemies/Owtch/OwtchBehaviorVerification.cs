@@ -29,7 +29,7 @@ internal static class OwtchBehaviorVerification
             enemies.BindFixtureBus(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Owtch;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = OwtchFrameDefinitions.Bank };
+            slot.Definition = default(RoomEnemyDefinition) with { Bank = OwtchFrameToolingDefinitions.Bank };
             slot.Parameter1 = (ushort)initial;
             enemies.OwtchBehavior.InitializeOwtch(slot);
             OwtchEnemyState state = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Owtch has no state.");

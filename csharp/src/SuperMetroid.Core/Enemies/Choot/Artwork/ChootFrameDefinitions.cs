@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Choot.Artwork;
 /// </summary>
 internal static class ChootFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa2;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(ChootFrame frame) => frame.Pose switch

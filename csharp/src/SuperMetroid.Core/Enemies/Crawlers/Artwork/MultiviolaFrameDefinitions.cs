@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Crawlers.Artwork;
 /// </summary>
 internal static class MultiviolaFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa2;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(MultiviolaFrame frame) => frame.Pose switch

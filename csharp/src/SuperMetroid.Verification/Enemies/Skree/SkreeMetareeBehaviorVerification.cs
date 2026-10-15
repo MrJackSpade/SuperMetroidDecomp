@@ -63,7 +63,7 @@ internal static class SkreeMetareeBehaviorVerification
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = metaree ? EnemyDefinitionId.Metaree : EnemyDefinitionId.Skree;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = SkreeMetareeFrameDefinitions.Bank };
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = SkreeMetareeFrameToolingDefinitions.Bank };
         // The room spawn primes the instruction timer before the species initializer runs.
         slot.InstructionTimer = NativeCountdown.Start(1);
         if (metaree)

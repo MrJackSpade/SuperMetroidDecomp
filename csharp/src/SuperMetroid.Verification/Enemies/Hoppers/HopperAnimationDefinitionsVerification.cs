@@ -99,7 +99,7 @@ internal static class HopperAnimationDefinitionsVerification
     }
 
     /// <summary>The Sidehopper and Dessgeega animation bank.</summary>
-    private const byte HopperFrameDefinitionsBank = SuperMetroid.Core.Enemies.Hoppers.Artwork.HopperFrameDefinitions.Bank;
+    private const byte HopperFrameDefinitionsBank = SuperMetroid.Core.Enemies.Hoppers.Artwork.HopperFrameToolingDefinitions.Bank;
 
     /// <summary>Checks the Tourian Sidehopper uses the large-Sidehopper landed program and sound.</summary>
     private static void VerifyTourianSidehopperInstructionAlias(

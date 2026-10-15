@@ -8,5 +8,5 @@ internal static class ResourceBanks
     /// <summary>$8D: enemy-projectile OAM compositions and palette-FX colors.</summary>
     public const byte ProjectileOamAndPaletteFx = (byte)(SuperMetroid.Core.Fx.RoomFxRomData.Banks.PaletteFx >> 16);
     /// <summary>$93: Samus projectile animation compositions.</summary>
-    public const byte SamusProjectiles = SuperMetroid.Core.Samus.Projectiles.SamusProjectileRomData.Banks.ProjectileNumber;
+    public const byte SamusProjectiles = SuperMetroid.Core.Samus.Projectiles.SamusProjectileToolingRomData.ProjectileNumber;
 }

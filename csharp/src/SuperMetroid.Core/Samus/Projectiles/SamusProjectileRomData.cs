@@ -25,8 +25,6 @@ public static class SamusProjectileRomData
         public const int Pose = 0x910000;
         /// <summary>Bank containing projectile definitions and animation instructions.</summary>
         public const int Projectile = 0x930000;
-        /// <summary>Eight-bit form of <see cref="Projectile"/> for <c>SnesAddress</c>.</summary>
-        public const byte ProjectileNumber = 0x93;
         /// <summary>Bank containing projectile character graphics.</summary>
         public const int CharacterData = 0x9a0000;
         /// <summary>Bank containing Samus palettes and beam-trail offsets.</summary>

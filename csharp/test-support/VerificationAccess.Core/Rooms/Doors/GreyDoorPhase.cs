@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Debugger-visible phase of one resident grey-door PLM.</summary>
-public enum GreyDoorPhase : byte
+internal enum GreyDoorPhase : byte
 {
     /// <summary>The closed grey cap polls its condition and consumes rejected hits; the hit present on the unlock pass is also cleared.</summary>
     Locked,

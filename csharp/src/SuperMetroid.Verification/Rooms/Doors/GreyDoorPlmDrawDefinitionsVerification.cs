@@ -5,8 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Doors.LookupGreyCapVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupGreyDoorStockVerification;
-using static SuperMetroid.Verification.Rooms.Doors.LookupGreyProgramVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.LookupTorizoDoorProgramVerification;
+using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using SuperMetroid.Core.Progression;
@@ -33,7 +32,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     internal static void VerifyGreyDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGreyDoorProgramDefinitions), () => VerifyGreyDoorProgramDefinitions(rom));
-        Suite(nameof(VerifyBombTorizoGreyDoorProgramDefinitions), () => VerifyBombTorizoGreyDoorProgramDefinitions(rom));
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             (ushort)(SnesLittleEndian.Word(GreyDoorPlmDrawDefinitionsRomByte(bus, address), GreyDoorPlmDrawDefinitionsRomByte(bus, address + 1)));
 
@@ -166,9 +164,13 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 var reopened = new RoomPlmSystem { Drawing = { GreyDoorVisuals = stock } };
                 AssertEqual(1, reopened.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, reopenedLevel, reopenedStreamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                     $"opened grey door ${(int)header:X4} reloads");
+                // The closed blue list shows the blue cap for one frame and deletes on the next pass.
+                reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                AssertTrue(reopened.PopulationSlots.Single().Animation is BlueDoorPlmAnimation,
+                    $"opened grey door ${(int)header:X4} converts to blue cap");
                 reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(0, reopened.SlotTable.ActiveCount,
-                    $"opened grey door ${(int)header:X4} converts to blue cap");
+                    $"opened grey door ${(int)header:X4} deletes after its blue frame");
                 AssertEqual(0, guarded.ForbiddenReadAttempts,
                     $"opened grey door ${(int)header:X4} avoids program/draw ROM reads");
             }
@@ -245,35 +247,21 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         var reopened = new RoomPlmSystem();
         AssertEqual(1, reopened.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, reopenedLevel, reopenedStreamer, new SnesVram(), room.System, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "opened Bomb Torizo grey door reloads");
+        // The closed blue list shows the blue cap for one frame and deletes on the next pass.
+        reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        AssertTrue(reopened.PopulationSlots.Single().Animation is BlueDoorPlmAnimation,
+            "opened Bomb Torizo grey door converts to a blue cap");
         reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, reopened.SlotTable.ActiveCount,
-            "opened Bomb Torizo grey door converts to a blue cap");
+            "opened Bomb Torizo grey door deletes after its blue frame");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Bomb Torizo reload avoids both compiled program and draw sources");
     }
 
-    /// <summary>Checks ordinary grey-door controls, draws, targets, sounds, hit counts and callback identities.</summary>
-    private static void VerifyGreyDoorProgramDefinitions(SuperMetroidAddressSpace rom)
-    {
-        Suite(nameof(VerifyGreyProgramControls), () => VerifyGreyProgramControls(rom));
-        Suite(nameof(VerifyGreyProgramDraws), () => VerifyGreyProgramDraws(rom));
-        Suite(nameof(VerifyGreyProgramTargets), () => VerifyGreyProgramTargets(rom));
-        Suite(nameof(VerifyGreyProgramSounds), () => VerifyGreyProgramSounds(rom));
-        Suite(nameof(VerifyGreyProgramHitCount), () => VerifyGreyProgramHitCount(rom));
-        Suite(nameof(VerifyGreyProgramCallback), () => VerifyGreyProgramCallback(rom));
-    }
+    /// <summary>Compares every grey cap's typed programs, Bomb Torizo's included, with their bank-$84 lists.</summary>
+    private static void VerifyGreyDoorProgramDefinitions(SuperMetroidAddressSpace rom) =>
+        Suite(nameof(RoomPlmProgramsVerification.VerifyGreyDoorPrograms), () => RoomPlmProgramsVerification.VerifyGreyDoorPrograms(rom));
 
-    /// <summary>Checks the separate Bomb Torizo door's control, draw and interaction words.</summary>
-    private static void VerifyBombTorizoGreyDoorProgramDefinitions(
-        SuperMetroidAddressSpace rom)
-    {
-        Suite(nameof(VerifyTorizoDoorControls), () => VerifyTorizoDoorControls(rom));
-        Suite(nameof(VerifyTorizoDoorDraws), () => VerifyTorizoDoorDraws(rom));
-        Suite(nameof(VerifyTorizoDoorTargets), () => VerifyTorizoDoorTargets(rom));
-        Suite(nameof(VerifyTorizoDoorSounds), () => VerifyTorizoDoorSounds(rom));
-        Suite(nameof(VerifyTorizoDoorHitCount), () => VerifyTorizoDoorHitCount(rom));
-        Suite(nameof(VerifyTorizoDoorCallback), () => VerifyTorizoDoorCallback(rom));
-    }
 
     /// <summary>Checks that an edited clear tile reaches shared blue-door streaming without changing physical door behavior.</summary>
     private static void VerifySharedDoorClearVisual(

@@ -3,6 +3,7 @@ using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.ResourceAudit.Reports;
 
@@ -92,6 +93,12 @@ internal static class PlmProgramAudit
     {
         if (CollectiblePlms.TryIdentifyPermanentCollectible(header, out _, out _))
             return "SetupCollectibleSlot / TryStepCollectible";
+        if (DoorPlms.TryIdentifyColoredDoor(header, out _, out _))
+            return "ColoredDoorPlmAnimation";
+        if (GreyDoorPlms.TryIdentifyGreyDoor(header, out _))
+            return "GreyDoorPlmAnimation";
+        if (EyeDoorPlms.IsEyeDoorHeader(header))
+            return "EyeDoorPlmAnimation";
         return header switch
         {
             PlmHeaderId.ScrollTrigger or PlmHeaderId.RightwardsScrollExtension or

@@ -32,9 +32,7 @@ internal static class PlmInterpreterSourceContract
         // #1269 Chozo orb phases change collectible state only.
         "SetupCollectibleSlot/5",
         // #1273 makes the door setups static; no reads or widths change.
-        "SetupColoredDoorSlot/6",
         // #627 selects the grey-door condition through GreyDoorConditions.AtTableIndex; no program reads change.
-        "SetupGreyDoorSlot/5",
         // Calculated scroll programs retain the same completion mutation.
         "FinishScrollMutation/2",
         "SetupScrollSlot/5",
@@ -42,13 +40,11 @@ internal static class PlmInterpreterSourceContract
         "SetupStation/6",
         // #627 types the eye-door projectile definition as EyeDoorProjectileDefinition; no program reads change.
         "SpawnEyeDoorProjectile/3",
-        "SpawnEyeDoorProjectile/4",
         // #627 typed handlers test membership, then throw on an unhandled member; no program reads or operand widths change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         "TryExecuteChozoStatueInstruction/4",
         // #627 passes EyeDoorProjectileDefinition members of equal value; no program reads change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "TryExecuteEyeDoorInstruction/4",
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         // #142 drops the unused Samus accessor; no program reads or operand widths change.
         "TryRunRoomPopulationSetup/5",
@@ -57,10 +53,8 @@ internal static class PlmInterpreterSourceContract
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         "TryStepCollectible/5",
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "TryStepColoredDoor/5",
         // #1266 resets LoopTimer for a rejected shot; no program reads or operand widths change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "TryStepGreyDoor/7",
         "TryStepScrollPlm/3",
         // #1269 station lock timing; the unpause-release change drops the second lock; no
         // program reads or operand widths change.

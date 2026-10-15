@@ -13,17 +13,9 @@ namespace SuperMetroid.Core.Rooms.Plms;
 public static class DoorClosingPlmRomData
 {
 
-    /// <summary>$84:C4CF, closing program selected by header $84:C8BE.</summary>
-    internal const ushort BlueFacingRightInstructionList = 0xc4cf;
 
-    /// <summary>$84:C49E, closing program selected by header $84:C8BA.</summary>
-    internal const ushort BlueFacingLeftInstructionList = 0xc49e;
 
-    /// <summary>$84:C531, closing program selected by header $84:C8C6.</summary>
-    internal const ushort BlueFacingDownInstructionList = 0xc531;
 
-    /// <summary>$84:C500, closing program selected by header $84:C8C2.</summary>
-    internal const ushort BlueFacingUpInstructionList = 0xc500;
 
     /// <summary>
     /// The <c>$8F:E68A</c> entry for <paramref name="orientation"/>: none for the four
@@ -35,14 +27,14 @@ public static class DoorClosingPlmRomData
         DoorClosingBehavior.None => null,
         DoorClosingBehavior.BlueDoorCloses => orientation.Direction switch
         {
-            DoorDirection.Right => new(PlmHeaderId.BlueDoorClosingFacingRight, BlueFacingRightInstructionList),
-            DoorDirection.Left => new(PlmHeaderId.BlueDoorClosingFacingLeft, BlueFacingLeftInstructionList),
-            DoorDirection.Down => new(PlmHeaderId.BlueDoorClosingFacingDown, BlueFacingDownInstructionList),
-            DoorDirection.Up => new(PlmHeaderId.BlueDoorClosingFacingUp, BlueFacingUpInstructionList),
+            DoorDirection.Right => new(PlmHeaderId.BlueDoorClosingFacingRight, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.Closing(ColoredDoorOrientation.Right))),
+            DoorDirection.Left => new(PlmHeaderId.BlueDoorClosingFacingLeft, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.Closing(ColoredDoorOrientation.Left))),
+            DoorDirection.Down => new(PlmHeaderId.BlueDoorClosingFacingDown, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.Closing(ColoredDoorOrientation.Down))),
+            DoorDirection.Up => new(PlmHeaderId.BlueDoorClosingFacingUp, PlmProgramStart.Typed(BlueDoorPlmProgramDefinitions.Closing(ColoredDoorOrientation.Up))),
             _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door direction."),
         },
         DoorClosingBehavior.EscapeGateCloses => new(PlmHeaderId.MotherBrainEscapeRoomGateClosing,
-            RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
+            PlmProgramStart.Native(RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing)),
         _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, "Undefined door closing behavior."),
     };
 }

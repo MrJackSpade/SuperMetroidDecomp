@@ -5,7 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Doors.LookupColoredCapVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupColoredDoorStockVerification;
-using static SuperMetroid.Verification.Rooms.Doors.LookupColoredProgramVerification;
+using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -172,9 +172,14 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             var reopened = new RoomPlmSystem { Drawing = { ColoredDoorVisuals = stock } };
             AssertEqual(1, reopened.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, reopenedLevel, reopenedStreamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"opened colored door ${(int)header:X4} reloads");
+            // $84:8A72 hands the opened cap to the closed blue list, which shows the blue cap for one frame and then
+            // deletes on the next pass.
+            reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            AssertTrue(reopened.PopulationSlots.Single().Animation is BlueDoorPlmAnimation,
+                $"opened colored door ${(int)header:X4} converts to a blue cap");
             reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, reopened.SlotTable.ActiveCount,
-                $"opened colored door ${(int)header:X4} converts to a blue cap");
+                $"opened colored door ${(int)header:X4} deletes after its blue frame");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"opened colored door ${(int)header:X4} converts without program/draw ROM reads");
         }
@@ -184,16 +189,9 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             "  Colored doors: 1164 compiled program bytes, 12 close/hit/open/reload paths, 48 physical draws, and editable visual blocks pass with source reads blocked.");
     }
 
-    /// <summary>Groups retail comparisons of colored-door control flow, draw pointers, targets, sounds, hit counts, and callbacks.</summary>
-    private static void VerifyColoredDoorProgramDefinitions(SuperMetroidAddressSpace rom)
-    {
-        Suite(nameof(VerifyColoredProgramControls), () => VerifyColoredProgramControls(rom));
-        Suite(nameof(VerifyColoredProgramDraws), () => VerifyColoredProgramDraws(rom));
-        Suite(nameof(VerifyColoredProgramTargets), () => VerifyColoredProgramTargets(rom));
-        Suite(nameof(VerifyColoredProgramSounds), () => VerifyColoredProgramSounds(rom));
-        Suite(nameof(VerifyColoredProgramHitCount), () => VerifyColoredProgramHitCount(rom));
-        Suite(nameof(VerifyColoredProgramCallback), () => VerifyColoredProgramCallback(rom));
-    }
+    /// <summary>Compares every coloured cap's typed programs with its bank-$84 lists.</summary>
+    private static void VerifyColoredDoorProgramDefinitions(SuperMetroidAddressSpace rom) =>
+        Suite(nameof(RoomPlmProgramsVerification.VerifyColoredDoorPrograms), () => RoomPlmProgramsVerification.VerifyColoredDoorPrograms(rom));
 
     /// <summary>Checks extracted stock, an edited green-cap override, survival across stock refresh, and rejection of malformed override or stock files.</summary>
     private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)

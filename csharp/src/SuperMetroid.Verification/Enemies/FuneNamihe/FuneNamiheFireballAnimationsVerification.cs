@@ -10,11 +10,13 @@ namespace SuperMetroid.Verification.Enemies.FuneNamihe;
 /// <summary>#641: Fune and Namihe's fireball typed programs, each matched step by step to its native bank-$86 list.</summary>
 internal static class FuneNamiheFireballAnimationsVerification
 {
+    /// <summary>The family's typed programs beside their native lists.</summary>
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, FuneNamiheFireballAnimations.Programs, FuneNamiheFireballFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyFuneNamiheFireballAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProjectileProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Entries, FuneNamiheFireballAnimations.Programs,
-            FuneNamiheFireballFrameDefinitions.PresentationKey, NativeEnemyProjectileCommonCues.Rules);
+        int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         for (int pose = 0; pose < FuneNamiheFireballFrameDefinitions.PoseCount; pose++)
         {
             FuneNamiheFireballFrame frame = new(pose);

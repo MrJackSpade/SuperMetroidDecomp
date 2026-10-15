@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -68,19 +69,14 @@ internal sealed class DoorPlms
                 break;
             }
 
-            // Header+4 is definition metadata, not active memory. All resident
-            // closing actors, including the escape gate, resolve it by identity.
-            ResidentDoorClosingDefinitions.Resolve(resident.HeaderPointer).StartOn(resident);
+            // Header+4 is definition metadata, not active memory: a typed cap restarts at its own closing program,
+            // and the other resident closers resolve their closing start by identity. Native retains every scalar
+            // the resident slot owns while replacing only its instruction pointer.
+            if (resident.Animation is IResidentDoorAnimation residentDoor)
+                residentDoor.StartClosing();
+            else
+                ResidentDoorClosingDefinitions.Resolve(resident.HeaderPointer).StartOn(resident);
             resident.InstructionTimer = NativeCountdown.Start(1);
-
-            // Native retains every scalar owned by the resident slot while only replacing
-            // its instruction pointer. Preserve the equivalent C# family data and mark the
-            // interval explicitly: the common interpreter owns the secondary list, while
-            // its final Goto returns this same actor to the original door-family program.
-            if (resident.ColoredDoor is not null)
-                resident.ColoredDoor.Phase = ColoredDoorPhase.Closing;
-            if (resident.GreyDoor is not null)
-                resident.GreyDoor.Phase = GreyDoorPhase.Closing;
             return true;
         }
 
@@ -97,7 +93,7 @@ internal sealed class DoorPlms
             slot.Active = true;
             slot.HeaderPointer = fallback.Header;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = fallback.InitialInstructionList;
+            fallback.Start.StartOn(slot);
             slot.InstructionTimer = NativeCountdown.Start(1);
             SetupDoorTransitionDeactivatedSlot(level, slot);
             return true;
@@ -106,41 +102,6 @@ internal sealed class DoorPlms
         return false;
     }
 
-    /// <summary>
-    /// Completes a resident door's secondary-list close when its final Goto returns to the
-    /// header's first list. This is the semantic equivalent of the native slot retaining
-    /// its room argument, variable, link register, and family pre-instruction state.
-    /// </summary>
-    internal bool TryCompleteResidentDoorClosing(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, ushort target, PlmView view)
-    {
-        if (slot.ColoredDoor is { Phase: ColoredDoorPhase.Closing } coloredDoor &&
-            target == coloredDoor.InitialList)
-        {
-            slot.InstructionPointer = target;
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.PreInstruction = 0;
-            coloredDoor.Phase = ColoredDoorPhase.Waiting;
-            coloredDoor.InitialDrawCompleted = true;
-            coloredDoor.HasPendingHit = false;
-            _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, coloredDoor.ColoredClosedDraw, view);
-            return true;
-        }
-
-        if (slot.GreyDoor is { Phase: GreyDoorPhase.Closing } greyDoor &&
-            target == greyDoor.InitialList)
-        {
-            slot.InstructionPointer = target;
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.PreInstruction = 0;
-            greyDoor.Phase = GreyDoorPhase.Locked;
-            greyDoor.InitialDrawCompleted = true;
-            greyDoor.HasPendingHit = false;
-            _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, greyDoor.ClosedGreyDraw, view);
-            return true;
-        }
-
-        return false;
-    }
 
     /// <summary>
     /// Translates <c>$84:B3C1 Setup_DeactivatePLM</c>: clear collision bits 12-14 while
@@ -173,142 +134,100 @@ internal sealed class DoorPlms
     }
 
     /// <summary>
-    /// Executes the colored-door header setup against the slot already allocated by the
-    /// sequential room-population loader. Allocation deliberately does not live here:
-    /// native <c>Spawn_Room_PLM</c> chooses the physical ID before calling this routine.
+    /// Setup <c>$84:C7B1</c> for a coloured cap: installs its shootable collision and starts its waiting program.
     /// </summary>
     internal static void SetupColoredDoorSlot(
-        ISnesAddressSpace bus,
         RoomLevelData level,
-        Bank80SystemState system,
         PlmSlot slot,
         ColoredDoorColor color,
         ColoredDoorOrientation orientation)
     {
         ApplyColoredDoorSetup(level, slot.BlockIndex);
-
-        ushort initialList = slot.InstructionPointer;
-        ushort closedBlueList = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(initialList + 2)));
-        ushort hitList = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(initialList + 6)));
-        byte hitThreshold = RoomPlmSystem.ReadProgramByte(bus, unchecked((ushort)(hitList + 2)));
-        ushort openingList = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(hitList + 3)));
-        ushort coloredClosedDraw = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(initialList + 14)));
-        bool wasOpened = unchecked((short)slot.RoomArgument) >= 0 &&
-            system.HasOpenedDoorBit(slot.RoomArgument);
-
-        slot.ColoredDoor = new ColoredDoorPlmState(
-            color,
-            orientation,
-            new ColoredDoorPrograms(initialList, closedBlueList, hitList, openingList, coloredClosedDraw),
-            hitThreshold,
-            wasOpened ? ColoredDoorPhase.ConvertToBlue : ColoredDoorPhase.Waiting);
+        slot.ColoredDoor = new ColoredDoorPlmState(color, orientation);
+        slot.StartAnimation(new ColoredDoorPlmAnimation(color, orientation, ColoredDoorProgram.Waiting));
     }
 
-    /// <summary>Advances one resident colored cap through blue conversion, hit flashes, or opening.</summary>
-    internal bool TryStepColoredDoor(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
+    /// <summary>
+    /// The coloured cap's shot wake (<c>$84:BD26</c>, <c>$BD50</c>, <c>$BD88</c>): a hit by the colour's projectile wakes
+    /// the cap at its hit program; any other hit queues the dud sound. Either way the hit word is consumed.
+    /// </summary>
+    internal void RunColoredDoorPreInstruction(PlmSlot slot)
     {
-        ColoredDoorPlmState? door = slot.ColoredDoor;
-        if (door is null)
-            return false;
-
-        // The four ordinary coloured-door closing lists are laid out immediately before
-        // their first lists and deliberately fall through instead of ending in Goto.
-        // Native therefore reaches the same resident owner's first instruction on the
-        // handler pass after the final closing draw. Re-enter the semantic owner at that
-        // exact cursor rather than sending its door-bit opcode through an unrelated PLM
-        // family dispatcher.
-        if (door.Phase == ColoredDoorPhase.Closing &&
-            slot.InstructionPointer == door.InitialList)
+        if (slot.ColoredDoor is not { } door)
+            return;
+        ColoredDoorPreInstruction preInstruction = ClosedNativeWords.Decode<ColoredDoorPreInstruction>(
+            slot.PreInstruction, "coloured-door pre-instruction");
+        if (preInstruction == ColoredDoorPreInstruction.None || slot.LoopTimer == 0)
+            return;
+        SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
+        bool accepted = preInstruction switch
         {
-            slot.PreInstruction = 0;
-            door.Phase = ColoredDoorPhase.Waiting;
-            door.InitialDrawCompleted = true;
-            door.HasPendingHit = false;
-        }
-
-        // A room-entry close temporarily runs the header's second cartridge list through
-        // the shared interpreter. The semantic owner remains attached so its final Goto
-        // can hand the same physical slot back to this family without reconstructing it.
-        if (door.Phase == ColoredDoorPhase.Closing)
-            return false;
-
-        if (door.Phase == ColoredDoorPhase.ConvertToBlue)
-        {
-            // The initial Goto_if_room_argument_door_is_set branch selects a short list:
-            // PLM_BTS_Y, one timed closed-blue draw, then delete. Execute its observable
-            // setup/draw atomically here while retaining the cartridge pointers and art.
-            byte blueBts = unchecked((byte)(
-                RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)door.Orientation));
-            ushort drawPointer = RoomPlmSystem.ReadProgramWord(
-                bus,
-                unchecked((ushort)(door.ClosedBlueList + 5)));
-            level.SetPlmBehavior(slot.BlockIndex, blueBts);
-            _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, drawPointer, view);
-            slot.Active = false;
-            slot.ColoredDoor = null;
-            return true;
-        }
-
-        if (!door.InitialDrawCompleted)
-        {
-            _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, door.ColoredClosedDraw, view);
-            door.InitialDrawCompleted = true;
-        }
-
-        if (!door.HasPendingHit)
-            return door.Phase == ColoredDoorPhase.Waiting;
-
-        SamusProjectileFamily projectileFamily = door.PendingProjectileType.Family;
-        door.HasPendingHit = false;
-        bool accepted = door.Color switch
-        {
-            ColoredDoorColor.Yellow => projectileFamily == SamusProjectileFamily.PowerBomb,
-            ColoredDoorColor.Green => projectileFamily == SamusProjectileFamily.SuperMissile,
-            ColoredDoorColor.Red => projectileFamily is
-                SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile,
-            _ => throw new InvalidDataException($"Unknown colored-door family {door.Color}."),
+            ColoredDoorPreInstruction.WakeOnPowerBomb => family == SamusProjectileFamily.PowerBomb,
+            ColoredDoorPreInstruction.WakeOnSuperMissile => family == SamusProjectileFamily.SuperMissile,
+            ColoredDoorPreInstruction.WakeOnMissile => family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile,
+            ColoredDoorPreInstruction.None => throw new InvalidOperationException("An inert coloured cap reached its shot test."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorPreInstruction)} {preInstruction}."),
         };
-        if (!accepted)
+        // $BD50 seeds a red cap's counter for a Super Missile: the next count passes its threshold.
+        if (preInstruction == ColoredDoorPreInstruction.WakeOnMissile && family == SamusProjectileFamily.SuperMissile)
+            door.HitCounter = ColoredDoorPlmProgramDefinitions.RedSuperMissileHitCounter;
+        if (accepted)
         {
-            // Each native pre-instruction queues library-two sound $57 for a rejected
-            // projectile. A flash already in progress is not interrupted by that dud.
-            _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: 6));
-            return door.Phase == ColoredDoorPhase.Waiting;
+            slot.LoopTimer = 0;
+            slot.WakeAtLink();
+            return;
         }
-
-        // Red-door setup writes $77 before the shared INC instruction when struck by a
-        // Super Missile. Unsigned wrap therefore guarantees the very next increment meets
-        // the five-hit threshold, exactly reproducing the cartridge's one-super behavior.
-        if (door.Color == ColoredDoorColor.Red &&
-            projectileFamily == SamusProjectileFamily.SuperMissile)
-            door.HitCounter = 0x77;
-        door.HitCounter = unchecked((byte)(door.HitCounter + 1));
-
-        if (door.HitCounter >= door.HitThreshold)
-        {
-            if (unchecked((short)slot.RoomArgument) >= 0)
-            {
-                (_bindings.System ?? throw new InvalidOperationException(
-                    "A resident colored door has no persistence owner."))
-                    .SetOpenedDoorBit(slot.RoomArgument);
-                slot.RoomArgument |= 0x8000;
-            }
-
-            door.Phase = ColoredDoorPhase.Opening;
-            slot.PreInstruction = 0;
-            slot.InstructionPointer = door.OpeningList;
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            return false;
-        }
-
-        // The five bytes after INC/threshold/open-target are the first operation in the
-        // cartridge's nonfatal blue/colored flash list. Later Goto returns to Sleep, where
-        // the common interpreter hands the actor back to Waiting.
-        door.Phase = ColoredDoorPhase.Flashing;
-        slot.InstructionPointer = unchecked((ushort)(door.HitList + 5));
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        return false;
+        QueueDudSound();
+        slot.LoopTimer = 0;
     }
+
+    /// <summary>Queues the library-two dud sound a rejected or premature shot makes.</summary>
+    internal void QueueDudSound() =>
+        _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: DudSoundMaximumQueued));
+
+    /// <summary>The dud sound's native queue cap.</summary>
+    private const int DudSoundMaximumQueued = 6;
+
+    /// <summary>The room-argument bit that marks a cap as opened for good: a negative argument never persists.</summary>
+    private const ushort NonPersistentArgumentBit = 1 << 15;
+
+    /// <summary>
+    /// <c>$84:8A72</c>: whether this cap's door bit records it as opened before; a negative room argument never does.
+    /// </summary>
+    internal bool IsDoorOpened(PlmSlot slot) =>
+        unchecked((short)slot.RoomArgument) >= 0 && RequireSystem().HasOpenedDoorBit(slot.RoomArgument);
+
+    /// <summary>
+    /// <c>$84:8A91</c> at its threshold: records the door bit, leaves the spent door-bit word as the argument and
+    /// replaces the shot wake with the inert pre-instruction.
+    /// </summary>
+    internal void MarkDoorOpened(PlmSlot slot)
+    {
+        if (unchecked((short)slot.RoomArgument) >= 0)
+        {
+            // The native routine leaves the door-bit word it just updated in the argument, marked spent.
+            Bank80SystemState system = RequireSystem();
+            system.SetOpenedDoorBit(slot.RoomArgument);
+            slot.RoomArgument = (ushort)(NonPersistentArgumentBit | system.GetOpenedDoorWordRaw(slot.RoomArgument >> 3));
+        }
+        slot.PreInstruction = 0;
+    }
+
+    /// <summary><c>$84:8A91</c>: counts a hit on a coloured cap; true when it opens the door.</summary>
+    internal bool CountColoredDoorHit(PlmSlot slot)
+    {
+        ColoredDoorPlmState door = slot.ColoredDoor
+            ?? throw new InvalidOperationException("A coloured cap's hit reached a slot without its door state.");
+        door.HitCounter = unchecked((byte)(door.HitCounter + 1));
+        if (door.HitCounter < ColoredDoorPlmProgramDefinitions.HitThresholdOf(door.Color))
+            return false;
+        MarkDoorOpened(slot);
+        return true;
+    }
+
+    /// <summary>The room's door-bit persistence owner.</summary>
+    private Bank80SystemState RequireSystem() =>
+        _bindings.System ?? throw new InvalidOperationException("A resident door has no persistence owner.");
 
     /// <summary>Decodes a colored-door header into its color family and four-way orientation.</summary>
     internal static bool TryIdentifyColoredDoor(
@@ -383,15 +302,6 @@ internal sealed class DoorPlms
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
 
-        ushort instructionPointer = orientation switch
-        {
-            ColoredDoorOrientation.Left => RoomPlmInstructionLists.BlueDoorFacingLeftOpening,
-            ColoredDoorOrientation.Right => RoomPlmInstructionLists.BlueDoorFacingRightOpening,
-            ColoredDoorOrientation.Up => RoomPlmInstructionLists.BlueDoorFacingUpOpening,
-            ColoredDoorOrientation.Down => RoomPlmInstructionLists.BlueDoorFacingDownOpening,
-            _ => throw new InvalidOperationException(
-                "Validated blue-door BTS escaped its four-way instruction table."),
-        };
         PlmHeaderId headerPointer = orientation switch
         {
             ColoredDoorOrientation.Left => PlmHeaderId.BlueDoorFacingLeft,
@@ -413,7 +323,7 @@ internal sealed class DoorPlms
             slot.HeaderPointer = headerPointer;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
-            slot.InstructionPointer = instructionPointer;
+            slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Opening(orientation)));
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.PreInstruction = 0;
             slot.RoomArgument = 0;

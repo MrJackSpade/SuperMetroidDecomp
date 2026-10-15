@@ -193,13 +193,13 @@ recordIndex,
                 out ColoredDoorColor color,
                 out ColoredDoorOrientation coloredOrientation))
         {
-            DoorPlms.SetupColoredDoorSlot(bus, level, system, slot, color, coloredOrientation);
+            DoorPlms.SetupColoredDoorSlot(level, slot, color, coloredOrientation);
             return true;
         }
 
         if (GreyDoorPlms.TryIdentifyGreyDoor(header, out ColoredDoorOrientation greyOrientation))
         {
-            GreyDoorPlms.SetupGreyDoorSlot(bus, level, system, slot, greyOrientation);
+            GreyDoorPlms.SetupGreyDoorSlot(level, slot, greyOrientation);
             return true;
         }
 

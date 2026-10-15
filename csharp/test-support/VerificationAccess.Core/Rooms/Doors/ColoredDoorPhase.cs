@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Debugger-visible phase of one resident colored-door actor.</summary>
-public enum ColoredDoorPhase : byte
+internal enum ColoredDoorPhase : byte
 {
     /// <summary>Resident cap has drawn its closed color and waits for projectile triggers while its instruction list sleeps.</summary>
     Waiting,

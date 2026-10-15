@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Doors;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
@@ -33,6 +35,9 @@ public readonly record struct PlmProgramStart
     /// <summary>A Speed Booster block program.</summary>
     internal static PlmProgramStart Typed(SpeedBoosterBlockProgram program) => new(0, program);
 
+    /// <summary>A blue door cap program.</summary>
+    internal static PlmProgramStart Typed(BlueDoorProgram program) => new(0, program);
+
     /// <summary>Starts this program on <paramref name="slot"/>; the caller keeps the slot's timer.</summary>
     internal void StartOn(PlmSlot slot)
     {
@@ -46,6 +51,9 @@ public readonly record struct PlmProgramStart
                 break;
             case SpeedBoosterBlockProgram speedBlock:
                 slot.StartAnimation(new SpeedBoosterBlockPlmAnimation(speedBlock));
+                break;
+            case BlueDoorProgram blueDoor:
+                slot.StartAnimation(new BlueDoorPlmAnimation(blueDoor));
                 break;
             default:
                 throw new InvalidOperationException($"PLM start names an unsupported typed program {TypedProgram}.");

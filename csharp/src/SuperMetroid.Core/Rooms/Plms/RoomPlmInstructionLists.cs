@@ -30,14 +30,6 @@ public static class RoomPlmInstructionLists
     /// <summary>Maridia elevatube's delay and sound list at $84:B8F0.</summary>
     public const ushort MaridiaElevatube = 0xb8f0;
 
-    /// <summary><c>$84:C489 InstList_PLM_BlueDoorFacingLeftOpened_40</c>: plays the opening sound, animates the left-facing cap, clears it, and deletes.</summary>
-    public const ushort BlueDoorFacingLeftOpening = 0xc489;
-    /// <summary><c>$84:C4BA InstList_PLM_BlueDoorFacingLeftOpened_41</c>: opens the right-facing blue door; the pinned native symbol retains its left-facing spelling.</summary>
-    public const ushort BlueDoorFacingRightOpening = 0xc4ba;
-    /// <summary><c>$84:C4EB InstList_PLM_BlueDoorFacingUpOpened_42</c>: plays the opening sound, animates the upward-facing cap, clears it, and deletes.</summary>
-    public const ushort BlueDoorFacingUpOpening = 0xc4eb;
-    /// <summary><c>$84:C51C InstList_PLM_BlueDoorFacingUpOpened_43</c>: opens the downward-facing blue door; the pinned native symbol retains its upward-facing spelling.</summary>
-    public const ushort BlueDoorFacingDownOpening = 0xc51c;
 
     /// <summary>
     /// <c>$84:BB44 InstList_PLM_GateThatClosesDuringEscapeAfterMotherBrain_1</c>:

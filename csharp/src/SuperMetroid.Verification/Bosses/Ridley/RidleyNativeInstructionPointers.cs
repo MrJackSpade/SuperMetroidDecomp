@@ -2,6 +2,7 @@ using SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Ridley;
@@ -18,6 +19,8 @@ internal sealed class RidleyNativeInstructionPointers
     private readonly Dictionary<RidleyBodyProgram, ushort[]> body;
     /// <summary>Each fireball program's step addresses.</summary>
     private readonly Dictionary<RidleyFireballProgram, ushort[]> fireball;
+    /// <summary>Each typed enemy-projectile family's pointer translation.</summary>
+    private readonly Func<EnemyProjectileAnimation, ushort?>[] projectileFamilies;
     /// <summary>The source room's Pipe Bugs' pointer translation.</summary>
     private readonly PipeBugNativeInstructionPointers pipeBugs;
 
@@ -27,6 +30,7 @@ internal sealed class RidleyNativeInstructionPointers
         body = RidleyAnimationsVerification.BodyStepAddresses(cartridge);
         RidleyAnimationsVerification.BreakupStepAddresses(cartridge);
         fireball = RidleyAnimationsVerification.FireballStepAddresses(cartridge);
+        projectileFamilies = [.. NativeEnemyProjectileFamilies.All.Select(family => family.NativePointers(cartridge))];
         pipeBugs = new PipeBugNativeInstructionPointers(cartridge);
     }
 
@@ -58,15 +62,16 @@ internal sealed class RidleyNativeInstructionPointers
     }
 
     /// <summary>
-    /// The native instruction pointer of <paramref name="projectile"/>: Ridley's fireballs and afterburns translate
-    /// their typed cursors; projectiles still on native lists hold native pointers.
+    /// The native instruction pointer of <paramref name="projectile"/>: Ridley's fireballs and afterburns and every
+    /// typed enemy-projectile family translate their typed cursors; projectiles still on native lists hold native pointers.
     /// </summary>
     internal ushort Projectile(RoomEnemyProjectileSlot projectile) => projectile.Animation switch
     {
         null => projectile.InstructionPointer,
         RidleyFireballAnimation animation => fireball[animation.Cursor.Program][animation.Cursor.Position],
-        _ => throw new InvalidOperationException(
-            $"Projectile {projectile.Kind} runs a typed {projectile.Animation.GetType().Name}, which has no native-pointer translation."),
+        { } animation => projectileFamilies.Select(family => family(animation)).SingleOrDefault(pointer => pointer is not null)
+            ?? throw new InvalidOperationException(
+                $"Projectile {projectile.Kind} runs a typed {animation.GetType().Name}, which has no native-pointer translation."),
     };
 
     /// <summary>The body cursor a recording's native pointer <paramref name="address"/> stands for: the program entry when it is one.</summary>

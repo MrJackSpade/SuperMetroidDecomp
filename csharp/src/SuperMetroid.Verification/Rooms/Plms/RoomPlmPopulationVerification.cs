@@ -26,6 +26,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -80,7 +81,8 @@ internal static class RoomPlmPopulationVerification
             AssertEqual(header == 0, actual is null, "Non-closing table entries select no actor");
             if (list)
                 AssertEqual(header == 0 ? (ushort)0 : ReadSamusEaterPlmWord(rom, 0x840000 | (header + 2)),
-                    actual?.InitialInstructionList ?? 0, "Fallback original initial list or no-actor zero");
+                    actual is { } fallback ? PlmProgramStartOracle.NativeListOf(fallback.Start) : (ushort)0,
+                    "Fallback original initial list or no-actor zero");
             else
             {
                 AssertEqual(header, (ushort)(actual?.Header ?? PlmHeaderId.None), "Fallback original direction header");
@@ -124,8 +126,8 @@ internal static class RoomPlmPopulationVerification
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertEqual(expectedHeader, (ushort)slot.HeaderPointer,
                 $"door-closing direction {direction} installs compiled header");
-            AssertEqual(expectedList, slot.InstructionPointer,
-                $"door-closing direction {direction} installs compiled initial list");
+            AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStartOracle.ForNativeList(expectedList), slot),
+                $"door-closing direction {direction} starts the program of its compiled initial list");
         }
 
         AssertThrows<InvalidDataException>(
@@ -141,40 +143,38 @@ internal static class RoomPlmPopulationVerification
     }
 
     /// <summary>
-    /// Verifies the fixed header+4 relationship for every resident grey/coloured door,
-    /// then exercises the real room-population and transition redirect with that source
-    /// word deliberately absent from the sparse bus.
+    /// Verifies the fixed header+4 closing list of every resident door: a typed cap's closing program begins exactly
+    /// there, and the escape gate and eye doors resolve their closing start by identity. Each then runs the real
+    /// room-population load and transition redirect with that source word absent from the sparse bus.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for resident door closing definitions")]
     internal static void VerifyResidentDoorClosingDefinitions(SuperMetroidAddressSpace rom)
     {
-
-        AssertEqual(ResidentDoorClosingDefinitions.Count,
-            ResidentDoorClosingDefinitions.All.Count(),
-            "resident-door definition count");
-
         ushort[] headers = [0xbaf4,0xc842,0xc848,0xc84e,0xc854,0xc85a,0xc860,0xc866,0xc86c,
             0xc872,0xc878,0xc87e,0xc884,0xc88a,0xc890,0xc896,0xc89c,0xc8ca,0xdb4c,0xdb5a];
-        AssertTrue(ResidentDoorClosingDefinitions.All.Select(entry => (ushort)entry.Header).SequenceEqual(headers),
-            "Resident closing exact native header set and enumeration order");
+        PlmHeaderId[] resolved = [.. ResidentDoorClosingDefinitions.All.Select(entry => entry.Header)];
+        PlmHeaderId[] identityClosers = [PlmHeaderId.MotherBrainEscapeRoomGate, PlmHeaderId.EyeDoorFacingRight, PlmHeaderId.EyeDoorFacingLeft];
+        AssertTrue(resolved.SequenceEqual(identityClosers),
+            "Only the escape gate and the eye doors keep a closing start by identity");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
-            if (!headers.Contains((ushort)raw))
+            if (!resolved.Contains((PlmHeaderId)raw))
                 AssertThrows<InvalidDataException>(() => ResidentDoorClosingDefinitions.Resolve((PlmHeaderId)raw),
                     "Resident closing complete unsupported-header domain");
 
         int definitionIndex = 0;
-        foreach (ResidentDoorClosingDefinition definition in
-                 ResidentDoorClosingDefinitions.All)
+        foreach (ushort raw in headers)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.Header + 4))));
-            AssertEqual(PlmProgramStartOracle.ForNativeList(expected), definition.Closing,
-                $"resident door $84:{(int)definition.Header:X4} closing list matches cartridge");
-            AssertEqual(PlmProgramStartOracle.ForNativeList(expected),
-                ResidentDoorClosingDefinitions.Resolve((PlmHeaderId)definition.Header),
-                $"resident door $84:{(int)definition.Header:X4} resolves by identity");
+            PlmHeaderId header = (PlmHeaderId)raw;
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(raw + 4))));
+            ushort? typedClosing = DoorPlmNativeListAddresses.TypedClosingEntry(header);
+            if (typedClosing is { } typed)
+                AssertEqual(expected, typed, $"resident door $84:{raw:X4} closing program begins at its header's list");
+            else
+                AssertEqual(PlmProgramStartOracle.ForNativeList(expected), ResidentDoorClosingDefinitions.Resolve(header),
+                    $"resident door $84:{raw:X4} resolves by identity");
 
             // Typed placement metadata supplies the first list only. The transition
-            // must obtain its second list from the resident-door definition catalog,
+            // must obtain its closing program from the resident cap or catalog,
             // not from an arbitrary address space or a header+4 fixture byte.
             var bus = new TestAddressSpace();
             const ushort population = 0x9000;
@@ -185,9 +185,9 @@ internal static class RoomPlmPopulationVerification
                 // Two directional caps are not placed in any retail room population,
                 // so they are absent from the 70-header population catalog. Decode
                 // their setup/first-list metadata here, in the import-side oracle.
-                new RoomPlmPlacement(new RoomPlmHeaderDefinition((PlmHeaderId)definition.Header,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (ushort)definition.Header)),
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.Header + 2))))),
+                new RoomPlmPlacement(new RoomPlmHeaderDefinition(header,
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | raw)),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(raw + 2))))),
                     new(blockX, blockY), 0x8000), // Negative argument always closes.
             ]);
 
@@ -198,7 +198,7 @@ internal static class RoomPlmPopulationVerification
             var system = new Bank80SystemState();
             var plms = new RoomPlmSystem();
             AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), system, AreaId.Crateria), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
-                $"resident door $84:{(int)definition.Header:X4} loads through production setup");
+                $"resident door $84:{raw:X4} loads through production setup");
 
             var enteringDoor = new CartridgeDoorHeader(
                 Pointer: 0,
@@ -209,9 +209,13 @@ internal static class RoomPlmPopulationVerification
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
             AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
-                $"resident door $84:{(int)definition.Header:X4} accepts transition redirect");
-            AssertTrue(PlmProgramStartOracle.IsRunning(definition.Closing, plms.PopulationSlots.Single()),
-                $"resident door $84:{(int)definition.Header:X4} starts its closing program");
+                $"resident door $84:{raw:X4} accepts transition redirect");
+            RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
+            AssertTrue(typedClosing is null
+                    ? PlmProgramStartOracle.IsRunning(ResidentDoorClosingDefinitions.Resolve(header), slot)
+                    : slot.Animation is ColoredDoorPlmAnimation { Program: ColoredDoorProgram.Closing }
+                        or GreyDoorPlmAnimation { Program: GreyDoorProgram.Closing },
+                $"resident door $84:{raw:X4} starts its closing program");
             definitionIndex++;
         }
 
@@ -402,8 +406,9 @@ internal static class RoomPlmPopulationVerification
             plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
         AssertEqual(GreyDoorPhase.Locked, plms.GreyDoorSnapshots.Single().Phase,
             "closing Goto hands the resident actor back to its grey-door family");
-        AssertEqual(initialList, plms.PopulationSlots.Single().InstructionPointer,
-            "rejoined actor retains the cartridge first-list pointer");
+        AssertEqual(initialList, RoomPlmProgramsVerification.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true),
+                GreyDoorProgram.Waiting),
+            "rejoined actor's waiting program stands for the cartridge first list");
         AssertEqual(0xc4ae, level.GetCollisionBlock(new(doorX, doorY)).LevelWord,
             "re-entry draws the locked grey-door frame in the same handler pass");
         AssertEqual(1, plms.SlotTable.ActiveCount,
@@ -505,8 +510,11 @@ internal static class RoomPlmPopulationVerification
 
         AssertEqual(GreyDoorPhase.Locked, plms.GreyDoorSnapshots.Single().Phase,
             "fall-through at $BE70 returns to the resident grey-door owner");
-        AssertEqual(initialList, plms.PopulationSlots.Single().InstructionPointer,
-            "door remains parked at its first list instead of dispatching $8A72 generically");
+        AssertEqual(initialList, RoomPlmProgramsVerification.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Left, BombTorizo: false),
+                GreyDoorProgram.Waiting),
+            "the grey door's waiting program stands for the cartridge first list");
+        AssertTrue(plms.PopulationSlots.Single().Animation is GreyDoorPlmAnimation { Program: GreyDoorProgram.Waiting or GreyDoorProgram.Sleep },
+            "the closing falls through into the grey door's own waiting program");
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "room $9B9D grey door remains resident after its entry-closing animation");
     }

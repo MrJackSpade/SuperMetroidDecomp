@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Verification.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 
@@ -17,6 +18,7 @@ internal static class PlmProgramStartOracle
     [
         (PlmProgramStart.Delete, SharedDeleteEntry),
         .. RoomPlmNativeListAddresses.SpeedBoosterBlockEntries.Select(entry => (PlmProgramStart.Typed(entry.Program), entry.Entry)),
+        .. DoorPlmNativeListAddresses.BlueEntries.Select(entry => (PlmProgramStart.Typed(entry.Program), entry.Entry)),
     ];
 
     /// <summary>The start production must hold where the cartridge names native list <paramref name="list"/>.</summary>

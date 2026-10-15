@@ -144,8 +144,8 @@ public sealed class RoomPlmSystem
         Stations = new StationPlms(Bindings, Drawing, SlotTable, Sounds);
         CollectiblePlms = new CollectiblePlms(Bindings, Drawing, SlotTable, Sounds);
         EyeDoors = new EyeDoorPlms(Bindings, Sounds);
-        GreyDoors = new GreyDoorPlms(Bindings, Drawing, Sounds);
         DoorPlms = new DoorPlms(Bindings, Drawing, SlotTable, Sounds);
+        GreyDoors = new GreyDoorPlms(Bindings, Drawing, Sounds, DoorPlms);
         Tourian = new TourianPlms(Bindings, SlotTable);
         PopulationLoader = new PlmPopulationLoader(new PlmPopulationLoaderDependencies { Bindings = Bindings, BombTorizoHand = BombTorizoHand, CollectiblePlms = CollectiblePlms, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
         BlockReactions = new BlockReactionPlms(Bindings, EscapeAnimals, SlotTable);
@@ -242,16 +242,8 @@ public sealed class RoomPlmSystem
                 continue;
             }
 
-            if (DoorPlms.TryStepColoredDoor(bus, level, streamer, slot, view))
-            {
-                continue;
-            }
-
-            if (GreyDoors.TryStepGreyDoor(bus, level, streamer, slot, view, frame.EnemyDeaths, frame.EnemyDeathQuota))
-            {
-                continue;
-            }
-
+            DoorPlms.RunColoredDoorPreInstruction(slot);
+            GreyDoors.RunGreyDoorPreInstruction(slot, frame.EnemyDeaths, frame.EnemyDeathQuota);
             Tourian.RunMetroidsClearedPreInstruction(slot, frame.EnemyDeaths, frame.EnemyDeathQuota);
             Shaktool.RunShaktoolRoomPreInstruction(slot, frame.Scrolls, frame.PowerBombExplosionStatus);
             SamusEater.RunSamusEaterPreInstruction(slot);
@@ -381,10 +373,6 @@ public sealed class RoomPlmSystem
                     ushort gotoTarget = ReadProgramWord(
                         bus,
                         unchecked((ushort)(slot.InstructionPointer + 2)));
-                    if (DoorPlms.TryCompleteResidentDoorClosing(bus, level, streamer, slot, gotoTarget, view))
-                    {
-                        return;
-                    }
                     slot.InstructionPointer = gotoTarget;
                     continue;
 
@@ -467,14 +455,10 @@ public sealed class RoomPlmSystem
                     // animations use it as the linked idle target, so expose that semantic
                     // transition while retaining the self-rewinding instruction pointer.
                     slot.InstructionTimer = NativeCountdown.Start(1);
-                    if (slot.ColoredDoor is not null)
-                        slot.ColoredDoor.Phase = ColoredDoorPhase.Waiting;
                     return;
 
                 default:
                     if (ChozoStatue.TryExecuteChozoStatueInstruction(bus, level, slot, code))
-                        continue;
-                    if (EyeDoors.TryExecuteEyeDoorInstruction(bus, level, slot, code))
                         continue;
                     throw new InvalidDataException(
                         $"Movement-owned PLM reached untranslated bank-$84 instruction ${instruction:X4}.");

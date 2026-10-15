@@ -10,12 +10,13 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 /// <summary>#641: the n00b tube's crack, shards and bubbles typed programs, each matched step by step to its native bank-$86 list.</summary>
 internal static class NoobTubeProjectileAnimationsVerification
 {
+    /// <summary>The family's typed programs beside their native lists.</summary>
+    internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, NoobTubeProjectileAnimations.Programs, NoobTubeProjectileFrameDefinitions.PresentationKey, NoobTubeProjectileCueRules.Rules, reflectedPresentationKey: frame => frame.ReflectedPose is int pose ? NoobTubeProjectileFrameDefinitions.PresentationKey(new(pose)) : null);
+
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyNoobTubeProjectileAnimations(SuperMetroidAddressSpace rom)
     {
-        int steps = NativeEnemyProjectileProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Entries, NoobTubeProjectileAnimations.Programs,
-            NoobTubeProjectileFrameDefinitions.PresentationKey, NoobTubeProjectileCueRules.Rules,
-            reflectedPresentationKey: frame => frame.ReflectedPose is int pose ? NoobTubeProjectileFrameDefinitions.PresentationKey(new(pose)) : null);
+        int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
         Console.WriteLine($"  n00b tube projectile programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }
 }

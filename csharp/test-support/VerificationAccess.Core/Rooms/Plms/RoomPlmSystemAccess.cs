@@ -68,7 +68,8 @@ internal static class RoomPlmSystemAccess
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
                     entry.slot.RoomArgument,
-                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color, entry.door.Orientation, entry.door.Phase, entry.door.HitCounter)),
+                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color, entry.door.Orientation,
+                    ColoredPhase(entry.slot), entry.door.HitCounter)),
         ];
 
         /// <summary>Debugger-stable views of every resident grey-door PLM.</summary>
@@ -80,8 +81,8 @@ internal static class RoomPlmSystemAccess
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
                     entry.slot.RoomArgument,
-                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation, entry.door.Condition, entry.door.Phase,
-                    entry.door.InitialList, entry.door.FlashList, entry.door.OpeningList)),
+                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation, entry.door.Condition,
+                    GreyPhase(entry.slot), entry.door.HitCounter, entry.slot.Animation)),
         ];
 
         /// <summary>Debugger-visible projections of every live eye-door component.</summary>
@@ -95,59 +96,29 @@ internal static class RoomPlmSystemAccess
                     entry.slot.RoomArgument,
                     ((entry.door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
                     (entry.door).HitCounter,
-                    entry.slot.InstructionPointer,
+                    entry.slot.Animation,
                     entry.slot.PreInstruction)),
         ];
 
         /// <summary>
-        /// Publishes the projectile word observed by a resident type-$C/BTS-$44 door. The
-        /// resident actor, not the collision table, decides whether that family is accepted.
+        /// Publishes a projectile hit to a resident coloured or grey cap through the production trigger. A cap whose shot
+        /// wake is gone (opening, closing or converted) no longer reacts, so the hit is refused.
         /// </summary>
         internal bool TryNotifyColoredDoorHit(int blockIndex, SamusProjectileTypeWord projectileType)
         {
             if (self.TryNotifyEyeDoorHit(blockIndex, projectileType))
                 return true;
-
             foreach (var slot in ActiveSlots(self))
             {
-                if (slot.BlockIndex != blockIndex ||
-                    slot.ColoredDoor is not { } door)
+                if (slot.BlockIndex != blockIndex || (slot.ColoredDoor is null && slot.GreyDoor is null))
                     continue;
-
-                // Once the threshold branch has selected the opening list, native clears the
-                // pre-instruction pointer. Later projectiles therefore cannot enqueue another
-                // family check or restart the animation while the cap is disappearing.
-                if (door.Phase is ColoredDoorPhase.Opening or ColoredDoorPhase.Closing)
+                if (slot.PreInstruction == 0)
                     return false;
-
-                door.PendingProjectileType = projectileType;
-                door.HasPendingHit = true;
-                return true;
-            }
-            // BTS $44 finds the resident PLM by block index; it does not distinguish the door's color.
-            return self.TryNotifyGreyDoorHit(blockIndex, projectileType);
-        }
-
-        /// <summary>Publishes the native projectile word to a resident grey-door actor.</summary>
-        internal bool TryNotifyGreyDoorHit(int blockIndex, SamusProjectileTypeWord projectileType)
-        {
-            foreach (var slot in ActiveSlots(self))
-            {
-                if (slot.BlockIndex != blockIndex ||
-                    slot.GreyDoor is not { } door)
-                    continue;
-
-                // Once the one-hit instruction selects the opening stream, native clears the
-                // shot pre-instruction. Further impacts cannot restart or duplicate the sound.
-                if (door.Phase is GreyDoorPhase.Opening or GreyDoorPhase.ConvertToBlue or GreyDoorPhase.Closing)
-                    return false;
-
-                door.PendingProjectileType = projectileType;
-                door.HasPendingHit = true;
-                return true;
+                return self.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, projectileType);
             }
             return false;
         }
+
 
         /// <summary>Whether the cartridge's room population installed PLM <c>$D6DE</c>.</summary>
         internal bool MotherBrainGlassWasLoaded => self.MotherBrainGlass._motherBrainGlassWasLoaded;
@@ -201,6 +172,16 @@ internal static class RoomPlmSystemAccess
         /// Keeping synthetic opcodes at nonretail addresses avoids rewriting an immutable
         /// compiled cartridge program in a fake address space.
         /// </summary>
+        internal void StartSoleProgramForVerification(PlmProgramStart start)
+        {
+            PlmSlot[] active = [.. self.SlotTable._slots.Where(slot => slot.Active)];
+            if (active.Length != 1)
+                throw new InvalidOperationException("Program probe requires exactly one active PLM slot.");
+            start.StartOn(active[0]);
+            active[0].InstructionTimer = NativeCountdown.Start(1);
+        }
+
+        /// <summary>Points the sole live PLM at a native list, as a native list store does.</summary>
         internal void SetSoleInstructionPointerForVerification(ushort instructionPointer)
         {
             PlmSlot[] active = [.. self.SlotTable._slots.Where(slot => slot.Active)];
@@ -564,4 +545,24 @@ internal static class RoomPlmSystemAccess
     /// <summary>The live Mother Brain glass PLM slot, as the system's own slot search finds it.</summary>
     private static PlmSlot? MotherBrainGlassSlot(RoomPlmSystem plms) =>
         plms.MotherBrainGlass.TryGetMotherBrainGlassSlot(out PlmSlot? slot) ? slot : null;
+
+    /// <summary>The test view of a coloured cap's phase, from the program its typed animation runs.</summary>
+    private static ColoredDoorPhase ColoredPhase(PlmSlot slot) => slot.Animation switch
+    {
+        ColoredDoorPlmAnimation { Program: ColoredDoorProgram.Closing } => ColoredDoorPhase.Closing,
+        ColoredDoorPlmAnimation { Program: ColoredDoorProgram.Waiting or ColoredDoorProgram.Sleep } => ColoredDoorPhase.Waiting,
+        ColoredDoorPlmAnimation { Program: ColoredDoorProgram.Hit } => ColoredDoorPhase.Flashing,
+        ColoredDoorPlmAnimation { Program: ColoredDoorProgram.Open } => ColoredDoorPhase.Opening,
+        _ => throw new InvalidOperationException($"Coloured cap at block {slot.BlockIndex} runs {slot.Animation?.RunningProgram}."),
+    };
+
+    /// <summary>The test view of a grey cap's phase, from the program its typed animation runs.</summary>
+    private static GreyDoorPhase GreyPhase(PlmSlot slot) => slot.Animation switch
+    {
+        GreyDoorPlmAnimation { Program: GreyDoorProgram.Closing } => GreyDoorPhase.Closing,
+        GreyDoorPlmAnimation { Program: GreyDoorProgram.Waiting or GreyDoorProgram.Sleep } => GreyDoorPhase.Locked,
+        GreyDoorPlmAnimation { Program: GreyDoorProgram.Activate or GreyDoorProgram.Flash or GreyDoorProgram.Hit } => GreyDoorPhase.Flashing,
+        GreyDoorPlmAnimation { Program: GreyDoorProgram.Open } => GreyDoorPhase.Opening,
+        _ => throw new InvalidOperationException($"Grey cap at block {slot.BlockIndex} runs {slot.Animation?.RunningProgram}."),
+    };
 }

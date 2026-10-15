@@ -4,7 +4,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.LookupBlueCapVerification;
 using static SuperMetroid.Verification.Rooms.Doors.LookupBlueDoorStockVerification;
-using static SuperMetroid.Verification.Rooms.Doors.LookupBlueProgramVerification;
+using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
@@ -41,7 +41,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         editedFrame.Blocks[0] = 0x0053;
         var edited = new RoomPlmBlueDoorVisualCatalog(entries);
         editedFrame.Blocks[0] = 0x0054;
-        ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (RoomPlmInstructionLists.BlueDoorFacingLeftOpening + 5)));
+        ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (BlueEntry(BlueDoorPlmProgramDefinitions.Opening(ColoredDoorOrientation.Left)) + 5)));
         AssertEqual((ushort)0x0053, edited.GetWord(leftFirstDraw, 0),
             "blue-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(leftFirstDraw, 0),
@@ -52,14 +52,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
 
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         {
-            ushort openingList = orientation switch
-            {
-                ColoredDoorOrientation.Left => RoomPlmInstructionLists.BlueDoorFacingLeftOpening,
-                ColoredDoorOrientation.Right => RoomPlmInstructionLists.BlueDoorFacingRightOpening,
-                ColoredDoorOrientation.Up => RoomPlmInstructionLists.BlueDoorFacingUpOpening,
-                ColoredDoorOrientation.Down => RoomPlmInstructionLists.BlueDoorFacingDownOpening,
-                _ => throw new InvalidDataException("Unknown blue-door orientation."),
-            };
+            ushort openingList = BlueEntry(BlueDoorPlmProgramDefinitions.Opening(orientation));
             ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (openingList + 5)));
             AssertTrue(BlueDoorPlmDrawDefinitions.TryGet(firstDraw, out var selected),
                 $"{orientation} opening program selects a compiled draw");
@@ -106,35 +99,19 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             AssertEqual(0, plms.SlotTable.ActiveCount,
                 $"{orientation} blue-door opening reaches its native Delete");
 
-            ushort closingList = orientation switch
-            {
-                ColoredDoorOrientation.Left => BlueDoorPlmProgramDefinitions.ClosingLeft,
-                ColoredDoorOrientation.Right => BlueDoorPlmProgramDefinitions.ClosingRight,
-                ColoredDoorOrientation.Up => BlueDoorPlmProgramDefinitions.ClosingUp,
-                ColoredDoorOrientation.Down => BlueDoorPlmProgramDefinitions.ClosingDown,
-                _ => throw new InvalidDataException("Unknown blue-door orientation."),
-            };
-            ushort closedList = orientation switch
-            {
-                ColoredDoorOrientation.Left => BlueDoorPlmProgramDefinitions.ClosedLeft,
-                ColoredDoorOrientation.Right => BlueDoorPlmProgramDefinitions.ClosedRight,
-                ColoredDoorOrientation.Up => BlueDoorPlmProgramDefinitions.ClosedUp,
-                ColoredDoorOrientation.Down => BlueDoorPlmProgramDefinitions.ClosedDown,
-                _ => throw new InvalidDataException("Unknown blue-door orientation."),
-            };
-            foreach (ushort list in new[] { closingList, closedList })
+            foreach (BlueDoorProgram program in new[] { BlueDoorPlmProgramDefinitions.Closing(orientation), BlueDoorPlmProgramDefinitions.Closed(orientation) })
             {
                 AssertTrue(plms.DoorPlms.TrySpawnBlueDoorOpening(level, origin, behavior,
                     new SamusProjectileTypeWord(0)),
-                    $"{orientation} allocates actor for list ${list:X4}");
-                plms.SetSoleInstructionPointerForVerification(list);
+                    $"{orientation} allocates actor for {program}");
+                plms.StartSoleProgramForVerification(PlmProgramStart.Typed(program));
                 for (int frame = 0; frame < 20 && plms.SlotTable.ActiveCount != 0; frame++)
                     plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(0, plms.SlotTable.ActiveCount,
-                    $"{orientation} list ${list:X4} reaches its native Delete");
+                    $"{orientation} {program} reaches its deletion");
                 AssertEqual((int)behavior.Value,
                     level.GetCollisionBlockByIndex(origin).Behavior,
-                    $"{orientation} list ${list:X4} restores the blue-door BTS");
+                    $"{orientation} {program} restores the blue-door BTS");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{orientation} complete blue-door lists avoid all compiled ROM sources");
@@ -146,14 +123,13 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         Console.WriteLine("  Blue-door PLMs: 196 compiled program bytes, all opening/closing/closed lists, twenty physical draws and sixteen compatible visual identities pass with source reads forbidden.");
     }
 
-    /// <summary>Checks the control, draw, sound, and BTS operands of bank-$84 blue-door instruction lists.</summary>
-    private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom)
-    {
-        Suite(nameof(VerifyBlueProgramControls), () => VerifyBlueProgramControls(rom));
-        Suite(nameof(VerifyBlueProgramDraws), () => VerifyBlueProgramDraws(rom));
-        Suite(nameof(VerifyBlueProgramSounds), () => VerifyBlueProgramSounds(rom));
-        Suite(nameof(VerifyBlueProgramBts), () => VerifyBlueProgramBts(rom));
-    }
+    /// <summary>Compares the blue caps' typed programs with their bank-$84 lists.</summary>
+    private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom) =>
+        Suite(nameof(RoomPlmProgramsVerification.VerifyBlueDoorPrograms), () => RoomPlmProgramsVerification.VerifyBlueDoorPrograms(rom));
+
+    /// <summary>The native list a blue program begins at.</summary>
+    private static ushort BlueEntry(BlueDoorProgram program) =>
+        DoorPlmNativeListAddresses.BlueEntries.Single(entry => entry.Program == program).Entry;
 
     /// <summary>Checks stock extraction and persistent visual override loading, including invalid artwork and stock tampering.</summary>
     private static void VerifyBlueDoorVisualInstallation(

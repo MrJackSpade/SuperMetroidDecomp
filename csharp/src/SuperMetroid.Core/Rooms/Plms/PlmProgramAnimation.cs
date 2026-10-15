@@ -95,10 +95,15 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
                 case AnimationProgramStepKind.Cue:
                     Cursor = next;
                     TProgram? redirect = Publish(step.PublishedCue, slot, context);
-                    // A cue that deletes the PLM or hands it to another program ends this pass, as its native
-                    // instruction does.
-                    if (!slot.Active || slot.Animation != this)
+                    // A cue that deletes the PLM ends this pass. One that hands the slot to another family's program
+                    // continues there on this pass, as a native goto into another list does.
+                    if (!slot.Active)
                         return;
+                    if (slot.Animation != this)
+                    {
+                        slot.Animation?.Advance(slot, context);
+                        return;
+                    }
                     if (redirect is { } program)
                         Cursor = AnimationProgramCursor<TProgram>.Start(program);
                     break;

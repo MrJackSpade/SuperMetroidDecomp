@@ -1,121 +1,116 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Fx;
+using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Rooms.Doors.GreyDoorProgram, SuperMetroid.Core.Rooms.Doors.DoorCapFrame, SuperMetroid.Core.Rooms.Doors.GreyDoorCue>;
+
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// Cartridge-authored bank-$84 instruction streams for all four ordinary grey
-/// doors. Each orientation has a closing list and a condition-gated resident
-/// list with flash and opening branches. The physical draws and editable tile
-/// choices are separate resources; Bomb Torizo's special door is also separate.
+/// The grey door caps' PLM programs (#1296), in place of their bank-$84 instruction lists at $84:BE59..BFFC and Bomb
+/// Torizo's at $84:BA4C..BAD0. A grey cap sleeps until its unlock condition holds, then flashes blue until shot.
 /// </summary>
 internal static class GreyDoorPlmProgramDefinitions
 {
-    /// <summary>First ordinary grey-door closing list at $84:BE59.</summary>
-    internal const ushort FirstAddress = 0xbe59;
-    /// <summary>Final byte of the facing-down opening list at $84:BFFC.</summary>
-    internal const ushort LastAddress = 0xbffc;
+    /// <summary>The hits a grey cap takes before it opens.</summary>
+    internal const byte HitThreshold = 1;
+    /// <summary>How long each closing image shows.</summary>
+    private const int ClosingFrameDuration = 2;
+    /// <summary>How long Bomb Torizo's door holds open once Samus has Bombs, before it closes.</summary>
+    private const int BombTorizoCloseDelay = 40;
+    /// <summary>How long the blue image of the unlocked flash shows.</summary>
+    private const int FlashBlueDuration = 3;
+    /// <summary>How long the cap image of the unlocked flash shows.</summary>
+    private const int FlashCapDuration = 4;
+    /// <summary>How many blue-and-cap pairs one pass of the flash shows.</summary>
+    private const int FlashPairs = 3;
+    /// <summary>How long each opening image shows.</summary>
+    private const int OpeningFrameDuration = 4;
 
-    /// <summary>Each orientation occupies 105 bytes, including packed sound/hit arguments.</summary>
-    private const int OrientationBytes = 105;
-    /// <summary>$84:A677: first shared clear draw; orientations advance twelve bytes.</summary>
-    private const ushort ClearLeft = 0xa677;
-    /// <summary>$84:A6A7: first closed grey draw; orientations advance four twelve-byte frames.</summary>
-    private const ushort GreyLeft = 0xa6a7;
-    /// <summary>$84:A9B3: first closed blue flash draw; orientations advance five twelve-byte frames.</summary>
-    private const ushort BlueLeft = 0xa9b3;
-    /// <summary>$84:BD0F: follow the installed link when shot.</summary>
-    private const ushort FollowLinkWhenShot = 0xbd0f;
+    /// <summary>Each grey cap's program set.</summary>
+    private static readonly Dictionary<GreyDoorVariant, AnimationProgramSet<GreyDoorProgram, DoorCapFrame, GreyDoorCue>> Sets =
+        Enum.GetValues<ColoredDoorOrientation>().Select(orientation => new GreyDoorVariant(orientation, BombTorizo: false))
+            .Append(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true))
+            .ToDictionary(variant => variant, variant => new AnimationProgramSet<GreyDoorProgram, DoorCapFrame, GreyDoorCue>(Build(variant)));
 
-    /// <summary>Reads a little-endian word from the four adjacent door programs,
-    /// preserving overlapping views across packed operands and orientation boundaries.</summary>
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    /// <summary>The programs of grey cap <paramref name="variant"/>.</summary>
+    internal static AnimationProgramSet<GreyDoorProgram, DoorCapFrame, GreyDoorCue> ProgramsFor(GreyDoorVariant variant) => Sets[variant];
+
+    /// <summary>The unlock-check pre-instruction a door with <paramref name="condition"/> installs.</summary>
+    internal static GreyDoorPreInstruction UnlockCheckOf(GreyDoorCondition condition) => condition switch
     {
-        value = 0;
-        if (address is < FirstAddress or >= LastAddress) return false;
-        TryReadMechanicsByte(address, out byte low);
-        TryReadMechanicsByte((ushort)(address + 1), out byte high);
-        value = (ushort)(SnesLittleEndian.Word(low, high));
-        return true;
+        GreyDoorCondition.AreaBossDefeated => GreyDoorPreInstruction.WakeIfAreaBossDead,
+        GreyDoorCondition.AreaMiniBossDefeated => GreyDoorPreInstruction.WakeIfAreaMiniBossDead,
+        GreyDoorCondition.AreaTorizoDefeated => GreyDoorPreInstruction.WakeIfAreaTorizoDead,
+        GreyDoorCondition.EnemyDeathQuota => GreyDoorPreInstruction.WakeIfEnemiesDead,
+        GreyDoorCondition.Never => GreyDoorPreInstruction.PlayDudSound,
+        GreyDoorCondition.TourianStatueFinished => GreyDoorPreInstruction.WakeIfTourianStatueFinished,
+        GreyDoorCondition.CrittersEscaped => GreyDoorPreInstruction.WakeIfCrittersEscaped,
+        _ => throw new InvalidOperationException($"Undefined {nameof(GreyDoorCondition)} {condition}."),
+    };
+
+    /// <summary>One grey cap's seven programs.</summary>
+    private static Dictionary<GreyDoorProgram, Step[]> Build(GreyDoorVariant variant)
+    {
+        List<Step> flash = [];
+        for (int pair = 0; pair < FlashPairs; pair++)
+        {
+            flash.Add(Step.Show(DoorCapFrame.BlueFlash, FlashBlueDuration));
+            flash.Add(Step.Show(DoorCapFrame.Closed0, FlashCapDuration));
+        }
+        flash.Add(Step.GoTo(GreyDoorProgram.Flash));
+        return new Dictionary<GreyDoorProgram, Step[]>
+        {
+            [GreyDoorProgram.Closing] = variant.BombTorizo ? BombTorizoClosing() : Closing(),
+            [GreyDoorProgram.Waiting] =
+            [
+                Step.Publish(GreyDoorCue.BranchIfOpened),
+                Step.Publish(GreyDoorCue.LinkActivate),
+                Step.Publish(GreyDoorCue.ArmCondition),
+                Step.Show(DoorCapFrame.Closed0, 1),
+                Step.FallInto(GreyDoorProgram.Sleep),
+            ],
+            [GreyDoorProgram.Sleep] = [Step.Hold],
+            [GreyDoorProgram.Activate] =
+            [
+                Step.Publish(GreyDoorCue.LinkHit),
+                Step.Publish(GreyDoorCue.ArmShotWake),
+                Step.FallInto(GreyDoorProgram.Flash),
+            ],
+            [GreyDoorProgram.Flash] = [.. flash],
+            [GreyDoorProgram.Hit] = [Step.Publish(GreyDoorCue.CountHit), Step.FallInto(GreyDoorProgram.Open)],
+            [GreyDoorProgram.Open] =
+            [
+                Step.Publish(GreyDoorCue.QueueOpenSound),
+                Step.Show(DoorCapFrame.Closed1, OpeningFrameDuration),
+                Step.Show(DoorCapFrame.Closed2, OpeningFrameDuration),
+                Step.Show(DoorCapFrame.Closed3, OpeningFrameDuration),
+                Step.Show(DoorCapFrame.Clear, 1),
+                Step.Stop,
+            ],
+        };
     }
 
-    /// <summary>
-    /// Decode all four structurally identical native orientation programs. Closing
-    /// traverses frames 3..0; flashing repeats three blue/grey pairs; opening walks
-    /// frames 1..3 then clears. Local links relocate by 105 bytes per orientation.
-    /// Preserve all 420 bytes and 419 overlapping word views, including words
-    /// crossing orientation boundaries. No stored program or generated cache remains.
-    /// </summary>
-    internal static bool TryReadMechanicsByte(ushort address, out byte value)
-    {
-        value = 0;
-        if (address is < FirstAddress or > LastAddress) return false;
-        int orientation = (address - FirstAddress) / OrientationBytes;
-        int local = (address - FirstAddress) % OrientationBytes;
-        int first = FirstAddress + orientation * OrientationBytes;
-        int clear = ClearLeft + orientation * 12;
-        int grey = GreyLeft + orientation * 48;
-        if (local is 10 or 81 or 86)
-        {
-            value = local == 10 ? (byte)8 : local == 81 ? (byte)1 : (byte)7;
-            return true;
-        }
-        int start;
-        int word;
-        if (local is >= 11 and < 23)
-        {
-            int offset = local - 11;
-            int frame = 2 - offset / 4;
-            word = offset % 4 < 2 ? (frame == 0 ? 1 : 2) : grey + frame * 12;
-            start = 11 + offset / 2 * 2;
-        }
-        else if (local is >= 51 and < 75)
-        {
-            int offset = local - 51;
-            bool blue = offset % 8 < 4;
-            word = offset % 4 < 2 ? (blue ? 3 : 4) : blue ? BlueLeft + orientation * 60 : grey;
-            start = 51 + offset / 2 * 2;
-        }
-        else if (local is >= 87 and < 103)
-        {
-            int offset = local - 87;
-            int frame = offset / 4 + 1;
-            word = offset % 4 < 2 ? (frame == 4 ? 1 : 4) : frame == 4 ? clear : grey + frame * 12;
-            start = 87 + offset / 2 * 2;
-        }
-        else
-        {
-            start = local is < 10 or >= 82 and < 86 ? local & ~1 : ((local - 1) & ~1) + 1;
-            word = start switch
-            {
-                0 or 4 => 2,
-                2 => clear,
-                6 => grey + 3 * 12,
-                8 or 84 => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
-                23 => (ushort)RoomPlmInstruction.GotoIfDoorBitSet,
-                25 => orientation switch
-                {
-                    0 => BlueDoorPlmProgramDefinitions.ClosedLeft,
-                    1 => BlueDoorPlmProgramDefinitions.ClosedRight,
-                    2 => BlueDoorPlmProgramDefinitions.ClosedUp,
-                    _ => BlueDoorPlmProgramDefinitions.ClosedDown,
-                },
-                27 or 43 => (ushort)RoomPlmInstruction.LinkInstruction,
-                29 => first + 43,
-                31 => (ushort)RoomPlmInstruction.SetGreyDoorPreInstruction,
-                33 => 1,
-                35 => grey,
-                37 => (ushort)RoomPlmInstruction.Sleep,
-                39 or 75 => (ushort)RoomPlmInstruction.Goto,
-                41 => first + 37,
-                45 => first + 79,
-                47 => (ushort)RoomPlmInstruction.InstallPreInstruction,
-                49 => FollowLinkWhenShot,
-                77 => first + 51,
-                79 => (ushort)RoomPlmInstruction.IncrementDoorHitCounterAndGoto,
-                82 => first + 84,
-                _ => (ushort)RoomPlmInstruction.Delete, // Local 103 only.
-            };
-        }
-        value = (byte)(word >> ((local - start) * 8));
-        return true;
-    }
+    /// <summary>An ordinary grey cap closes behind Samus and runs into its waiting program.</summary>
+    private static Step[] Closing() =>
+    [
+        Step.Show(DoorCapFrame.Clear, ClosingFrameDuration),
+        Step.Show(DoorCapFrame.Closed3, ClosingFrameDuration),
+        Step.Publish(GreyDoorCue.QueueCloseSound),
+        Step.Show(DoorCapFrame.Closed2, ClosingFrameDuration),
+        Step.Show(DoorCapFrame.Closed1, ClosingFrameDuration),
+        Step.Show(DoorCapFrame.Closed0, 1),
+        Step.FallInto(GreyDoorProgram.Waiting),
+    ];
+
+    /// <summary>Bomb Torizo's door stays open until Samus has Bombs, holds, then closes and goes to its waiting program.</summary>
+    private static Step[] BombTorizoClosing() =>
+    [
+        Step.Show(DoorCapFrame.Clear, ClosingFrameDuration),
+        Step.Publish(GreyDoorCue.RepeatUntilSamusHasBombs),
+        Step.Show(DoorCapFrame.Clear, BombTorizoCloseDelay),
+        Step.Publish(GreyDoorCue.QueueCloseSound),
+        Step.Show(DoorCapFrame.Closed3, ClosingFrameDuration),
+        Step.Show(DoorCapFrame.Closed2, ClosingFrameDuration),
+        Step.Show(DoorCapFrame.Closed1, ClosingFrameDuration),
+        Step.Show(DoorCapFrame.Closed0, 1),
+        Step.GoTo(GreyDoorProgram.Waiting),
+    ];
 }

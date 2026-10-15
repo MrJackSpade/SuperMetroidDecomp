@@ -20,6 +20,7 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -1385,36 +1386,24 @@ internal static class RidleyFullMovieVerification
                     Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), NativeSnapshotMemory.PlmFamilyVariable + offset);
                     // Grey doors require one hit. Opening owns the incremented counter;
                     // before that transition setup's zero is the live counter value.
-                    Check($"PLM {slotIndex} grey-door hit count",
-                        greyDoor.Phase == GreyDoorPhase.Opening ? (ushort)1 : (ushort)0,
-                        NativeSnapshotMemory.PlmExtraVariable + offset);
-                    if (greyDoor.Phase != GreyDoorPhase.Closing)
-                    {
-                        ushort NativeProgramWord(int address) => ReadRetailPlmProgramWord(bus, address);
-                        ushort activation = NativeProgramWord(NativeSnapshotMemory.PlmProgramBank | (greyDoor.InitialList + 6));
-                        ushort link = NativeProgramWord(NativeSnapshotMemory.PlmProgramBank | (activation + 2));
-                        if (greyDoor.Phase == GreyDoorPhase.Locked)
-                        {
-                            instruction = unchecked((ushort)(greyDoor.InitialList + 14));
-                            preInstruction = NativeProgramWord(NativeSnapshotMemory.GreyDoorConditionTable + (int)greyDoor.Condition * 2);
-                            link = activation;
-                        }
-                        else if (greyDoor.Phase == GreyDoorPhase.Flashing)
-                            preInstruction = NativeProgramWord(NativeSnapshotMemory.PlmProgramBank | (activation + 6));
-                        Check($"PLM {slotIndex} semantic grey-door link", link, NativeSnapshotMemory.PlmLinkInstruction + offset);
-                    }
+                    Check($"PLM {slotIndex} grey-door hit count", greyDoor.HitCounter, NativeSnapshotMemory.PlmExtraVariable + offset);
+                    // The typed cap names its native instruction and link through the oracle's step addresses; a closing
+                    // cap's link is the one its previous program left, which the closing never reads.
+                    GreyDoorPlmAnimation typedDoor = slot.Animation as GreyDoorPlmAnimation
+                        ?? throw new InvalidDataException($"Movie grey door at block {slot.BlockIndex} runs no typed program.");
+                    instruction = RoomPlmProgramsVerification.GreyDoorNativeInstruction(bus, typedDoor);
+                    if (greyDoor.Phase != GreyDoorPhase.Closing && typedDoor.Link is { } link)
+                        Check($"PLM {slotIndex} grey-door link", RoomPlmProgramsVerification.GreyDoorNativeEntry(typedDoor.Variant, link),
+                            NativeSnapshotMemory.PlmLinkInstruction + offset);
                     Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(slot.BlockIndex * 2)), NativeSnapshotMemory.PlmBlockIndex + offset);
                     Check($"PLM {slotIndex} PreInstruction", preInstruction, NativeSnapshotMemory.PlmPreInstruction + offset);
                     Check($"PLM {slotIndex} InstructionPointer", instruction, NativeSnapshotMemory.PlmInstructionPointer + offset);
                     Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer, NativeSnapshotMemory.PlmLoopTimer + offset);
                     Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument, NativeSnapshotMemory.PlmRoomArgument + offset);
-                    // Locked semantic doors omit Sleep's unconsumed countdown; the
-                    // condition callback resets it to one before waking the native list.
-                    if (greyDoor.Header == 0 || greyDoor.Phase != GreyDoorPhase.Locked)
+                    // The native sleep leaves the countdown at zero and lets it run on from $FFFF; the typed hold re-arms
+                    // one on each pass. Both wake with one, so only a sleeping door's countdown is left uncompared.
+                    if (typedDoor.Program != GreyDoorProgram.Sleep)
                         Check($"PLM {slotIndex} InstructionTimer", slot.InstructionTimer, NativeSnapshotMemory.PlmInstructionTimer + offset);
-                    // Closing never consumes the retained link. Its fallthrough into
-                    // InitialList overwrites it before installing the condition callback;
-                    // all subsequent live links are checked through the semantic phase.
                 }
                 var activeLevel = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active collision data.");
                 for (int block = 0; block < activeLevel.Size.X * activeLevel.Size.Y; block++)

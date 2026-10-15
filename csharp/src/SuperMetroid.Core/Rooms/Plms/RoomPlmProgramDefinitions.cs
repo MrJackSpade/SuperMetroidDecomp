@@ -41,11 +41,6 @@ internal static class RoomPlmProgramDefinitions
         RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         ChozoStatuePlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(address, out value) ||
-        BlueDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        ColoredDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        GreyDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsWord(address, out value);
 
     /// <summary>Dispatches byte reads for compiled PLM instruction streams, including unaligned operands.</summary>
@@ -57,10 +52,5 @@ internal static class RoomPlmProgramDefinitions
         RoomPlmBombBlockProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         ChozoStatuePlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
-        BlueDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
-        ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
-        GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
-        BombTorizoGreyDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
-        EyeDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsByte(address, out value);
 }

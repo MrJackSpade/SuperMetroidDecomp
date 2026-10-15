@@ -1,98 +1,101 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Fx;
+using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Rooms.Doors.BlueDoorProgram, SuperMetroid.Core.Rooms.Doors.BlueDoorFrame, SuperMetroid.Core.Rooms.Doors.BlueDoorCue>;
+
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// Cartridge-authored bank-$84 control lists for all four ordinary blue-door
-/// orientations: opening, closing, and closed-cap handoff. The sixteen physical
-/// draw layouts and their editable visual words are separate resources.
+/// The blue door caps' PLM programs (#1296), in place of their bank-$84 instruction lists: a shot cap opens and
+/// deletes; a cap closing behind Samus closes, restores its BTS and deletes.
 /// </summary>
 internal static class BlueDoorPlmProgramDefinitions
 {
-    /// <summary>First blue-door opening list, facing left, at $84:C489.</summary>
-    internal const ushort FirstAddress = 0xc489;
-    /// <summary>Last byte of the closed facing-down list at $84:C54C.</summary>
-    internal const ushort LastAddress = 0xc54c;
-    /// <summary>Facing-left closed-cap conversion list at $84:C4B1.</summary>
-    internal const ushort ClosedLeft = 0xc4b1;
-    /// <summary>Facing-right closed-cap conversion list at $84:C4E2.</summary>
-    internal const ushort ClosedRight = 0xc4e2;
-    /// <summary>Facing-up closed-cap conversion list at $84:C513.</summary>
-    internal const ushort ClosedUp = 0xc513;
-    /// <summary>Facing-down closed-cap conversion list at $84:C544.</summary>
-    internal const ushort ClosedDown = 0xc544;
+    /// <summary>The library-3 door-opening sound.</summary>
+    internal const byte OpenSound = 7;
+    /// <summary>The library-3 door-closing sound.</summary>
+    internal const byte CloseSound = 8;
+    /// <summary>The door sounds' native queue cap.</summary>
+    internal const byte SoundMaximumQueued = 6;
+    /// <summary>How long each opening image shows before the last.</summary>
+    private const int OpeningFrameDuration = 6;
+    /// <summary>How long the opened cap's cleared image shows before the PLM deletes.</summary>
+    private const int OpenedDuration = 94;
+    /// <summary>How long each closing image shows.</summary>
+    private const int ClosingFrameDuration = 2;
 
-    /// <summary>Each orientation's opening/closing/closed group occupies 49 bytes.</summary>
-    private const int OrientationBytes = 49;
-    /// <summary>$84:A677: first shared clear draw; orientations advance twelve bytes.</summary>
-    private const ushort ClearLeft = 0xa677;
-    /// <summary>$84:A9B3: first closed blue cap; orientation groups span five twelve-byte draws.</summary>
-    private const ushort ClosedDrawLeft = 0xa9b3;
+    /// <summary>Every blue cap program.</summary>
+    internal static AnimationProgramSet<BlueDoorProgram, BlueDoorFrame, BlueDoorCue> Programs { get; } = new(Build());
 
-    /// <summary>Combines any two consecutive compiled bytes into the overlapping native word view.</summary>
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    /// <summary>The program a shot cap facing <paramref name="orientation"/> opens with.</summary>
+    internal static BlueDoorProgram Opening(ColoredDoorOrientation orientation) => orientation switch
     {
-        value = 0;
-        if (address is < FirstAddress or >= LastAddress) return false;
-        TryReadMechanicsByte(address, out byte low);
-        TryReadMechanicsByte((ushort)(address + 1), out byte high);
-        value = (ushort)(SnesLittleEndian.Word(low, high));
-        return true;
-    }
+        ColoredDoorOrientation.Left => BlueDoorProgram.LeftOpening,
+        ColoredDoorOrientation.Right => BlueDoorProgram.RightOpening,
+        ColoredDoorOrientation.Up => BlueDoorProgram.UpOpening,
+        ColoredDoorOrientation.Down => BlueDoorProgram.DownOpening,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorOrientation)} {orientation}."),
+    };
 
-    /// <summary>
-    /// Decode four NTSC orientation groups, preserving 196 bytes and all 195
-    /// overlapping word views. Opening walks three six-tick frames, then clears
-    /// for 94 ticks; closing reverses those frames at two ticks each and falls
-    /// into the one-tick closed-cap handoff. Packed sounds/BTS change alignment.
-    /// No persistent instruction table or generated cache remains.
-    /// </summary>
-    internal static bool TryReadMechanicsByte(ushort address, out byte value)
+    /// <summary>The program a cap facing <paramref name="orientation"/> closes behind Samus with.</summary>
+    internal static BlueDoorProgram Closing(ColoredDoorOrientation orientation) => orientation switch
     {
-        value = 0;
-        if (address is < FirstAddress or > LastAddress) return false;
-        int orientation = (address - FirstAddress) / OrientationBytes;
-        int local = (address - FirstAddress) % OrientationBytes;
-        int clear = ClearLeft + orientation * 12;
-        int closed = ClosedDrawLeft + orientation * 60;
-        if (local is 2 or 31 or 42)
+        ColoredDoorOrientation.Left => BlueDoorProgram.LeftClosing,
+        ColoredDoorOrientation.Right => BlueDoorProgram.RightClosing,
+        ColoredDoorOrientation.Up => BlueDoorProgram.UpClosing,
+        ColoredDoorOrientation.Down => BlueDoorProgram.DownClosing,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorOrientation)} {orientation}."),
+    };
+
+    /// <summary>The program that restores a closed cap facing <paramref name="orientation"/>.</summary>
+    internal static BlueDoorProgram Closed(ColoredDoorOrientation orientation) => orientation switch
+    {
+        ColoredDoorOrientation.Left => BlueDoorProgram.LeftClosed,
+        ColoredDoorOrientation.Right => BlueDoorProgram.RightClosed,
+        ColoredDoorOrientation.Up => BlueDoorProgram.UpClosed,
+        ColoredDoorOrientation.Down => BlueDoorProgram.DownClosed,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorOrientation)} {orientation}."),
+    };
+
+    /// <summary>The facing a blue program draws for.</summary>
+    internal static ColoredDoorOrientation Orientation(BlueDoorProgram program) => program switch
+    {
+        BlueDoorProgram.LeftOpening or BlueDoorProgram.LeftClosing or BlueDoorProgram.LeftClosed => ColoredDoorOrientation.Left,
+        BlueDoorProgram.RightOpening or BlueDoorProgram.RightClosing or BlueDoorProgram.RightClosed => ColoredDoorOrientation.Right,
+        BlueDoorProgram.UpOpening or BlueDoorProgram.UpClosing or BlueDoorProgram.UpClosed => ColoredDoorOrientation.Up,
+        BlueDoorProgram.DownOpening or BlueDoorProgram.DownClosing or BlueDoorProgram.DownClosed => ColoredDoorOrientation.Down,
+        _ => throw new InvalidOperationException($"Undefined {nameof(BlueDoorProgram)} {program}."),
+    };
+
+    /// <summary>Builds the three programs of each facing.</summary>
+    private static Dictionary<BlueDoorProgram, Step[]> Build()
+    {
+        var programs = new Dictionary<BlueDoorProgram, Step[]>();
+        foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         {
-            value = local == 2 ? (byte)7 : local == 31 ? (byte)8 :
-                (byte)(RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + orientation);
-            return true;
+            programs[Opening(orientation)] =
+            [
+                Step.Publish(BlueDoorCue.QueueOpenSound),
+                Step.Show(BlueDoorFrame.Blue1, OpeningFrameDuration),
+                Step.Show(BlueDoorFrame.Blue2, OpeningFrameDuration),
+                Step.Show(BlueDoorFrame.Blue3, OpeningFrameDuration),
+                Step.Show(BlueDoorFrame.Clear, OpenedDuration),
+                Step.Stop,
+            ];
+            programs[Closing(orientation)] =
+            [
+                Step.Show(BlueDoorFrame.Clear, ClosingFrameDuration),
+                Step.Show(BlueDoorFrame.Blue3, ClosingFrameDuration),
+                Step.Publish(BlueDoorCue.QueueCloseSound),
+                Step.Show(BlueDoorFrame.Blue2, ClosingFrameDuration),
+                Step.Show(BlueDoorFrame.Blue1, ClosingFrameDuration),
+                Step.FallInto(Closed(orientation)),
+            ];
+            programs[Closed(orientation)] =
+            [
+                Step.Publish(BlueDoorCue.RestoreBlueBts),
+                Step.Show(BlueDoorFrame.Blue0, 1),
+                Step.Stop,
+            ];
         }
-        int start;
-        int word;
-        if (local is >= 3 and < 19)
-        {
-            int offset = local - 3;
-            int frame = offset / 4 + 1;
-            word = offset % 4 < 2 ? (frame == 4 ? 94 : 6) : frame == 4 ? clear : closed + frame * 12;
-            start = 3 + offset / 2 * 2;
-        }
-        else if (local is >= 32 and < 40)
-        {
-            int offset = local - 32;
-            int frame = 2 - offset / 4;
-            word = offset % 4 < 2 ? 2 : closed + frame * 12;
-            start = 32 + offset / 2 * 2;
-        }
-        else
-        {
-            start = local is 0 or 1 or 40 or 41 ? local & ~1 : ((local - 1) & ~1) + 1;
-            word = start switch
-            {
-                0 or 29 => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
-                19 or 47 => (ushort)RoomPlmInstruction.Delete,
-                21 or 25 => 2,
-                23 => clear,
-                27 => closed + 3 * 12,
-                40 => (ushort)RoomPlmInstruction.SetPlmBtsFromByte,
-                43 => 1,
-                _ => closed, // Local 45: final closed-cap draw.
-            };
-        }
-        value = (byte)(word >> ((local - start) * 8));
-        return true;
+        return programs;
     }
 }

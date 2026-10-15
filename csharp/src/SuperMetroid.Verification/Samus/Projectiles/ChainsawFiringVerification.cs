@@ -183,7 +183,7 @@ internal static class ChainsawFiringVerification
         ushort[] interferenceWords = new ushort[25];
         byte[] interferenceBts = new byte[25];
         interferenceWords[yellowDoorBlock] = 0x8000;
-        var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new ushort[25]), new byte[8]);
+        var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new ushort[25]), new byte[0x400 * 8]);
         var interferencePlms = new RoomPlmSystem();
         var interferenceStreamer = interferenceLevel.CreateBackgroundStreamer();
         AssertEqual(1, interferencePlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(interferenceBus, interferenceLevel, interferenceStreamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -290,21 +290,6 @@ internal static class ChainsawFiringVerification
     {
         const ushort yellowDoorArgument = 0xffff;
         var interferenceBus = new TestAddressSpace();
-        WriteTestWord(interferenceBus, 0x84c85c, 0x0400);
-        WriteTestWord(interferenceBus, 0x840402, 0x0500);
-        WriteTestWord(interferenceBus, 0x840406, 0x0600);
-        WriteTestWord(interferenceBus, 0x84040e, 0x0700);
-        interferenceBus.WriteByte(0x840602, 1);
-        WriteTestWord(interferenceBus, 0x840603, 0x0800);
-        WriteTestWord(interferenceBus, 0x840605, 1);
-        WriteTestWord(interferenceBus, 0x840607, 0x0720);
-        WriteTestWord(interferenceBus, 0x840800, 12);
-        WriteTestWord(interferenceBus, 0x840802, 0x0740);
-        WriteTestWord(interferenceBus, 0x840505, 0x0760);
-        WriteDoorDrawList(interferenceBus, 0x840700, [0x0001, 0xc000, 0x0000]);
-        WriteDoorDrawList(interferenceBus, 0x840720, [0x0001, 0xc000, 0x0000]);
-        WriteDoorDrawList(interferenceBus, 0x840740, [0x0001, 0xc000, 0x0000]);
-        WriteDoorDrawList(interferenceBus, 0x840760, [0x0001, 0x8000, 0x0000]);
         WriteTestWord(
             interferenceBus,
             0x8f0000 | population,
@@ -317,18 +302,6 @@ internal static class ChainsawFiringVerification
             yellowDoorArgument);
         WriteTestWord(interferenceBus, 0x8f0000 | (population + 6), 0);
         return interferenceBus;
-
-        static void WriteDoorDrawList(
-            TestAddressSpace targetBus,
-            int address,
-            ushort[] words)
-        {
-            foreach (ushort word in words)
-            {
-                WriteTestWord(targetBus, address, word);
-                address += 2;
-            }
-        }
     }
 
     /// <summary>Runs the focused Chainsaw firing comparison from the command line.</summary>

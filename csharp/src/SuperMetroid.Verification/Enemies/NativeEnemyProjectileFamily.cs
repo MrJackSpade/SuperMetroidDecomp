@@ -30,4 +30,10 @@ internal abstract class NativeEnemyProjectileFamily
     /// for, or null for an animation of another family.
     /// </summary>
     internal abstract Func<EnemyProjectileAnimation, ushort?> NativePointers(IImportCartridgeSource cartridge);
+
+    /// <summary>
+    /// Moves <paramref name="animation"/>, when it is this family's, to the typed step a recording's native instruction
+    /// pointer <paramref name="nativePointer"/> stands for; false for an animation of another family.
+    /// </summary>
+    internal abstract bool TryResumeAt(IImportCartridgeSource cartridge, EnemyProjectileAnimation animation, ushort nativePointer);
 }

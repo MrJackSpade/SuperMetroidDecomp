@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Fx;
 using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaProgram, SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaDraw, SuperMetroid.Core.Rooms.Plms.PlmNoCue>;

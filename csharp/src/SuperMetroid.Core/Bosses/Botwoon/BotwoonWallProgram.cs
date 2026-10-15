@@ -1,8 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's wall PLM programs (#1296), in authored order.</summary>

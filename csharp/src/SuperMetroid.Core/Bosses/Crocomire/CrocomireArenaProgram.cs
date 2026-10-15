@@ -1,8 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's five arena PLM programs (#1296), one per arena layout.</summary>

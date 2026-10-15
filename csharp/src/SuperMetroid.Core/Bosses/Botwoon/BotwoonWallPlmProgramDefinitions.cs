@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Audio;
 using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Bosses.Botwoon.BotwoonWallProgram, SuperMetroid.Core.Bosses.Botwoon.BotwoonWallDraw, SuperMetroid.Core.Bosses.Botwoon.BotwoonWallCue>;

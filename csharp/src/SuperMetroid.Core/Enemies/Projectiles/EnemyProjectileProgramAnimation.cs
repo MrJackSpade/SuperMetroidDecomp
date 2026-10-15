@@ -21,8 +21,8 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
     /// <summary>Starts <paramref name="program"/>.</summary>
     private protected EnemyProjectileProgramAnimation(TProgram program) => Cursor = AnimationProgramCursor<TProgram>.Start(program);
 
-    /// <summary>Where the program resumes.</summary>
-    internal AnimationProgramCursor<TProgram> Cursor { get; private set; }
+    /// <summary>Where the program resumes; an imported projectile resumes where its recording stood.</summary>
+    internal AnimationProgramCursor<TProgram> Cursor { get; set; }
 
     /// <summary>The program set this animation runs.</summary>
     private protected abstract AnimationProgramSet<TProgram, TFrame, TCue> Programs { get; }

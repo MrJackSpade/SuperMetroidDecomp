@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Enemies.PipeBugs;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Frontend;
@@ -234,7 +235,7 @@ internal static class NativeSnapshotImportVerification
             initialPlms[index].Active = false;
         }
         foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
-            ImportNativeEnemyProjectile(projectile, W);
+            ImportNativeEnemyProjectile(projectile, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(NativeSnapshotMemory.Random));
         runtime.Enemies.FrameContext._randomEnemyCounter = W(NativeSnapshotMemory.MainEnemyRoutineCount);
@@ -335,7 +336,7 @@ internal static class NativeSnapshotImportVerification
     /// definition-derived radii and properties must already agree with them. Free slots keep
     /// their stale position and velocity words, which later spawns can read.
     /// </summary>
-    private static void ImportNativeEnemyProjectile(RoomEnemyProjectileSlot projectile, Func<int, ushort> W)
+    private static void ImportNativeEnemyProjectile(RoomEnemyProjectileSlot projectile, IImportCartridgeSource cartridge, Func<int, ushort> W)
     {
         int index = projectile.SlotIndex * 2;
         ushort id = W(NativeSnapshotMemory.EnemyProjectileId + index);
@@ -353,7 +354,13 @@ internal static class NativeSnapshotImportVerification
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 projectile, kind, W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
             projectile.PreInstruction = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
-            projectile.InstructionPointer = W(NativeSnapshotMemory.EnemyProjectileInstruction + index);
+            ushort instruction = W(NativeSnapshotMemory.EnemyProjectileInstruction + index);
+            // A typed family resumes at the step the recorded native pointer stands for.
+            if (projectile.Animation is { } typed)
+                AssertEqual(1, NativeEnemyProjectileFamilies.All.Count(family => family.TryResumeAt(cartridge, typed, instruction)),
+                    $"initial enemy projectile {projectile.SlotIndex} resumes its typed program");
+            else
+                projectile.InstructionPointer = instruction;
             projectile.InstructionTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.EnemyProjectileInstructionTimer + index));
             projectile.GeneralTimer = W(NativeSnapshotMemory.EnemyProjectileTimer + index);
             projectile.Position = projectile.Position
@@ -364,7 +371,7 @@ internal static class NativeSnapshotImportVerification
             projectile.CollidedProjectileType = W(NativeSnapshotMemory.EnemyProjectileVariableG + index);
             // The current frame record is [timer][operand]; the list pointer already follows it.
             EnemyProjectileEngine.SetEnemyProjectileVisualOperand(
-                projectile, unchecked((ushort)(projectile.InstructionPointer - 2)));
+                projectile, unchecked((ushort)(instruction - 2)));
             AssertEqual(W(NativeSnapshotMemory.EnemyProjectileRadius + index), SnesLittleEndian.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)),
                 $"initial enemy projectile {projectile.SlotIndex} radii");
             ushort properties = projectile.Damage;

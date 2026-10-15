@@ -1,7 +1,3 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Fx;
 using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Bosses.Kraid.KraidRoomProgram, SuperMetroid.Core.Bosses.Kraid.KraidRoomDraw, SuperMetroid.Core.Bosses.Kraid.KraidRoomCue>;
 

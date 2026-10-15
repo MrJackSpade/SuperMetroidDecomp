@@ -1,8 +1,4 @@
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>The bank-$84 draw lists Botwoon's wall programs draw.</summary>

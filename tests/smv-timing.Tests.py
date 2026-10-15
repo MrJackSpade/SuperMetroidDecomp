@@ -35,7 +35,7 @@ def run():
         return updates
     def interval(frame, upload=False, next_upload=False):
         return {"sourceFrame": frame, "endSourceFrame": frame + 1, "input": 0, "pressed": 0,
-                "messageBoxStartFrame": None, "messageBoxEndFrame": None,
+                "messageBoxStartFrame": None, "messageBoxEndFrame": None, "consoleReset": False,
                 "kind": "nmi-continuation" if upload else "main-loop",
                 "timingClass": "apu-upload-continuation" if upload else "main-loop",
                 "timingEvidence": {"apuUploadActiveAtInput": upload,
@@ -148,13 +148,41 @@ def run():
         pass
     else:
         raise AssertionError("A power-on movie's first dispatch was accepted without a boot clear")
+    # A console reset the movie records (the lowc movie's SMV frame 99,920): the interrupted
+    # dispatch is followed by the boot's NMI reads, then the boot-cleared first dispatch.
+    preludes = converter["console_reset_preludes"]
+    reset = numbered([interval(1), interval(2), interval(5), interval(6), interval(7), interval(8)])
+    for index in (2, 3):
+        reset[index]["kind"] = "nmi-continuation"
+        reset[index]["timingClass"] = "other-continuation"
+    for update in reset:
+        update["bootDispatch"] = False
+    reset[4]["bootDispatch"] = True
+    reset[1]["input"] = reset[1]["pressed"] = 0x8000
+    reset[5]["input"] = reset[5]["pressed"] = 0x8000
+    prelude, resets = preludes(reset, [3])
+    assert prelude == {2, 3} and reset[4]["consoleReset"] and not reset[5]["consoleReset"]
+    assert resets[0]["interruptedUpdate"] == 1 and len(resets[0]["preludeInputs"]) == 2
+    rebooted, _ = normalize(reset, 0, reset_prelude=prelude)
+    assert [update["sourceFrame"] for update in rebooted] == [1, 2, 7, 8]
+    assert rebooted[1]["expectedRecord"] == 4, "the interrupted dispatch is completed by the post-boot read"
+    # The boot cleared the latch, so a press held across the reset is new again after it.
+    assert rebooted[3]["pressed"] == 0x8000
+    reset[4]["bootDispatch"] = False
+    try:
+        preludes(reset, [3])
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("A console reset was accepted without a boot-cleared dispatch")
     try:
         normalize(source[:-1], 0)
     except ValueError:
         pass
     else:
         raise AssertionError("Incomplete terminal upload was accepted")
-    print("PASS: timing classification, boot prelude and clear, upload-boundary mapping, input retention and unsafe-collapse rejection")
+    print("PASS: timing classification, boot prelude and clear, console reset, upload-boundary mapping, "
+          "input retention and unsafe-collapse rejection")
     return 0
 
 

@@ -73,9 +73,14 @@ internal sealed class NativeMovieCheckpoints : IDisposable
         string format = (root.GetProperty("format").GetString() ?? throw new InvalidOperationException("Verification requires root.GetProperty(\"format\").GetString()."));
         // v6 records MessageBox_Routine's return frame, which separates a box's own
         // frames from lag its dispatch runs afterward. v7 splits a dispatch entered
-        // straight out of CommonBootSection into its own update.
-        if (format != "super-metroid-gameplay-updates-v7")
-            throw new InvalidDataException($"Unsupported converted replay format {format}.");
+        // straight out of CommonBootSection into its own update. v8 adds console resets the
+        // movie records; a v7 conversion models none, so its updates follow no reset.
+        bool modelsConsoleResets = format switch
+        {
+            "super-metroid-gameplay-updates-v7" => false,
+            "super-metroid-gameplay-updates-v8" => true,
+            _ => throw new InvalidDataException($"Unsupported converted replay format {format}."),
+        };
         if (root.GetProperty("movieSha256").GetString() != Convert.ToHexString(SHA256.HashData(movie)))
             throw new InvalidDataException("Converted replay was produced from a different movie.");
         var updates = root.GetProperty("updates").EnumerateArray().Select(update => new ConvertedMovieUpdate(
@@ -95,7 +100,8 @@ internal sealed class NativeMovieCheckpoints : IDisposable
             update.GetProperty("messageBoxStartFrame") is { ValueKind: not JsonValueKind.Null } boxStart
                 ? boxStart.GetInt32() : null,
             update.GetProperty("messageBoxEndFrame") is { ValueKind: not JsonValueKind.Null } boxEnd
-                ? boxEnd.GetInt32() : null)).ToArray();
+                ? boxEnd.GetInt32() : null,
+            modelsConsoleResets && update.GetProperty("consoleReset").GetBoolean())).ToArray();
         if (updates.Length != root.GetProperty("updateCount").GetInt32())
             throw new InvalidDataException("Converted update count disagrees with its update list.");
         return updates;

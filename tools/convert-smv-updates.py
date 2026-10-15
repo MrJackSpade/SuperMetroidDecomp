@@ -67,13 +67,47 @@ def boot_prelude_length(updates):
     raise ValueError("Movie never reaches the native main game loop")
 
 
-def normalize_upload_intervals(updates, initial_input, prelude=0):
-    """Collapse the boot prelude and proven post-scroll upload waits, retaining their input audit trail."""
+def console_reset_preludes(updates, reset_frames):
+    """Locate each recorded console reset's boot prelude and mark the dispatch that follows it.
+
+    A Snes9x SMV records a press of the console's reset button as the controller word
+    $FFFF. The reset vector reboots the cartridge: like power-on, its boot accepts NMIs
+    that read the controller before `CommonBootSection` clears bank $7E, and nothing
+    those reads latch survives. The prelude NMIs are therefore not port updates. The
+    first main-loop dispatch after the clear is marked `consoleReset`: the port reboots
+    before it, and the update the reset interrupted is completed by the post-boot
+    checkpoint read at that dispatch.
+    """
+    prelude, resets = set(), []
+    for frame in reset_frames:
+        interrupted = max((index for index, update in enumerate(updates) if update["sourceFrame"] < frame),
+                          default=None)
+        if interrupted is None:
+            raise ValueError(f"Console reset at SMV frame {frame} precedes the first native update")
+        first = next((index for index in range(interrupted + 1, len(updates))
+                      if updates[index]["kind"] == "main-loop"), None)
+        if first is None or not updates[first]["bootDispatch"] or updates[first]["inputRecord"] is None:
+            raise ValueError(f"Console reset at SMV frame {frame} reaches no boot-cleared dispatch with its own read")
+        for index in range(interrupted + 1, first):
+            if updates[index]["kind"] != "nmi-continuation" or updates[index]["sourceFrame"] <= frame:
+                raise ValueError(f"Console reset at SMV frame {frame} has a non-prelude update before its boot")
+            prelude.add(index)
+        updates[first]["consoleReset"] = True
+        resets.append({"resetFrame": frame, "interruptedUpdate": interrupted,
+                       "preludeInputs": [{"sourceFrame": updates[index]["sourceFrame"],
+                                          "input": updates[index]["input"],
+                                          "record": updates[index]["inputRecord"]}
+                                         for index in range(interrupted + 1, first)]})
+    return prelude, resets
+
+
+def normalize_upload_intervals(updates, initial_input, prelude=0, reset_prelude=frozenset()):
+    """Collapse the boot preludes and proven post-scroll upload waits, retaining their input audit trail."""
     normalized, excluded = [], []
     for index, original in enumerate(updates):
         update = dict(original)
         evidence = update["timingEvidence"]
-        if index < prelude:
+        if index < prelude or index in reset_prelude:
             continue
         if update["timingClass"] in ("apu-upload-continuation", "apu-upload-tail-continuation"):
             if update["messageBoxStartFrame"] is not None or update["messageBoxEndFrame"] is not None:
@@ -110,6 +144,9 @@ def normalize_upload_intervals(updates, initial_input, prelude=0):
     # bank $7E did; any held prelude input must therefore not hide a new press.
     previous = 0 if prelude else initial_input
     for index, update in enumerate(normalized):
+        if update["consoleReset"]:
+            # CommonBootSection cleared the native latch, as power-on does.
+            previous = 0
         if update["hardwareWaitLatch"] is not None:
             previous = update["hardwareWaitLatch"]
         if update["pressed"] != update["input"] & ~previous:
@@ -166,7 +203,8 @@ def collect_input_updates(events, inputs, frames, from_reset):
                     raise ValueError("Controller read did not complete")
                 updates.append(current)
             current = {"sourceFrame": frame, "mainLoopDispatches": 0, "inputRecord": reads,
-                       "bootCleared": False, "messageBoxStartFrame": None, "messageBoxEndFrame": None}
+                       "bootCleared": False, "bootDispatch": False,
+                       "messageBoxStartFrame": None, "messageBoxEndFrame": None}
             reads += 1
         elif pc == read_complete:
             if current is None or "input" in current or current["sourceFrame"] != frame:
@@ -198,8 +236,9 @@ def collect_input_updates(events, inputs, frames, from_reset):
                         raise ValueError(f"Boot clear at SMV frame {frame} interrupts a message box")
                     updates.append(current)
                     current = {"sourceFrame": frame, "mainLoopDispatches": 0, "inputRecord": None,
-                               "bootCleared": True, "messageBoxStartFrame": None, "messageBoxEndFrame": None}
-                current.update(input=0, pressed=0)
+                               "bootCleared": True, "bootDispatch": False,
+                               "messageBoxStartFrame": None, "messageBoxEndFrame": None}
+                current.update(input=0, pressed=0, bootDispatch=True)
                 previous_input = 0
             booted = True
             current["mainLoopDispatches"] += 1
@@ -255,6 +294,7 @@ def run():
         frames = len(words) - 1
         inputs = tuple(words)
         from_reset = True
+        reset_frames = []
         native_capture = ("bsnes v085 (lsnes compatibility core, debugger option); "
                           "instrumented J/U input boundaries and MessageBox_Routine entry and return")
     else:
@@ -271,6 +311,8 @@ def run():
         # SMV v4/v5 option bit 0: the recording starts at power-on (with SRAM) rather
         # than from an embedded snapshot, so the native boot prelude precedes gameplay.
         from_reset = version in (4, 5) and bool(movie[21] & 1)
+        # Snes9x records a console reset press as the controller word $FFFF.
+        reset_frames = [frame for frame, word in enumerate(inputs) if word == 0xFFFF]
         native_capture = ("Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; "
                           "instrumented J/U input boundaries and MessageBox_Routine entry and return")
     def digest(path):
@@ -289,6 +331,7 @@ def run():
         if update["mainLoopDispatches"] not in (0, 1):
             raise ValueError("Multiple main-loop dispatches require a richer replay format")
         update["kind"] = "main-loop" if update.pop("mainLoopDispatches") else "nmi-continuation"
+        update["consoleReset"] = False
         update["update"] = index + 1
         following = updates[index + 1] if index + 1 < len(updates) else None
         # The checkpoint completing this update is the one captured at the next read. A
@@ -362,9 +405,13 @@ def run():
     source_frames = {u["sourceFrame"] for u in updates}
     accepted_input_count = len(updates)
     prelude = boot_prelude_length(updates) if from_reset else 0
-    updates, excluded = normalize_upload_intervals(updates, inputs[0], prelude)
+    reset_prelude, console_resets = console_reset_preludes(updates, reset_frames)
+    updates, excluded = normalize_upload_intervals(updates, inputs[0], prelude, reset_prelude)
+    for reset in console_resets:
+        reset["firstUpdate"] = next(update["update"] for update in updates
+                                    if update["consoleReset"] and update["sourceFrame"] > reset["resetFrame"])
     manifest = {
-        "format": "super-metroid-gameplay-updates-v7",
+        "format": "super-metroid-gameplay-updates-v8",
         "startsFromReset": from_reset,
         "initialRecord": prelude,
         "bootPreludeInputsExcluded": prelude,
@@ -379,6 +426,7 @@ def run():
         "hardwareUploadNormalizationComplete": True,
         "hardwareUploadInputsExcluded": len(excluded),
         "excludedUploadInputs": excluded,
+        "consoleResets": console_resets,
         "hardwareLagRefreshesExcluded": frames - len(source_frames),
         "mainLoopUpdates": sum(u["kind"] == "main-loop" for u in updates),
         "continuationUpdates": sum(u["kind"] == "nmi-continuation" for u in updates),
@@ -386,7 +434,11 @@ def run():
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({k: v for k, v in manifest.items() if k not in ("updates", "excludedUploadInputs")}, indent=2))
+    print(json.dumps({k: v for k, v in manifest.items()
+                      if k not in ("updates", "excludedUploadInputs", "consoleResets")}, indent=2))
+    for reset in console_resets:
+        print(f"console reset at SMV frame {reset['resetFrame']}: {len(reset['preludeInputs'])} boot prelude "
+              f"inputs excluded; port reboots before update {reset['firstUpdate']}")
     return 0
 
 

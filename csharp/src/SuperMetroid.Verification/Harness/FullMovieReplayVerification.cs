@@ -220,6 +220,19 @@ internal static class FullMovieReplayVerification
                 throw new InvalidDataException(
                     $"Native dispatch {update} returned from a message box at source frame {nativeBoxReturn}; the port had none open.");
             }
+            // The movie pressed the console's reset button before the next update's read. The
+            // cartridge reboots keeping only its SRAM, so the port starts a new game on the same
+            // cartridge; the post-boot checkpoint at that read completes this update.
+            bool consoleReset = update < updates.Count && updates[update].ConsoleReset;
+            if (consoleReset)
+            {
+                game = CreateRetailGameFixture(game.bus, renderGameplayFrames: false);
+                game.DoorMusicUploadNmis = uploadNmis;
+                game.DoorLoaderProgress = loaderProgress;
+                game.SoundAcknowledgements = soundAcknowledgements;
+                Console.WriteLine($"{movie.Name} movie: console reset before update {update + 1} " +
+                    $"(source frame {updates[update].SourceFrame}); the port reboots on the same cartridge.");
+            }
             recentInputs.Enqueue($"{update}@{step.SourceFrame}:{step.Input:X4}/{step.Kind}");
             if (recentInputs.Count > 12) recentInputs.Dequeue();
             if (nativeAfter is null)
@@ -230,6 +243,10 @@ internal static class FullMovieReplayVerification
             }
             memory = nativeAfter;
             soundAcknowledgements.Capture(memory);
+            // Like a power-on movie's first record, the read after a reset precedes CommonBootSection,
+            // which the port's reboot performs within the next update; that update is compared instead.
+            if (consoleReset)
+                continue;
 
             if (update >= traceFromUpdate)
                 TraceMovieSamus(game, memory, update, step);
@@ -261,6 +278,8 @@ internal static class FullMovieReplayVerification
             $"door={game.DoorTransitionPhaseForVerification}/{Native(0x099c)} rng={game.DispatcherRandomNumber:X4}/{Native(MovieDesyncMemory.Random)}");
         if (game.intro is { } intro)
             Console.WriteLine($"  intro port={intro.Phase} native cinematic={Native(0x1f51)}");
+        if (game.options is { } options)
+            Console.WriteLine($"  options port phase={options.Phase} item={options.SelectedItem}");
         if (samus is null) return;
         Console.WriteLine($"  port   pose={(int)samus.Pose:X2} X={samus.Position.X.Whole:X4}.{samus.Kinematics.Position.X.Fraction:X4} Y={samus.Position.Y.Whole:X4}.{samus.Kinematics.Position.Y.Fraction:X4} " +
             $"vs={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4} total={samus.HorizontalSpeed.TotalSpeed:X4}.{samus.HorizontalSpeed.TotalSubspeed:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4} accel={samus.HorizontalSpeed.AccelerationMode:X4} anim={samus.AnimationFrame:X4}/{samus.AnimationFrameTimer.RawValue:X4}");

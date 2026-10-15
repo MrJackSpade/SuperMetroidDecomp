@@ -204,6 +204,16 @@ When added, the replay matched through update 62,530. The first open divergence 
 update 62,531 (source frame 74,711) on the pause equipment screen: an A press leaves native
 equipped items `$1004` but the port `$1024` (Gravity Suit still equipped).
 
+The movie presses the console's reset button at SMV frame 99,920, which Snes9x records as the
+controller word `$FFFF`. Manifest v8 models such a reset: the reset vector reboots the cartridge,
+whose boot accepts NMIs that read the controller before `CommonBootSection` clears bank `$7E`, as
+at power-on. Those 149 boot-prelude reads are excluded (`consoleResets` keeps their audit trail),
+and the first boot-cleared dispatch after the reset is marked `consoleReset`. The replay then
+starts a new game on the same cartridge, so only SRAM survives, before that update. The interrupted
+update's checkpoint is the boot's read, which precedes `CommonBootSection`, so like a power-on
+movie's first record it is read but not compared. A v7 conversion models no resets. lowc now
+converts to 182,871 updates (12,805 continuations).
+
 ## Mother Brain glitch movie (#1275)
 
 `mother brain glitch.smv` (SMV v5, 7,762 frames) starts from an embedded snapshot taken

@@ -47,10 +47,4 @@ public static class PaletteFxHeatProgramMechanicsDefinitions
         /// <summary>Exposes the same suit order to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-
-    /// <summary>Resolves one compiled mechanics word across the three named suit programs.</summary>
-    public static bool TryReadMechanicsWord(ushort pointer, out ushort value) =>
-        Power.TryReadMechanicsWord(pointer, out value) ||
-        Varia.TryReadMechanicsWord(pointer, out value) ||
-        Gravity.TryReadMechanicsWord(pointer, out value);
 }

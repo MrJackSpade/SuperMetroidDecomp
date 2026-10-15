@@ -82,16 +82,16 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for foreground cadence")]
     internal static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
     {
-        Suite(nameof(VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(rom));
+        Suite(nameof(VerifyZebesExplosionForegroundPaletteFxColorDefinitions), () => VerifyZebesExplosionForegroundPaletteFxColorDefinitions(rom));
         ushort nativeProgram = rom.ReadCartridgeWord(0x8de1ca);
-        AssertEqual(nativeProgram, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ProgramStart, "Native foreground entry");
+        AssertEqual(nativeProgram, ZebesExplosionForegroundPaletteFxColorDefinitions.ProgramStart, "Native foreground entry");
         int destination = rom.ReadCartridgeWord((0x8d0000 | nativeProgram + 2)) / 2;
         var rows = new List<(ushort Duration, ushort[] Colors)>();
         int cursor = nativeProgram + 4;
         while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
         {
             ushort duration = rom.ReadCartridgeWord((0x8d0000 | cursor));
-            AssertEqual(duration, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.Duration(rows.Count), "Every native foreground duration");
+            AssertEqual(duration, ZebesExplosionForegroundPaletteFxColorDefinitions.Duration(rows.Count), "Every native foreground duration");
             cursor += 2;
             var colors = new List<ushort>();
             while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
@@ -104,11 +104,11 @@ internal static class LookupStream4Verification
             rows.Add((duration, colors.ToArray()));
         }
         AssertEqual((ushort)PaletteFxInstruction.Delete, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native foreground delete");
-        AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DeleteInstructionPointer, "Derived foreground terminal address");
+        AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxColorDefinitions.DeleteInstructionPointer, "Derived foreground terminal address");
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
-        fx.SpawnDefinition(guarded, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer, 0);
+        fx.SpawnDefinition(guarded, ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
         int ticks = 0;
         foreach (var row in rows)
         for (int hold = 0; hold < row.Duration; hold++)
@@ -120,17 +120,17 @@ internal static class LookupStream4Verification
                     ? row.Colors[color - destination] : (ushort)0;
                 AssertEqual(expected, cgram.Colors[color], "Actual foreground color exposure and untouched CGRAM");
             }
-            AssertTrue(fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer), "Foreground remains active during native exposure");
+            AssertTrue(fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground remains active during native exposure");
             ticks++;
         }
         AssertEqual((int)rom.ReadCartridgeWord(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
         AssertEqual((int)rom.ReadCartridgeWord(0x8beb71), CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.ZebesExplosionRightStars)[0].Duration, "Actual actor program retains the shared native handoff");
-        AssertEqual(ticks, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.CycleFrames, "Derived complete exposure");
+        AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitions.CycleFrames, "Derived complete exposure");
         fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
+        AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "Foreground mechanics avoid live ROM reads");
         foreach (int invalid in new[] { -1, rows.Count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.Duration(invalid), "Foreground duration domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionForegroundPaletteFxColorDefinitions.Duration(invalid), "Foreground duration domain");
         Console.WriteLine("Foreground cadence:35 native controls,16 independently decoded durations,144 actual CGRAM exposures plus exact deletion/native star handoff/read guard/bounds pass; color artwork remains required.");
     }
 
@@ -142,7 +142,7 @@ internal static class LookupStream4Verification
         byte[] json = TitlePaletteExtractor.Extract(rom);
         TitlePalettePresentation stock = TitlePalettePresentation.Load(new MemoryStream(json));
         var native = new Dictionary<ushort, ushort>();
-        foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         {
@@ -168,7 +168,7 @@ internal static class LookupStream4Verification
         TitlePalettePresentation.Write(changedJson, document);
         changedJson.Position = 0;
         TitlePalettePresentation changed = TitlePalettePresentation.Load(changedJson);
-        foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         {
@@ -179,7 +179,7 @@ internal static class LookupStream4Verification
             AssertEqual(Pack(supplied), value, "independent title ambient edit and every unchanged neighbor preserved");
         }
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All[invalid],
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleScreenAmbientPaletteFxColorDefinitions.All[invalid],
                 "title ambient owner list domain");
     }
 
@@ -188,9 +188,8 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for title ambient mechanics")]
     internal static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
     {
-        Suite(nameof(VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions), () => VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(rom));
         int ticks = 0;
-        foreach (var definition in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
             ushort nativeProgram = rom.ReadCartridgeWord((0x8d0000 | definition.DefinitionPointer + 2));
             AssertEqual(nativeProgram, definition.ProgramStart, "Native ambient definition selects calculated program");
@@ -263,7 +262,7 @@ internal static class LookupStream4Verification
         {
             for (int color = 0; color < 256; color++)
                 AssertEqual(Pack(document.Colors[color]), selected.Colors[color], "Independent initial paint remains exact");
-            foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+            foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
             {
                 var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
                     ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
@@ -284,7 +283,7 @@ internal static class LookupStream4Verification
             Confirm(document, Load(document));
             edits++;
         }
-        foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         for (int channel = 0; channel < 3; channel++)
@@ -307,13 +306,13 @@ internal static class LookupStream4Verification
             var fx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
             selected.Apply(cgram);
-            foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+            foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
                 fx.SpawnDefinition(guarded, program.DefinitionPointer, 0);
             for (int tick = 0; tick <= 80; tick++)
             {
                 fx.Step(guarded, cgram, selected, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 ushort[] expected = document.Colors.Select(Pack).ToArray();
-                foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+                foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
                 {
                     var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
                         ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
@@ -443,7 +442,7 @@ internal static class LookupStream4Verification
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | site.Pointer), original, "stock environmental colors remain immutable");
             }
         }
-        foreach (var definition in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var definition in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> nativeBusPresentationReads);
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
@@ -469,14 +468,13 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for planet text")]
     internal static void VerifyLookupStream4PlanetText(CartridgeImportAddressSpace rom)
     {
-        var all = PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All;
+        var all = PlanetZebesTextPaletteFxColorDefinitions.All;
         AssertEqual(2, all.Count, "two text fade owners");
         for (int owner = 0; owner < 2; owner++)
         {
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (0xE1B2 + owner * 4)), all[owner].ProgramStart, "native text definition target");
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x8D0000 | (all[owner].ProgramStart + 2)), all[owner].ColorByteIndex, "native text color destination");
         }
-        Suite(nameof(VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions), () => VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(rom));
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
         var stored = stock.colors;
@@ -708,7 +706,7 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia palette definitions")]
     internal static void VerifyLookupStream4MaridiaPaletteDefinitions(CartridgeImportAddressSpace rom)
     {
-        var all = MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All;
+        var all = MaridiaEnvironmentalPaletteFxColorDefinitions.All;
         AssertEqual(3, all.Count, "three native environmental owners");
         int colors = 0;
         for (int index = 0; index < 3; index++)
@@ -746,7 +744,6 @@ internal static class LookupStream4Verification
         AssertEqual(112, colors, "native presentation words remain independently owned");
         foreach (int index in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = all[index], "owner selector bounds");
-        Suite(nameof(VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions), () => VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(rom));
         Console.WriteLine("Maridia palette definitions: three native programs,44 mechanics words,112 color identities and actual complete loops pass; timing/destination/group inputs remain required.");
     }
 

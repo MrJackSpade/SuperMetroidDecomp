@@ -83,8 +83,8 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
             colors[index] = color.ToBgr555();
         }
         var animatedColors = new Dictionary<ushort, Bgr555>();
-        foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
-                 TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
+                 TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -133,7 +133,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
             }
         }
 
-        foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         {

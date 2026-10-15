@@ -78,7 +78,8 @@ internal sealed class CartridgePaletteTransition
         if (zeroBasedStep == denominator)
             return destination;
 
-        int fixedDelta = Math.Abs(destination - current) * 0x100 /
+        // An 8.8 fixed-point step: the channel distance in 256ths per remaining step.
+        int fixedDelta = Math.Abs(destination - current) * 256 /
                          (denominator - zeroBasedStep);
         if (destination < current)
             fixedDelta = -fixedDelta;

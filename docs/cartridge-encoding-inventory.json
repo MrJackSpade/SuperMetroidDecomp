@@ -23,23 +23,23 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 27890,
-    "PointerDispatch": 192,
-    "OpaqueWordArray": 964,
-    "CatalogHexLiteral": 98291,
+    "RawHexLiteral": 27817,
+    "PointerDispatch": 112,
+    "OpaqueWordArray": 963,
+    "CatalogHexLiteral": 99034,
     "JustifiedHexLiteral": 150,
     "RawWidthOperation": 44,
     "OwnedWidthOperation": 71,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 18,
-    "class:NumericQuantity": 54000,
-    "class:DomainIdentity": 8496,
-    "class:ComposableBits": 1187,
-    "class:StructuredInstruction": 40988,
-    "class:CartridgeAddress": 22212,
+    "class:NumericQuantity": 53913,
+    "class:DomainIdentity": 8486,
+    "class:ComposableBits": 1177,
+    "class:StructuredInstruction": 40983,
+    "class:CartridgeAddress": 22913,
     "class:Unknown": 743,
-    "storageWidthMembers": 1516
+    "storageWidthMembers": 1513
   },
   "subsystems": [
     {
@@ -4269,18 +4269,17 @@
       "name": "Cinematics and scripted sequences",
       "totals": {
         "RawHexLiteral": 4,
-        "PointerDispatch": 3,
+        "PointerDispatch": 2,
         "CatalogHexLiteral": 1905,
         "JustifiedHexLiteral": 6,
         "class:NumericQuantity": 906,
         "class:DomainIdentity": 588,
         "class:ComposableBits": 184,
-        "class:CartridgeAddress": 219,
+        "class:CartridgeAddress": 218,
         "class:Unknown": 21,
         "storageWidthMembers": 87
       },
       "addressInterpretingTypes": [
-        "EndingGunshipPaletteColorDefinitions",
         "TourianStatueSequence",
         "TourianUnlockBehavior"
       ],
@@ -5669,10 +5668,8 @@
           "path": "csharp/src/SuperMetroid.Core/Fx/Artwork/EndingGunshipPaletteColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 1,
             "CatalogHexLiteral": 1,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 1
+            "class:NumericQuantity": 1
           }
         }
       ]
@@ -8229,21 +8226,21 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27381,
-        "PointerDispatch": 82,
+        "RawHexLiteral": 27323,
+        "PointerDispatch": 67,
         "OpaqueWordArray": 849,
-        "CatalogHexLiteral": 2865,
+        "CatalogHexLiteral": 3034,
         "RawWidthOperation": 44,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 11205,
-        "class:DomainIdentity": 516,
+        "class:NumericQuantity": 11191,
+        "class:DomainIdentity": 507,
         "class:ComposableBits": 530,
         "class:StructuredInstruction": 11490,
-        "class:CartridgeAddress": 7055,
+        "class:CartridgeAddress": 7174,
         "class:Unknown": 440,
-        "storageWidthMembers": 76
+        "storageWidthMembers": 75
       },
       "addressInterpretingTypes": [
         "",
@@ -8262,7 +8259,6 @@
         "FallingSparkLaunchDefinitionsVerification",
         "FrozenGateGlitchVerification",
         "GunshipDustDefinitionsVerification",
-        "HyperBeamPaletteFxProgramDefinitionsVerification",
         "LookupStream1Verification",
         "LookupStream2Verification",
         "LookupStream3Verification",
@@ -8270,10 +8266,8 @@
         "MotherBrainFxRecordPointers",
         "NativeBotwoonHead",
         "OldTourianEscapeShaftWallExplosionDefinitionsTooling",
-        "PaletteFxInstructionCodesVerification",
         "RetailEndingHandoffTests",
         "RoomDefinitionIntegrationVerification",
-        "RoomPaletteFxDefinitionsVerification",
         "SamusProjectilesVerification",
         "SpacePirateProjectileInstructionProgramDefinitionsTooling",
         "StandardObjectArtworkVerification",
@@ -15721,9 +15715,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Frontend/Title/TitleSequenceRomDataVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 8,
+            "RawHexLiteral": 7,
             "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
@@ -15991,15 +15985,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Verification/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitionsVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 2,
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 3
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Verification/Fx/PaletteFx/LookupPaletteFxAreasVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
@@ -16030,12 +16015,28 @@
           "path": "csharp/src/SuperMetroid.Verification/Fx/PaletteFx/PaletteFxInstructionCodesVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 94,
-            "PointerDispatch": 13,
-            "class:NumericQuantity": 44,
-            "class:DomainIdentity": 10,
+            "RawHexLiteral": 51,
+            "class:NumericQuantity": 29,
+            "class:DomainIdentity": 1,
             "class:StructuredInstruction": 2,
-            "class:CartridgeAddress": 51
+            "class:CartridgeAddress": 19
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Fx/PaletteFx/PaletteFxListWords.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 2,
+            "class:NumericQuantity": 1,
+            "class:CartridgeAddress": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Verification/Fx/PaletteFx/PaletteFxNativeListAddresses.cs",
+          "project": "SuperMetroid.Verification",
+          "totals": {
+            "CatalogHexLiteral": 167,
+            "class:CartridgeAddress": 167
           }
         },
         {
@@ -16116,8 +16117,7 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 1,
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -16430,14 +16430,14 @@
           "path": "csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 197,
+            "RawHexLiteral": 190,
             "PointerDispatch": 2,
             "OpaqueWordArray": 3,
             "class:NumericQuantity": 32,
             "class:DomainIdentity": 2,
             "class:ComposableBits": 15,
             "class:StructuredInstruction": 21,
-            "class:CartridgeAddress": 127,
+            "class:CartridgeAddress": 120,
             "class:Unknown": 5
           }
         },
@@ -16475,13 +16475,13 @@
           "path": "csharp/src/SuperMetroid.Verification/Harness/LookupStream5Verification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 132,
+            "RawHexLiteral": 128,
             "OpaqueWordArray": 6,
             "class:NumericQuantity": 18,
             "class:DomainIdentity": 1,
             "class:ComposableBits": 10,
             "class:StructuredInstruction": 33,
-            "class:CartridgeAddress": 72,
+            "class:CartridgeAddress": 68,
             "class:Unknown": 4
           }
         },
@@ -19434,11 +19434,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Samus/SamusDamageAndGrabVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 450,
+            "RawHexLiteral": 449,
             "OpaqueWordArray": 26,
             "class:NumericQuantity": 167,
             "class:StructuredInstruction": 276,
-            "class:CartridgeAddress": 25,
+            "class:CartridgeAddress": 24,
             "class:Unknown": 8
           }
         },
@@ -20484,7 +20484,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BeaconPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BeaconPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20492,7 +20492,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramDefinitionAccess.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinitionAccess.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 1,
@@ -20501,7 +20501,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 3,
@@ -20509,7 +20509,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramDefinitionAccess.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinitionAccess.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 2,
@@ -20518,7 +20518,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20526,7 +20526,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/HyperBeamPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 3,
@@ -20534,14 +20534,14 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramDefinitionAccess.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitionAccess.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "storageWidthMembers": 1
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20549,7 +20549,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 2,
@@ -20557,7 +20557,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20580,14 +20580,14 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramDefinitionAccess.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitionAccess.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "storageWidthMembers": 1
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20595,7 +20595,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20603,7 +20603,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20611,7 +20611,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleLogoFadePaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleLogoFadePaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20619,14 +20619,14 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxProgramDefinitionAccess.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinitionAccess.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "storageWidthMembers": 1
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianGlowPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianGlowPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 2,
@@ -20634,7 +20634,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20642,7 +20642,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20650,7 +20650,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 2,
@@ -20658,7 +20658,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20666,7 +20666,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20674,7 +20674,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -20682,7 +20682,7 @@
           }
         },
         {
-          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsConstants.cs",
+          "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 2,
@@ -21212,13 +21212,6 @@
           "totals": {
             "CatalogHexLiteral": 1,
             "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/HyperBeamPaletteFxStateAccess.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "storageWidthMembers": 1
           }
         },
         {
@@ -22977,43 +22970,16 @@
     {
       "name": "Room FX, palette FX and HDMA",
       "totals": {
-        "RawHexLiteral": 15,
-        "PointerDispatch": 63,
-        "OpaqueWordArray": 1,
-        "CatalogHexLiteral": 4711,
+        "CatalogHexLiteral": 5285,
         "OwnedWidthOperation": 1,
-        "class:NumericQuantity": 4075,
-        "class:DomainIdentity": 465,
-        "class:ComposableBits": 11,
-        "class:StructuredInstruction": 5,
-        "class:CartridgeAddress": 227,
+        "class:NumericQuantity": 4002,
+        "class:DomainIdentity": 464,
+        "class:ComposableBits": 1,
+        "class:CartridgeAddress": 811,
         "class:Unknown": 8,
-        "storageWidthMembers": 32
+        "storageWidthMembers": 31
       },
-      "addressInterpretingTypes": [
-        "BeaconPaletteFxProgramMechanicsDefinitions",
-        "CeresCinematicLightPaletteFxProgramMechanicsDefinitions",
-        "ExplodingZebesFadePaletteFxProgramMechanicsDefinitions",
-        "HyperBeamPaletteFxProgramDefinitions",
-        "NintendoLogoFadePaletteFxProgramMechanicsDefinitions",
-        "OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions",
-        "PlanetZebesTextPaletteFxProgramDefinition",
-        "PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions",
-        "ProgramDefinitions",
-        "ProgramEntries",
-        "RedBrinstarGlowPaletteFxProgramMechanicsDefinitions",
-        "TitleLogoFadePaletteFxProgramMechanicsDefinitions",
-        "TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions",
-        "TourianGlowPaletteFxProgramMechanicsDefinitions",
-        "TourianStatueGreyPaletteFxProgramMechanicsDefinitions",
-        "UnusedCinematicFadePaletteFxProgramMechanicsDefinitions",
-        "UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions",
-        "WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions",
-        "ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions",
-        "ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions",
-        "ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions",
-        "ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions"
-      ],
+      "addressInterpretingTypes": [],
       "files": [
         {
           "path": "csharp/src/SuperMetroid.Core/Fx/AnimatedTileInstruction.cs",
@@ -23037,6 +23003,14 @@
           "totals": {
             "CatalogHexLiteral": 19,
             "class:CartridgeAddress": 19
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Fx/Artwork/PaletteFxRecordDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 647,
+            "class:CartridgeAddress": 647
           }
         },
         {
@@ -23073,14 +23047,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxSporeTilemap.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Fx/LayerBlendingConfiguration.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -23089,17 +23055,16 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BeaconPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BeaconPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 4,
             "CatalogHexLiteral": 8,
             "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 9
+            "class:CartridgeAddress": 5
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramDefinition.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinition.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 2,
@@ -23107,7 +23072,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -23115,25 +23080,16 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CartridgePaletteTransition.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 2,
             "CatalogHexLiteral": 10,
             "class:NumericQuantity": 6,
-            "class:CartridgeAddress": 6
+            "class:CartridgeAddress": 4
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 6,
@@ -23141,7 +23097,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 6,
@@ -23157,7 +23113,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramDefinition.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinition.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 4,
@@ -23165,7 +23121,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -23173,13 +23129,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 3,
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 2
           }
         },
         {
@@ -23190,16 +23145,15 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/HyperBeamPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 3,
             "CatalogHexLiteral": 3,
-            "class:CartridgeAddress": 6
+            "class:CartridgeAddress": 3
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -23207,27 +23161,24 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 7,
             "CatalogHexLiteral": 7,
             "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 10
+            "class:CartridgeAddress": 3
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 2,
             "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 2
+            "class:NumericQuantity": 3
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 2,
@@ -23236,13 +23187,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 1,
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
@@ -23253,19 +23203,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxDeleteProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxDeleteDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 3,
             "class:NumericQuantity": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxHeatData.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 2
           }
         },
         {
@@ -23278,27 +23220,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxHeatProgramDefinition.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 1,
-            "class:DomainIdentity": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxInstruction.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 19,
             "class:CartridgeAddress": 19
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxInstructionListPointers.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "CatalogHexLiteral": 5,
-            "class:NumericQuantity": 5
           }
         },
         {
@@ -23326,15 +23252,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramDefinition.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -23342,27 +23260,25 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 3,
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 2,
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramDefinition.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinition.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 2,
@@ -23370,27 +23286,24 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "OpaqueWordArray": 1,
-            "CatalogHexLiteral": 11,
-            "class:NumericQuantity": 7,
-            "class:StructuredInstruction": 5
+            "CatalogHexLiteral": 7,
+            "class:NumericQuantity": 7
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleLogoFadePaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleLogoFadePaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 3,
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 1,
@@ -23398,7 +23311,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 5,
@@ -23406,7 +23319,7 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 6,
@@ -23415,67 +23328,61 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 3,
             "CatalogHexLiteral": 8,
             "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 7
+            "class:CartridgeAddress": 4
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianGlowPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianGlowPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 9,
             "CatalogHexLiteral": 6,
             "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 11
+            "class:CartridgeAddress": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 6,
             "CatalogHexLiteral": 5,
             "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 8
+            "class:CartridgeAddress": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 1,
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 4,
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 6
+            "class:CartridgeAddress": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 2,
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionAmbientPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 6,
@@ -23484,37 +23391,33 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 1,
             "CatalogHexLiteral": 4,
             "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 1,
             "CatalogHexLiteral": 2,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 1
+            "class:NumericQuantity": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 4,
             "CatalogHexLiteral": 5,
             "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 6
+            "class:CartridgeAddress": 2
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 6,
@@ -23523,13 +23426,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 1,
             "CatalogHexLiteral": 6,
             "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
@@ -23568,8 +23470,6 @@
           "path": "csharp/src/SuperMetroid.Core/Fx/RoomFxAnimatedTilesState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1,
             "storageWidthMembers": 3
           }
         },
@@ -23629,9 +23529,6 @@
           "path": "csharp/src/SuperMetroid.Core/Fx/RoomLayer3FxState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 8,
-            "class:NumericQuantity": 2,
-            "class:ComposableBits": 6,
             "storageWidthMembers": 10
           }
         },
@@ -23639,8 +23536,7 @@
           "path": "csharp/src/SuperMetroid.Core/Fx/RoomPaletteFxDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 154,
-            "class:NumericQuantity": 63,
+            "CatalogHexLiteral": 91,
             "class:DomainIdentity": 91
           }
         },
@@ -23648,9 +23544,7 @@
           "path": "csharp/src/SuperMetroid.Core/Fx/RoomPaletteFxSystem.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:ComposableBits": 2,
-            "storageWidthMembers": 6
+            "storageWidthMembers": 5
           }
         },
         {
@@ -24369,7 +24263,7 @@
       "name": "Samus: movement, poses and projectiles",
       "totals": {
         "RawHexLiteral": 259,
-        "PointerDispatch": 23,
+        "PointerDispatch": 22,
         "OpaqueWordArray": 111,
         "CatalogHexLiteral": 31621,
         "JustifiedHexLiteral": 3,
@@ -24379,12 +24273,11 @@
         "class:DomainIdentity": 604,
         "class:ComposableBits": 157,
         "class:StructuredInstruction": 29440,
-        "class:CartridgeAddress": 783,
+        "class:CartridgeAddress": 782,
         "class:Unknown": 47,
-        "storageWidthMembers": 204
+        "storageWidthMembers": 203
       },
       "addressInterpretingTypes": [
-        "HyperBeamPaletteFxState",
         "ProjectileAnimation",
         "SamusChargePalettePointerDefinitions",
         "SamusProjectileInstructionDefinitions",
@@ -25413,9 +25306,7 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/HyperBeamPaletteFxState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 1,
-            "class:CartridgeAddress": 1,
-            "storageWidthMembers": 2
+            "storageWidthMembers": 1
           }
         },
         {

@@ -21,12 +21,12 @@ internal static class EndingGunshipPaletteColorDefinitions
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         frame = color = 0;
-        int offset = pointer - (ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FirstFramePointer + Bgr555.ByteCount);
-        if ((uint)offset >= ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount *
-            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameByteCount) return false;
-        int within = offset % ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameByteCount;
+        int offset = pointer - (ZebesExplosionGunshipPaletteFxColorDefinitions.FirstFramePointer + Bgr555.ByteCount);
+        if ((uint)offset >= ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount *
+            ZebesExplosionGunshipPaletteFxColorDefinitions.FrameByteCount) return false;
+        int within = offset % ZebesExplosionGunshipPaletteFxColorDefinitions.FrameByteCount;
         if ((within & 1) != 0 || within >= 16 * Bgr555.ByteCount) return false;
-        frame = offset / ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameByteCount;
+        frame = offset / ZebesExplosionGunshipPaletteFxColorDefinitions.FrameByteCount;
         color = within / Bgr555.ByteCount;
         return true;
     }
@@ -46,7 +46,7 @@ internal static class EndingGunshipPaletteColorDefinitions
         }
         if (frame is 7 or 8)
         {
-            if (!colors.TryGetValue(ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(15, color), out Bgr555 bright))
+            if (!colors.TryGetValue(ZebesExplosionGunshipPaletteFxColorDefinitions.ColorPointer(15, color), out Bgr555 bright))
                 return false;
             value = Pack((bright.Red) * 2 / 7, (bright.Green) * 2 / 7, (bright.Blue) * 2 / 7);
             return true;
@@ -63,7 +63,7 @@ internal static class EndingGunshipPaletteColorDefinitions
     /// <summary>Uses an explicit edited endpoint when present, otherwise calculates the frame's shared color rule.</summary>
     private static bool Endpoint(int frame, int color, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
     {
-        ushort pointer = ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, color);
+        ushort pointer = ZebesExplosionGunshipPaletteFxColorDefinitions.ColorPointer(frame, color);
         return colors.TryGetValue(pointer, out value) || TryCalculatedColor(pointer, colors, out value);
     }
     /// <summary>Forms one RGB5 value from independently interpolated gunship color channels.</summary>

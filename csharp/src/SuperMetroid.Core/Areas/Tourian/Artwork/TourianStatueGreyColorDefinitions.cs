@@ -14,13 +14,13 @@ internal static class TourianStatueGreyColorDefinitions
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         frame = color = 0;
-        int offset = TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorOffset(pointer);
-        if ((uint)offset >= TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount *
-            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameByteCount) return false;
-        int within = offset % TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameByteCount;
-        if ((within & 1) != 0 || within >= TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * 2)
+        int offset = TourianStatueGreyPaletteFxColorDefinitions.ColorOffset(pointer);
+        if ((uint)offset >= TourianStatueGreyPaletteFxColorDefinitions.FrameCount *
+            TourianStatueGreyPaletteFxColorDefinitions.FrameByteCount) return false;
+        int within = offset % TourianStatueGreyPaletteFxColorDefinitions.FrameByteCount;
+        if ((within & 1) != 0 || within >= TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame * 2)
             return false;
-        frame = offset / TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameByteCount;
+        frame = offset / TourianStatueGreyPaletteFxColorDefinitions.FrameByteCount;
         color = within / 2;
         return true;
     }
@@ -30,8 +30,8 @@ internal static class TourianStatueGreyColorDefinitions
     {
         value = Bgr555.Black;
         if (!TryCoordinates(pointer, out int frame, out int color) || frame is 0 or 7 ||
-            !colors.TryGetValue(TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(0, color), out Bgr555 first) ||
-            !colors.TryGetValue(TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(7, color), out Bgr555 last))
+            !colors.TryGetValue(TourianStatueGreyPaletteFxColorDefinitions.ColorPointer(0, color), out Bgr555 first) ||
+            !colors.TryGetValue(TourianStatueGreyPaletteFxColorDefinitions.ColorPointer(7, color), out Bgr555 last))
             return false;
         if (color == 0)
         {

@@ -26,7 +26,7 @@ internal sealed class RoomFxSporeTilemap
         for (int index = 0; index < characters.Length; index++)
         {
             ushort word = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * 2)..]);
-            characters[index] = (ushort)(word & 0x03ff);
+            characters[index] = (ushort)new Hardware.SnesBgTilemapWord(word).CharacterIndex;
             ushort attributes = new Hardware.SnesBgTilemapWord(word).WithCharacterIndex(0).Raw;
             if (attributes != RoomFxSporeTilemapDefinitions.Attributes(index))
                 (customAttributes ??= []).Add(index, attributes);

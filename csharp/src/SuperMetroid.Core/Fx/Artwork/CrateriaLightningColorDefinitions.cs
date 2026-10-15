@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Fx.Artwork;
 internal static class CrateriaLightningColorDefinitions
 {
     /// <summary>$8D:EB43..EC3D: thirteen surface-lightning records, each containing eight colors.</summary>
-    internal static CrateriaLightningPaletteFxProgramDefinition SurfaceProgram =>
-        CrateriaLightningPaletteFxProgramMechanicsDefinitions.All[0];
+    internal static CrateriaLightningPaletteFxColorDefinition SurfaceProgram =>
+        CrateriaLightningPaletteFxColorDefinitions.All[0];
 
     /// <summary>Locates a word-aligned color within the thirteen eight-color surface-lightning frames.</summary>
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
@@ -44,8 +44,8 @@ internal static class CrateriaLightningColorDefinitions
         return true;
     }
     /// <summary>$8D:EC76..ED6A, unused dark-lightning definition $F769: fourteen seven-color records.</summary>
-    internal static CrateriaLightningPaletteFxProgramDefinition DarkProgram =>
-        CrateriaLightningPaletteFxProgramMechanicsDefinitions.All[1];
+    internal static CrateriaLightningPaletteFxColorDefinition DarkProgram =>
+        CrateriaLightningPaletteFxColorDefinitions.All[1];
 
     /// <summary>Locates a word-aligned color within the unused fourteen-frame dark-lightning table.</summary>
     internal static bool TryDarkCoordinates(ushort pointer, out int frame, out int color)

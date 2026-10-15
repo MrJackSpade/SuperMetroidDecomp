@@ -9,7 +9,7 @@ internal static class MaridiaEnvironmentalColorDefinitions
     /// <remarks>Sand falls take their edited colors from the lower sand-pit band; rejected pointers clear the output.</remarks>
     internal static bool TrySourcePointer(ushort pointer, out ushort source)
     {
-        foreach (var program in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var program in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
             int offset = pointer - program.ColorPointer(0, 0);
             if (offset < 0 || offset >= program.FrameCount * program.FrameByteCount
@@ -20,7 +20,7 @@ internal static class MaridiaEnvironmentalColorDefinitions
             int rotated = (color + frame) % program.FrameCount;
             if (program.Owner == MaridiaEnvironmentalPaletteOwner.SandFalls)
             {
-                var pits = MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All[0];
+                var pits = MaridiaEnvironmentalPaletteFxColorDefinitions.All[0];
                 source = pits.ColorPointer(0, pits.FrameCount + rotated);
             }
             else source = program.ColorPointer(0, group * program.FrameCount + rotated);

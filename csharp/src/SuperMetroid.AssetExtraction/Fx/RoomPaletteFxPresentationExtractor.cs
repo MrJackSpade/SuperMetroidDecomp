@@ -36,44 +36,44 @@ internal static class RoomPaletteFxPresentationExtractor
             MaridiaBackgroundWaterfalls = ExtractMaridia(
                 MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls),
             WreckedShipGreenLights = ExtractFrames(
-                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount,
-                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorPointer),
+                WreckedShipGreenLightPaletteFxColorDefinitions.FrameCount,
+                WreckedShipGreenLightPaletteFxColorDefinitions.ColorsPerFrame,
+                WreckedShipGreenLightPaletteFxColorDefinitions.ColorPointer),
             RedBrinstarBackgroundGlow = ExtractFrames(
-                RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
-                RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorPointer),
+                RedBrinstarGlowPaletteFxColorDefinitions.FrameCount,
+                RedBrinstarGlowPaletteFxColorDefinitions.ColorsPerFrame,
+                RedBrinstarGlowPaletteFxColorDefinitions.ColorPointer),
             TourianGlow = ExtractFrames(
-                TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
-                TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer),
+                TourianGlowPaletteFxColorDefinitions.FrameCount,
+                TourianGlowPaletteFxColorDefinitions.ColorsPerFrame,
+                TourianGlowPaletteFxColorDefinitions.ColorPointer),
             BrinstarBlueSpores = ExtractFrames(
-                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount,
-                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All[0].ColorPointer),
+                BrinstarBlueSporePaletteFxColorDefinitions.FrameCount,
+                BrinstarBlueSporePaletteFxColorDefinitions.ColorsPerFrame,
+                BrinstarBlueSporePaletteFxColorDefinitions.All[0].ColorPointer),
             BombTorizoBelly = ExtractTorizo(TorizoBellyPaletteOwner.BombTorizo),
             GoldenTorizoBelly = ExtractTorizo(TorizoBellyPaletteOwner.GoldenTorizo),
             TourianStatueGrey = ExtractFrames(
-                TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount,
-                TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer),
+                TourianStatueGreyPaletteFxColorDefinitions.FrameCount,
+                TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame,
+                TourianStatueGreyPaletteFxColorDefinitions.ColorPointer),
             CrateriaSurfaceLightning = ExtractCrateriaLightning(
                 CrateriaLightningPaletteOwner.SurfaceLightning),
             CrateriaUnusedDarkLightning = ExtractCrateriaLightning(
                 CrateriaLightningPaletteOwner.UnusedDarkLightning),
             CeresGunshipEngineLights = ExtractFrames(
-                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                CeresCinematicLightPaletteFxColorDefinitions
                     .GunshipEngineFrameCount,
-                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                CeresCinematicLightPaletteFxColorDefinitions
                     .GunshipEngineColorsPerFrame,
-                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                CeresCinematicLightPaletteFxColorDefinitions
                     .GunshipEngineColorPointer),
             CeresNavigationLights = ExtractFrames(
-                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                CeresCinematicLightPaletteFxColorDefinitions
                     .NavigationLightsFrameCount,
-                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                CeresCinematicLightPaletteFxColorDefinitions
                     .NavigationLightsColorsPerFrame,
-                CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                CeresCinematicLightPaletteFxColorDefinitions
                     .NavigationLightsColorPointer),
             PlanetZebesTextFadeIn = ExtractPlanetZebesText(
                 PlanetZebesTextPaletteFxProgramOwner.FadeIn),
@@ -84,33 +84,33 @@ internal static class RoomPaletteFxPresentationExtractor
             CinematicGunshipGlow = ExtractCinematicGlow(
                 CinematicGlowPaletteFxProgramOwner.GunshipGlow),
             ExplodingZebesFade = ExtractFrames(
-                ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.FrameCount,
-                ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorPointer),
+                ExplodingZebesFadePaletteFxColorDefinitions.FrameCount,
+                ExplodingZebesFadePaletteFxColorDefinitions.ColorsPerFrame,
+                ExplodingZebesFadePaletteFxColorDefinitions.ColorPointer),
             UnusedCinematicFade = ExtractFrames(
-                UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FrameCount,
-                UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorPointer),
+                UnusedCinematicFadePaletteFxColorDefinitions.FrameCount,
+                UnusedCinematicFadePaletteFxColorDefinitions.ColorsPerFrame,
+                UnusedCinematicFadePaletteFxColorDefinitions.ColorPointer),
             TitleLogoFade = ExtractFrames(
-                TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
-                TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer),
+                TitleLogoFadePaletteFxColorDefinitions.FrameCount,
+                TitleLogoFadePaletteFxColorDefinitions.ColorsPerFrame,
+                TitleLogoFadePaletteFxColorDefinitions.ColorPointer),
             NintendoSharedFade = ExtractFrames(
-                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
-                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer),
+                NintendoLogoFadePaletteFxColorDefinitions.FrameCount,
+                NintendoLogoFadePaletteFxColorDefinitions.ColorsPerFrame,
+                NintendoLogoFadePaletteFxColorDefinitions.ColorPointer),
             ZebesExplosionForeground = ExtractFrames(
-                ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.FrameCount,
-                ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorPointer),
+                ZebesExplosionForegroundPaletteFxColorDefinitions.FrameCount,
+                ZebesExplosionForegroundPaletteFxColorDefinitions.ColorsPerFrame,
+                ZebesExplosionForegroundPaletteFxColorDefinitions.ColorPointer),
             ZebesExplosionFinale = ExtractFrames(
-                ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount,
-                ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorPointer),
+                ZebesExplosionFinalePaletteFxColorDefinitions.FrameCount,
+                ZebesExplosionFinalePaletteFxColorDefinitions.ColorsPerFrame,
+                ZebesExplosionFinalePaletteFxColorDefinitions.ColorPointer),
             ZebesExplosionWhiteout = ExtractFrames(
-                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.FrameCount,
-                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorPointer),
+                ZebesExplosionWhiteoutPaletteFxColorDefinitions.FrameCount,
+                ZebesExplosionWhiteoutPaletteFxColorDefinitions.ColorsPerFrame,
+                ZebesExplosionWhiteoutPaletteFxColorDefinitions.ColorPointer),
             ZebesExplosionAfterglow = ExtractZebesExplosionAmbient(
                 ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow),
             ZebesExplosionLava = ExtractZebesExplosionAmbient(
@@ -120,9 +120,9 @@ internal static class RoomPaletteFxPresentationExtractor
             ZebesExplosionGreyClouds = ExtractZebesExplosionLayerFade(
                 ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds),
             ZebesExplosionGunship = ExtractFrames(
-                ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount,
-                ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer),
+                ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount,
+                ZebesExplosionGunshipPaletteFxColorDefinitions.ColorsPerFrame,
+                ZebesExplosionGunshipPaletteFxColorDefinitions.ColorPointer),
             SamusLoadingPowerSuit = ExtractSamusLoadingSuit(
                 SamusLoadingSuitPaletteFxProgramOwner.PowerSuit),
             SamusLoadingVariaSuit = ExtractSamusLoadingSuit(
@@ -130,37 +130,37 @@ internal static class RoomPaletteFxPresentationExtractor
             SamusLoadingGravitySuit = ExtractSamusLoadingSuit(
                 SamusLoadingSuitPaletteFxProgramOwner.GravitySuit),
             PostCreditsIconGlare = ExtractFrames(
-                PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount,
-                PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer),
+                PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount,
+                PostCreditsIconGlarePaletteFxColorDefinitions.ColorsPerFrame,
+                PostCreditsIconGlarePaletteFxColorDefinitions.ColorPointer),
             TourianEscapeShutter = ExtractTourianEscapeRedFlash(
                 TourianEscapeRedFlashPaletteOwner.Shutter),
             TourianEscapeBackground = ExtractTourianEscapeRedFlash(
                 TourianEscapeRedFlashPaletteOwner.Background),
             TourianEscapeSharedRedFlash = ExtractFrames(
-                TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
-                TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer),
+                TourianEscapeSharedRedFlashPaletteFxColorDefinitions.FrameCount,
+                TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorsPerFrame,
+                TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorPointer),
             OldTourianEscapeRedFlash = ExtractFrames(
-                OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
-                OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer),
+                OldTourianEscapeRedFlashPaletteFxColorDefinitions.FrameCount,
+                OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorsPerFrame,
+                OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorPointer),
             OldTourianEscapeOrangeRailings = ExtractOldTourianEscapeAccent(
                 OldTourianEscapeAccentPaletteOwner.OrangeRailings),
             OldTourianEscapeYellowPanels = ExtractOldTourianEscapeAccent(
                 OldTourianEscapeAccentPaletteOwner.YellowPanels),
             UpperCrateriaEscapeRedFlash = ExtractFrames(
-                UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
-                UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer),
+                UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.FrameCount,
+                UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorsPerFrame,
+                UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorPointer),
             CrateriaEscapeYellowLightning = ExtractCrateriaEscapeLightning(
                 CrateriaEscapeLightningPaletteOwner.YellowLightning),
             CrateriaEscapeCreBlockPixel = ExtractCrateriaEscapeLightning(
                 CrateriaEscapeLightningPaletteOwner.CreBlockPixel),
             BeaconFlashing = ExtractFrames(
-                BeaconPaletteFxProgramMechanicsDefinitions.FrameCount,
-                BeaconPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-                BeaconPaletteFxProgramMechanicsDefinitions.ColorPointer),
+                BeaconPaletteFxColorDefinitions.FrameCount,
+                BeaconPaletteFxColorDefinitions.ColorsPerFrame,
+                BeaconPaletteFxColorDefinitions.ColorPointer),
         });
         return json.ToArray();
 
@@ -176,11 +176,11 @@ internal static class RoomPaletteFxPresentationExtractor
 
         PaletteRgb5[][] ExtractNorfair(NorfairEnvironmentalPaletteOwner owner)
         {
-            NorfairEnvironmentalPaletteFxProgramDefinition definition =
-                NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All.Single(
+            NorfairEnvironmentalPaletteFxColorDefinition definition =
+                NorfairEnvironmentalPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
-            int frameCount = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.FrameCount;
-            int colorCount = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+            int frameCount = NorfairEnvironmentalPaletteFxColorDefinitions.FrameCount;
+            int colorCount = NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame;
             var frames = new PaletteRgb5[frameCount][];
             for (int frame = 0; frame < frameCount; frame++)
             {
@@ -204,8 +204,8 @@ internal static class RoomPaletteFxPresentationExtractor
 
         PaletteRgb5[][] ExtractMaridia(MaridiaEnvironmentalPaletteOwner owner)
         {
-            MaridiaEnvironmentalPaletteFxProgramDefinition definition =
-                MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All.Single(
+            MaridiaEnvironmentalPaletteFxColorDefinition definition =
+                MaridiaEnvironmentalPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             var frames = new PaletteRgb5[definition.FrameCount][];
             for (int frame = 0; frame < definition.FrameCount; frame++)
@@ -255,19 +255,19 @@ internal static class RoomPaletteFxPresentationExtractor
 
         PaletteRgb5[][] ExtractTorizo(TorizoBellyPaletteOwner owner)
         {
-            TorizoBellyPaletteFxProgramDefinition definition =
-                TorizoBellyPaletteFxProgramMechanicsDefinitions.All.Single(
+            TorizoBellyPaletteFxColorDefinition definition =
+                TorizoBellyPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             return ExtractFrames(
-                TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount,
-                TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                TorizoBellyPaletteFxColorDefinitions.FrameCount,
+                TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer);
         }
 
         PaletteRgb5[][] ExtractCrateriaLightning(CrateriaLightningPaletteOwner owner)
         {
-            CrateriaLightningPaletteFxProgramDefinition definition =
-                CrateriaLightningPaletteFxProgramMechanicsDefinitions.All.Single(
+            CrateriaLightningPaletteFxColorDefinition definition =
+                CrateriaLightningPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             return ExtractFrames(
                 definition.Frames.Count,
@@ -277,22 +277,22 @@ internal static class RoomPaletteFxPresentationExtractor
 
         PaletteRgb5[][] ExtractPlanetZebesText(PlanetZebesTextPaletteFxProgramOwner owner)
         {
-            PlanetZebesTextPaletteFxProgramDefinition definition =
-                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All.Single(
+            PlanetZebesTextPaletteFxColorDefinition definition =
+                PlanetZebesTextPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             return ExtractFrames(
-                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount,
-                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                PlanetZebesTextPaletteFxColorDefinitions.FrameCount,
+                PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer);
         }
 
         PaletteRgb5[][] ExtractCinematicGlow(CinematicGlowPaletteFxProgramOwner owner)
         {
-            CinematicGlowPaletteFxProgramDefinition definition =
-                CinematicGlowPaletteFxProgramMechanicsDefinitions.All.Single(
+            CinematicGlowPaletteFxColorDefinition definition =
+                CinematicGlowPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             return ExtractFrames(
-                CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
+                CinematicGlowPaletteFxColorDefinitions.FrameCount,
                 definition.ColorsPerFrame,
                 definition.ColorPointer);
         }
@@ -300,8 +300,8 @@ internal static class RoomPaletteFxPresentationExtractor
         PaletteRgb5[][] ExtractZebesExplosionAmbient(
             ZebesExplosionAmbientPaletteFxProgramOwner owner)
         {
-            ZebesExplosionAmbientPaletteFxProgramDefinition definition =
-                ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.All.Single(
+            ZebesExplosionAmbientPaletteFxColorDefinition definition =
+                ZebesExplosionAmbientPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             return ExtractFrames(
                 definition.FrameCount,
@@ -312,34 +312,34 @@ internal static class RoomPaletteFxPresentationExtractor
         PaletteRgb5[][] ExtractZebesExplosionLayerFade(
             ZebesExplosionLayerFadePaletteFxProgramOwner owner)
         {
-            ZebesExplosionLayerFadePaletteFxProgramDefinition definition =
-                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.All.Single(
+            ZebesExplosionLayerFadePaletteFxColorDefinition definition =
+                ZebesExplosionLayerFadePaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             return ExtractFrames(
-                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameCount,
-                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                ZebesExplosionLayerFadePaletteFxColorDefinitions.FrameCount,
+                ZebesExplosionLayerFadePaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer);
         }
 
         PaletteRgb5[][] ExtractSamusLoadingSuit(SamusLoadingSuitPaletteFxProgramOwner owner)
         {
-            SamusLoadingSuitPaletteFxProgramDefinition definition =
-                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All.Single(
+            SamusLoadingSuitPaletteFxColorDefinition definition =
+                SamusLoadingSuitPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             return ExtractFrames(
-                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount,
-                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                SamusLoadingSuitPaletteFxColorDefinitions.FrameCount,
+                SamusLoadingSuitPaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer);
         }
 
         PaletteRgb5[][] ExtractTourianEscapeRedFlash(
             TourianEscapeRedFlashPaletteOwner owner)
         {
-            TourianEscapeRedFlashPaletteFxProgramDefinition definition =
-                TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All.Single(
+            TourianEscapeRedFlashPaletteFxColorDefinition definition =
+                TourianEscapeRedFlashPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             return ExtractFrames(
-                TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+                TourianEscapeRedFlashPaletteFxColorDefinitions.FrameCount,
                 definition.ColorsPerFrame,
                 definition.ColorPointer);
         }
@@ -347,23 +347,23 @@ internal static class RoomPaletteFxPresentationExtractor
         PaletteRgb5[][] ExtractOldTourianEscapeAccent(
             OldTourianEscapeAccentPaletteOwner owner)
         {
-            OldTourianEscapeAccentPaletteFxProgramDefinition definition =
-                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All.Single(
+            OldTourianEscapeAccentPaletteFxColorDefinition definition =
+                OldTourianEscapeAccentPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             return ExtractFrames(
-                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameCount,
-                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount,
+                OldTourianEscapeAccentPaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer);
         }
 
         PaletteRgb5[][] ExtractCrateriaEscapeLightning(
             CrateriaEscapeLightningPaletteOwner owner)
         {
-            CrateriaEscapeLightningPaletteFxProgramDefinition definition =
-                CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All.Single(
+            CrateriaEscapeLightningPaletteFxColorDefinition definition =
+                CrateriaEscapeLightningPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             return ExtractFrames(
-                CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.FrameCount,
+                CrateriaEscapeLightningPaletteFxColorDefinitions.FrameCount,
                 definition.ColorsPerFrame,
                 definition.ColorPointer);
         }

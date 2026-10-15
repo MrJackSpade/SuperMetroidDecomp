@@ -5,9 +5,9 @@ using SuperMetroid.Core.Fx.PaletteFx;
 internal static class HyperBeamPaletteFxStateConstants
 {
     /// <summary>Number of colors copied by each Hyper Beam record.</summary>
-    public const int ColorsPerFrame = HyperBeamPaletteFxProgramDefinitionsConstants.ColorsPerFrame;
+    public const int ColorsPerFrame = HyperBeamPaletteFxColorDefinitionsConstants.ColorsPerFrame;
     /// <summary>Number of timed color records in the Hyper Beam loop.</summary>
-    public const int FrameCount = HyperBeamPaletteFxProgramDefinitions.FrameCount;
+    public const int FrameCount = HyperBeamPaletteFxColorDefinitions.FrameCount;
 
     /// <summary>Provides the expected Hyper Beam palette frame count and colors per frame for state comparison.</summary>
     extension(HyperBeamPaletteFxState)

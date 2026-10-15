@@ -106,7 +106,7 @@ internal sealed class RoomFxAnimatedTilesState
         for (int guard = 0; guard < 32; guard++)
         {
             ushort instructionOrDuration = ReadMechanicsWord(cursor);
-            if ((instructionOrDuration & 0x8000) == 0)
+            if (unchecked((short)instructionOrDuration) >= 0)
             {
                 if (instructionOrDuration == 0)
                 {

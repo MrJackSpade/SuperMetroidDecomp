@@ -35,7 +35,7 @@ internal static class PaletteJsonContractsVisibleVerification
         var editedBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var stockFx = new RoomPaletteFxSystem();
         var editedFx = new RoomPaletteFxSystem();
-        foreach (var definition in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
             stockFx.SpawnDefinition(stockBus, definition.DefinitionPointer, 0);
             editedFx.SpawnDefinition(editedBus, definition.DefinitionPointer, 0);
@@ -51,7 +51,7 @@ internal static class PaletteJsonContractsVisibleVerification
             editedFx.Step(editedBus, editedCgram, replacement, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertPaletteContractFxState(stockFx, editedFx);
             AssertSameBytes(stockBus.WorkRam, editedBus.WorkRam, "color replacement preserves all live WRAM");
-            foreach (var definition in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+            foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
             {
                 int destination = definition.ColorByteIndex / sizeof(ushort) + 1;
                 AssertEqual((ushort)(stockCgram.Colors[destination].ToWord() ^ 0x7fff), editedCgram.Colors[destination],

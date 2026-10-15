@@ -679,7 +679,7 @@ public sealed class RoomLayer3FxState
     /// <summary>Ports <c>RaiseOrLowerFx</c> at $88:868C for the shared liquid words.</summary>
     private bool AdvanceBaseYToTarget()
     {
-        if ((TargetYPosition & 0x8000) != 0)
+        if (unchecked((short)TargetYPosition) < 0)
             return true;
 
         short velocity = unchecked((short)PackedYVelocity);
@@ -691,7 +691,7 @@ public sealed class RoomLayer3FxState
 
         if (velocity >= 0)
         {
-            if ((candidate & 0x8000) != 0)
+            if (unchecked((short)candidate) < 0)
                 candidate = ushort.MaxValue;
             BaseYPosition = candidate;
             if (candidate <= TargetYPosition)
@@ -699,7 +699,7 @@ public sealed class RoomLayer3FxState
         }
         else
         {
-            if ((candidate & 0x8000) != 0)
+            if (unchecked((short)candidate) < 0)
                 candidate = 0;
             BaseYPosition = candidate;
             if (candidate > TargetYPosition)
@@ -768,8 +768,8 @@ public sealed class RoomLayer3FxState
             return 0;
         short relative = unchecked((short)(surfaceY - cameraY));
         if (relative <= 0)
-            return unchecked((ushort)(((relative ^ 0x001f) & 0x001f) | 0x0100));
-        return relative < 0x0100
+            return unchecked((ushort)(((relative ^ 31) & 31) | 256));
+        return relative < 256
             ? unchecked((ushort)(byte)~relative)
             : (ushort)0;
     }
@@ -788,7 +788,8 @@ public sealed class RoomLayer3FxState
         drift = Offset16<Bg3Subpixels>.Zero;
         horizontalVelocity = 0;
         previousCamera = Position16<RoomPixels>.Zero;
-        baseYSubposition = 0x8000;
+        // Half a pixel: the liquid starts centred on its whole position.
+        baseYSubposition = 1 << 15;
         tidePhase = 0;
         tideFixedOffset = 0;
         CurrentYPosition = ushort.MaxValue;

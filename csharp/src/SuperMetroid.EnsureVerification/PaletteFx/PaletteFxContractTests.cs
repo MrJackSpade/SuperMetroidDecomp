@@ -50,7 +50,7 @@ internal static class PaletteFxContractTests
         var cgram = new SnesCgram();
         var fx = new RoomPaletteFxSystem();
         fx.SpawnDefinition(bus, GunshipEngineDefinitionPointer, 0);
-        int colorIndex = CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineColorIndex / sizeof(ushort);
+        int colorIndex = CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineColorIndex / sizeof(ushort);
         fx.Step(bus, cgram, new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (cgram.Colors[colorIndex] != new Bgr555(31, 0, 0) || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first palette step did not paint the supplied colors.");
@@ -93,7 +93,7 @@ internal static class PaletteFxContractTests
         public bool TryReadColor(ushort pointer, out Bgr555 color)
         {
             color = new Bgr555(31, 0, 0); // Constructed red confirms the first native frame executes after the rejection.
-            return pointer == CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineColorPointer(0, 0);
+            return pointer == CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineColorPointer(0, 0);
         }
     }
 }

@@ -30,13 +30,13 @@ internal static class RoomPaletteFxPresentationToolingExtensions
                         !LogoGlarePaletteColorDefinitions.TryCoordinates(pointer, out _, out _) &&
                         !EndingGunshipPaletteColorDefinitions.TryCoordinates(pointer, out _, out _) &&
                         !TourianStatueGreyColorDefinitions.TryCoordinates(pointer, out _, out _)) yield return pointer;
-                foreach (var program in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+                foreach (var program in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
                     for (int frame = 0; frame < program.FrameCount; frame++)
                         for (int index = 0; index < program.ColorsPerFrame; index++)
                             yield return program.ColorPointer(frame, index);
-                foreach (var program in PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
-                    for (int frame = 0; frame < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
-                        for (int index = 0; index < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
+                foreach (var program in PlanetZebesTextPaletteFxColorDefinitions.All)
+                    for (int frame = 0; frame < PlanetZebesTextPaletteFxColorDefinitions.FrameCount; frame++)
+                        for (int index = 0; index < PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame; index++)
                             yield return program.ColorPointer(frame, index);
                 for (int frame = 0; frame < CrateriaLightningColorDefinitions.DarkProgram.Frames.Count; frame++)
                     for (int index = 0; index < CrateriaLightningColorDefinitions.DarkProgram.ColorsPerFrame; index++)
@@ -44,16 +44,16 @@ internal static class RoomPaletteFxPresentationToolingExtensions
                 for (int frame = 0; frame < CrateriaLightningColorDefinitions.SurfaceProgram.Frames.Count; frame++)
                     for (int index = 0; index < CrateriaLightningColorDefinitions.SurfaceProgram.ColorsPerFrame; index++)
                         yield return CrateriaLightningColorDefinitions.SurfaceProgram.ColorPointer(frame, index);
-                for (int frame = 0; frame < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
-                    for (int index = 0; index < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
-                        yield return TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
-                for (int frame = 0; frame < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
-                    for (int index = 0; index < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
-                        yield return ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
-                for (int frame = 0; frame < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
-                    for (int index = 0; index < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
-                        yield return PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
-                foreach (var program in SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+                for (int frame = 0; frame < TourianStatueGreyPaletteFxColorDefinitions.FrameCount; frame++)
+                    for (int index = 0; index < TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame; index++)
+                        yield return TourianStatueGreyPaletteFxColorDefinitions.ColorPointer(frame, index);
+                for (int frame = 0; frame < ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount; frame++)
+                    for (int index = 0; index < ZebesExplosionGunshipPaletteFxColorDefinitions.ColorsPerFrame; index++)
+                        yield return ZebesExplosionGunshipPaletteFxColorDefinitions.ColorPointer(frame, index);
+                for (int frame = 0; frame < PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount; frame++)
+                    for (int index = 0; index < PostCreditsIconGlarePaletteFxColorDefinitions.ColorsPerFrame; index++)
+                        yield return PostCreditsIconGlarePaletteFxColorDefinitions.ColorPointer(frame, index);
+                foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
                 for (int frame = 0; frame < 9; frame++)
                     for (int index = 0; index < 16; index++) yield return program.ColorPointer(frame, index);
                 foreach (var program in PaletteFxHeatProgramMechanicsDefinitions.All)

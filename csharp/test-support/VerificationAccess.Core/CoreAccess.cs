@@ -449,7 +449,7 @@ internal static class CoreAccess
     }
 
     /// <summary>Exposes the two byte-sized timer operands following Crateria lightning SetTimer instructions.</summary>
-    extension(CrateriaLightningPaletteFxProgramDefinition self)
+    extension(CrateriaLightningPaletteFxColorDefinition self)
     {
         /// <summary>
         /// The two timer-duration bytes that follow each <c>SetTimer</c> instruction: duration

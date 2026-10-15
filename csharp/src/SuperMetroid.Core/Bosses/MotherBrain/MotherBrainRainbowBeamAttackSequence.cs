@@ -2090,10 +2090,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 escapeMusicTrackQueued = true;        // Eight-frame-delay music value `$0007`.
                 EarthquakeType = 5;
                 EarthquakeTimer = ushort.MaxValue;
-                escapePaletteFxRequests.Add(TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ShutterDefinitionPointer);
-                escapePaletteFxRequests.Add(TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.BackgroundDefinitionPointer);
-                escapePaletteFxRequests.Add(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.GeneralLevelDefinitionPointer);
-                escapePaletteFxRequests.Add(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ArkanoidDefinitionPointer);
+                escapePaletteFxRequests.Add(TourianEscapeRedFlashPaletteFxColorDefinitions.ShutterDefinitionPointer);
+                escapePaletteFxRequests.Add(TourianEscapeRedFlashPaletteFxColorDefinitions.BackgroundDefinitionPointer);
+                escapePaletteFxRequests.Add(TourianEscapeSharedRedFlashPaletteFxColorDefinitions.GeneralLevelDefinitionPointer);
+                escapePaletteFxRequests.Add(TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ArkanoidDefinitionPointer);
                 MotherBrainUnpauseHookEnabled = false;
                 escapeTypewriterSetupRequested = true;
                 FunctionTimer = NativeCountdown.Start(32);

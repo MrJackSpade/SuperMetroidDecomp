@@ -36,7 +36,7 @@ internal static class PaletteJsonContractsLegacyVerification
         AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldEffects, json => RoomPaletteFxPresentation.Load(json)),
             "v17 room effects require explicitly installed current stock");
         var migratedEffects = ReadPaletteContract(oldEffects, json => RoomPaletteFxPresentation.Load(json, effectsStock));
-        ushort editedPointer = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All.Single(
+        ushort editedPointer = NorfairEnvironmentalPaletteFxColorDefinitions.All.Single(
             item => item.Owner == NorfairEnvironmentalPaletteOwner.ForegroundPalette4).ColorPointer(0, 0);
         AssertTrue(migratedEffects.TryReadColor(editedPointer, out Bgr555 edited), "legacy Norfair colors remain installed");
         AssertEqual(PackPaletteContractColor(editedColor), edited, "v17 keeps existing environmental override");

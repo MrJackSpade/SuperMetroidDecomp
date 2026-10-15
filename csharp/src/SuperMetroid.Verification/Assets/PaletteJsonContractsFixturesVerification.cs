@@ -63,9 +63,9 @@ internal static class PaletteJsonContractsFixturesVerification
             yield return new($"ending {id}", PaletteContractDocument(new EndingPaletteDocument
             { Version = EndingPaletteDefinitions.Version, Colors = PaletteContractColors(EndingPaletteDefinitions.ColorCount(id)) }),
                 json => _ = EndingPalette.Load(json, id));
-        var tube = TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All.Single(
+        var tube = TitleScreenAmbientPaletteFxColorDefinitions.All.Single(
             item => item.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight);
-        var displays = TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All.Single(
+        var displays = TitleScreenAmbientPaletteFxColorDefinitions.All.Single(
             item => item.Owner == TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays);
         yield return new("title", PaletteContractDocument(new TitlePaletteDocument
         {

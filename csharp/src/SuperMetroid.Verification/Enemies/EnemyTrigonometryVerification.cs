@@ -143,7 +143,7 @@ using static SuperMetroid.Verification.Enemies.Gunship.GunshipMotionDefinitionsV
 using static SuperMetroid.Verification.Hardware.HalfWaveAlgorithmsVerification;
 using static SuperMetroid.Verification.Enemies.Hibashi.HibashiDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationDefinitionsVerification;
-using static SuperMetroid.Verification.Fx.PaletteFx.HyperBeamPaletteFxProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroEggMotionDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Kago.KagoAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Kago.KagoBehaviorVerification;
@@ -488,7 +488,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyCrystalFlashPaletteTimingDefinitions), () => VerifyCrystalFlashPaletteTimingDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyWorkRobotPaletteTimingDefinitions), () => VerifyWorkRobotPaletteTimingDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySamusDeathExplosionTimingDefinitions), () => VerifySamusDeathExplosionTimingDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyHyperBeamPaletteFxProgramDefinitions), () => VerifyHyperBeamPaletteFxProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySuitPickupBeamCurveDefinitions), () => VerifySuitPickupBeamCurveDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyQuicksandDefinitions), () => VerifyQuicksandDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySaveStationAnimationDefinitions), () => VerifySaveStationAnimationDefinitions(LoadRepositoryRom())),

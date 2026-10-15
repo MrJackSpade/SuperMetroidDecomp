@@ -12,12 +12,12 @@ internal static class TitlePalettePresentationTooling
     internal sealed class AmbientPointerSequence : IReadOnlyCollection<ushort>
     {
         /// <summary>The number of color operands across all installed title ambient frames.</summary>
-        public int Count => TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All.Sum(
+        public int Count => TitleScreenAmbientPaletteFxColorDefinitions.All.Sum(
             program => program.FrameCount * program.ColorsPerFrame);
         /// <summary>Walks program frames in catalog order, skipping each frame's instruction word.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
-            foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+            foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
             for (int frame = 0; frame < program.FrameCount; frame++)
             for (int index = 0; index < program.ColorsPerFrame; index++)
                 yield return (ushort)(program.FramePointer(frame) + sizeof(ushort) * (index + 1));

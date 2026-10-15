@@ -23,9 +23,9 @@ internal static class HyperBeamFxColorArtworkVerification
     {
         byte[] json = HyperBeamFxColorExtractor.Extract(bus);
         var catalog = HyperBeamFxColorCatalog.Load(new MemoryStream(json));
-        AssertEqual(HyperBeamPaletteFxProgramDefinitions.FrameCount,
+        AssertEqual(HyperBeamPaletteFxColorDefinitions.FrameCount,
             HyperBeamFxColorFormat.FrameCount, "Extracted Hyper Beam frame count matches compiled control");
-        AssertEqual(HyperBeamPaletteFxProgramDefinitions.ColorsPerFrame,
+        AssertEqual(HyperBeamPaletteFxColorDefinitions.ColorsPerFrame,
             HyperBeamFxColorFormat.ColorsPerFrame, "Extracted Hyper Beam color count matches compiled control");
 
         var stored = catalog.colors;
@@ -164,7 +164,7 @@ internal static class HyperBeamFxColorArtworkVerification
 
         extracted.Spawn();
         for (int call = 0; call < HyperBeamFxColorFormat.FrameCount *
-            HyperBeamPaletteFxProgramDefinitions.FrameDuration + 1; call++)
+            HyperBeamPaletteFxColorDefinitions.FrameDuration + 1; call++)
         {
             int expectedFrame = call / 2 % 10;
             ushort originalDuration = ReadVerificationWord(bus, 0x8dd904 + 20 * expectedFrame);

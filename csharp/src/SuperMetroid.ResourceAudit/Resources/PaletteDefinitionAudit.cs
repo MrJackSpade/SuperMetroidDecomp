@@ -33,9 +33,8 @@ internal static class PaletteDefinitionAudit
                 type.Name.EndsWith("ProgramMechanicsDefinitions", StringComparison.Ordinal))
             .OrderBy(type => type.FullName, StringComparer.Ordinal))
         {
-            if (catalog == typeof(RoomPaletteFxProgramMechanicsDefinitions)) continue;
             // Its single compiled instruction is Delete: no presentation words.
-            if (catalog == typeof(PaletteFxDeleteProgramMechanicsDefinitions)) continue;
+            if (catalog == typeof(PaletteFxDeleteDefinitions)) continue;
             string source = FindSource(root, catalog.Name);
             var audit = new PaletteCatalogAudit(catalog, source, exports, report);
             bool covered = false;
@@ -62,7 +61,7 @@ internal static class PaletteDefinitionAudit
                                 ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, frame.FirstColorPointer + color * sizeof(ushort)), source, exports);
                         covered = true;
                     }
-                    if (row is TitleScreenAmbientPaletteFxProgramDefinition ambient)
+                    if (row is TitleScreenAmbientPaletteFxColorDefinition ambient)
                     {
                         for (int frame = 0; frame < ambient.FrameCount; frame++)
                         for (int color = 0; color < ambient.ColorsPerFrame; color++)

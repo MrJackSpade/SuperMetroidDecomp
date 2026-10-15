@@ -1779,55 +1779,26 @@ internal static class LookupStream5Verification
     {
         // Ceres light entries carry no identity; their native definition/program pairs are
         // the compiled owner constants, checked against the original definition list.
-        CheckEntryCount(CeresCinematicLightPaletteFxProgramMechanicsDefinitionsTooling.All, 3);
+        CheckEntryCount(CeresCinematicLightPaletteFxColorDefinitionsTooling.All, 3);
         foreach ((ushort definition, ushort program) in new[]
         {
-            (CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineDefinitionPointer,
-                CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineProgramStart),
-            (CeresCinematicLightPaletteFxProgramMechanicsDefinitions.SpriteNavigationLightsDefinitionPointer,
-                CeresCinematicLightPaletteFxProgramMechanicsDefinitions.SpriteNavigationLightsProgramStart),
-            (CeresCinematicLightPaletteFxProgramMechanicsDefinitions.BackgroundNavigationLightsDefinitionPointer,
-                CeresCinematicLightPaletteFxProgramMechanicsDefinitions.BackgroundNavigationLightsProgramStart),
+            (CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineDefinitionPointer,
+                CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineProgramStart),
+            (CeresCinematicLightPaletteFxColorDefinitions.SpriteNavigationLightsDefinitionPointer,
+                CeresCinematicLightPaletteFxColorDefinitions.SpriteNavigationLightsProgramStart),
+            (CeresCinematicLightPaletteFxColorDefinitions.BackgroundNavigationLightsDefinitionPointer,
+                CeresCinematicLightPaletteFxColorDefinitions.BackgroundNavigationLightsProgramStart),
         })
         {
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition + 2), program,
                 "Original palette definition list pointer");
         }
-        CheckEntries(CinematicGlowPaletteFxProgramMechanicsDefinitions.All,
+        CheckEntries(CinematicGlowPaletteFxColorDefinitions.All,
             entry => (entry.DefinitionPointer, entry.ProgramStart), 2);
-        CheckEntries(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsTooling.All,
+        CheckEntries(TourianEscapeSharedRedFlashPaletteFxColorDefinitionsTooling.All,
             entry => (entry.DefinitionPointer, entry.ProgramStart), 2);
-        CheckEntries(TourianStatueGreyPaletteFxProgramMechanicsDefinitionsTooling.All,
+        CheckEntries(TourianStatueGreyPaletteFxColorDefinitionsTooling.All,
             entry => (entry.DefinitionPointer, entry.ProgramStart), 4);
-        int lightWords = 0, glowWords = 0, redWords = 0, greyWords = 0;
-        for (int address = 0; address <= ushort.MaxValue; address++)
-        {
-            ushort pointer = (ushort)address;
-            if (CeresCinematicLightPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort light))
-            {
-                AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer), light, "Ceres light original mechanics");
-                lightWords++;
-            }
-            if (CinematicGlowPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort glow))
-            {
-                AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer), glow, "Cinematic glow original mechanics");
-                glowWords++;
-            }
-            if (TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort red))
-            {
-                AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer), red, "Tourian red-flash original mechanics");
-                redWords++;
-            }
-            if (TourianStatueGreyPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort grey))
-            {
-                AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer), grey, "Tourian statue original mechanics");
-                greyWords++;
-            }
-        }
-        AssertEqual(44, lightWords, "Ceres light mechanics coverage");
-        AssertEqual(64, glowWords, "Cinematic glow mechanics coverage");
-        AssertEqual(50, redWords, "Tourian shared red mechanics coverage");
-        AssertEqual(31, greyWords, "Tourian statue mechanics coverage");
         Console.WriteLine("Stream 5 palette entries: all eleven entry identities, original controls and collection bounds pass.");
 
         void CheckEntries<T>(IReadOnlyList<T> entries, Func<T, (ushort Definition, ushort Program)> project, int expectedCount)

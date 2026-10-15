@@ -2,7 +2,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Abilities.DrainedPoseHistoryVerification;
-using static SuperMetroid.Verification.Fx.PaletteFx.HyperBeamPaletteFxProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SyntheticSamusCartridgeVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.Draygon;

@@ -18,13 +18,13 @@ internal static class LogoGlarePaletteColorDefinitions
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         frame = color = 0;
-        int offset = PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorOffset(pointer);
-        if ((uint)offset >= PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount *
-            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameByteCount) return false;
-        int within = offset % PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameByteCount;
-        if ((within & 1) != 0 || within >= PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame * Bgr555.ByteCount)
+        int offset = PostCreditsIconGlarePaletteFxColorDefinitions.ColorOffset(pointer);
+        if ((uint)offset >= PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount *
+            PostCreditsIconGlarePaletteFxColorDefinitions.FrameByteCount) return false;
+        int within = offset % PostCreditsIconGlarePaletteFxColorDefinitions.FrameByteCount;
+        if ((within & 1) != 0 || within >= PostCreditsIconGlarePaletteFxColorDefinitions.ColorsPerFrame * Bgr555.ByteCount)
             return false;
-        frame = offset / PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameByteCount;
+        frame = offset / PostCreditsIconGlarePaletteFxColorDefinitions.FrameByteCount;
         color = within / Bgr555.ByteCount;
         return true;
     }
@@ -35,7 +35,7 @@ internal static class LogoGlarePaletteColorDefinitions
     {
         value = Bgr555.Black;
         if (!TryCoordinates(pointer, out int frame, out int color) || frame == 13 ||
-            !colors.TryGetValue(PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer(13, color), out Bgr555 basis))
+            !colors.TryGetValue(PostCreditsIconGlarePaletteFxColorDefinitions.ColorPointer(13, color), out Bgr555 basis))
             return false;
         int t = frame < 7 ? frame + 1 : 13 - frame;
         int red = ((basis.Red) * (7 - t) + 31 * t) / 7;

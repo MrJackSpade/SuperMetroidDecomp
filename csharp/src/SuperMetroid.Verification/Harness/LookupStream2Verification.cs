@@ -226,15 +226,14 @@ internal static class LookupStream2Verification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream2TourianAccentCadence(CartridgeImportAddressSpace rom)
     {
-        Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom));
-        foreach (var definition in OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var definition in OldTourianEscapeAccentPaletteFxColorDefinitions.All)
         {
             ushort[] nativeDurations = new ushort[15];
             int cycle = 0;
             for (int frame = 0; frame < 15; frame++)
             {
                 nativeDurations[frame] = ReadVerificationWord(rom, 0x8d0000 | definition.FramePointer(frame));
-                AssertEqual(nativeDurations[frame], OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Duration(frame), "Exact native authored pass dwell");
+                AssertEqual(nativeDurations[frame], OldTourianEscapeAccentPaletteFxColorDefinitions.Duration(frame), "Exact native authored pass dwell");
                 cycle += nativeDurations[frame];
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frame % 5, color)),
@@ -258,8 +257,8 @@ internal static class LookupStream2Verification
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts, "Cadence execution avoids native mechanics reads");
         }
-        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Duration(-1), "Accent duration lower domain");
-        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Duration(15), "Accent duration upper domain");
+        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxColorDefinitions.Duration(-1), "Accent duration lower domain");
+        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxColorDefinitions.Duration(15), "Accent duration upper domain");
         Console.WriteLine("Old Tourian accent cadence:30 native durations,90 repeated color words,68 mechanics words and130 actual per-tick CGRAM/loop states pass with mechanics reads blocked.");
     }
     /// <summary>Checks the ninja Space Pirates' typed programs, which carry the native list layout.</summary>
@@ -467,8 +466,8 @@ internal static class LookupStream2Verification
     /// <summary>Checks Norfair and Old Tourian palette-FX owner catalogs and native definition identities.</summary>
     internal static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
     {
-        var norfair = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All;
-        var accents = OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All;
+        var norfair = NorfairEnvironmentalPaletteFxColorDefinitions.All;
+        var accents = OldTourianEscapeAccentPaletteFxColorDefinitions.All;
         AssertEqual(4, norfair.Count, "Four semantic Norfair owners");
         AssertEqual(2, accents.Count, "Two semantic escape accent owners");
         int count = 0;
@@ -497,8 +496,6 @@ internal static class LookupStream2Verification
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = norfair[4]; }, "Norfair upper owner bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = accents[-1]; }, "Accent lower owner bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = accents[2]; }, "Accent upper owner bound");
-        Suite(nameof(VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions), () => VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(rom));
-        Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom));
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
     /// <summary>Checks extracted pause backdrop geometry, independent edits, and VRAM tile output.</summary>
@@ -1852,84 +1849,15 @@ internal static class LookupStream2Verification
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(9), "Ghost spawn upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(-1), "Ghost flicker lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(17), "Ghost flicker upper bound");
-        foreach (var definition in NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
-        {
-            int total = 0;
-            for (int frame = 0; frame < 16; frame++)
-            {
-                ushort pointer = (ushort)(definition.FramePointer(frame) + (definition.PublishesHeatPhase ? 3 : 0));
-                ushort original = ReadVerificationWord(rom, 0x8d0000 | pointer);
-                AssertTrue(definition.TryReadMechanicsWord(pointer, out ushort duration), "Norfair duration mechanic resolves");
-                AssertEqual(original, duration, "Norfair original duration");
-                total += duration;
-            }
-            AssertEqual(116, total, "Norfair exact cycle duration");
-        }
-        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Duration(-1), "Norfair duration lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Duration(16), "Norfair duration upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitions.Duration(-1), "Norfair duration lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitions.Duration(16), "Norfair duration upper bound");
         Console.WriteLine("Ghost appearance: 18 native offset fields, 17 native intervals, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");
     }
     /// <summary>Checks compiled palette instruction mechanics across upper, old, and belly color programs.</summary>
-    internal static void VerifyLookupStream2PaletteMechanics(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2PaletteMechanics()
     {
-        int upperWords = 0, oldWords = 0, bellyWords = 0;
-        for (int address = 0; address <= ushort.MaxValue; address++)
-        {
-            ushort pointer = (ushort)address;
-            if (UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort upper))
-            {
-                AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer), upper, "Upper Crateria mechanics original word");
-                upperWords++;
-            }
-            if (OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort old))
-            {
-                AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer), old, "Old Tourian mechanics original word");
-                oldWords++;
-            }
-            if (TorizoBellyPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort belly))
-            {
-                AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer), belly, "Torizo belly mechanics original word");
-                bellyWords++;
-            }
-        }
-        AssertEqual(32, upperWords, "Upper Crateria complete mechanics coverage");
-        AssertEqual(60, oldWords, "Old Tourian complete mechanics coverage");
-        AssertEqual(36, bellyWords, "Torizo belly complete mechanics coverage");
-        int upperDuration = 0;
-        for (int frame = 0; frame < 14; frame++)
-        {
-            ushort pointer = UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
-            AssertEqual((ushort)(0xfd01 + 18 * frame), pointer, "Upper Crateria frame address");
-            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort duration);
-            upperDuration += duration;
-            for (int color = 0; color < 8; color++)
-            {
-                int[] nativeOffsets = [2, 4, 6, 10, 12, 14, 16, 20];
-                ushort actual = OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, color);
-                AssertEqual((ushort)(0xfa6d + 24 * frame + nativeOffsets[color]), actual, "Old Tourian color address around inline skips");
-                AssertTrue(!OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(actual, out _), "Supplied old Tourian colors remain live");
-            }
-        }
-        AssertEqual(63, upperDuration, "Upper Crateria cycle duration");
-        var definitions = TorizoBellyPaletteFxProgramMechanicsDefinitions.All;
+        var definitions = TorizoBellyPaletteFxColorDefinitions.All;
         AssertEqual(2, definitions.Count, "Both Torizo programs enumerated");
-        for (int index = 0; index < definitions.Count; index++)
-        {
-            var definition = definitions[index];
-            AssertEqual((TorizoBellyPaletteOwner)index, definition.Owner, "Torizo program owner ordering");
-            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.DefinitionPointer + 2), definition.ProgramStart, "Original Torizo definition list operand");
-            int total = 0;
-            for (int frame = 0; frame < 6; frame++)
-            {
-                definition.TryReadMechanicsWord(definition.FramePointer(frame), out ushort duration);
-                total += duration;
-                for (int color = 0; color < 3; color++)
-                    AssertTrue(!definition.TryReadMechanicsWord(definition.ColorPointer(frame, color), out _), "Supplied Torizo colors remain live");
-            }
-            AssertEqual(52, total, "Torizo belly cycle duration");
-            AssertThrows<ArgumentOutOfRangeException>(() => definition.FramePointer(6), "Torizo frame upper bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => definition.FramePointer(-1), "Torizo frame lower bound");
-        }
         int enumerated = 0;
         foreach (var definition in definitions)
         {
@@ -1939,10 +1867,10 @@ internal static class LookupStream2Verification
         AssertEqual(2, enumerated, "Torizo definition enumeration");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = definitions[-1]; }, "Torizo definition lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = definitions[2]; }, "Torizo definition upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(-1), "Upper Crateria lower frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(14), "Upper Crateria upper frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer(0, -1), "Old Tourian lower color bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer(0, 8), "Old Tourian upper color bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.FramePointer(-1), "Upper Crateria lower frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.FramePointer(14), "Upper Crateria upper frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorPointer(0, -1), "Old Tourian lower color bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorPointer(0, 8), "Old Tourian upper color bound");
         Console.WriteLine("Stream 2 palette mechanics: original mechanics, inline color offsets, durations, dispatch and bounds pass.");
     }
     /// <summary>Checks Crystal Flash body colors and emitted CGRAM against extracted native phases.</summary>

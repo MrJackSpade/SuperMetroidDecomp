@@ -278,8 +278,8 @@ internal static class TitleGradientVerification
         TitlePalettePresentation presentation)
     {
         var colorAddresses = new HashSet<int>();
-        foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
-                 TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
+                 TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
             for (int frame = 0; frame < definition.FrameCount; frame++)
             {
@@ -307,8 +307,8 @@ internal static class TitleGradientVerification
         var guardedBus = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var native = new RoomPaletteFxSystem();
         var installed = new RoomPaletteFxSystem();
-        foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
-                 TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
+                 TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
             native.SpawnDefinition(bus, definition.DefinitionPointer, 0);
             installed.SpawnDefinition(guardedBus, definition.DefinitionPointer, 0);
@@ -316,7 +316,7 @@ internal static class TitleGradientVerification
 
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
-        int frames = TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All.Max(
+        int frames = TitleScreenAmbientPaletteFxColorDefinitions.All.Max(
             definition => definition.CycleFrames) * 2;
         for (int frame = 0; frame < frames; frame++)
         {

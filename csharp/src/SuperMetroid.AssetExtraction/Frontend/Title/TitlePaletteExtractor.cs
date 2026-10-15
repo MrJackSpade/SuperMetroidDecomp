@@ -36,8 +36,8 @@ internal static class TitlePaletteExtractor
 
         PaletteRgb5[][] ExtractAmbient(TitleScreenAmbientPaletteFxProgramOwner owner)
         {
-            TitleScreenAmbientPaletteFxProgramDefinition definition =
-                TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All.Single(
+            TitleScreenAmbientPaletteFxColorDefinition definition =
+                TitleScreenAmbientPaletteFxColorDefinitions.All.Single(
                     item => item.Owner == owner);
             var frames = new PaletteRgb5[definition.FrameCount][];
             for (int frame = 0; frame < frames.Length; frame++)

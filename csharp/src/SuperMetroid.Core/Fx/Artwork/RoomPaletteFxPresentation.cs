@@ -108,8 +108,8 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                     definition.Frames.Count, PaletteFxHeatProgramDefinition.ColorsPerFrame,
                     ColorPointer, colors);
         }
-        foreach (NorfairEnvironmentalPaletteFxProgramDefinition definition in
-                 NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+        foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
+                 NorfairEnvironmentalPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -127,13 +127,13 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             ValidateAndCompile(
                 $"Norfair {definition.Owner}",
                 frames,
-                NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.FrameCount,
-                NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                NorfairEnvironmentalPaletteFxColorDefinitions.FrameCount,
+                NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer,
                 colors);
         }
-        foreach (MaridiaEnvironmentalPaletteFxProgramDefinition definition in
-                 MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+        foreach (MaridiaEnvironmentalPaletteFxColorDefinition definition in
+                 MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -155,37 +155,37 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         ValidateAndCompile(
             "Wrecked Ship green lights",
             document.WreckedShipGreenLights,
-            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount,
-            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            WreckedShipGreenLightPaletteFxColorDefinitions.FrameCount,
+            WreckedShipGreenLightPaletteFxColorDefinitions.ColorsPerFrame,
+            WreckedShipGreenLightPaletteFxColorDefinitions.ColorPointer,
             colors);
         ValidateAndCompile(
             "Red Brinstar background glow",
             document.RedBrinstarBackgroundGlow,
-            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
-            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            RedBrinstarGlowPaletteFxColorDefinitions.FrameCount,
+            RedBrinstarGlowPaletteFxColorDefinitions.ColorsPerFrame,
+            RedBrinstarGlowPaletteFxColorDefinitions.ColorPointer,
             colors);
         ValidateAndCompile(
             "Tourian glow",
             document.TourianGlow,
-            TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
-            TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            TourianGlowPaletteFxColorDefinitions.FrameCount,
+            TourianGlowPaletteFxColorDefinitions.ColorsPerFrame,
+            TourianGlowPaletteFxColorDefinitions.ColorPointer,
             colors);
-        foreach (BrinstarBlueSporePaletteFxProgramDefinition definition in
-                 BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All)
+        foreach (BrinstarBlueSporePaletteFxColorDefinition definition in
+                 BrinstarBlueSporePaletteFxColorDefinitions.All)
         {
             ValidateAndCompile(
                 $"Brinstar blue spores ({definition.Owner})",
                 document.BrinstarBlueSpores,
-                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount,
-                BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                BrinstarBlueSporePaletteFxColorDefinitions.FrameCount,
+                BrinstarBlueSporePaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer,
                 colors);
         }
-        foreach (TorizoBellyPaletteFxProgramDefinition definition in
-                 TorizoBellyPaletteFxProgramMechanicsDefinitions.All)
+        foreach (TorizoBellyPaletteFxColorDefinition definition in
+                 TorizoBellyPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -197,20 +197,20 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             ValidateAndCompile(
                 $"{definition.Owner} belly",
                 frames,
-                TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount,
-                TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                TorizoBellyPaletteFxColorDefinitions.FrameCount,
+                TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer,
                 colors);
         }
         ValidateAndCompile(
             "Tourian statue grey-out",
             document.TourianStatueGrey,
-            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount,
-            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            TourianStatueGreyPaletteFxColorDefinitions.FrameCount,
+            TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame,
+            TourianStatueGreyPaletteFxColorDefinitions.ColorPointer,
             colors);
-        foreach (CrateriaLightningPaletteFxProgramDefinition definition in
-                 CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
+        foreach (CrateriaLightningPaletteFxColorDefinition definition in
+                 CrateriaLightningPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -232,25 +232,25 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         ValidateAndCompile(
             "Ceres gunship-engine lights",
             document.CeresGunshipEngineLights,
-            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+            CeresCinematicLightPaletteFxColorDefinitions
                 .GunshipEngineFrameCount,
-            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+            CeresCinematicLightPaletteFxColorDefinitions
                 .GunshipEngineColorsPerFrame,
-            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+            CeresCinematicLightPaletteFxColorDefinitions
                 .GunshipEngineColorPointer,
             colors);
         ValidateAndCompile(
             "Ceres navigation lights",
             document.CeresNavigationLights,
-            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+            CeresCinematicLightPaletteFxColorDefinitions
                 .NavigationLightsFrameCount,
-            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+            CeresCinematicLightPaletteFxColorDefinitions
                 .NavigationLightsColorsPerFrame,
-            CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+            CeresCinematicLightPaletteFxColorDefinitions
                 .NavigationLightsColorPointer,
             colors);
-        foreach (PlanetZebesTextPaletteFxProgramDefinition definition in
-                 PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
+        foreach (PlanetZebesTextPaletteFxColorDefinition definition in
+                 PlanetZebesTextPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -264,13 +264,13 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             ValidateAndCompile(
                 $"PLANET ZEBES {definition.Owner}",
                 frames,
-                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount,
-                PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                PlanetZebesTextPaletteFxColorDefinitions.FrameCount,
+                PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer,
                 colors);
         }
-        foreach (CinematicGlowPaletteFxProgramDefinition definition in
-                 CinematicGlowPaletteFxProgramMechanicsDefinitions.All)
+        foreach (CinematicGlowPaletteFxColorDefinition definition in
+                 CinematicGlowPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -284,7 +284,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             ValidateAndCompile(
                 $"Cinematic glow {definition.Owner}",
                 frames,
-                CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount,
+                CinematicGlowPaletteFxColorDefinitions.FrameCount,
                 definition.ColorsPerFrame,
                 definition.ColorPointer,
                 colors);
@@ -292,54 +292,54 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         ValidateAndCompile(
             "exploding Zebes fade",
             document.ExplodingZebesFade,
-            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.FrameCount,
-            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            ExplodingZebesFadePaletteFxColorDefinitions.FrameCount,
+            ExplodingZebesFadePaletteFxColorDefinitions.ColorsPerFrame,
+            ExplodingZebesFadePaletteFxColorDefinitions.ColorPointer,
             colors);
         ValidateAndCompile(
             "unused cinematic fade",
             document.UnusedCinematicFade,
-            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FrameCount,
-            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            UnusedCinematicFadePaletteFxColorDefinitions.FrameCount,
+            UnusedCinematicFadePaletteFxColorDefinitions.ColorsPerFrame,
+            UnusedCinematicFadePaletteFxColorDefinitions.ColorPointer,
             colors);
         ValidateAndCompile(
             "title-logo fade",
             document.TitleLogoFade,
-            TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
-            TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            TitleLogoFadePaletteFxColorDefinitions.FrameCount,
+            TitleLogoFadePaletteFxColorDefinitions.ColorsPerFrame,
+            TitleLogoFadePaletteFxColorDefinitions.ColorPointer,
             colors);
         ValidateAndCompile(
             "Nintendo shared fade",
             document.NintendoSharedFade,
-            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount,
-            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            NintendoLogoFadePaletteFxColorDefinitions.FrameCount,
+            NintendoLogoFadePaletteFxColorDefinitions.ColorsPerFrame,
+            NintendoLogoFadePaletteFxColorDefinitions.ColorPointer,
             colors);
         ValidateAndCompile(
             "Zebes explosion foreground",
             document.ZebesExplosionForeground,
-            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.FrameCount,
-            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            ZebesExplosionForegroundPaletteFxColorDefinitions.FrameCount,
+            ZebesExplosionForegroundPaletteFxColorDefinitions.ColorsPerFrame,
+            ZebesExplosionForegroundPaletteFxColorDefinitions.ColorPointer,
             colors);
         ValidateAndCompile(
             "Zebes explosion finale",
             document.ZebesExplosionFinale,
-            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount,
-            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            ZebesExplosionFinalePaletteFxColorDefinitions.FrameCount,
+            ZebesExplosionFinalePaletteFxColorDefinitions.ColorsPerFrame,
+            ZebesExplosionFinalePaletteFxColorDefinitions.ColorPointer,
             colors);
         ValidateAndCompile(
             "Zebes explosion shared whiteout",
             document.ZebesExplosionWhiteout,
-            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.FrameCount,
-            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            ZebesExplosionWhiteoutPaletteFxColorDefinitions.FrameCount,
+            ZebesExplosionWhiteoutPaletteFxColorDefinitions.ColorsPerFrame,
+            ZebesExplosionWhiteoutPaletteFxColorDefinitions.ColorPointer,
             colors);
-        foreach (ZebesExplosionAmbientPaletteFxProgramDefinition definition in
-                 ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.All)
+        foreach (ZebesExplosionAmbientPaletteFxColorDefinition definition in
+                 ZebesExplosionAmbientPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -358,8 +358,8 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 definition.ColorPointer,
                 colors);
         }
-        foreach (ZebesExplosionLayerFadePaletteFxProgramDefinition definition in
-                 ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.All)
+        foreach (ZebesExplosionLayerFadePaletteFxColorDefinition definition in
+                 ZebesExplosionLayerFadePaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -373,20 +373,20 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             ValidateAndCompile(
                 $"Zebes explosion {definition.Owner}",
                 frames,
-                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameCount,
-                ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                ZebesExplosionLayerFadePaletteFxColorDefinitions.FrameCount,
+                ZebesExplosionLayerFadePaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer,
                 colors);
         }
         ValidateAndCompile(
             "Zebes explosion gunship",
             document.ZebesExplosionGunship,
-            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount,
-            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount,
+            ZebesExplosionGunshipPaletteFxColorDefinitions.ColorsPerFrame,
+            ZebesExplosionGunshipPaletteFxColorDefinitions.ColorPointer,
             colors);
-        foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in
-                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+        foreach (SamusLoadingSuitPaletteFxColorDefinition definition in
+                 SamusLoadingSuitPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -402,20 +402,20 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             ValidateAndCompile(
                 $"Samus loading {definition.Owner}",
                 frames,
-                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount,
-                SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                SamusLoadingSuitPaletteFxColorDefinitions.FrameCount,
+                SamusLoadingSuitPaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer,
                 colors);
         }
         ValidateAndCompile(
             "post-credits icon glare",
             document.PostCreditsIconGlare,
-            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount,
-            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer,
+            PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount,
+            PostCreditsIconGlarePaletteFxColorDefinitions.ColorsPerFrame,
+            PostCreditsIconGlarePaletteFxColorDefinitions.ColorPointer,
             colors);
-        foreach (TourianEscapeRedFlashPaletteFxProgramDefinition definition in
-                 TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All)
+        foreach (TourianEscapeRedFlashPaletteFxColorDefinition definition in
+                 TourianEscapeRedFlashPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -426,25 +426,25 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                     $"Unsupported Tourian escape red-flash owner {definition.Owner}."),
             };
             ValidateAndCompile($"Tourian escape {definition.Owner}", frames,
-                TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
+                TourianEscapeRedFlashPaletteFxColorDefinitions.FrameCount,
                 definition.ColorsPerFrame, definition.ColorPointer, colors);
         }
         ValidateAndCompile(
             "Tourian escape shared red flash",
             document.TourianEscapeSharedRedFlash,
-            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
-            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            TourianEscapeSharedRedFlashPaletteFxColorDefinitions.FrameCount,
+            TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorsPerFrame,
+            TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorPointer,
             colors);
         ValidateAndCompile(
             "old Tourian escape red flash",
             document.OldTourianEscapeRedFlash,
-            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
-            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            OldTourianEscapeRedFlashPaletteFxColorDefinitions.FrameCount,
+            OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorsPerFrame,
+            OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorPointer,
             colors);
-        foreach (OldTourianEscapeAccentPaletteFxProgramDefinition definition in
-                 OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All)
+        foreach (OldTourianEscapeAccentPaletteFxColorDefinition definition in
+                 OldTourianEscapeAccentPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -456,19 +456,19 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                     $"Unsupported old Tourian escape accent owner {definition.Owner}."),
             };
             ValidateAndCompile($"old Tourian escape {definition.Owner}", frames,
-                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameCount,
-                OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
+                OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount,
+                OldTourianEscapeAccentPaletteFxColorDefinitions.ColorsPerFrame,
                 definition.ColorPointer, colors);
         }
         ValidateAndCompile(
             "upper Crateria escape red flash",
             document.UpperCrateriaEscapeRedFlash,
-            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
-            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.FrameCount,
+            UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorsPerFrame,
+            UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorPointer,
             colors);
-        foreach (CrateriaEscapeLightningPaletteFxProgramDefinition definition in
-                 CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All)
+        foreach (CrateriaEscapeLightningPaletteFxColorDefinition definition in
+                 CrateriaEscapeLightningPaletteFxColorDefinitions.All)
         {
             PaletteRgb5[][]? frames = definition.Owner switch
             {
@@ -480,15 +480,15 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                     $"Unsupported Crateria escape lightning owner {definition.Owner}."),
             };
             ValidateAndCompile($"Crateria escape {definition.Owner}", frames,
-                CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.FrameCount,
+                CrateriaEscapeLightningPaletteFxColorDefinitions.FrameCount,
                 definition.ColorsPerFrame, definition.ColorPointer, colors);
         }
         ValidateAndCompile(
             "Crateria and Brinstar beacon flash",
             document.BeaconFlashing,
-            BeaconPaletteFxProgramMechanicsDefinitions.FrameCount,
-            BeaconPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
-            BeaconPaletteFxProgramMechanicsDefinitions.ColorPointer,
+            BeaconPaletteFxColorDefinitions.FrameCount,
+            BeaconPaletteFxColorDefinitions.ColorsPerFrame,
+            BeaconPaletteFxColorDefinitions.ColorPointer,
             colors);
 
         // Collapse only values equal to the calculated row alias. Differing player
@@ -510,7 +510,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
                 HeatPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out Bgr555 calculated) && supplied == calculated)
                 colors.Remove(pointer);
         }
-        foreach (var program in SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < 9; frame++)
         for (int index = 0; index < 16; index++)
         {
@@ -518,7 +518,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             if (LoadingPaletteColorDefinitions.TryCanonicalPointer(pointer, out ushort canonical) &&
                 canonical != pointer && colors[pointer] == colors[canonical]) colors.Remove(pointer);
         }
-        foreach (var program in SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < 9; frame++)
         for (int index = 0; index < 16; index++)
         {
@@ -529,26 +529,26 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         }
         // Only matching samples are discarded. If the player edits a base color,
         // unchanged intermediate samples that no longer fit remain explicit values.
-        for (int frame = 0; frame < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount - 1; frame++)
-        for (int index = 0; index < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
+        for (int frame = 0; frame < PostCreditsIconGlarePaletteFxColorDefinitions.FrameCount - 1; frame++)
+        for (int index = 0; index < PostCreditsIconGlarePaletteFxColorDefinitions.ColorsPerFrame; index++)
         {
-            ushort pointer = PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
+            ushort pointer = PostCreditsIconGlarePaletteFxColorDefinitions.ColorPointer(frame, index);
             if (LogoGlarePaletteColorDefinitions.TryCalculatedColor(pointer, colors, out Bgr555 calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
         }
-        for (int frame = 0; frame < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount - 1; frame++)
-        for (int index = 0; index < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
+        for (int frame = 0; frame < ZebesExplosionGunshipPaletteFxColorDefinitions.FrameCount - 1; frame++)
+        for (int index = 0; index < ZebesExplosionGunshipPaletteFxColorDefinitions.ColorsPerFrame; index++)
         {
-            ushort pointer = ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
+            ushort pointer = ZebesExplosionGunshipPaletteFxColorDefinitions.ColorPointer(frame, index);
             if (EndingGunshipPaletteColorDefinitions.TryCalculatedColor(pointer, colors, out Bgr555 calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
         }
         // Keep both endpoints and independent sample edits. Only values matching
         // their supplied endpoints can be reconstructed on demand.
-        for (int frame = 1; frame < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount - 1; frame++)
-        for (int index = 0; index < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
+        for (int frame = 1; frame < TourianStatueGreyPaletteFxColorDefinitions.FrameCount - 1; frame++)
+        for (int index = 0; index < TourianStatueGreyPaletteFxColorDefinitions.ColorsPerFrame; index++)
         {
-            ushort pointer = TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
+            ushort pointer = TourianStatueGreyPaletteFxColorDefinitions.ColorPointer(frame, index);
             if (TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, colors, out Bgr555 calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
         }
@@ -568,16 +568,16 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             if (CrateriaLightningColorDefinitions.TryCalculatedDarkColor(pointer, colors, out Bgr555 calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
         }
-        foreach (var program in PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
-        for (int frame = 0; frame < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
-        for (int index = 0; index < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
+        foreach (var program in PlanetZebesTextPaletteFxColorDefinitions.All)
+        for (int frame = 0; frame < PlanetZebesTextPaletteFxColorDefinitions.FrameCount; frame++)
+        for (int index = 0; index < PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame; index++)
         {
             ushort pointer = program.ColorPointer(frame, index);
             if (pointer != PlanetZebesTextColorDefinitions.EndpointPointer(index)
                 && PlanetZebesTextColorDefinitions.TryCalculate(pointer, colors, out Bgr555 calculated)
                 && colors[pointer] == calculated) colors.Remove(pointer);
         }
-        foreach (var program in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+        foreach (var program in MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         for (int frame = 0; frame < program.FrameCount; frame++)
         for (int index = 0; index < program.ColorsPerFrame; index++)
         {

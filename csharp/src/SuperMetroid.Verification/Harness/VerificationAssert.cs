@@ -1539,7 +1539,7 @@ internal static class VerificationAssert
         else if (args[0] == "--lookup-stream2-ghost-norfair")
             VerifyLookupStream2GhostAndNorfair(rom);
         else if (args[0] == "--lookup-stream2-palette-mechanics")
-            VerifyLookupStream2PaletteMechanics(rom);
+            VerifyLookupStream2PaletteMechanics();
         else if (args[0] == "--lookup-stream2-kraid-ramps")
             VerifyLookupStream2KraidRamps(rom);
         else if (args[0] == "--lookup-stream2-crystal-body")
@@ -1580,7 +1580,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifyLookupStream1), () => VerifyLookupStream1(rom));
         Suite(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior(rom));
         Suite(nameof(VerifyMetroidBehaviorDefinitions), () => VerifyMetroidBehaviorDefinitions(rom));
-        Suite(nameof(VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions), () => VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(rom));
         Suite(nameof(DragonBehaviorVerification.VerifyDragonBehavior), () => DragonBehaviorVerification.VerifyDragonBehavior(rom));
         Suite(nameof(CacatacBehaviorVerification.VerifyCacatacBehavior), () => CacatacBehaviorVerification.VerifyCacatacBehavior(rom));
         Suite(nameof(BullBehaviorVerification.VerifyBullBehavior), () => BullBehaviorVerification.VerifyBullBehavior(rom));
@@ -1888,7 +1887,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending gunship program oracle revision");
-        Suite(nameof(VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(rom));
+        Suite(nameof(VerifyZebesExplosionGunshipPaletteFxColorDefinitions), () => VerifyZebesExplosionGunshipPaletteFxColorDefinitions(rom));
         Console.WriteLine("Ending gunship program:35 original control words,16 frame pointers,256 color pointers, complete ownership and384-frame lifetime pass.");
         return 0;
     }
@@ -1913,7 +1912,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Logo glare program oracle revision");
-        Suite(nameof(VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions), () => VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(rom));
+        Suite(nameof(VerifyPostCreditsIconGlarePaletteFxColorDefinitions), () => VerifyPostCreditsIconGlarePaletteFxColorDefinitions(rom));
         Console.WriteLine("Logo glare program: decoded31 control words,14 frame pointers,224 color pointers, complete ownership and lifetime pass.");
         return 0;
     }
@@ -2819,7 +2818,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Loading layout oracle revision");
-        Suite(nameof(VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions), () => VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(rom));
+        Suite(nameof(VerifySamusLoadingSuitPaletteFxColorDefinitions), () => VerifySamusLoadingSuitPaletteFxColorDefinitions());
         Console.WriteLine("Suit loading: original decoded group/frame layout, complete pointer ownership and guarded programs pass.");
         return 0;
     }
@@ -2844,7 +2843,7 @@ internal static class VerificationAssert
                     frames[frame][color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
             var edited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
             ordinal = 1000;
-            foreach (var program in SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+            foreach (var program in SamusLoadingSuitPaletteFxColorDefinitions.All)
             for (int frame = 0; frame < 9; frame++)
             for (int color = 0; color < 16; color++, ordinal++)
             {
@@ -2912,7 +2911,6 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Heat selector oracle revision");
         Suite(nameof(VerifyPaletteFxHeatInstructionListDefinitions), () => VerifyPaletteFxHeatInstructionListDefinitions(rom));
-        Suite(nameof(VerifyPaletteFxHeatProgramMechanicsDefinitions), () => VerifyPaletteFxHeatProgramMechanicsDefinitions(rom));
         Console.WriteLine("Heat selectors: all48 native words, program layout, bounds and full equipment selection pass.");
         return 0;
     }

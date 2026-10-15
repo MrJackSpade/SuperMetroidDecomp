@@ -23,7 +23,7 @@ public static class HyperBeamFxColorExtractor
         var frames = new PaletteRgb5[HyperBeamFxColorFormat.FrameCount][];
         for (int frame = 0; frame < frames.Length; frame++)
         {
-            ushort pointer = HyperBeamPaletteFxProgramDefinitions.FrameColorsPointer(frame);
+            ushort pointer = HyperBeamPaletteFxColorDefinitions.FrameColorsPointer(frame);
             frames[frame] = new PaletteRgb5[HyperBeamFxColorFormat.ColorsPerFrame];
             for (int color = 0; color < frames[frame].Length; color++)
             {

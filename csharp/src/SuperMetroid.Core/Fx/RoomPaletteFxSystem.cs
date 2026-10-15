@@ -243,7 +243,7 @@ public sealed class RoomPaletteFxSystem
 
             case PaletteFxPreInstruction.SwitchAboveY380:
                 if (conditions.SamusY <
-                    CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY)
+                    CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
                 {
                     slot.InstructionTimer = NativeCountdown.Start(1);
                     slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.Crateria11);
@@ -252,7 +252,7 @@ public sealed class RoomPaletteFxSystem
 
             case PaletteFxPreInstruction.SwitchAboveY380Second:
                 if (conditions.SamusY <
-                    CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY)
+                    CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
                 {
                     slot.InstructionTimer = NativeCountdown.Start(1);
                     slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.CrateriaAboveY380Second);

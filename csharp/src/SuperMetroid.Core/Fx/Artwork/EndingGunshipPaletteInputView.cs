@@ -157,7 +157,7 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
     }
 
     /// <summary>Finds the native final-frame color address for one selected gunship ink.</summary>
-    private static ushort Pointer(EndingGunshipPaletteInk ink) => ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(15, (int)ink);
+    private static ushort Pointer(EndingGunshipPaletteInk ink) => ZebesExplosionGunshipPaletteFxColorDefinitions.ColorPointer(15, (int)ink);
     /// <summary>Requires a stored fade color or reconstructed final-frame ink at its native address.</summary>
     public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
     /// <summary>Includes ordinary stored colors and thirteen reconstructed painted inks.</summary>

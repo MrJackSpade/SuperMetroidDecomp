@@ -19,7 +19,7 @@ internal static class TitleAmbientColorDefinitions
     internal static bool TryCalculate(ushort pointer, ReadOnlySpan<Bgr555> initial,
         IReadOnlyDictionary<ushort, Bgr555> supplied, out Bgr555 color)
     {
-        var tube = TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeLight;
+        var tube = TitleScreenAmbientPaletteFxColorDefinitions.TubeLight;
         if (TryCoordinates(tube, pointer, out int frame, out int index))
         {
             Bgr555 first = initial[tube.ColorByteIndex / Bgr555.ByteCount + index];
@@ -30,7 +30,7 @@ internal static class TitleAmbientColorDefinitions
             color = first.Map((_, channel) => Channel(channel, phase));
             return true;
         }
-        var displays = TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.Displays;
+        var displays = TitleScreenAmbientPaletteFxColorDefinitions.Displays;
         if (TryCoordinates(displays, pointer, out frame, out index))
         {
             int paletteIndex = frame == 0 ? displays.ColorByteIndex / Bgr555.ByteCount + index
@@ -45,7 +45,7 @@ internal static class TitleAmbientColorDefinitions
     /// <summary>Dims one RGB5 channel by the reviewed three-unit scale with exact nearest-even integer rounding.</summary>
     private static int Channel(int first, int phase)
     {
-        int steps = Math.Min(TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeDimmingSteps,
+        int steps = Math.Min(TitleScreenAmbientPaletteFxColorDefinitions.TubeDimmingSteps,
             (first + ShadeStep - 1) / ShadeStep);
         int endpoint = Math.Max(0, first - ShadeStep * steps);
         if (phase >= steps) return endpoint;
@@ -57,7 +57,7 @@ internal static class TitleAmbientColorDefinitions
     }
 
     /// <summary>Decodes an aligned color pointer within a title FX program into frame and within-frame color indices.</summary>
-    private static bool TryCoordinates(TitleScreenAmbientPaletteFxProgramDefinition program,
+    private static bool TryCoordinates(TitleScreenAmbientPaletteFxColorDefinition program,
         ushort pointer, out int frame, out int index)
     {
         int offset = pointer - program.FirstFramePointer - Bgr555.ByteCount;

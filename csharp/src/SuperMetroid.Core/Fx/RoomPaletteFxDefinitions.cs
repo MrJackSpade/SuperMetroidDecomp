@@ -132,7 +132,7 @@ internal static class RoomPaletteFxDefinitions
             (AreaId.Tourian, 4) => 0xFFCD,
             (AreaId.Tourian, 5) => 0xFFD1,
             (AreaId.Tourian, 6) => 0xFFD5,
-            _ => PaletteFxDeleteProgramMechanicsDefinitions.EmptyRoomEffectDefinition,
+            _ => PaletteFxDeleteDefinitions.EmptyRoomEffectDefinition,
         };
     }
 

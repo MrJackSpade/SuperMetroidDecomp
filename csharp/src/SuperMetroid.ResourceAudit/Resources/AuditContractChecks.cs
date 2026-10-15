@@ -135,10 +135,10 @@ internal static class AuditContractChecks
         var exports = new ResourceIndex();
         PaletteDefinitionAudit.InstallColorIdentities(exports);
         var report = new AuditReport();
-        foreach (BrinstarBlueSporePaletteFxProgramDefinition definition in BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All)
+        foreach (BrinstarBlueSporePaletteFxColorDefinition definition in BrinstarBlueSporePaletteFxColorDefinitions.All)
             report.Require(ResourceDomains.PaletteFx, "alias fixture",
                 ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, definition.ColorPointer(0, 0)), "fixture.cs", exports);
-        foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        foreach (TitleScreenAmbientPaletteFxColorDefinition definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
             report.Require(ResourceDomains.PaletteFx, "title fixture",
                 ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, definition.FramePointer(0) + sizeof(ushort)), "fixture.cs", exports);
         Require(report.Findings.Count == 0, "shared aliases and the independent title provider must be recognized");

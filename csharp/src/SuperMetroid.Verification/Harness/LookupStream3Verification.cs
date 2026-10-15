@@ -1258,24 +1258,13 @@ internal static class LookupStream3Verification
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(creditsJson)), credits.ContentIdentity, "stream 3 credits source identity preserved");
         foreach (int invalid in new[] { -1, credits.RowCount, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = credits.GetRow(invalid).Length, "stream 3 calculated credits row bounds");
-        Suite(nameof(VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions), () => VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace)rom));
-        foreach (var lightning in CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
-        {
-            foreach (int invalid in new[] { -1, lightning.Frames.Count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => _ = lightning.Frames[invalid], "stream 3 lightning frame bounds");
-            foreach (int invalid in new[] { -1, lightning.MechanicsWords.Count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => _ = lightning.MechanicsWords[invalid], "stream 3 lightning mechanics bounds");
-            foreach (int invalid in new[] { -1, 2, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => _ = lightning.MechanicsBytes[invalid], "stream 3 lightning timer bounds");
-        }
-        Suite(nameof(VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions), () => VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace)rom));
-        var escapePrograms = CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All;
+        var escapePrograms = CrateriaEscapeLightningPaletteFxColorDefinitions.All;
         AssertEqual(2, escapePrograms.Count, "stream 3 escape lightning owner count");
         AssertTrue(escapePrograms.Select(program => program.Owner).SequenceEqual(new[] { CrateriaEscapeLightningPaletteOwner.YellowLightning, CrateriaEscapeLightningPaletteOwner.CreBlockPixel }), "stream 3 escape lightning owner order");
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = escapePrograms[invalid], "stream 3 escape lightning owner bounds");
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.Duration(invalid), "stream 3 escape lightning duration bounds");
+            AssertThrows<IndexOutOfRangeException>(() => CrateriaEscapeLightningPaletteFxColorDefinitions.Duration(invalid), "stream 3 escape lightning duration bounds");
         Suite(nameof(VerifyGrappleConnectionDefinitions), () => VerifyGrappleConnectionDefinitions((SuperMetroidAddressSpace)rom));
         Suite(nameof(VerifyMotherBrainTurretDefinitions), () => VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom));
         foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
@@ -3328,17 +3317,17 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3NintendoFadeEntries()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var entries = NintendoLogoFadePaletteFxProgramMechanicsDefinitionsTooling.All;
+        var entries = NintendoLogoFadePaletteFxColorDefinitionsTooling.All;
         AssertEqual(2, entries.Count, "both semantic Nintendo fade entries");
         foreach (var entry in new[]
         {
-            (DefinitionPointer: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoDefinitionPointer,
-                ProgramStart: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoEntry,
-                ColorByteIndex: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.BootLogoColorByteIndex,
+            (DefinitionPointer: NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer,
+                ProgramStart: NintendoLogoFadePaletteFxColorDefinitions.BootLogoEntry,
+                ColorByteIndex: NintendoLogoFadePaletteFxColorDefinitions.BootLogoColorByteIndex,
                 BranchesToSharedBody: false),
-            (DefinitionPointer: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CopyrightDefinitionPointer,
-                ProgramStart: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CopyrightEntry,
-                ColorByteIndex: NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CopyrightColorByteIndex,
+            (DefinitionPointer: NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer,
+                ProgramStart: NintendoLogoFadePaletteFxColorDefinitions.CopyrightEntry,
+                ColorByteIndex: NintendoLogoFadePaletteFxColorDefinitions.CopyrightColorByteIndex,
                 BranchesToSharedBody: true),
         })
         {
@@ -3352,10 +3341,10 @@ internal static class LookupStream3Verification
             {
                 AssertEqual((ushort)PaletteFxInstruction.Goto, ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 4)),
                     "copyright actually branches");
-                AssertEqual(NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FirstFramePointer,
+                AssertEqual(NintendoLogoFadePaletteFxColorDefinitions.FirstFramePointer,
                     ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 6)), "copyright branch target");
             }
-            else AssertEqual(NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FirstFramePointer,
+            else AssertEqual(NintendoLogoFadePaletteFxColorDefinitions.FirstFramePointer,
                 (ushort)(entry.ProgramStart + 4), "boot actually falls through");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => _ = entries[-1], "fade entry lower bound");

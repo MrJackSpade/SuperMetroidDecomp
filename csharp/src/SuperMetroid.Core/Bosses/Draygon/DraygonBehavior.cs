@@ -1564,7 +1564,9 @@ internal sealed class DraygonBehavior : IEnemySpecies
 
         samus.DraygonGrabbed.Begin(_room.LoadedBus, samus, state.FacingRight);
         _roomStatus.DraygonDiscardedSamusPoseRequestsThisFrame = true;
-        state.SpiralCenter = FixedPosition<RoomPixels>.FromWhole(DraygonSpiralTarget);
+        // `$A5:8EDB-$8EE5` set the whole spiral center only; the Y fraction (`$7E:7814`) carries over from
+        // the previous spiral of this fight, so the first lift after a re-grab borrows on the native frame.
+        state.SpiralCenter = state.SpiralCenter.WithWhole(DraygonSpiralTarget);
         state.SpiralXRadius = 0;
         state.SpiralXSubradius = 0;
         state.SpiralAngle = DraygonInitialSpiralAngle;

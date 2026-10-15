@@ -157,7 +157,16 @@ internal static class FullMovieReplayVerification
             // A confirmation box can continue from the previous dispatch into this
             // NMI continuation; its MessageBox_Routine entry belongs to that dispatch.
             bool boxContinues = game.RuntimeForVerification?.MessageBox.IsActive == true;
-            game.Step(SnesButtons.FromRaw(step.Input, $"movie update {update}"));
+            try
+            {
+                game.Step(SnesButtons.FromRaw(step.Input, $"movie update {update}"));
+            }
+            catch (Exception exception) when (exception is InvalidOperationException or NotSupportedException or InvalidDataException)
+            {
+                // Name the update a production failure happened on; the original stays the inner exception.
+                throw new InvalidOperationException(
+                    $"{movie.Name} movie update {update} (source frame {step.SourceFrame}) failed in production code.", exception);
+            }
             uploadNmis.AssertSettled();
             // Bank $85's message box runs inside this dispatch on lag frames, polling the
             // joypad registers rather than accepting NMIs, so the box spans this update's
@@ -309,7 +318,9 @@ internal static class FullMovieReplayVerification
                 int slotBase = MovieDesyncMemory.EnemyBase + actor.NativeIndex;
                 Console.WriteLine($"  enemy {actor.NativeIndex / MovieDesyncMemory.EnemyStride} {(int)actor.EnemyDefinitionPointer:X4} " +
                     $"port inst={actor.CurrentInstruction:X4}/{actor.InstructionTimer.RawValue:X4} prop={actor.Properties:X4} " +
-                    $"native inst={Native(slotBase + 0x1a)}/{Native(slotBase + 0x1c)} prop={Native(slotBase + 0x0e)}");
+                    $"pos={actor.Position.X.Whole:X4}.{actor.Position.X.Fraction:X4}/{actor.Position.Y.Whole:X4}.{actor.Position.Y.Fraction:X4} " +
+                    $"native inst={Native(slotBase + 0x1a)}/{Native(slotBase + 0x1c)} prop={Native(slotBase + 0x0e)} " +
+                    $"pos={Native(slotBase + 2)}.{Native(slotBase + 4)}/{Native(slotBase + 6)}.{Native(slotBase + 8)}");
             }
         }
         if (game.RuntimeForVerification?.Enemies.MotherBrainEncounter.MotherBrain?.BabyMetroid is { } baby)

@@ -80,7 +80,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorEntryEnemySoundVerificati
 using static SuperMetroid.Verification.Rooms.Doors.DoorEntryRoomFxSoundVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorEntryShotBindingVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonGoopTouchOrderVerification;
-using static SuperMetroid.Verification.Bosses.Draygon.DraygonGrabPoseRequestsVerification;
+using static SuperMetroid.Verification.Bosses.Draygon.DraygonGrabVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorMusicTimingVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorOrientationDomainVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorSoundsDuringPowerBombVerification;
@@ -762,6 +762,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDoorEntryShotBinding), () => VerifyDoorEntryShotBinding()),
         new(nameof(VerifyDraygonGoopTouchOrder), () => VerifyDraygonGoopTouchOrder()),
         new(nameof(VerifyDraygonGrabPoseRequests), () => VerifyDraygonGrabPoseRequests()),
+        new(nameof(VerifyDraygonGrabSpiralFraction), () => VerifyDraygonGrabSpiralFraction()),
         new(nameof(VerifyGoldNinjaDeathDrops), () => VerifyGoldNinjaDeathDrops()),
         new(nameof(VerifyDoorEntryEnemySound), () => VerifyDoorEntryEnemySound()),
         new(nameof(VerifySpringBallFallingFallback), () => VerifySpringBallFallingFallback()),

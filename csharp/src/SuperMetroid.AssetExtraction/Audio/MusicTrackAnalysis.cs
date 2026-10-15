@@ -25,6 +25,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// <param name="StartSample">The driver tick that started the track (the music port took the track number).</param>
 /// <param name="StartTempoPhase">The tempo accumulator after that tick.</param>
 /// <param name="TempoChanges">The tempo's whole byte after the start tick and after every tick that changed it, by tick sample.</param>
+/// <param name="EchoStates">Each distinct echo entry-state group the track held after its start, as a key, in order of first appearance.</param>
 internal sealed record MusicTrackAnalysis(
     AudioBank Bank,
     int Track,
@@ -39,7 +40,8 @@ internal sealed record MusicTrackAnalysis(
     byte MaximumEchoDelay,
     long StartSample,
     byte StartTempoPhase,
-    IReadOnlyList<(long Sample, byte Tempo)> TempoChanges)
+    IReadOnlyList<(long Sample, byte Tempo)> TempoChanges,
+    IReadOnlyList<string> EchoStates)
 {
     /// <summary>The intro's length: E2 for a looping track, the end for an ending one.</summary>
     internal long IntroSamples => Shape switch
@@ -82,7 +84,7 @@ internal sealed record MusicTrackAnalysis(
             bank, track, pointer, observer.Outcome.Value, observer.EndSample, observer.AnchorArrivals,
             observer.TempoPhaseRepeats, observer.PhraseStarts, observer.NoiseVoices, observer.EchoVoices,
             observer.MaximumEchoDelay, observer.StartSample ?? throw new InvalidDataException($"{bank} track {track} never started."),
-            observer.StartTempoPhase, observer.TempoChanges);
+            observer.StartTempoPhase, observer.TempoChanges, observer.EchoStates);
     }
 
     /// <summary>
@@ -220,6 +222,12 @@ internal sealed record MusicTrackAnalysis(
         internal byte StartTempoPhase { get; private set; }
         /// <summary>The tempo after the start tick and after each tick that changed it.</summary>
         internal List<(long Sample, byte Tempo)> TempoChanges { get; } = [];
+        /// <summary>Distinct echo-group keys held after the start, in order of first appearance.</summary>
+        internal List<string> EchoStates { get; } = [];
+        /// <summary>Echo-group keys already recorded.</summary>
+        private readonly HashSet<string> echoSeen = [];
+        /// <summary>Reusable echo-group buffer.</summary>
+        private readonly List<byte> echoState = [];
 
         /// <summary>Binds the renderer once it exists.</summary>
         internal void Attach(SpcAudioClipRenderer value) => renderer = value;
@@ -272,6 +280,11 @@ internal sealed record MusicTrackAnalysis(
                 }
                 if (TempoChanges.Count == 0 || TempoChanges[^1].Tempo != tempo)
                     TempoChanges.Add((tickSample, tempo));
+                echoState.Clear();
+                player.WriteEntryGroupState(SpcEntryStateGroup.Echo, echoState);
+                string echoKey = Convert.ToBase64String([.. echoState]);
+                if (echoSeen.Add(echoKey))
+                    EchoStates.Add(echoKey);
                 started = true;
             }
             else if (started && Outcome is null)

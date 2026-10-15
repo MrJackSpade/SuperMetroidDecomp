@@ -81,8 +81,8 @@ internal static class MusicTrackRendering
     /// <paramref name="donor"/> just before the track is selected, and compares it with the
     /// canonical render over the track's intro and first loop body (or to its end).
     /// </summary>
-    /// <returns>The first differing stereo frame, or null when identical.</returns>
-    internal static long? FirstEntryDifference(
+    /// <returns>How the perturbed render differs from the canonical one over that span.</returns>
+    internal static SeamProfile EntryDifference(
         ExtractedAudioAssetCatalog catalog,
         MusicTrackAnalysis track,
         short[] canonical,
@@ -93,21 +93,19 @@ internal static class MusicTrackRendering
         var renderer = new SpcAudioClipRenderer(catalog);
         MusicTrackAnalysis.QueueBanks(renderer, track.Bank);
         short[] frame = new short[SpcAudioClipRenderer.NativeSamplesPerFrame];
+        var perturbed = new List<short>(canonical.Length);
         renderer.RenderFrame(frame);
-        long? first = FirstDifference(frame, canonical, 0, compared);
-        if (first is not null)
+        perturbed.AddRange(frame);
+        if (FirstDifference(frame, canonical, 0, compared) is not null)
             throw new InvalidOperationException("Entry renders diverged before the perturbation was applied.");
         renderer.Player.CopyEntryGroup(group, donor);
         renderer.WriteMusicPort(unchecked((byte)track.Track));
-        while ((renderer.Frame * ManagedSnesDsp.NativeStereoFramesPerVideoFrame) < compared)
+        while (perturbed.Count < compared * 2)
         {
-            long offset = renderer.Frame * ManagedSnesDsp.NativeStereoFramesPerVideoFrame;
             renderer.RenderFrame(frame);
-            first = FirstDifference(frame, canonical, offset, compared);
-            if (first is not null)
-                return first;
+            perturbed.AddRange(frame);
         }
-        return null;
+        return SeamProfile.Compare(canonical, perturbed, compared);
     }
 
     /// <summary>The first stereo frame at or after <paramref name="offset"/> where a rendered frame differs from <paramref name="reference"/>, within <paramref name="limit"/>.</summary>

@@ -24,8 +24,16 @@ internal sealed record SeamProfile(
     /// <summary>Whether the candidate loop repeats the cartridge's audio sample-exactly.</summary>
     internal bool Exact => DifferingFrames == 0;
 
+    /// <summary>Compares the first <paramref name="length"/> stereo frames of two renders.</summary>
+    internal static SeamProfile Compare(IReadOnlyList<short> expected, IReadOnlyList<short> actual, long length) =>
+        Compare(index => expected[index], index => actual[index], 0, 0, length);
+
     /// <summary>Compares <paramref name="length"/> stereo frames of <paramref name="pcm"/> at two stereo-frame offsets.</summary>
-    internal static SeamProfile Compare(IReadOnlyList<short> pcm, long loopStart, long nextStart, long length)
+    internal static SeamProfile Compare(IReadOnlyList<short> pcm, long loopStart, long nextStart, long length) =>
+        Compare(index => pcm[index], index => pcm[index], loopStart, nextStart, length);
+
+    /// <summary>Compares <paramref name="length"/> stereo frames read through two sample accessors at two offsets.</summary>
+    private static SeamProfile Compare(Func<int, short> readFirst, Func<int, short> readSecond, long loopStart, long nextStart, long length)
     {
         long differing = 0;
         long first = -1;
@@ -34,8 +42,8 @@ internal sealed record SeamProfile(
         int wrap = 0;
         for (long frame = 0; frame < length; frame++)
         {
-            int left = Math.Abs(pcm[(int)((loopStart + frame) * 2)] - pcm[(int)((nextStart + frame) * 2)]);
-            int right = Math.Abs(pcm[(int)((loopStart + frame) * 2 + 1)] - pcm[(int)((nextStart + frame) * 2 + 1)]);
+            int left = Math.Abs(readFirst((int)((loopStart + frame) * 2)) - readSecond((int)((nextStart + frame) * 2)));
+            int right = Math.Abs(readFirst((int)((loopStart + frame) * 2 + 1)) - readSecond((int)((nextStart + frame) * 2 + 1)));
             int difference = Math.Max(left, right);
             if (difference == 0)
                 continue;

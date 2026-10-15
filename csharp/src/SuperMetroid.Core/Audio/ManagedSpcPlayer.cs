@@ -1623,6 +1623,53 @@ public sealed class ManagedSpcPlayer
         }
     }
 
+    /// <summary>
+    /// Appends the state <see cref="CopyEntryGroup"/> would copy for <paramref name="group"/>, so
+    /// offline analysis (#1305) can key entry variants by it. Echo writes the echo fields, the
+    /// echo-write-disable flag and the DSP's delay, buffer page and FIR registers.
+    /// </summary>
+    internal void WriteEntryGroupState(SpcEntryStateGroup group, List<byte> state)
+    {
+        Ensure.NotNull(state);
+        switch (group)
+        {
+            case SpcEntryStateGroup.Echo:
+                state.AddRange(
+                [
+                    echoEnable, echoStoredTime, echoDelay, echoFeedback, lastWrittenEchoDelay,
+                    echoVolumeFadeTicks, echoVolumeFadeTargetLeft, echoVolumeFadeTargetRight,
+                    unchecked((byte)(dspFlags & SpcDriverDefinitions.Echo.WriteDisable)),
+                ]);
+                foreach (ushort word in (ReadOnlySpan<ushort>)[echoVolumeLeft, echoVolumeRight, echoVolumeFadeAddLeft, echoVolumeFadeAddRight])
+                {
+                    state.Add(SnesLittleEndian.LowByte(word));
+                    state.Add(SnesLittleEndian.HighByte(word));
+                }
+                WriteEchoDspRegisters(state);
+                break;
+            case SpcEntryStateGroup.Noise:
+                state.Add(noiseEnable);
+                state.Add(unchecked((byte)(dspFlags & SnesDspRegisterLayout.Fields.NoiseRateMask)));
+                break;
+            case SpcEntryStateGroup.Channels:
+                foreach (ManagedSpcMusicChannel channel in channels)
+                    channel.WriteState(state);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(group), group, "Unknown SPC entry-state group.");
+        }
+    }
+
+    /// <summary>Appends the DSP's echo delay, echo buffer page and eight FIR coefficient registers.</summary>
+    [DspRegisterBoundary("analysis: entry-state keys read raw echo register values")]
+    private void WriteEchoDspRegisters(List<byte> state)
+    {
+        state.Add(dsp.registers[(byte)DspGlobalRegister.EchoDelay]);
+        state.Add(dsp.registers[(byte)DspGlobalRegister.EchoBufferAddress]);
+        for (int tap = 0; tap < SpcDriverDefinitions.Echo.FirTapCount; tap++)
+            state.Add(dsp.registers[SnesDspRegisterLayout.FirstFirCoefficient + tap * SnesDspRegisterLayout.VoiceStride]);
+    }
+
     /// <summary>Writes <paramref name="donor"/>'s echo delay, echo buffer page and eight FIR coefficients through this DSP's register writes.</summary>
     [DspRegisterBoundary("analysis: entry-state transplant copies raw register values between two DSPs")]
     private void CopyEchoDspRegisters(ManagedSpcPlayer donor)

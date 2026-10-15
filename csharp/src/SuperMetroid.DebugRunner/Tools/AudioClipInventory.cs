@@ -75,11 +75,11 @@ internal static class AudioClipInventory
                 ? Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
                     System.Runtime.InteropServices.MemoryMarshal.AsBytes(canonical.AsSpan(0, (int)(track.Arrivals[1] * 2)))))
                 : clipHash;
-            long? echo = MusicTrackRendering.FirstEntryDifference(catalog, track, canonical, SpcEntryStateGroup.Echo, echoDonorPlayer);
-            long? noise = noiseDonorPlayer is null
+            SeamProfile echo = MusicTrackRendering.EntryDifference(catalog, track, canonical, SpcEntryStateGroup.Echo, echoDonorPlayer);
+            SeamProfile? noise = noiseDonorPlayer is null
                 ? null
-                : MusicTrackRendering.FirstEntryDifference(catalog, track, canonical, SpcEntryStateGroup.Noise, noiseDonorPlayer);
-            long? channels = MusicTrackRendering.FirstEntryDifference(catalog, track, canonical, SpcEntryStateGroup.Channels, echoDonorPlayer);
+                : MusicTrackRendering.EntryDifference(catalog, track, canonical, SpcEntryStateGroup.Noise, noiseDonorPlayer);
+            SeamProfile channels = MusicTrackRendering.EntryDifference(catalog, track, canonical, SpcEntryStateGroup.Channels, echoDonorPlayer);
             pcmResults[index] = new MusicPcmResult(track.Bank, track.Track, canonical.Length / 2,
                 seam, earlySeam, clipHash, earlyClipHash, echo, noise, channels);
             return pcmResults[index];
@@ -127,6 +127,22 @@ internal static class AudioClipInventory
         options.Converters.Add(new JsonStringEnumConverter());
         File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.json"), JsonSerializer.Serialize(inventory, options));
         var phaseSection = new System.Text.StringBuilder();
+        string[] allEchoStates = [.. tracks.SelectMany(track => track.EchoStates).Distinct()];
+        MusicPcmResult[] echoSensitive = [.. pcmResults.Where(result => !result.EchoEntryDifference.Exact)];
+        phaseSection.AppendLine();
+        phaseSection.AppendLine("## Echo entry states");
+        phaseSection.AppendLine();
+        phaseSection.AppendLine($"- Distinct echo states held by any track after its start: {allEchoStates.Length}.");
+        phaseSection.AppendLine($"- Tracks per number of echo states: {string.Join(", ", tracks.GroupBy(track => track.EchoStates.Count).OrderBy(group => group.Key).Select(group => $"{group.Key}: {group.Count()}"))}.");
+        phaseSection.AppendLine($"- Echo-sensitive entries: {echoSensitive.Length}; distinct clips among them: {echoSensitive.Select(result => result.ClipSha256).Distinct().Count()}.");
+        foreach (MusicPcmResult result in echoSensitive.DistinctBy(result => result.ClipSha256))
+        {
+            MusicTrackAnalysis analysis = tracks.First(track => track.Bank == result.Bank && track.Track == result.Track);
+            long clipEnd = analysis.Shape == MusicTrackShape.Loops ? analysis.Arrivals[1] : analysis.IntroSamples;
+            phaseSection.AppendLine(
+                $"  - {result.Bank} track {result.Track}: differs {Seconds(result.EchoEntryDifference.FirstDifference)}-{Seconds(result.EchoEntryDifference.LastDifference)} s " +
+                $"of a {Seconds(clipEnd)} s clip ({result.EchoEntryDifference.DifferingFrames} frames), echo states held {analysis.EchoStates.Count}");
+        }
         phaseSection.AppendLine();
         phaseSection.AppendLine("## Tempo-phase periods");
         phaseSection.AppendLine();
@@ -228,7 +244,8 @@ internal static class AudioClipInventory
         foreach (MusicTrackAnalysis track in inventory.Tracks)
         {
             MusicPcmResult? pcm = inventory.MusicPcm.FirstOrDefault(result => result.Bank == track.Bank && result.Track == track.Track);
-            string Entry(long? first) => pcm is null ? "-" : first is null ? "same" : $"differs at {Seconds(first.Value)} s";
+            string Entry(SeamProfile? difference) => pcm is null || difference is null ? "-" : difference.Exact ? "same"
+                : $"differs {Seconds(difference.FirstDifference)}-{Seconds(difference.LastDifference)} s";
             text.AppendLine(
                 $"| {track.Bank} | {track.Track} | {track.Shape} | {Seconds(track.IntroSamples)} | {Seconds(track.LoopSamples)} | " +
                 $"{(track.Arrivals.Count == 3 ? Seconds(track.Arrivals[0]) : "-")} | " +
@@ -335,9 +352,9 @@ internal static class AudioClipInventory
     /// <param name="EarlySeam">How the shorter loop [E1, E2) differs from [E2, E3); null for an ending track.</param>
     /// <param name="ClipSha256">Hash of the clip PCM [0, E3), or to the end for an ending track.</param>
     /// <param name="EarlyClipSha256">Hash of the shorter clip PCM [0, E2), or to the end for an ending track.</param>
-    /// <param name="EchoEntryDifference">First stereo frame changed by the echo donor's entry state, or null if none.</param>
-    /// <param name="NoiseEntryDifference">First stereo frame changed by the noise donor's entry state, or null if none or no donor.</param>
-    /// <param name="ChannelEntryDifference">First stereo frame changed by the donor's music-voice fields, or null if none.</param>
+    /// <param name="EchoEntryDifference">How the echo donor's entry state changes the render.</param>
+    /// <param name="NoiseEntryDifference">How the noise donor's entry state changes the render, or null with no donor.</param>
+    /// <param name="ChannelEntryDifference">How the donor's music-voice fields change the render.</param>
     private sealed record MusicPcmResult(
         AudioBank Bank,
         int Track,
@@ -346,9 +363,9 @@ internal static class AudioClipInventory
         SeamProfile? EarlySeam,
         string ClipSha256,
         string EarlyClipSha256,
-        long? EchoEntryDifference,
-        long? NoiseEntryDifference,
-        long? ChannelEntryDifference);
+        SeamProfile EchoEntryDifference,
+        SeamProfile? NoiseEntryDifference,
+        SeamProfile ChannelEntryDifference);
 
     /// <summary>Wall and summed per-item seconds of one phase.</summary>
     /// <param name="Phase">The phase's name.</param>

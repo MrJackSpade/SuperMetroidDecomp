@@ -99,6 +99,15 @@ internal static class PlmProgramAudit
             PlmHeaderId.UpwardsScrollExtension => "SetupScrollSlot / TryStepScrollPlm (extensions delete during setup)",
             PlmHeaderId.MapStation or PlmHeaderId.EnergyStation or
             PlmHeaderId.MissileStation or PlmHeaderId.SaveStation => "SetupStation / TryStepStation",
+            PlmHeaderId.NoobTube => "NoobTubePlmAnimation",
+            PlmHeaderId.SpeedBoosterEscape => "SpeedBoosterEscapePlmAnimation",
+            PlmHeaderId.SetMetroidsClearedStatesWhenRequired => "RoomPlmSharedAnimation (sleep)",
+            PlmHeaderId.WreckedShipAttic => "WreckedShipAtticPlmAnimation",
+            PlmHeaderId.DownwardGate or PlmHeaderId.DownwardGateShotBlock => "DownwardGatePlmAnimation",
+            PlmHeaderId.DraygonCannonFacingRight or PlmHeaderId.DraygonCannonFacingRightDestroyed or
+            PlmHeaderId.DraygonCannonFacingLeft => "DraygonCannonPlmAnimation",
+            PlmHeaderId.MotherBrainGlass => "MotherBrainGlassPlmAnimation",
+            PlmHeaderId.BombTorizoHand => "BombTorizoHandPlmAnimation",
             _ => null,
         };
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Fx;
@@ -78,5 +79,29 @@ internal static class BossRoomPlmNativeListAddresses
         (DraygonCannonProgram.LeftHit, 0xddcb),
         (DraygonCannonProgram.LeftDestroy, 0xddec),
         (DraygonCannonProgram.LeftSmoke, 0xddee),
+    ];
+
+    /// <summary>Mother Brain's glass lists (<c>InstList_PLM_MotherBrainsGlass_0..1</c>, the stages after, and the unused resolved states).</summary>
+    internal static IReadOnlyList<(MotherBrainGlassPlmProgram Program, ushort Entry)> MotherBrainGlassEntries { get; } =
+    [
+        (MotherBrainGlassPlmProgram.Entry, 0xd202),
+        (MotherBrainGlassPlmProgram.Stage0, 0xd211),
+        (MotherBrainGlassPlmProgram.Stage1, 0xd21b),
+        (MotherBrainGlassPlmProgram.Stage2, 0xd225),
+        (MotherBrainGlassPlmProgram.Stage3, 0xd247),
+        (MotherBrainGlassPlmProgram.Stage4, 0xd251),
+        (MotherBrainGlassPlmProgram.Stage5, 0xd25b),
+        (MotherBrainGlassPlmProgram.Stage6, 0xd27d),
+        (MotherBrainGlassPlmProgram.Stage7, 0xd29f),
+        (MotherBrainGlassPlmProgram.Stage8, 0xd2c1),
+        (MotherBrainGlassPlmProgram.BossDead, 0xd2ed),
+        (MotherBrainGlassPlmProgram.NoGlass, 0xd2f3),
+    ];
+
+    /// <summary>The Bomb Torizo hand's list (<c>InstList_PLM_BombTorizosCrumblingChozo</c>) and its continuation after the sleep.</summary>
+    internal static IReadOnlyList<(BombTorizoHandProgram Program, ushort Entry)> BombTorizoHandEntries { get; } =
+    [
+        (BombTorizoHandProgram.Sleeping, 0xd368),
+        (BombTorizoHandProgram.Crumble, 0xd372),
     ];
 }

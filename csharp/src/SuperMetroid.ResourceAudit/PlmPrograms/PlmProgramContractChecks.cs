@@ -80,21 +80,7 @@ internal static class PlmProgramContractChecks
             .Visit(RoomPlmInstructionLists.PermanentShotBlock2x1, "reported CBBC omission");
         Require(regression.Findings.Single().Address == omitted, "The reported CBBC hole must fail this audit.");
 
-        // #1162: complete operands are insufficient when the source artwork was
-        // never installed. Recreate that precise missing-provider handoff statically.
-        var missingArtwork = new PlmProgramAuditReport();
-        new PlmProgramAudit.Walker(RoomPlmProgramDefinitions.TryReadWord,
-            RoomPlmProgramDefinitions.TryReadByte, _ => true, missingArtwork,
-            (_, _) => false).Visit(BombTorizoHandPlmProgramDefinitionsTooling.DebrisUploadInstruction, "reported missing debris art");
-        Require(missingArtwork.Findings.Single().Code == "missing-artwork-transfer" &&
-            missingArtwork.ArtworkTransfers == 1,
-            "The Bomb Torizo DMA must fail static closure when its artwork provider is absent.");
-        var installedArtwork = new PlmProgramAuditReport();
-        new PlmProgramAudit.Walker(RoomPlmProgramDefinitions.TryReadWord,
-            RoomPlmProgramDefinitions.TryReadByte, _ => true, installedArtwork)
-            .Visit(BombTorizoHandPlmProgramDefinitionsTooling.DebrisUploadInstruction, "installed debris art");
-        Require(installedArtwork.Findings.Count == 0 && installedArtwork.ArtworkTransfers == 1,
-            "The actual Torizo DMA must resolve the complete installed page.");
+        // #1162: the Bomb Torizo hand's debris transfer (now a typed cue) must name the complete installed page.
         TorizoInstructionTileSheetDefinition debris = TorizoInstructionVramArtworkDefinitions.ChozoDebris;
         Require(PlmVramArtworkAudit.OwnsInstalledTransfer(debris.SourceAddress, debris.ByteCount) &&
             !PlmVramArtworkAudit.OwnsInstalledTransfer(debris.SourceAddress, debris.ByteCount + 1),

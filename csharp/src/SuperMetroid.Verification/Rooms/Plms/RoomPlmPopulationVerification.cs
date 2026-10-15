@@ -525,14 +525,14 @@ internal static class RoomPlmPopulationVerification
         const int blockY = 4;
 
         SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.WreckedShipAttic + 2)),
-            RoomPlmInstructionLists.WreckedShipAttic);
+            RoomPlmNativeListAddresses.WreckedShipAtticEntries[0].Entry);
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
             : null;
         if (rom is not null)
             RoomPlmProgramsVerification.VerifyWreckedShipAtticPrograms(rom);
         for (int index = 0; index < 3; index++)
-            SeedPlmProgramWords(bus, checked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + index * 2)), 0xdead);
+            SeedPlmProgramWords(bus, checked((ushort)(RoomPlmNativeListAddresses.WreckedShipAtticEntries[0].Entry + index * 2)), 0xdead);
         SeedRoomPlmPopulation(bus, population,
         [
             0x05, 0xbb, blockX, blockY, 0x34, 0x12,
@@ -588,7 +588,7 @@ internal static class RoomPlmPopulationVerification
         const int width = 16;
         const int height = 16;
 
-        SeedPlmProgramWords(bus, 0xb8ae, RoomPlmInstructionLists.SpeedBoosterEscape);
+        SeedPlmProgramWords(bus, 0xb8ae, RoomPlmNativeListAddresses.SpeedBoosterEscapeEntries[0].Entry);
         // Poison the old cartridge path: all three real handoffs must now use
         // the compiled list even when a synthetic address space disagrees.
         for (int index = 0; index < RoomPlmNativeListAddresses.SpeedBoosterEscapeWordCount; index++)
@@ -962,7 +962,7 @@ internal static class RoomPlmPopulationVerification
     internal static void VerifyMetroidsClearedStatePlm(TestAddressSpace bus)
     {
         const ushort population = 0x9500;
-        SeedPlmProgramWords(bus, 0xdb46, RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired);
+        SeedPlmProgramWords(bus, 0xdb46, RoomPlmNativeListAddresses.SharedEntries[1].Entry);
         SeedPlmProgramWords(bus, 0xdb42, 0xdead);
         if (File.Exists("Super Metroid.smc"))
             RoomPlmProgramsVerification.VerifySharedPrograms(

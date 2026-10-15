@@ -16,15 +16,11 @@ csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBehavior.cs	SME6349	6
 csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHeadInstructionDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidMouthFlagBits.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainBehavior.cs	SME6349	4
-csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFakeDeathPlmDrawDefinitions.cs	SME6342	12
-csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainGlassPlmProgramDefinitions.cs	SME6341	11
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainPaletteWorkRam.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRoomPaletteProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaBehavior.cs	SME6340	25
 csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyClawOffsets.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoGreyDoorPlmProgramDefinitions.cs	SME6341	4
-csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlmProgramDefinitions.cs	SME6341	3
-csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlms.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlms.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Enemies/EnemyDeathsAndDrops.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipBehavior.cs	SME6349	3
@@ -275,7 +271,7 @@ csharp/src/SuperMetroid.Tooling/Core/Rooms/Doors/EyeDoorSweatInstructionProgramD
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionDefinitionsTooling.cs	SME6340	9
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionDefinitionsTooling.cs	SME6342	1
-csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/RoomPlmInstructionListsTooling.cs	SME6340	11
+csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/RoomPlmInstructionListsTooling.cs	SME6340	2
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/RoomPlmMemoryLayoutTooling.cs	SME6340	2
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/SaveStationElectricityInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Rooms/RoomAssetRomDataGraphicsLayoutTooling.cs	SME6340	2
@@ -400,8 +396,8 @@ csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonBurialEvirDefinitions
 csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonBurialEvirDefinitionsVerification.cs	SME6345	1
 csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonCannonPlmProgramVerification.cs	SME6340	49
 csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonCannonPlmProgramVerification.cs	SME6342	3
-csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonCannonPlmsVerification.cs	SME6340	64
-csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonCannonPlmsVerification.cs	SME6342	4
+csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonCannonPlmsVerification.cs	SME6340	25
+csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonCannonPlmsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonCannonVisualsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonDefeatedRoomVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Bosses/Draygon/DraygonEscapeDragVerification.cs	SME6340	7
@@ -508,7 +504,7 @@ csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainFakeDeathVisu
 csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainGeneratedVisualCatalogsVerification.cs	SME6340	38
 csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainGlassPlmDrawDefinitionsVerification.cs	SME6340	28
 csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainGlassPlmDrawDefinitionsVerification.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainGlassPlmProgramVerification.cs	SME6340	11
+csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainGlassPlmProgramVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainGlassPlmProgramVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainGlassShardDefinitionsVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainGlassSuperMissileVerification.cs	SME6340	3
@@ -1288,7 +1284,7 @@ csharp/src/SuperMetroid.Verification/Rooms/Plms/LookupTubeDrawsVerification.cs	S
 csharp/src/SuperMetroid.Verification/Rooms/Plms/LookupTubeDrawsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Rooms/Plms/LookupTubeProgramVerification.cs	SME6340	21
 csharp/src/SuperMetroid.Verification/Rooms/Plms/NoobTubePlmDrawDefinitionsVerification.cs	SME6340	24
-csharp/src/SuperMetroid.Verification/Rooms/Plms/NoobTubePlmVerification.cs	SME6340	138
+csharp/src/SuperMetroid.Verification/Rooms/Plms/NoobTubePlmVerification.cs	SME6340	91
 csharp/src/SuperMetroid.Verification/Rooms/Plms/NoobTubePlmVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Rooms/Plms/OldTourianEscapeShaftWallVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Rooms/Plms/PlmDrawCloneVerification.cs	SME6340	3
@@ -1301,7 +1297,6 @@ csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmHeaderCatalogVerification
 csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmInstructionListCatalogVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmPopulationDefinitionsVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmPopulationVerification.cs	SME6340	407
-csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmPopulationVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmPopulationVerification.cs	SME6342	17
 csharp/src/SuperMetroid.Verification/Rooms/Plms/SamusEaterPlmDefinitionsVerification.cs	SME6340	16
 csharp/src/SuperMetroid.Verification/Rooms/Plms/SamusEaterVisualsVerification.cs	SME6340	35

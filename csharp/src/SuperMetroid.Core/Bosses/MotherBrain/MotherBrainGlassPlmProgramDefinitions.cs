@@ -1,133 +1,102 @@
-using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Fx;
+using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassPlmProgram, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassDraw, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassPlmCue>;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// NTSC bank-$84 glass control program. Nine stages wait for successive even hit
-/// counts; five transitions emit two four-shard bursts around a four-tick draw.
-/// Named draw and branch cases express glass damage states, not stored ROM bytes.
-/// All 247 bytes and 246 overlapping word starts at D202..D2F8 remain supported.
+/// Mother Brain's glass PLM programs (#1296), in place of its bank-$84 instruction lists. On entry the glass shows
+/// cleared once the boss is dead, shattered once destroyed, and otherwise arms its hit wake and holds each of nine
+/// stages until the glass has taken two more hits; later stages burst into shards, and the last sets the destroyed
+/// event.
 /// </summary>
 internal static class MotherBrainGlassPlmProgramDefinitions
 {
-    /// <summary>$84:D202: main glass instruction list.</summary>
-    internal const ushort FirstAddress = 0xd202;
-    /// <summary>$84:D2F8: last byte of the no-glass branch, before callback code.</summary>
-    internal const ushort LastAddress = 0xd2f8;
-    /// <summary>$84:D1E6: increment the glass PLM room argument on a missile hit.</summary>
+    /// <summary><c>$84:D1E6</c>: the pre-instruction that counts missile hits on the glass.</summary>
     internal const ushort HitPreInstruction = 0xd1e6;
-    /// <summary>$84:D2ED: boss-dead branch selects cleared glass.</summary>
-    private const ushort BossDead = 0xd2ed;
-    /// <summary>$84:D2F3: persisted glass-destroyed branch selects final shatter.</summary>
-    private const ushort NoGlass = 0xd2f3;
-    /// <summary>$84:D211: first one-tick glass damage stage.</summary>
-    private const ushort Stages = 0xd211;
-    /// <summary>$86:CE61 shard placement: argument zero selects X offset +8.</summary>
-    private const ushort RightShard = 0;
-    /// <summary>$86:CE63 shard placement: argument two selects X offset -40.</summary>
-    private const ushort LeftShard = 2;
-    /// <summary>$86:CE65 shard placement: argument four selects X offset -16.</summary>
-    private const ushort CentreShard = 4;
+    /// <summary>How many hits each stage adds to the next stage's threshold.</summary>
+    private const ushort HitsPerStage = 2;
+    /// <summary>How long a burst's in-between image shows.</summary>
+    private const int BurstFrameDuration = 4;
+    /// <summary>How long the final shattered image shows before the destroyed event.</summary>
+    private const int FinalShatterDuration = 48;
 
-    /// <summary>Reads any overlapping word start in the compiled glass instruction range.</summary>
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
-    {
-        value = 0;
-        if (address is < FirstAddress or >= LastAddress) return false;
-        value = (ushort)(SnesLittleEndian.Word(ByteAt(address), ByteAt(address + 1)));
-        return true;
-    }
+    /// <summary>The stages in order.</summary>
+    private static readonly MotherBrainGlassPlmProgram[] Stages =
+    [
+        MotherBrainGlassPlmProgram.Stage0, MotherBrainGlassPlmProgram.Stage1, MotherBrainGlassPlmProgram.Stage2,
+        MotherBrainGlassPlmProgram.Stage3, MotherBrainGlassPlmProgram.Stage4, MotherBrainGlassPlmProgram.Stage5,
+        MotherBrainGlassPlmProgram.Stage6, MotherBrainGlassPlmProgram.Stage7, MotherBrainGlassPlmProgram.Stage8,
+    ];
 
-    /// <summary>Reads a single byte through the end of the no-glass branch.</summary>
-    internal static bool TryReadMechanicsByte(ushort address, out byte value)
-    {
-        value = 0;
-        if (address is < FirstAddress or > LastAddress) return false;
-        value = ByteAt(address);
-        return true;
-    }
+    /// <summary>The glass image of each stage, then the final shatter.</summary>
+    private static readonly MotherBrainGlassDraw[] StageDraws =
+    [
+        MotherBrainGlassDraw.Initial, MotherBrainGlassDraw.PaneDamage1, MotherBrainGlassDraw.PaneDamage2,
+        MotherBrainGlassDraw.PaneTransition, MotherBrainGlassDraw.ShiftedPane1, MotherBrainGlassDraw.ShiftedPane2,
+        MotherBrainGlassDraw.ShiftedPane3, MotherBrainGlassDraw.Shatter1, MotherBrainGlassDraw.Shatter2,
+        MotherBrainGlassDraw.Shatter3,
+    ];
 
-    /// <summary>Extracts the requested byte from the generated program words, including the odd boss-bit operand.</summary>
-    private static byte ByteAt(int address)
-    {
-        if (address == FirstAddress + 2) return 1; // Area's primary boss bit.
-        int start = address < FirstAddress + 2 ? FirstAddress + ((address - FirstAddress) & ~1) :
-            FirstAddress + 3 + ((address - FirstAddress - 3) & ~1);
-        return (byte)(WordAt(start) >> ((address - start) * 8));
-    }
+    /// <summary>Every glass program.</summary>
+    internal static AnimationProgramSet<MotherBrainGlassPlmProgram, MotherBrainGlassDraw, MotherBrainGlassPlmCue> Programs { get; } = new(Build());
 
-    /// <summary>Emits branch, damage-stage, shard-placement, draw, and deletion words for the glass PLM.</summary>
-    private static ushort WordAt(int address)
+    /// <summary>Builds the entry, the nine stages and the two already-resolved states.</summary>
+    private static Dictionary<MotherBrainGlassPlmProgram, Step[]> Build()
     {
-        if (address < Stages)
-            return address switch
-            {
-                FirstAddress => (ushort)RoomPlmInstruction.GotoIfAreaBossBitSet,
-                0xd205 => BossDead,
-                0xd207 => (ushort)RoomPlmInstruction.GotoIfEventSet,
-                0xd209 => (ushort)EventNumber.MotherBrainGlassDestroyed,
-                0xd20b => NoGlass,
-                0xd20d => (ushort)RoomPlmInstruction.InstallPreInstruction,
-                _ => HitPreInstruction,
-            };
-        if (address >= BossDead)
-            return ((address - BossDead) % 6) switch
-            {
-                0 => 1,
-                2 => address < NoGlass ? (ushort)MotherBrainGlassDraw.Cleared : (ushort)MotherBrainGlassDraw.Shatter3,
-                _ => (ushort)RoomPlmInstruction.Delete,
-            };
-        int start = Stages;
-        for (int stage = 0; stage < 9; stage++)
+        var programs = new Dictionary<MotherBrainGlassPlmProgram, Step[]>
         {
-            bool burst = stage is 2 or >= 5;
-            int length = stage == 8 ? 44 : burst ? 34 : 10;
-            if (address >= start + length) { start += length; continue; }
-            int offset = address - start;
-            if (offset is >= 12 and <= 18 or >= 26 and <= 32)
-            {
-                // The first group starts at 12; the second starts at 26.
-                int shard = (offset - (offset < 20 ? 12 : 26)) / 2;
-                return stage switch
-                {
-                    2 => RightShard,
-                    5 => LeftShard,
-                    6 => offset >= 26 ? CentreShard : shard < 2 ? RightShard : LeftShard,
-                    _ => shard < 2 ? LeftShard : CentreShard,
-                };
-            }
-            return offset switch
-            {
-                0 => 1,
-                2 => DrawAt(stage),
-                4 => (ushort)RoomPlmInstruction.GotoIfRoomArgumentLess,
-                6 => (ushort)(2 * (stage + 1)),
-                8 => (ushort)start,
-                10 or 24 => (ushort)RoomPlmInstruction.SpawnFourMotherBrainGlassShards,
-                20 => 4,
-                22 or 36 => DrawAt(stage + 1),
-                34 => 48,
-                38 => (ushort)RoomPlmInstruction.SetEvent,
-                40 => (ushort)EventNumber.MotherBrainGlassDestroyed,
-                _ => (ushort)RoomPlmInstruction.Delete,
-            };
-        }
-        throw new InvalidOperationException("Glass program stage domain is inconsistent.");
+            [MotherBrainGlassPlmProgram.Entry] =
+            [
+                Step.Publish(MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfBossDead)),
+                Step.Publish(MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed)),
+                Step.Publish(MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.ArmHitWake)),
+                Step.FallInto(MotherBrainGlassPlmProgram.Stage0),
+            ],
+            [MotherBrainGlassPlmProgram.BossDead] = [Step.Show(MotherBrainGlassDraw.Cleared, 1), Step.Stop],
+            [MotherBrainGlassPlmProgram.NoGlass] = [Step.Show(MotherBrainGlassDraw.Shatter3, 1), Step.Stop],
+        };
+        for (int stage = 0; stage < Stages.Length; stage++)
+            programs[Stages[stage]] = Stage(stage);
+        return programs;
     }
 
-    /// <summary>Selects the glass draw command for an initial, damaged, shifted, or shattered pane.</summary>
-    private static ushort DrawAt(int stage) => stage switch
+    /// <summary>Shows a stage and holds it until enough hits; a burst stage then spawns its shards around the next image.</summary>
+    private static Step[] Stage(int stage)
     {
-        0 => (ushort)MotherBrainGlassDraw.Initial,
-        1 => (ushort)MotherBrainGlassDraw.PaneDamage1,
-        2 => (ushort)MotherBrainGlassDraw.PaneDamage2,
-        3 => (ushort)MotherBrainGlassDraw.PaneTransition,
-        4 => (ushort)MotherBrainGlassDraw.ShiftedPane1,
-        5 => (ushort)MotherBrainGlassDraw.ShiftedPane2,
-        6 => (ushort)MotherBrainGlassDraw.ShiftedPane3,
-        7 => (ushort)MotherBrainGlassDraw.Shatter1,
-        8 => (ushort)MotherBrainGlassDraw.Shatter2,
-        _ => (ushort)MotherBrainGlassDraw.Shatter3,
-    };
+        List<Step> steps =
+        [
+            Step.Show(StageDraws[stage], 1),
+            Step.Publish(MotherBrainGlassPlmCue.RepeatUntil((ushort)(HitsPerStage * (stage + 1)))),
+        ];
+        if (BurstOf(stage) is { } burst)
+        {
+            steps.Add(Step.Publish(burst.First));
+            steps.Add(Step.Show(StageDraws[stage + 1], BurstFrameDuration));
+            steps.Add(Step.Publish(burst.Second));
+        }
+        if (stage + 1 < Stages.Length)
+        {
+            steps.Add(Step.FallInto(Stages[stage + 1]));
+            return [.. steps];
+        }
+        steps.Add(Step.Show(StageDraws[stage + 1], FinalShatterDuration));
+        steps.Add(Step.Publish(MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SetGlassDestroyed)));
+        steps.Add(Step.Stop);
+        return [.. steps];
+    }
+
+    /// <summary>A burst stage's two groups of four shards, or null for a stage that does not burst.</summary>
+    private static (MotherBrainGlassPlmCue First, MotherBrainGlassPlmCue Second)? BurstOf(int stage)
+    {
+        const MotherBrainGlassShard R = MotherBrainGlassShard.Right, L = MotherBrainGlassShard.Left, C = MotherBrainGlassShard.Centre;
+        return stage switch
+        {
+            0 or 1 or 3 or 4 => null,
+            2 => (MotherBrainGlassPlmCue.Burst(R, R, R, R), MotherBrainGlassPlmCue.Burst(R, R, R, R)),
+            5 => (MotherBrainGlassPlmCue.Burst(L, L, L, L), MotherBrainGlassPlmCue.Burst(L, L, L, L)),
+            6 => (MotherBrainGlassPlmCue.Burst(R, R, L, L), MotherBrainGlassPlmCue.Burst(C, C, C, C)),
+            7 or 8 => (MotherBrainGlassPlmCue.Burst(L, L, C, C), MotherBrainGlassPlmCue.Burst(L, L, C, C)),
+            _ => throw new ArgumentOutOfRangeException(nameof(stage)),
+        };
+    }
 }

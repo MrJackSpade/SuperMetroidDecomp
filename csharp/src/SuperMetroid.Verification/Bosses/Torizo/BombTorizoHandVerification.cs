@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandArtworkVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandVisualsVerification;
 using static SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandDrawVerification;
-using static SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandProgramVerification;
+using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -174,13 +174,7 @@ internal static class BombTorizoHandVerification
         Suite(nameof(VerifyBombTorizoHandDrawGeometry), () => VerifyBombTorizoHandDrawGeometry(rom));
         Suite(nameof(VerifyBombTorizoHandDrawCollision), () => VerifyBombTorizoHandDrawCollision(rom));
         Suite(nameof(VerifyBombTorizoHandDrawVisuals), () => VerifyBombTorizoHandDrawVisuals(rom));
-        Suite(nameof(VerifyHandProgramControls), () => VerifyHandProgramControls(rom));
-        Suite(nameof(VerifyHandProgramDraws), () => VerifyHandProgramDraws(rom));
-        Suite(nameof(VerifyHandProgramCallback), () => VerifyHandProgramCallback(rom));
-        Suite(nameof(VerifyHandProgramDebrisArguments), () => VerifyHandProgramDebrisArguments(rom));
-        Suite(nameof(VerifyHandProgramTransferSize), () => VerifyHandProgramTransferSize(rom));
-        Suite(nameof(VerifyHandProgramTransferSource), () => VerifyHandProgramTransferSource(rom));
-        Suite(nameof(VerifyHandProgramTransferDestination), () => VerifyHandProgramTransferDestination(rom));
+        Suite(nameof(BossRoomPlmProgramsVerification.VerifyBombTorizoHandPrograms), () => BossRoomPlmProgramsVerification.VerifyBombTorizoHandPrograms(rom));
     }
 
     /// <summary>Forbids live reads from migrated hand instruction and draw-list bytes.</summary>

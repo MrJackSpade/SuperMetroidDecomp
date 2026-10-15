@@ -157,10 +157,8 @@ internal static class RoomPlmSystemAccess
             ? slot.RoomArgument
             : self.MotherBrainGlass._motherBrainGlassLastRoomArgument;
 
-        /// <summary>Current bank-$84 instruction pointer, or zero after deletion.</summary>
-        internal ushort MotherBrainGlassInstructionPointer => MotherBrainGlassSlot(self) is { } slot
-            ? slot.InstructionPointer
-            : (ushort)0;
+        /// <summary>The glass's typed program, or null after deletion.</summary>
+        internal PlmAnimation? MotherBrainGlassAnimation => MotherBrainGlassSlot(self)?.Animation;
 
         /// <summary>
         /// Places a constructed program in low work RAM, where the `$84` interpreter executes

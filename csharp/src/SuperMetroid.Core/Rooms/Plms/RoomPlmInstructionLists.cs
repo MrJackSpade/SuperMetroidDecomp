@@ -9,17 +9,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 public static class RoomPlmInstructionLists
 {
 
-    /// <summary><c>$84:BCAF InstList_PLM_DownwardsGateShotblock_BlueLeft</c>.</summary>
-    public const ushort DownwardGateShotBlockBlueLeft = 0xbcaf;
-    /// <summary><c>$84:AAE3 InstList_PLM_Delete</c>.</summary>
-    public const ushort Delete = 0xaae3;
-
-    /// <summary><c>$84:AB12 InstList_PLM_CrumbleSporeSpawnCeiling</c>.</summary>
-    public const ushort CrumbleSporeSpawnCeiling = 0xab12;
-
-    /// <summary><c>$84:AB21 InstList_PLM_ClearSporeSpawnCeiling</c>.</summary>
-    public const ushort ClearSporeSpawnCeiling = 0xab21;
-
     /// <summary>Wrecked Ship west-entry treadmill list at $84:AD38.</summary>
     public const ushort WreckedShipEntranceTreadmillFromWest = 0xad38;
 
@@ -38,17 +27,8 @@ public static class RoomPlmInstructionLists
     /// <summary>Second save-pod animation frame entry at $84:AFFE.</summary>
     public const ushort SaveStationAnimationSecondFrame = 0xaffe;
 
-    /// <summary>Speed Booster escape's three-pre-instruction coroutine at $84:B88A.</summary>
-    public const ushort SpeedBoosterEscape = 0xb88a;
-
     /// <summary>Maridia elevatube's delay and sound list at $84:B8F0.</summary>
     public const ushort MaridiaElevatube = 0xb8f0;
-
-    /// <summary>
-    /// <c>$84:BAFF InstList_PLM_WreckedShipAttic</c>: install the cartridge's inert
-    /// pre-instruction and sleep permanently.
-    /// </summary>
-    public const ushort WreckedShipAttic = 0xbaff;
 
     /// <summary><c>$84:C489 InstList_PLM_BlueDoorFacingLeftOpened_40</c>: plays the opening sound, animates the left-facing cap, clears it, and deletes.</summary>
     public const ushort BlueDoorFacingLeftOpening = 0xc489;
@@ -95,19 +75,6 @@ public static class RoomPlmInstructionLists
     public const ushort BombedPowerBombBlockUnused = 0xc91c;
     /// <summary><c>$84:C922 UNUSED_InstList_PLM_SuperMissileBlockBombed_84C922</c>: bomb setup reveals the gated Super Missile parent without breaking it, then deletes.</summary>
     public const ushort BombedSuperMissileBlockUnused = 0xc922;
-    /// <summary><c>$84:C928 InstList_PLM_BombReaction_SpeedBlock</c>: draws a revealed speed-block parent for one frame and deletes; it does not perform the speed-break animation.</summary>
-    public const ushort BombReactionSpeedBlock = 0xc928;
-
-    /// <summary>Brinstar BTS <c>$82</c> slow respawning speed-block list at <c>$84:C951</c>.</summary>
-    public const ushort SpeedBlockBrinstarSlowRespawning = 0xc951;
-    /// <summary>Area-independent BTS <c>$0E</c> respawning speed-block list at <c>$84:C974</c>.</summary>
-    public const ushort SpeedBlockRespawning = 0xc974;
-    /// <summary>Dachora-room BTS <c>$84</c> respawning speed-block list at <c>$84:C997</c>.</summary>
-    public const ushort SpeedBlockDachoraRespawning = 0xc997;
-    /// <summary>Brinstar BTS <c>$83</c> slow permanent speed-block list at <c>$84:C9CF</c>.</summary>
-    public const ushort SpeedBlockBrinstarSlowPermanent = 0xc9cf;
-    /// <summary>Area-independent BTS <c>$0F</c> permanent speed-block list at <c>$84:C9E4</c>.</summary>
-    public const ushort SpeedBlockPermanent = 0xc9e4;
 
     /// <summary><c>$84:CADF InstList_PLM_1x1RespawningShotBlock</c>: sounds and animates a single block's break, waits 384 ticks, then restores its saved level word.</summary>
     public const ushort RespawningShotBlock1x1 = 0xcadf;
@@ -173,21 +140,6 @@ public static class RoomPlmInstructionLists
 
     /// <summary><c>$84:CDA9 InstList_PLM_BreakableGrappleBlock</c>.</summary>
     public const ushort PermanentBreakableGrappleBlock = 0xcda9;
-
-    /// <summary><c>$84:D202 InstList_PLM_MotherBrainsGlass_0</c>.</summary>
-    public const ushort MotherBrainGlass = 0xd202;
-
-    /// <summary><c>$84:D368 InstList_PLM_BombTorizosCrumblingChozo</c>.</summary>
-    public const ushort BombTorizoCrumblingChozo = 0xd368;
-
-    /// <summary><c>$84:D4D4 InstList_PLM_NoobTube_0</c>.</summary>
-    public const ushort NoobTube = 0xd4d4;
-
-    /// <summary>
-    /// <c>$84:DB42 InstList_PLM_SetsMetroidsClearedStatesWhenRequired</c>. The list is one
-    /// permanent Sleep instruction; its selected pre-instruction owns all useful behavior.
-    /// </summary>
-    public const ushort SetMetroidsClearedStatesWhenRequired = 0xdb42;
 
     /// <summary>Selects the named collision bomb program from native $94:936B PLM headers.
     /// Indices encode 1x1, 2x1, 1x2, 2x2; where present, permanent forms follow respawning forms.</summary>

@@ -1,6 +1,7 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using static SuperMetroid.Verification.Bosses.MotherBrain.LookupGlassProgramVerification;
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -23,14 +24,7 @@ internal static class MotherBrainGlassPlmProgramVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass PLM program")]
     internal static void VerifyMotherBrainGlassPlmProgram(SuperMetroidAddressSpace rom)
     {
-        VerifyGlassControls(rom);
-        VerifyGlassDraws(rom);
-        VerifyGlassTargets(rom);
-        VerifyGlassCallback(rom);
-        VerifyGlassEvents(rom);
-        VerifyGlassBossMask(rom);
-        VerifyGlassThresholds(rom);
-        VerifyGlassShardArguments(rom);
+        BossRoomPlmProgramsVerification.VerifyMotherBrainGlassPrograms(rom);
 
         var source = new TestAddressSpace();
         var bank84 = new byte[0x8000];
@@ -60,10 +54,10 @@ internal static class MotherBrainGlassPlmProgramVerification
         // threshold instead of shattering early. Both passes use the guarded
         // production interpreter, not an independent table reader.
         plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0xd215, plms.MotherBrainGlassInstructionPointer,
+        AssertTrue(plms.MotherBrainGlassAnimation is MotherBrainGlassPlmAnimation { Cursor: { Program: MotherBrainGlassPlmProgram.Stage0, Position: 1 } },
             "intact glass first draw advances to the hit threshold");
         plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0xd215, plms.MotherBrainGlassInstructionPointer,
+        AssertTrue(plms.MotherBrainGlassAnimation is MotherBrainGlassPlmAnimation { Cursor: { Program: MotherBrainGlassPlmProgram.Stage0, Position: 1 } },
             "zero head hits loop at the first glass stage");
         AssertTrue(!eventSet && plms.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count == 0,
             "unhit glass emits neither event nor shards");
@@ -81,7 +75,7 @@ internal static class MotherBrainGlassPlmProgramVerification
         }
         AssertTrue(eventSet && !plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.MotherBrainGlass),
             $"all glass stages end by setting the event and deleting the PLM; " +
-            $"pointer=${plms.MotherBrainGlassInstructionPointer:X4}, " +
+            $"program={plms.MotherBrainGlassAnimation?.RunningProgram}, " +
             $"timer={plms.MotherBrainGlassInstructionTimer}");
         AssertEqual(40, emitted,
             "five authored shatter stages emit four shards twice each");

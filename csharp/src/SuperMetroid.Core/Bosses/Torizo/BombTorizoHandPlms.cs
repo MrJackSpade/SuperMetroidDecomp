@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Progression;
+﻿using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
@@ -20,8 +22,6 @@ internal sealed class BombTorizoHandPlms
         _slotTable = slotTable;
     }
     /// <summary>Bank-$86 projectile definition $A993 for the statue fragments spawned as Bomb Torizo wakes.</summary>
-    private const ushort BombTorizoStatueBreakingDefinition = 0xa993;
-
     /// <summary>VRAM transfers queued by the hand's copy-from-RAM instruction for this frame.</summary>
     private readonly List<PlmVramWriteRequest> _vramWriteRequests = [];
     /// <summary>Statue-fragment spawns queued by the hand's breaking instruction for this frame.</summary>
@@ -61,7 +61,7 @@ internal sealed class BombTorizoHandPlms
             return;
         }
 
-        slot.InstructionPointer = RoomPlmInstructionLists.BombTorizoCrumblingChozo;
+        slot.StartAnimation(new BombTorizoHandPlmAnimation());
         _bombTorizoHandRoomWidth = level.Size.X;
     }
 
@@ -101,72 +101,30 @@ internal sealed class BombTorizoHandPlms
 
         // The sleeping opcode leaves Y pointing at itself. D33B adds two to skip that word,
         // restores the instruction timer to one, and replaces its pre-instruction with RTS.
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+        slot.WakePastSleep();
         slot.PreInstruction = 0;
     }
+    /// <summary><c>$84:87E5</c>: copies the Chozo debris tiles to VRAM before the hand crumbles.</summary>
+    internal void CopyDebrisTiles() =>
+        _vramWriteRequests.Add(new PlmVramWriteRequest(
+            checked((ushort)TorizoInstructionTileRomData.ChozoDebrisByteCount),
+            TorizoInstructionTileRomData.ChozoDebrisSource,
+            BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord));
 
-    /// <summary>Handles the hand's VRAM copy, statue-fragment spawn, and fixed track-six opcodes, advancing the program cursor only when handled.</summary>
-    internal bool TryExecuteBombTorizoHandInstruction(
-        ISnesAddressSpace bus,
-        PlmSlot slot,
-        RoomPlmInstruction instruction)
-    {
-        if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand)
-            return false;
+    /// <summary><c>$84:D357</c>: spawns one statue-breaking fragment with <paramref name="parameter"/> at the hand's block.</summary>
+    internal void SpawnFragment(PlmSlot slot, ushort parameter) =>
+        _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
+            (ushort)RoomEnemyProjectileKind.BombTorizoStatueBreaking,
+            parameter,
+            // The native fragment spawn carries both block coordinates as bytes.
+            new(checked((byte)(slot.BlockIndex % _bombTorizoHandRoomWidth)),
+                checked((byte)(slot.BlockIndex / _bombTorizoHandRoomWidth)))));
 
-        ushort cursor = slot.InstructionPointer;
-        if (instruction is not (
-            RoomPlmInstruction.CopyFromRamToVram or
-            RoomPlmInstruction.SpawnTorizoStatueBreaking or
-            RoomPlmInstruction.QueueSongOneMusicTrack))
-            return false;
-
-        switch (instruction)
-        {
-            case RoomPlmInstruction.CopyFromRamToVram:
-            {
-                // $87E5 consumes seven deliberately unaligned bytes after its opcode:
-                // u16 size, u16 source offset, u8 bank, then u16 encoded VRAM destination.
-                ushort size = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
-                ushort sourceOffset = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
-                byte sourceBank = RoomPlmSystem.ReadProgramByte(bus, unchecked((ushort)(cursor + 6)));
-                ushort destination = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 7)));
-                _vramWriteRequests.Add(new PlmVramWriteRequest(
-                    size,
-                    ((int)new SnesAddress(sourceBank, sourceOffset)),
-                    destination));
-                slot.InstructionPointer = unchecked((ushort)(cursor + 9));
-                return true;
-            }
-
-            case RoomPlmInstruction.SpawnTorizoStatueBreaking:
-            {
-                ushort parameter = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
-                _bombTorizoStatueProjectileRequests.Add(
-                    new BombTorizoStatueProjectileRequest(
-                        BombTorizoStatueBreakingDefinition,
-                        parameter,
-                        // The native fragment spawn carries both block coordinates as bytes.
-                        new(checked((byte)(slot.BlockIndex % _bombTorizoHandRoomWidth)),
-                            checked((byte)(slot.BlockIndex / _bombTorizoHandRoomWidth)))));
-                slot.InstructionPointer = unchecked((ushort)(cursor + 4));
-                return true;
-            }
-
-            case RoomPlmInstruction.QueueSongOneMusicTrack:
-                // Despite its name, this routine always queues literal gameplay track six
-                // with the shared eight-frame delay and consumes no inline operand.
-                _musicRequests.Add(new PlmMusicRequest(
-                    MusicCommand.SelectTrack(6),
-                    MusicCommandDelay.EightFrames));
-                slot.InstructionPointer = unchecked((ushort)(cursor + 2));
-                return true;
-
-            default:
-                throw new InvalidOperationException($"Unhandled RoomPlmInstruction {instruction}.");
-        }
-    }
+    /// <summary>
+    /// <c>$84:D3C7</c>: despite its name, always queues gameplay track six with the shared eight-frame delay.
+    /// </summary>
+    internal void QueueMusic() =>
+        _musicRequests.Add(new PlmMusicRequest(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames));
 
     /// <summary>Room width in blocks used to turn the hand's linear PLM block index into fragment spawn coordinates.</summary>
     private int _bombTorizoHandRoomWidth;

@@ -267,7 +267,6 @@ internal static class DownwardGatePlmsVerification
             new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.DownwardGateShotBlock),
                 new(gateX, gateY), argument),
         ]);
-        SeedPlmDeleteList(bus);
         SeedDownwardGateProjectileRom(bus);
 
         var blockDefinitions = new byte[0x400 * 8];

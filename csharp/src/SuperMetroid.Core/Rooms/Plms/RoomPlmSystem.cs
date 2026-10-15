@@ -474,10 +474,6 @@ public sealed class RoomPlmSystem
                 default:
                     if (ChozoStatue.TryExecuteChozoStatueInstruction(bus, level, slot, code))
                         continue;
-                    if (BombTorizoHand.TryExecuteBombTorizoHandInstruction(bus, slot, code))
-                        continue;
-                    if (MotherBrainGlass.TryExecuteMotherBrainGlassInstruction(bus, slot, code))
-                        continue;
                     if (EyeDoors.TryExecuteEyeDoorInstruction(bus, level, slot, code))
                         continue;
                     throw new InvalidDataException(

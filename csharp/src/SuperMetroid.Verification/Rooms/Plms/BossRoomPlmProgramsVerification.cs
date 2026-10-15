@@ -1,6 +1,9 @@
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -117,6 +120,97 @@ internal static class BossRoomPlmProgramsVerification
                 break;
         }
         return true;
+    }
+
+    /// <summary>Mother Brain's glass programs equal their native lists, every stage repeating itself until its hits.</summary>
+    internal static void VerifyMotherBrainGlassPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), MotherBrainGlassPlmProgramDefinitions.Programs, MotherBrainGlassEntries,
+            draw => (ushort)draw, MotherBrainGlassCueAt, "Mother Brain glass");
+        Console.WriteLine($"  Mother Brain glass programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The glass's branch, wake, hit-threshold, shard-burst and event instructions with their operands.</summary>
+    private static bool MotherBrainGlassCueAt(IImportCartridgeSource cartridge, ushort cursor, out MotherBrainGlassPlmCue cue, out int length)
+    {
+        ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
+        MotherBrainGlassPlmProgram Entry(ushort address) => MotherBrainGlassEntries.Single(entry => entry.Entry == address).Program;
+        RoomPlmInstruction instruction = InstructionAt<RoomPlmInstruction>(cartridge, cursor);
+        switch (instruction)
+        {
+            case RoomPlmInstruction.GotoIfAreaBossBitSet:
+                AssertEqual((byte)BossBits.AreaBoss, ReadOperandByte(cartridge, cursor + 2), "glass area-boss bit");
+                AssertEqual(MotherBrainGlassPlmProgram.BossDead, Entry(Word(3)), "glass boss-dead target");
+                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfBossDead), 5);
+                return true;
+            case RoomPlmInstruction.GotoIfEventSet:
+                AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed, Word(2), "glass destroyed event");
+                AssertEqual(MotherBrainGlassPlmProgram.NoGlass, Entry(Word(4)), "glass no-glass target");
+                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed), 6);
+                return true;
+            case RoomPlmInstruction.InstallPreInstruction:
+                AssertEqual(MotherBrainGlassPlmProgramDefinitions.HitPreInstruction, Word(2), "glass hit wake");
+                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.ArmHitWake), 4);
+                return true;
+            case RoomPlmInstruction.GotoIfRoomArgumentLess:
+                ushort stage = MotherBrainGlassEntries.Where(entry => entry.Entry <= cursor).Max(entry => entry.Entry);
+                AssertEqual(stage, Word(4), $"glass stage at $84:{cursor:X4} repeats itself");
+                (cue, length) = (MotherBrainGlassPlmCue.RepeatUntil(Word(2)), 6);
+                return true;
+            case RoomPlmInstruction.SpawnFourMotherBrainGlassShards:
+                (cue, length) = (MotherBrainGlassPlmCue.Burst((MotherBrainGlassShard)Word(2), (MotherBrainGlassShard)Word(4),
+                    (MotherBrainGlassShard)Word(6), (MotherBrainGlassShard)Word(8)), 10);
+                return true;
+            case RoomPlmInstruction.SetEvent:
+                AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed, Word(2), "glass sets its destroyed event");
+                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SetGlassDestroyed), 4);
+                return true;
+            default:
+                (cue, length) = (default, 0);
+                return false;
+        }
+    }
+
+    /// <summary>The Bomb Torizo hand's programs equal its native list, the debris transfer naming the installed page.</summary>
+    internal static void VerifyBombTorizoHandPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BombTorizoHandPlmProgramDefinitions.Programs, BombTorizoHandEntries,
+            draw => (ushort)draw, BombTorizoHandCueAt, "Bomb Torizo hand");
+        AssertEqual(BombTorizoHandProgram.Crumble, BombTorizoHandPlmProgramDefinitions.ProgramAfterSleep(BombTorizoHandProgram.Sleeping),
+            "the woken hand continues after its sleep");
+        AssertEqual(unchecked((ushort)(BombTorizoHandEntries[0].Entry + 10)), BombTorizoHandEntries[1].Entry,
+            "the crumble list follows the sleeping list's sleep");
+        Console.WriteLine($"  Bomb Torizo hand programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The hand's wake, debris transfer, fragment and music instructions with their operands.</summary>
+    private static bool BombTorizoHandCueAt(IImportCartridgeSource cartridge, ushort cursor, out BombTorizoHandCue cue, out int length)
+    {
+        ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
+        switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
+        {
+            case RoomPlmInstruction.InstallPreInstruction:
+                AssertEqual(BombTorizoHandPlmProgramDefinitions.WakeIfSamusHasBombsPreInstruction, Word(2), "hand bomb wake");
+                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.ArmBombWake), 4);
+                return true;
+            case RoomPlmInstruction.CopyFromRamToVram:
+                AssertEqual(TorizoInstructionTileRomData.ChozoDebrisByteCount, (int)Word(2), "hand debris size");
+                AssertEqual(TorizoInstructionTileRomData.ChozoDebrisSource,
+                    (int)new SnesAddress(ReadOperandByte(cartridge, cursor + 6), Word(4)), "hand debris source");
+                AssertEqual(BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord, Word(7), "hand debris destination");
+                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.CopyDebrisTiles), 9);
+                return true;
+            case RoomPlmInstruction.SpawnTorizoStatueBreaking:
+                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, Word(2) / sizeof(ushort)), 4);
+                AssertEqual(Word(2), cue.FragmentParameter, "hand fragment parameter");
+                return true;
+            case RoomPlmInstruction.QueueSongOneMusicTrack:
+                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic), 2);
+                return true;
+            default:
+                (cue, length) = (default, 0);
+                return false;
+        }
     }
 
     /// <summary>Botwoon's scroll, crumble-sound and move-down instructions.</summary>

@@ -1,89 +1,60 @@
+using SuperMetroid.Core.Fx;
+using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.SamusEaterProgram, SuperMetroid.Core.Rooms.Plms.SamusEaterDraw, SuperMetroid.Core.Rooms.Plms.SamusEaterCue>;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// The two fixed bank-$84 plant instruction lists at $84:ACB8..AD37. Their
-/// timers, branches, callbacks, sound operand, and draw-list selectors are
-/// named instruction cases; the selected block artwork is separate. Both use five-tick
-/// chew stages and two damage callbacks per loop, repeated four/eight times for floor/ceiling.
-/// Release clears the hold callback, waits 96 ticks, restores idle for one tick and deletes.
-/// No program byte array or generated cache remains.
-/// The byte layout preserves the cartridge's odd one-byte timer and sound
-/// operands, so word reads at native instruction boundaries remain exact.
+/// The Brinstar plants' PLM programs (#1296), in place of their bank-$84 instruction lists. The floor and ceiling
+/// plants run the same chew with their own artwork; the ceiling plant chews twice as many times.
 /// </summary>
 internal static class SamusEaterPlmProgramDefinitions
 {
-    /// <summary>Floor plant program at $84:ACB8, selected by PLM $B6CB.</summary>
-    internal const ushort FloorStart = 0xacb8;
-    /// <summary>Ceiling plant program at $84:ACF8, selected by PLM $B6CF.</summary>
-    internal const ushort CeilingStart = 0xacf8;
-    /// <summary>First byte of the following treadmill program at $84:AD38.</summary>
-    internal const ushort EndExclusive = 0xad38;
+    /// <summary>How many chews the floor plant makes.</summary>
+    internal const int FloorChews = 4;
+    /// <summary>How many chews the ceiling plant makes.</summary>
+    internal const int CeilingChews = 8;
+    /// <summary>How long each chew frame shows.</summary>
+    private const int ChewFrameDuration = 5;
+    /// <summary>How long the closed mouth shows after the release.</summary>
+    private const int ReleaseDuration = 96;
+    /// <summary>The chew sound's native queue cap.</summary>
+    internal const byte ChewSoundMaximumQueued = 6;
 
-    /// <summary>Combines adjacent compiled bytes into a native little-endian word at a plant program address.</summary>
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
-    {
-        if (TryReadMechanicsByte(address, out byte low) &&
-            TryReadMechanicsByte(unchecked((ushort)(address + 1)), out byte high))
+    /// <summary>Every plant program.</summary>
+    internal static AnimationProgramSet<SamusEaterProgram, SamusEaterDraw, SamusEaterCue> Programs { get; } = new(
+        new Dictionary<SamusEaterProgram, Step[]>
         {
-            value = (ushort)(SnesLittleEndian.Word(low, high));
-            return true;
-        }
-        value = 0;
-        return false;
-    }
+            [SamusEaterProgram.FloorBite] = Bite(FloorChews, SamusEaterProgram.FloorChew),
+            [SamusEaterProgram.FloorChew] = Chew(SamusEaterProgram.FloorChew,
+                SamusEaterDraw.FloorIdle, SamusEaterDraw.FloorChew1, SamusEaterDraw.FloorChew2, SamusEaterDraw.FloorChew3),
+            [SamusEaterProgram.CeilingBite] = Bite(CeilingChews, SamusEaterProgram.CeilingChew),
+            [SamusEaterProgram.CeilingChew] = Chew(SamusEaterProgram.CeilingChew,
+                SamusEaterDraw.CeilingIdle, SamusEaterDraw.CeilingChew1, SamusEaterDraw.CeilingChew2, SamusEaterDraw.CeilingChew3),
+        });
 
-    /// <summary>Resolves a floor or ceiling plant instruction byte while preserving odd timer and sound operands.</summary>
-    internal static bool TryReadMechanicsByte(ushort address, out byte value)
-    {
-        if (address is < FloorStart or >= EndExclusive)
-        {
-            value = 0;
-            return false;
-        }
-        bool ceiling = address >= CeilingStart;
-        int start = ceiling ? CeilingStart : FloorStart;
-        int offset = address - start;
-        if (offset == 6)
-        {
-            value = ceiling ? (byte)8 : (byte)4;
-            return true;
-        }
-        if (offset == 21)
-        {
-            value = ChewSound;
-            return true;
-        }
-        // The one-byte loop counter shifts instruction alignment until the
-        // one-byte sound operand restores it. Preserve arbitrary byte/word views.
-        int wordOffset = offset is >= 7 and < 21 ? 7 + ((offset - 7) & ~1) : offset & ~1;
-        ushort word = InstructionWord(wordOffset, ceiling, start);
-        value = (byte)(word >> ((offset - wordOffset) * 8));
-        return true;
-    }
+    /// <summary>Holds Samus and seeds the chew counter, then runs into the chew.</summary>
+    private static Step[] Bite(int chews, SamusEaterProgram chew) =>
+        [Step.Publish(SamusEaterCue.HoldSamus), Step.SetCounter(chews), Step.FallInto(chew)];
 
-    /// <summary>Library-two sound $31 at $84:ACCD/$AD0D accompanies each chewing loop.</summary>
-    private const byte ChewSound = 0x31;
-
-    /// <summary>Maps an aligned plant-list offset to its control word or draw selector.</summary>
-    private static ushort InstructionWord(int offset, bool ceiling, int start) => offset switch
-    {
-        0 => (ushort)RoomPlmInstruction.InstallPreInstruction,
-        2 => SamusEaterPlmRomData.HoldPreInstruction,
-        4 => (ushort)RoomPlmInstruction.SetEightBitTimer,
-        7 or 11 or 15 or 24 or 28 or 32 or 36 or 42 => 5,
-        9 or 17 or 30 or 38 => ceiling ? (ushort)SamusEaterDraw.CeilingChew2 : (ushort)SamusEaterDraw.FloorChew2,
-        13 or 34 => ceiling ? (ushort)SamusEaterDraw.CeilingChew1 : (ushort)SamusEaterDraw.FloorChew1,
-        26 or 44 or 56 => ceiling ? (ushort)SamusEaterDraw.CeilingChew3 : (ushort)SamusEaterDraw.FloorChew3,
-        19 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
-        22 or 40 => (ushort)RoomPlmInstruction.SamusEaterDamage,
-        46 => (ushort)RoomPlmInstruction.DecrementTimerAndGoto,
-        48 => (ushort)(start + 7),
-        50 => (ushort)RoomPlmInstruction.SamusEaterReleaseImmunity,
-        52 => (ushort)RoomPlmInstruction.ClearPreInstruction,
-        54 => 96,
-        58 => 1,
-        60 => ceiling ? (ushort)SamusEaterDraw.CeilingIdle : (ushort)SamusEaterDraw.FloorIdle,
-        62 => (ushort)RoomPlmInstruction.Delete,
-        _ => throw new InvalidOperationException("Invalid plant instruction word boundary."),
-    };
+    /// <summary>One chew with two bites of damage, repeated while the counter runs; then the release and deletion.</summary>
+    private static Step[] Chew(SamusEaterProgram self, SamusEaterDraw idle, SamusEaterDraw open, SamusEaterDraw half, SamusEaterDraw closed) =>
+    [
+        Step.Show(half, ChewFrameDuration),
+        Step.Show(open, ChewFrameDuration),
+        Step.Show(half, ChewFrameDuration),
+        Step.Publish(SamusEaterCue.QueueChewSound),
+        Step.Publish(SamusEaterCue.DamageSamus),
+        Step.Show(closed, ChewFrameDuration),
+        Step.Show(half, ChewFrameDuration),
+        Step.Show(open, ChewFrameDuration),
+        Step.Show(half, ChewFrameDuration),
+        Step.Publish(SamusEaterCue.DamageSamus),
+        Step.Show(closed, ChewFrameDuration),
+        Step.RepeatWhileCounting(self),
+        Step.Publish(SamusEaterCue.ReleaseSamus),
+        Step.Publish(SamusEaterCue.ClearPreInstruction),
+        Step.Show(closed, ReleaseDuration),
+        Step.Show(idle, 1),
+        Step.Stop,
+    ];
 }

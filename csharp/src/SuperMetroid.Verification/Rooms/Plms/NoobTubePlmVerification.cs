@@ -3,7 +3,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleDoorsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.LookupTubeProgramVerification;
 using static SuperMetroid.Verification.Fx.RoomFxRetailInventoryVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
@@ -85,10 +84,8 @@ internal static class NoobTubePlmVerification
         RoomPlmSlotSnapshot intact = plms.PopulationSlots.Single();
         AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnPowerBomb,
             intact.PreInstruction, "intact tube waits for a power bomb");
-        AssertEqual(0xd4e8, intact.LinkInstruction,
-            "power-bomb callback retains the cartridge link target");
-        AssertEqual(0xd4e6, intact.InstructionPointer,
-            "intact tube sleeps after its first draw");
+        AssertTrue(intact.Animation is NoobTubePlmAnimation { Program: NoobTubeProgram.Main, Link: NoobTubeProgram.WaitForInput },
+            "intact tube sleeps in its main program, linked to the input wait");
 
         // Repeated #339: BTS $44 is a resident trigger, not a breakable-block index.
         // Exercise StepFiring (including endpoint collision), rather than bypassing
@@ -152,8 +149,8 @@ internal static class NoobTubePlmVerification
         RoomPlmSlotSnapshot armed = plms.PopulationSlots.Single();
         AssertEqual((ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput,
             armed.PreInstruction, "power bomb arms the input wake callback");
-        AssertEqual(0xd4f2, armed.LinkInstruction,
-            "input callback retains the cartridge break target");
+        AssertTrue(armed.Animation is NoobTubePlmAnimation { Program: NoobTubeProgram.WaitForInput, Link: NoobTubeProgram.Break },
+            "power bomb wakes the input wait, linked to the break");
 
         StepNoobTube(plms, guarded, level, streamer, (ushort)SnesButton.Right);
         AssertTrue(samus.InputLocked, "break sequence locks Samus");
@@ -226,19 +223,14 @@ internal static class NoobTubePlmVerification
             "  N00b tube: setup, two-stage wake, debris, earthquake, event, water, and reload agree.");
     }
 
-    /// <summary>Checks the pinned cartridge revision before comparing tube controls, draw lists, callbacks, events, and sound.</summary>
+    /// <summary>Checks the pinned cartridge revision before comparing the tube's typed programs with its native lists.</summary>
     private static void VerifyNoobTubeProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tube oracle revision");
-        Suite(nameof(VerifyTubeControls), () => VerifyTubeControls(rom));
-        Suite(nameof(VerifyTubeDraws), () => VerifyTubeDraws(rom));
-        Suite(nameof(VerifyTubeTargets), () => VerifyTubeTargets(rom));
-        Suite(nameof(VerifyTubeCallbacks), () => VerifyTubeCallbacks(rom));
-        Suite(nameof(VerifyTubeEvents), () => VerifyTubeEvents(rom));
-        Suite(nameof(VerifyTubeSound), () => VerifyTubeSound(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifyNoobTubePrograms), () => RoomPlmProgramsVerification.VerifyNoobTubePrograms(rom));
     }
 
     /// <summary>
@@ -270,7 +262,7 @@ internal static class NoobTubePlmVerification
 
         RoomEnemyProjectileSlot firstShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
-            projectile.InstructionPointer == 0xd47d);
+            projectile.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.Shard0 });
         AssertEqual(0x0048, firstShard.Variable1,
             "first shard stores signed X origin in variable F");
         AssertEqual(0x0058, firstShard.Position.Y.Whole,
@@ -282,7 +274,7 @@ internal static class NoobTubePlmVerification
 
         RoomEnemyProjectileSlot lastShard = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
-            projectile.InstructionPointer == 0xd5bd);
+            projectile.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.Shard9 });
         AssertEqual(0x0078, lastShard.Variable1,
             "last shard uses final signed X offset");
         AssertEqual(0x0060, lastShard.Position.Y.Whole,

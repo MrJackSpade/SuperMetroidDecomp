@@ -42,6 +42,31 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
     /// <summary>Continues at the start of <paramref name="program"/> on the next advance, as a native wake does.</summary>
     internal void Restart(TProgram program) => Cursor = AnimationProgramCursor<TProgram>.Start(program);
 
+    /// <summary>The program a wake continues at (the native link instruction), or null before a program links one.</summary>
+    internal TProgram? Link { get; private set; }
+
+    /// <summary>Links <paramref name="program"/> for a later wake, as the native link instruction stores its target.</summary>
+    private protected void SetLink(TProgram program) => Link = program;
+
+    /// <inheritdoc/>
+    internal sealed override void WakeAtLink() =>
+        Restart(Link ?? throw new InvalidOperationException($"PLM program {Cursor.Program} woke before linking a program."));
+
+    /// <summary>
+    /// The program the native list continues with after <paramref name="program"/>'s closing sleep, or null when a
+    /// wake never steps past that sleep. A typed program ends at its sleep, so the family names the continuation.
+    /// </summary>
+    private protected virtual TProgram? ProgramAfterSleep(TProgram program) => null;
+
+    /// <inheritdoc/>
+    internal sealed override void WakePastSleep()
+    {
+        if (Programs.Steps(Cursor.Program)[Cursor.Position].Kind != AnimationProgramStepKind.Hold)
+            throw new InvalidOperationException($"PLM program {Cursor.Program} woke past a sleep it does not rest on.");
+        Restart(ProgramAfterSleep(Cursor.Program)
+            ?? throw new InvalidOperationException($"PLM program {Cursor.Program} has no program after its sleep."));
+    }
+
     /// <inheritdoc/>
     internal sealed override void Advance(PlmSlot slot, PlmAnimationContext context)
     {

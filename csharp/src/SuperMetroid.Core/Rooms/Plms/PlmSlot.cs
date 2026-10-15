@@ -79,4 +79,30 @@ internal sealed class PlmSlot
         InstructionPointer = 0;
         Animation = Ensure.NotNull(animation);
     }
+
+    /// <summary>
+    /// A pre-instruction's wake: the native list resumes at <see cref="LinkInstruction"/>, a typed program at the
+    /// program it linked, on the next pass.
+    /// </summary>
+    internal void WakeAtLink()
+    {
+        if (Animation is { } animation)
+            animation.WakeAtLink();
+        else
+            InstructionPointer = LinkInstruction;
+        InstructionTimer = NativeCountdown.Start(1);
+    }
+
+    /// <summary>
+    /// A pre-instruction's wake past the sleep the slot rests on: the native list steps over its sleep instruction, a
+    /// typed program over its hold, on the next pass.
+    /// </summary>
+    internal void WakePastSleep()
+    {
+        if (Animation is { } animation)
+            animation.WakePastSleep();
+        else
+            InstructionPointer = unchecked((ushort)(InstructionPointer + 2));
+        InstructionTimer = NativeCountdown.Start(1);
+    }
 }

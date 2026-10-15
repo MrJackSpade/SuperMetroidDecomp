@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Areas.Escape.EscapeGateVisualsVerificatio
 using static SuperMetroid.Verification.Enemies.Elevator.LookupElevatorPlatformLayoutsVerification;
 using static SuperMetroid.Verification.Enemies.Elevator.LookupElevatorPlatformProgramVerification;
 using static SuperMetroid.Verification.Areas.Escape.LookupEscapeGateVerification;
-using static SuperMetroid.Verification.Rooms.Plms.LookupSpeedEscapeProgramVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupSpeedEscapeStagesVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyFullMovieVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -225,8 +224,7 @@ internal static class RoomPlmPopulationVerification
     internal static void VerifySpeedBoosterEscapeStageDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifySpeedEscapeProgramControls), () => VerifySpeedEscapeProgramControls(rom));
-        Suite(nameof(VerifySpeedEscapeProgramCallbacks), () => VerifySpeedEscapeProgramCallbacks(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifySpeedBoosterEscapePrograms), () => RoomPlmProgramsVerification.VerifySpeedBoosterEscapePrograms(rom));
         Suite(nameof(VerifySpeedEscapeStageTargets), () => VerifySpeedEscapeStageTargets(rom));
         Suite(nameof(VerifySpeedEscapeStageHeights), () => VerifySpeedEscapeStageHeights(rom));
         Suite(nameof(VerifySpeedEscapeStageVelocities), () => VerifySpeedEscapeStageVelocities(rom));
@@ -610,9 +608,9 @@ internal static class RoomPlmPopulationVerification
         SeedPlmProgramWords(bus, 0xb8ae, RoomPlmInstructionLists.SpeedBoosterEscape);
         // Poison the old cartridge path: all three real handoffs must now use
         // the compiled list even when a synthetic address space disagrees.
-        for (int index = 0; index < SpeedBoosterEscapePlmProgramDefinitions.WordCount; index++)
+        for (int index = 0; index < RoomPlmNativeListAddresses.SpeedBoosterEscapeWordCount; index++)
         {
-            SeedPlmProgramWords(bus, unchecked((ushort)(SpeedBoosterEscapePlmProgramDefinitions.Start + index * 2)),
+            SeedPlmProgramWords(bus, unchecked((ushort)(RoomPlmNativeListAddresses.SpeedBoosterEscapeEntries[0].Entry + index * 2)),
                 0xdead);
         }
         SeedRoomPlmPopulation(bus, population,
@@ -983,25 +981,9 @@ internal static class RoomPlmPopulationVerification
         const ushort population = 0x9500;
         SeedPlmProgramWords(bus, 0xdb46, RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired);
         SeedPlmProgramWords(bus, 0xdb42, 0xdead);
-        AssertTrue(MetroidsClearedPlmRomData.TryReadInstructionWord(
-                RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired,
-                out ushort compiledInstruction),
-            "Metroids-cleared resident list is compiled");
-        AssertEqual((ushort)RoomPlmInstruction.Sleep, compiledInstruction,
-            "Metroids-cleared resident list sleeps instead of reading poisoned fixture data");
-        AssertTrue(!MetroidsClearedPlmRomData.TryReadInstructionWord(
-                checked((ushort)(RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired + 2)),
-                out _),
-            "Metroids-cleared instruction owner excludes adjacent PLM header");
         if (File.Exists("Super Metroid.smc"))
-        {
-            SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
-                "Super Metroid.smc");
-            int source = 0x840000 | RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired;
-            ushort nativeInstruction = ReadRetailPlmProgramWord(rom, source);
-            AssertEqual(nativeInstruction, compiledInstruction,
-                "Metroids-cleared one-word list matches pinned cartridge");
-        }
+            RoomPlmProgramsVerification.VerifySharedPrograms(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         SeedRoomPlmPopulation(bus, population,
         [
             0x44, 0xdb, 0x01, 0x01, 0x10, 0x00,
@@ -1050,9 +1032,8 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(5, plms.SlotTable.ActiveCount,
             "Metroids-cleared observers remain resident on their sleep instruction");
         AssertTrue(plms.PopulationSlots.All(slot =>
-                slot.InstructionPointer ==
-                    RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired),
-            "Metroids-cleared observers retain the cartridge sleep list");
+                slot.Animation is RoomPlmSharedAnimation { Program: RoomPlmSharedProgram.Sleep }),
+            "Metroids-cleared observers sleep in the shared typed program");
 
         const ushort invalidPopulation = 0x9580;
         SeedRoomPlmPopulation(bus, invalidPopulation,

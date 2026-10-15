@@ -16,4 +16,10 @@ internal abstract class PlmAnimation
     /// instruction interpreter does.
     /// </summary>
     internal abstract void Advance(PlmSlot slot, PlmAnimationContext context);
+
+    /// <summary>Continues at the program the animation linked, as a native wake jumps to the link instruction.</summary>
+    internal abstract void WakeAtLink();
+
+    /// <summary>Continues past the sleep the animation rests on, as a native wake steps over the sleep instruction.</summary>
+    internal abstract void WakePastSleep();
 }

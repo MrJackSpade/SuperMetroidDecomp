@@ -27,8 +27,7 @@ internal sealed class TourianPlms
     internal static void SetupMetroidsClearedSlot(PlmSlot slot)
     {
         slot.PreInstruction = MetroidsClearedPlmRomData.ResolvePreInstruction(slot.RoomArgument);
-        slot.InstructionPointer =
-            RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired;
+        slot.StartAnimation(new RoomPlmSharedAnimation(RoomPlmSharedProgram.Sleep));
     }
 
     /// <summary>

@@ -305,14 +305,6 @@ public sealed class RoomPlmSystem
                 instruction, "bank-$84 PLM instruction");
             switch (code)
             {
-                case RoomPlmInstruction.SamusEaterDamage:
-                    SamusEater.RequirePlantSamus().LiquidPhysics.AccumulatePeriodicDamage(0, 2);
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
-                case RoomPlmInstruction.SamusEaterReleaseImmunity:
-                    SamusEater.RequirePlantSamus().InvincibilityTimer = NativeCountdown.Start(0x30);
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
                 case RoomPlmInstruction.SetAnimalsEscapedEvent:
                     (Bindings.Events ?? throw new InvalidOperationException("Animal rescue requires the room event owner.")).Set(EventNumber.CrittersEscaped);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
@@ -514,8 +506,6 @@ public sealed class RoomPlmSystem
                     if (BombTorizoHand.TryExecuteBombTorizoHandInstruction(bus, slot, code))
                         continue;
                     if (MotherBrainGlass.TryExecuteMotherBrainGlassInstruction(bus, slot, code))
-                        continue;
-                    if (NoobTube.TryExecuteNoobTubeInstruction(bus, slot, code))
                         continue;
                     if (EyeDoors.TryExecuteEyeDoorInstruction(bus, level, slot, code))
                         continue;

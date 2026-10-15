@@ -179,7 +179,6 @@ using static SuperMetroid.Verification.Harness.LookupRomOraclesVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LookupSkyChunkPointersVerification;
 using static SuperMetroid.Verification.Rooms.Backgrounds.LookupSkySectionsVerification;
 using static SuperMetroid.Verification.Enemies.LookupSmallGameTablesVerification;
-using static SuperMetroid.Verification.Rooms.Plms.LookupSpeedEscapeProgramVerification;
 using static SuperMetroid.Verification.Harness.LookupStream1Verification;
 using static SuperMetroid.Verification.Harness.LookupStream2Verification;
 using static SuperMetroid.Verification.Harness.LookupStream3Verification;
@@ -3255,8 +3254,7 @@ internal static class VerificationAssert
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Speed escape oracle revision");
-        Suite(nameof(VerifySpeedEscapeProgramControls), () => VerifySpeedEscapeProgramControls(rom));
-        Suite(nameof(VerifySpeedEscapeProgramCallbacks), () => VerifySpeedEscapeProgramCallbacks(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifySpeedBoosterEscapePrograms), () => RoomPlmProgramsVerification.VerifySpeedBoosterEscapePrograms(rom));
         Suite(nameof(VerifySpeedBoosterEscapePlm), () => VerifySpeedBoosterEscapePlm(new TestAddressSpace()));
         Console.WriteLine("Speed escape program: all native fields and complete address domain pass; production handoffs and lava completion pass.");
         return 0;

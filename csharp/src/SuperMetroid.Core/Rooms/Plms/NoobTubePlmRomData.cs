@@ -25,4 +25,10 @@ public static class NoobTubePlmRomData
 
     /// <summary>Native earthquake duration written by instruction $D536.</summary>
     public const ushort EarthquakeTimer = 0x0040;
+
+    /// <summary>Glass shards the break spawns (parameters 0, 2, .. 18).</summary>
+    public const int ShardCount = 10;
+
+    /// <summary>Released-air bubbles the break spawns (parameters 0, 2, .. 10).</summary>
+    public const int BubbleCount = 6;
 }

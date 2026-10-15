@@ -1216,7 +1216,7 @@ public sealed class IntroCinematicState
     internal Rgba32[] RenderMotherBrainFlashback()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
-        OamBuffer oam = PrepareMotherBrainOam();
+        SpriteFrameBuffer oam = PrepareMotherBrainOam();
 
         CompositeObjPriority(pixels, oam, 0);
         CompositeTextPriority(pixels, priority: false);
@@ -1232,7 +1232,7 @@ public sealed class IntroCinematicState
     /// <summary>
     /// Prepares Mother Brain OAM once per display; trail drawing advances state, so a captured frame cannot be redrawn through this path.
     /// </summary>
-    internal OamBuffer PrepareMotherBrainOam()
+    internal SpriteFrameBuffer PrepareMotherBrainOam()
     {
         // Both direct rendering and detached capture enter here once per display.
         // The intro's standard OBJ upload owns these same trail regions; its separate
@@ -1242,13 +1242,14 @@ public sealed class IntroCinematicState
             trailTiles.LoadTo(vram);
             pendingTrailTiles = null;
         }
-        var oam = new OamBuffer();
-        oam.BeginFrame();
+        var sprites = new SpriteFrameBuffer();
+        sprites.BeginFrame();
+        OamBuffer oam = sprites.Oam;
         // $8B:8E2D: a negative $1A57 draws Samus and both projectile passes before the
         // cinematic objects; once $B842 clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            FlashbackSamus.Presentation.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
+            FlashbackSamus.Presentation.Draw(bus, sprites, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
             flashbackProjectiles.DrawLiveProjectiles(bus, oam, Position16<RoomPixels>.Zero, nmiFrameCounter, ProjectileCompositions);
             flashbackProjectiles.HandleTrailsAndDraw(bus, oam, Position16<RoomPixels>.Zero, timeIsFrozen: false, TrailArtwork);
             flashbackProjectiles.DrawExplosions(bus, oam, Position16<RoomPixels>.Zero, ProjectileCompositions);
@@ -1267,16 +1268,16 @@ public sealed class IntroCinematicState
                 IntroMotherBrainSpriteState.Position.ToOam(),
                 IntroMotherBrainSpriteState.PaletteBits);
         }
-        oam.FinalizeFrame();
+        sprites.FinalizeFrame();
 
-        return oam;
+        return sprites;
     }
 
     /// <summary>Composes the SR388 room with its egg, baby, Samus, and projectile layers.</summary>
     internal Rgba32[] RenderBabyDiscovery()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
-        OamBuffer oam = PrepareBabyDiscoveryOam();
+        SpriteFrameBuffer oam = PrepareBabyDiscoveryOam();
 
         CompositeObjPriority(pixels, oam, 0);
         CompositeTextPriority(pixels, priority: false);
@@ -1290,38 +1291,39 @@ public sealed class IntroCinematicState
     }
 
     /// <summary>Orders Samus and discovery actors by the cinematic display flag before finalizing OBJ data.</summary>
-    private OamBuffer PrepareBabyDiscoveryOam()
+    private SpriteFrameBuffer PrepareBabyDiscoveryOam()
     {
-        var oam = new OamBuffer();
-        oam.BeginFrame();
+        var sprites = new SpriteFrameBuffer();
+        sprites.BeginFrame();
+        OamBuffer oam = sprites.Oam;
         // $8B:8E2D orders Samus against the cinematic objects by $1A57's sign.
         IntroSamusDisplay display = BabyDiscovery.SamusDisplay;
         if (display == IntroSamusDisplay.SamusFirst)
-            DrawBabyDiscoverySamus(oam);
+            DrawBabyDiscoverySamus(sprites);
         BabyDiscovery.DrawActors(oam, characterArtwork?.EggEffectSprites,
             characterArtwork?.DiscoveryActorSprites);
         if (display == IntroSamusDisplay.ObjectsFirst)
-            DrawBabyDiscoverySamus(oam);
-        oam.FinalizeFrame();
+            DrawBabyDiscoverySamus(sprites);
+        sprites.FinalizeFrame();
 
-        return oam;
+        return sprites;
     }
 
     /// <summary>Draws Samus in screen-relative coordinates as the demo brings her in from the right.</summary>
-    private void DrawBabyDiscoverySamus(OamBuffer oam)
+    private void DrawBabyDiscoverySamus(SpriteFrameBuffer sprites)
     {
         // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
         // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
         BabyDiscovery.Samus.Presentation.TileTransfers.TransferToVram(bus, vram);
-        BabyDiscovery.Samus.Presentation.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
+        BabyDiscovery.Samus.Presentation.Draw(bus, sprites, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
     }
 
     /// <summary>Composes the delivery or examination laboratory with its scrolling BG1 and actor priority.</summary>
     internal Rgba32[] RenderScientistCutscene()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
-        OamBuffer oam = PrepareScientistOam();
+        SpriteFrameBuffer oam = PrepareScientistOam();
 
         // TM=$15 uses the same BG1/BG3/OBJ priority ladder as the gameplay flashbacks.
         // BG1SC=$58 selects the first laboratory page; its crossfade pan is real PPU scroll.
@@ -1337,13 +1339,14 @@ public sealed class IntroCinematicState
     }
 
     /// <summary>Collects scientist-scene objects for the current cinematic display.</summary>
-    private OamBuffer PrepareScientistOam()
+    private SpriteFrameBuffer PrepareScientistOam()
     {
-        var oam = new OamBuffer();
-        oam.BeginFrame();
+        var sprites = new SpriteFrameBuffer();
+        sprites.BeginFrame();
+        OamBuffer oam = sprites.Oam;
         ScientistCutscene.Draw(oam, characterArtwork?.ScientistSprites);
-        oam.FinalizeFrame();
-        return oam;
+        sprites.FinalizeFrame();
+        return sprites;
     }
 
     /// <summary>Overlays only the requested laboratory BG1 priority tiles, leaving transparent pixels untouched.</summary>
@@ -1387,7 +1390,7 @@ public sealed class IntroCinematicState
         // BG3 is the progressively written 2-bpp narration at SC=$4C. Both vertical scroll
         // registers are eight, so source scanline eight is the first visible output line.
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
-        OamBuffer oam = PrepareIllustratedPageOam();
+        SpriteFrameBuffer oam = PrepareIllustratedPageOam();
         CompositeObjPriority(pixels, oam, 0);
         CompositeTextPriority(pixels, priority: false);
         CompositeObjPriority(pixels, oam, 1);
@@ -1400,10 +1403,11 @@ public sealed class IntroCinematicState
     }
 
     /// <summary>Collects the persistent caret and illustrated-page cinematic objects in display order.</summary>
-    internal OamBuffer PrepareIllustratedPageOam()
+    internal SpriteFrameBuffer PrepareIllustratedPageOam()
     {
-        var oam = new OamBuffer();
-        oam.BeginFrame();
+        var sprites = new SpriteFrameBuffer();
+        sprites.BeginFrame();
+        OamBuffer oam = sprites.Oam;
         if (Objects.SpriteMapPointer != 0)
         {
             // The persistent caret begins at (8,24), moves to (8,$F8) during illustrated
@@ -1415,9 +1419,9 @@ public sealed class IntroCinematicState
                 Objects.SpriteMapPointer, oam, Objects.Caret.ToOam(),
                 IntroCinematicRomData.Objects.ScientistPalette.Raw);
         }
-        oam.FinalizeFrame();
+        sprites.FinalizeFrame();
 
-        return oam;
+        return sprites;
     }
 
     /// <summary>Overlays portrait BG2 tiles of one priority without erasing earlier layers.</summary>
@@ -1443,12 +1447,12 @@ public sealed class IntroCinematicState
     }
 
     /// <summary>Overlays OBJ sprites at one SNES priority level into the cinematic frame.</summary>
-    private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
+    private void CompositeObjPriority(Span<Rgba32> pixels, SpriteFrameBuffer objects, int priority)
     {
         Rgba32[] sprites = objScratch ??= new Rgba32[ScreenWidth * ScreenHeight];
         SnesObjRenderer.Render(
             sprites,
-            ObjSpriteImage.OamOnly(oam),
+            ObjSpriteImage.Of(objects),
             vram,
             cgram,
             obsel: 3,
@@ -1586,7 +1590,7 @@ public sealed class IntroCinematicState
         if (ceresFlight is not null && Phase == IntroCinematicPhase.CeresFlight)
             return ceresFlight.CaptureRenderSnapshot();
 
-        OamBuffer oam;
+        SpriteFrameBuffer oam;
         Bg4BppRenderLayer room;
         if (Phase is IntroCinematicPhase.MotherBrainCrossfade or
             IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
@@ -1611,7 +1615,7 @@ public sealed class IntroCinematicState
         }
         else if (objects is null)
         {
-            oam = new OamBuffer();
+            oam = new SpriteFrameBuffer();
             oam.BeginFrame();
             oam.FinalizeFrame();
             // The first card is opaque and unscrolled; later text is transparent

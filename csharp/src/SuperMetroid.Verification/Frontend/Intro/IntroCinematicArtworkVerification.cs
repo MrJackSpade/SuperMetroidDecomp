@@ -751,8 +751,8 @@ internal static class IntroCinematicArtworkVerification
         installedState.SetupFirstIllustratedPage();
         ((nativeState.objects ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
         ((installedState.objects ?? throw new InvalidOperationException("Verification requires installedState.objects."))).Step(0);
-        var nativeOam = nativeState.PrepareIllustratedPageOam();
-        var installedOam = installedState.PrepareIllustratedPageOam();
+        var nativeOam = nativeState.PrepareIllustratedPageOam().FinalizedAsOam();
+        var installedOam = installedState.PrepareIllustratedPageOam().FinalizedAsOam();
         AssertTrue(installedOam.ImageEquals(nativeOam),
             "installed illustrated page draws caret without cartridge spritemap reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

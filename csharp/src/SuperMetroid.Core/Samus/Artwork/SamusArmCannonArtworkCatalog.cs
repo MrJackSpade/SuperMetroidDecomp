@@ -211,6 +211,19 @@ public sealed class SamusArmCannonArtworkCatalog
             : SamusArmCannonArtworkFormat.StockTileSource((SamusProjectileDirection)direction, frame);
     }
 
+    /// <summary>The cover character for native direction 0-9 and opening frame 1-3, as owned artwork.</summary>
+    public SpriteArtwork CoverTile(int direction, int frame)
+    {
+        int index = SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(TileSource(direction, frame));
+        if (index < 0)
+            throw new InvalidDataException($"Arm-cannon direction {direction} frame {frame} names no installed cover tile.");
+        return coverTiles.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
+            tiles.Transfer.Span.Slice(key * SamusRenderingRomData.ArmCannon.TileUploadByteCount, SamusRenderingRomData.ArmCannon.TileUploadByteCount)));
+    }
+
+    /// <summary>Cover characters already built, by installed tile index.</summary>
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<int, SpriteArtwork> coverTiles = new();
+
     /// <summary>Resolves the queued 32-byte VRAM DMA from the editable indexed PNG.</summary>
     public bool TryResolveTile(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)

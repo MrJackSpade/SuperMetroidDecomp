@@ -1,4 +1,4 @@
-using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -12,14 +12,15 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
-/// <summary>Checks Grapple VRAM transfer rebinding across legacy and typed debugger snapshots.</summary>
+/// <summary>Checks that grapple draws bind the currently installed grapple artwork, including after a debugger-state restore.</summary>
 internal static class GrappleTileBindingVerification
 {
-    /// <summary>Confirms queued endpoint and rope transfers resolve current artwork after restore without embedding image bytes.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
+    /// <summary>
+    /// The actual actor pass publishes grapple draws bound to the installed atlas's endpoint/rope tiles; rebinding host
+    /// artwork leaves saved state untouched; a restored state draws with whichever atlas the host binds.
+    /// </summary>
     internal static void VerifyGrappleTileBinding(SuperMetroidAddressSpace bus, GrappleTileAtlas stock, GrappleTileAtlas edited)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.NmiHandler.RunNmi(0, true);
@@ -30,78 +31,40 @@ internal static class GrappleTileBindingVerification
         samus.Grapple.PointAnimationFrame = 1; samus.Grapple.PointAnimationTimer = NativeCountdown.Start(4);
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.Angle = SnesAngle.FromRaw(0x6000);
+        // A connected rope with on-screen endpoint, so the beam's draws exist to bind.
+        samus.Grapple.RopeLength = 32;
+        samus.Grapple.Anchor = new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 32));
         var game = CreateRetailGameFixture(bus);
         game.runtime = runtime;
-        Draw(runtime);
-        AssertEqual(2, runtime.VramWrites.Entries.Count, "Actual actor fixture queues endpoint/rope transfers");
-        AssertTrue(runtime.VramWrites.Entries.All(entry => entry.AssetId != VramAssetId.None), "Installed actor queues typed endpoint/rope transfers");
-        // Reconstruct the native records an older snapshot stores, preserving queue order,
-        // byte counts and destinations from the actual actor draw.
-        var entries = runtime.VramWrites._entries;
-        for (int i = 0; i < entries.Count; i++)
-            entries[i] = entries[i] with
-            {
-                SourceAddress = GrappleTileDefinitions.TransferFor(entries[i].AssetId).SourceAddress,
-                AssetId = VramAssetId.None,
-            };
-        AssertTrue(runtime.VramWrites.Entries.All(entry => entry.AssetId == VramAssetId.None), "Legacy fixture stores native sources before binding");
-        byte[] legacy = SerializeGraph(game);
-        game.BindArtwork(game.Artwork with
-        {
-            GrappleArtwork = stock,
-        });
-        AssertTrue(runtime.VramWrites.Entries.All(entry => entry.AssetId != VramAssetId.None), "Binding converts known legacy transfers in place");
+        game.BindArtwork(game.Artwork with { GrappleArtwork = stock });
+        AssertBoundTo(runtime, stock, "Actual actor pass binds the installed grapple tiles");
+
         byte[] stockGraph = GraphDigest(game);
-        game.BindArtwork(game.Artwork with
-        {
-            GrappleArtwork = edited,
-        });
-        AssertTrue(stockGraph.SequenceEqual(GraphDigest(game)), "Changing Grapple PNG does not embed different image data in saved state");
-        game.BindArtwork(game.Artwork with
-        {
-            GrappleArtwork = stock,
-        });
-        runtime.NmiHandler.RunNmi(0, true);
-        byte[] nativeVram = runtime.Vram.Bytes.ToArray();
-        using var stream = new MemoryStream(legacy);
+        game.BindArtwork(game.Artwork with { GrappleArtwork = edited });
+        AssertTrue(stockGraph.SequenceEqual(GraphDigest(game)), "Changing Grapple PNG does not change saved state before the next draw");
+
+        game.BindArtwork(game.Artwork with { GrappleArtwork = stock });
+        using var stream = new MemoryStream(SerializeGraph(game));
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
         var restoredRuntime = restored.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.GrappleArtwork is null, "Restored state requires current host Grapple artwork");
-        byte[] retained = restoredRuntime.Vram.Bytes.ToArray();
         BindRetailRuntimeFixture(restoredRuntime);
-        restored.BindArtwork(restored.Artwork with
+        restored.BindArtwork(restored.Artwork with { GrappleArtwork = edited });
+        AssertBoundTo(restoredRuntime, edited, "Restored state draws with the newly bound Grapple PNG");
+        Console.WriteLine("Grapple tile binding: actor draws bind installed tiles; rebinding leaves state untouched; restored states draw with the bound atlas.");
+
+        static void AssertBoundTo(SuperMetroidRuntime target, GrappleTileAtlas atlas, string context)
         {
-            GrappleArtwork = edited,
-        });
-        restoredRuntime.NmiHandler.RunNmi(0, false);
-        AssertTrue(retained.SequenceEqual(restoredRuntime.Vram.Bytes), "Grapple rebind preserves retained lag-frame VRAM");
-        restoredRuntime.NmiHandler.RunNmi(0, true);
-        nativeVram[GrappleTileDefinitions.PointDestination * 2] ^= 128;
-        for (int tile = 0; tile < 4; tile++) nativeVram[GrappleTileDefinitions.SegmentDestination * 2 + tile * 32] ^= 128;
-        AssertTrue(nativeVram.SequenceEqual(restoredRuntime.Vram.Bytes), "Legacy restored NMI resolves current Grapple PNG with exact edited-bit isolation");
-        Draw(restoredRuntime);
-        AssertTrue(restoredRuntime.VramWrites.Entries.All(entry => entry.AssetId != VramAssetId.None), "Actual rebound actor queues typed Grapple resources");
-        using var typedState = new MemoryStream(SerializeGraph(restored));
-        var typedRestored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(typedState);
-        typedRestored.BindArtwork(typedRestored.Artwork with
-        {
-            GrappleArtwork = stock,
-        });
-        var typedRuntime = typedRestored.GameplayRuntime;
-        BindRetailRuntimeFixture(typedRuntime);
-        typedRestored.BindArtwork(typedRestored.Artwork with
-        {
-            GrappleArtwork = stock,
-        });
-        typedRuntime.NmiHandler.RunNmi(0, true);
-        AssertTrue(stock.Resolve(GrappleTileDefinitions.PointAssetFor(typedRuntime.Player.IntroducedSamus.Grapple.PointAnimationFrame)).Span.SequenceEqual(
-            typedRuntime.Vram.Bytes.Slice(GrappleTileDefinitions.PointDestination * 2, 32)), "Typed pending state also resolves newly selected endpoint artwork");
-        AssertTrue(stock.Resolve(GrappleTileDefinitions.SegmentAssetFor(typedRuntime.Player.IntroducedSamus.Grapple.Angle.RawValue)).Span.SequenceEqual(
-            typedRuntime.Vram.Bytes.Slice(GrappleTileDefinitions.SegmentDestination * 2, 128)), "Typed pending state also resolves newly selected rope artwork");
-        static void Draw(SuperMetroidRuntime target)
-        {
-            target.Oam.BeginFrame();
+            target.Sprites.BeginFrame();
             target.ActorDrawing.DrawGameplayActors(false, false);
+            target.Sprites.FinalizeFrame();
+            SamusGrappleState grapple = target.Player.IntroducedSamus.Grapple;
+            SpriteDraw[] grappleDraws = [.. target.Sprites.Draws.Select(ordered => ordered.Draw)
+                .Where(draw => draw.Source.Kind is SpriteSourceKind.SamusGrappleEndpoint or SpriteSourceKind.SamusGrappleRope)];
+            AssertTrue(grappleDraws.Length > 0, context + ": the grapple beam is drawn");
+            SpriteArtwork expected = atlas.OnStandardObjects(target.Artwork.StandardObjects ?? throw new InvalidOperationException(
+                "Verification requires the runtime's standard OBJ page."), grapple.PointAnimationFrame, grapple.Angle.RawValue);
+            AssertTrue(grappleDraws.All(draw => ReferenceEquals(expected, draw.Artwork)), context);
         }
     }
 }

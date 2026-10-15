@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -1127,19 +1128,22 @@ internal static void VerifySamusAtmosphericEffects()
     // frame one, and consumes its distinct `$2A49` attribute word.
     var effects = new SamusAtmosphericEffectsState();
     effects.SetSlot(0, type: 4, animationFrame: 0, animationTimer: 2, anchor: new(104, 104));
-    var oam = new OamBuffer();
-    oam.BeginFrame();
-    effects.UpdateAndDraw(bus, oam, camera: new(0, 0), fxYPosition: 0,
-        directArtwork: atmosphericArt);
+    var oamFrame = new SpriteFrameBuffer();
+    oamFrame.BeginFrame();
+    OamBuffer oam;
+    effects.UpdateAndDraw(bus, oamFrame, camera: new(0, 0), fxYPosition: 0,
+        directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(1, effects.Slots[0].AnimationTimer.RawValue, "atmospheric positive timer decrements");
     AssertEqual(105, effects.Slots[0].Position.X, "lava slot zero drifts right");
     AssertEqual(103, effects.Slots[0].Position.Y, "lava spray rises one pixel");
     AssertEqual(0x048, oam.GetEntry(0).TileNumber, "lava frame zero direct OAM tile");
     AssertEqual(5, oam.GetEntry(0).Palette, "lava direct OAM retains ROM palette");
 
-    oam.BeginFrame();
-    effects.UpdateAndDraw(bus, oam, camera: new(0, 0), fxYPosition: 0,
-        directArtwork: atmosphericArt);
+    oamFrame.BeginFrame();
+    effects.UpdateAndDraw(bus, oamFrame, camera: new(0, 0), fxYPosition: 0,
+        directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(1, effects.Slots[0].AnimationFrame,
         "timer zero reloads old frame then advances packed word");
     AssertEqual(2, effects.Slots[0].AnimationTimer.RawValue,
@@ -1150,13 +1154,15 @@ internal static void VerifySamusAtmosphericEffects()
     // the next reaches `$8000`, reloads the current ROM duration, moves, and draws.
     effects.Clear();
     effects.SetSlot(1, type: 4, animationFrame: 0, animationTimer: 0x8002, anchor: new(100, 100));
-    oam.BeginFrame();
-    effects.UpdateAndDraw(bus, oam, new(0, 0), 0, directArtwork: atmosphericArt);
+    oamFrame.BeginFrame();
+    effects.UpdateAndDraw(bus, oamFrame, new(0, 0), 0, directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(100, effects.Slots[1].Position.X, "$8001 suppresses atmospheric motion");
-    AssertEqual(0, oam.NextByteOffset, "$8001 suppresses atmospheric drawing");
-    effects.UpdateAndDraw(bus, oam, new(0, 0), 0, directArtwork: atmosphericArt);
+    AssertEqual(0, (oam.LastFinalizedSpriteCount * 4), "$8001 suppresses atmospheric drawing");
+    effects.UpdateAndDraw(bus, oamFrame, new(0, 0), 0, directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(101, effects.Slots[1].Position.X, "$8000 reload call begins motion");
-    AssertEqual(4, oam.NextByteOffset, "$8000 reload call emits one OAM record");
+    AssertEqual(4, (oam.LastFinalizedSpriteCount * 4), "$8000 reload call emits one OAM record");
 
     // Running frame two with stage four produces dry-room type-seven dust. The first slot
     // is delayed and the second immediate, exactly like `$90:EE64-$EEE3`.

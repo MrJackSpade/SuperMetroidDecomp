@@ -1,9 +1,10 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
-/// Exact state, tile DMA, and one-OBJ renderer for Samus's opening arm cannon at
+/// Exact state and one-OBJ renderer for Samus's opening arm cannon at
 /// <c>$90:C5C4-$90:C790</c>.
 /// </summary>
 /// <remarks>
@@ -81,20 +82,18 @@ public sealed class SamusArmCannonState
     }
 
     /// <summary>
-    /// Draws the direction-specific small OBJ and queues its exact 32-byte bank-$9A tile
-    /// upload. The caller chooses before/after-body order from <see cref="DrawingMode"/>.
+    /// Draws the direction-specific small OBJ bound to its selected cover character. The caller chooses
+    /// before/after-body order from <see cref="DrawingMode"/>.
     /// </summary>
     public SamusArmCannonDrawResult Draw(
         ISnesAddressSpace bus,
-        OamBuffer oam,
-        VramWriteQueue vramWrites,
+        SpriteFrameBuffer sprites,
         SamusState samus,
         Position16<RoomPixels> layer1,
         ushort nmiFrameCounter)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
-        Ensure.NotNull(vramWrites);
+        Ensure.NotNull(sprites);
         Ensure.NotNull(samus);
 
         // The cannon shares Samus's invincibility flicker, and a closed frame performs
@@ -127,19 +126,15 @@ public sealed class SamusArmCannonState
         ushort attributes = artwork.SpriteAttributes(selector);
         if (spriteWritten)
         {
-            oam.AddRawSmallSprite(
-                new Position16<OamPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)),
-                attributes);
+            // Selector -> one of four orientation lists -> current cover frame. Natively `$90:C7DF` uploads that
+            // character to tile $1F, which the sprite names; the draw binds the selected cover directly. Frame zero,
+            // the null entry, returned above.
+            var cover = new SnesObjAttributeWord(attributes);
+            sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
+                ObjPartFrames.SmallObject(cover, cover.TileNumber), artwork.CoverTile(selector, Frame),
+                new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)),
+                SnesTileFlipFlags.None, (byte)cover.PaletteIndex, (byte)cover.Priority));
         }
-
-        // Selector -> one of four orientation lists -> current cover frame -> bank-$9A
-        // source. Entry zero is intentionally null but cannot be reached because Frame zero
-        // returned above. Destination `$61F0` is the tile-$1F slot used by the OAM word.
-        ushort tileSource = artwork.TileSource(selector, Frame);
-        vramWrites.Enqueue(
-            sizeInBytes: SamusRenderingRomData.ArmCannon.TileUploadByteCount,
-            sourceAddress: SamusRenderingRomData.Banks.CharacterData | tileSource,
-            destination: SamusVram.ArmCannonTileDma);
 
         return new SamusArmCannonDrawResult();
     }

@@ -76,7 +76,7 @@ internal static class SamusGrappleRomDataVerification
         {
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusGrappleRomData.Rendering.PointTilePointers + point * sizeof(ushort)));
             TouchRange(bus, SamusGrappleRomData.Banks.CharacterData | pointer,
-                SamusGrappleRomData.Rendering.PointTileByteCount,
+                SamusGrappleRomDataRenderingConstants.PointTileByteCount,
                 $"Grapple point character frame {point}");
         }
 

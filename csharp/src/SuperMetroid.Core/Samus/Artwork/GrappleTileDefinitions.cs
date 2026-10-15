@@ -9,10 +9,8 @@ public static class GrappleTileDefinitions
     public const int Width = 128;
     /// <summary>Sheet height in pixels: one row of sixteen 8-by-8 four-bit planar characters, totaling 512 encoded bytes.</summary>
     public const int Height = 8;
-    /// <summary>$9B:BFFB selects VRAM word $6200 for the endpoint character.</summary>
-    public const ushort PointDestination = 0x6200;
-    /// <summary>$9B:C02B selects VRAM word $6210 for the four segment characters.</summary>
-    public const ushort SegmentDestination = 0x6210;
+    /// <summary>OBJ character $20, where `$9B:BFA5` uploads the endpoint character; the four rope characters follow it.</summary>
+    public const int FirstCharacter = 0x20;
     /// <summary>Installed tile identity for horizontal rope segments.</summary>
     private const VramAssetId Horizontal = VramAssetId.GrappleHorizontalSegmentTiles;
     /// <summary>Installed tile identity for diagonal rope segments.</summary>
@@ -55,7 +53,7 @@ public static class GrappleTileDefinitions
     };
     /// <summary>Resolves one of seven Grapple-owned upload identities to its native source and planar-sheet slice; this lookup neither advances endpoint animation nor enqueues a VRAM transfer.</summary>
     /// <param name="asset">One of the four endpoint-frame identities or the horizontal, diagonal, or vertical segment identity.</param>
-    /// <returns>A 32-byte endpoint or 128-byte segment descriptor; destination VRAM words are separately defined by <see cref="PointDestination"/> and <see cref="SegmentDestination"/>.</returns>
+    /// <returns>A 32-byte endpoint or 128-byte segment descriptor; destination VRAM words are separately defined by <c>PointDestination</c> and <c>SegmentDestination</c>.</returns>
     /// <exception cref="InvalidDataException">The asset identity is not owned by the Grapple tile catalog.</exception>
     public static GrappleTileTransfer TransferFor(VramAssetId asset)
     {

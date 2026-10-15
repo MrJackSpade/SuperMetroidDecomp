@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Editable charge-flare compositions, independent of cadence, placement and projectile physics.</summary>
@@ -17,6 +18,14 @@ public sealed class ChargeFlareSpriteCatalog
 
     /// <summary>True when <paramref name="selector"/> indexes the native $93:A1A1 flare table.</summary>
     public static bool Contains(ushort selector) => selector < ChargeFlareSpriteDefinitions.Selectors.Length;
+
+    /// <summary>The flare composition a valid native selector names, as a whole frame over the standard OBJ page.</summary>
+    public SpriteFrame Frame(ushort selector)
+    {
+        if (selector >= ChargeFlareSpriteDefinitions.Selectors.Length)
+            throw new InvalidDataException($"Unknown charge-flare sprite selector {selector:X4}.");
+        return sprites.Frame(ChargeFlareSpriteDefinitions.Selectors[selector]);
+    }
 
     /// <summary>Draws a valid native charge-flare selector without consulting ROM.</summary>
     public void Draw(ushort selector, OamBuffer oam, Position16<OamPixels> origin)

@@ -58,6 +58,25 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
             image.Size, SamusDeathTileAtlasFormat.BitsPerPixel));
     }
 
+    /// <summary>The 160 explosion characters in OBJ character order, the order the explosion's spritemaps name them.</summary>
+    public SpriteArtwork Explosion => field ??= ComposeExplosion();
+
+    /// <summary>
+    /// Places each page where its native transfer lands: the atlas keeps the five pages in queue order, and each
+    /// queued segment's VRAM destination, relative to the OBJ characters, gives its first character.
+    /// </summary>
+    [PpuLayoutBoundary("codec: places death pages at their native OBJ character destinations")]
+    private SpriteArtwork ComposeExplosion()
+    {
+        var segments = SamusSpecialSequenceRomData.Death.TileSegments;
+        int pageBytes = SamusSpecialSequenceRomData.Death.TileSegmentByteCount;
+        var characters = new byte[segments.Length * pageBytes];
+        for (int index = 0; index < segments.Length; index++)
+            ReadRange(index * pageBytes, pageBytes).CopyTo(characters,
+                (segments[index].EncodedVramDestination - GameplayVramLayout.ObjectCharacters.Offset) * sizeof(ushort));
+        return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusDeathExplosion), characters);
+    }
+
     /// <summary>Finds one native $400-byte transfer without changing its queued destination.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {

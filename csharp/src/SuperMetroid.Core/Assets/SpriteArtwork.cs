@@ -38,6 +38,22 @@ public sealed class SpriteArtwork
     /// <summary>The planar character bytes in sheet order.</summary>
     public ReadOnlySpan<byte> Characters => characters;
 
+    /// <summary>A copy of <paramref name="baseSheet"/> with <paramref name="overlay"/>'s characters written from <paramref name="firstCharacter"/>.</summary>
+    /// <param name="id">The composed artwork's identity.</param>
+    /// <param name="baseSheet">Characters the overlay leaves in place.</param>
+    /// <param name="overlay">Characters that replace part of the base.</param>
+    /// <param name="firstCharacter">Base character the overlay's character 0 replaces.</param>
+    public static SpriteArtwork Overlay(SpriteArtworkId id, SpriteArtwork baseSheet, SpriteArtwork overlay, int firstCharacter)
+    {
+        Ensure.NotNull(baseSheet);
+        Ensure.NotNull(overlay);
+        if (firstCharacter < 0 || firstCharacter + overlay.CharacterCount > baseSheet.CharacterCount)
+            throw new ArgumentOutOfRangeException(nameof(firstCharacter), firstCharacter, $"Artwork {overlay.Id} does not fit in {baseSheet.Id} there.");
+        byte[] combined = baseSheet.characters.ToArray();
+        overlay.characters.CopyTo(combined, firstCharacter * CharacterByteCount);
+        return new SpriteArtwork(id, combined);
+    }
+
     /// <summary>Palette index (zero is transparent) of one pixel of one character.</summary>
     /// <param name="character">Character index within the sheet.</param>
     /// <param name="pixel">Pixel inside the character, each coordinate 0..7 from the top-left.</param>

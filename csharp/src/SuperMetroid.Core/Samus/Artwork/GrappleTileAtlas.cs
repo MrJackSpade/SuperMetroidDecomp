@@ -93,22 +93,45 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
         data = default;
         return false;
     }
-    /// <summary>Queues the selected endpoint-animation character for VRAM word <c>$6200</c>.</summary>
-    /// <param name="queue">The deferred VRAM write queue.</param>
-    /// <param name="frame">Endpoint animation ordinal from zero through three.</param>
-    public void QueuePoint(VramWriteQueue queue, ushort frame)
+    /// <summary>
+    /// The endpoint character for animation <paramref name="pointFrame"/> followed by the four rope characters the
+    /// grapple <paramref name="angle"/> selects: OBJ characters $20-$24 as the beam's sprites name them.
+    /// </summary>
+    public SpriteArtwork Tiles(ushort pointFrame, ushort angle)
     {
-        var asset = GrappleTileDefinitions.PointAssetFor(frame);
-        queue.EnqueueAsset(asset, checked((ushort)Resolve(asset).Length), SuperMetroid.Core.Samus.Drawing.SamusVram.GrapplePointDma);
+        VramAssetId point = GrappleTileDefinitions.PointAssetFor(pointFrame);
+        VramAssetId segments = GrappleTileDefinitions.SegmentAssetFor(angle);
+        return tileSets.GetOrAdd((point, segments), key => new SpriteArtwork(
+            new SpriteArtworkId(SpriteArtworkKind.GrappleTiles, SnesLittleEndian.Word(checked((byte)key.Segments), checked((byte)key.Point))),
+            [.. Resolve(key.Point).Span, .. Resolve(key.Segments).Span]));
     }
-    /// <summary>Queues the four horizontal, diagonal, or vertical rope characters selected by the native angle fold.</summary>
-    /// <param name="queue">The deferred VRAM write queue.</param>
-    /// <param name="angle">Unsigned native Grapple angle whose 64 sectors select the rope orientation.</param>
-    public void QueueSegments(VramWriteQueue queue, ushort angle)
+
+    /// <summary>
+    /// The standard OBJ page with <see cref="Tiles"/> over characters $20-$24: the beam's sprites name OBJ characters
+    /// directly, and one stock rope frame names tile $1FF outside the grapple's own characters.
+    /// </summary>
+    public SpriteArtwork OnStandardObjects(SpriteArtwork standardObjects, ushort pointFrame, ushort angle)
     {
-        var asset = GrappleTileDefinitions.SegmentAssetFor(angle);
-        queue.EnqueueAsset(asset, checked((ushort)Resolve(asset).Length), SuperMetroid.Core.Samus.Drawing.SamusVram.GrappleSegmentsDma);
+        Ensure.NotNull(standardObjects);
+        if (!ReferenceEquals(pagesComposedOn, standardObjects))
+        {
+            pages.Clear();
+            pagesComposedOn = standardObjects;
+        }
+        SpriteArtwork tiles = Tiles(pointFrame, angle);
+        return pages.GetOrAdd(tiles.Id.Variant, variant => SpriteArtwork.Overlay(
+            new SpriteArtworkId(SpriteArtworkKind.GrappleTilesOnStandardObjects, variant), standardObjects, tiles,
+            GrappleTileDefinitions.FirstCharacter));
     }
+
+    /// <summary>Composed pages by grapple tile selection, for <see cref="pagesComposedOn"/>.</summary>
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<int, SpriteArtwork> pages = new();
+
+    /// <summary>The standard page <see cref="pages"/> were composed over.</summary>
+    private SpriteArtwork? pagesComposedOn;
+
+    /// <summary>Endpoint-plus-rope sheets already built.</summary>
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<(VramAssetId Point, VramAssetId Segments), SpriteArtwork> tileSets = new();
     /// <summary>Restored legacy transfers keep their order and destination but resolve current artwork at NMI.</summary>
     [PpuLayoutBoundary("codec: rebinds restored native queued-DMA records to installed Grapple artwork")]
     public void RebindPendingWrites(VramWriteQueue queue)

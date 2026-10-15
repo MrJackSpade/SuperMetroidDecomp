@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
@@ -119,14 +120,17 @@ internal static class GrappleFlarePresentationVerification
                     expectedTimer = delay;
                 }
             }
-            var a = new OamBuffer(); var b = new OamBuffer(); var c = new OamBuffer();
-            bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(bus, native, a, Position16<RoomPixels>.Zero, stock);
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, actual, b, Position16<RoomPixels>.Zero, stock), "Grapple catalog retains native flare visibility");
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, changed, c, Position16<RoomPixels>.Zero, edited), "Grapple art edit retains origin visibility gate");
+            var aFrame = new SpriteFrameBuffer(); var bFrame = new SpriteFrameBuffer(); var cFrame = new SpriteFrameBuffer();
+            bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(bus, native, aFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            OamBuffer a = aFrame.FinalizeAsOam();
+            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, actual, bFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple catalog retains native flare visibility");
+            OamBuffer b = bFrame.FinalizeAsOam();
+            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, changed, cFrame, Position16<RoomPixels>.Zero, edited, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple art edit retains origin visibility gate");
+            OamBuffer c = cFrame.FinalizeAsOam();
             AssertEqual((expectedFrame, expectedTimer), (actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
-            AssertTrue(a.ImageEquals(b) && a.NextByteOffset == b.NextByteOffset, "Grapple stock parts preserve native complete OAM");
-            AssertEqual(a.NextByteOffset, c.NextByteOffset, "Grapple art edit preserves sprite count");
-            for (int i = 0; i < a.NextByteOffset / 4; i++)
+            AssertTrue(a.ImageEquals(b) && (a.LastFinalizedSpriteCount * 4) == (b.LastFinalizedSpriteCount * 4), "Grapple stock parts preserve native complete OAM");
+            AssertEqual((a.LastFinalizedSpriteCount * 4), (c.LastFinalizedSpriteCount * 4), "Grapple art edit preserves sprite count");
+            for (int i = 0; i < (a.LastFinalizedSpriteCount * 4) / 4; i++)
             {
                 AssertEqual((a.GetEntry(i).X + 7) & 511, c.GetEntry(i).X, "Grapple emits edited visual part offsets");
                 AssertEqual(a.GetEntry(i).Y, c.GetEntry(i).Y, "Grapple X-only visual edit preserves Y");
@@ -193,9 +197,10 @@ internal static class GrappleFlarePresentationVerification
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored Grapple actor uses current art at the saved timing state");
         static byte[] Draw(SuperMetroidRuntime target)
         {
-            target.Oam.BeginFrame();
+            target.Sprites.BeginFrame();
             target.ActorDrawing.DrawGameplayActors(false, false);
-            return target.Oam.LowTable.ConcatToArray(target.Oam.HighTable).Concat(BitConverter.GetBytes(target.Oam.NextByteOffset)).ToArray();
+            OamBuffer image = target.Sprites.FinalizeAsOam();
+            return image.LowTable.ConcatToArray(image.HighTable).Concat(BitConverter.GetBytes(image.LastFinalizedSpriteCount)).ToArray();
         }
     }
 

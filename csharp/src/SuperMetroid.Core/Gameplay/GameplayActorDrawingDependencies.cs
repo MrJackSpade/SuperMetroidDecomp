@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
@@ -40,8 +41,8 @@ internal sealed record GameplayActorDrawingDependencies
     /// <summary>Nmi.</summary>
     public required NmiClock Nmi { get; init; }
 
-    /// <summary>Oam.</summary>
-    public required OamBuffer Oam { get; init; }
+    /// <summary>Sprite frame receiving actor OAM sprites and whole-frame draws.</summary>
+    public required SpriteFrameBuffer Sprites { get; init; }
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }

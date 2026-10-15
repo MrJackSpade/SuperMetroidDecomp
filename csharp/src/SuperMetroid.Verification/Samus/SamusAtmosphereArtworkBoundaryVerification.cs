@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -45,10 +46,12 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
                 ushort expected = importBus.ReadCartridgeWord(source);
                 var effects = new SamusAtmosphericEffectsState();
                 effects.SetSlot(0, type, frame, 2, new(128, 128));
-                var oam = new OamBuffer();
-                oam.BeginFrame();
-                effects.UpdateAndDraw(runtimeBus, oam, new(0, 0), 128,
-                    directArtwork: artwork);
+                var oamFrame = new SpriteFrameBuffer();
+                oamFrame.BeginFrame();
+                OamBuffer oam;
+                effects.UpdateAndDraw(runtimeBus, oamFrame, new(0, 0), 128,
+                    directArtwork: artwork, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                oam = oamFrame.FinalizeAsOam();
                 AssertEqual((byte)expected, oam.LowTable[2],
                     $"atmospheric type {type} frame {frame} low attribute uses imported art");
                 AssertEqual(SnesLittleEndian.HighByte(expected), oam.LowTable[3],
@@ -59,17 +62,18 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
             missing.SetSlot(0, 1, 0, 2, new(128, 128));
             AssertThrows<InvalidOperationException>(() =>
             {
-                var oam = new OamBuffer();
-                oam.BeginFrame();
-                missing.UpdateAndDraw(runtimeBus, oam, new(0, 0), 128);
+                var oamFrame = new SpriteFrameBuffer();
+                oamFrame.BeginFrame();
+                OamBuffer oam;
+                missing.UpdateAndDraw(runtimeBus, oamFrame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                oam = oamFrame.FinalizeAsOam();
             }, "authored atmospheric art cannot fall back to ROM");
 
             SeedNullAtmosphericPointerWram(runtimeBus);
             var mutable = new SamusAtmosphericEffectsState();
             mutable.SetSlot(0, 2, 0, 2, new(128, 128));
-            var mutableOam = new OamBuffer();
-            mutableOam.BeginFrame();
-            mutable.UpdateAndDraw(runtimeBus, mutableOam, new(0, 0), 128);
+            OamBuffer mutableOam = SpriteFrameBuffer.DrawnOam(frame =>
+                mutable.UpdateAndDraw(runtimeBus, frame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects));
             AssertEqual((byte)0x5a, mutableOam.LowTable[2],
                 "type-two null pointer reads the live mirrored WRAM low byte");
             AssertEqual((byte)0x34, mutableOam.LowTable[3],

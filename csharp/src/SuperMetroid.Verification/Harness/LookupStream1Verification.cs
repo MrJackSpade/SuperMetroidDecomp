@@ -1070,7 +1070,7 @@ internal static class LookupStream1Verification
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
             var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.Presentation.TileTransfers.BindArtwork(stock);
-            samus.Presentation.Draw(rom, new OamBuffer(), new(0, 0));
+            samus.Presentation.Draw(rom, new SpriteFrameBuffer(), new(0, 0));
             AssertEqual(unchecked((ushort)(128 + native[frame])), samus.Presentation.SpritemapPosition.Y,
                 "Actual drained drawing uses exact signed native correction");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Drawing preserves physical center");
@@ -1141,7 +1141,7 @@ internal static class LookupStream1Verification
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
                 samus.Presentation.TileTransfers.BindArtwork(stock);
-                samus.Presentation.Draw(rom, new OamBuffer(), new(0, 0));
+                samus.Presentation.Draw(rom, new SpriteFrameBuffer(), new(0, 0));
                 AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.Presentation.SpritemapPosition.Y,
                     "Actual transition rendering preserves native support correction");
                 AssertEqual((ushort)128, samus.Position.Y.Whole, "Posture art never mutates physical center");
@@ -1223,7 +1223,7 @@ internal static class LookupStream1Verification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             samus.Presentation.TileTransfers.BindArtwork(stock);
-            samus.Presentation.Draw(rom, new OamBuffer(), layer1: new(0, 0));
+            samus.Presentation.Draw(rom, new SpriteFrameBuffer(), layer1: new(0, 0));
             ushort nativeWord = SnesLittleEndian.Word(unchecked((byte)landing[index]), unchecked((byte)landing[index + 1]));
             AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.Presentation.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");
@@ -2959,10 +2959,8 @@ internal static class LookupStream1Verification
                 int x = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (pointer + offset + frame * 2)));
                 int y = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (pointer + offset + frame * 2 + 1)));
                 int graphics = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x91b629 + (int)pose * 8 + 4));
-                var cannonOam = new OamBuffer();
-                var cannonWrites = new VramWriteQueue();
-                cannon.Draw(rom, cannonOam, cannonWrites, samus, Position16<RoomPixels>.Zero, 0);
-                AssertTrue(cannonOam.NextByteOffset == 4 && cannonWrites.Entries.Count == 1, "Actual cover draw and DMA publication");
+                OamBuffer cannonOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(rom, frame, samus, Position16<RoomPixels>.Zero, 0));
+                AssertEqual(1, cannonOam.LastFinalizedSpriteCount, "Actual cover draw publication");
                 OamEntry cannonEntry = cannonOam.GetEntry(0);
                 AssertEqual(128 + x, cannonEntry.X, "Actual native cover X");
                 AssertEqual(128 + y - graphics, (int)cannonEntry.Y, "Actual native cover Y including pose origin");
@@ -3052,8 +3050,8 @@ internal static class LookupStream1Verification
         var memory = new TestAddressSpace();
         byte[] record = [1, 0, 3, 0, 2, 0x34, 0x12];
         for (int index = 0; index < record.Length; index++) memory.WriteByte(0x920000 + index, record[index]);
-        var oam = new OamBuffer(); oam.BeginFrame();
-        oam.AddSamusSpritemap(memory, 3, new Position16<OamPixels>(127, 131), stock);
+        OamBuffer oam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(memory, 3, new Position16<ScreenPixels>(127, 131),
+            SpriteFrameTestArtwork.Spritemaps(stock), new SpriteSource(SpriteSourceKind.Samus)));
         AssertTrue(oam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }), "Native zero selector still reads mutable memory through actual renderer");
     }
 

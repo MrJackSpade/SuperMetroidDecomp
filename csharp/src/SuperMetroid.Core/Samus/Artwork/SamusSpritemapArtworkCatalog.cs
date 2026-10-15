@@ -127,6 +127,26 @@ public sealed class SamusSpritemapArtworkCatalog
         return bottomBases.TryGetValue((int)pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.BottomBase((SamusPoseId)pose);
     }
 
+    /// <summary>Whole frames already built, by native spritemap record.</summary>
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<ushort, SpriteFrame> frames = new();
+
+    /// <summary>
+    /// The spritemap at <paramref name="index"/> as a whole frame named by its record, whose parts' characters are
+    /// their OBJ tile numbers. Returns false only for a native zero pointer, which requires a WRAM read.
+    /// </summary>
+    public bool TryGetFrame(ushort index, [NotNullWhen(true)] out SpriteFrame? frame)
+    {
+        if (!TryGet(index, out SamusSpritemapDefinition? definition))
+        {
+            frame = null;
+            return false;
+        }
+        frame = frames.GetOrAdd(definition.Pointer, pointer => new SpriteFrame($"Samus.{pointer:X4}",
+            [.. definition.Parts.Select(part => ObjPartFrames.Part(new SnesSpritemapXWord(part.X), part.Y,
+                new SnesObjAttributeWord(part.Attributes), 0))]));
+        return true;
+    }
+
     /// <summary>Returns false only for a native zero pointer, which requires a bus read.</summary>
     public bool TryGet(ushort index, [NotNullWhen(true)] out SamusSpritemapDefinition? definition)
     {

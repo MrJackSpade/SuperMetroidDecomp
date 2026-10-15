@@ -11,8 +11,6 @@ internal static class GrapplePointAnimationDefinitions
     internal const ushort FrameStride = 0x0200;
     /// <summary>$9B:BFC6/C645 NTSC delay: five, decremented through zero for a six-call interval.</summary>
     internal const ushort Delay = 5;
-    /// <summary>Four endpoint graphics frames span the native begin and exclusive end pointers.</summary>
-    internal const int FrameCount = (EndPointer - BeginPointer) / FrameStride;
 
     /// <summary>Combines a frame's bank-relative tile pointer with the grapple character-data bank.</summary>
     internal static int SourceAddress(byte frame) => SamusGrappleRomData.Banks.CharacterData |

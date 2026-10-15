@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -117,6 +118,7 @@ internal sealed class InstalledSamusIsolationTests
                 EquippedItems = equipment, Health = 99, MaxHealth = 299,
                 Presentation = { SuitColors = Suits, FullBodyCycleColors = Cycles } };
             Samus.Presentation.TileTransfers.BindArtwork(Body);
+            Samus.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             Samus.ArmCannon.Artwork = Body.ArmCannon;
             Samus.PoseMetadata.RefreshCollisionRadii(Memory);
             Samus.Position = Samus.Position.WithWholeY((ushort)(FloorY - Samus.Kinematics.Radius.Y));
@@ -191,12 +193,12 @@ internal sealed class InstalledSamusIsolationTests
         {
             var beforeStock = new SamusMechanicsSnapshot(Stock.Samus);
             var beforeEdited = new SamusMechanicsSnapshot(Edited.Samus);
-            var a = new OamBuffer(); var b = new OamBuffer();
-            a.BeginFrame(); b.BeginFrame();
+            var aFrame = new SpriteFrameBuffer(); var bFrame = new SpriteFrameBuffer();
+            aFrame.BeginFrame(); bFrame.BeginFrame();
             ushort cameraX = (ushort)Math.Max(0, Stock.Samus.Position.X.Whole - 128);
             ushort cameraY = (ushort)Math.Max(0, Stock.Samus.Position.Y.Whole - 128);
-            bool visible = Stock.Samus.Presentation.Draw(Stock.Memory, a, new(cameraX, cameraY), frame);
-            Require(visible == Edited.Samus.Presentation.Draw(Edited.Memory, b, new(cameraX, cameraY), frame),
+            bool visible = Stock.Samus.Presentation.Draw(Stock.Memory, aFrame, new(cameraX, cameraY), frame);
+            Require(visible == Edited.Samus.Presentation.Draw(Edited.Memory, bFrame, new(cameraX, cameraY), frame),
                 context + ": visibility changed");
             Stock.Samus.Presentation.TileTransfers.TransferToVram(Stock.Memory, Stock.Tiles);
             Edited.Samus.Presentation.TileTransfers.TransferToVram(Edited.Memory, Edited.Tiles);
@@ -204,6 +206,7 @@ internal sealed class InstalledSamusIsolationTests
             beforeEdited.RequireSame(new(Edited.Samus), context + ": edited draw mutated mechanics");
             Check(context + " after draw");
             tests.draws++;
+            OamBuffer a = aFrame.FinalizeAsOam(), b = bFrame.FinalizeAsOam();
             if (!a.LowTable.SequenceEqual(b.LowTable) || !a.HighTable.SequenceEqual(b.HighTable)) tests.changedOam++;
             if (!Stock.Tiles.ImageEquals(Edited.Tiles)) tests.changedTiles++;
         }
@@ -589,38 +592,35 @@ internal sealed class InstalledSamusIsolationTests
         Console.WriteLine($"  {kind} suit: {frames} identical stage/window/pose/control calls; edited suit colors applied.");
     }
 
-    /// <summary>Checks the full death lifetime, DMA cadence, pose art, and explosion OAM for a source pose and suit.</summary>
+    /// <summary>Checks the full death lifetime, pose art, explosion draws and explosion artwork for a source pose and suit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private void CheckDeath(SamusPoseId source, ushort suit)
     {
         Pair pair = Create(source, suit);
         string context = $"death source {(int)source:X2}, suit {suit:X4}";
         pair.Apply(context + " admission", actor => actor.Samus.DeathSequence.Begin(actor.Memory, actor.Samus, new(0, 240)), draw: false);
-        var stockQueue = new VramWriteQueue(); var editedQueue = new VramWriteQueue();
         int frames = 0;
         while (pair.Stock.Samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete && frames < 240)
         {
             var stockStep = pair.Stock.Samus.DeathSequence.Step(pair.Stock.Memory, pair.Stock.Samus,
-                pair.Stock.Colors, stockQueue, pair.Stock.Body.DeathPalettes);
+                pair.Stock.Colors, pair.Stock.Body.DeathPalettes);
             var editedStep = pair.Edited.Samus.DeathSequence.Step(pair.Edited.Memory, pair.Edited.Samus,
-                pair.Edited.Colors, editedQueue, pair.Edited.Body.DeathPalettes);
+                pair.Edited.Colors, pair.Edited.Body.DeathPalettes);
             Require(stockStep == editedStep, context + ": death timing/publication changed");
-            Require(stockQueue.Entries.SequenceEqual(editedQueue.Entries), context + ": DMA cadence changed");
             pair.Check(context + $" frame {frames}");
-            stockQueue.DrainTo(pair.Stock.Tiles, pair.Stock.Memory, new DeathAssets(pair.Stock.Body.DeathTiles));
-            editedQueue.DrainTo(pair.Edited.Tiles, pair.Edited.Memory, new DeathAssets(pair.Edited.Body.DeathTiles));
             if (stockStep.DrawPose) pair.Draw(context + $" pose {frames}");
             if (stockStep.DrawExplosion)
             {
                 var before = new SamusMechanicsSnapshot(pair.Stock.Samus);
-                var a = new OamBuffer(); var b = new OamBuffer(); a.BeginFrame(); b.BeginFrame();
-                pair.Stock.Samus.DeathSequence.DrawExplosion(pair.Stock.Memory, a, pair.Stock.Body.Spritemaps);
-                pair.Edited.Samus.DeathSequence.DrawExplosion(pair.Edited.Memory, b, pair.Edited.Body.Spritemaps);
+                OamBuffer a = SpriteFrameBuffer.DrawnOam(frame =>
+                    pair.Stock.Samus.DeathSequence.DrawExplosion(pair.Stock.Memory, frame, pair.Stock.Body.Spritemaps, pair.Stock.Body.DeathTiles));
+                OamBuffer b = SpriteFrameBuffer.DrawnOam(frame =>
+                    pair.Edited.Samus.DeathSequence.DrawExplosion(pair.Edited.Memory, frame, pair.Edited.Body.Spritemaps, pair.Edited.Body.DeathTiles));
                 before.RequireSame(new(pair.Stock.Samus), context + ": death draw mutated state");
                 pair.Check(context + " explosion draw");
                 draws++;
                 if (!a.LowTable.SequenceEqual(b.LowTable)) changedOam++;
-                if (!pair.Stock.Tiles.ImageEquals(pair.Edited.Tiles)) changedTiles++;
+                if (!pair.Stock.Body.DeathTiles.Explosion.Characters.SequenceEqual(pair.Edited.Body.DeathTiles.Explosion.Characters)) changedTiles++;
             }
             frames++;
         }
@@ -647,16 +647,5 @@ internal sealed class InstalledSamusIsolationTests
         }
         Require(!stock.IsActive && pair.Stock.Samus.Health == 42 && pair.Stock.Samus.ReserveEnergy == 0 &&
             !pair.Stock.Samus.InputLocked, "Reserve recovery failed to refill and release");
-    }
-
-    /// <summary>Limits death-sequence VRAM transfers to the selected installed death atlas.</summary>
-    private sealed class DeathAssets(SamusDeathTileAtlas tiles) : IVramAssetProvider, IInstalledArtworkTransferSource
-    {
-        /// <summary>Resolves a death tile transfer from the selected atlas.</summary>
-        public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
-            tiles.TryResolve(sourceAddress, byteCount, out data);
-        /// <summary>Rejects an unrelated typed VRAM asset in the death-only fixture.</summary>
-        public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
-            throw new InvalidOperationException("Death fixture received an unrelated typed asset " + asset);
     }
 }

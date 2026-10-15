@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Samus.Palettes.SamusVisorColorsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -37,8 +38,10 @@ internal static void VerifySamusRenderingSlice()
         AnimationFrame = 0,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
     };
+    samus.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
     var cgram = new SnesCgram();
     var vram = new SnesVram();
+    var oamFrame = new SpriteFrameBuffer();
     var oam = new OamBuffer();
 
     SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
@@ -133,16 +136,32 @@ internal static void VerifySamusRenderingSlice()
     samus.Health = 99;
     samus.Presentation.InitializeAnimation(bus);
 
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0));
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(0x0400, 0));
+    oam = oamFrame.FinalizeAsOam();
 
     // Pose $01's graphics Y offset is six, so world (1152,134) becomes origin (128,128).
     AssertEqual(128, samus.Presentation.SpritemapPosition.X, "Samus default screen X calculation");
     AssertEqual(128, samus.Presentation.SpritemapPosition.Y, "Samus signed graphics-Y offset calculation");
     AssertEqual(0x019a, samus.Presentation.TopSpritemapIndex, "Samus pose 1 top spritemap index");
     AssertEqual(0x04aa, samus.Presentation.BottomSpritemapIndex, "Samus pose 1 bottom spritemap index");
+    // The published description: body top and bottom as whole frames named by their spritemap records, at the
+    // spritemap origin, bound to the body characters this frame's transfers select.
+    SamusSpritemapArtworkCatalog spritemaps = samus.Presentation.TileTransfers.Artwork?.Spritemaps
+        ?? throw new InvalidOperationException("Verification requires bound Samus spritemaps.");
+    SpriteDraw[] body = [.. oamFrame.Draws.Select(ordered => ordered.Draw).Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
+    AssertEqual(2, body.Length, "Samus pose 1 publishes its top and bottom body frames");
+    foreach ((SpriteDraw draw, ushort index, int instance) in new[] {
+        (body[0], samus.Presentation.TopSpritemapIndex, 0), (body[1], samus.Presentation.BottomSpritemapIndex, 1) })
+    {
+        AssertTrue(spritemaps.TryGet(index, out SamusSpritemapDefinition? definition), "body spritemap is installed");
+        AssertEqual($"Samus.{definition?.Pointer:X4}", draw.Frame.Name, $"body draw {instance} names its spritemap record");
+        AssertEqual(new SpriteSource(SpriteSourceKind.Samus, instance), draw.Source, $"body draw {instance} source");
+        AssertEqual(samus.Presentation.SpritemapPosition, draw.Origin, $"body draw {instance} sits at the spritemap origin");
+        AssertTrue(ReferenceEquals(samus.Presentation.TileTransfers.BodyArtwork, draw.Artwork),
+            $"body draw {instance} binds the body characters the frame's transfers select");
+    }
     AssertEqual(7, oam.LastFinalizedSpriteCount, "Samus pose 1 emits four top and three bottom OBJs");
 
     OamEntry firstTop = oam.GetEntry(0);
@@ -167,10 +186,10 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "running pose first delay byte");
     AssertEqual(21, samus.Kinematics.Radius.Y, "running pose refreshes collision radius");
 
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0));
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(0x0400, 0));
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x00f9, samus.Presentation.TopSpritemapIndex, "running pose top spritemap index");
     AssertEqual(0x00e3, samus.Presentation.BottomSpritemapIndex, "running pose bottom spritemap index");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "synthetic running pose draws top and bottom pieces");
@@ -215,10 +234,10 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(8, samus.AnimationFrameTimer.RawValue, "power forward setup reads delay eight");
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "forward setup clears base X speed");
     AssertEqual(0, samus.Kinematics.YSpeed, "forward setup clears Y speed");
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0));
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(0x0400, 0));
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0002, samus.Presentation.TopSpritemapIndex, "power-suit forward top spritemap index");
     AssertEqual(0x0062, samus.Presentation.BottomSpritemapIndex, "power-suit forward bottom spritemap index");
     AssertEqual(3, oam.LastFinalizedSpriteCount, "power-suit forward top/chest/bottom OAM order");
@@ -234,10 +253,19 @@ internal static void VerifySamusRenderingSlice()
     samus.EquippedItems = 0x0001;
     samus.PoseMetadata.ApplyForwardFacingPoseSetup(bus);
     AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
-    oam.BeginFrame();
+    SpriteArtwork bodyBeforeSuited = samus.Presentation.TileTransfers.BodyArtwork;
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0));
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(0x0400, 0));
+    oam = oamFrame.FinalizeAsOam();
+    // The suited forward frame selects bottom set $FF: no bottom transfer. Its body draws keep binding the bottom
+    // characters the previous frame selected (characters 8-15 and 24-31), as retained VRAM did natively.
+    SpriteArtwork suitedBody = oamFrame.Draws.First(ordered => ordered.Draw.Source.Kind == SpriteSourceKind.Samus).Draw.Artwork;
+    int halfRow = SpriteArtwork.CharactersPerRow / 2 * SpriteArtwork.CharacterByteCount;
+    foreach (int bottomHalf in new[] { 1, 3 })
+        AssertTrue(suitedBody.Characters.Slice(bottomHalf * halfRow, halfRow).SequenceEqual(
+                bodyBeforeSuited.Characters.Slice(bottomHalf * halfRow, halfRow)),
+            "a frame with no bottom transfer keeps binding the earlier bottom characters");
     AssertEqual(0x00c2, samus.Presentation.TopSpritemapIndex, "suited forward top spritemap index");
     AssertEqual(0x0122, samus.Presentation.BottomSpritemapIndex, "suited forward bottom spritemap index");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "suited forward emits no power-suit chest patch");
@@ -248,10 +276,10 @@ internal static void VerifySamusRenderingSlice()
     samus.InvincibilityTimer = NativeCountdown.Start(1);
     samus.KnockbackTimer = NativeCountdown.Start(0);
     samus.Presentation.TileTransfers.ClearTransferFlags();
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0), nmiFrameCounter: 1);
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(0x0400, 0), nmiFrameCounter: 1);
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(0, oam.LastFinalizedSpriteCount,
         "odd invincibility frame suppresses complete Samus body");
     AssertTrue(samus.Presentation.TileTransfers.TopTransferEnabled,
@@ -259,30 +287,30 @@ internal static void VerifySamusRenderingSlice()
     AssertTrue(!samus.Presentation.TileTransfers.BottomTransferEnabled,
         "hidden suited-forward frame preserves its bank-$92 bottom-set FF sentinel");
 
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0), nmiFrameCounter: 2);
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(0x0400, 0), nmiFrameCounter: 2);
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "even invincibility frame draws complete Samus body");
 
     // Knockback and shine are two independent OR terms in the native branch. Prove each
     // on an odd frame so neither can pass accidentally through the even-NMI condition.
     samus.KnockbackTimer = NativeCountdown.Start(1);
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0), nmiFrameCounter: 1);
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(0x0400, 0), nmiFrameCounter: 1);
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "knockback overrides odd-frame invincibility blink");
 
     samus.KnockbackTimer = NativeCountdown.Start(0);
     AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(0x0400),
         "test fixture installs nonzero native shine timer");
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0), nmiFrameCounter: 1);
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(0x0400, 0), nmiFrameCounter: 1);
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "shine timer overrides odd-frame invincibility blink");
 
@@ -325,10 +353,10 @@ internal static void VerifySamusRenderingSlice()
         WriteSamusSpritemapBases(bus, pose, top: 0, bottom: 0);
         samus.Pose = pose;
         samus.AnimationFrame = frame;
-        oam.BeginFrame();
+        oamFrame.BeginFrame();
         BindSyntheticSamusRendering(bus, samus);
-        samus.Presentation.Draw(bus, oam, layer1: samus.Position.Whole);
-        oam.FinalizeFrame();
+        samus.Presentation.Draw(bus, oamFrame, layer1: samus.Position.Whole);
+        oam = oamFrame.FinalizeAsOam();
         AssertEqual(expectedSprites, oam.LastFinalizedSpriteCount, name);
     }
 
@@ -341,9 +369,9 @@ internal static void VerifySamusRenderingSlice()
     AssertThrows<InvalidDataException>(
         () => samus.PoseMetadata.ReadMovementType(bus),
         "movement-type API rejects a discriminator outside the complete retail domain");
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     AssertThrows<InvalidDataException>(
-        () => samus.Presentation.Draw(bus, oam, layer1: samus.Position.Whole),
+        () => samus.Presentation.Draw(bus, oamFrame, layer1: samus.Position.Whole),
         "movement type beyond complete bottom-half table is rejected as malformed pose data");
 
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
@@ -352,17 +380,17 @@ internal static void VerifySamusRenderingSlice()
     samus.Pose = SamusPoseId.MorphingTransitionRightPose;
     samus.Position = samus.Position.WithWholeY(0x0086);
     samus.AnimationFrame = 0;
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(samus.Position.X.Whole, 0));
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(samus.Position.X.Whole, 0));
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0082, samus.Presentation.SpritemapPosition.Y,
         "morph transition frame zero reads signed minus-four table byte");
     samus.AnimationFrame = 1;
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(samus.Position.X.Whole, 0));
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(samus.Position.X.Whole, 0));
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0084, samus.Presentation.SpritemapPosition.Y,
         "morph transition frame one reads signed minus-two table byte");
 
@@ -371,10 +399,10 @@ internal static void VerifySamusRenderingSlice()
     WriteSamusSpritemapBases(bus, SamusPoseId.UnusedPose39, top: 0, bottom: 0);
     samus.Pose = SamusPoseId.UnusedPose39;
     samus.AnimationFrame = 0;
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(samus.Position.X.Whole, 0));
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(samus.Position.X.Whole, 0));
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0086, samus.Presentation.SpritemapPosition.Y,
         "unused transition pose reads native zero instead of generic graphics offset");
 
@@ -385,10 +413,10 @@ internal static void VerifySamusRenderingSlice()
     WriteSamusTileAnimationPointer(bus, samus.Pose, 0xe100);
     samus.AnimationFrame = 2;
     samus.Position = samus.Position.WithWholeY(0x0086);
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0));
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(0x0400, 0));
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0085, samus.Presentation.SpritemapPosition.Y,
         "front-facing frame two uses fixed one-pixel graphics offset");
 
@@ -408,20 +436,20 @@ internal static void VerifySamusRenderingSlice()
     WriteSamusSpritemapBases(bus, SamusPoseId.NormalLandingRightPose, top: 0, bottom: 0);
     samus.Pose = SamusPoseId.NormalLandingRightPose;
     samus.AnimationFrame = 0;
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0));
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(0x0400, 0));
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(0xfa83, samus.Presentation.SpritemapPosition.Y,
         "normal-jump landing frame zero preserves unaligned word subtraction");
     AssertEqual(0x83, oam.GetEntry(0).Y,
         "landing OAM exposes low-byte three-pixel visual nudge");
 
     samus.AnimationFrame = 1;
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.Draw(bus, oam, layer1: new(0x0400, 0));
-    oam.FinalizeFrame();
+    samus.Presentation.Draw(bus, oamFrame, layer1: new(0x0400, 0));
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x0080, samus.Presentation.SpritemapPosition.Y,
         "normal-jump landing frame one reads overlapping 0006 word");
 
@@ -437,14 +465,14 @@ internal static void VerifySamusRenderingSlice()
         MatrixB: 0x0100,
         MatrixC: 0xff00,
         Center: new Position16<RoomPixels>(0x0480, 0x0080));
-    oam.BeginFrame();
+    oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(
         bus,
-        oam,
+        oamFrame,
         layer1: new(0x0400, 0),
         mode7Transform: quarterTurn);
-    oam.FinalizeFrame();
+    oam = oamFrame.FinalizeAsOam();
     AssertEqual(0x007a, samus.Presentation.SpritemapPosition.X,
         "Mode 7 quarter-turn rotates Samus render X around M7X");
     AssertEqual(0x0082, samus.Presentation.SpritemapPosition.Y,
@@ -505,6 +533,7 @@ internal static void VerifySamusArmCannon()
     };
 
     samus.Presentation.TileTransfers.BindArtwork(InstalledFixtures.SamusBody);
+    samus.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
     samus.ArmCannon.Artwork = artwork;
 
     // The HUD producer requires two identical samples. Merely changing selection sets the
@@ -550,13 +579,12 @@ internal static void VerifySamusArmCannon()
     // Rewind is intentionally unnecessary: selecting frame one in the public state is not
     // possible, which protects the model from debugger-only invalid combinations. The
     // fully-open draw still proves the same selector route and frame-indexed third tile.
-    var oam = new OamBuffer();
-    var vramWrites = new VramWriteQueue();
-    oam.BeginFrame();
-    cannon.Draw(bus, oam, vramWrites, samus, layer1: new(0x0400, 0), nmiFrameCounter: 0);
-    AssertTrue(oam.NextByteOffset == 4 && vramWrites.Entries.Count == 1,
-        "open cover emits one OBJ and queues its tile upload");
-    AssertEqual(4, oam.NextByteOffset, "cover consumes exactly one four-byte OAM record");
+    var coverFrame = new SpriteFrameBuffer();
+    coverFrame.BeginFrame();
+    cannon.Draw(bus, coverFrame, samus, layer1: new(0x0400, 0), nmiFrameCounter: 0);
+    OamBuffer oam = coverFrame.FinalizeAsOam();
+    AssertEqual(1, coverFrame.Draws.Length, "open cover publishes one draw");
+    AssertEqual(1, oam.LastFinalizedSpriteCount, "cover stands for exactly one OAM record");
     OamEntry cover = oam.GetEntry(0);
     AssertEqual(135, cover.X, "cover X includes signed pose offset and camera");
     AssertEqual(125, cover.Y,
@@ -567,30 +595,23 @@ internal static void VerifySamusArmCannon()
     AssertEqual(2, cover.Priority, "direction two attributes select cover OAM priority");
     AssertTrue(!cover.FlipX && !cover.FlipY, "direction two attributes leave cover unflipped");
     AssertTrue(!cover.IsLarge, "arm-cannon cover is a small OBJ");
-    AssertEqual(0x9a9e00, vramWrites.Entries[0].SourceAddress,
-        "pose record selects direction two, whose frame three indexes the third cover tile");
-    AssertEqual(new VramWriteEntry(0x20, 0x9a9e00, 0x61f0), vramWrites.Entries[0],
-        "cover queues native bank-$9A tile DMA to VRAM $61F0");
+    // Natively the third cover tile ($9A:9E00) is uploaded to tile $1F; the draw binds that tile directly.
+    SpriteArtwork coverTile = coverFrame.Draws[0].Draw.Artwork;
+    AssertEqual(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover,
+            SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(0x9e00)), coverTile.Id,
+        "pose record selects direction two, whose frame three binds the third cover tile");
+    AssertTrue(artwork.TryResolveTile(0x9a9e00, SpriteArtwork.CharacterByteCount, out ReadOnlyMemory<byte> nativeCover) &&
+            coverTile.Characters.SequenceEqual(nativeCover.Span),
+        "the bound cover character is the installed tile the native $9A:9E00 upload names");
 
-    // Odd invincibility frames return before both OAM and DMA. An off-screen coordinate,
-    // in contrast, suppresses only the OBJ: native code still refreshes the shared tile.
+    // Odd invincibility frames and an off-screen coordinate both publish no cover draw.
     samus.InvincibilityTimer = NativeCountdown.Start(1);
-    var flickerOam = new OamBuffer();
-    var flickerWrites = new VramWriteQueue();
-    flickerOam.BeginFrame();
-    cannon.Draw(bus, flickerOam, flickerWrites, samus, new(0x0400, 0), nmiFrameCounter: 1);
-    AssertTrue(flickerOam.NextByteOffset == 0 && flickerWrites.Entries.Count == 0,
-        "odd invincibility frame suppresses cover OBJ and DMA");
-    AssertEqual(0, flickerWrites.Entries.Count, "flicker return leaves VRAM queue untouched");
+    OamBuffer flickerOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(bus, frame, samus, new(0x0400, 0), nmiFrameCounter: 1));
+    AssertEqual(0, flickerOam.LastFinalizedSpriteCount, "odd invincibility frame suppresses the cover draw");
 
     samus.InvincibilityTimer = NativeCountdown.Start(0);
-    var clippedOam = new OamBuffer();
-    var clippedWrites = new VramWriteQueue();
-    clippedOam.BeginFrame();
-    cannon.Draw(bus, clippedOam, clippedWrites, samus, layer1: new(0x0500, 0), nmiFrameCounter: 0);
-    AssertTrue(clippedOam.NextByteOffset == 0 && clippedWrites.Entries.Count == 1,
-        "off-screen cover omits OAM but retains tile DMA");
-    AssertEqual(1, clippedWrites.Entries.Count, "clipped cover still has one VRAM transfer");
+    OamBuffer clippedOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(bus, frame, samus, layer1: new(0x0500, 0), nmiFrameCounter: 0));
+    AssertEqual(0, clippedOam.LastFinalizedSpriteCount, "off-screen cover publishes no draw");
 
     // Closing mirrors opening but starts from synthetic frame four. The same stable-sample
     // call decrements immediately to three, followed by two, one, and invisible zero.
@@ -613,7 +634,7 @@ internal static void VerifySamusArmCannon()
     AssertEqual(0, cannon.CloseFlag, "fully closed cover clears transition flag");
 
     Console.WriteLine(
-        "  Samus arm cannon: HUD debounce, open/close cadence, OAM, clipping, flicker, and tile DMA agree.");
+        "  Samus arm cannon: HUD debounce, open/close cadence, cover draw, clipping, flicker, and cover binding agree.");
 }
 
 /// <summary>

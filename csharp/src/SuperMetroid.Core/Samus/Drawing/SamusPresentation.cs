@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
@@ -494,13 +495,13 @@ internal sealed class SamusPresentation
     /// </remarks>
     public bool Draw(
         ISnesAddressSpace bus,
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
         ushort nmiFrameCounter = 0,
         SamusMode7Transform? mode7Transform = null)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
 
         SamusMovementType movementType = _samus.PoseMetadata.ReadMovementType(bus);
 
@@ -604,9 +605,12 @@ internal sealed class SamusPresentation
             "Samus rendering requires installed spritemap artwork.");
         ushort topBase = spritemaps.TopBase(_samus.Pose);
         TopSpritemapIndex = unchecked((ushort)(topBase + _samus.AnimationFrame));
-        oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+        // `$92:8000` follows these spritemaps natively, but it only chooses the transfers the next NMI shows with
+        // them. Selecting first lets the draws bind the characters they are displayed with; nothing between reads it.
+        TileTransfers.SelectForPoseFrame(bus, _samus.Pose, _samus.AnimationFrame);
+        sprites.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Samus zero-pointer spritemap requires WRAM."),
-            TopSpritemapIndex, SpritemapPosition.ToOam(), spritemaps);
+            TopSpritemapIndex, SpritemapPosition, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.Samus, 0));
 
         // `$90:868D-$90:86C4` writes one small OBJ directly between the top and bottom
         // spritemap calls when unsuited pose `$00` faces the screen. This is not a visor:
@@ -618,8 +622,12 @@ internal sealed class SamusPresentation
         {
             ushort chestX = unchecked((ushort)(_samus.Position.X.Whole - 7 - layer1.X));
             ushort chestY = unchecked((ushort)(_samus.Position.Y.Whole - 17 - layer1.Y));
-            oam.AddRawSmallSprite(new Position16<OamPixels>(chestX, chestY),
-                attributes: SnesObjAttributeWord.Create(tileNumber: 33, paletteIndex: 4, priority: 3));
+            var chest = SnesObjAttributeWord.Create(tileNumber: 33, paletteIndex: 4, priority: 3);
+            sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusChest), ObjPartFrames.SmallObject(chest, 0),
+                TileTransfers.StandardObjects ?? throw new InvalidOperationException(
+                    "Samus's chest cover requires the installed standard OBJ page."),
+                new Position16<ScreenPixels>(chestX, chestY), SnesTileFlipFlags.None,
+                (byte)chest.PaletteIndex, (byte)chest.Priority));
         }
 
         // $90:8686 suppresses the ordinary spin-jump bottom half for art frames 1..A;
@@ -686,16 +694,11 @@ internal sealed class SamusPresentation
         {
             ushort bottomBase = spritemaps.BottomBase(_samus.Pose);
             BottomSpritemapIndex = unchecked((ushort)(bottomBase + _samus.AnimationFrame));
-            oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+            sprites.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Samus zero-pointer spritemap requires WRAM."),
-                BottomSpritemapIndex, SpritemapPosition.ToOam(),
-                spritemaps);
+                BottomSpritemapIndex, SpritemapPosition, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.Samus, 1));
         }
 
-        // Native Samus_Draw always performs this selection after its conditional OAM work.
-        // Those flags drive the following accepted NMI, so stepping exposes the authentic
-        // one-main-loop/one-NMI producer-consumer relationship.
-        TileTransfers.SelectForPoseFrame(bus, _samus.Pose, _samus.AnimationFrame);
         return true;
     }
 
@@ -711,11 +714,11 @@ internal sealed class SamusPresentation
     /// </remarks>
     public void DrawSpeedBoosterEchoes(
         ISnesAddressSpace bus,
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
 
         if (unchecked((short)_samus.HorizontalSpeed.SpeedEchoIndex) < 0)
         {
@@ -728,9 +731,9 @@ internal sealed class SamusPresentation
             {
                 DrawActiveSpeedBoosterEcho(
                     bus,
-                    oam,
+                    sprites,
                     _samus.HorizontalSpeed.SecondSpeedEchoPosition,
-                    layer1);
+                    layer1, slot: 1);
             }
 
             if (_samus.HorizontalSpeed.AdvanceDepartingSpeedEcho(
@@ -739,9 +742,9 @@ internal sealed class SamusPresentation
             {
                 DrawActiveSpeedBoosterEcho(
                     bus,
-                    oam,
+                    sprites,
                     _samus.HorizontalSpeed.FirstSpeedEchoPosition,
-                    layer1);
+                    layer1, slot: 0);
             }
 
             _samus.HorizontalSpeed.FinishDepartingSpeedEchoFrame();
@@ -755,14 +758,14 @@ internal sealed class SamusPresentation
         // opaque pixels overlap, so retain that otherwise-surprising reverse order.
         DrawActiveSpeedBoosterEcho(
             bus,
-            oam,
+            sprites,
             _samus.HorizontalSpeed.SecondSpeedEchoPosition,
-            layer1);
+            layer1, slot: 1);
         DrawActiveSpeedBoosterEcho(
             bus,
-            oam,
+            sprites,
             _samus.HorizontalSpeed.FirstSpeedEchoPosition,
-            layer1);
+            layer1, slot: 0);
     }
 
     /// <summary>
@@ -771,12 +774,12 @@ internal sealed class SamusPresentation
     /// </summary>
     public void DrawShinesparkCrashEchoes(
         ISnesAddressSpace bus,
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
         ushort nmiFrameCounter)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
         if ((nmiFrameCounter & 1) == 0 ||
             _samus.Shinespark.Phase is not (ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle))
         {
@@ -785,13 +788,13 @@ internal sealed class SamusPresentation
 
         // Slot one precedes slot zero just like native's X=2,0 loop.
         DrawActiveSpeedBoosterEcho(
-            bus, oam,
+            bus, sprites,
             _samus.HorizontalSpeed.SecondSpeedEchoPosition,
-            layer1);
+            layer1, slot: 1);
         DrawActiveSpeedBoosterEcho(
-            bus, oam,
+            bus, sprites,
             _samus.HorizontalSpeed.FirstSpeedEchoPosition,
-            layer1);
+            layer1, slot: 0);
     }
 
     /// <summary>
@@ -800,12 +803,12 @@ internal sealed class SamusPresentation
     /// </summary>
     public void DrawReleasedShinesparkCrashEchoes(
         ISnesAddressSpace bus,
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
         ushort nmiFrameCounter)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
         if ((nmiFrameCounter & 1) == 0)
             return;
 
@@ -815,23 +818,28 @@ internal sealed class SamusPresentation
         if (second.Active)
         {
             DrawActiveSpeedBoosterEcho(
-                bus, oam, second.Position, layer1);
+                bus, sprites, second.Position, layer1, slot: 3);
         }
 
         ShinesparkReleasedEcho first = _samus.Shinespark.FirstReleasedCrashEcho;
         if (first.Active)
         {
             DrawActiveSpeedBoosterEcho(
-                bus, oam, first.Position, layer1);
+                bus, sprites, first.Position, layer1, slot: 2);
         }
     }
+
+    /// <summary>Samus's spritemaps bound to the body characters the selected transfers make visible.</summary>
+    private SamusSpritemapArtwork BodySpritemaps(SamusSpritemapArtworkCatalog spritemaps) =>
+        new(spritemaps, TileTransfers.BodyArtwork, () => TileTransfers.BodyOnStandardObjects);
 
     /// <summary>Draws a populated echo slot with current Samus spritemaps after native Y clipping.</summary>
     private void DrawActiveSpeedBoosterEcho(
         ISnesAddressSpace bus,
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
         Position16<RoomPixels> echo,
-        Position16<RoomPixels> layer1)
+        Position16<RoomPixels> layer1,
+        int slot)
     {
         // Zero X is the cartridge's empty-slot sentinel, not merely an off-screen point.
         if (echo.X == 0)
@@ -848,14 +856,13 @@ internal sealed class SamusPresentation
         var spritemaps = TileTransfers.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus speed-booster echo requires installed spritemap artwork.");
         ushort screenX = unchecked((ushort)(echo.X - layer1.X));
-        oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+        var origin = new Position16<ScreenPixels>(screenX, unchecked((ushort)screenY));
+        sprites.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Samus zero-pointer spritemap requires WRAM."),
-            TopSpritemapIndex, new Position16<OamPixels>(screenX, unchecked((ushort)screenY)),
-            spritemaps);
+            TopSpritemapIndex, origin, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2));
         if (BottomSpritemapIndex != 0)
-            oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+            sprites.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Samus zero-pointer spritemap requires WRAM."),
-                BottomSpritemapIndex, new Position16<OamPixels>(screenX, unchecked((ushort)screenY)),
-                spritemaps);
+                BottomSpritemapIndex, origin, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2 + 1));
     }
 }

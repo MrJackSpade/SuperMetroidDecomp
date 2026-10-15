@@ -90,7 +90,7 @@ internal sealed class DeathSequenceRunner
         _sprites.BeginFrame();
         _actorDrawing.LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
             _addressSpace,
-            _oam,
+            _sprites,
             _room.Camera.PixelPosition,
             mode7Transform: _display.ActiveSamusMode7Transform);
         _sprites.FinalizeFrame();
@@ -113,19 +113,18 @@ internal sealed class DeathSequenceRunner
             _addressSpace,
             _player.Samus,
             _cgram,
-            _vramWrites,
             _artwork.SamusBodyArt?.DeathPalettes);
         if (_player.LastDeathSequenceStep.Value.DrawPose)
         {
             _actorDrawing.LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
                 _addressSpace,
-                _oam,
+                _sprites,
                 _room.Camera.PixelPosition,
                 mode7Transform: _display.ActiveSamusMode7Transform);
         }
         else if (_player.LastDeathSequenceStep.Value.DrawExplosion)
         {
-            _player.Samus.DeathSequence.DrawExplosion(_addressSpace, _oam, _artwork.SamusBodyArt?.Spritemaps);
+            _player.Samus.DeathSequence.DrawExplosion(_addressSpace, _sprites, _artwork.SamusBodyArt?.Spritemaps, _artwork.SamusBodyArt?.DeathTiles);
         }
         _sprites.FinalizeFrame();
         return _player.LastDeathSequenceStep.Value;

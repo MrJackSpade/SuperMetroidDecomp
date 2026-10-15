@@ -1911,8 +1911,10 @@
         "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresDoorVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
+        "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusDeathTileAtlas.cs",
         "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVramLayout.cs",
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileTrailVramLayout.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileTrailVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusBodyArtworkVerification.cs"
       ]
     },
     {
@@ -2412,18 +2414,6 @@
     },
     {
       "owner": "SuperMetroid.Core.Samus.Drawing.SamusVramLayout",
-      "name": "ArmCannonTile",
-      "region": "Vram",
-      "offset": "$61F0",
-      "count": 16,
-      "encoding": "4-bpp OBJ character",
-      "aliasOf": "GameplayVramLayout.ObjectCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Samus.Drawing.SamusVramLayout",
       "name": "BeamTiles",
       "region": "Vram",
       "offset": "$6300",
@@ -2476,30 +2466,6 @@
       "region": "Vram",
       "offset": "$6100",
       "count": 128,
-      "encoding": "4-bpp OBJ characters",
-      "aliasOf": "GameplayVramLayout.ObjectCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Samus.Drawing.SamusVramLayout",
-      "name": "GrapplePoint",
-      "region": "Vram",
-      "offset": "$6200",
-      "count": 16,
-      "encoding": "4-bpp OBJ character",
-      "aliasOf": "GameplayVramLayout.ObjectCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Samus.Drawing.SamusVramLayout",
-      "name": "GrappleSegments",
-      "region": "Vram",
-      "offset": "$6210",
-      "count": 64,
       "encoding": "4-bpp OBJ characters",
       "aliasOf": "GameplayVramLayout.ObjectCharacters",
       "consumers": [

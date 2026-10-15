@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Core.Input;
@@ -31,6 +32,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
@@ -1048,23 +1050,20 @@ internal static class RidleyFullMovieVerification
                         AssertTrue(ContainsMovieCannonSprite(memory.Slice(NativeSnapshotMemory.OamLow, 512),
                             memory.Slice(NativeSnapshotMemory.OamHigh, 32), nativeCannon),
                             $"update {frame}: native OAM contains reference cannon sprite");
-                    // The normalized draw is observed through its outputs: the port OAM must hold the
-                    // reference sprite (position and attributes), and the VRAM queue must hold
-                    // exactly the reference tile transfer.
+                    // The normalized draw is observed through its outputs: the OAM image of the port's frame must
+                    // hold the reference sprite (position and attributes), and the cover draw must bind the cover
+                    // tile the reference uploads.
                     var cannon = RidleyNativeCannonDraw(bus, memory, invincibleAtDraw, runtime.Nmi.NmiFrameCounter);
+                    OamBuffer portImage = runtime.Sprites.FinalizedAsOam();
                     if (cannon.SpriteWritten)
-                        AssertTrue(ContainsMovieCannonSprite(runtime.Oam.LowTable, runtime.Oam.HighTable, cannon),
-                            $"update {frame}: port OAM contains reference cannon sprite");
-                    var transfers = runtime.VramWrites.Entries.Where(entry =>
-                        entry.EncodedVramDestination == NativeSnapshotMemory.CannonTileDestination).ToArray();
-                    AssertEqual(cannon.TileUploadQueued ? 1 : 0, transfers.Length,
-                        $"update {frame}: cannon upload count");
-                    if (cannon.TileUploadQueued)
-                    {
-                        AssertEqual((ushort)32, transfers[0].SizeInBytes, $"update {frame}: cannon upload bytes");
-                        AssertEqual(NativeSnapshotMemory.CannonTileBank | cannon.TileSource, transfers[0].SourceAddress,
-                            $"update {frame}: cannon upload source");
-                    }
+                        AssertTrue(ContainsMovieCannonSprite(portImage.LowTable, portImage.HighTable, cannon),
+                            $"update {frame}: port frame contains reference cannon sprite");
+                    SpriteDraw[] covers = [.. runtime.Sprites.Draws.Select(ordered => ordered.Draw)
+                        .Where(draw => draw.Source.Kind == SpriteSourceKind.SamusArmCannon)];
+                    AssertEqual(cannon.SpriteWritten ? 1 : 0, covers.Length, $"update {frame}: cannon draw count");
+                    if (cannon.SpriteWritten && cannon.TileUploadQueued)
+                        AssertEqual(SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(cannon.TileSource), covers[0].Artwork.Id.Variant,
+                            $"update {frame}: cannon draw binds the reference cover tile");
                 }
                 Check("Cannon flags", (ushort)(SnesLittleEndian.Word(samus.ArmCannon.OpenFlag, samus.ArmCannon.CloseFlag)), NativeSnapshotMemory.CannonFlags);
                 Check("Cannon frame", samus.ArmCannon.Frame, NativeSnapshotMemory.CannonFrame);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Drawing;
@@ -84,21 +85,24 @@ public sealed class SamusAtmosphericEffectsState
     /// underflow, reverse slot order, per-type motion, clipping, and the two OAM paths.
     /// </summary>
     /// <param name="bus">Address space providing mirrored WRAM for type two attributes and the Samus spritemap path.</param>
-    /// <param name="oam">OAM buffer to which visible sprites are appended, with slot three processed first.</param>
+    /// <param name="sprites">Frame receiving visible effects as draws, with slot three processed first.</param>
     /// <param name="camera">Room-space camera X and Y origin in whole pixels.</param>
     /// <param name="fxYPosition">Live liquid-surface Y in room pixels, used to anchor the diving splash on each update.</param>
     /// <param name="artwork">Installed Samus spritemaps required when visible diving splashes or bubbles use the spritemap draw path.</param>
     /// <param name="directArtwork">Installed small-sprite attributes required for visible direct effects other than type two's WRAM-backed attributes.</param>
+    /// <param name="standardObjects">The installed standard OBJ page every effect's characters come from; required when one is visible.</param>
     public void UpdateAndDraw(
         ISnesAddressSpace bus,
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
         ushort fxYPosition,
         SamusSpritemapArtworkCatalog? artwork = null,
-        SamusAtmosphericArtworkCatalog? directArtwork = null)
+        SamusAtmosphericArtworkCatalog? directArtwork = null,
+        SpriteArtwork? standardObjects = null)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
+        var drawing = new AtmosphereDrawing(sprites, camera, standardObjects, artwork, directArtwork);
 
         // Native Y begins at byte offset six and decrements by two. Slot three therefore
         // receives the earlier/lower OAM index whenever multiple effects overlap.
@@ -141,31 +145,31 @@ public sealed class SamusAtmosphericEffectsState
             {
                 case 1:
                 case 2:
-                    DrawDirectSmallSprite(bus, oam, slot, type, camera, directArtwork);
+                    DrawDirectSmallSprite(bus, drawing, slot, slotIndex, type);
                     break;
 
                 case 3:
                     // Diving splash graphics remain pinned to the live water surface even
                     // if room FX moves it while the nine-frame animation is running.
                     slot.Position = slot.Position.WithY(fxYPosition);
-                    DrawSamusTableSpritemap(bus, oam, slot, 399, camera, artwork);
+                    DrawSamusTableSpritemap(bus, drawing, slot, slotIndex, 399);
                     break;
 
                 case 4:
                     // Slots 0/1 drift apart to the right and slots 2/3 to the left. Native
                     // tests bit two of the byte offset (0,2,4,6), equivalent to index >= 2.
                     slot.Position += new Offset16<RoomPixels>(slotIndex >= 2 ? (short)-1 : (short)1, -1);
-                    DrawDirectSmallSprite(bus, oam, slot, type, camera, directArtwork);
+                    DrawDirectSmallSprite(bus, drawing, slot, slotIndex, type);
                     break;
 
                 case 5:
-                    DrawSamusTableSpritemap(bus, oam, slot, 390, camera, artwork);
+                    DrawSamusTableSpritemap(bus, drawing, slot, slotIndex, 390);
                     break;
 
                 case 6:
                 case 7:
                     slot.Position -= new Offset16<RoomPixels>(0, 1);
-                    DrawDirectSmallSprite(bus, oam, slot, type, camera, directArtwork);
+                    DrawDirectSmallSprite(bus, drawing, slot, slotIndex, type);
                     break;
 
                 default:
@@ -179,14 +183,13 @@ public sealed class SamusAtmosphericEffectsState
     /// <summary>Clips an eight-pixel effect to the 256-pixel OAM viewport, then uses installed attributes or type two's live WRAM word.</summary>
     private static void DrawDirectSmallSprite(
         ISnesAddressSpace bus,
-        OamBuffer oam,
+        AtmosphereDrawing drawing,
         SamusAtmosphericEffectSlot slot,
-        byte type,
-        Position16<RoomPixels> camera,
-        SamusAtmosphericArtworkCatalog? directArtwork)
+        int slotIndex,
+        byte type)
     {
-        short screenX = unchecked((short)(slot.Position.X - camera.X - 4));
-        short screenY = unchecked((short)(slot.Position.Y - camera.Y - 4));
+        short screenX = unchecked((short)(slot.Position.X - drawing.Camera.X - 4));
+        short screenY = unchecked((short)(slot.Position.Y - drawing.Camera.Y - 4));
         if (screenX < 0 || screenX >= 256 || screenY < 0 || screenY >= 256)
             return;
 
@@ -194,8 +197,12 @@ public sealed class SamusAtmosphericEffectsState
         // live WRAM, so it is not an art asset and must retain its mutable read.
         ushort attributes = type == 2
             ? ReadTypeTwoWorkRamAttributes(bus, slot.AnimationFrame)
-            : ResolveInstalledAttributes(directArtwork, type, slot.AnimationFrame);
-        oam.AddRawSmallSprite(new Position16<OamPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), attributes);
+            : ResolveInstalledAttributes(drawing.DirectArtwork, type, slot.AnimationFrame);
+        var part = new SnesObjAttributeWord(attributes);
+        drawing.Sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),
+            ObjPartFrames.SmallObject(part, 0), drawing.RequirePage(),
+            new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)),
+            SnesTileFlipFlags.None, (byte)part.PaletteIndex, (byte)part.Priority));
     }
 
     /// <summary>Preserves type two's native zero list pointer, which aliases mutable WRAM instead of fixed artwork.</summary>
@@ -218,27 +225,40 @@ public sealed class SamusAtmosphericEffectsState
     /// <summary>Draws splash/bubble frames through Samus's spritemap table, clipping Y's high byte while preserving native X wrap.</summary>
     private static void DrawSamusTableSpritemap(
         ISnesAddressSpace bus,
-        OamBuffer oam,
+        AtmosphereDrawing drawing,
         SamusAtmosphericEffectSlot slot,
-        ushort firstSpritemap,
-        Position16<RoomPixels> camera,
-        SamusSpritemapArtworkCatalog? artwork)
+        int slotIndex,
+        ushort firstSpritemap)
     {
-        ushort screenX = unchecked((ushort)(slot.Position.X - camera.X));
-        ushort screenY = unchecked((ushort)(slot.Position.Y - camera.Y));
+        ushort screenX = unchecked((ushort)(slot.Position.X - drawing.Camera.X));
+        ushort screenY = unchecked((ushort)(slot.Position.Y - drawing.Camera.Y));
 
         // `$90:8B83` rejects any nonzero high byte of Y. X is deliberately not clipped;
-        // AddSamusSpritemap preserves its ninth hardware coordinate bit and wrap behavior.
         if ((SnesLittleEndian.HighByteInPlace(screenY)) != 0)
             return;
 
-        oam.AddSamusSpritemap(
+        SpriteArtwork page = drawing.RequirePage();
+        drawing.Sprites.AddSamusSpritemap(
             bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Samus atmospheric spritemap requires WRAM."),
             unchecked((ushort)(firstSpritemap + slot.AnimationFrame)),
-            new Position16<OamPixels>(screenX, screenY),
-            artwork ?? throw new InvalidOperationException(
-                "Samus atmospheric spritemap requires installed artwork."));
+            new Position16<ScreenPixels>(screenX, screenY),
+            new SamusSpritemapArtwork(drawing.Spritemaps ?? throw new InvalidOperationException(
+                "Samus atmospheric spritemap requires installed artwork."), page, () => page),
+            new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex));
+    }
+
+    /// <summary>One pass's drawing inputs: the frame, camera, standard OBJ page and installed effect artwork.</summary>
+    private readonly record struct AtmosphereDrawing(
+        SpriteFrameBuffer Sprites,
+        Position16<RoomPixels> Camera,
+        SpriteArtwork? Page,
+        SamusSpritemapArtworkCatalog? Spritemaps,
+        SamusAtmosphericArtworkCatalog? DirectArtwork)
+    {
+        /// <summary>The standard OBJ page, which a visible effect requires.</summary>
+        public SpriteArtwork RequirePage() => Page ?? throw new InvalidOperationException(
+            "Samus's atmospheric effects require the installed standard OBJ page.");
     }
 
     /// <summary>Restricts literal slot operations to the four native atmospheric records.</summary>

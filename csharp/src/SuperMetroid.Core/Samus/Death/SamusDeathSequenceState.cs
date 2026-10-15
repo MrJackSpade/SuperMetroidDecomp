@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
@@ -50,9 +51,6 @@ public sealed class SamusDeathSequenceState
         SpinJumpSoundRequested = false;
         return requested;
     }
-
-    /// <summary>Most recently queued zero-based `$400` graphics segment, or null.</summary>
-    public byte? LastQueuedSegment { get; private set; }
 
     /// <summary>Current `$92:808D` spritemap-table index used by `$92:EDBE`, or null.</summary>
     public ushort? ExplosionSpritemapIndex =>
@@ -118,31 +116,28 @@ public sealed class SamusDeathSequenceState
         AnimationIndex = 0;
         AnimationCounter = 0;
         SpinJumpSoundRequested = sourceMovementType == SamusMovementType.SpinJumping;
-        LastQueuedSegment = null;
         Phase = SamusDeathSequencePhase.PreFlashing;
 
         return new SamusDeathSequenceStartResult();
     }
 
     /// <summary>
-    /// Executes one game-state `$16/$17/$18` call. Palette writes target the same CGRAM
-    /// slots as native, and tile segments enter the ordinary NMI-drained VRAM queue.
+    /// Executes one game-state `$16/$17/$18` call. Palette writes target the same CGRAM slots as native. The
+    /// five death-character uploads that natively precede the explosion are not needed: its draws bind the
+    /// complete death characters.
     /// </summary>
     public SamusDeathSequenceStepResult Step(
         ISnesAddressSpace bus,
         SamusState samus,
         SnesCgram cgram,
-        VramWriteQueue vramWrites,
         SamusDeathPaletteArtworkCatalog? artwork = null)
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         Ensure.NotNull(cgram);
-        Ensure.NotNull(vramWrites);
         if (!IsActive)
             throw new InvalidOperationException("Samus death sequence has not begun.");
 
-        LastQueuedSegment = null;
         SamusDeathSequencePhase phaseAtStart = Phase;
         ushort indexAtStart = AnimationIndex;
         bool paletteChanged = false;
@@ -163,18 +158,13 @@ public sealed class SamusDeathSequenceState
                 break;
 
             case SamusDeathSequencePhase.Flashing:
-                if (AnimationCounter < 4)
-                    QueueSegment(vramWrites, unchecked((byte)AnimationCounter));
-
                 AnimationCounter = unchecked((ushort)(AnimationCounter + 1));
                 if (AnimationCounter >= SamusSpecialSequenceRomData.Death.FlashFrameCount)
                 {
-                    // `$9B:B498` loads palette pair zero, queues the fifth/final graphics
-                    // segment, resets the reused counters, and immediately draws explosion
-                    // spritemap zero in this very same game-state-17 call.
+                    // `$9B:B498` loads palette pair zero, resets the reused counters, and immediately
+                    // draws explosion spritemap zero in this very same game-state-17 call.
                     WritePalettePair(samus, cgram, paletteIndex: 0, artwork);
                     paletteChanged = true;
-                    QueueSegment(vramWrites, segmentIndex: 4);
                     AnimationTimer =
                         NativeCountdown.FromRaw(SamusDeathExplosionTimingDefinitions.DurationForIndex(index: 0));
                     AnimationIndex = 0;
@@ -236,18 +226,21 @@ public sealed class SamusDeathSequenceState
             Phase == SamusDeathSequencePhase.Complete);
     }
 
-    /// <summary>Emits `$92:EDBE`'s one right/left explosion spritemap at captured screen position.</summary>
-    public void DrawExplosion(ISnesAddressSpace bus, OamBuffer oam,
-        SamusSpritemapArtworkCatalog? artwork = null)
+    /// <summary>Publishes `$92:EDBE`'s one right/left explosion spritemap at captured screen position, bound to the death characters.</summary>
+    public void DrawExplosion(ISnesAddressSpace bus, SpriteFrameBuffer sprites,
+        SamusSpritemapArtworkCatalog? artwork = null, SamusDeathTileAtlas? deathTiles = null)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
         if (ExplosionSpritemapIndex is not ushort spritemap)
             return;
-        oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
+        SpriteArtwork explosion = (deathTiles ?? throw new InvalidOperationException(
+            "Samus death explosion requires installed death artwork.")).Explosion;
+        sprites.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Samus death spritemap requires WRAM."),
-            spritemap, ScreenPosition.ToOam(), artwork ?? throw new InvalidOperationException(
-                "Samus death spritemap requires installed artwork."));
+            spritemap, ScreenPosition, new SamusSpritemapArtwork(artwork ?? throw new InvalidOperationException(
+                "Samus death spritemap requires installed artwork."), explosion, () => explosion),
+            new SpriteSource(SpriteSourceKind.SamusDeathExplosion));
     }
 
     /// <summary>Advances the explosion timer, palette and terminal whiteout, returning whether to draw this frame.</summary>
@@ -330,21 +323,4 @@ public sealed class SamusDeathSequenceState
         }
         throw new InvalidOperationException("Samus death requires installed palette artwork.");
     }
-
-    /// <summary>Enqueues one native graphics segment for the NMI VRAM writer and records its index.</summary>
-    [PpuLayoutBoundary("codec: Samus death tile segment records' native destinations")]
-    private void QueueSegment(VramWriteQueue vramWrites, byte segmentIndex)
-    {
-        var segments =
-            SamusSpecialSequenceRomData.Death.TileSegments;
-        if (segmentIndex >= segments.Length)
-            throw new ArgumentOutOfRangeException(nameof(segmentIndex));
-        SamusDeathTileSegment segment = segments[segmentIndex];
-        vramWrites.Enqueue(
-            sizeInBytes: SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
-            sourceAddress: segment.SourceAddress,
-            destination: VramDmaDestination.FromNative(segment.EncodedVramDestination));
-        LastQueuedSegment = segmentIndex;
-    }
-
 }

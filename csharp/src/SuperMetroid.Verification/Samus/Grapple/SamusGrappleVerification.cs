@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -663,18 +664,20 @@ internal static void VerifySamusGrappleSwingAndRelease()
     }
     var fixtureFlareSprites = ChargeFlareSpriteCatalog.Load(
         new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
-    var grappleFlareOam = new OamBuffer();
-    grappleFlareOam.BeginFrame();
+    var grappleFlareOamFrame = new SpriteFrameBuffer();
+    grappleFlareOamFrame.BeginFrame();
     AssertTrue(SamusGrappleMovement.DrawFlareBeforeSamus(
-            bus, samus, grappleFlareOam, layer1: new(100, 50), compositions: fixtureFlareSprites),
+            bus, samus, grappleFlareOamFrame, layer1: new(100, 50), compositions: fixtureFlareSprites,
+            standardObjects: SpriteFrameTestArtwork.StandardObjects),
         "connected grapple flare passes unsigned screen-Y gate");
+    OamBuffer grappleFlareOam = grappleFlareOamFrame.FinalizeAsOam();
     AssertEqual(1, samus.Grapple.FlareCounter,
         "grapple flare counter increments only in post-Samus tile pass");
     AssertEqual(16, samus.Grapple.FlareAnimationFrame,
         "first grapple flare selects shared main frame sixteen");
     AssertEqual(2, samus.Grapple.FlareAnimationTimer.RawValue,
         "first grapple flare performs decrement-before-test");
-    AssertEqual(4, grappleFlareOam.NextByteOffset,
+    AssertEqual(4, (grappleFlareOam.LastFinalizedSpriteCount * 4),
         "grapple flare appends one ROM-authored OAM entry");
     OamEntry grappleFlare = grappleFlareOam.GetEntry(0);
     AssertEqual(100, grappleFlare.X, "grapple flare spritemap X offset");
@@ -691,28 +694,31 @@ internal static void VerifySamusGrappleSwingAndRelease()
     // $94:AFBA recalculates the angle from endpoint minus flare (1,-49).
     // Coarse octant division selects angle zero, giving a (0,-8) segment step.
 
-    var grappleOam = new OamBuffer();
-    var grappleVramWrites = new VramWriteQueue();
-    grappleOam.BeginFrame();
+    var grappleOamFrame = new SpriteFrameBuffer();
+    grappleOamFrame.BeginFrame();
     SamusGrappleMovement.DrawConnectedBeam(
         bus,
         samus.Grapple,
-        grappleOam,
-        grappleVramWrites,
-        layer1: new(100, 50));
+        grappleOamFrame,
+        layer1: new(100, 50),
+        artwork: SpriteFrameTestArtwork.BlankGrapple,
+        standardObjects: SpriteFrameTestArtwork.StandardObjects);
+    OamBuffer grappleOam = grappleOamFrame.FinalizeAsOam();
 
-    AssertEqual(2, grappleVramWrites.Entries.Count, "grapple queues endpoint and segment tiles");
-    AssertEqual(new VramWriteEntry(0x20, 0x9a8200, 0x6200), grappleVramWrites.Entries[0],
-        "grapple endpoint tile DMA record");
-    AssertEqual(new VramWriteEntry(0x80, segmentSource, 0x6210), grappleVramWrites.Entries[1],
-        "grapple angle-selected segment DMA record");
+    AssertEqual(0x9a8200, GrapplePointAnimationDefinitions.SourceAddress(samus.Grapple.PointAnimationFrame),
+        "grapple selects the native first endpoint tile");
+    AssertEqual(segmentSource, GrappleTileDefinitions.TransferFor(GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle.RawValue)).SourceAddress,
+        "grapple selects the native angle-selected segment tiles");
+    AssertTrue(grappleOamFrame.Draws.All(draw => draw.Draw.Artwork.Id.Variant ==
+            SpriteFrameTestArtwork.BlankGrapple.Tiles(samus.Grapple.PointAnimationFrame, samus.Grapple.Angle.RawValue).Id.Variant),
+        "grapple draws bind that endpoint and segment selection");
     AssertEqual(2, samus.Grapple.FlareCounter,
         "post-Samus grapple tile pass increments flare counter");
 
     // Fifty pixels yields six body pieces because $94:AFBA uses (length / 8) before drawing
     // the endpoint. Instruction slots descend 15..10, so GrappleFunc_AF87's phases are
     // $24,$23,$22,$21,$24,$23 rather than one shared guessed animation tile.
-    AssertEqual(28, grappleOam.NextByteOffset, "six grapple segments plus endpoint OAM bytes");
+    AssertEqual(28, (grappleOam.LastFinalizedSpriteCount * 4), "six grapple segments plus endpoint OAM bytes");
     int[] expectedTiles = [0x24, 0x23, 0x22, 0x21, 0x24, 0x23];
     for (int segment = 0; segment < expectedTiles.Length; segment++)
     {
@@ -744,20 +750,19 @@ internal static void VerifySamusGrappleSwingAndRelease()
         Angle = samus.Grapple.Angle,
         FlareCounter = 1,
     };
-    var zeroLengthOam = new OamBuffer();
-    var zeroLengthWrites = new VramWriteQueue();
-    zeroLengthOam.BeginFrame();
+    var zeroLengthOamFrame = new SpriteFrameBuffer();
+    zeroLengthOamFrame.BeginFrame();
     SamusGrappleMovement.DrawConnectedBeam(
         bus,
         zeroLengthGrapple,
-        zeroLengthOam,
-        zeroLengthWrites,
-        layer1: new(100, 50));
-    AssertEqual(2, zeroLengthWrites.Entries.Count,
-        "zero-length grapple still queues endpoint and segment tiles");
+        zeroLengthOamFrame,
+        layer1: new(100, 50),
+        artwork: SpriteFrameTestArtwork.BlankGrapple,
+        standardObjects: SpriteFrameTestArtwork.StandardObjects);
+    OamBuffer zeroLengthOam = zeroLengthOamFrame.FinalizeAsOam();
     AssertEqual(2, zeroLengthGrapple.FlareCounter,
         "zero-length grapple still advances flare counter");
-    AssertEqual(0, zeroLengthOam.NextByteOffset,
+    AssertEqual(0, (zeroLengthOam.LastFinalizedSpriteCount * 4),
         "zero-length grapple emits no rope or endpoint OAM");
 
     // Releasing Shoot runs $9B:CA65 now but queues $9B:CB8B for the next call. With signed

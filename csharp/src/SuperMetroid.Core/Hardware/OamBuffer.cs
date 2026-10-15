@@ -113,26 +113,6 @@ public sealed class OamBuffer
         NextByteOffset += 4;
     }
 
-    /// <summary>Emits one already-decoded Samus part with native OAM wrapping and authored attributes.</summary>
-    public void AddSamusSpritePart(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
-        ushort attributes, Position16<OamPixels> origin)
-    {
-        // The 65C816 adds the complete encoded X word, including size and old art-tool
-        // bits. Only X bit 8 reaches high OAM; bit 15 independently chooses OBJ size.
-        ushort calculatedX = unchecked((ushort)(origin.X + encodedXOffset.Raw));
-        byte calculatedY = unchecked((byte)(origin.Y + encodedYOffset));
-        int spriteIndex = NextByteOffset >> 2;
-        int lowOffset = NextByteOffset;
-        _lowTable[lowOffset] = (byte)calculatedX;
-        _lowTable[lowOffset + 1] = calculatedY;
-        // Unlike generic spritemaps, Samus parts retain their authored palette/priority.
-        WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
-        SetHighTablePair(spriteIndex,
-            SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
-        // Native OAMStack is a nine-bit byte offset and wraps after $1FC.
-        NextByteOffset = (NextByteOffset + 4) % LowTableByteCount;
-    }
-
     /// <summary>
     /// Emits an authored projectile visual part using the $81:8A4B/$81:8A2B tail:
     /// preserve source attributes, wrap Y and wrap the write position after 128 OBJs.

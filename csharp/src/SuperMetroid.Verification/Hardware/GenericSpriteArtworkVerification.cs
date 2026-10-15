@@ -87,7 +87,7 @@ internal static class GenericSpriteArtworkVerification
         intro.SetupFirstIllustratedPage();
         var caret = intro.objects;
         (caret ?? throw new InvalidOperationException("Verification requires caret.")).Step(0);
-        var actual = intro.PrepareIllustratedPageOam();
+        var actual = intro.PrepareIllustratedPageOam().FinalizedAsOam();
         expected = new OamBuffer();
         expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
@@ -99,15 +99,16 @@ internal static class GenericSpriteArtworkVerification
         intro.SetupMotherBrainFlashback();
         var motherBrain = intro.flashbackMotherBrain;
         (motherBrain ?? throw new InvalidOperationException("Verification requires motherBrain.")).Step();
-        actual = intro.PrepareMotherBrainOam();
-        expected = new OamBuffer();
-        expected.BeginFrame();
-        (intro.flashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(memory, expected, new(0, 0), 0);
-        DrawImportedSpritemap(reference, expected,
+        actual = intro.PrepareMotherBrainOam().FinalizedAsOam();
+        var expectedFrame = new SpriteFrameBuffer();
+        expectedFrame.BeginFrame();
+        (intro.flashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(memory, expectedFrame, new(0, 0), 0);
+        DrawImportedSpritemap(reference, expectedFrame.Oam,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, motherBrain.SpriteMapPointer),
             new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
             IntroMotherBrainSpriteState.PaletteBits);
-        expected.FinalizeFrame();
+        expectedFrame.FinalizeFrame();
+        expected = expectedFrame.FinalizedAsOam();
         EqualOam(expected, actual, "Mother Brain owner preserves actor order and exact OAM");
 
         var explosions = new IntroMotherBrainExplosionSystem();

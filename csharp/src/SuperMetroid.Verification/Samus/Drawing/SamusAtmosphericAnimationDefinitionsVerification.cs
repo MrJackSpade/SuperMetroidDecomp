@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -92,10 +93,12 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
 
                 var effects = new SamusAtmosphericEffectsState();
                 effects.SetSlot(0, type, frame, animationTimer: 1, anchor: new(100, drawY));
-                var oam = new OamBuffer();
-                oam.BeginFrame();
-                effects.UpdateAndDraw(guarded, oam, Position16<RoomPixels>.Zero, fxYPosition: drawY,
-                    directArtwork: atmosphericArt);
+                var oamFrame = new SpriteFrameBuffer();
+                oamFrame.BeginFrame();
+                OamBuffer oam;
+                effects.UpdateAndDraw(guarded, oamFrame, Position16<RoomPixels>.Zero, fxYPosition: drawY,
+                    directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                oam = oamFrame.FinalizeAsOam();
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer.RawValue,
                     $"production atmospheric type {type} frame {frame} expiry timer");
                 AssertEqual(frame + 1 == frameCount ? 0 : frame + 1,
@@ -105,9 +108,10 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
                 effects.Clear();
                 effects.SetSlot(0, type, frame, animationTimer: 0x8001,
                     anchor: new(100, drawY));
-                oam.BeginFrame();
-                effects.UpdateAndDraw(guarded, oam, Position16<RoomPixels>.Zero, fxYPosition: drawY,
-                    directArtwork: atmosphericArt);
+                oamFrame.BeginFrame();
+                effects.UpdateAndDraw(guarded, oamFrame, Position16<RoomPixels>.Zero, fxYPosition: drawY,
+                    directArtwork: atmosphericArt, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                oam = oamFrame.FinalizeAsOam();
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer.RawValue,
                     $"production atmospheric type {type} frame {frame} delayed timer");
                 AssertEqual(frame, effects.Slots[0].AnimationFrame,
@@ -132,9 +136,11 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             var effects = new SamusAtmosphericEffectsState();
             effects.SetSlot(0, 2, 0, animationTimer: 2,
                 anchor: new(100, 100));
-            var oam = new OamBuffer();
-            oam.BeginFrame();
-            effects.UpdateAndDraw(guarded, oam, Position16<RoomPixels>.Zero, fxYPosition: 100);
+            var oamFrame = new SpriteFrameBuffer();
+            oamFrame.BeginFrame();
+            OamBuffer oam;
+            effects.UpdateAndDraw(guarded, oamFrame, Position16<RoomPixels>.Zero, fxYPosition: 100, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            oam = oamFrame.FinalizeAsOam();
             AssertEqual((byte)0x5a, oam.LowTable[2],
                 "null atmospheric pointer reads low OBJ attribute from mirrored WRAM");
             AssertEqual((byte)0x34, oam.LowTable[3],

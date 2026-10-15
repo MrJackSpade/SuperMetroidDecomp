@@ -49,12 +49,20 @@ public sealed class SamusBodyArtworkCatalog
     internal readonly Dictionary<int, sbyte> drainedYOffsets;
     /// <summary>Edited components of four-byte native frame selectors.</summary>
     internal readonly Dictionary<int, byte> frames;
+    /// <summary>Characters in Samus's body artwork: two sixteen-wide rows.</summary>
+    public const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
+    /// <summary>Characters in one half row, filled by one transfer.</summary>
+    private const int HalfRowCharacters = SpriteArtwork.CharactersPerRow / 2;
     /// <summary>Upper-body tile definitions grouped by native pointer-table entry.</summary>
     private readonly SamusBodyTileDefinition[][] top;
     /// <summary>Lower-body tile definitions grouped by native pointer-table entry.</summary>
     private readonly SamusBodyTileDefinition[][] bottom;
     /// <summary>Definition lookup by physical SNES address, including cross-group selections.</summary>
     private readonly Dictionary<int, SamusBodyTileDefinition> definitionsByAddress = [];
+    /// <summary>Owned ordinal of each definition in authored order (top sets, then bottom sets); the body artwork identity uses it.</summary>
+    private readonly Dictionary<int, int> definitionOrdinals = [];
+    /// <summary>Composed body characters per selected pair, built once.</summary>
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<(int Top, int Bottom), SpriteArtwork> bodyArtwork = new();
 
     /// <summary>Editable bank-$92 OAM composition for these body frames.</summary>
     public SamusSpritemapArtworkCatalog Spritemaps { get; }
@@ -154,6 +162,7 @@ public sealed class SamusBodyArtworkCatalog
         BindTransfers(true, this.top);
         BindTransfers(false, this.bottom);
         definitionsByAddress.Clear();
+        definitionOrdinals.Clear();
         IndexDefinitions(true, this.top);
         IndexDefinitions(false, this.bottom);
     }
@@ -303,6 +312,36 @@ public sealed class SamusBodyArtworkCatalog
             position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
     }
 
+    /// <summary>
+    /// Samus's 32 body characters as the selected definitions make them visible: each definition's first transfer
+    /// fills one eight-character half row (top: characters 0-7, bottom: 8-15) and its second transfer the half row
+    /// below it (top: 16-23, bottom: 24-31). A half with no selected definition is blank.
+    /// </summary>
+    /// <param name="topAddress">The selected top definition's record address, or null.</param>
+    /// <param name="bottomAddress">The selected bottom definition's record address, or null.</param>
+    public SpriteArtwork BodyArtwork(int? topAddress, int? bottomAddress)
+    {
+        int top = topAddress is { } upper ? definitionOrdinals[upper] : -1;
+        int bottom = bottomAddress is { } lower ? definitionOrdinals[lower] : -1;
+        return bodyArtwork.GetOrAdd((top, bottom), key =>
+        {
+            var characters = new byte[BodyCharacterCount * SpriteArtwork.CharacterByteCount];
+            if (topAddress is { } topRecord)
+                CopyHalves(DefinitionAt(topRecord), characters, 0);
+            if (bottomAddress is { } bottomRecord)
+                CopyHalves(DefinitionAt(bottomRecord), characters, HalfRowCharacters);
+            return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusBody, (key.Top + 1) << 16 | (key.Bottom + 1)), characters);
+        });
+
+        static void CopyHalves(SamusBodyTileDefinition definition, byte[] characters, int firstCharacter)
+        {
+            ReadOnlySpan<byte> planar = definition.Planar.Span;
+            planar[..definition.FirstSize].CopyTo(characters.AsSpan(firstCharacter * SpriteArtwork.CharacterByteCount));
+            planar[definition.FirstSize..].CopyTo(characters.AsSpan(
+                (firstCharacter + SpriteArtwork.CharactersPerRow) * SpriteArtwork.CharacterByteCount));
+        }
+    }
+
     /// <summary>Resolve a saved native definition pointer after a debugger-state rebind.</summary>
     public SamusBodyTileDefinition DefinitionAt(int nativeAddress)
     {
@@ -321,6 +360,7 @@ public sealed class SamusBodyArtworkCatalog
                 position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
             if (!definitionsByAddress.TryAdd(address, groups[set][position]))
                 throw new InvalidDataException($"Samus body definition ${address:X6} is duplicated.");
+            definitionOrdinals.Add(address, definitionOrdinals.Count);
         }
     }
 

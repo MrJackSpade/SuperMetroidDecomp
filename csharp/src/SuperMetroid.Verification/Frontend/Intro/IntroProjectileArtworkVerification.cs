@@ -31,7 +31,7 @@ internal static class IntroProjectileArtworkVerification
         var game = CreateRetailGameFixture(bus);
         game.intro = intro;
         game.GameState = SuperMetroidGameState.IntroCinematic;
-        byte[] Draw(IntroCinematicState scene) => (scene.PrepareMotherBrainOam()).LowTable.ToArray();
+        byte[] Draw(IntroCinematicState scene) => scene.PrepareMotherBrainOam().FinalizedAsOam().LowTable.ToArray();
         foreach (ushort family in new ushort[] { 0x10, 0x700 })
         {
             projectiles.Reset();

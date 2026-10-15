@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleEndpointGeometryVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -53,11 +54,12 @@ internal static class GrappleRopeGeometryVerification
                     x = unchecked(x + dx); y = unchecked(y + dy);
                 }
             }
-            var oam = new OamBuffer();
-            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oam, new VramWriteQueue(), new(0, 0));
+            var oamFrame = new SpriteFrameBuffer();
+            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oamFrame, new(0, 0), SpriteFrameTestArtwork.BlankGrapple, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            OamBuffer oam = oamFrame.FinalizeAsOam();
             string context = $"direction {direction}, origin {origin}, length {length}";
             int endpointCount = (short)length < 0 ? 0 : 1;
-            AssertEqual((expected.Count + endpointCount) * 4, oam.NextByteOffset, "Native rope culling/count: " + context);
+            AssertEqual((expected.Count + endpointCount) * 4, (oam.LastFinalizedSpriteCount * 4), "Native rope culling/count: " + context);
             for (int i = 0; i < expected.Count; i++)
             {
                 AssertEqual(expected[i].X, oam.LowTable[i * 4], "Native fractional rope X: " + context);

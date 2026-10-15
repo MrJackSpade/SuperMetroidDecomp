@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -43,16 +44,18 @@ internal static class InstalledSamusArtworkTests
             var edited = new SamusState { Pose = stock.Pose, Position = FixedPosition<RoomPixels>.FromWhole(stock.Position.Whole), Health = stock.Health };
             stock.PoseMetadata.RefreshCollisionRadii(memory); edited.PoseMetadata.RefreshCollisionRadii(memory);
             stock.Presentation.TileTransfers.BindArtwork(fixture.Stock);
+            stock.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             edited.Presentation.TileTransfers.BindArtwork(fixture.Edited);
+            edited.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             string before = PhysicalState(stock);
             var a = new SnesVram(); var b = new SnesVram();
-            var oa = new OamBuffer(); var ob = new OamBuffer();
-            oa.BeginFrame(); ob.BeginFrame();
-            bool visible = stock.Presentation.Draw(memory, oa, new(0, 0));
-            Require(visible == edited.Presentation.Draw(memory, ob, new(0, 0)), $"pose {pose:X2}: visibility changed");
+            var oaFrame = new SpriteFrameBuffer(); var obFrame = new SpriteFrameBuffer();
+            oaFrame.BeginFrame(); obFrame.BeginFrame();
+            bool visible = stock.Presentation.Draw(memory, oaFrame, new(0, 0));
+            Require(visible == edited.Presentation.Draw(memory, obFrame, new(0, 0)), $"pose {pose:X2}: visibility changed");
             stock.Presentation.TileTransfers.TransferToVram(memory, a);
             edited.Presentation.TileTransfers.TransferToVram(memory, b);
-            oa.FinalizeFrame(); ob.FinalizeFrame();
+            OamBuffer oa = oaFrame.FinalizeAsOam(), ob = obFrame.FinalizeAsOam();
             Require(oa.ImageEquals(ob),
                 $"pose {pose:X2}: pixel-only edit changed OAM placement");
             Require(before == PhysicalState(stock) && before == PhysicalState(edited),
@@ -153,7 +156,7 @@ internal static class InstalledSamusArtworkTests
         {
             Check(SamusRenderingRomData.Banks.CharacterData | source,
                 SamusRenderingRomData.ArmCannon.TileUploadByteCount,
-                SamusRenderingRomData.ArmCannon.TileVramDestination, $"cannon {source:X4}");
+                SamusRenderingRomDataArmCannonConstants.TileVramDestination, $"cannon {source:X4}");
             count++;
         }
         foreach (SamusDeathTileSegment segment in SamusSpecialSequenceRomData.Death.TileSegments)

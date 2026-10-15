@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Grapple;
 
@@ -29,4 +30,6 @@ internal static class SamusGrappleRomDataRenderingConstants
         /// <inheritdoc cref="SamusGrappleRomDataRenderingConstants.SegmentTilePointers"/>
         internal static int SegmentTilePointers => SamusGrappleRomDataRenderingConstants.SegmentTilePointers;
     }
+        /// <summary>Bytes uploaded for the single Grapple point character.</summary>
+        public const ushort PointTileByteCount = 0x20;
 }

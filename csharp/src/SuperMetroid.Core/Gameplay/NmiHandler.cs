@@ -206,7 +206,6 @@ internal sealed class NmiHandler
             CaptureBossBackgrounds(),
             CaptureFixedColors(),
             CaptureXrayRevealTilemap());
-        _player.Samus?.Presentation.TileTransfers.TransferToVram(_addressSpace, _vram);
         _artwork.PublishReboundHudArtwork();
         _vramWrites.DrainTo(_vram, RuntimeMemory.RequireBus(_addressSpace), _artwork);
         // A rebound snapshot may retain old VRAM and legacy queued transfers.

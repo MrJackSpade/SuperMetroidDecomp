@@ -40,47 +40,40 @@ internal static class GrappleTileArtworkVerification
             .Forbid(address => GrappleTileDefinitions.Transfers.Any(transfer =>
                     address >= transfer.SourceAddress && address < transfer.SourceAddress + transfer.ByteCount),
                 _ => "Grapple still reads tile pixel ROM.");
+        AssertThrows<InvalidOperationException>(() => SamusGrappleMovement.DrawConnectedBeam(guard,
+                new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = NativeCountdown.Start(5) },
+                new SpriteFrameBuffer(), new(0, 0)),
+            "The grapple beam fails loudly without installed grapple artwork");
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusGrappleRomData.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
             int actual = GrappleTileDefinitions.TransferFor(GrappleTileDefinitions.SegmentAssetFor((ushort)angle)).SourceAddress;
             AssertEqual(0x9a0000 | expected, actual, "Compiled Grapple sector selection matches all 65536 native angles");
-            var queue = new VramWriteQueue();
-            SamusGrappleMovement.DrawConnectedBeam(guard,
-                new SamusGrappleState { Phase = GrapplePhase.Firing, Angle = SnesAngle.FromRaw((ushort)angle), PointAnimationTimer = NativeCountdown.Start(5) },
-                new OamBuffer(), queue, new(0, 0));
-            AssertEqual(0x9a0000 | expected, queue.Entries[1].SourceAddress, "No-artwork producer uses native sector mapping without pointer ROM");
-            AssertEqual((ushort)128, queue.Entries[1].SizeInBytes, "No-artwork producer preserves segment transfer size");
-            AssertEqual((ushort)0x6210, queue.Entries[1].EncodedVramDestination, "No-artwork producer preserves segment transfer destination");
         }
-        byte[] poison = new byte[65536]; Array.Fill(poison, (byte)0xa5);
         int cases = 0;
         for (int sector = 0; sector < 64; sector++)
         for (byte frame = 0; frame < 4; frame++)
         foreach (ushort timer in new ushort[] { 0, 1, 5, 65535 })
         {
             SamusGrappleState native = Seed(), selected = Seed(), changed = Seed();
-            var a = new VramWriteQueue(); var b = new VramWriteQueue(); var c = new VramWriteQueue();
-            var oa = new OamBuffer(); var ob = new OamBuffer(); var oc = new OamBuffer();
-            SamusGrappleMovement.DrawConnectedBeam(bus, native, oa, a, new(0, 0));
-            SamusGrappleMovement.DrawConnectedBeam(guard, selected, ob, b, new(0, 0), stock);
-            SamusGrappleMovement.DrawConnectedBeam(guard, changed, oc, c, new(0, 0), edited);
-            AssertEqual(a.TailInBytes, b.TailInBytes, "Grapple atlas preserves native queue size");
-            for (int i = 0; i < 2; i++)
-            {
-                AssertEqual(a.Entries[i].SizeInBytes, b.Entries[i].SizeInBytes, "Grapple atlas preserves transfer byte count");
-                AssertEqual(a.Entries[i].EncodedVramDestination, b.Entries[i].EncodedVramDestination, "Grapple atlas preserves transfer ordering and destination");
-            }
+            OamBuffer oa = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleMovement.DrawConnectedBeam(bus, native, sprites, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+            OamBuffer ob = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleMovement.DrawConnectedBeam(guard, selected, sprites, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+            OamBuffer oc = SpriteFrameBuffer.DrawnOam(sprites => SamusGrappleMovement.DrawConnectedBeam(guard, changed, sprites, new(0, 0), edited, standardObjects: SpriteFrameTestArtwork.StandardObjects));
             AssertTrue(oa.ImageEquals(ob) && oa.ImageEquals(oc), "Grapple PNG edits do not change rope OBJ placement or composition");
             AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(selected)) && GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Grapple PNG edits preserve entire rope/animation simulation state");
-            var va = new SnesVram(); var vb = new SnesVram(); var vc = new SnesVram();
-            va.LoadBytes(0, poison); vb.LoadBytes(0, poison); vc.LoadBytes(0, poison);
-            ImportedVramOracle.Drain(a, va, bus); b.DrainTo(vb, ReferenceMutableMemory.From(guard), stock); c.DrainTo(vc, ReferenceMutableMemory.From(guard), edited);
-            AssertTrue(va.ImageEquals(vb), "Actual Grapple stock producer/drain preserves all VRAM with pointer/tile ROM forbidden");
-            byte[] expectedBytes = va.Bytes.ToArray();
-            expectedBytes[GrappleTileDefinitions.PointDestination * 2] ^= 128;
-            for (int tile = 0; tile < 4; tile++) expectedBytes[GrappleTileDefinitions.SegmentDestination * 2 + tile * 32] ^= 128;
-            AssertTrue(expectedBytes.SequenceEqual(vc.Bytes), "Selected Grapple pixels change exactly five mapped bits and no neighboring VRAM");
+            // The binding holds the endpoint frame's character, then the angle sector's four rope characters, exactly
+            // as the cartridge uploads them to $6200/$6210.
+            SpriteArtwork stockTiles = stock.Tiles(selected.PointAnimationFrame, selected.Angle.RawValue);
+            byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                    GrapplePointAnimationDefinitions.SourceAddress(selected.PointAnimationFrame), SpriteArtwork.CharacterByteCount),
+                .. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                    GrappleTileDefinitions.TransferFor(GrappleTileDefinitions.SegmentAssetFor(selected.Angle.RawValue)).SourceAddress,
+                    4 * SpriteArtwork.CharacterByteCount)];
+            AssertTrue(stockTiles.Characters.SequenceEqual(nativeTiles), "Stock grapple binding holds the native endpoint and rope characters");
+            byte[] expectedEdited = stockTiles.Characters.ToArray();
+            for (int character = 0; character < 5; character++) expectedEdited[character * SpriteArtwork.CharacterByteCount] ^= 128;
+            AssertTrue(edited.Tiles(changed.PointAnimationFrame, changed.Angle.RawValue).Characters.SequenceEqual(expectedEdited),
+                "Selected Grapple pixels change exactly five mapped bits of the binding");
             cases++;
             SamusGrappleState Seed() => new()
             {
@@ -99,7 +92,7 @@ internal static class GrappleTileArtworkVerification
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(invalidPng), "Grapple PNG out-of-range palette index rejected");
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(new MemoryStream(new byte[8])), "Malformed Grapple PNG rejected");
         AssertThrows<InvalidDataException>(() => stock.Resolve(VramAssetId.StandardHudTiles), "Grapple provider rejects unrelated identity");
-        Console.WriteLine($"Grapple PNG: all 65536 angle selections and {cases} production uploads preserve native OAM, full state and full VRAM; all sixteen edited tiles map exactly.");
+        Console.WriteLine($"Grapple PNG: all 65536 angle selections and {cases} production draws preserve native OAM and full state; bindings hold native tiles and all edited tiles map exactly.");
     }
 
     /// <summary>Runs the focused Grapple tile extraction, binding, and upload check.</summary>

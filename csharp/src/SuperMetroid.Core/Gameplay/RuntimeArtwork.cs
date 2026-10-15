@@ -134,6 +134,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         _player.Samus.Presentation.ChargeColors = MapPresentation?.SamusChargeColors;
         // All Samus constructors call this rebind before priming the first visual DMA.
         _player.Samus.Presentation.TileTransfers.BindArtwork(SamusBodyArt);
+        _player.Samus.Presentation.TileTransfers.BindStandardObjects(StandardObjects);
         _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
     }
 
@@ -186,7 +187,34 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     // an old user override into the simulation. Only composition emission uses this.
     /// <summary>Complete installed standard OBJ sheet used by the queued gameplay DMA.</summary>
     [field: NonSerialized]
-    public RoomCharacterAtlas? StandardObjectArt { get; set; }
+    public RoomCharacterAtlas? StandardObjectArt
+    {
+        get;
+        set
+        {
+            field = value;
+            StandardObjects = value is null ? null : StandardObjectPage(value);
+            _player.Samus?.Presentation.TileTransfers.BindStandardObjects(StandardObjects);
+        }
+    }
+
+    /// <summary>
+    /// The installed standard OBJ sheet as a 512-character page. Characters past the sheet are blank, and a
+    /// further row plus one is blank overhang, so any nine-bit OBJ character a large part names stays inside it.
+    /// </summary>
+    [field: NonSerialized]
+    public SpriteArtwork? StandardObjects { get; private set; }
+
+    /// <summary>Copies the sheet into a page of every nine-bit OBJ character plus large-part overhang.</summary>
+    private static SpriteArtwork StandardObjectPage(RoomCharacterAtlas sheet)
+    {
+        var characters = new byte[(StandardObjectPageCharacters + SpriteArtwork.CharactersPerRow + 1) * SpriteArtwork.CharacterByteCount];
+        sheet.Transfer.Span.CopyTo(characters);
+        return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.StandardObjects), characters);
+    }
+
+    /// <summary>Characters a nine-bit OBJ name selects.</summary>
+    private const int StandardObjectPageCharacters = 512;
 
     /// <summary>Rebinds authored visual frame choices to both native projectile slot owners.</summary>
     [field: NonSerialized]     public ProjectileFrameBindingCatalog? ProjectileFrameBindings

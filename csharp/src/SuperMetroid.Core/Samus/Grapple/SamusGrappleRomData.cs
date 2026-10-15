@@ -83,8 +83,6 @@ public static class SamusGrappleRomData
     {
         /// <summary>Animation frame selected by each high byte of swing angle.</summary>
         public const int SwingFrameByAngle = 0x9bc1c2;
-        /// <summary>Bytes uploaded for the single Grapple point character.</summary>
-        public const ushort PointTileByteCount = 0x20;
         /// <summary>$94:B036, DrawGrappleBeam: distance between consecutive rope objects in pixels.</summary>
         public const int SegmentSpacing = 8;
         /// <summary>$94:AFD9-AFE4: convert a signed 8.8 sample into an eight-pixel 16.16 displacement.</summary>

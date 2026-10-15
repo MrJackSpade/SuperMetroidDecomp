@@ -71,7 +71,7 @@ internal sealed class SamusMechanicsSnapshot
             // movement/special-sequence children remain compared, including private fields.
             if (field.IsDefined(typeof(NonSerializedAttribute)) ||
                 field.FieldType == typeof(SamusTileTransferState) ||
-                (owner == typeof(SamusState) && field.Name is
+                (owner == typeof(SamusPresentation) && field.Name is
                     "<TopSpritemapIndex>k__BackingField" or
                     "<BottomSpritemapIndex>k__BackingField" or
                     "<SpritemapPosition>k__BackingField")) continue;

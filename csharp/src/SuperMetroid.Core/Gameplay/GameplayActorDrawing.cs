@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -41,6 +42,8 @@ internal sealed class GameplayActorDrawing
     private readonly NmiClock _nmi;
     /// <summary>Receives actor sprites in cartridge drawing order.</summary>
     private readonly OamBuffer _oam;
+    /// <summary>Receives Samus's whole-frame draws in the same order as the OAM sprites around them.</summary>
+    private readonly SpriteFrameBuffer _sprites;
     /// <summary>Supplies Samus pose, palettes, grapple state, and movement effects.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Supplies beam palette updates and player-projectile effects.</summary>
@@ -65,7 +68,8 @@ internal sealed class GameplayActorDrawing
         _enemies = dependencies.Enemies;
         _freeze = dependencies.Freeze;
         _nmi = dependencies.Nmi;
-        _oam = dependencies.Oam;
+        _oam = dependencies.Sprites.Oam;
+        _sprites = dependencies.Sprites;
         _player = dependencies.Player;
         _projectiles = dependencies.Projectiles;
         _room = dependencies.Room;
@@ -212,12 +216,12 @@ internal sealed class GameplayActorDrawing
             {
                 LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
                     _addressSpace,
-                    _oam,
+                    _sprites,
                     _room.Camera.PixelPosition,
                     mode7Transform: _display.ActiveSamusMode7Transform);
             }
             else if (_player.LastDeathSequenceStep is { DrawExplosion: true })
-                _player.Samus.DeathSequence.DrawExplosion(_addressSpace, _oam, _artwork.SamusBodyArt?.Spritemaps);
+                _player.Samus.DeathSequence.DrawExplosion(_addressSpace, _sprites, _artwork.SamusBodyArt?.Spritemaps, _artwork.SamusBodyArt?.DeathTiles);
         }
         else
         {
@@ -247,7 +251,7 @@ internal sealed class GameplayActorDrawing
                     // ordinary invincibility test, so this path cannot flicker twice.
                     LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
                         _addressSpace,
-                        _oam,
+                        _sprites,
                         _room.Camera.PixelPosition,
                         mode7Transform: _display.ActiveSamusMode7Transform);
                 }
@@ -264,13 +268,13 @@ internal sealed class GameplayActorDrawing
                 LastShinesparkCrashDrawingHandlerActive = true;
                 LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
                     _addressSpace,
-                    _oam,
+                    _sprites,
                     _room.Camera.PixelPosition,
                     _nmi.NmiFrameCounter,
                     _display.ActiveSamusMode7Transform);
                 _player.Samus.Presentation.DrawShinesparkCrashEchoes(
                     _addressSpace,
-                    _oam,
+                    _sprites,
                     _room.Camera.PixelPosition,
                     _nmi.NmiFrameCounter);
             }
@@ -291,9 +295,10 @@ internal sealed class GameplayActorDrawing
                     LastGrappleFlareDrawn = SamusGrappleMovement.DrawFlareBeforeSamus(
                         _addressSpace,
                         _player.Samus,
-                        _oam,
+                        _sprites,
                         _room.Camera.PixelPosition,
-                        _artwork.ChargeFlareCompositions);
+                        _artwork.ChargeFlareCompositions,
+                        _artwork.StandardObjects);
                 }
                 else if (!grappleHandlerInstalled)
                 {
@@ -316,11 +321,12 @@ internal sealed class GameplayActorDrawing
                 // flare. This exact overlap order is visible through transparent pixels.
                 _player.Samus.LiquidPhysics.AtmosphericEffects.UpdateAndDraw(
                     _addressSpace,
-                    _oam,
+                    _sprites,
                     _room.Camera.PixelPosition,
                     _player.Samus.LiquidPhysics.FxYPosition,
                     _artwork.SamusBodyArt?.Spritemaps,
-                    _artwork.SamusBodyArt?.Atmosphere);
+                    _artwork.SamusBodyArt?.Atmosphere,
+                    _artwork.StandardObjects);
 
                 // Drawing modes one and two differ only in OAM priority: one appends the
                 // cannon before the body, while two appends it after. Mode zero suppresses
@@ -330,15 +336,14 @@ internal sealed class GameplayActorDrawing
                 {
                     LastArmCannonDraw = _player.Samus.ArmCannon.Draw(
                         _addressSpace,
-                        _oam,
-                        _vramWrites,
+                        _sprites,
                         _player.Samus,
                         _room.Camera.PixelPosition,
                         _nmi.NmiFrameCounter);
                 }
                 LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
                     _addressSpace,
-                    _oam,
+                    _sprites,
                     _room.Camera.PixelPosition,
                     _nmi.NmiFrameCounter,
                     _display.ActiveSamusMode7Transform);
@@ -346,8 +351,7 @@ internal sealed class GameplayActorDrawing
                 {
                     LastArmCannonDraw = _player.Samus.ArmCannon.Draw(
                         _addressSpace,
-                        _oam,
-                        _vramWrites,
+                        _sprites,
                         _player.Samus,
                         _room.Camera.PixelPosition,
                         _nmi.NmiFrameCounter);
@@ -361,11 +365,11 @@ internal sealed class GameplayActorDrawing
                     SamusGrappleMovement.DrawConnectedBeam(
                         _addressSpace,
                         _player.Samus.Grapple,
-                        _oam,
-                        _vramWrites,
+                        _sprites,
                         _room.Camera.PixelPosition,
                         _artwork.GrappleArtwork,
-                        _player.Samus.Pose);
+                        _player.Samus.Pose,
+                        _artwork.StandardObjects);
                 }
                 else
                 {
@@ -374,11 +378,11 @@ internal sealed class GameplayActorDrawing
                     // because `$90:EB52` and the active half of `$90:EB86` were bypassed.
                     _player.Samus.Presentation.DrawSpeedBoosterEchoes(
                         _addressSpace,
-                        _oam,
+                        _sprites,
                         _room.Camera.PixelPosition);
                     _player.Samus.Presentation.DrawReleasedShinesparkCrashEchoes(
                         _addressSpace,
-                        _oam,
+                        _sprites,
                         _room.Camera.PixelPosition,
                         _nmi.NmiFrameCounter);
                 }

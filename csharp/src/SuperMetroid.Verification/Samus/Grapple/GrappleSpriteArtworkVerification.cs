@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -42,15 +43,17 @@ internal static class GrappleSpriteArtworkVerification
             var originalState = Seed(); var stockState = Seed(); var editedState = Seed();
             for (int tick = 0; tick < 25; tick++)
             {
-                var originalOam = new OamBuffer(); var stockOam = new OamBuffer(); var editedOam = new OamBuffer();
-                var originalQueue = new VramWriteQueue(); var stockQueue = new VramWriteQueue(); var editedQueue = new VramWriteQueue();
-                SamusGrappleMovement.DrawConnectedBeam(bus, originalState, originalOam, originalQueue, new(0, 0));
-                SamusGrappleMovement.DrawConnectedBeam(guard, stockState, stockOam, stockQueue, new(0, 0), stock);
-                SamusGrappleMovement.DrawConnectedBeam(guard, editedState, editedOam, editedQueue, new(0, 0), changed);
+                var originalOamFrame = new SpriteFrameBuffer(); var stockOamFrame = new SpriteFrameBuffer(); var editedOamFrame = new SpriteFrameBuffer();
+                SamusGrappleMovement.DrawConnectedBeam(bus, originalState, originalOamFrame, new(0, 0), SpriteFrameTestArtwork.BlankGrapple, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                OamBuffer originalOam = originalOamFrame.FinalizeAsOam();
+                SamusGrappleMovement.DrawConnectedBeam(guard, stockState, stockOamFrame, new(0, 0), stock, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                OamBuffer stockOam = stockOamFrame.FinalizeAsOam();
+                SamusGrappleMovement.DrawConnectedBeam(guard, editedState, editedOamFrame, new(0, 0), changed, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                OamBuffer editedOam = editedOamFrame.FinalizeAsOam();
                 AssertTrue(originalOam.ImageEquals(stockOam), "Stock JSON preserves entire native OAM");
-                AssertEqual(stockOam.NextByteOffset, editedOam.NextByteOffset, "Visual edit preserves segment count");
+                AssertEqual((stockOam.LastFinalizedSpriteCount * 4), (editedOam.LastFinalizedSpriteCount * 4), "Visual edit preserves segment count");
                 AssertTrue(stockOam.HighTable.SequenceEqual(editedOam.HighTable), "Visual edit preserves object size and high-X");
-                for (int offset = 0; offset < stockOam.NextByteOffset; offset += 4)
+                for (int offset = 0; offset < (stockOam.LastFinalizedSpriteCount * 4); offset += 4)
                 {
                     AssertEqual(stockOam.LowTable[offset], editedOam.LowTable[offset], "Visual edit preserves segment X");
                     AssertEqual(stockOam.LowTable[offset + 1], editedOam.LowTable[offset + 1], "Visual edit preserves segment Y");
@@ -59,7 +62,6 @@ internal static class GrappleSpriteArtworkVerification
                 }
                 AssertTrue(GraphDigest(originalState).SequenceEqual(GraphDigest(stockState)) &&
                     GraphDigest(stockState).SequenceEqual(GraphDigest(editedState)), "Visual edits preserve all Grapple state and animation timing");
-                AssertTrue(stockQueue.Entries.SequenceEqual(editedQueue.Entries), "Visual attributes leave uploads unchanged");
                 cases++;
             }
             SamusGrappleState Seed()

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -35,13 +36,14 @@ internal static class GrappleEndpointGeometryVerification
                 Anchor = new(endpointX, endpointY), PointAnimationTimer = NativeCountdown.Start(5),
             };
             grapple.SegmentAnimationTimers[15] = NativeCountdown.Start(1);
-            var oam = new OamBuffer();
-            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oam, new VramWriteQueue(), new(camera, camera), samusPose: pose);
+            var oamFrame = new SpriteFrameBuffer();
+            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oamFrame, new(camera, camera), SpriteFrameTestArtwork.BlankGrapple, samusPose: pose, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            OamBuffer oam = oamFrame.FinalizeAsOam();
             bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
             ushort relativeY = unchecked((ushort)(endpointY - camera));
             bool visible = swinging || (SnesLittleEndian.HighByteInPlace(relativeY)) == 0;
             string context = $"pose {(int)pose:X2}, camera {camera}, offsets {offsetX}/{offsetY}";
-            AssertEqual(visible ? 4 : 0, oam.NextByteOffset, "Native endpoint vertical gate: " + context);
+            AssertEqual(visible ? 4 : 0, (oam.LastFinalizedSpriteCount * 4), "Native endpoint vertical gate: " + context);
             if (!visible) continue;
             // Connected code omits the second SEC. Preserve the borrow from the
             // camera subtraction, including when unsigned world coordinates wrap.
@@ -78,12 +80,10 @@ internal static class GrappleEndpointGeometryVerification
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole);
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
             samus.Grapple.SegmentAnimationTimers[15] = NativeCountdown.Start(1);
-            runtime.Oam.BeginFrame();
+            runtime.Sprites.BeginFrame();
             runtime.ActorDrawing.DrawGameplayActors(false, false);
-            int endpoints = 0;
-            for (int offset = 0; offset < runtime.Oam.NextByteOffset; offset += 4)
-                if (runtime.Oam.LowTable[offset + 2] == 0x20 && runtime.Oam.LowTable[offset + 3] == 0x3a)
-                    endpoints++;
+            runtime.Sprites.FinalizeFrame();
+            int endpoints = runtime.Sprites.Draws.Count(draw => draw.Draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint);
             AssertEqual((int)pose == 1 ? 0 : 1, endpoints, $"Actual gameplay actor passes endpoint pose {(int)pose:X2}");
         }
     }

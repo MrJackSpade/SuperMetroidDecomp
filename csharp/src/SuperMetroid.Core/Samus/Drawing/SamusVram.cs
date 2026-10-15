@@ -19,15 +19,6 @@ public readonly struct SamusVram(SnesVram vram)
     /// <summary>The selected beam's characters.</summary>
     public VramRegion BeamTiles => new(vram, SamusVramLayout.BeamTiles);
 
-    /// <summary>Queued-DMA destination of the arm-cannon cover character.</summary>
-    public static VramDmaDestination ArmCannonTileDma => VramDmaDestination.At(SamusVramLayout.ArmCannonTile);
-
-    /// <summary>Queued-DMA destination of the grapple endpoint character.</summary>
-    public static VramDmaDestination GrapplePointDma => VramDmaDestination.At(SamusVramLayout.GrapplePoint);
-
-    /// <summary>Queued-DMA destination of the grapple rope-segment characters.</summary>
-    public static VramDmaDestination GrappleSegmentsDma => VramDmaDestination.At(SamusVramLayout.GrappleSegments);
-
     /// <summary>Queued-DMA destination of the beam characters.</summary>
     public static VramDmaDestination BeamTilesDma => VramDmaDestination.At(SamusVramLayout.BeamTiles);
 }

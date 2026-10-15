@@ -22,20 +22,6 @@ public static class SamusVramLayout
     public static readonly PpuLayoutCell BodyBottomSecond = new(nameof(BodyBottomSecond), PpuLayoutRegion.Vram,
         SamusRenderingRomData.TileTransfers.BottomDestinations.Second, HalfRowWords, "4-bpp OBJ characters", GameplayVramLayout.ObjectCharacters);
 
-    /// <summary>VMADD $61F0-$61FF: OBJ tile $1F, the arm-cannon cover character (<c>$90:C7DF</c>).</summary>
-    public static readonly PpuLayoutCell ArmCannonTile = new(nameof(ArmCannonTile), PpuLayoutRegion.Vram,
-        SamusRenderingRomData.ArmCannon.TileVramDestination, SamusRenderingRomData.ArmCannon.TileUploadByteCount / sizeof(ushort),
-        "4-bpp OBJ character", GameplayVramLayout.ObjectCharacters);
-
-    /// <summary>VMADD $6200-$620F: the grapple endpoint character (<c>$9B:BFFB</c>).</summary>
-    public static readonly PpuLayoutCell GrapplePoint = new(nameof(GrapplePoint), PpuLayoutRegion.Vram,
-        SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.PointDestination, SamusGrappleRomData.Rendering.PointTileByteCount / sizeof(ushort),
-        "4-bpp OBJ character", GameplayVramLayout.ObjectCharacters);
-
-    /// <summary>VMADD $6210-$624F: the four grapple rope-segment characters (<c>$9B:C02B</c>).</summary>
-    public static readonly PpuLayoutCell GrappleSegments = new(nameof(GrappleSegments), PpuLayoutRegion.Vram,
-        SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.SegmentDestination, 0x40, "4-bpp OBJ characters", GameplayVramLayout.ObjectCharacters);
-
     /// <summary>VMADD $6300-$637F: the selected beam's projectile characters (<c>$90:AC8D</c>).</summary>
     public static readonly PpuLayoutCell BeamTiles = new(nameof(BeamTiles), PpuLayoutRegion.Vram,
         SuperMetroid.Core.Samus.Artwork.BeamTileAtlasDefinitions.DestinationWord, SuperMetroid.Core.Samus.Artwork.BeamTileAtlasDefinitions.ByteCount / sizeof(ushort),

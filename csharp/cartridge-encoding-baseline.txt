@@ -1147,7 +1147,7 @@ csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusMorphBallVerification.
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusShinesparkVerification.cs	SME6340	41
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusShinesparkVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusSpecialSequenceRomDataVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusSpecialStatesVerification.cs	SME6340	420
+csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusSpecialStatesVerification.cs	SME6340	409
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusSpecialStatesVerification.cs	SME6342	29
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterCollisionBlocksVerification.cs	SME6340	33
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterEchoStopVerification.cs	SME6340	9
@@ -1170,7 +1170,7 @@ csharp/src/SuperMetroid.Verification/Samus/Artwork/ProjectileTrailAtlasVerificat
 csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusBodyArtworkVerification.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusBodyArtworkVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusRenderingFixtureVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusRenderingVerification.cs	SME6340	470
+csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusRenderingVerification.cs	SME6340	468
 csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusRenderingVerification.cs	SME6342	32
 csharp/src/SuperMetroid.Verification/Samus/Drawing/SamusAtmosphericAnimationDefinitionsVerification.cs	SME6340	26
 csharp/src/SuperMetroid.Verification/Samus/Drawing/SamusAtmosphericEffectDefinitionsVerification.cs	SME6340	15
@@ -1182,7 +1182,7 @@ csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleCompiledMathVerificati
 csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleConnectionDefinitionsVerification.cs	SME6340	25
 csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleConnectionDefinitionsVerification.cs	SME6345	1
 csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleDoorsVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleEndpointGeometryVerification.cs	SME6340	4
+csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleEndpointGeometryVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleEnemyDeathVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleFiringDefinitionsVerification.cs	SME6340	46
 csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleFiringDefinitionsVerification.cs	SME6342	1
@@ -1195,9 +1195,9 @@ csharp/src/SuperMetroid.Verification/Samus/Grapple/GrapplePointAnimationVerifica
 csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleRopeGeometryVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleSpinVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleSpriteArtworkVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleTileArtworkVerification.cs	SME6340	7
+csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleTileArtworkVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleTileBindingVerification.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Samus/Grapple/SamusGrappleVerification.cs	SME6340	304
+csharp/src/SuperMetroid.Verification/Samus/Grapple/SamusGrappleVerification.cs	SME6340	300
 csharp/src/SuperMetroid.Verification/Samus/Grapple/SamusGrappleVerification.cs	SME6342	24
 csharp/src/SuperMetroid.Verification/Samus/Hud/SamusHudDefinitionsVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Samus/Movement/AbsoluteTangentDefinitionsVerification.cs	SME6340	5

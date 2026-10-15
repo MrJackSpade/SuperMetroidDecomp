@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -806,7 +807,7 @@ internal static void VerifySamusDeathSequence()
     var writes = new VramWriteQueue();
     SamusDeathSequenceStepResult step = default;
     for (int call = 1; call <= 16; call++)
-        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes, artwork);
+        step = samus.DeathSequence.Step(guardedBus, samus, cgram, artwork);
     AssertEqual(SamusDeathSequencePhase.Flashing, samus.DeathSequence.Phase,
         "sixteen preflash calls enter flashing");
     AssertEqual(5, samus.AnimationFrame, "unmorphed death frame loops at five");
@@ -816,28 +817,9 @@ internal static void VerifySamusDeathSequence()
     // queues segment four at `$6000`, resets the explosion state, immediately decrements
     // 21 to 20, and draws right-facing spritemap `$81C`.
     for (int call = 1; call <= 60; call++)
-        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes, artwork);
+        step = samus.DeathSequence.Step(guardedBus, samus, cgram, artwork);
     AssertEqual(SamusDeathSequencePhase.SuitExplosion, samus.DeathSequence.Phase,
         "60 flashing calls enter suit explosion");
-    AssertEqual(5, writes.Entries.Count, "death queues exactly five tile segments");
-    (int Source, ushort Destination)[] expectedSegments =
-    [
-        (0x9b8400, 0x6200),
-        (0x9b8800, 0x6400),
-        (0x9b8c00, 0x6600),
-        (0x9b9000, 0x6800),
-        (0x9b8000, 0x6000),
-    ];
-    for (int index = 0; index < expectedSegments.Length; index++)
-    {
-        AssertEqual(0x0400, writes.Entries[index].SizeInBytes,
-            $"death segment {index} size");
-        AssertEqual(expectedSegments[index].Source, writes.Entries[index].SourceAddress,
-            $"death segment {index} source");
-        AssertEqual(expectedSegments[index].Destination,
-            writes.Entries[index].EncodedVramDestination,
-            $"death segment {index} destination");
-    }
     AssertEqual(0, samus.DeathSequence.AnimationIndex,
         "explosion begins at index zero");
     AssertEqual(20, samus.DeathSequence.AnimationTimer.RawValue,
@@ -852,7 +834,7 @@ internal static void VerifySamusDeathSequence()
     int explosionCalls = 0;
     while (samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete)
     {
-        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes, artwork);
+        step = samus.DeathSequence.Step(guardedBus, samus, cgram, artwork);
         explosionCalls++;
         AssertTrue(explosionCalls <= 135, "death explosion terminates on native timer sum");
     }

@@ -12,6 +12,18 @@ public sealed class ProjectileSpriteCatalog
     /// <summary>Accepts the complete validated set of native projectile sprite identities.</summary>
     private ProjectileSpriteCatalog(Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
 
+    /// <summary>One installed projectile composition as a whole frame.</summary>
+    /// <param name="id">Native composition identity.</param>
+    /// <returns>The composition as a whole frame whose characters are its OBJ tile numbers.</returns>
+    public SpriteFrame Frame(ushort id)
+    {
+        if (!frames.TryGetValue(id, out var parts)) throw new InvalidDataException($"Missing projectile sprite {id:X4}.");
+        return wholeFrames.GetOrAdd(id, key => parts.ToFrame($"Projectile.{key:X4}", 0));
+    }
+
+    /// <summary>Whole frames already built, by composition identity.</summary>
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<ushort, SpriteFrame> wholeFrames = new();
+
     /// <summary>Emits one installed projectile composition in authored OAM order using native projectile coordinate wrapping, without advancing animation or collision state.</summary>
     /// <param name="id">Bank-$93 spritemap offset selected by a timed projectile record, not an instruction-list pointer or projectile family.</param>
     /// <param name="oam">Destination OAM buffer; the native wrapping insertion cursor advances for every part.</param>

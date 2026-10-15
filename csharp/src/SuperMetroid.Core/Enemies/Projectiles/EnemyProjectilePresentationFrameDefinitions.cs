@@ -1,3 +1,8 @@
+using SuperMetroid.Core.Enemies.KiHunters.Artwork;
+using SuperMetroid.Core.Enemies.Powamp.Artwork;
+using SuperMetroid.Core.Enemies.FallingSparks.Artwork;
+using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
+using SuperMetroid.Core.Enemies.Dragon.Artwork;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
@@ -241,8 +246,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             Add(frames, "gunship_dust", GunshipDustVisualDefinitions.Frames.Count,
                 index => GunshipDustVisualDefinitions.PresentationKey(GunshipDustVisualDefinitions.Frames[index]));
             Add(frames, "falling_spark",
-                FallingSparkInstructionProgramDefinitions.PresentationWordCount,
-                FallingSparkInstructionProgramDefinitions.PresentationWordAddress);
+                FallingSparkFrameDefinitions.PoseCount,
+                index => FallingSparkFrameDefinitions.PresentationKey(new(index)));
             Add(frames, "magdollite_lava",
                 MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount,
                 MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress);
@@ -253,17 +258,17 @@ internal static class EnemyProjectilePresentationFrameDefinitions
                 EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
                 EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress);
             Add(frames, "ki_hunter_acid_spit",
-                KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount,
-                KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordAddress);
+                KiHunterAcidSpitFrameDefinitions.PoseCount,
+                index => KiHunterAcidSpitFrameDefinitions.PresentationKey(new(index)));
             Add(frames, "fune_namihe_fireball",
                 FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount,
                 FuneNamiheFireballInstructionProgramDefinitions.PresentationWordAddress);
             Add(frames, "dragon_fireball",
-                DragonFireballInstructionProgramDefinitions.PresentationWordCount,
-                DragonFireballInstructionProgramDefinitions.PresentationWordAddress);
+                DragonFireballFrameDefinitions.PoseCount,
+                index => DragonFireballFrameDefinitions.PresentationKey(new(index)));
             Add(frames, "powamp_spike",
-                PowampSpikeInstructionProgramDefinitions.PresentationWordCount,
-                PowampSpikeInstructionProgramDefinitions.PresentationWordAddress);
+                PowampSpikeFrameDefinitions.PoseCount,
+                index => PowampSpikeFrameDefinitions.PresentationKey(new(index)));
         }
         if (generation >= CatalogGeneration.PreWorkRobot)
         {
@@ -282,8 +287,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         if (generation >= CatalogGeneration.PrePolypRock)
         {
             Add(frames, "work_robot_laser",
-                WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount,
-                WorkRobotLaserInstructionProgramDefinitions.PresentationWordAddress);
+                WorkRobotLaserFrameDefinitions.PoseCount,
+                index => WorkRobotLaserFrameDefinitions.PresentationKey(new(index)));
         }
         if (generation >= CatalogGeneration.Current)
             frames.Add(PolypRockInstructionProgramDefinitions.PresentationWord, "polyp_rock_00");

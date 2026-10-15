@@ -88,9 +88,29 @@ internal sealed class EnemyProjectileEngine
             EnemyProjectilePreInstruction.RTS_86E6D1,
             EnemyProjectilePreInstruction.DownwardGateInertPreInstruction,
             EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction);
+        table.RegisterCue<EnemyProjectileCommonCue>(ApplyCommonCue);
         foreach (IEnemyProjectileHandlerSource source in _handlerSources)
             source.RegisterEnemyProjectileHandlers(table);
         return table;
+    }
+
+    /// <summary>Carries out one shared bank-$86 command of a typed projectile program.</summary>
+    private static void ApplyCommonCue(RoomEnemyProjectileSlot projectile, SamusState? samus, EnemyProjectileCommonCue cue)
+    {
+        switch (cue.Kind)
+        {
+            case EnemyProjectileCommonCueKind.Delete:
+                projectile.Clear();
+                break;
+            case EnemyProjectileCommonCueKind.SetPreInstruction:
+                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                break;
+            case EnemyProjectileCommonCueKind.ClearPreInstruction:
+                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue.Kind}.");
+        }
     }
 
     /// <summary>Supplies room RNG and artwork for projectile effects.</summary>
@@ -416,7 +436,10 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
         projectile.Kind = kind;
         projectile.PreInstruction = definition.PreInstruction;
-        projectile.StartNativeProgram(definition.InitialInstructionList);
+        if (EnemyProjectileTypedStarts.Initial(kind) is { } animation)
+            projectile.StartAnimation(animation);
+        else
+            projectile.StartNativeProgram(definition.InitialInstructionList);
 
         // SpawnEprojInner initializes the drawable map to $8000 before the first list tick.
         // It is intentionally not the first list map; bank-$86 advances it on its own pass.
@@ -1077,24 +1100,9 @@ internal sealed class EnemyProjectileEngine
             return AlcoonFireballInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
-        if (WorkRobotLaserInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return WorkRobotLaserInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.PowampSpike)
-        {
-            return PowampSpikeInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (projectile.Kind == RoomEnemyProjectileKind.PolypRock)
         {
             return PolypRockInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (KiHunterAcidSpitInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return KiHunterAcidSpitInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (projectile.Kind == RoomEnemyProjectileKind.StokeProjectile)
@@ -1114,11 +1122,6 @@ internal sealed class EnemyProjectileEngine
                 address);
         }
 
-        if (projectile.Kind == RoomEnemyProjectileKind.FallingSpark)
-        {
-            return FallingSparkInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (projectile.Kind is
             RoomEnemyProjectileKind.FuneFireball or
             RoomEnemyProjectileKind.NamiheFireball)
@@ -1130,11 +1133,6 @@ internal sealed class EnemyProjectileEngine
         if (projectile.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite)
         {
             return MagdolliteLavaInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.DragonFireball)
-        {
-            return DragonFireballInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile)

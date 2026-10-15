@@ -1,3 +1,7 @@
+using SuperMetroid.Core.Enemies.KiHunters.Artwork;
+using SuperMetroid.Core.Enemies.Powamp.Artwork;
+using SuperMetroid.Core.Enemies.FallingSparks.Artwork;
+using SuperMetroid.Core.Enemies.Dragon.Artwork;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
@@ -265,8 +269,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 GunshipDustVisualDefinitions.Frames.Count,
                 index => GunshipDustVisualDefinitions.PresentationKey(GunshipDustVisualDefinitions.Frames[index])),
             ("falling spark", RoomEnemyProjectileKind.FallingSpark,
-                FallingSparkInstructionProgramDefinitions.PresentationWordCount,
-                FallingSparkInstructionProgramDefinitions.PresentationWordAddress),
+                FallingSparkFrameDefinitions.PoseCount,
+                index => FallingSparkFrameDefinitions.PresentationKey(new(index))),
             ("Magdollite lava", RoomEnemyProjectileKind.LavaThrownByMagdollite,
                 MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount,
                 MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress),
@@ -277,17 +281,17 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
                 EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress),
             ("Ki Hunter acid spit", RoomEnemyProjectileKind.KiHunterAcidSpitLeft,
-                KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount,
-                KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordAddress),
+                KiHunterAcidSpitFrameDefinitions.PoseCount,
+                index => KiHunterAcidSpitFrameDefinitions.PresentationKey(new(index))),
             ("Fune/Namihe fireball", RoomEnemyProjectileKind.FuneFireball,
                 FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount,
                 FuneNamiheFireballInstructionProgramDefinitions.PresentationWordAddress),
             ("Dragon fireball", RoomEnemyProjectileKind.DragonFireball,
-                DragonFireballInstructionProgramDefinitions.PresentationWordCount,
-                DragonFireballInstructionProgramDefinitions.PresentationWordAddress),
+                DragonFireballFrameDefinitions.PoseCount,
+                index => DragonFireballFrameDefinitions.PresentationKey(new(index))),
             ("Powamp spike", RoomEnemyProjectileKind.PowampSpike,
-                PowampSpikeInstructionProgramDefinitions.PresentationWordCount,
-                PowampSpikeInstructionProgramDefinitions.PresentationWordAddress),
+                PowampSpikeFrameDefinitions.PoseCount,
+                index => PowampSpikeFrameDefinitions.PresentationKey(new(index))),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in environmentAndAttackFamilies)
@@ -1018,7 +1022,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ushort operand, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
             // Typed programs (#641) present their frames by key; the rest still run their native lists.
-            if (TypedProgramKinds.Contains(kind))
+            if (TypedProgramKinds.Contains(kind) || EnemyProjectileTypedStarts.Initial(kind) is not null)
                 return DrawPresentedFrame(artwork, operand, source, kind);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };

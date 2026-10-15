@@ -129,6 +129,16 @@ public sealed class RoomEnemyProjectileSlot
         InstructionTimer = NativeCountdown.Start(1);
     }
 
+    /// <summary>
+    /// Replaces the running program with <paramref name="animation"/> without touching the frame timer, as a native
+    /// list-pointer store does: the new program's first frame shows when the current frame expires.
+    /// </summary>
+    internal void InstallAnimation(EnemyProjectileAnimation animation)
+    {
+        InstructionPointer = 0;
+        Animation = Ensure.NotNull(animation);
+    }
+
     /// <summary>Runs the native instruction list at <paramref name="instructionList"/> from the next pass, ending any typed animation.</summary>
     internal void StartNativeProgram(ushort instructionList)
     {

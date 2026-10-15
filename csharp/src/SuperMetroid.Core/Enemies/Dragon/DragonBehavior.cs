@@ -436,15 +436,13 @@ internal sealed class DragonBehavior : IEnemySpecies
         {
             projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole - 12)));
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(DragonFireballLeftXVelocity));
-            projectile.InstructionPointer =
-                DragonFireballInstructionProgramDefinitions.RisingLeft;
+            projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballProgram.RisingLeft));
         }
         else
         {
             projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole + 12)));
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(DragonFireballRightXVelocity));
-            projectile.InstructionPointer =
-                DragonFireballInstructionProgramDefinitions.RisingRight;
+            projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballProgram.RisingRight));
         }
         projectile.Position = projectile.Position.WithFractionX(0);
     }
@@ -465,10 +463,9 @@ internal sealed class DragonBehavior : IEnemySpecies
 
             // The exact zero crossing switches from the rising pair of two-frame loops to
             // the falling pair and forces an instruction tick on this same projectile pass.
-            projectile.InstructionPointer = unchecked((short)projectile.Velocity.X.RawValue) < 0
-                ? DragonFireballInstructionProgramDefinitions.FallingLeft
-                : DragonFireballInstructionProgramDefinitions.FallingRight;
-            projectile.InstructionTimer = NativeCountdown.Start(1);
+            projectile.StartAnimation(new DragonFireballAnimation(unchecked((short)projectile.Velocity.X.RawValue) < 0
+                ? DragonFireballProgram.FallingLeft
+                : DragonFireballProgram.FallingRight));
             return;
         }
 

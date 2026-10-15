@@ -112,8 +112,7 @@ internal sealed class FallingSparksBehavior
     /// </summary>
     internal static void BeginFallingSparkFloorImpact(RoomEnemyProjectileSlot projectile)
     {
-        projectile.InstructionPointer = FallingSparkInstructionProgramDefinitions.HitFloor;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
+        projectile.StartAnimation(new FallingSparkAnimation(FallingSparkProgram.HitFloor));
 
         // Two paired ASL/ROL operations multiply the signed 16.16 horizontal delta by
         // four without losing carry between its fraction and whole words.

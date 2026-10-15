@@ -1960,7 +1960,6 @@ internal static class LookupStream1Verification
         Suite(nameof(VerifyLookupStream1DeathDefinitions), () => VerifyLookupStream1DeathDefinitions(rom));
         Suite(nameof(VerifyLookupStream1Sciser), () => VerifyLookupStream1Sciser(rom));
         Suite(nameof(VerifyLookupStream1PowampMotion), () => VerifyLookupStream1PowampMotion(rom));
-        Suite(nameof(VerifyLookupStream1HibashiDragonFireball), () => VerifyLookupStream1HibashiDragonFireball(rom));
         Suite(nameof(VerifyLookupStream1CommonFrames), () => VerifyLookupStream1CommonFrames(rom));
         Suite(nameof(VerifyLookupStream1EnemyMovement), () => VerifyLookupStream1EnemyMovement(rom));
         Suite(nameof(VerifyLookupStream1CadencePrograms), () => VerifyLookupStream1CadencePrograms(rom));
@@ -2196,49 +2195,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads native bomb-spread launch values by slot.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 launch roles")]
     private static byte LookupStream1LaunchRolesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    /// <summary>Checks Falling Spark and Powamp Spike mechanics/presentation split and pointer bounds.</summary>
-    internal static void VerifyLookupStream1SparkSpikePrograms(ISnesAddressSpace rom)
-    {
-        Check(0xf353, 0xf391, 17, 14, new CompiledProgramSplit(Mechanics: i => { var w = FallingSparkInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); }, Presentation: FallingSparkInstructionProgramDefinitions.PresentationWordAddress, Read: FallingSparkInstructionProgramDefinitions.ReadMechanicsWord, Owns: FallingSparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a < 0xf35f ? (a - 0xf353) % 4 == 2 : a >= 0xf363 && a < 0xf38f && (a - 0xf363) % 4 == 2));
-        Check(0xd208, 0xd21a, 6, 3, new CompiledProgramSplit(Mechanics: i => { var w = PowampSpikeInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); }, Presentation: PowampSpikeInstructionProgramDefinitions.PresentationWordAddress, Read: PowampSpikeInstructionProgramDefinitions.ReadMechanicsWord, Owns: PowampSpikeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a < 0xd214 && (a - 0xd208) % 4 == 2));
 
-        void Check(int first, int end, int mechanicsCount, int presentationCount, CompiledProgramSplit split)
-        {
-            int mechanical = 0, visual = 0;
-            for (int address = first; address < end; address += 2)
-            {
-                bool art = split.IsVisual(address);
-                if (art)
-                {
-                    AssertEqual((ushort)address, split.Presentation(visual++), "spark/spike original presentation ordering");
-                    AssertThrows<InvalidDataException>(() => split.Read((ushort)address), "spark/spike presentation excluded from mechanics");
-                }
-                else
-                {
-                    var actual = split.Mechanics(mechanical++);
-                    AssertEqual((ushort)address, actual.Address, "spark/spike original mechanics ordering");
-                    ushort native = (ushort)(SnesLittleEndian.Word(LookupStream1SparkSpikeProgramsRomByte(rom, 0x860000 | address), LookupStream1SparkSpikeProgramsRomByte(rom, 0x860000 | (address + 1))));
-                    AssertEqual(native, actual.Value, "spark/spike original mechanics word");
-                    AssertEqual(native, split.Read((ushort)address), "spark/spike direct mechanics read");
-                }
-                AssertEqual(!art, split.Owns(0x860000 | address), "spark/spike low-byte ownership");
-                AssertEqual(!art, split.Owns(0x860000 | (address + 1)), "spark/spike high-byte ownership");
-                AssertThrows<InvalidDataException>(() => split.Read((ushort)(address + 1)), "spark/spike unaligned word rejection");
-            }
-            AssertEqual(mechanicsCount, mechanical, "spark/spike mechanics extent");
-            AssertEqual(presentationCount, visual, "spark/spike presentation extent");
-            foreach (int invalid in new[] { -1, mechanicsCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => split.Mechanics(invalid), "spark/spike mechanics index bounds");
-            foreach (int invalid in new[] { -1, presentationCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => split.Presentation(invalid), "spark/spike presentation index bounds");
-            foreach (int invalid in new[] { 0x850000 | first, 0x860000 | (first - 1), 0x860000 | end, int.MinValue, int.MaxValue })
-                AssertTrue(!split.Owns(invalid), "spark/spike outside byte-domain rejection");
-        }
-    }
-
-    /// <summary>Reads Falling Spark and Powamp Spike instruction bytes.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 spark spike programs")]
-    private static byte LookupStream1SparkSpikeProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks empty extended enemy frames across their supported native banks.</summary>
     private static void VerifyLookupStream1CommonFrames(ISnesAddressSpace rom)
     {
@@ -2266,47 +2223,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads empty extended enemy frame headers across supported banks.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 common frames")]
     private static byte LookupStream1CommonFramesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    /// <summary>Checks Dragon fireball instruction mechanics and visual operand layouts.</summary>
-    private static void VerifyLookupStream1HibashiDragonFireball(ISnesAddressSpace rom)
-    {
-        Check(0x860000, 0xb4bf, 0xb4ef, 16, 8, new CompiledProgramSplit(Mechanics: i => { var w = DragonFireballInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); }, Presentation: DragonFireballInstructionProgramDefinitions.PresentationWordAddress, Read: DragonFireballInstructionProgramDefinitions.ReadMechanicsWord, Owns: DragonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: address => (address - 0xb4bf) % 12 is 2 or 6));
-        void Check(int bank, int first, int end, int count, int visualCount, CompiledProgramSplit split)
-        {
-            int m = 0, p = 0;
-            for (int address = first; address < end; address += 2)
-            {
-                bool visual = split.IsVisual(address);
-                if (visual)
-                {
-                    AssertEqual((ushort)address, split.Presentation(p++), "Hibashi/Dragon native presentation order");
-                    AssertThrows<InvalidDataException>(() => split.Read((ushort)address), "Hibashi/Dragon presentation excluded from mechanics");
-                }
-                else
-                {
-                    var word = split.Mechanics(m++);
-                    AssertEqual((ushort)address, word.Address, "Hibashi/Dragon native control order");
-                    ushort value = (ushort)(SnesLittleEndian.Word(LookupStream1HibashiDragonFireballRomByte(rom, bank | address), LookupStream1HibashiDragonFireballRomByte(rom, bank | (address + 1))));
-                    AssertEqual(value, word.Value, "Hibashi/Dragon original native control value");
-                    AssertEqual(value, split.Read((ushort)address), "Hibashi/Dragon direct control read");
-                }
-                AssertEqual(!visual, split.Owns(bank | address), "Hibashi/Dragon low-byte ownership");
-                AssertEqual(!visual, split.Owns(bank | (address + 1)), "Hibashi/Dragon high-byte ownership");
-                AssertThrows<InvalidDataException>(() => split.Read((ushort)(address + 1)), "Hibashi/Dragon unaligned reads rejected");
-            }
-            AssertEqual(count, m, "Hibashi/Dragon control count");
-            AssertEqual(visualCount, p, "Hibashi/Dragon presentation count");
-            foreach (int invalid in new[] { -1, count, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => split.Mechanics(invalid), "Hibashi/Dragon control index domain");
-            foreach (int invalid in new[] { -1, visualCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => split.Presentation(invalid), "Hibashi/Dragon presentation index domain");
-            foreach (int invalid in new[] { bank | (first - 1), bank | end, (bank ^ 0x10000) | first })
-                AssertTrue(!split.Owns(invalid), "Hibashi/Dragon external byte domain");
-        }
-    }
 
-    /// <summary>Reads native Hibashi and Dragon fireball program words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Hibashi dragon fireball")]
-    private static byte LookupStream1HibashiDragonFireballRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks Sciser directional visual frames against native pointer and spritemap data.</summary>
     private static void VerifyLookupStream1Sciser(ISnesAddressSpace rom)
     {

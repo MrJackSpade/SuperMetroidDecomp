@@ -243,26 +243,26 @@ internal static class EnemyProjectileDefinitionCatalog
 0x9EFF, AlcoonFireballInstructionProgramDefinitions.Initial,
             0x0404, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.PowampSpike => new(
-0xD263, PowampSpikeInstructionProgramDefinitions.Initial,
-            0x0404, 0x0014, 0x0000, PowampSpikeInstructionProgramDefinitions.Delete),
+0xD263, 0xD208,
+            0x0404, 0x0014, 0x0000, 0xD218),
         RoomEnemyProjectileKind.WorkRobotLaserUpLeft => new(
-0xD3BF, WorkRobotLaserInstructionProgramDefinitions.Initial,
+0xD3BF, 0xD2EC,
             0x0C0C, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.WorkRobotLaserHorizontal => new(
-0xD3BF, WorkRobotLaserInstructionProgramDefinitions.Initial,
+0xD3BF, 0xD2EC,
             0x020F, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.WorkRobotLaserDownLeft => new(
-0xD3BF, WorkRobotLaserInstructionProgramDefinitions.Initial,
+0xD3BF, 0xD2EC,
             0x0C0C, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.WorkRobotLaserUpRight => new(
-0xD3BF, WorkRobotLaserInstructionProgramDefinitions.Initial,
+0xD3BF, 0xD2EC,
             0x0C0C, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.WorkRobotLaserDownRight => new(
-0xD3BF, WorkRobotLaserInstructionProgramDefinitions.Initial,
+0xD3BF, 0xD2EC,
             0x0C0C, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.FallingSpark => new(
             0xF3F0,
-            FallingSparkInstructionProgramDefinitions.Falling,
+            0xF353,
             0x0404,
             0x0005,
             0x0000,
@@ -280,10 +280,10 @@ internal static class EnemyProjectileDefinitionCatalog
 0x9E83, FakeKraidProjectileInstructionProgramDefinitions.SpikeRight,
             0x0204, 0x0006, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.KiHunterAcidSpitLeft => new(
-0xCFF7, KiHunterAcidSpitInstructionProgramDefinitions.Left,
+0xCFF7, 0xCF34,
             0x0802, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.KiHunterAcidSpitRight => new(
-0xCFF7, KiHunterAcidSpitInstructionProgramDefinitions.Right,
+0xCFF7, 0xCF6E,
             0x0802, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.PirateMotherBrainLaser => new(
 0xA05C,
@@ -323,7 +323,7 @@ internal static class EnemyProjectileDefinitionCatalog
             MagdolliteLavaInstructionProgramDefinitions.Shot),
         RoomEnemyProjectileKind.DragonFireball => new(
             0xB535,
-            DragonFireballInstructionProgramDefinitions.RisingLeft,
+            0xB4BF,
             0x0202,
             0x000A,
             0x0000,

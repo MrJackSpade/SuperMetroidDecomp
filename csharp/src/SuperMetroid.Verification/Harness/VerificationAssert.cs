@@ -69,7 +69,7 @@ using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireSpikeMotionDefi
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireTongueCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.DownwardGatePlmsVerification;
-using static SuperMetroid.Verification.Enemies.Dragon.DragonFireballInstructionProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Enemies.Dragon.DragonFireballAnimationsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonHealthPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonIntroDanceDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonAnimationsVerification;
@@ -1584,7 +1584,6 @@ internal static class VerificationAssert
         Suite(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior(rom));
         Suite(nameof(VerifyMetroidBehaviorDefinitions), () => VerifyMetroidBehaviorDefinitions(rom));
         Suite(nameof(VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions), () => VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(rom));
-        Suite(nameof(VerifyDragonFireballInstructionProgramDefinitions), () => VerifyDragonFireballInstructionProgramDefinitions());
         Suite(nameof(DragonBehaviorVerification.VerifyDragonBehavior), () => DragonBehaviorVerification.VerifyDragonBehavior(rom));
         Suite(nameof(CacatacBehaviorVerification.VerifyCacatacBehavior), () => CacatacBehaviorVerification.VerifyCacatacBehavior(rom));
         Suite(nameof(BullBehaviorVerification.VerifyBullBehavior), () => BullBehaviorVerification.VerifyBullBehavior(rom));
@@ -1595,7 +1594,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifyBeamCallbackTables), () => VerifyBeamCallbackTables(initializeOnly: true));
         Suite(nameof(VerifyLookupStream1Selection), () => VerifyLookupStream1Selection(rom));
         Suite(nameof(VerifyLookupStream1LaunchRoles), () => VerifyLookupStream1LaunchRoles(rom));
-        Suite(nameof(VerifyLookupStream1SparkSpikePrograms), () => VerifyLookupStream1SparkSpikePrograms(rom));
         Suite(nameof(VerifyPoseInputDefinitions), () => VerifyPoseInputDefinitions(rom));
         Suite(nameof(VerifyProjectileDamage), () => VerifyProjectileDamage(rom));
         Suite(nameof(VerifyProjectileSoundRoutingDefinitions), () => VerifyProjectileSoundRoutingDefinitions(rom));

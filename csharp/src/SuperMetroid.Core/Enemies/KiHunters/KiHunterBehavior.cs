@@ -1010,8 +1010,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
         {
-            projectile.InstructionPointer = KiHunterAcidSpitInstructionProgramDefinitions.HitFloor;
-            projectile.InstructionTimer = NativeCountdown.Start(1);
+            projectile.StartAnimation(new KiHunterAcidSpitAnimation(KiHunterAcidSpitProgram.HitFloor));
             return;
         }
 

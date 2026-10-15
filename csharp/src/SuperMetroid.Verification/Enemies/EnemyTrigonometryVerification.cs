@@ -1,3 +1,6 @@
+using SuperMetroid.Verification.Enemies.WorkRobots;
+using SuperMetroid.Verification.Enemies.KiHunters;
+using SuperMetroid.Verification.Enemies.FallingSparks;
 using SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Enemies.MaridiaSnails;
 using SuperMetroid.Verification.Enemies.Sparks;
@@ -86,7 +89,6 @@ using static SuperMetroid.Verification.Enemies.Corpses.DeadTourianCorpseDefiniti
 using static SuperMetroid.Verification.Rooms.Plms.DownwardGatePlmsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.DownwardGateProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Dragon.DragonAnimationDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Dragon.DragonFireballInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonBurialEvirDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonHealthPaletteDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonAnimationsVerification;
@@ -118,7 +120,6 @@ using static SuperMetroid.Verification.Rooms.Doors.EyeDoorSweatInstructionProgra
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.FallingSparks.FallingSparkInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.FallingSparks.FallingSparkLaunchDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.FamilyTrigonometryVerification;
 using static SuperMetroid.Verification.Enemies.Fireflea.FirefleaMovementDefinitionsVerification;
@@ -146,7 +147,6 @@ using static SuperMetroid.Verification.Frontend.Intro.IntroEggMotionDefinitionsV
 using static SuperMetroid.Verification.Enemies.Kago.KagoBugProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Kago.KagoAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Kago.KagoBehaviorVerification;
-using static SuperMetroid.Verification.Enemies.KiHunters.KiHunterAcidSpitInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.KiHunters.KiHunterInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.KiHunters.KiHunterMotionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidBodyContourVerification;
@@ -202,7 +202,6 @@ using static SuperMetroid.Verification.Samus.Poses.PoseCollisionDefinitionsVerif
 using static SuperMetroid.Verification.Samus.Poses.PoseDispatchDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseInputDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseProjectileOriginVerification;
-using static SuperMetroid.Verification.Enemies.Powamp.PowampSpikeInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombCallbackDefinitionsVerification;
 using static SuperMetroid.Verification.Rendering.PowerBombShapeDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
@@ -278,7 +277,6 @@ using static SuperMetroid.Verification.Enemies.SpacePirates.WalkingSpacePirateIn
 using static SuperMetroid.Verification.Enemies.SpacePirates.WallSpacePirateInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Waver.WaverAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotLaserInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotPaletteTimingDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawBodyProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.YappingMaws.YappingMawInstructionProgramDefinitionsVerification;
@@ -325,19 +323,24 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyCacatacMovementDefinitions), () => VerifyCacatacMovementDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCacatacProjectileDefinitions), () => VerifyCacatacProjectileDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCacatacProjectileInstructionProgramDefinitions), () => VerifyCacatacProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyFallingSparkInstructionProgramDefinitions), () => VerifyFallingSparkInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(FallingSparkAnimationsVerification.VerifyFallingSparkAnimations), () => FallingSparkAnimationsVerification.VerifyFallingSparkAnimations(LoadRepositoryRom())),
+        new(nameof(FallingSparkBehaviorVerification.VerifyFallingSparkBehavior), () => FallingSparkBehaviorVerification.VerifyFallingSparkBehavior(LoadRepositoryRom())),
         new(nameof(VerifyFuneNamiheFireballInstructionProgramDefinitions), () => VerifyFuneNamiheFireballInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyMagdolliteLavaInstructionProgramDefinitions), () => VerifyMagdolliteLavaInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyDragonFireballInstructionProgramDefinitions), () => VerifyDragonFireballInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(DragonFireballAnimationsVerification.VerifyDragonFireballAnimations), () => DragonFireballAnimationsVerification.VerifyDragonFireballAnimations(LoadRepositoryRom())),
+        new(nameof(DragonFireballBehaviorVerification.VerifyDragonFireballBehavior), () => DragonFireballBehaviorVerification.VerifyDragonFireballBehavior(LoadRepositoryRom())),
         new(nameof(VerifyEyeDoorProjectileInstructionProgramDefinitions), () => VerifyEyeDoorProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEyeDoorSweatInstructionProgramDefinitions), () => VerifyEyeDoorSweatInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySkreeMetareeParticleInstructionProgramDefinitions), () => VerifySkreeMetareeParticleInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyAlcoonFireballInstructionProgramDefinitions), () => VerifyAlcoonFireballInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyWorkRobotLaserInstructionProgramDefinitions), () => VerifyWorkRobotLaserInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyPowampSpikeInstructionProgramDefinitions), () => VerifyPowampSpikeInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(WorkRobotLaserAnimationsVerification.VerifyWorkRobotLaserAnimations), () => WorkRobotLaserAnimationsVerification.VerifyWorkRobotLaserAnimations(LoadRepositoryRom())),
+        new(nameof(WorkRobotLaserBehaviorVerification.VerifyWorkRobotLaserBehavior), () => WorkRobotLaserBehaviorVerification.VerifyWorkRobotLaserBehavior(LoadRepositoryRom())),
+        new(nameof(PowampSpikeAnimationsVerification.VerifyPowampSpikeAnimations), () => PowampSpikeAnimationsVerification.VerifyPowampSpikeAnimations(LoadRepositoryRom())),
+        new(nameof(PowampSpikeBehaviorVerification.VerifyPowampSpikeBehavior), () => PowampSpikeBehaviorVerification.VerifyPowampSpikeBehavior(LoadRepositoryRom())),
         new(nameof(VerifyPolypRockInstructionProgramDefinitions), () => VerifyPolypRockInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyKiHunterAcidSpitInstructionProgramDefinitions), () => VerifyKiHunterAcidSpitInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(KiHunterAcidSpitAnimationsVerification.VerifyKiHunterAcidSpitAnimations), () => KiHunterAcidSpitAnimationsVerification.VerifyKiHunterAcidSpitAnimations(LoadRepositoryRom())),
+        new(nameof(KiHunterAcidSpitBehaviorVerification.VerifyKiHunterAcidSpitBehavior), () => KiHunterAcidSpitBehaviorVerification.VerifyKiHunterAcidSpitBehavior(LoadRepositoryRom())),
         new(nameof(VerifyStokeProjectileInstructionProgramDefinitions), () => VerifyStokeProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyNuclearWaffleProjectileInstructionProgramDefinitions), () => VerifyNuclearWaffleProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyKagoBugProjectileInstructionProgramDefinitions), () => VerifyKagoBugProjectileInstructionProgramDefinitions(LoadRepositoryRom())),

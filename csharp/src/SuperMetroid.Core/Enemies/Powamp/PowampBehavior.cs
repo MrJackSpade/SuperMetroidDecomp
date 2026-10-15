@@ -517,6 +517,8 @@ internal sealed class PowampBehavior : IEnemySpecies
         {
             RunPowampSpikePreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.PowampSpike);
+        // A shot spike runs the same private delete program its definition names as its shot list.
+        table.RegisterShotAnimation(RoomEnemyProjectileKind.PowampSpike, () => new PowampSpikeAnimation(PowampSpikeProgram.Delete));
     }
 
     /// <summary>Runs Powamp's body and balloon animations as typed programs (#641).</summary>
@@ -657,10 +659,9 @@ internal sealed class PowampBehavior : IEnemySpecies
     /// <summary>Marks a spike for its deletion list after its movement phase ends.</summary>
     internal static void BeginPowampSpikeDeletion(RoomEnemyProjectileSlot spike)
     {
-        // The list contains the common delete opcode as its first word. Installing timer
-        // one lets the shared instruction interpreter consume it later in this same frame.
-        spike.InstructionPointer = PowampSpikeInstructionProgramDefinitions.Delete;
-        spike.InstructionTimer = NativeCountdown.Start(1);
+        // The program deletes the spike as its first command; starting it at timer one lets the
+        // instruction pass carry that out later in this same frame.
+        spike.StartAnimation(new PowampSpikeAnimation(PowampSpikeProgram.Delete));
     }
 
     /// <inheritdoc/>

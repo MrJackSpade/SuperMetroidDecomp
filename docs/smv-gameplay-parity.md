@@ -85,6 +85,7 @@ far too large to commit, so the replay verifiers read a committed compact trace 
 | 13% Speed Booster | `csharp/test-fixtures/replay-traces/low-13-percent` | `--lsmv-playthrough-movie DIR` |
 | 100% | `csharp/test-fixtures/replay-traces/full-100-percent` | `--full-playthrough-movie DIR` |
 | Samus drunk | `csharp/test-fixtures/replay-traces/samus-drunk` | `--drunk-playthrough-movie DIR` |
+| lowc (contributed) | `csharp/test-fixtures/replay-traces/lowc` | `--lowc-playthrough-movie DIR` |
 | Ridley showcase | `csharp/test-fixtures/replay-traces/ridley` | `--ridley-full-movie` |
 
 `tools/verify-all.ps1` passes these paths. Produce or refresh a trace from its full capture
@@ -190,6 +191,18 @@ its own (`expectedRecord` null on its predecessor).
 The complete input-only replay passes all 494,199 retained updates across all 513,793
 source frames with one initial SRAM import (`--drunk-playthrough-movie`). The Ridley,
 100% and 13% movies continue to pass.
+
+## Contributed lowc movie
+
+`csharp/test-fixtures/contributed-movies/lowc.smv` (SMV v5, Snes9x 1.60, 208,183 frames,
+840 rerecords, SHA-256 `77BA6E6E...991F7C`) starts from power-on reset with SRAM and ends
+at the Landing Site. It converts to 183,020 updates (170,066 main-loop dispatches, 12,954
+continuations), excluding 23,752 refreshes without accepted input and 1,262 APU-upload
+inputs. Run `--lowc-playthrough-movie csharp/test-fixtures/replay-traces/lowc`.
+
+When added, the replay matched through update 62,530. The first open divergence is at
+update 62,531 (source frame 74,711) on the pause equipment screen: an A press leaves native
+equipped items `$1004` but the port `$1024` (Gravity Suit still equipped).
 
 ## Mother Brain glitch movie (#1275)
 

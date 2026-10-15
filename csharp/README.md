@@ -466,7 +466,7 @@ dispatcher boundaries. It is not a complete-game playthrough.
 `tools/verify-all.ps1` (run from the repository root) builds once and runs every verifier
 project's suite plus the SMV replays. The replays read committed compact traces under
 `csharp/test-fixtures/replay-traces/` (`mother-brain-glitch`, `low-13-percent`,
-`full-100-percent`, `samus-drunk`, `ridley`), produced from private full native captures with
+`full-100-percent`, `samus-drunk`, `lowc`, `ridley`), produced from private full native captures with
 `--compact-replay-trace SOURCE_DIR DEST_DIR`; see `docs/smv-gameplay-parity.md`.
 
 ### Developer tools

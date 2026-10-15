@@ -31,6 +31,7 @@ $replays = [ordered]@{
     'replay-low13'   = @('--lsmv-playthrough-movie', "$traces/low-13-percent")
     'replay-full100' = @('--full-playthrough-movie', "$traces/full-100-percent")
     'replay-drunk'   = @('--drunk-playthrough-movie', "$traces/samus-drunk")
+    'replay-lowc'    = @('--lowc-playthrough-movie', "$traces/lowc")
 }
 $projects = [ordered]@{
     'SuperMetroid.Verification'            = 'net10.0'

@@ -136,8 +136,8 @@ internal static class ReplayTraceMemoryCatalog
     public const int LevelWordBytes = 0x6400, BtsBytes = 0x3200;
 
     /// <summary>
-    /// The four playthrough movies' layout (<c>--full-playthrough-movie</c>, <c>--lsmv-playthrough-movie</c>,
-    /// <c>--drunk-playthrough-movie</c>, <c>--mother-brain-glitch-movie</c>): the desynchronization
+    /// The five playthrough movies' layout (<c>--full-playthrough-movie</c>, <c>--lsmv-playthrough-movie</c>,
+    /// <c>--drunk-playthrough-movie</c>, <c>--mother-brain-glitch-movie</c>, <c>--lowc-playthrough-movie</c>): the desynchronization
     /// comparison, the sound-acknowledgement states and the <c>--trace-from</c> diagnostic fields.
     /// </summary>
     public static ReplayTraceLayout MovieDesync { get; } = new("movie-desync",

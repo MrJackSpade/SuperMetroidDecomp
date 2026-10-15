@@ -34,6 +34,10 @@ internal static class FullMovieReplayVerification
     private const string MotherBrainGlitchMoviePath = "csharp/test-fixtures/issue-1275-movies/mother brain glitch.smv";
     /// <summary>Expected digest of the immutable Mother Brain recording.</summary>
     internal const string MotherBrainGlitchMovieSha256 = "C63BF68D4F24F378B2E3E3591281ABC158DDBAEBA113D35A63E3307A32D6E505";
+    /// <summary>Contributed Snes9x 1.60 power-on low-percent playthrough ("lowc").</summary>
+    private const string LowcPlaythroughMoviePath = "csharp/test-fixtures/contributed-movies/lowc.smv";
+    /// <summary>Expected digest of the immutable contributed lowc movie.</summary>
+    internal const string LowcPlaythroughMovieSha256 = "77BA6E6E58A4C416FD070A6B61AF942D661E675D2D32C82F85E8DE17C6991F7C";
 
     /// <summary>Checks the 100% power-on playthrough against its converted input trace and WRAM checkpoints.</summary>
     internal static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
@@ -54,6 +58,12 @@ internal static class FullMovieReplayVerification
     internal static void VerifyDrunkPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
         VerifyPlaythroughMovie(
             ReplayMovie.Load("Samus drunk", DrunkPlaythroughMoviePath, DrunkPlaythroughMovieSha256),
+            traceDirectory, traceFromUpdate);
+
+    /// <summary>The contributed "lowc" Snes9x 1.60 power-on playthrough (208,183 frames, SRAM start).</summary>
+    internal static void VerifyLowcPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
+        VerifyPlaythroughMovie(
+            ReplayMovie.Load("lowc", LowcPlaythroughMoviePath, LowcPlaythroughMovieSha256),
             traceDirectory, traceFromUpdate);
 
     /// <summary>The #1275 Mother Brain glitch movie, which starts from a snapshot paused in her room.</summary>
@@ -455,6 +465,21 @@ internal static class FullMovieReplayVerification
     internal static int DrunkPlaythroughMovieCommand(string drunkTraceDirectory)
     {
      VerifyDrunkPlaythroughMovie(drunkTraceDirectory); return 0; 
+    }
+
+    /// <summary>Runs the contributed lowc power-on recording against its native trace.</summary>
+    [VerificationCommand("--lowc-playthrough-movie", "lowcTraceDirectory")]
+    internal static int LowcPlaythroughMovieCommand(string lowcTraceDirectory)
+    {
+        VerifyLowcPlaythroughMovie(lowcTraceDirectory); return 0;
+    }
+
+    /// <summary>Runs the lowc replay while printing port and native state from a chosen update.</summary>
+    [VerificationCommand("--lowc-playthrough-movie", "traceDirectory", "--trace-from", "traceFromUpdate")]
+    internal static int LowcPlaythroughMovieTraceCommand(string traceDirectory, string traceFromUpdate)
+    {
+        VerifyLowcPlaythroughMovie(traceDirectory, int.Parse(traceFromUpdate, CultureInfo.InvariantCulture));
+        return 0;
     }
 
     /// <summary>Runs the issue 1275 snapshot-start Mother Brain recording against its native trace.</summary>

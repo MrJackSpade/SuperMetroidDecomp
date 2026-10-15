@@ -48,6 +48,7 @@ internal static class ReplayTraceCompactor
             FullMovieReplayVerification.LowPercentPlaythroughMovieSha256,
             FullMovieReplayVerification.DrunkPlaythroughMovieSha256,
             FullMovieReplayVerification.MotherBrainGlitchMovieSha256,
+            FullMovieReplayVerification.LowcPlaythroughMovieSha256,
         ];
         return playthroughs.Contains(movieSha256) ? ReplayTraceMemoryCatalog.MovieDesync
             : throw new InvalidDataException($"No replay verifier replays movie {movieSha256}; its compact layout is unknown.");

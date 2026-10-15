@@ -112,14 +112,15 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(projectile.Animation is MotherBrainTurretAnimation,
                     $"{kind} production touch starts the typed impact program");
             }
+            else if (definition.TouchInstructionList != 0)
+            {
+                // Every other touch list is the shared delete list; the owner coverage check proves each one deletes.
+                AssertTrue(projectile.Animation is EnemyProjectileDeleteAnimation, $"{kind} production touch starts the shared delete reaction");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed touch keeps no native list");
+            }
             else
             {
-                AssertEqual(
-                    definition.TouchInstructionList == 0
-                        ? initialList
-                        : definition.TouchInstructionList,
-                    projectile.InstructionPointer,
-                    $"{kind} production touch list");
+                AssertEqual(initialList, projectile.InstructionPointer, $"{kind} production touch keeps its list");
             }
 
             initialize(projectile, kind, 0);
@@ -240,8 +241,9 @@ internal static class EnemyProjectileDefinitionsVerification
             }
             else
             {
-                AssertEqual(definition.ShotInstructionList, projectile.InstructionPointer,
-                    $"{kind} production shot list");
+                // Every other shot list is the shared delete list; the owner coverage check proves each one deletes.
+                AssertTrue(projectile.Animation is EnemyProjectileDeleteAnimation, $"{kind} production shot starts the shared delete reaction");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
             }
         }
 

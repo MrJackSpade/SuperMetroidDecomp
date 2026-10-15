@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -147,6 +148,15 @@ internal sealed class EnemyProjectileEngine
     /// <summary>The 8-bit frame counter sampled by the current projectile pass; verification drives it to step instructions.</summary>
     internal byte CurrentFrame8 { get; set; }
 
+    /// <summary>A shot meets an enemy projectile only inside the same 32-pixel cell: the shift that selects the cell.</summary>
+    private const int CoarseContactCellShift = 5;
+
+    /// <summary>The pixel offset within a 16-pixel block.</summary>
+    private const int BlockPixelMask = 15;
+
+    /// <summary>The pixel offset within an 8-pixel half block.</summary>
+    private const int HalfBlockPixelMask = 7;
+
     /// <summary>The 16-bit NMI_FrameCounter ($05B6) for the current projectile pass.</summary>
     internal ushort CurrentFrame16 { get; private set; }
 
@@ -199,8 +209,8 @@ internal sealed class EnemyProjectileEngine
                 // The native path intentionally compares only 32-pixel cells. It does not
                 // run the radius overlap used by ordinary enemies, a coarse quirk preserved
                 // here instead of “fixing” shots near a cell corner.
-                if ((enemyProjectile.Position.X.Whole & 0xffe0) != (shot.Position.X.Whole & 0xffe0) ||
-                    (enemyProjectile.Position.Y.Whole & 0xffe0) != (shot.Position.Y.Whole & 0xffe0))
+                if (enemyProjectile.Position.X.Whole >> CoarseContactCellShift != shot.Position.X.Whole >> CoarseContactCellShift ||
+                    enemyProjectile.Position.Y.Whole >> CoarseContactCellShift != shot.Position.Y.Whole >> CoarseContactCellShift)
                 {
                     continue;
                 }
@@ -216,16 +226,15 @@ internal sealed class EnemyProjectileEngine
 
                 if (enemyProjectile.CollisionOption == 1)
                 {
-                    LastEnemyProjectileDudSoundEffect = 0x003d;
+                    LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot.Value;
                 }
                 else
                 {
                     enemyProjectile.CollidedProjectileType = collidedProjectileType;
-                    if (Handlers.TryGetShotAnimation(enemyProjectile.Kind, out Func<EnemyProjectileAnimation>? shotAnimation))
-                        enemyProjectile.StartAnimation(shotAnimation());
-                    else
-                        enemyProjectile.StartNativeProgram(
-                            EnemyProjectileDefinitionCatalog.Get(enemyProjectile.Kind).ShotInstructionList);
+                    // Every shot list without a typed reaction of its own is the shared delete list.
+                    enemyProjectile.StartAnimation(Handlers.TryGetShotAnimation(enemyProjectile.Kind, out Func<EnemyProjectileAnimation>? shotAnimation)
+                        ? shotAnimation()
+                        : EnemyProjectileDeleteAnimation.Instance);
                     enemyProjectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
 
                     // Native masks properties with $0FFF. The typed fields below are the
@@ -397,7 +406,7 @@ internal sealed class EnemyProjectileEngine
                 continue;
 
             Position16<ScreenPixels> screen = (projectile.Position.Whole + shake).ToScreen(camera);
-            if (((screen.X + 128) & 0xfe00) != 0 || ((screen.Y + 128) & 0xfe00) != 0)
+            if (unchecked((ushort)(screen.X + 128)) >= 512 || unchecked((ushort)(screen.Y + 128)) >= 512)
                 continue;
 
             var artwork = _room.Artwork?.ProjectileSpritemaps ?? throw new InvalidOperationException(
@@ -529,8 +538,8 @@ internal sealed class EnemyProjectileEngine
                 // Without this correction a fast downward projectile retains its last
                 // pre-collision coordinate and visibly hovers above the floor.
                 ushort snappedPosition = slopeAlignedPosition ?? (velocity < 0
-                    ? unchecked((ushort)((movementEdge | 0x000f) + movementRadius + 1))
-                    : unchecked((ushort)((movementEdge & 0xfff0) - movementRadius)));
+                    ? unchecked((ushort)((movementEdge | BlockPixelMask) + movementRadius + 1))
+                    : unchecked((ushort)((movementEdge & ~BlockPixelMask) - movementRadius)));
                 bool snapDoesNotMoveBackwards = slopeAlignedPosition.HasValue || (velocity < 0
                     ? snappedPosition <= position
                     : snappedPosition >= position);
@@ -611,8 +620,8 @@ internal sealed class EnemyProjectileEngine
                 // boundary before the caller's full-block clamp.
                 int radius = horizontal ? projectile.Radius.X : projectile.Radius.Y;
                 slopeAlignedPosition = movingNegative
-                    ? unchecked((ushort)((targetEdge | 7) + radius + 1))
-                    : unchecked((ushort)((targetEdge & 0xfff8) - radius));
+                    ? unchecked((ushort)((targetEdge | HalfBlockPixelMask) + radius + 1))
+                    : unchecked((ushort)((targetEdge & ~HalfBlockPixelMask) - radius));
                 return true;
             }
             return false;
@@ -640,11 +649,11 @@ internal sealed class EnemyProjectileEngine
             int height = EnemyTerrain.ReadNonSquareSlopeHeight(
                 collisionBlock.Bts,
                 (collisionBlock.Bts.SlopeFlipsHorizontally
-                    ? projectile.Position.X.Whole ^ 0x000f
-                    : projectile.Position.X.Whole) & 0x000f);
+                    ? projectile.Position.X.Whole ^ BlockPixelMask
+                    : projectile.Position.X.Whole) & BlockPixelMask);
             int edgeWithinBlock = movingUp
-                ? (targetEdge & 0x000f) ^ 0x000f
-                : targetEdge & 0x000f;
+                ? (targetEdge & BlockPixelMask) ^ BlockPixelMask
+                : targetEdge & BlockPixelMask;
             int adjustment = height - edgeWithinBlock - 1;
             if (movingUp)
             {
@@ -726,10 +735,11 @@ internal sealed class EnemyProjectileEngine
         // prevents later persistent projectile families from needing bespoke hit effects.
         ushort touchInstruction =
             EnemyProjectileDefinitionCatalog.Get(projectile.Kind).TouchInstructionList;
+        // Every touch list without a typed reaction of its own is the shared delete list.
         if (Handlers.TryGetTouchAnimation(projectile.Kind, out Func<EnemyProjectileAnimation>? touchAnimation))
             projectile.StartAnimation(touchAnimation());
         else if (touchInstruction != 0)
-            projectile.StartNativeProgram(touchInstruction);
+            projectile.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
 
         // Generic enemy-projectile contact deletes Ridley's fireball. Afterburn is a wall-
         // impact feature from $86:940E, so a Samus contact does not create the wall bloom.
@@ -760,7 +770,8 @@ internal sealed class EnemyProjectileEngine
         for (int operationCount = 0; operationCount < 24; operationCount++)
         {
             ushort word = ReadEnemyProjectileInstructionMechanicsWord(projectile, cursor);
-            if ((word & 0x8000) == 0)
+            // As the native sign test does: a non-negative word is a frame duration, a negative one a command.
+            if (unchecked((short)word) >= 0)
             {
                 if (word == 0)
                     throw new InvalidDataException($"Enemy projectile frame $86:{cursor:X4} has zero duration.");
@@ -795,8 +806,8 @@ internal sealed class EnemyProjectileEngine
                     ushort mask = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
                         unchecked((ushort)(cursor + 2)));
-                    projectile.Damage = unchecked((ushort)(projectile.Damage | (mask & 0x0fff)));
-                    SetPropertyFlags(projectile, (EnemyProjectilePropertyFlags)(mask & 0xf000));
+                    projectile.Damage = unchecked((ushort)(projectile.Damage | EnemyProjectilePropertyWord.Damage(mask)));
+                    SetPropertyFlags(projectile, EnemyProjectilePropertyWord.Flags(mask));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
@@ -805,8 +816,8 @@ internal sealed class EnemyProjectileEngine
                     ushort mask = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
                         unchecked((ushort)(cursor + 2)));
-                    projectile.Damage = unchecked((ushort)(projectile.Damage & (mask & 0x0fff)));
-                    ClearPropertyFlags(projectile, (EnemyProjectilePropertyFlags)(~mask & 0xf000));
+                    projectile.Damage = unchecked((ushort)(projectile.Damage & EnemyProjectilePropertyWord.Damage(mask)));
+                    ClearPropertyFlags(projectile, EnemyProjectilePropertyWord.Flags(unchecked((ushort)~mask)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
@@ -974,13 +985,6 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileSlot projectile,
         ushort address)
     {
-        if (CommonEnemyProjectileInstructionProgramDefinitions.TryReadMechanicsWord(
-                address,
-                out ushort sharedWord))
-        {
-            return sharedWord;
-        }
-
         if (OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind))
             return OldTourianEscapeShaftWallExplosionDefinitions.ReadMechanicsWord(address);
 
@@ -1080,7 +1084,7 @@ internal sealed class EnemyProjectileEngine
             xOffset = (xMask & unchecked((byte)_room.Random.Generate())) - xCenter;
         }
         while (xOffset < 0);
-        if ((signSample & 0x8000) != 0)
+        if (unchecked((short)signSample) < 0)
             xOffset = -xOffset;
         projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(projectile.Position.X.Whole + xOffset)));
 
@@ -1090,7 +1094,7 @@ internal sealed class EnemyProjectileEngine
             yOffset = (yMask & unchecked((byte)_room.Random.Generate())) - yCenter;
         }
         while (yOffset < 0);
-        if ((signSample & 0x4000) != 0)
+        if ((signSample >> 14 & 1) != 0)
             yOffset = -yOffset;
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + yOffset)));
     }
@@ -1138,8 +1142,8 @@ internal sealed class EnemyProjectileEngine
             ? RoomEnemyProjectileKind.CeresFallingDebrisDark
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
-        projectile.Position = projectile.Position.WithWhole(new(xPosition, 0x002a));
-        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0x0010));
+        projectile.Position = projectile.Position.WithWhole(new(xPosition, 42));
+        projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(16));
         projectile.Variable0 = 0;
         projectile.Variable1 = 0;
         projectile.StartAnimation(new CeresFallingDebrisAnimation(dark ? CeresFallingDebrisProgram.Dark : CeresFallingDebrisProgram.Light));
@@ -1211,57 +1215,30 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Spawns the four bank-$86 particles emitted by a dying/burrowing Skree.</summary>
-    internal void SpawnSkreeParticleBurst(RoomEnemySlot skree)
-    {
-        SpawnSkreeOrMetareeParticle(
-            skree,
-            RoomEnemyProjectileKind.SkreeParticleDownRight,
-            6,
-            new(0x0140, -0x0301));
-        SpawnSkreeOrMetareeParticle(
-            skree,
-            RoomEnemyProjectileKind.SkreeParticleUpRight,
-            6,
-            new(0x0060, -0x0401));
-        SpawnSkreeOrMetareeParticle(
-            skree,
-            RoomEnemyProjectileKind.SkreeParticleDownLeft,
-            -6,
-            new(-0x0140, -0x0301));
-        SpawnSkreeOrMetareeParticle(
-            skree,
-            RoomEnemyProjectileKind.SkreeParticleUpLeft,
-            -6,
-            new(-0x0060, -0x0401));
-    }
+    internal void SpawnSkreeParticleBurst(RoomEnemySlot skree) => SpawnMetalParticleBurst(skree,
+        RoomEnemyProjectileKind.SkreeParticleDownRight, RoomEnemyProjectileKind.SkreeParticleUpRight,
+        RoomEnemyProjectileKind.SkreeParticleDownLeft, RoomEnemyProjectileKind.SkreeParticleUpLeft);
 
     /// <summary>
     /// Spawns Metaree's four metal-particle definitions. Their motion initializers are
     /// shared byte-for-byte with Skree, but pointer <c>$86:8AC5</c> selects Metaree's ROM
     /// spritemap instead of silently reusing the visually different Skree debris.
     /// </summary>
-    internal void SpawnMetareeParticleBurst(RoomEnemySlot metaree)
+    internal void SpawnMetareeParticleBurst(RoomEnemySlot metaree) => SpawnMetalParticleBurst(metaree,
+        RoomEnemyProjectileKind.MetareeParticleDownRight, RoomEnemyProjectileKind.MetareeParticleUpRight,
+        RoomEnemyProjectileKind.MetareeParticleDownLeft, RoomEnemyProjectileKind.MetareeParticleUpLeft);
+
+    /// <summary>
+    /// The four particles of a Skree or Metaree burst, six pixels either side of the source: the outer pair flies at
+    /// 1.25 pixels outward and just over 3 up per update, the inner pair at 0.375 outward and just over 4 up, in 8.8.
+    /// </summary>
+    private void SpawnMetalParticleBurst(RoomEnemySlot source, RoomEnemyProjectileKind downRight, RoomEnemyProjectileKind upRight,
+        RoomEnemyProjectileKind downLeft, RoomEnemyProjectileKind upLeft)
     {
-        SpawnSkreeOrMetareeParticle(
-            metaree,
-            RoomEnemyProjectileKind.MetareeParticleDownRight,
-            6,
-            new(0x0140, -0x0301));
-        SpawnSkreeOrMetareeParticle(
-            metaree,
-            RoomEnemyProjectileKind.MetareeParticleUpRight,
-            6,
-            new(0x0060, -0x0401));
-        SpawnSkreeOrMetareeParticle(
-            metaree,
-            RoomEnemyProjectileKind.MetareeParticleDownLeft,
-            -6,
-            new(-0x0140, -0x0301));
-        SpawnSkreeOrMetareeParticle(
-            metaree,
-            RoomEnemyProjectileKind.MetareeParticleUpLeft,
-            -6,
-            new(-0x0060, -0x0401));
+        SpawnSkreeOrMetareeParticle(source, downRight, 6, new(320, -769));
+        SpawnSkreeOrMetareeParticle(source, upRight, 6, new(96, -1025));
+        SpawnSkreeOrMetareeParticle(source, downLeft, -6, new(-320, -769));
+        SpawnSkreeOrMetareeParticle(source, upLeft, -6, new(-96, -1025));
     }
 
     /// <summary>
@@ -1294,7 +1271,7 @@ internal sealed class EnemyProjectileEngine
             projectile.Position.Whole,
             RoomSpriteObjectKind.EnemyProjectileDud,
             graphicsIndex: 0);
-        LastEnemyProjectileDudSoundEffect = 0x003d;
+        LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot.Value;
         projectile.Direction = unchecked((ushort)(projectile.Direction | SamusProjectileDirectionMasks.Spent));
     }
 
@@ -1331,7 +1308,7 @@ internal sealed class EnemyProjectileEngine
         table.RegisterPreInstruction(context =>
         {
             context.Projectile.Position = context.Projectile.Position.Advance(context.Projectile.Velocity.ToSixteenSixteen());
-            context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 0x0050))));
+            context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 80))));
             if (unchecked((ushort)(context.Projectile.Position.X.Whole - context.Camera.X)) >= 256 ||
                 unchecked((ushort)(context.Projectile.Position.Y.Whole - context.Camera.Y)) >= 256)
             {
@@ -1345,7 +1322,7 @@ internal sealed class EnemyProjectileEngine
     {
         table.RegisterPreInstruction(context =>
         {
-            context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 0x0010))));
+            context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 16))));
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, horizontal: false))
             {
                 ushort impactX = context.Projectile.Position.X.Whole;
@@ -1361,7 +1338,7 @@ internal sealed class EnemyProjectileEngine
     /// Draws the bank-$86 one-in-four branch ($86:A456): it is taken when both high bits of the room's next random
     /// number are set.
     /// </summary>
-    internal bool TakeOneInFourBranch() => (_room.Random.Generate() & 0xc000) == 0xc000;
+    internal bool TakeOneInFourBranch() => _room.Random.Generate() >> 14 == 3;
 
     /// <summary>Sets every behavior bit in <paramref name="flags"/>, as a list's property OR does.</summary>
     internal static void SetPropertyFlags(RoomEnemyProjectileSlot projectile, EnemyProjectilePropertyFlags flags)

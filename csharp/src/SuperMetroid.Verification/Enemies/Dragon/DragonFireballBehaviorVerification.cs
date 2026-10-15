@@ -58,7 +58,7 @@ internal static class DragonFireballBehaviorVerification
             AssertTrue(!deleted, $"{falling} loops");
         }
 
-        left.StartNativeProgram(CommonEnemyProjectileInstructionProgramDefinitions.Delete);
+        left.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(left, null, Position16<RoomPixels>.Zero);
         AssertTrue(!left.IsActive, "the shared shot list still deletes the fireball");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the fireball's native list bytes");

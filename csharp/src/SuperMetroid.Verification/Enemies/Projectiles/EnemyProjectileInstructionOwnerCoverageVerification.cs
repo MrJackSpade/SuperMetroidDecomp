@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Enemies;
@@ -16,6 +18,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         var forbiddenBus = NewEnemyProjectileMechanicsFallbackForbiddenBus();
+        SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(forbiddenBus);
 
@@ -84,7 +87,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             // Mother Brain's onion ring starts a typed touch program too (#1292).
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainOnionRing))
-                VerifyEntry(definition.TouchInstructionList, "touch");
+                VerifySharedDelete(definition.TouchInstructionList, "touch");
             if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop or
                 RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
@@ -97,7 +100,19 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.KagoBug or RoomEnemyProjectileKind.EyeDoorProjectile or
                 // A shot Draygon wall turret runs the typed misc-dust small explosion (#1292).
                 RoomEnemyProjectileKind.DraygonWallTurret))
-                VerifyEntry(definition.ShotInstructionList, "shot");
+                VerifySharedDelete(definition.ShotInstructionList, "shot");
+
+            // Production runs every untyped reaction as the shared delete, so each such list must delete at once.
+            void VerifySharedDelete(ushort address, string role)
+            {
+                if (address == 0)
+                    return;
+                AssertEqual((ushort)EnemyProjectileInstruction.Delete,
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | address),
+                    $"Projectile {kind} {role} list $86:{address:X4} is the shared delete");
+                entryCount++;
+                checksum += address;
+            }
 
             void VerifyEntry(ushort address, string role)
             {

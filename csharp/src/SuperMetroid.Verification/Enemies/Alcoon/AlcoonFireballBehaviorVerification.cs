@@ -48,7 +48,7 @@ internal static class AlcoonFireballBehaviorVerification
                 NativeEnemyProjectileProgramOracle.EntryOf(AlcoonFireballNativeListAddresses.Entries, AlcoonFireballProgram.Initial), 30, "Alcoon fireball");
             AssertTrue(!deleted, "a fireball loops until it is shot or leaves");
         }
-        fireballs[0].StartNativeProgram(CommonEnemyProjectileInstructionProgramDefinitions.Delete);
+        fireballs[0].StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(fireballs[0], null, Position16<RoomPixels>.Zero);
         AssertTrue(!fireballs[0].IsActive, "the shared shot list still deletes a fireball");
         for (int pose = 0; pose < AlcoonFireballFrameDefinitions.PoseCount; pose++)

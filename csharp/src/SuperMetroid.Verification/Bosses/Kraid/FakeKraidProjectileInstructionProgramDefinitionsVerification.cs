@@ -31,8 +31,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         Suite(nameof(VerifyFakeKraidProjectilePresentationAddresses), () => VerifyFakeKraidProjectilePresentationAddresses());
 
         var guard = new CartridgeReadGuard(rom)
-            .Forbid(address => FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+            .Forbid(FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Fake Kraid mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase,
                 FakeKraidProjectileInstructionProgramDefinitions.PresentationWordCount,
@@ -86,8 +85,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
             AssertEqual((ushort)0, projectile.InstructionTimer.RawValue,
                 $"{testCase.Kind} sleep leaves the timer stopped");
 
-            projectile.InstructionPointer =
-                CommonEnemyProjectileInstructionProgramDefinitions.Delete;
+            projectile.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
             RunForcedTick(projectile);
             AssertTrue(!projectile.IsActive,
                 $"{testCase.Kind} shot reaction reaches the compiled shared delete program");

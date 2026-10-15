@@ -81,7 +81,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         shotSystem.MotherBrainBehavior.SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, new Position16<RoomPixels>(152, 47));
         RoomEnemyProjectileSlot shot = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainTopRightTube);
-        shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
+        shot.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         RunForcedTick(shotSystem, shot);
         AssertTrue(!shot.IsActive,
             "Mother Brain ceiling-tube shot reaction reaches shared compiled deletion");
@@ -143,8 +143,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
     /// <summary>Blocks private and shared control bytes and observes visual operand reads.</summary>
     private static CartridgeReadGuard NewMotherBrainTopTubeInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => MotherBrainTopTubeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+            .Forbid(MotherBrainTopTubeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Mother Brain ceiling-tube mechanics byte " +
                     $"${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordCount, MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordAddress);

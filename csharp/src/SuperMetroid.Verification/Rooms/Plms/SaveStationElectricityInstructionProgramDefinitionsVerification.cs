@@ -86,8 +86,7 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
         shotSystem.Projectiles.SpawnSaveStationElectricity(plmBlockIndex: 42, roomWidthInBlocks: 16);
         RoomEnemyProjectileSlot shot = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
-        shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
-        shot.InstructionTimer = NativeCountdown.Start(1);
+        shot.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         Process(shotSystem, shot);
         AssertTrue(!shot.IsActive,
             "save-station electricity shot reaction reaches shared compiled deletion");
@@ -164,9 +163,7 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
     /// <summary>Rejects private and shared projectile mechanics reads while recording live sprite operand reads.</summary>
     internal static CartridgeReadGuard NewSaveStationElectricityInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address =>
-                    SaveStationElectricityInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+            .Forbid(SaveStationElectricityInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled save-station electricity mechanics byte " +
                     $"${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase,

@@ -118,7 +118,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource, deleteState, (ushort)0, Offset16<RoomPixels>.Zero);
         RoomEnemyProjectileSlot deleting = deleteSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
-        deleting.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
+        deleting.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         RunForcedTick(deleteSystem, deleting);
         AssertTrue(!deleting.IsActive,
             "Space Pirate projectile shot reaction reaches shared compiled deletion");
@@ -201,8 +201,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
     /// <summary>Rejects compiled projectile mechanics reads and records presentation operands used by production.</summary>
     private static CartridgeReadGuard NewSpacePirateProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => SpacePirateProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+            .Forbid(SpacePirateProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Space Pirate mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount, SpacePirateProjectileInstructionProgramDefinitions.PresentationWordAddress);
 

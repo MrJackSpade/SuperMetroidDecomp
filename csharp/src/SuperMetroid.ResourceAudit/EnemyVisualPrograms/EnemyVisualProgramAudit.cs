@@ -62,8 +62,6 @@ internal static class EnemyVisualProgramAudit
                 shape = "single";
                 addresses.Add(single);
             }
-            else if (EnemyVisualProgramSpecializations.IsControlOnly(type))
-                shape = "control-only";
 
             Dictionary<ushort, ushort> words = ReadWords(catalog);
             // A compiled duration followed by a hole (including at the catalog end)

@@ -2181,11 +2181,7 @@ internal static class LookupStream1Verification
                 AssertEqual((byte)1, LookupStream1CommonFramesRomByte(rom, ((int)new SnesAddress(checked((byte)bank), checked((ushort)(0x804f))))), "native common extended frame has one component");
             }
         }
-        var deletion = CommonEnemyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(0);
-        AssertEqual((ushort)0x84fc, deletion.Address, "shared projectile delete identity");
-        AssertEqual((ushort)(SnesLittleEndian.Word(LookupStream1CommonFramesRomByte(rom, 0x8684fc), LookupStream1CommonFramesRomByte(rom, 0x8684fd))), deletion.Value, "shared projectile delete native instruction");
-        foreach (int invalid in new[] { int.MinValue, -1, 1, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CommonEnemyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "shared delete enumeration bounds");
+        AssertEqual((ushort)EnemyProjectileInstruction.Delete, (ushort)(SnesLittleEndian.Word(LookupStream1CommonFramesRomByte(rom, 0x8684fc), LookupStream1CommonFramesRomByte(rom, 0x8684fd))), "shared projectile delete native instruction");
     }
 
     /// <summary>Reads empty extended enemy frame headers across supported banks.</summary>

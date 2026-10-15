@@ -37,7 +37,7 @@ internal static class PolypRockBehaviorVerification
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, rock,
             NativeEnemyProjectileProgramOracle.EntryOf(PolypRockNativeListAddresses.Entries, PolypRockProgram.Initial), 5, "Polyp rock");
         AssertTrue(!deleted, "the rock holds its frame and sleeps");
-        rock.StartNativeProgram(CommonEnemyProjectileInstructionProgramDefinitions.Delete);
+        rock.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(rock, null, Position16<RoomPixels>.Zero);
         AssertTrue(!rock.IsActive, "the shared shot list still deletes the rock");
         AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, PolypRockFrameDefinitions.PresentationKey(new(0)), out ushort selected),

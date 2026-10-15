@@ -43,8 +43,7 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
         }
 
         var guard = new CartridgeReadGuard(rom)
-            .Forbid(address => EyeDoorSweatInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+            .Forbid(EyeDoorSweatInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Eye Door sweat mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase,
                 EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
@@ -105,7 +104,7 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
         RoomEnemyProjectileSlot shot = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat &&
                 projectile.IsActive);
-        shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
+        shot.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         RunForcedTicks(shot, 1);
         AssertTrue(!shot.IsActive,
             "Eye Door sweat shot reaction reaches the compiled shared delete program");

@@ -1,0 +1,68 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
+
+/// <summary>Extracts only BGR555 payloads selected by the compiled room-flash program.</summary>
+[CpuBusBoundary("codec: ROM Mother Brain room-flash BGR555 payloads → Mother Brain room colors")]
+internal static class MotherBrainRoomColorExtractor
+{
+    /// <summary>Imports room-flash rows and selected encounter palettes into an editable RGB5 document.</summary>
+    public static byte[] Extract(ISnesAddressSpace bus)
+    {
+        Ensure.NotNull(bus);
+        var flash = new PaletteRgb5[MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount][];
+        for (int index = 0; index < flash.Length; index++)
+        {
+            int pointerAddress = MotherBrainRoomColorRomData.SourceBank |
+                MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(index);
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
+            if (pointer == 0)
+                throw new InvalidDataException($"Mother Brain room-flash row {index} has no palette pointer.");
+            flash[index] = ReadColors(MotherBrainRoomColorRomData.SourceBank | pointer,
+                MotherBrainRoomColorRomData.SliceColors * 2);
+        }
+        using var json = new MemoryStream();
+        MotherBrainRoomColorPresentation.Write(json, new MotherBrainRoomColorDocument
+        {
+            Version = MotherBrainRoomColorFormat.Version,
+            Flash = flash,
+            FinalRoom = ReadColors(MotherBrainRoomColorRomData.SourceBank |
+                MotherBrainRoomPaletteProgramDefinitions.FinalPalette,
+                MotherBrainRoomColorRomData.SliceColors * 2),
+            PhaseTwoAttack = ReadColors(MotherBrainRoomColorRomData.PhaseTwoAttackSource,
+                MotherBrainRoomColorRomData.PhaseTwoColors),
+            PhaseTwoRearLeg = ReadColors(MotherBrainRoomColorRomData.PhaseTwoRearLegSource,
+                MotherBrainRoomColorRomData.PhaseTwoColors),
+            InitialGlassShard = ReadColors(MotherBrainRoomColorRomData.InitialGlassShardSource,
+                MotherBrainRoomColorRomData.InitialColors),
+            InitialTubeProjectile = ReadColors(MotherBrainRoomColorRomData.InitialTubeProjectileSource,
+                MotherBrainRoomColorRomData.InitialColors),
+            RecoveryLights = Enumerable.Range(0, MotherBrainRoomColorRomData.RecoveryLightsFrames)
+                .Select(frame => ReadColors(MotherBrainRoomColorRomData.RecoveryLightsSource(frame),
+                    MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination * 2))
+                .ToArray(),
+        });
+        return json.ToArray();
+
+        PaletteRgb5[] ReadColors(int source, int count)
+        {
+            var colors = new PaletteRgb5[count];
+            for (int index = 0; index < count; index++)
+            {
+                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((source + index * sizeof(ushort)));
+                colors[index] = new PaletteRgb5
+                {
+                    Red = word & 31,
+                    Green = word >> 5 & 31,
+                    Blue = word >> 10 & 31,
+                };
+            }
+            return colors;
+        }
+    }
+}

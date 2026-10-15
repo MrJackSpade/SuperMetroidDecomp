@@ -1,0 +1,54 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
+
+/// <summary>Resolves native palette-copy programs at import time into named world-selection palettes.</summary>
+[CpuBusBoundary("codec: ROM map palette-copy programs and colors → map world-selection palettes")]
+internal static class MapStaticPalettesExtractor
+{
+    /// <summary>
+    /// Imports pause and file-select palettes, executes each selected area's bounded native
+    /// world-map copy program, and emits validated RGB5 JSON for all six selections.
+    /// </summary>
+    public static byte[] Extract(ISnesAddressSpace bus)
+    {
+        var pause = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(pause, bus, MapStaticPalettesRomData.PausePalette);
+        var file = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(file, bus, FileSelectMapRomData.EntryPalette);
+        var world = new Dictionary<string, PaletteRgb5[]>();
+        for (int selected = 0; selected < FileSelectMapRomData.AreaCount; selected++)
+        {
+            var colors = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(colors, bus, FileSelectMapRomData.EntryPalette);
+            new FrontendPalettes(colors).FileSelectEntryBlackFirst.Write(0, Bgr555.Black);
+            new FrontendPalettes(colors).FileSelectEntryBlackSecond.Write(0, Bgr555.Black);
+            for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+            {
+                int offsets = area == selected ? FileSelectMapRomData.ActivePaletteOffsets : FileSelectMapRomData.InactivePaletteOffsets;
+                int cursor = FileSelectMapRomData.PalettePrograms + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), offsets + area * sizeof(ushort));
+                bool terminated = false;
+                for (int record = 0; record < MapStaticPalettesRomData.MaximumCopyRecords; record++, cursor += MapStaticPalettesRomData.CopyRecordBytes)
+                {
+                    ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
+                    if (source == ushort.MaxValue) { terminated = true; break; }
+                    ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor + sizeof(ushort));
+                    if ((destination & 1) != 0 || destination / 2 + MapStaticPalettesRomData.CopyColorCount > CgramPalettes.ColorCount)
+                        throw new InvalidDataException("World-map palette copy exceeds the color range.");
+                    CartridgePaletteImporter.LoadToCgram(colors, bus, FileSelectMapRomData.PaletteColors + source, MapStaticPalettesRomData.CopyColorCount, destination / 2);
+                }
+                if (!terminated) throw new InvalidDataException("World-map palette copy program has no terminator.");
+            }
+            world.Add(((AreaId)selected).ToString(), ToRgb(colors));
+        }
+        using var json = new MemoryStream();
+        MapStaticPalettes.Write(json, new() { Version = MapStaticPalettesFormat.Version, Pause = ToRgb(pause), FileSelect = ToRgb(file), World = world });
+        return json.ToArray();
+    }
+    /// <summary>Converts all CGRAM words to RGB5 values for the installed palette document.</summary>
+    private static PaletteRgb5[] ToRgb(SnesCgram palette) => new CgramPalettes(palette).Image.SelectToArray(PaletteRgb5.From);
+}

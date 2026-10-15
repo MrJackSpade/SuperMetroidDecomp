@@ -10,5 +10,5 @@ public static class StandardObjectArtworkFormat
     /// <summary>Stock JSON manifest filename recording the schema version, source-cartridge SHA-256, and stock PNG SHA-256; overrides replace only the PNG.</summary>
     public const string ManifestFileName = "standard-object-artwork.json";
     /// <summary>Selected $2E00-byte standard OBJ artwork span from $9A:D200; the native $82:8318 transfer spans $4000 bytes, while the intro uses the first $2000.</summary>
-    public const int TransferByteCount = 0x2e00;
+    public const int TransferByteCount = 11776;
 }

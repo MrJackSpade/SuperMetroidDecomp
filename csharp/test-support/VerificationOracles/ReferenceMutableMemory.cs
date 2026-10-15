@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Hardware;
+namespace SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 /// <summary>
 /// Explicit mutable-only projection of older diagnostic guards. Each byte is

@@ -1,4 +1,7 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.TestSupport.CpuBusTestDoubles;
 
 /// <summary>
 /// One CPU read routed by address region to the source's typed contract (#629): cartridge addresses

@@ -5,5 +5,5 @@ internal readonly record struct DebugGroundedSamusPlacement(
     Position16<RoomPixels> Position,
     ushort DesiredScreenY,
     Position16<RoomBlocks> FloorBlockPosition,
-    SuperMetroid.Core.Rooms.RoomCollisionBlock FloorBlock,
+    SuperMetroid.Core.Rooms.LevelData.RoomCollisionBlock FloorBlock,
     byte FloorHeight);

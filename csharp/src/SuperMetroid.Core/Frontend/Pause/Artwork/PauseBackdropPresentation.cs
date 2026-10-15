@@ -1,0 +1,111 @@
+using System.Buffers.Binary;
+using System.Text.Json;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms;
+
+namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+
+/// <summary>Complete authored pause backdrops, including area lettering, without runtime ROM patches.</summary>
+public sealed class PauseBackdropPresentation
+{
+    /// <summary>Per-area authored tile words that differ from stock; complete backdrops are calculated on demand.</summary>
+    internal readonly Dictionary<int, ushort>[] areas;
+    /// <summary>Authored foreground tile words that differ from the stock button page.</summary>
+    internal readonly Dictionary<int, ushort> buttons;
+    /// <summary>Retains validated sparse edits for every area and the separate button overlay.</summary>
+    private PauseBackdropPresentation(Dictionary<int, ushort>[] areas, Dictionary<int, ushort> buttons)
+    { this.areas = areas; this.buttons = buttons; }
+
+    /// <summary>Materializes the selected 32-by-16 button/foreground image without caching or modifying the presentation.</summary>
+    /// <returns>A new caller-owned 1024-byte array containing 512 little-endian BG tilemap words in row-major order; the live pause menu may change its button palette fields.</returns>
+    public byte[] CreateButtonTilemap()
+    {
+        var result = new byte[PauseBackdropDefinitions.ButtonCells * sizeof(ushort)];
+        for (int cell = 0; cell < PauseBackdropDefinitions.ButtonCells; cell++)
+            BinaryPrimitives.WriteUInt16LittleEndian(result.AsSpan(cell * sizeof(ushort)),
+                buttons.TryGetValue(cell, out ushort word) ? word : PauseBackdropDefinitions.StockButtonWord(cell));
+        return result;
+    }
+
+    /// <summary>Writes the selected area's complete 32-by-32 backdrop, including its authored area lettering, directly into VRAM.</summary>
+    /// <param name="destination">The pause BG2 tilemap; words outside the 32-by-32 image remain unchanged.</param>
+    /// <param name="area">Retail area whose installed backdrop is selected; the native Ceres label is COLONY.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a retail area.</exception>
+    public void LoadTo(VramRegion destination, AreaId area)
+    {
+        var selected = areas[AreaIds.ToIndex(area)];
+        Ensure.BetweenInclusive(PauseBackdropDefinitions.Cells, int.MaxValue, destination.WordCount);
+        for (int cell = 0; cell < PauseBackdropDefinitions.Cells; cell++)
+            destination.Write(cell, selected.TryGetValue(cell, out ushort value) ? value : PauseBackdropDefinitions.StockAreaWord(area, cell));
+    }
+
+    /// <summary>Extracts only tilemap words changed from the stock calculation, preserving independent authored edits.</summary>
+    private static Dictionary<int, ushort> Differences(byte[] selected, Func<int, ushort> calculate)
+    {
+        var result = new Dictionary<int, ushort>();
+        for (int cell = 0; cell < selected.Length / sizeof(ushort); cell++)
+        {
+            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(selected.AsSpan(cell * sizeof(ushort)));
+            if (word != calculate(cell)) result.Add(cell, word);
+        }
+        return result;
+    }
+    /// <summary>Validates all seven authored area pages and the separate button page, compiling independent tile words and retaining only their differences from stock.</summary>
+    /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
+    /// <returns>An immutable selection of backdrop and button artwork that does not retain the document's mutable dictionaries or arrays.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
+    /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, the version or area/page counts are wrong, or a cell has an invalid atlas, coordinate or palette.</exception>
+    public static PauseBackdropPresentation Load(Stream json)
+    {
+        PauseBackdropDocument document;
+        try { document = JsonAssetDocument.Read<PauseBackdropDocument>(json, ArtworkJson.Options)
+            ?? throw new InvalidDataException("Pause backdrop document is null."); }
+        catch (JsonException error) { throw new InvalidDataException("Invalid pause backdrop JSON.", error); }
+        if (document.Version != PauseBackdropDefinitions.Version || document.Areas is null || document.Areas.Count != AreaIds.RetailCount)
+            throw new InvalidDataException("Pause backdrops require version 1 and all seven named areas.");
+        var areas = new byte[AreaIds.RetailCount][];
+        foreach (AreaId area in Enum.GetValues<AreaId>())
+        {
+            if (!document.Areas.TryGetValue(area.ToString(), out var cells) || cells is null || cells.Length != PauseBackdropDefinitions.Cells)
+                throw new InvalidDataException($"Pause backdrop {area} requires 1024 cells in 32-column row order.");
+            areas[AreaIds.ToIndex(area)] = PauseTileGrid.Compile(cells, area.ToString());
+        }
+        if (document.Buttons is null || document.Buttons.Length != PauseBackdropDefinitions.ButtonCells)
+            throw new InvalidDataException("Pause buttons require 512 cells in 32-column row order.");
+        return FromTilemaps(areas, PauseTileGrid.Compile(document.Buttons, "Buttons"));
+    }
+
+    /// <summary>
+    /// Builds the presentation from compiled tilemaps (one 1024-cell page per retail area in
+    /// area order, plus the 512-cell button page), keeping only words that differ from stock.
+    /// </summary>
+    internal static PauseBackdropPresentation FromTilemaps(byte[][] areaTilemaps, byte[] buttonTilemap)
+    {
+        Ensure.NotNull(areaTilemaps);
+        Ensure.NotNull(buttonTilemap);
+        if (areaTilemaps.Length != AreaIds.RetailCount)
+            throw new InvalidDataException("Pause backdrops require one tilemap per retail area.");
+        if (buttonTilemap.Length != PauseBackdropDefinitions.ButtonCells * sizeof(ushort))
+            throw new InvalidDataException("Pause buttons require 512 cells.");
+        var areas = new Dictionary<int, ushort>[AreaIds.RetailCount];
+        foreach (AreaId area in Enum.GetValues<AreaId>())
+        {
+            byte[] tilemap = areaTilemaps[AreaIds.ToIndex(area)] ?? throw new InvalidDataException($"Pause backdrop {area} is missing.");
+            if (tilemap.Length != PauseBackdropDefinitions.Cells * sizeof(ushort))
+                throw new InvalidDataException($"Pause backdrop {area} requires 1024 cells.");
+            areas[AreaIds.ToIndex(area)] = Differences(tilemap, cell => PauseBackdropDefinitions.StockAreaWord(area, cell));
+        }
+        return new(areas, Differences(buttonTilemap, PauseBackdropDefinitions.StockButtonWord));
+    }
+
+    /// <summary>Serializes and validates every backdrop and button cell before writing the UTF-8 JSON document.</summary>
+    /// <param name="output">Destination stream written at its current position and left open; existing trailing bytes are not truncated.</param>
+    /// <param name="document">Editable page collections read for serialization, not retained by the writer.</param>
+    /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or artwork-reference validation.</exception>
+    public static void Write(Stream output, PauseBackdropDocument document)
+    {
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        _ = Load(new MemoryStream(json, writable: false));
+        output.Write(json);
+    }
+}

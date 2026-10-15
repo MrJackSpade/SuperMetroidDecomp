@@ -1,0 +1,196 @@
+﻿using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Samus.Drawing;
+
+namespace SuperMetroid.Core.Areas.Ceres;
+
+/// <summary>The Ceres steam species owner: its per-room state, AI routines and the interactions it registers.</summary>
+internal sealed class CeresSteamBehavior
+{
+    /// <summary>Room services that supply the live RNG used to stagger vent activation.</summary>
+    private readonly EnemyRoomBinding _room;
+    /// <summary>Common contact resolution used after steam's extended hitbox selects its touch callback.</summary>
+    private readonly EnemyCollision _collision;
+
+    /// <summary>Stores room and collision services for steam initialization and contact handling.</summary>
+    internal CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision collision)
+    {
+        _room = room;
+        _collision = collision;
+    }
+
+    /// <summary>
+    /// Each vent slot's typed program cursor. Initialization sets a slot's cursor before its program runs, so a slot's
+    /// entry always belongs to its current vent.
+    /// </summary>
+    internal readonly Dictionary<int, AnimationProgramCursor<CeresSteamProgram>> _ventPrograms = [];
+
+    /// <summary>Runs a vent's typed program where the enemy instruction interpreter would.</summary>
+    private void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        AnimationProgramCursor<CeresSteamProgram> cursor = _ventPrograms[slot.SlotIndex];
+        EnemyProgramAnimation.Run(slot, CeresSteamAnimations.Programs, ref cursor, CeresSteamFrameDefinitions.Spritemap,
+            (cue, _) => ApplyCeresSteamCue(slot, cue));
+        _ventPrograms[slot.SlotIndex] = cursor;
+    }
+
+    /// <summary>Carries out one cue of a vent's program, returning the program a branch continues at, or null to run on.</summary>
+    private static CeresSteamProgram? ApplyCeresSteamCue(RoomEnemySlot slot, CeresSteamCue cue)
+    {
+        switch (cue.Kind)
+        {
+            case CeresSteamCueKind.Vanish:
+                slot.Properties = slot.Properties.With(
+                    EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+                return null;
+            case CeresSteamCueKind.CountDownToActivation:
+            {
+                // Variable D holds the vent's activation delay, which initialization staggers.
+                NativeWordCounterStep step = NativeCountdown.FromRaw(slot.VariableD).Decrement();
+                slot.VariableD = step.Value;
+                if (!step.IsZero)
+                    return cue.Target;
+                slot.Properties = slot.Properties.Without(
+                    EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+                return cue.Alternate;
+            }
+            case CeresSteamCueKind.Appear:
+                slot.Properties = slot.Properties.Without(
+                    EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+                return null;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CeresSteamCueKind)} {cue.Kind}.");
+        }
+    }
+
+    /// <summary>Preloaded Ceres palette selected by the steam initializer.</summary>
+    private static readonly ushort CeresSteamPaletteIndex = EnemyPaletteBits.Palette5;
+    /// <summary>Health restored by steam's main and touch routines so the vent cannot be destroyed.</summary>
+    private const ushort CeresSteamIndestructibleHealth = 32767;
+
+    /// <summary>Ports <c>CeresSteam_Init</c> at <c>$A6:EFB1</c>.</summary>
+    internal void InitializeCeresSteam(RoomEnemySlot slot)
+    {
+        CeresSteamInitialization initialization = CeresSteamDefinitions.Initialization(
+            (CeresSteamVariant)slot.Parameter1);
+
+        // Steam graphics are preloaded with the Ceres tileset and therefore use VRAM tile
+        // base zero. Both property changes are literal ORs performed by the initializer:
+        // normal instructions animate visibility, while extended maps supply per-frame art
+        // and collision boxes whose geometry cannot be represented by header radii.
+        slot.VramTilesIndex = 0;
+        slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
+        slot.ExtraProperties = slot.ExtraProperties.With(
+            EnemyExtraProperties.UsesExtendedSpritemap);
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = NativeCountdown.Start(0);
+        slot.PaletteIndex = CeresSteamPaletteIndex;
+
+        // `$A6:EFD9-$EFE0` masks the live RNG to 0..31 and adds one. Variable D is then
+        // consumed by instruction `$F127`, giving each vent a cartridge-authored stagger.
+        slot.VariableD = unchecked((ushort)((_room.Random.Generate() & CeresSteamDefinitions.ActivationDelayMask) + 1));
+
+        _ventPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresSteamProgram>.Start(initialization.Program);
+        slot.VariableA = (ushort)initialization.Function;
+    }
+
+    /// <summary>Ports <c>CeresSteam_Main</c> at <c>$A6:F00D</c>.</summary>
+    private static void RunCeresSteamMain(
+        RoomEnemySlot slot,
+        SamusMode7Transform? mode7Transform)
+    {
+        // Both main AI and touch AI restore this value. Steam is scenery/hazard state and
+        // cannot be destroyed by a projectile that happened to overlap an active plume.
+        slot.Health = CeresSteamIndestructibleHealth;
+
+        switch ((CeresSteamFunction)slot.VariableA)
+        {
+            // Parameters zero through three point at `$EFF4`, a literal RTS. Their base
+            // world position is also their draw position, so no graphical word is changed.
+            case CeresSteamFunction.None:
+                return;
+
+            // Parameters four and five are the vents inside the rotating elevator shaft.
+            // `$A6:F019` calls the same bank-$8B transform used for Samus, then stores only
+            // transformed-minus-base deltas in the enemy's graphical-offset words. Native
+            // collision continues to use the untransformed world point; drawing consumes
+            // these offsets later in WriteEnemyOAM.
+            case CeresSteamFunction.ApplyRotatingElevatorOffset:
+                if (mode7Transform is not SamusMode7Transform transform)
+                {
+                    throw new InvalidOperationException(
+                        "Ceres steam elevator variant requires the active Mode-7 transform.");
+                }
+
+                Position16<RoomPixels> transformed = transform.Transform(slot.Position.Whole);
+                slot.SpawnOffset = transformed - slot.Position.Whole;
+                return;
+
+            default:
+                throw new InvalidDataException(
+                    $"Ceres steam function $A6:{slot.VariableA:X4} is not translated.");
+        }
+    }
+
+    /// <summary>Registers the initializer that selects the variant's instruction list and RNG activation delay.</summary>
+    internal void RegisterCeresSteamInitializationAi(EnemyAiTable table)
+    {
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_CeresSteam, null, (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeCeresSteam(slot);
+        });
+    }
+
+    /// <summary>Registers the main AI that restores health and applies the rotating elevator's graphical offset.</summary>
+    internal static void RegisterCeresSteamMainAi(EnemyAiTable table)
+    {
+
+        table.RegisterMain(EnemyAiRoutine.MainAI_CeresSteam, null, (slot, frame, nmiFrameCounter8) =>
+        {
+            RunCeresSteamMain(slot, frame.Mode7Transform);
+        });
+    }
+
+    /// <summary>Runs the vents as typed programs (#641).</summary>
+    internal void RegisterCeresSteamTypedAnimations(EnemyAiTable table) =>
+        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam,
+            (slot, _) => AdvanceCeresSteamAnimation(slot));
+
+    /// <summary>Registers contact handling only for steam's authored extended hitbox callback.</summary>
+    internal void RegisterCeresSteamTouch(EnemyAiTable table)
+    {
+        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
+                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.CeresSteamTouch,
+            context =>
+            {
+                // Every visible steam frame stores `$A6:F03F` in its authored hitbox.
+                // The last two dispersal frames use an empty hitbox list and cannot reach
+                // this branch. Insisting on both facts keeps collision tied to ROM geometry.
+                if (!context.UsesExtendedHitboxes || context.HitboxTouchAi != EnemyInteractionCallback.CeresSteamTouch)
+                {
+                    throw new InvalidDataException(
+                        $"Ceres steam requires extended touch AI $A6:{EnemyAiCodePointers.BankA6.CeresSteamTouch:X4}; " +
+                        $"extended={context.UsesExtendedHitboxes}, selected=$A6:{context.HitboxTouchAiPointer:X4}, " +
+                        $"map=$A6:{context.Slot.SpritemapPointer:X4}.");
+                }
+
+                // `$A6:F03F` restores health immediately before entering common touch AI.
+                // Header damage is deliberately zero: contact still installs the common
+                // invincibility/knockback state, while Screw/Speed cannot destroy the vent.
+                context.Slot.Health = CeresSteamIndestructibleHealth;
+                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
+            });
+    }
+
+    /// <summary>Routes steam shots to ordinary common shot AI without a species-specific reaction.</summary>
+    internal static void RegisterCeresSteamShotReactions(EnemyAiTable table)
+    {
+        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
+                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NoOp));
+    }
+}

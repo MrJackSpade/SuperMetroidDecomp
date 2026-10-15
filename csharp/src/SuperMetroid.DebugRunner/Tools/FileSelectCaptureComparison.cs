@@ -1,10 +1,10 @@
 using System.Security.Cryptography;
 using System.Text;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Frontend.Recording;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// Local-only diagnostic for a reset-origin journal and Android output WAV. Compares
@@ -20,7 +20,7 @@ internal static class FileSelectCaptureComparison
         VerifyMatcher();
         using var input = File.OpenRead(journalPath);
         var recording = ControllerInputRecording.Read(input);
-        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         if (!SHA256.HashData(bus.Rom).SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Journal and local ROM differ.");
         // Caller must select a reset-origin journal, not a debugger-state continuation.

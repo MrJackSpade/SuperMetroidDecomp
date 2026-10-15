@@ -1,9 +1,10 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.AssetExtraction.Cartridge;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>
 /// Import-only decoding of bank-$8F background lists. Gameplay executes compiled

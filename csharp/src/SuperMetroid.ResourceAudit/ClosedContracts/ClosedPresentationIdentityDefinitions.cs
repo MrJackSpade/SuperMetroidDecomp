@@ -1,0 +1,107 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies.Animals;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Areas.Escape.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
+
+namespace SuperMetroid.ResourceAudit.ClosedContracts;
+
+/// <summary>Sparse identities whose ownership cannot be expressed as a contiguous index range.</summary>
+internal static class ClosedPresentationIdentityDefinitions
+{
+    /// <summary>Returns audited finite argument identities for a presentation call, or null when no closed set applies.</summary>
+    internal static int[]? Get(string type, string method, string parameter) => (type, method, parameter) switch
+    {
+        ("GameplayMessageTitlePresentation", "Build", "messageId") =>
+            GameplayMessageTitleDefinitions.MessageIds.SelectToArray(id => (int)id),
+        ("GameplayMessagePanelPresentation", "Build", "messageId") =>
+            GameplayMessagePanelDefinitions.MessageIds.SelectToArray(id => (int)id),
+        ("GameplayMessageNoticePresentation", "Build", "messageId") =>
+            GameplayMessageNoticeDefinitions.MessageIds.SelectToArray(id => (int)id),
+        ("GameplayMessageNoticePresentation", "ApplySelection", "messageId") =>
+            [(int)GameplayMessageId.SaveConfirmation, (int)GameplayMessageId.GunshipSaveConfirmation],
+        ("SamusFullBodyCycleColorCatalog", "Apply" or "Resolve", "pointer") => FullBodyPointers(),
+        ("SamusSuitColorCatalog", "Apply" or "Resolve", "suitTableOffset") => [0, 2, 4],
+        ("EnemyAuxiliaryColorCatalog", "Resolve", "palette") => EnemyAuxiliaryColorDefinitions.All
+            .Select(definition => (int)definition.Id).ToArray(),
+        ("KraidColorCatalog", "Resolve", "source") => Enum.GetValues<KraidPaletteSource>().Select(id => (int)id).ToArray(),
+        ("DachoraColorCatalog", "Resolve", "phase") => Enum.GetValues<DachoraPalettePhase>().Select(id => (int)id).ToArray(),
+        ("ShitroidColorCatalog", "TargetColor", "target") => Enum.GetValues<ShitroidColorTarget>().Select(id => (int)id).ToArray(),
+        ("EscapeTypewriterPresentation", "Get", "id") => Enum.GetValues<EscapeTypewriterProgramId>()
+            .Where(id => id != EscapeTypewriterProgramId.None).Select(id => (int)id).ToArray(),
+        ("IntroNarrationPresentation", "GetLines" or "Compile", "page") =>
+            Enum.GetValues<IntroNarrationPageId>().Select(id => (int)id).ToArray(),
+        ("EndingTextPresentation", "Compile", "sequence") => Enum.GetValues<EndingTextSequence>().Select(id => (int)id).ToArray(),
+        ("MapSpriteCatalog", "Draw", "id") => MapSpriteDefinitions.Frames.Select(frame => (int)frame.NativeId).ToArray(),
+        ("PauseReserveTankPresentation", "Draw", "nativeIdentity") => PauseReserveTankDefinitions.Frames().Select(frame => (int)frame.Id).ToArray(),
+        ("TitleGraphicsPresentation", "DrawSprite", "pointer") => TitleSpriteDefinitions.NativePointers.Select(pointer => (int)pointer).ToArray(),
+        ("IntroCaretSpritePresentation", "Draw", "pointer") => IntroCaretSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),
+        ("IntroMotherBrainSpritePresentation", "Draw", "pointer") => IntroMotherBrainSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),
+        ("IntroMotherBrainExplosionSpritePresentation", "Draw", "pointer") => IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),
+        ("ProjectileTrailCatalog", "Resolve", "frame") => ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame).ToArray(),
+        ("ProjectileTrailCatalog", "ResolveCurrent", "nextInstruction") => ProjectileTrailVisualDefinitions.Frames
+            .Select(frame => (int)unchecked((ushort)(frame + 4))).Concat(new[] { (int)ProjectileTrailDefinitions.Empty,
+                ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave,
+                ProjectileTrailDefinitions.Missile }).Distinct().ToArray(),
+        ("ProjectileFrameBindingCatalog", "Resolve", "instructionPointer") => SamusProjectileRadiusDefinitions.TimedRecordPointers
+            .Select(pointer => (int)pointer).ToArray(),
+        ("ProjectileSpriteCatalog", "Draw", "id") => ProjectileSpriteDefinitions.NativePointers.Select(pointer => (int)pointer).ToArray(),
+        ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
+        ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),
+        ("RoomFxPaletteBlendCatalog", "Resolve", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).ToArray(),
+        ("RoomCharacterAtlasCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.CharacterAddress),
+        ("RoomMetatileCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.BlockDefinitionsAddress),
+        ("RoomStaticPaletteCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.PaletteAddress),
+        ("AreaMapPresentationCatalog" or "IGameplayPresentationContent", "Resolve", "asset") =>
+            [(int)VramAssetId.StandardHudTiles, (int)VramAssetId.KraidBg3RestoreQuarter0,
+             (int)VramAssetId.KraidBg3RestoreQuarter1, (int)VramAssetId.KraidBg3RestoreQuarter2,
+             (int)VramAssetId.KraidBg3RestoreQuarter3, (int)VramAssetId.EscapeTimerFirstTiles,
+             (int)VramAssetId.EscapeTimerSecondTiles],
+        ("RoomBackgroundTilemapCatalog", "Get", "sourceAddress") => RoomBackgroundTilemapSources.All.ToArray(),
+        ("RoomVisualLayoutCatalog", "Get", "sourceAddress") => RoomVisualLayoutSourceDefinitions.All.ToArray(),
+        ("RoomLevelStreamCatalog", "Get", "sourceAddress") => RoomVisualLayoutSourceDefinitions.All.ToArray(),
+        ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sourceAddress") => MotherBrainSpecialSpriteArtworkDefinitions.All
+            .Select(sheet => sheet.SourceAddress).ToArray(),
+        ("XrayOverlayVisualCatalog", "RoomTiles", "pointer") => XrayRoomOverlaySourceDefinitions.All
+            .Select(pointer => (int)pointer).ToArray(),
+        ("EnemyTileArtworkCatalog", "LoadTo" or "LoadPaletteTo", "definitionPointer") => EnemyTileSourceDefinitions.All
+            .Select(definition => (int)definition.DefinitionPointer).ToArray(),
+        ("EnemyProjectileSpritemapCatalog", "Get", "pointer") => EnemyProjectileSpritemapDefinitions.Frames
+            .Select(frame => (int)frame.Pointer).Append(EnemyProjectileSpritemapDefinitions.BlankSpritemap).ToArray(),
+        ("EnemyProjectileSpritemapCatalog", "GetProgramFrame", "operandAddress") => EnemyProjectilePresentationFrameDefinitions.All
+            .SelectToArray(frame => (int)frame.OperandAddress),
+        // Contains is deliberately absent: querying an unowned ID is valid and
+        // returns false rather than looking up missing artwork.
+        _ => null,
+    };
+
+    /// <summary>Enumerates every suit and shade pointer across the four full-body palette animation families.</summary>
+    private static int[] FullBodyPointers() =>
+        new[] { SamusFullBodyCycleFamily.SpeedBooster, SamusFullBodyCycleFamily.ScrewAttack,
+            SamusFullBodyCycleFamily.StoredShine, SamusFullBodyCycleFamily.ActiveShinespark }
+        .SelectMany(family => Enumerable.Range(0, SamusFullBodyCycleColorFormat.SuitCount)
+            .SelectMany(suit => Enumerable.Range(0, SamusFullBodyCycleColorFormat.ShadesPerSuit)
+                .Select(shade => (int)SamusFullBodyCycleColorFormat.Pointer(family, suit, shade))))
+        .Distinct().ToArray();
+
+    /// <summary>Collects distinct cartridge source addresses from the closed room tileset definitions.</summary>
+    private static int[] TilesetSources(Func<TilesetDefinition, int> select) => Enumerable.Range(0, RoomTilesetDefinitions.Count)
+        .Select(index => select(RoomTilesetDefinitions.Get((byte)index))).Distinct().ToArray();
+}

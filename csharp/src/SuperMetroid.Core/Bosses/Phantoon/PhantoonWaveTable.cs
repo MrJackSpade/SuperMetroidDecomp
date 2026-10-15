@@ -1,0 +1,36 @@
+namespace SuperMetroid.Core.Bosses.Phantoon;
+
+/// <summary>Scroll-data calculation performed by the wavy Phantoon HDMA pre-instruction.</summary>
+public static class PhantoonWaveTable
+{
+    /// <summary>
+    /// Builds one complete native cycle. Phase has already advanced for this call;
+    /// the HDMA owner controls phase timing and repeats this cycle over the screen.
+    /// </summary>
+    public static void Build(ushort mode, ushort phase,
+        ushort amplitude, ushort bg2Scroll, Span<ushort> destination)
+    {
+        if (mode == 0) throw new ArgumentOutOfRangeException(nameof(mode), "Inactive HDMA does not build a wave.");
+        int half = (mode & PhantoonWaveRomData.LongWaveModeBit) != 0
+            ? PhantoonWaveRomData.LongHalfCycle : PhantoonWaveRomData.ShortHalfCycle;
+        Ensure.LengthEqual(destination, half * 2);
+        int step = (PhantoonWaveRomData.PhaseMask + 1) / (half * 2);
+        for (int i = 0; i < half; i++)
+        {
+            int displacement = CalculateDisplacement(unchecked((ushort)(phase + i * step)), amplitude);
+            destination[i] = unchecked((ushort)(bg2Scroll + displacement));
+            destination[i + half] = unchecked((ushort)(bg2Scroll - displacement));
+        }
+    }
+
+    /// <summary>
+    /// Multiplies the signed sine sample by amplitude, retaining only native product
+    /// bits 16-23 before restoring sign, including for unaligned phase samples.
+    /// </summary>
+    internal static int CalculateDisplacement(ushort phase, ushort amplitude)
+    {
+        short sine = PhantoonWaveRomData.ReadSineAtBytePhase(phase);
+        int magnitude = unchecked((byte)SnesSixteenSixteen.Multiply(Math.Abs((int)sine), amplitude));
+        return sine < 0 ? -magnitude : magnitude;
+    }
+}

@@ -1,8 +1,14 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+
+namespace SuperMetroid.TestSupport.ScenarioFixtures;
 
 /// <summary>
 /// Issue #415: earning a charged bomb spread by morphing in the air, either while turning around

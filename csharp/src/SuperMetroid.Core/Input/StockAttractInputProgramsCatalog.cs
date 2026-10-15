@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Input;
 
 /// <summary>Application-owned title demo controller definitions from bank $91. Addresses
 /// are stable diagnostic/control-flow identities, never runtime ROM reads.</summary>
-public static class StockAttractInputPrograms
+public static class StockAttractInputProgramsCatalog
 {
     /// <summary>
     /// Native command identities from <c>$91:9472</c> through <c>$91:99DA</c>.

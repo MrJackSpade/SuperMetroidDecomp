@@ -16,12 +16,12 @@ public sealed record Mode7ObjRenderSnapshot
     /// <summary>Master brightness 0..15 applied after BG1, OBJ, and optional gradient color math.</summary>
     public byte Brightness { get; }
     /// <summary>Owned per-scanline fixed-color controls copied from the caller at snapshot construction.</summary>
-    private readonly Frontend.TitleGradientLine[] gradient;
+    private readonly SuperMetroid.Core.Rendering.TitleGradientLine[] gradient;
     /// <summary>
     /// Owned fixed-color controls indexed by visible scanline 0..223, or empty to disable title color math.
     /// $A1 subtracts from BG1/backdrop; $31 adds to BG1/backdrop and winning OBJ palettes 4..7.
     /// </summary>
-    public ReadOnlySpan<Frontend.TitleGradientLine> Gradient => gradient;
+    public ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> Gradient => gradient;
 
     /// <summary>Captures a 256-by-224-pixel BG1/backdrop-then-OBJ composition, copying only the optional gradient.</summary>
     /// <param name="memory">Complete immutable PPU image; retained rather than recaptured from live hardware.</param>
@@ -33,7 +33,7 @@ public sealed record Mode7ObjRenderSnapshot
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> exceeds 15.</exception>
     /// <exception cref="ArgumentException"><paramref name="gradient"/> has the wrong nonzero length, a color component above 31, or an unsupported control byte.</exception>
     public Mode7ObjRenderSnapshot(PpuMemorySnapshot memory, Mode7RenderRegisters? background,
-        byte objectSelection, byte brightness, ReadOnlySpan<Frontend.TitleGradientLine> gradient = default)
+        byte objectSelection, byte brightness, ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default)
     {
         Ensure.NotNull(memory);
         if (brightness > Hardware.SnesPpuLayout.MaximumMasterBrightness) throw new ArgumentOutOfRangeException(nameof(brightness));

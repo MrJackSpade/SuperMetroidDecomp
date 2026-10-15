@@ -1,0 +1,60 @@
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Samus;
+
+namespace SuperMetroid.Core.Enemies.Projectiles;
+
+/// <summary>
+/// A projectile animation that runs programs of an <see cref="AnimationProgramSet{TProgram, TFrame, TCue}"/>: for
+/// families whose native lists run on into, or jump between, one another. Each cue goes to the handler its family
+/// registered with <see cref="EnemyProjectileHandlerTable.RegisterCue{TCue}"/>, or with
+/// <see cref="EnemyProjectileHandlerTable.RegisterBranchingCue{TProgram, TCue}"/> when a cue may redirect the program,
+/// as a native conditional goto does. Counter steps count the projectile's general timer.
+/// </summary>
+/// <typeparam name="TProgram">The family's program identity.</typeparam>
+/// <typeparam name="TFrame">The family's frame identity.</typeparam>
+/// <typeparam name="TCue">The family's cue type.</typeparam>
+internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> : EnemyProjectileAnimation
+    where TProgram : struct, Enum
+    where TFrame : struct
+    where TCue : notnull
+{
+    /// <summary>Starts <paramref name="program"/>.</summary>
+    private protected EnemyProjectileProgramAnimation(TProgram program) => Cursor = AnimationProgramCursor<TProgram>.Start(program);
+
+    /// <summary>Where the program resumes.</summary>
+    internal AnimationProgramCursor<TProgram> Cursor { get; private set; }
+
+    /// <summary>The program set this animation runs.</summary>
+    private protected abstract AnimationProgramSet<TProgram, TFrame, TCue> Programs { get; }
+
+    /// <summary>How <paramref name="frame"/> is drawn.</summary>
+    private protected abstract EnemyProjectileFramePresentation Present(TFrame frame);
+
+    /// <summary>Runs the program, publishing each cue to the family's registered handler.</summary>
+    private protected sealed override bool TryShowNextFrame(
+        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out EnemyProjectileFramePresentation presentation)
+    {
+        AnimationProgramCursor<TProgram> cursor = Cursor;
+        // Counter steps use the projectile's general timer, as the native TimerInY and DecrementTimer_GotoYIfNonZero do.
+        ushort timerBefore = projectile.GeneralTimer;
+        NativeCountdown counter = NativeCountdown.FromRaw(timerBefore);
+        AnimationProgramAdvance<TFrame> advance = Programs.Advance(ref cursor, ref counter,
+            (cue, continuation) => handlers.PublishProgramCue<TProgram, TCue>(projectile, samus, cue));
+        Cursor = cursor;
+        // Only a counter step changes the counter; a deleted projectile keeps its cleared timer.
+        if (projectile.Animation == this && counter.RawValue != timerBefore)
+            projectile.GeneralTimer = counter.RawValue;
+        duration = advance.Duration;
+        switch (advance.Kind)
+        {
+            case AnimationProgramAdvanceKind.Show:
+                presentation = Present(advance.Frame);
+                return true;
+            case AnimationProgramAdvanceKind.Hold:
+                presentation = default;
+                return false;
+            default:
+                throw new InvalidOperationException($"A projectile program ended an update with {advance.Kind}.");
+        }
+    }
+}

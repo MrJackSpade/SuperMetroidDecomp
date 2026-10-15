@@ -1,0 +1,39 @@
+using P = SuperMetroid.Core.Enemies.Elevator.ElevatorProgram;
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Programs;
+
+namespace SuperMetroid.Core.Enemies.Elevator;
+
+/// <summary>
+/// The elevator's two-frame animation loop as a typed program (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// frame shows a <see cref="ElevatorFrame"/> pose and its lists use no owner callbacks.
+/// </summary>
+internal static class ElevatorAnimations
+{
+    /// <summary>Every program.</summary>
+    internal static AnimationProgramSet<ElevatorProgram, ElevatorFrame, NoAnimationCue> Programs { get; } = new(
+        new Dictionary<ElevatorProgram, AnimationProgramStep<ElevatorProgram, ElevatorFrame, NoAnimationCue>[]>
+    {
+        // $A3:94D6
+        [P.Loop] =
+        [
+            Show(0, 2),
+            Show(1, 2),
+            GoTo(P.Loop),
+        ],
+    });
+
+    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
+    internal static IEnumerable<ushort> Spritemaps(params ElevatorProgram[] programs) =>
+        programs.SelectMany(program => Programs.Steps(program))
+            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .Select(step => ElevatorFrameDefinitions.Spritemap(step.Frame));
+
+    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationProgramStep<ElevatorProgram, ElevatorFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<ElevatorProgram, ElevatorFrame, NoAnimationCue>.Show(new(pose), duration);
+
+    /// <summary>Continues at <paramref name="program"/>.</summary>
+    private static AnimationProgramStep<ElevatorProgram, ElevatorFrame, NoAnimationCue> GoTo(ElevatorProgram program) => AnimationProgramStep<ElevatorProgram, ElevatorFrame, NoAnimationCue>.GoTo(program);
+
+}

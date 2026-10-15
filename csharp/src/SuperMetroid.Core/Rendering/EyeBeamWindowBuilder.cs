@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Rendering;
 

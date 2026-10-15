@@ -6,12 +6,14 @@ They are deliberately not player dependencies and are not separate executables.
 Each group is one module: `X.projitems` compiles exactly the `X/` directory beside it
 (`X/**/*.cs`), so a new file belongs to a group by where it is placed, and no file sits outside one.
 
-- `VerificationAccess.Core`, `.Desktop`, `.Rendering`: views of private production state, test
+- `VerificationAccess.Core`, `.Desktop`, `.Rendering.Direct3D11`: views of private production state, test
   drivers and oracle-only ROM constants that tests use and production does not. Production carries
   no test-only members (#1273); these C# 14 extension members reach private state through
-  `PrivateState` reflection, by name, in one place. `VerificationAccess.Core/<Domain>/` mirrors the
-  Core directory of the type each view reaches (`Game`, `Rooms`, `Assets`, `Frontend`, ...); the
-  directory root holds the shared access infrastructure (`CoreAccess`, `CatalogFields`, `MetadataShape`).
+  `PrivateState` reflection, by name, in one place. `VerificationAccess.<Assembly>/<Module>/` mirrors the
+  module of the type each view reaches and shares its namespace (`VerificationAccess.Core/Bosses/Kraid`
+  is `SuperMetroid.Core.Bosses.Kraid`); the root holds the shared access infrastructure (`CoreAccess`,
+  `CatalogFields`, `MetadataShape`).
+- Every other module's files are in `SuperMetroid.TestSupport.<Module>`.
 - `RenderFixtures`: cartridge/render scenarios for RenderVerification.
 - `FrameCapture`: Direct3D frame readback and pixel comparison for render captures.
 - `SaveMapFixtures`: the save-map presentation fixture shared by the save, desktop and render verifiers.

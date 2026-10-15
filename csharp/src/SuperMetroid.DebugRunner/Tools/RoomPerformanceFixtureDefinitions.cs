@@ -1,3 +1,5 @@
+namespace SuperMetroid.DebugRunner.Tools;
+
 /// <summary>Cartridge entry identities used only by the bounded performance fixtures.</summary>
 internal static class RoomPerformanceFixtureDefinitions
 {

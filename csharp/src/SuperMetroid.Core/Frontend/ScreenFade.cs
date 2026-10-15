@@ -15,13 +15,13 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class ScreenFade
 {
     /// <summary>INIDISP forced-blank bit with zero brightness, written when a fade-out ends.</summary>
-    public const int ForcedBlank = 0x80;
+    public const int ForcedBlank = 1 << 7;
 
     /// <summary>INIDISP's fully lit four-bit brightness value.</summary>
-    public const int FullyLit = 0x0f;
+    public const int FullyLit = 15;
 
     /// <summary>Extracts the INIDISP brightness nibble without the forced-blank flag.</summary>
-    private const int BrightnessMask = 0x0f;
+    private const int BrightnessMask = 15;
 
     /// <summary>$0723: dispatches skipped between brightness steps.</summary>
     public ushort Delay { get; private set; }
@@ -77,7 +77,7 @@ public sealed class ScreenFade
     {
         if (ConsumeSlowDelay())
             return false;
-        int next = (inidisp + 1) & 0x1f;
+        int next = (inidisp + 1) & 31;
         if ((sbyte)(next - FullyLit) >= 0)
         {
             inidisp = FullyLit;
@@ -125,8 +125,8 @@ public sealed class ScreenFade
     /// <summary>8-bit STZ $0723 and $0725 on reaching the fade's end.</summary>
     private void ClearSlowTiming()
     {
-        Delay &= 0xff00;
-        Counter &= 0xff00;
+        Delay = (ushort)SnesLittleEndian.HighByteInPlace(Delay);
+        Counter = (ushort)SnesLittleEndian.HighByteInPlace(Counter);
     }
 
     /// <summary>DEC/BMI on the 16-bit counter; returns true when this dispatch only counts down.</summary>

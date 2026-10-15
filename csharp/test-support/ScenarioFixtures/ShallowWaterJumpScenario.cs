@@ -1,8 +1,12 @@
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
+
+namespace SuperMetroid.TestSupport.ScenarioFixtures;
 
 /// <summary>
 /// Issue #1258: an unequipped Samus standing in shallow water holds jump for 60 frames.

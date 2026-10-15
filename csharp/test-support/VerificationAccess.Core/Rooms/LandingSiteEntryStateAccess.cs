@@ -1,7 +1,8 @@
-using SuperMetroid.Core;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+
+namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Verification access to <see cref="LandingSiteEntryState"/> members production does not use.</summary>
 internal static class LandingSiteEntryStateAccess

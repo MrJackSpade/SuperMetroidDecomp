@@ -1,0 +1,20 @@
+namespace SuperMetroid.Core.Enemies.Animals;
+
+/// <summary>Bank-$A7 palette images and selector tables for Dachora enemy $E5FF.</summary>
+public static class DachoraColorRomData
+{
+    /// <summary>Default OBJ palette at $A7:F225.</summary>
+    public const int DefaultSource = 0xa7f225;
+    /// <summary>Four consecutive speed images at $A7:F245..F2C4.</summary>
+    public const int SpeedSource = 0xa7f245;
+    /// <summary>Four consecutive stored-shine images at $A7:F2C5..F344.</summary>
+    public const int ShineSource = 0xa7f2c5;
+    /// <summary>Sixteen RGB5 words in each complete Dachora OBJ palette image.</summary>
+    public const int ColorsPerFrame = 16;
+
+    /// <summary>Four ordered images in each speed or stored-shine palette phase.</summary>
+    public const int AnimatedFrameCount = 4;
+
+    /// <summary>Native byte length of one complete sixteen-color palette image.</summary>
+    public const int FrameByteCount = ColorsPerFrame * sizeof(ushort);
+}

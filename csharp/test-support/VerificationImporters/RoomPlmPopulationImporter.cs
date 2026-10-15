@@ -1,9 +1,10 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.AssetExtraction.Cartridge;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>
 /// Import/reference-only decoding of native PLM placements. The resulting typed

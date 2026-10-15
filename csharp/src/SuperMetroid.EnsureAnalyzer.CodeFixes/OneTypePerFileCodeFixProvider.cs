@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using SuperMetroid.EnsureAnalyzer.SourceLayout;
 
 namespace SuperMetroid.EnsureAnalyzer.CodeFixes;
 

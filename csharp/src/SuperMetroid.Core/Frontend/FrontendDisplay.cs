@@ -1,6 +1,13 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Frontend.CeresCinematics;
 
 namespace SuperMetroid.Core.Frontend;
 

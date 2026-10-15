@@ -1,0 +1,56 @@
+using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Verification.Bosses.Kraid.KraidArmCollisionDefinitionsVerification;
+using static SuperMetroid.Verification.Bosses.Kraid.KraidArmPhysicalFrameMappingsVerification;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+
+namespace SuperMetroid.Verification.Bosses.Kraid;
+
+/// <summary>Checks native callback fields across Kraid's physical arm hitboxes.</summary>
+internal static class KraidArmCallbackMappingsVerification
+{
+    /// <summary>Checks the touch callback selected for every native arm rectangle.</summary>
+    internal static void VerifyKraidArmTouchCallbacks(SuperMetroidAddressSpace rom) =>
+        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false, KraidArmCollisionDefinitions.TouchCallback));
+    /// <summary>Checks the shot callback selected for every native arm rectangle.</summary>
+    internal static void VerifyKraidArmShotCallbacks(SuperMetroidAddressSpace rom) =>
+        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true, KraidArmCollisionDefinitions.ShotCallback));
+
+    /// <summary>Compares 24 compiled callback records with the corresponding ROM hitbox fields and bounds.</summary>
+    private static void VerifyKraidArmCallbackField(SuperMetroidAddressSpace rom, bool shot, Func<int, ushort> calculate)
+    {
+        var selectedLists = new SortedSet<ushort>();
+        foreach (ushort frame in NativeKraidArmPhysicalFrames(rom))
+        {
+            int count = ReadKraidArmInstructionWord(rom, frame);
+            for (int component = 0; component < count; component++)
+                selectedLists.Add(ReadKraidArmInstructionWord(rom, (ushort)(frame + 8 + 8 * component)));
+        }
+        AssertEqual(16, selectedLists.Count, "Native arm selected hitbox lists");
+        int rectangle = 0;
+        foreach (ushort pointer in selectedLists)
+        {
+            int count = ReadKraidArmInstructionWord(rom, pointer);
+            var actual = KraidArmCollisionDefinitions.HitboxesAt(pointer);
+            AssertEqual(count, actual.Length, "Arm rectangle view count");
+            int index = 0;
+            foreach (var box in actual)
+            {
+                AssertEqual(actual[index], box, "Arm rectangle enumeration order");
+                ushort expected = ReadKraidArmInstructionWord(rom, (ushort)(pointer + 2 + 12 * index + (shot ? 10 : 8)));
+                AssertEqual(expected, calculate(rectangle), "Original arm callback field");
+                AssertEqual(expected, shot ? box.ShotAi : box.TouchAi, "Arm callback through rectangle view");
+                index++;
+                rectangle++;
+            }
+            AssertEqual(count, index, "Arm rectangle enumeration ends");
+            AssertTrue(actual.SequenceEqual(Enumerable.Range(0, count).Select(i => actual[i])),
+                "Arm rectangle materialization");
+            AssertThrows<IndexOutOfRangeException>(() => _ = actual[-1], "Negative arm rectangle index");
+            AssertThrows<IndexOutOfRangeException>(() => _ = actual[count], "Past arm rectangle index");
+        }
+        AssertEqual(24, rectangle, "All native arm callback records");
+        AssertThrows<IndexOutOfRangeException>(() => calculate(-1), "Negative callback record");
+        AssertThrows<IndexOutOfRangeException>(() => calculate(24), "Past callback record");
+    }
+}

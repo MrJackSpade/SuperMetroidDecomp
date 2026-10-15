@@ -1,0 +1,8 @@
+﻿namespace SuperMetroid.Core.Rooms.Doors;
+
+/// <summary>Development-tool members of the bank-$83 door headers; never linked by player hosts.</summary>
+internal static class DoorHeaderRomDataTooling
+{
+    /// <summary>SNES bank containing all physical retail door records.</summary>
+    public const int BankAddress = 0x830000;
+}

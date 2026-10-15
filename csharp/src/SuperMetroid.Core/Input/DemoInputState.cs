@@ -82,7 +82,7 @@ public sealed class DemoInputState
     /// <summary>Loads a compiled title-demo header without accessing cartridge memory.</summary>
     public void LoadStockAttractObject(ushort objectPointer)
     {
-        var definition = StockAttractInputPrograms.GetObject(objectPointer);
+        var definition = StockAttractInputProgramsCatalog.GetObject(objectPointer);
         if (definition.Initializer != DemoInputRomData.Routines.NoOp)
             throw UnsupportedRoutine("compiled initializer", definition.Initializer);
         InitializationParameter = objectPointer;
@@ -103,18 +103,18 @@ public sealed class DemoInputState
             ushort cursor = InstructionPointer;
             while (true)
             {
-                var command = StockAttractInputPrograms.GetCommand(cursor);
-                if (command.Kind == StockAttractInputPrograms.Operation.Goto)
+                var command = StockAttractInputProgramsCatalog.GetCommand(cursor);
+                if (command.Kind == StockAttractInputProgramsCatalog.Operation.Goto)
                 {
                     cursor = command.Next;
                     continue;
                 }
-                if (command.Kind == StockAttractInputPrograms.Operation.Delete)
+                if (command.Kind == StockAttractInputProgramsCatalog.Operation.Delete)
                 {
                     InstructionPointer = Held = NewlyPressed = 0;
                     break;
                 }
-                if (command.Kind != StockAttractInputPrograms.Operation.Input)
+                if (command.Kind != StockAttractInputProgramsCatalog.Operation.Input)
                     throw new InvalidDataException("Invalid compiled attract operation.");
                 InstructionTimer = NativeCountdown.FromRaw(command.Duration);
                 Held = (ushort)command.Held;

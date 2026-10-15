@@ -1,0 +1,184 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies.Artwork;
+
+namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+
+/// <summary>Editable live-Shitroid RGB5 images; native timer and fade destinations stay compiled.</summary>
+public sealed class ShitroidColorCatalog
+{
+    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    public string ContentIdentity => SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
+        {
+            Span<Bgr555> selectedSidehopper = stackalloc Bgr555[ShitroidColorRomData.TargetColorCount];
+            for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = sidehopper.Resolve(color);
+            content.AppendColors("sidehopper", selectedSidehopper);
+            Span<Bgr555> selectedShitroid = stackalloc Bgr555[ShitroidColorRomData.TargetColorCount];
+            for (int color = 0; color < selectedShitroid.Length; color++) selectedShitroid[color] = TargetColor(ShitroidColorTarget.Shitroid, color);
+            content.AppendColors("shitroid", selectedShitroid);
+            Span<Bgr555> selectedCorpse = stackalloc Bgr555[ShitroidColorRomData.TargetColorCount];
+            for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = deadSidehopper.Resolve(color);
+            content.AppendColors("deadSidehopper", selectedCorpse);
+            content.Append("normal", ShitroidColorRomData.NormalFrameCount);
+            for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
+            {
+                var row = new Bgr555[ShitroidColorRomData.NormalColorsPerFrame];
+                for (int color = 0; color < row.Length; color++) row[color] = NormalColor(frame, color);
+                content.AppendColors("row", row);
+            }
+        });
+
+    /// <summary>Uses the giant Baby Metroid's selected target inks when they reproduce every pulse frame; otherwise retains the supplied frames.</summary>
+    internal readonly ColorPulse normal;
+    /// <summary>Live victim colors copied into the Sidehopper palette during encounter setup.</summary>
+    internal readonly SidehopperInitialPalette sidehopper;
+    /// <summary>Visible giant Baby Metroid inks, excluding its retained transparent slot.</summary>
+    private readonly BabyMetroidInitialPalette shitroid;
+    /// <summary>$A9:F8E6 is copied by EF9F-EFA8 to target slot A0. Stock3800 is an exact
+    /// transparent-slot compatibility payload: OBJ ink0 is skipped before color lookup.
+    /// It has no visible hue to derive; independently supplied replacements remain exact.</summary>
+    private readonly Bgr555 shitroidTransparentSlot;
+    /// <summary>Victim colors selected after the giant Baby Metroid drains the Sidehopper.</summary>
+    internal readonly SidehopperCorpsePalette deadSidehopper;
+
+    /// <summary>Separates the transparent Shitroid palette word before constructing the visible-ink resolver.</summary>
+    private ShitroidColorCatalog(Bgr555[][] normal, Bgr555[] sidehopper,
+        Bgr555[] shitroid, Bgr555[] deadSidehopper)
+    {
+        this.shitroid = new BabyMetroidInitialPalette(shitroid.AsSpan(1).ToArray());
+        this.normal = new ColorPulse(normal, this.shitroid);
+        this.sidehopper = new(sidehopper);
+        shitroidTransparentSlot = shitroid[0];
+        this.deadSidehopper = new(deadSidehopper);
+    }
+
+    /// <summary>Enforces the installed camel-case schema and rejects unrecognized JSON properties.</summary>
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        WriteIndented = true,
+    };
+
+    /// <summary>Gets a packed RGB5 ink from normal pulse phase 0–7 and ink 0–3, corresponding to $A9:F6D1 and written to CGRAM colors 165–168; phase cadence and cries remain actor behavior.</summary>
+    public Bgr555 NormalColor(int frame, int color) =>
+        (uint)frame < ShitroidColorRomData.NormalFrameCount && (uint)color < ShitroidColorRomData.NormalColorsPerFrame
+            ? normal.Resolve(frame, color)
+            : throw new ArgumentOutOfRangeException(nameof(frame),
+                $"Shitroid normal frame {frame}, color {color} is outside the authored image.");
+
+    /// <summary>Gets packed RGB5 color 0–15 from a selected initialization target, including its retained transparent-slot word; the actor copies targets to its palette image and current CGRAM during setup.</summary>
+    public Bgr555 TargetColor(ShitroidColorTarget target, int color)
+    {
+        if (target == ShitroidColorTarget.Shitroid)
+        {
+            if ((uint)color >= ShitroidColorRomData.TargetColorCount) throw new ArgumentOutOfRangeException(nameof(color));
+            return color == 0 ? shitroidTransparentSlot : shitroid.Resolve(color - 1);
+        }
+        if (target == ShitroidColorTarget.Sidehopper) return sidehopper.Resolve(color);
+        return target == ShitroidColorTarget.DeadSidehopper ? deadSidehopper.Resolve(color) :
+            throw new ArgumentOutOfRangeException(nameof(target));
+    }
+
+    /// <summary>Loads <c>shitroid-colors.json</c>, requiring version 1, eight four-color pulse frames, three sixteen-color targets, and RGB5 channels from 0 through 31.</summary>
+    /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
+    /// <returns>Compiled colors retaining independently edited frames and targets exactly, sharing the calculated stock pulse only when all samples agree.</returns>
+    public static ShitroidColorCatalog Load(Stream json)
+    {
+        Ensure.NotNull(json);
+        ShitroidColorDocument document;
+        try
+        {
+            using JsonDocument parsed = JsonDocument.Parse(json);
+            RejectDuplicates(parsed.RootElement);
+            document = parsed.RootElement.Deserialize<ShitroidColorDocument>(JsonOptions) ??
+                throw new InvalidDataException("Shitroid color JSON is null.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException("Invalid Shitroid color JSON.", error);
+        }
+        if (document.Version != ShitroidColorFormat.Version)
+            throw new InvalidDataException("Shitroid colors require the supported version.");
+        if (document.Normal is null ||
+            document.Normal.Length != ShitroidColorRomData.NormalFrameCount)
+            throw new InvalidDataException("Shitroid normal cycle requires eight frames.");
+        return new(document.Normal.Select((frame, index) =>
+                Compile(frame, ShitroidColorRomData.NormalColorsPerFrame,
+                    $"normal frame {index}")).ToArray(),
+            Compile(document.Sidehopper, ShitroidColorRomData.TargetColorCount, "sidehopper"),
+            Compile(document.Shitroid, ShitroidColorRomData.TargetColorCount, "Shitroid"),
+            Compile(document.DeadSidehopper, ShitroidColorRomData.TargetColorCount,
+                "dead sidehopper"));
+    }
+
+    /// <summary>Serializes the editable color document as indented camel-case UTF-8 JSON and validates the serialized schema, dimensions, and channel bounds before returning it.</summary>
+    public static byte[] Write(ShitroidColorDocument document)
+    {
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
+        _ = Load(new MemoryStream(bytes, writable: false));
+        return bytes;
+    }
+
+    /// <summary>Checks one authored color row for its required length and RGB5 channel range before packing it.</summary>
+    private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name)
+    {
+        if (source is null || source.Length != required)
+            throw new InvalidDataException($"Shitroid {name} requires {required} RGB5 colors.");
+        var compiled = new Bgr555[required];
+        for (int color = 0; color < required; color++)
+        {
+            PaletteRgb5? rgb = source[color];
+            if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 ||
+                (uint)rgb.Blue > 31)
+                throw new InvalidDataException(
+                    $"Shitroid {name} color {color} requires RGB5 channels 0..31.");
+            compiled[color] = rgb.ToBgr555();
+        }
+        return compiled;
+    }
+
+    /// <summary>Shares the target's symmetric dimming curve only when it matches all eight supplied pulse phases.</summary>
+    internal sealed class ColorPulse
+    {
+        /// <summary>Visible target inks used to calculate the native pulse when the editable rows agree.</summary>
+        private readonly BabyMetroidInitialPalette target;
+        /// <summary>Independent pulse rows retained when an edited frame differs from the calculated curve.</summary>
+        internal readonly Bgr555[][]? supplied;
+
+        /// <summary>Compares each supplied ink with the target-derived pulse before deciding whether rows can be shared.</summary>
+        public ColorPulse(Bgr555[][] frames, BabyMetroidInitialPalette target)
+        {
+            this.target = target;
+            // Sharing the target's innard colors is valid only when every supplied
+            // pulse sample agrees. Independently edited targets or frames stay exact.
+            for (int frame = 0; frame < frames.Length; frame++)
+            for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
+                if (Resolve(frame, color) != frames[frame][color])
+                { supplied = frames; return; }
+        }
+
+        /// <summary>Uses the supplied ink or mirrors the eight-phase dimming curve around its two darkest phases, retaining the organ's red floor.</summary>
+        public Bgr555 Resolve(int frame, int color)
+        {
+            if (supplied is not null) return supplied[frame][color];
+            int phase = Math.Min(frame, ShitroidColorRomData.NormalFrameCount - 1 - frame);
+            Bgr555 paint = target.Resolve(ShitroidColorRomData.NormalFirstInitialColor + color);
+            return paint.Map((channel, origin) =>
+            {
+                int floor = 0;
+                if (channel == ColorChannel.Red)
+                {
+                    floor = ShitroidColorRomData.NormalOrganRedFloor;
+                    if (origin == 31) origin += ShitroidColorRomData.NormalOrganRedHeadroom;
+                }
+                return Math.Clamp(origin - ShitroidColorRomData.NormalOrganDimmingStep * phase, floor, 31);
+            });
+        }
+    }
+    /// <summary>Rejects repeated property names before deserialization can silently replace an authored color row.</summary>
+    private static void RejectDuplicates(JsonElement value) =>
+        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
+            name => new InvalidDataException($"Duplicate Shitroid color property {name}."));
+}

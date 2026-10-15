@@ -1,10 +1,12 @@
 ﻿using SuperMetroid.Core;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.TestSupport.RoomHeaderImport;
 
 /// <summary>Reads native bank-$8F room records for import and cartridge-reference checks.</summary>
 [CpuBusBoundary("codec: ROM bank-$8F room header and state-selection records → CartridgeRoomHeader")]

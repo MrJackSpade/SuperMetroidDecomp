@@ -1,0 +1,589 @@
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Samus.Abilities;
+namespace SuperMetroid.Core.Samus.Palettes;
+
+/// <summary>Immutable cartridge data and fixed hardware layout shared by Samus palettes.</summary>
+/// <remarks>
+/// Palette state machines retain their mutable timers and phase transitions. This catalog
+/// names the ROM tables, object-program words, CGRAM ranges, and fixed-color endpoints those
+/// machines consume, so a hexadecimal address never masquerades as gameplay behavior.
+/// </remarks>
+public static class SamusPaletteRomData
+{
+    /// <summary>Native banks containing Samus palette pointers, colors, and FX programs.</summary>
+    public static class Banks
+    {
+        /// <summary>Bank <c>$9B</c>, which owns Samus BGR555 color data.</summary>
+        public const int Palette = 0x9b0000;
+        /// <summary>Bank <c>$8D</c>, which owns generic palette-FX programs.</summary>
+        public const int PaletteFx = 0x8d0000;
+    }
+
+    /// <summary>Shared full-body OBJ palette layout and suit selection table.</summary>
+    public static class Common
+    {
+        /// <summary>Native $91:D727 Power/Varia/Gravity pointer selected by a byte offset.</summary>
+        /// <remarks>
+        /// The three pinned cartridge words are $9400, $9520, and $9800. Every
+        /// ordinary suit selector produces byte offset 0, 2, or 4, with Gravity
+        /// taking priority when both suit bits are equipped. Named suit cases
+        /// resolve their native palette identities directly.
+        /// </remarks>
+        public static ushort NormalSuitPalettePointer(ushort byteOffset) => byteOffset switch
+        {
+            0 => 0x9400,
+            2 => 0x9520,
+            4 => 0x9800,
+            _ => throw new ArgumentOutOfRangeException(nameof(byteOffset)),
+        };
+        /// <summary>First CGRAM color of Samus OBJ palette four.</summary>
+        public const int SamusObjPaletteStart = 192;
+        /// <summary>First CGRAM color of suitless Samus OBJ palette seven.</summary>
+        public const int SuitlessObjPaletteStart = 240;
+        /// <summary>Number of colors in one complete SNES palette.</summary>
+        public const int ColorsPerObjPalette = 16;
+        /// <summary>Samus-palette-relative visor color index.</summary>
+        public const int VisorColorOffset = 4;
+    }
+
+    /// <summary>Ordinary damage-flash and intro-restoration palettes.</summary>
+    public static class HurtFlash
+    {
+        /// <summary><c>$9B:A380</c>, the sixteen-color hurt-flash palette.</summary>
+        /// <remarks>
+        /// Issue #863 / #625: the pinned NTSC J/U v1.0 ROM's sixteen BGR555
+        /// words are copied unchanged to Samus OBJ CGRAM 192..207 on odd
+        /// hurt-counter calls 1, 3, and 5. Color zero is <c>$0000</c>. For
+        /// each color index <c>c=1..15</c> and each five-bit channel <c>q</c>,
+        /// <c>q(hurt[c]) = floor((2*q(intro[c]) + 5*31)/7)</c>, where
+        /// <c>intro</c> is the adjacent palette at <c>$9B:A3A0</c>.
+        /// This bounded 5/7 blend toward white matches all sixteen ROM words
+        /// exactly. The corresponding installed color payload still requires
+        /// conversion; this address member grants no retention disposition.
+        /// </remarks>
+        public const int Colors = 0x9ba380;
+        /// <summary><c>$9B:A3A0</c>, the sixteen-color cinematic Samus palette.</summary>
+        /// <remarks>
+        /// Issue #864 / #625: all sixteen BGR555 words match the pinned NTSC
+        /// J/U v1.0 ROM and native bank-$9B listing. Color zero is
+        /// <c>$3800</c>; the remaining positions select seven authored grey
+        /// shades with red = green = <c>4,8,13,18,22,27,31</c>. Blue equals
+        /// red minus two except at the darkest shade, where all channels are
+        /// four. Slot-to-shade selection and the base shade payload still require
+        /// conversion or concrete impossible/nonsense evidence. The hurt palette
+        /// (#863) is an exact forward blend from these colors; that relation does
+        /// not by itself resolve the independent intro palette.
+        /// Production copies indices 0..15 unchanged to Samus OBJ CGRAM
+        /// 192..207 on cinematic hurt-counter calls 2, 4, and 6.
+        /// </remarks>
+        public const int IntroColors = 0x9ba3a0;
+    }
+
+    /// <summary>Shared visor colors used by room animation and the X-ray Scope.</summary>
+    public static class Visor
+    {
+        /// <summary><c>$9B:A3C0</c>, six widening/cycling visor colors.</summary>
+        /// <remarks>
+        /// Issue #865 / #625: all six BGR555 words match the pinned NTSC J/U
+        /// v1.0 ROM. For widening index <c>k=0..2</c>, each five-bit channel
+        /// is <c>floor(((2-k)*q($3BE0) + k*31 + 1)/2)</c>, yielding
+        /// <c>$3BE0,$5FF0,$7FFF</c>. For full-beam index <c>k=0..2</c>,
+        /// each channel is <c>q($43FF)-5*k</c>, yielding
+        /// <c>$43FF,$2F5A,$1AB5</c>. X-ray reads even byte offsets
+        /// 0, 2, 4 while widening and 6, 8, 10 while fully open; room visor
+        /// animation cycles the latter three. Both write OBJ CGRAM color 196.
+        /// An externally edited packed timer/index can cause a raw bus read
+        /// outside these six words; this formula describes only the ordinary
+        /// bounded offsets and does not invent adjacent values.
+        /// </remarks>
+        public const int Colors = 0x9ba3c0;
+        /// <summary>Packed offset-six/timer-one reset used outside animated rooms.</summary>
+        public const ushort NormalRoomReset = 0x0601;
+        /// <summary>Timer reloaded after one visor color is copied.</summary>
+        public const ushort FrameDelay = 5;
+        /// <summary>First byte offset in the three-color steady visor cycle.</summary>
+        public const byte CycleFirstByteOffset = 6;
+        /// <summary>Exclusive byte offset ending the three-color steady visor cycle.</summary>
+        public const byte CycleEndByteOffset = 12;
+    }
+
+    /// <summary>Pointer tables used by special full-body palette handlers.</summary>
+    public static class FullBodyCycles
+    {
+        /// <summary>Native $91:D998 Power/Varia/Gravity Speed Booster palette pointer.</summary>
+        public static ushort SpeedBoostPalettePointer(ushort byteOffset) => byteOffset switch
+        {
+            0 => 0x9b80,
+            2 => 0x9d80,
+            4 => 0x9f80,
+            _ => throw new ArgumentOutOfRangeException(nameof(byteOffset)),
+        };
+        /// <summary>First contiguous Screw Attack suit list at $91:DA50.</summary>
+        public const ushort ScrewAttackFirstList = 0xda50;
+        /// <summary>First Power Suit Screw Attack shade at $9B:9CA0.</summary>
+        public const ushort ScrewAttackFirstPalette = 0x9ca0;
+        /// <summary>
+        /// Resolves the bounded $91:DA4A/$91:DA50 Screw Attack suit and phase lists
+        /// to a bank-$9B palette pointer. Returns false for non-catalog indexes so
+        /// corrupted-state callers may retain native adjacent-data reads.
+        /// </summary>
+        public static bool TryScrewAttackPalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
+            TryPalettePointer(suitByteOffset, phaseByteOffset, 10, ScrewAttackFirstPalette,
+                pingPong: true, out pointer);
+
+        /// <summary>
+        /// Reads a word from the complete compiled three-suit Screw Attack pointer
+        /// allocation, including odd-byte and next-suit reads caused by a restored phase.
+        /// Addresses outside the proven list allocation are not treated as ROM data.
+        /// </summary>
+        public static ushort ReadScrewAttackPalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset) =>
+            ReadCompiledListWord(suitByteOffset, phaseByteOffset,
+                firstListAddress: ScrewAttackFirstList, phaseCount: 6,
+                firstPalette: ScrewAttackFirstPalette,
+                pingPong: true);
+        /// <summary>First contiguous active Speed Booster suit list at $91:DAAF.</summary>
+        public const ushort SpeedBoosterFirstList = 0xdaaf;
+        /// <summary>First Power Suit active Speed Booster shade at $9B:9B20.</summary>
+        public const ushort SpeedBoosterFirstPalette = 0x9b20;
+        /// <summary>
+        /// Resolves the bounded $91:DAA9/$91:DAAF active Speed Booster suit
+        /// and phase lists to a bank-$9B palette pointer.
+        /// </summary>
+        public static bool TryActiveSpeedBoosterPalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
+            TryPalettePointer(suitByteOffset, phaseByteOffset, 6, SpeedBoosterFirstPalette,
+                pingPong: false, out pointer);
+
+        /// <summary>
+        /// Reads a word from the complete compiled three-suit active Speed Booster
+        /// pointer allocation, including bounded adjacent-list and odd-byte reads.
+        /// Gravity phases eight and ten additionally retain the instruction-data
+        /// overruns inherited from the shared Screw Attack phase word.
+        /// </summary>
+        public static ushort ReadActiveSpeedBoosterPalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset) =>
+            (suitByteOffset, phaseByteOffset) switch
+            {
+                (4, 8) => (ushort)SpeedBoosterPaletteOverrun.Expansion,
+                (4, 10) => (ushort)SpeedBoosterPaletteOverrun.GrappleCode,
+                _ => ReadCompiledListWord(suitByteOffset, phaseByteOffset,
+                    firstListAddress: SpeedBoosterFirstList, phaseCount: 4,
+                    firstPalette: SpeedBoosterFirstPalette, pingPong: false),
+            };
+        /// <summary>
+        /// Resolves the bounded $91:DB10/$91:DB16 stored-shine suit and
+        /// phase lists to a bank-$9B palette pointer.
+        /// </summary>
+        public static bool TryStoredShinePalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
+            TryPalettePointer(suitByteOffset, phaseByteOffset, 10, 0x9ba0,
+                pingPong: true, out pointer);
+        /// <summary>
+        /// Resolves the bounded $91:DB75/$91:DB7B active-shinespark suit
+        /// and phase lists to a bank-$9B palette pointer.
+        /// </summary>
+        public static bool TryActiveShinesparkPalettePointer(
+            ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
+            TryPalettePointer(suitByteOffset, phaseByteOffset, 6, 0x9c20,
+                pingPong: false, out pointer);
+
+        /// <summary>
+        /// Resolves a valid suit/phase pair to a bank-$9B palette, mirroring later phases
+        /// back toward the first shade for stored shine.
+        /// </summary>
+        private static bool TryPalettePointer(
+            ushort suitByteOffset,
+            ushort phaseByteOffset,
+            ushort lastPhaseByteOffset,
+            int firstPalette,
+            bool pingPong,
+            out ushort pointer)
+        {
+            if (suitByteOffset > 4 || (suitByteOffset & 1) != 0 ||
+                phaseByteOffset > lastPhaseByteOffset || (phaseByteOffset & 1) != 0)
+            {
+                pointer = 0;
+                return false;
+            }
+
+            int phase = phaseByteOffset / 2;
+            int shade = pingPong ? Math.Min(phase, 6 - phase) : phase;
+            pointer = checked((ushort)(firstPalette + suitByteOffset * 0x100 + shade * 0x20));
+            return true;
+        }
+
+        /// <summary>
+        /// Reads the selected full-body palette-list word after native 16-bit phase-offset wrap;
+        /// rejects reads outside the contiguous three-suit compiled allocation.
+        /// </summary>
+        private static ushort ReadCompiledListWord(
+            ushort suitByteOffset,
+            ushort phaseByteOffset,
+            ushort firstListAddress,
+            int phaseCount,
+            int firstPalette,
+            bool pingPong)
+        {
+            if (suitByteOffset > 4 || (suitByteOffset & 1) != 0)
+                throw new ArgumentOutOfRangeException(nameof(suitByteOffset));
+
+            // The native two-level lookup adds the full 16-bit phase word to the
+            // selected list pointer. Apply that wrap before testing whether both
+            // bytes remain inside the compiled contiguous three-suit allocation.
+            ushort selectedList = checked((ushort)(firstListAddress +
+                suitByteOffset / 2 * phaseCount * sizeof(ushort)));
+            ushort readAddress = unchecked((ushort)(selectedList + phaseByteOffset));
+            int byteOffset = readAddress - firstListAddress;
+            int byteCount = 3 * phaseCount * sizeof(ushort);
+            if (byteOffset < 0 || byteOffset + 1 >= byteCount)
+                throw new InvalidDataException(
+                    $"Full-body palette pointer read ${readAddress:X4} is outside the compiled list allocation.");
+
+            return SnesLittleEndian.Word(ReadByte(byteOffset), ReadByte(byteOffset + 1));
+
+            byte ReadByte(int index)
+            {
+                int wordIndex = index / sizeof(ushort);
+                int suit = wordIndex / phaseCount;
+                int phase = wordIndex % phaseCount;
+                int shade = pingPong ? Math.Min(phase, 6 - phase) : phase;
+                ushort pointer = checked((ushort)(firstPalette + suit * 0x200 + shade * 0x20));
+                return (index & 1) == 0 ? (byte)pointer : SnesLittleEndian.HighByte(pointer);
+            }
+        }
+        /// <summary>Number of full-body Hyper Beam palettes.</summary>
+        public const int HyperBeamPaletteCount = 10;
+        /// <summary>Bank-$9B source of the first sixteen-color Hyper Beam frame, $9B:A360.</summary>
+        public const int HyperBeamFirstPalette = 0x9ba360;
+        /// <summary>Byte distance between descending Hyper Beam frames in the authored table.</summary>
+        public const int HyperBeamPaletteStride = 0x20;
+
+        /// <summary>Resolves the ten bounded authored palette sources selected by $91:D99E.</summary>
+        public static int HyperBeamPaletteSource(int frame) => (uint)frame < HyperBeamPaletteCount
+            ? HyperBeamFirstPalette - frame * HyperBeamPaletteStride
+            : throw new ArgumentOutOfRangeException(nameof(frame));
+    }
+
+    /// <summary>Bank-$8D palette object spawned with the Hyper Beam.</summary>
+    public static class HyperBeamFx
+    {
+        /// <summary><c>$8D:E1F0</c>, two-word Hyper Beam palette-FX definition.</summary>
+        /// <remarks>
+        /// Issue #887 / #625: the pinned NTSC J/U v1.0 ROM stores
+        /// <c>$C685,$D900</c> here, selecting the no-op setup and
+        /// bank-$8D program. Its entry at <c>$D900</c> is
+        /// <c>$C655,$01C2</c>. Ten records start at
+        /// <c>$D904+20*i</c>, <c>i=0..9</c>; every duration is two,
+        /// every terminator at record offset eighteen is
+        /// <c>$C595</c>, and the terminal <c>$D9CC</c> command is
+        /// <c>$C61E,$D904</c>. All 26 control words match the pinned
+        /// ROM and native bank-$8D listing. The compiled resolver
+        /// accepts only entry, aligned records, and terminal loop;
+        /// it rejects adjacent or unaligned restored pointers.
+        /// The caller loads eight live color words at record offset
+        /// two into OBJ palette six, color one, displays each record
+        /// for two handler calls, and loops after record nine.
+        /// Color payloads are a separate authored table.
+        /// </remarks>
+        public const int ObjectDefinition = 0x8de1f0;
+        /// <summary>Expected no-op setup callback in the object definition.</summary>
+        public const PaletteFxSetup SetupCallback = PaletteFxSetup.Null;
+        /// <summary>Palette-buffer byte index selecting OBJ palette six, color one.</summary>
+        public const ushort DestinationByteIndex = 0x01c2;
+    }
+
+    /// <summary>Palette tables consumed by the fatal-damage sequence.</summary>
+    public static class Death
+    {
+        /// <summary><c>$9B:B7D3</c>, three families of ten suited palette pointers.</summary>
+        /// <remarks>
+        /// Issue #889 / #625: all thirty little-endian words at
+        /// <c>$9B:B7D3..B80E</c> match the pinned NTSC J/U v1.0 ROM
+        /// and native bank-$9B listing. For suit <c>s=0..2</c> and
+        /// palette index <c>k=0..9</c>, index zero points to
+        /// <c>$9820+$0100*s</c>, index one to the shared yellow flash
+        /// at <c>$9420</c>, indices two through eight to
+        /// <c>$9820+$0100*s+$0020*(k-1)</c>, and index nine to the
+        /// shared final palette at <c>$A220</c>. The caller selects
+        /// Power, Varia, or Gravity with native suit offsets
+        /// <c>0,2,4</c> (Gravity priority), indexes zero/one during
+        /// flashing and zero/two through nine during explosion, then
+        /// copies all sixteen target colors. This formula describes
+        /// pointers; the target palettes remain separate data.
+        ///
+        /// Issue #894 / #625: all 128 Power Suit BGR555 words in
+        /// eight death/beam-charge rows at <c>$9B:9820..991F</c>
+        /// match the pinned ROM and native bank-$9B listing. For
+        /// frame <c>f=0..7</c> and color <c>c=0..15</c>, take each
+        /// five-bit component <c>b</c> from the authored first row
+        /// at <c>$9820</c>; the corresponding component is exactly
+        /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison found
+        /// zero mismatches across all 128 words. Pointer index zero
+        /// selects frame zero and indices two through eight select
+        /// frames one through seven. Issue1165 implements this shared fade in
+        /// SamusPaletteFade for both charge and death. Base-input review remains separate.
+        ///
+        /// Issue #895 / #625: all 128 Varia Suit BGR555 words in
+        /// eight death/beam-charge rows at <c>$9B:9920..9A1F</c>
+        /// match the pinned ROM and native bank-$9B listing. For
+        /// frame <c>f=0..7</c>, each five-bit component <c>b</c> from
+        /// the authored first row at <c>$9920</c> becomes exactly
+        /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison of all
+        /// 128 words found zero mismatches. Pointer index zero selects
+        /// frame zero and indices two through eight select frames
+        /// one through seven; the first four frames are also used
+        /// for beam charging, and alternate rows feed stored shine.
+        /// The base row remains authored presentation data.
+        ///
+        /// Issue #896 / #625: all 128 Gravity Suit BGR555 words in
+        /// eight death/beam-charge rows at <c>$9B:9A20..9B1F</c>
+        /// match the pinned ROM and native bank-$9B listing. For
+        /// frame <c>f=0..7</c>, each five-bit component <c>b</c> from
+        /// the authored first row at <c>$9A20</c> becomes exactly
+        /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison of all
+        /// 128 words found zero mismatches, including the distinct
+        /// Gravity source colors.
+        /// Pointer index zero selects frame zero and indices two
+        /// through eight select frames one through seven. The first
+        /// four rows also serve beam charging; alternate rows feed
+        /// stored shine. The base row remains authored data.
+        ///
+        /// Issue #898 / #625: the shared yellow-flash palette at
+        /// <c>$9B:9420..943F</c> contains exactly sixteen
+        /// <c>$03FF</c> BGR555 words in the pinned ROM/native listing.
+        /// Suited pointer index one selects it for Power, Varia, and
+        /// Gravity while the death flash alternates with index zero.
+        /// The suitless pointer at index one instead repeats its
+        /// ordinary first row at <c>$A120</c>. The uniform yellow
+        /// row needs no per-color authored exceptions.
+        /// </remarks>
+        public const int SuitPointers = 0x9bb7d3;
+        /// <summary><c>$9B:B80F</c>, ten suitless palette pointers.</summary>
+        /// <remarks>
+        /// Issue #890 / #625: all ten little-endian words at
+        /// <c>$9B:B80F..B822</c> match the pinned NTSC J/U v1.0 ROM
+        /// and native bank-$9B listing. For palette index
+        /// <c>k=0..9</c>, the pointer is exactly
+        /// <c>$A120+$0020*max(0,k-1)</c>: indices zero and one
+        /// share the first suitless row, while index nine selects
+        /// <c>$A220</c>, also the suited table's final palette.
+        /// The death caller reaches zero/one during flashing and
+        /// zero/two through nine during explosion and copies all
+        /// sixteen colors to suitless OBJ palette seven. Target
+        /// colors remain separate authored data.
+        ///
+        /// Issue #897 / #625: all 128 suitless Samus BGR555 words in
+        /// eight death rows at <c>$9B:A120..A21F</c> match the pinned
+        /// ROM and native bank-$9B listing. For frame <c>f=0..7</c>,
+        /// each five-bit component <c>b</c> from the authored first
+        /// row at <c>$A120</c> becomes exactly
+        /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison found
+        /// zero mismatches; color five stays <c>$7FFF</c> in every
+        /// frame. Pointer indices zero and one both select frame
+        /// zero, and indices two through eight select frames one
+        /// through seven. The death setup also directly copies
+        /// frame zero to suitless OBJ palette seven. The base row
+        /// remains authored presentation data.
+        ///
+        /// Issue #899 / #625: the final shared palette at
+        /// <c>$9B:A220..A23F</c> contains exactly sixteen
+        /// <c>$77BD</c> BGR555 words in the pinned ROM/native listing,
+        /// a uniform grayscale level of 29 on each five-bit channel.
+        /// Palette index nine in all three suited pointer families
+        /// and the suitless list aliases this same physical row.
+        /// Explosion record eight selects index nine with its
+        /// eighty-call duration before the terminal full-screen
+        /// whiteout; no separate final colors are authored by suit.
+        /// </remarks>
+        public const int SuitlessPointers = 0x9bb80f;
+        /// <summary><c>$9B:B823</c>, nine interleaved timer/palette-index records.</summary>
+        /// <remarks>
+        /// Issue #891 / #625: the nine timer bytes at even offsets
+        /// match the pinned NTSC J/U v1.0 ROM and native bank-$9B
+        /// listing: <c>21,6,3,4,5,5,6,6,80</c> for explosion index
+        /// <c>0..8</c>. Issue1165 traces these countdowns to the nine fixed
+        /// right/left drawings selected at $92:EDBE, all at the captured position.
+        /// The 21-call entry delay, seven individual drawing dwell times, and
+        /// 80-call final hold specify this cinematic's chosen timing. No motion,
+        /// distance or measured-brightness quantity determines those durations;
+        /// inventing such a relationship would replace the intended drawing rhythm.
+        /// This is the concrete animation/nonsense case documented on
+        /// SamusDeathExplosionTimingDefinitions, not an exemption for authored data
+        /// in general. Only the nine timer bytes receive that disposition.
+        /// The caller decrements
+        /// the active timer before advancing, loads the next duration
+        /// only for indices below nine, and terminates without a tenth
+        /// explosion frame. Odd-offset palette-selector bytes are a
+        /// separate mapping, calculated by the death artwork catalog under1165
+        /// with independently supplied asset overrides.
+        ///
+        /// Issue #892 / #625: the nine odd-offset selector bytes
+        /// match the pinned ROM/native listing and are exactly
+        /// <c>0</c> for explosion index zero and <c>i+1</c> for
+        /// <c>i=1..8</c>, yielding <c>0,2,3,4,5,6,7,8,9</c>.
+        /// The caller installs palette zero directly at explosion
+        /// entry, then reads byte offset <c>2*i+1</c> only for
+        /// <c>i=1..8</c>. Each result indexes both bounded ten-word
+        /// suited and suitless pointer lists. The selector is a byte
+        /// immediately following its timer, not an aligned word read.
+        /// </remarks>
+        public const int ExplosionTimingAndPaletteIndices = 0x9bb823;
+        /// <summary><c>$9B:B835</c>, 22 grayscale whiteout shades ending at white.</summary>
+        /// <remarks>
+        /// Issue #893 / #625: all 22 little-endian words at
+        /// <c>$9B:B835..B860</c> match the pinned NTSC J/U v1.0 ROM
+        /// and native bank-$9B listing. Each BGR555 word is
+        /// <c>$0421*level(i)</c> for index <c>i=0..21</c>, where
+        /// <c>level=2*i+1</c> for <c>i=0..6</c>, <c>16</c> at
+        /// <c>i=7</c>, and <c>i+10</c> for <c>i=8..21</c>.
+        /// This yields grayscale levels
+        /// <c>1,3,5,7,9,11,13,16,18..31</c> exactly, including
+        /// the skipped levels. The caller suppresses whiteout for
+        /// explosion index zero, reads shade indices 0..20 during
+        /// later frames, then explicitly reads index 21 to finish
+        /// at <c>$7FFF</c>; it excludes both Samus OBJ palettes.
+        /// </remarks>
+        public const int WhiteoutShades = 0x9bb835;
+        /// <summary>Number of suited and suitless explosion palette variants.</summary>
+        public const int PaletteCount = 10;
+        /// <summary>Number of shades in the inclusive whiteout ramp.</summary>
+        public const int WhiteoutShadeCount = 22;
+    }
+
+    /// <summary>Two independently timed palette streams used by Crystal Flash.</summary>
+    /// <remarks>
+    /// The stock bank-$9B body colors are six ten-word subrows at
+    /// <c>$96C0 + $20*r</c>, <c>r = 0..5</c>. Color zero is always
+    /// <c>$3800</c>; colors 1..9 in each subrow are the same grayscale word
+    /// <c>$0421 * (16 + floor(11*min(r,6-r)/3))</c>. This yields channel
+    /// levels 16, 19, 23, 27, 23, 19 and matches all 60 words in the
+    /// pinned NTSC J/U v1.0 ROM. The body pointer program selects rows
+    /// 0,1,2,3,4,5,4,3,2,1 and copies only ten colors per transition;
+    /// the following six bubble colors have a separate cursor and timer.
+    /// Keep both streams live for ROM-backed presentation. Body-color
+    /// investigation: #625 / #902.
+    /// The six bubble colors per row start at <c>$96D4 + $20*r</c>.
+    /// For bubble color <c>c = 0..5</c>, let
+    /// <c>k = (c-r+6)%6</c> and <c>q = k + (k &gt;= 3 ? 1 : 0)</c>.
+    /// The stock BGR555 word is <c>$7FFF - $0420*q</c>, except
+    /// <c>r = 5, c = 0</c> is <c>$7FFF</c> rather than <c>$7BDF</c>.
+    /// All 36 words, including that authored exception, match the pinned
+    /// ROM and native listing. The bubble cursor visits rows 0..5 and wraps
+    /// independently of the body records. Bubble-color investigation:
+    /// #625 / #903.
+    /// </remarks>
+    public static class CrystalFlash
+    {
+        /// <summary><c>$91:DC00</c>, ten body-palette pointer/timer records.</summary>
+        /// <remarks>
+        /// The stock bank-$9B pointers at four-byte record offsets are exactly
+        /// <c>$96C0 + $20 * (i &lt;= 5 ? i : 10 - i)</c> for record index
+        /// <c>i = 0..9</c>; all ten match the pinned NTSC J/U v1.0 ROM.
+        /// Keep the pointer words as live presentation data so installed
+        /// palette content can select its authored colours. The adjacent
+        /// duration words are compiled separately. Investigation: #625 / #669.
+        /// </remarks>
+        public const int BodyRecords = 0x91dc00;
+        /// <summary><c>$91:DC28</c>, six bubble-palette pointers.</summary>
+        /// <remarks>
+        /// The six stock bank-$9B pointers are exactly
+        /// <c>$96D4 + $20 * i</c> for even byte offsets <c>2*i</c>,
+        /// <c>i = 0..5</c>; all match the pinned NTSC J/U v1.0 ROM.
+        /// The next word at <c>$91:DC34</c> is instruction bytes, not a
+        /// seventh pointer. Keep the six words as live presentation data for
+        /// installed palettes; the bubble cursor wraps at byte offset 12.
+        /// Investigation: #625 / #670.
+        /// </remarks>
+        public const int BubblePointers = 0x91dc28;
+        /// <summary>Number of Crystal Flash body records.</summary>
+        public const int BodyRecordCount = 10;
+        /// <summary>Bytes occupied by one body pointer/timer record.</summary>
+        public const int BodyRecordByteCount = 4;
+        /// <summary>Number of bubble palette pointers.</summary>
+        public const int BubblePaletteCount = 6;
+        /// <summary>Number of colors copied for the body portion.</summary>
+        public const int BodyColorCount = 10;
+        /// <summary>Number of colors copied for the bubble portion.</summary>
+        public const int BubbleColorCount = 6;
+        /// <summary>First CGRAM color of OBJ palette six.</summary>
+        public const int BodyCgramStart = 0xe0;
+        /// <summary>First CGRAM color of the bubble portion in OBJ palette six.</summary>
+        public const int BubbleCgramStart = 0xea;
+    }
+
+    /// <summary>Raw COLDATA endpoints used by the shared Varia/Gravity pickup sequence.</summary>
+    public static class SuitPickup
+    {
+        /// <summary>Initial red byte shared by both transformations.</summary>
+        public const byte InitialRed = 48;
+        /// <summary>Initial/terminal Varia green byte.</summary>
+        public const byte VariaGreen = 80;
+        /// <summary>Initial/terminal Gravity green byte.</summary>
+        public const byte GravityGreen = 73;
+        /// <summary>Initial Varia blue component-enable byte.</summary>
+        public const byte VariaBlue = 0x80;
+        /// <summary>Initial/terminal Gravity blue component-enable byte.</summary>
+        public const byte GravityBlue = 0x90;
+        /// <summary>White-ramp red endpoint.</summary>
+        public const byte WhiteRed = 63;
+        /// <summary>White-ramp green endpoint.</summary>
+        public const byte WhiteGreen = 95;
+        /// <summary>White-ramp blue endpoint including component enable.</summary>
+        public const byte WhiteBlue = 0x9f;
+        /// <summary>Varia orange-ramp green endpoint.</summary>
+        public const byte VariaOrangeGreen = 77;
+        /// <summary>Varia orange-ramp blue endpoint including component enable.</summary>
+        public const byte VariaOrangeBlue = 0x83;
+        /// <summary>Final fixed-color register reset red byte.</summary>
+        public const byte ResetRed = 32;
+        /// <summary>Final fixed-color register reset green byte.</summary>
+        public const byte ResetGreen = 64;
+        /// <summary>Final fixed-color register reset blue byte.</summary>
+        public const byte ResetBlue = 0x80;
+    }
+
+    /// <summary>Fixed-color tables used by Power Bomb and Crystal Flash HDMA.</summary>
+    public static class PowerBomb
+    {
+        /// <summary><c>$88:9079</c>, sixteen RGB triplets for the pre-explosion.</summary>
+        /// <remarks>
+        /// For radius-derived index <c>i = 0..15</c>, stock red and green
+        /// are both 16 at zero, <c>2*i+2</c> at 1..12, and
+        /// <c>50-2*i</c> at 13..15. Blue is 16 at zero, the same as red
+        /// at 1..5, 10 at 6, 8 at 7..11, 10 at 12, and
+        /// <c>34-2*i</c> at 13..15. All 48 five-bit payload bytes match
+        /// the pinned NTSC J/U v1.0 ROM and native listing. The caller
+        /// indexes by <c>(radius &gt;&gt; 11) &amp; $0F</c>, then reads R/G/B
+        /// in order; the following <c>$88:90A9</c> bytes form another table.
+        /// Target-color ownership and conversion are reviewed separately from this address. Investigation: #625 / #904.
+        /// </remarks>
+        public const int PreExplosionColors = 0x889079;
+        /// <summary><c>$88:8D85</c>, radius-indexed RGB triplets for the explosion.</summary>
+        /// <remarks>
+        /// The 32 stock R/G/B triplets occupy <c>$88:8D85..8DE4</c> and
+        /// match all 96 bytes in the pinned NTSC J/U v1.0 ROM and native
+        /// listing. For yellow-phase index <c>i = 0..13</c>, red and green
+        /// are <c>min(14+i,26)</c> and blue is <c>max(10-i,0)</c>.
+        /// White-crest indices 14..18 use equal channels 26+(i-14)/2;
+        /// indices 19..20 use 46-i. The installed color catalog calculates
+        /// both phases on demand and preserves independent supplied edits.
+        /// Indices 21..31 still require their own conversion or concrete
+        /// impossible/nonsense evidence; they have no retention disposition.
+        /// Ordinary Power Bomb and Crystal Flash explosion callers derive
+        /// <c>i = (radius &gt;&gt; 11) &amp; $1F</c> from a 16-bit radius and
+        /// read the three components in order. The next word at
+        /// <c>$88:8DE5</c> is radius-speed data. Investigation: #625 / #905.
+        /// </remarks>
+        public const int ExplosionColors = 0x888d85;
+        /// <summary>Each fixed-color record stores red, green, and blue bytes.</summary>
+        public const int BytesPerColor = 3;
+        /// <summary>Five-bit component payload mask in a COLDATA byte.</summary>
+        public const byte ComponentMask = 0x1f;
+        /// <summary>Number of pre-explosion fixed-color triplets.</summary>
+        public const int PreExplosionColorCount = 16;
+        /// <summary>Number of explosion fixed-color triplets addressed by radius.</summary>
+        public const int ExplosionColorCount = 32;
+    }
+}

@@ -245,6 +245,104 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   every covered ticket in the commit message or body.
 - Never rewrite or discard the user's history to accomplish this. A committed regression
   can be reverted, while uncommitted lost work cannot be recovered.
+- Proportionate verification for a commit is one clean build plus the focused checks that
+  cover the code that changed. Nothing else gates a commit. See "Agent turnaround time".
+
+## Agent turnaround time
+
+Waiting on builds, checks and scripts has been the largest cost on this project: whole days
+spent watching the agent wait on tools it chose to run. Ticket turnaround is a primary
+constraint, not a side concern.
+
+### The commit path stays cheap
+
+- A commit needs one clean build and the focused checks for what changed. Do not add any
+  other step to the commit path unless the user asks for it.
+- `tools/verify-all.ps1` is not a commit gate, a batch gate or a per-ticket gate. Run it
+  only when the user asks. The script refuses a second start within 120 minutes of the
+  previous one; a refused start is the rule working, not an obstacle to route around.
+- Do not run `CartridgeEncodingAudit --write` as a separate pre-commit step. It recompiles
+  the solution only to rewrite baseline files. Use it when a build or CI actually requires
+  a rewritten baseline, not as routine.
+- Do not invent pre-commit or per-batch checks of your own (for example a private "slice"
+  or audit script run before every commit). Writing a new script is fine. Making it a
+  recurring step is the user's decision.
+
+### Slow commands must not become routine
+
+- Any command that takes minutes to finish is slow. A slow command may run once when there
+  is a specific reason. Running it again within the same ticket needs the user's approval.
+  This applies to scripts the agent writes as much as to existing tools.
+- Never chain slow steps into a fixed sequence that runs for every commit or batch. Each
+  slow step multiplied by every commit is how ticket turnaround grew by hours.
+- At handoff, report what was run and how long it took, so growing turnaround is visible
+  before it costs hours.
+- The `post-commit` hook runs `tools/agent-time-report.py --head`, which measures how much of
+  the agent's time since the previous commit was spent waiting on tools. Above 20% it warns;
+  above 50% it demands the waste be found and fixed. Treat either warning as an instruction:
+  before continuing, name the commands that caused the waiting and stop the pattern. Run
+  `python tools/agent-time-report.py --hours N` for the per-commit history.
+
+### Build once, fix everything once
+
+- Make all the edits for a body of work, then build once and fix every reported error in
+  a single pass. Never build after each unit or rebuild after each individual fix.
+- Build only the projects the change needs. The full solution builds in CI.
+
+### Run only the checks that cover the change
+
+- A focused check is a command that covers only the changed code. A command that runs
+  every family's assertions (for example the whole enemy-artwork suite) is not focused for
+  a change to one family, and neither is an unrelated suite.
+- Put each family's assertions in that family's own verification class and command. Never
+  add a family's assertions to a shared suite. If the only command covering a change is a
+  suite-wide one, split the suite first and run only the split piece.
+- Run several focused commands in one process where the runner allows it, rather than one
+  process per command.
+- Never re-run a command to read its output. Test runners must print the full failure
+  message the first time; fix a runner that truncates output instead of re-running.
+- Never guess command names. Look up the command that covers a test once, rather than
+  launching guesses that only print usage.
+
+### Never idle while something runs
+
+- Background work is for working in parallel, not for waiting. While a command runs,
+  continue with the next unit of work. Do not end a turn, schedule a wake-up or poll just
+  to wait for a command to finish.
+- If nothing can proceed without the result, say what is blocked instead of waiting
+  silently.
+
+### Edit tooling must not fail halfway
+
+- Scripted multi-file edits validate every edit before writing any of them, and write
+  nothing if any edit does not apply. A script that stops partway leaves the tree
+  half-edited and costs a reconstruction plus another build.
+- Do not embed scripts in shell heredocs with nested quoting. Write the script to a file
+  and run it.
+- Do not chain dependent edit steps with `&&` or pipes whose exit status can hide a
+  failure (`| tail`, `grep -v`). A step that silently skips or silently continues leaves
+  partial state.
+- Make content checks in edit scripts specific. A check that matches legitimate text
+  (a class's own name, a longer identifier containing the searched one) aborts the run.
+- When a shared helper's assumption fails for one case, fix the helper once instead of
+  working around it per case.
+- Never regenerate generated files over hand edits. Put the fix in the generator or its
+  configuration so regeneration reproduces it.
+
+### Tests must not guess runtime behavior
+
+- Do not hand-write assertions about engine behavior that has not been checked (cursor
+  positions after a helper runs, the update a cue fires on, which program holds a pose).
+  Each wrong guess costs a build, a run and a diagnosis.
+- Prefer generated or shared standard checks whose behavior is already established, and
+  hand-write only checks for logic unique to the change.
+- Replace an obsolete test file wholesale rather than rewriting it line by line through
+  replacement scripts.
+
+### Reports
+
+- Per-batch progress reports are brief. The full self-contained summary required by
+  "Batch handoff summaries" is for handoff.
 
 ## Cartridge constants and definition data
 

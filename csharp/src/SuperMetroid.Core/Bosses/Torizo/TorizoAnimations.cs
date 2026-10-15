@@ -1,0 +1,1918 @@
+using K = SuperMetroid.Core.Bosses.Torizo.TorizoCueKind;
+using P = SuperMetroid.Core.Bosses.Torizo.TorizoBodyProgram;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.Core.Fx;
+
+namespace SuperMetroid.Core.Bosses.Torizo;
+
+/// <summary>
+/// Bomb and Golden Torizo's typed body programs (#641), in place of their bank-$AA lists. Generated from the verified
+/// native lists: each frame shows a <see cref="TorizoFrame"/> pose, each callback becomes a <see cref="TorizoCue"/>
+/// with its typed operands, and each tile transfer names its <see cref="TorizoInstructionVramTransferDefinitions"/>
+/// entry. A callback that sleeps for a fixed time is its cue followed by a wait of that length.
+/// </summary>
+internal static class TorizoAnimations
+{
+    /// <summary>Every body program.</summary>
+    internal static AnimationProgramSet<TorizoBodyProgram, TorizoFrame, TorizoCue> Programs { get; } = new(
+        new Dictionary<TorizoBodyProgram, AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>[]>
+    {
+        // $B0E5
+        [P.SpecialCallableBlowUpBombTorizosGut] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Idle)),
+            Cue(new(K.LockAnimation)),
+            Cue(new(K.SpawnLowHealthExplosions, Value: 0)),
+            Wait(40),
+            Cue(new(K.BlowUpGut)),
+            CopyTiles(0),
+            CopyTiles(1),
+            CopyTiles(2),
+            CopyTiles(3),
+            Cue(new(K.SetFunction, Function: TorizoFunction.Active)),
+            Cue(new(K.UnlockAnimation)),
+            Cue(new(K.ResumeInterrupted)),
+            Unreachable,
+        ],
+        // $B155
+        [P.CallableBlowUpBombTorizosFace] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Idle)),
+            Cue(new(K.LockAnimation)),
+            Cue(new(K.SpawnLowHealthExplosions, Value: 6)),
+            Wait(40),
+            Cue(new(K.MarkFaceBlownUp)),
+            CopyTiles(4),
+            CopyTiles(5),
+            CopyTiles(6),
+            CopyTiles(7),
+            Wait(1),
+            CopyTiles(8),
+            CopyTiles(9),
+            CopyTiles(10),
+            CopyTiles(11),
+            CopyTiles(12),
+            Cue(new(K.SetFunction, Function: TorizoFunction.Active)),
+            Cue(new(K.UnlockAnimation)),
+            Cue(new(K.Return)),
+            Unreachable,
+        ],
+        // $B1C8
+        [P.DeathSequence0] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Idle)),
+            Cue(new(K.LockAnimation)),
+            SetCounter(8),
+            FallInto(P.DeathSequence1),
+        ],
+        // $B1D2
+        [P.DeathSequence1] =
+        [
+            Cue(new(K.SpawnDeathExplosion)),
+            Wait(1),
+            Wait(6),
+            RepeatWhileCounting(P.DeathSequence1),
+            Cue(new(K.FadeToBlack)),
+            SetCounter(14),
+            FallInto(P.DeathSequence2),
+        ],
+        // $B1E2
+        [P.DeathSequence2] =
+        [
+            Cue(new(K.SpawnDeathExplosion)),
+            Wait(1),
+            Cue(new(K.MakeVisible)),
+            Wait(2),
+            Cue(new(K.MakeInvisible)),
+            Wait(2),
+            Cue(new(K.SpawnDeathExplosion)),
+            Wait(1),
+            Cue(new(K.MakeVisible)),
+            Wait(2),
+            Cue(new(K.MakeInvisible)),
+            Wait(2),
+            Cue(new(K.MakeVisible)),
+            Wait(2),
+            Cue(new(K.MakeInvisible)),
+            Wait(2),
+            Cue(new(K.MakeVisible)),
+            Wait(2),
+            Cue(new(K.MakeInvisible)),
+            Wait(2),
+            Cue(new(K.AdvancePaletteFade)),
+            RepeatWhileCounting(P.DeathSequence2),
+            Wait(64),
+            Cue(new(K.FinishDeath)),
+            Stop,
+        ],
+        // $B879
+        [P.BombTorizoInitial0] =
+        [
+            Cue(new(K.SteppedLeftWithRightFoot)),
+            Cue(new(K.LockAnimation)),
+            Show(0, 1),
+            Cue(new(K.SetFunction, Function: TorizoFunction.WaitForHandTrigger)),
+            Hold,
+        ],
+        // $B887
+        [P.BombTorizoInitial0Resumed] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
+            Show(44, 48),
+            CopyTiles(13),
+            Show(44, 32),
+            CopyTiles(14),
+            Show(44, 16),
+            CopyTiles(15),
+            Show(44, 8),
+            CopyTiles(16),
+            Show(44, 32),
+            SetCounter(2),
+            FallInto(P.BombTorizoInitial1),
+        ],
+        // $B8C7
+        [P.BombTorizoInitial1] =
+        [
+            Show(44, 4),
+            CopyTiles(17),
+            Show(44, 4),
+            CopyTiles(18),
+            Show(44, 4),
+            CopyTiles(19),
+            Show(44, 4),
+            CopyTiles(20),
+            RepeatWhileCounting(P.BombTorizoInitial1),
+            Show(44, 48),
+            Cue(new(K.StandUp, Value: 0)),
+            Show(45, 16),
+            Cue(new(K.StandUp, Value: 2)),
+            Show(46, 8),
+            Cue(new(K.StandUp, Value: 4)),
+            Show(47, 8),
+            Cue(new(K.StandUp, Value: 6)),
+            Show(48, 8),
+            Cue(new(K.StandUp, Value: 8)),
+            Show(49, 8),
+            Cue(new(K.StandUp, Value: 10)),
+            Cue(new(K.FadeToNormalColors)),
+            SetCounter(16),
+            FallInto(P.BombTorizoInitial2),
+        ],
+        // $B935
+        [P.BombTorizoInitial2] =
+        [
+            Show(50, 4),
+            Cue(new(K.AdvancePaletteFade)),
+            RepeatWhileCounting(P.BombTorizoInitial2),
+            Cue(new(K.NoOperation)),
+            Cue(new(K.UnlockAnimation)),
+            Cue(new(K.StartBombTorizoFight)),
+            Show(50, 16),
+            GoTo(P.FacingLeftWalkingLeftLegMoving),
+        ],
+        // $B962
+        [P.FacingLeftTurningLeft] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
+            Cue(new(K.SetTurningAround)),
+            Show(1, 24),
+            FallInto(P.FacingLeftWalkingRightLegMoving),
+        ],
+        // $B96C
+        [P.FacingLeftWalkingRightLegMoving] =
+        [
+            Cue(new(K.SteppedLeftWithLeftFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.Active)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.SpawnLowHealthDrool)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(2, 10),
+            Cue(new(K.CallIfSamusCloseBehind, Target: P.FacingLeftExplosiveSwipeLeftFootForward)),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 2)),
+            Show(3, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 4)),
+            Show(4, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 6)),
+            Show(5, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 8)),
+            Show(6, 6),
+            Cue(new(K.WalkBombTorizo, Value: 10)),
+            FallInto(P.FacingLeftWalkingLeftLegMoving),
+        ],
+        // $B9B6
+        [P.FacingLeftWalkingLeftLegMoving] =
+        [
+            Cue(new(K.SteppedLeftWithRightFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.Active)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.SpawnLowHealthDrool)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(7, 10),
+            Cue(new(K.CallIfSamusCloseBehind, Target: P.FacingLeftExplosiveSwipeRightFootForward)),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingLeftJumpingBackwardRightFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 12)),
+            Show(8, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingLeftJumpingBackwardRightFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 14)),
+            Show(9, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingLeftJumpingBackwardRightFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 16)),
+            Show(10, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingLeftJumpingBackwardRightFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 18)),
+            Show(11, 6),
+            Cue(new(K.WalkBombTorizo, Value: 0)),
+            GoTo(P.FacingLeftWalkingRightLegMoving),
+        ],
+        // $BA04
+        [P.FacingLeftSpewingChozoOrbsRightFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            Show(12, 16),
+            Show(13, 8),
+            Show(14, 8),
+            Show(15, 8),
+            Show(16, 8),
+            Show(17, 16),
+            Cue(new(K.PlayShotSound)),
+            SetCounter(3),
+            FallInto(P.FacingLeftSpewingChozoOrbsRightFootFwd1),
+        ],
+        // $BA26
+        [P.FacingLeftSpewingChozoOrbsRightFootFwd1] =
+        [
+            Cue(new(K.SpawnBombTorizoChozoOrbs)),
+            Wait(16),
+            RepeatWhileCounting(P.FacingLeftSpewingChozoOrbsRightFootFwd1),
+            Show(16, 8),
+            Show(15, 8),
+            Show(14, 8),
+            Show(13, 72),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingLeftSpewingChozoOrbsLeftFootFwd0),
+        ],
+        // $BA46
+        [P.FacingLeftSpewingChozoOrbsLeftFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            Show(18, 16),
+            Show(19, 8),
+            Show(20, 8),
+            Show(21, 8),
+            Show(22, 8),
+            Show(23, 16),
+            Cue(new(K.PlayShotSound)),
+            SetCounter(3),
+            FallInto(P.FacingLeftSpewingChozoOrbsLeftFootFwd1),
+        ],
+        // $BA68
+        [P.FacingLeftSpewingChozoOrbsLeftFootFwd1] =
+        [
+            Cue(new(K.SpawnBombTorizoChozoOrbs)),
+            Wait(16),
+            RepeatWhileCounting(P.FacingLeftSpewingChozoOrbsLeftFootFwd1),
+            Show(22, 8),
+            Show(21, 8),
+            Show(20, 8),
+            Show(19, 72),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingLeftSonicBoomsRightFootForward0),
+        ],
+        // $BA88
+        [P.FacingLeftSonicBoomsRightFootForward0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            SetCounter(4),
+            FallInto(P.FacingLeftSonicBoomsRightFootForward1),
+        ],
+        // $BA90
+        [P.FacingLeftSonicBoomsRightFootForward1] =
+        [
+            Show(12, 6),
+            Show(24, 6),
+            Show(25, 6),
+            Show(26, 6),
+            Show(27, 6),
+            Show(28, 6),
+            Show(27, 2),
+            Show(26, 2),
+            Cue(new(K.SpawnBombTorizoSonicBoom, Value: 0)),
+            Show(25, 2),
+            Show(24, 24),
+            Show(12, 6),
+            Show(29, 6),
+            Show(30, 6),
+            Show(31, 6),
+            Show(32, 6),
+            Show(33, 6),
+            Show(32, 2),
+            Show(31, 2),
+            Cue(new(K.SpawnBombTorizoSonicBoom, Value: 1)),
+            Show(30, 2),
+            Show(29, 56),
+            RepeatWhileCounting(P.FacingLeftSonicBoomsRightFootForward1),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingLeftSonicBoomsLeftFootForward0),
+        ],
+        // $BAF2
+        [P.FacingLeftSonicBoomsLeftFootForward0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            SetCounter(4),
+            FallInto(P.FacingLeftSonicBoomsLeftFootForward1),
+        ],
+        // $BAFA
+        [P.FacingLeftSonicBoomsLeftFootForward1] =
+        [
+            Show(18, 6),
+            Show(34, 6),
+            Show(35, 6),
+            Show(36, 6),
+            Show(37, 6),
+            Show(38, 6),
+            Show(37, 2),
+            Show(36, 2),
+            Cue(new(K.SpawnBombTorizoSonicBoom, Value: 0)),
+            Show(35, 2),
+            Show(34, 24),
+            Show(18, 6),
+            Show(39, 6),
+            Show(40, 6),
+            Show(41, 6),
+            Show(42, 6),
+            Show(43, 6),
+            Show(42, 2),
+            Show(41, 2),
+            Cue(new(K.SpawnBombTorizoSonicBoom, Value: 1)),
+            Show(40, 2),
+            Show(39, 56),
+            RepeatWhileCounting(P.FacingLeftSonicBoomsLeftFootForward1),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingLeftExplosiveSwipeRightFootForward),
+        ],
+        // $BB5C
+        [P.FacingLeftExplosiveSwipeRightFootForward] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            Show(12, 3),
+            Show(24, 3),
+            Show(25, 3),
+            Show(26, 3),
+            Show(27, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 0)),
+            Show(28, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 2)),
+            Show(27, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 4)),
+            Show(26, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 6)),
+            Show(25, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 8)),
+            Show(24, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 10)),
+            Show(12, 3),
+            Show(29, 3),
+            Show(30, 3),
+            Show(31, 3),
+            Show(32, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 12)),
+            Show(33, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 14)),
+            Show(32, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 16)),
+            Show(31, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 18)),
+            Show(30, 1),
+            Show(29, 16),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingLeftExplosiveSwipeLeftFootForward),
+        ],
+        // $BBDE
+        [P.FacingLeftExplosiveSwipeLeftFootForward] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            Show(18, 3),
+            Show(34, 3),
+            Show(35, 3),
+            Show(36, 3),
+            Show(37, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 0)),
+            Show(38, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 2)),
+            Show(37, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 4)),
+            Show(36, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 6)),
+            Show(35, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 8)),
+            Show(34, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 10)),
+            Show(18, 3),
+            Show(39, 3),
+            Show(40, 3),
+            Show(41, 3),
+            Show(42, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 12)),
+            Show(43, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 14)),
+            Show(42, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 16)),
+            Show(41, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 18)),
+            Show(40, 1),
+            Show(39, 16),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingLeftJumpingForwards0),
+        ],
+        // $BC60
+        [P.FacingLeftJumpingForwards0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingLeftFalling0)),
+            Show(100, 5),
+            Show(101, 5),
+            FallInto(P.FacingLeftJumpingForwards1),
+        ],
+        // $BC70
+        [P.FacingLeftJumpingForwards1] =
+        [
+            Show(102, 1),
+            Cue(new(K.GoToIfRising, Target: P.FacingLeftJumpingForwards1)),
+            FallInto(P.FacingLeftFalling0),
+        ],
+        // $BC78
+        [P.FacingLeftFalling0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingLeftFalling2)),
+            FallInto(P.FacingLeftFalling1),
+        ],
+        // $BC80
+        [P.FacingLeftFalling1] =
+        [
+            Show(101, 5),
+            GoTo(P.FacingLeftFalling1),
+        ],
+        // $BC88
+        [P.FacingLeftFalling2] =
+        [
+            Cue(new(K.PlayFootstepSound)),
+            Cue(new(K.SpawnLandingDust)),
+            Cue(new(K.GoToIfFaceBlownUpElseIfGolden, Target: P.FacingLeftFacelessWalkingLeftLegMoving, Alternate: P.GoldenWalkingLeftLeftLegMoving)),
+            GoTo(P.FacingLeftWalkingLeftLegMoving),
+        ],
+        // $BC96
+        [P.FacingLeftJumpingBackwardLandLeftFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd2)),
+            Show(100, 5),
+            Show(101, 5),
+            FallInto(P.FacingLeftJumpingBackwardLandLeftFootFwd1),
+        ],
+        // $BCA6
+        [P.FacingLeftJumpingBackwardLandLeftFootFwd1] =
+        [
+            Show(102, 1),
+            Cue(new(K.GoToIfRising, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd1)),
+            FallInto(P.FacingLeftJumpingBackwardLandLeftFootFwd2),
+        ],
+        // $BCAE
+        [P.FacingLeftJumpingBackwardLandLeftFootFwd2] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd4)),
+            FallInto(P.FacingLeftJumpingBackwardLandLeftFootFwd3),
+        ],
+        // $BCB6
+        [P.FacingLeftJumpingBackwardLandLeftFootFwd3] =
+        [
+            Show(101, 5),
+            GoTo(P.FacingLeftJumpingBackwardLandLeftFootFwd3),
+        ],
+        // $BCBE
+        [P.FacingLeftJumpingBackwardLandLeftFootFwd4] =
+        [
+            Cue(new(K.PlayFootstepSound)),
+            Cue(new(K.SpawnLandingDust)),
+            Cue(new(K.GoToIfFaceBlownUpElseIfGolden, Target: P.FacingLeftFacelessWalkingRightLegMoving, Alternate: P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd)),
+            Cue(new(K.CallBombTorizoAttack, Target: P.FacingLeftSpewingChozoOrbsLeftFootFwd0, Alternate: P.FacingLeftSonicBoomsLeftFootForward0)),
+            GoTo(P.FacingLeftWalkingRightLegMoving),
+        ],
+        // $BCD2
+        [P.FacingLeftJumpingBackwardRightFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingLeftJumpingBackwardRightFootFwd2)),
+            Show(100, 5),
+            Show(101, 5),
+            FallInto(P.FacingLeftJumpingBackwardRightFootFwd1),
+        ],
+        // $BCE2
+        [P.FacingLeftJumpingBackwardRightFootFwd1] =
+        [
+            Show(102, 1),
+            Cue(new(K.GoToIfRising, Target: P.FacingLeftJumpingBackwardRightFootFwd1)),
+            FallInto(P.FacingLeftJumpingBackwardRightFootFwd2),
+        ],
+        // $BCEA
+        [P.FacingLeftJumpingBackwardRightFootFwd2] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingLeftJumpingBackwardRightFootFwd4)),
+            FallInto(P.FacingLeftJumpingBackwardRightFootFwd3),
+        ],
+        // $BCF2
+        [P.FacingLeftJumpingBackwardRightFootFwd3] =
+        [
+            Show(101, 5),
+            GoTo(P.FacingLeftJumpingBackwardRightFootFwd3),
+        ],
+        // $BCFA
+        [P.FacingLeftJumpingBackwardRightFootFwd4] =
+        [
+            Cue(new(K.PlayFootstepSound)),
+            Cue(new(K.SpawnLandingDust)),
+            Cue(new(K.GoToIfFaceBlownUpElseIfGolden, Target: P.FacingLeftFacelessWalkingLeftLegMoving, Alternate: P.GoldenLandedFromBackwardsJumpFacingLeftRightFootFwd)),
+            Cue(new(K.CallBombTorizoAttack, Target: P.FacingLeftSpewingChozoOrbsRightFootFwd0, Alternate: P.FacingLeftSonicBoomsRightFootForward0)),
+            GoTo(P.FacingLeftWalkingLeftLegMoving),
+        ],
+        // $BD0E
+        [P.FacingLeftFacelessTurningLeft] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
+            Cue(new(K.SetTurningAround)),
+            Show(1, 8),
+            FallInto(P.FacingLeftFacelessWalkingRightLegMoving),
+        ],
+        // $BD18
+        [P.FacingLeftFacelessWalkingRightLegMoving] =
+        [
+            Cue(new(K.SteppedLeftWithLeftFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.Active)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.SpawnLowHealthDrool)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(2, 1),
+            Cue(new(K.CallIfSamusCloseBehind, Target: P.FacingLeftExplosiveSwipeLeftFootForward)),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 2)),
+            Show(3, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 4)),
+            Show(4, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 6)),
+            Show(5, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 8)),
+            Show(6, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 10)),
+            FallInto(P.FacingLeftFacelessWalkingLeftLegMoving),
+        ],
+        // $BD52
+        [P.FacingLeftFacelessWalkingLeftLegMoving] =
+        [
+            Cue(new(K.SteppedLeftWithRightFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.Active)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.SpawnLowHealthDrool)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(7, 1),
+            Cue(new(K.CallIfSamusCloseBehind, Target: P.FacingLeftExplosiveSwipeRightFootForward)),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 12)),
+            Show(8, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 14)),
+            Show(9, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 16)),
+            Show(10, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 18)),
+            Show(11, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 0)),
+            GoTo(P.FacingLeftFacelessWalkingRightLegMoving),
+        ],
+        // $BD90
+        [P.FacingLeftFacelessWalkingLeftLegMovingTrailing] =
+        [
+            Cue(new(K.SteppedRightWithLeftFoot)),
+            Show(0, 1),
+            Cue(new(K.SetFunction, Function: TorizoFunction.WaitForHandTrigger)),
+            Hold,
+        ],
+        // $BD9C
+        [P.FacingLeftFacelessWalkingLeftLegMovingTrailingResumed] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
+            Show(93, 32),
+            Cue(new(K.StandUp, Value: 16)),
+            Show(94, 16),
+            Cue(new(K.StandUp, Value: 18)),
+            Show(95, 8),
+            Cue(new(K.StandUp, Value: 20)),
+            Show(96, 8),
+            Cue(new(K.StandUp, Value: 22)),
+            Show(97, 8),
+            Cue(new(K.StandUp, Value: 24)),
+            Show(98, 8),
+            Cue(new(K.StandUp, Value: 26)),
+            Show(99, 8),
+            GoTo(P.FacingRightWalkingRightLegMoving),
+        ],
+        // $BDD8
+        [P.FacingRightTurningRight] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
+            Cue(new(K.SetTurningAround)),
+            Show(1, 24),
+            FallInto(P.FacingRightWalkingLeftLegMoving),
+        ],
+        // $BDE2
+        [P.FacingRightWalkingLeftLegMoving] =
+        [
+            Cue(new(K.SteppedRightWithRightFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.Active)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.SpawnLowHealthDrool)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(51, 10),
+            Cue(new(K.CallIfSamusCloseBehind, Target: P.FacingRightExplosiveSwipeRightFootForward)),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingRightJumpBackwardLandRightFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 22)),
+            Show(52, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingRightJumpBackwardLandRightFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 24)),
+            Show(53, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingRightJumpBackwardLandRightFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 26)),
+            Show(54, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingRightJumpBackwardLandRightFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 28)),
+            Show(55, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingRightJumpBackwardLandRightFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 30)),
+            FallInto(P.FacingRightWalkingRightLegMoving),
+        ],
+        // $BE30
+        [P.FacingRightWalkingRightLegMoving] =
+        [
+            Cue(new(K.SteppedRightWithLeftFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.Active)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.SpawnLowHealthDrool)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(56, 10),
+            Cue(new(K.CallIfSamusCloseBehind, Target: P.FacingRightExplosiveSwipeLeftFootForward)),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingRightJumpBackwardsLandLeftFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 32)),
+            Show(57, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingRightJumpBackwardsLandLeftFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 34)),
+            Show(58, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingRightJumpBackwardsLandLeftFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 36)),
+            Show(59, 6),
+            Cue(new(K.JumpBackIfSamusCloseInFront, Target: P.FacingRightJumpBackwardsLandLeftFootFwd0)),
+            Cue(new(K.WalkBombTorizo, Value: 38)),
+            Show(60, 6),
+            Cue(new(K.WalkBombTorizo, Value: 20)),
+            GoTo(P.FacingRightWalkingLeftLegMoving),
+        ],
+        // $BE7E
+        [P.FacingRightSpewingChozoOrbsLeftFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            Show(61, 16),
+            Show(62, 8),
+            Show(63, 8),
+            Show(64, 8),
+            Show(65, 8),
+            Show(66, 16),
+            Cue(new(K.PlayShotSound)),
+            SetCounter(3),
+            FallInto(P.FacingRightSpewingChozoOrbsLeftFootFwd1),
+        ],
+        // $BEA0
+        [P.FacingRightSpewingChozoOrbsLeftFootFwd1] =
+        [
+            Cue(new(K.SpawnBombTorizoChozoOrbs)),
+            Wait(16),
+            RepeatWhileCounting(P.FacingRightSpewingChozoOrbsLeftFootFwd1),
+            Show(65, 8),
+            Show(64, 8),
+            Show(63, 8),
+            Show(62, 72),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingRightSpewingChozoOrbsRightFootFwd0),
+        ],
+        // $BEC0
+        [P.FacingRightSpewingChozoOrbsRightFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            Show(67, 16),
+            Show(68, 8),
+            Show(69, 8),
+            Show(70, 8),
+            Show(71, 8),
+            Show(72, 16),
+            Cue(new(K.PlayShotSound)),
+            SetCounter(3),
+            FallInto(P.FacingRightSpewingChozoOrbsRightFootFwd1),
+        ],
+        // $BEE2
+        [P.FacingRightSpewingChozoOrbsRightFootFwd1] =
+        [
+            Cue(new(K.SpawnBombTorizoChozoOrbs)),
+            Wait(16),
+            RepeatWhileCounting(P.FacingRightSpewingChozoOrbsRightFootFwd1),
+            Show(71, 8),
+            Show(70, 8),
+            Show(69, 8),
+            Show(68, 72),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingRightSonicBoomsLeftFootForward0),
+        ],
+        // $BF02
+        [P.FacingRightSonicBoomsLeftFootForward0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            SetCounter(4),
+            FallInto(P.FacingRightSonicBoomsLeftFootForward1),
+        ],
+        // $BF0A
+        [P.FacingRightSonicBoomsLeftFootForward1] =
+        [
+            Show(61, 6),
+            Show(73, 6),
+            Show(74, 6),
+            Show(75, 6),
+            Show(76, 6),
+            Show(77, 6),
+            Show(76, 2),
+            Show(75, 2),
+            Cue(new(K.SpawnBombTorizoSonicBoom, Value: 0)),
+            Show(74, 2),
+            Show(73, 24),
+            Show(61, 6),
+            Show(78, 6),
+            Show(79, 6),
+            Show(80, 6),
+            Show(81, 6),
+            Show(82, 6),
+            Show(81, 2),
+            Show(80, 2),
+            Cue(new(K.SpawnBombTorizoSonicBoom, Value: 1)),
+            Show(79, 2),
+            Show(78, 56),
+            RepeatWhileCounting(P.FacingRightSonicBoomsLeftFootForward1),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingRightSonicBoomsRightFootForward0),
+        ],
+        // $BF6C
+        [P.FacingRightSonicBoomsRightFootForward0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            SetCounter(4),
+            FallInto(P.FacingRightSonicBoomsRightFootForward1),
+        ],
+        // $BF74
+        [P.FacingRightSonicBoomsRightFootForward1] =
+        [
+            Show(67, 6),
+            Show(83, 6),
+            Show(84, 6),
+            Show(85, 6),
+            Show(86, 6),
+            Show(87, 6),
+            Show(86, 2),
+            Show(85, 2),
+            Cue(new(K.SpawnBombTorizoSonicBoom, Value: 0)),
+            Show(84, 2),
+            Show(83, 24),
+            Show(67, 6),
+            Show(88, 6),
+            Show(89, 6),
+            Show(90, 6),
+            Show(91, 6),
+            Show(92, 6),
+            Show(91, 2),
+            Show(90, 2),
+            Cue(new(K.SpawnBombTorizoSonicBoom, Value: 1)),
+            Show(89, 2),
+            Show(88, 56),
+            RepeatWhileCounting(P.FacingRightSonicBoomsRightFootForward1),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingRightExplosiveSwipeLeftFootForward),
+        ],
+        // $BFD6
+        [P.FacingRightExplosiveSwipeLeftFootForward] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            Show(61, 3),
+            Show(73, 3),
+            Show(74, 3),
+            Show(75, 3),
+            Show(76, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 0)),
+            Show(77, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 2)),
+            Show(76, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 4)),
+            Show(75, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 6)),
+            Show(74, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 8)),
+            Show(73, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 10)),
+            Show(61, 3),
+            Show(78, 3),
+            Show(79, 3),
+            Show(80, 3),
+            Show(81, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 12)),
+            Show(82, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 14)),
+            Show(81, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 16)),
+            Show(80, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 18)),
+            Show(79, 1),
+            Show(78, 16),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingRightExplosiveSwipeRightFootForward),
+        ],
+        // $C058
+        [P.FacingRightExplosiveSwipeRightFootForward] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Gravity)),
+            Show(67, 3),
+            Show(83, 3),
+            Show(84, 3),
+            Show(85, 3),
+            Show(86, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 0)),
+            Show(87, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 2)),
+            Show(86, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 4)),
+            Show(85, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 6)),
+            Show(84, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 8)),
+            Show(83, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 10)),
+            Show(67, 3),
+            Show(88, 3),
+            Show(89, 3),
+            Show(90, 3),
+            Show(91, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 12)),
+            Show(92, 3),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 14)),
+            Show(91, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 16)),
+            Show(90, 1),
+            Cue(new(K.SpawnExplosiveSwipe, Value: 18)),
+            Show(89, 1),
+            Show(88, 16),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.FacingRightJumpingForwards0),
+        ],
+        // $C0DA
+        [P.FacingRightJumpingForwards0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingRightFalling0)),
+            Show(103, 5),
+            Show(104, 5),
+            FallInto(P.FacingRightJumpingForwards1),
+        ],
+        // $C0EA
+        [P.FacingRightJumpingForwards1] =
+        [
+            Show(105, 1),
+            Cue(new(K.GoToIfRising, Target: P.FacingRightJumpingForwards1)),
+            FallInto(P.FacingRightFalling0),
+        ],
+        // $C0F2
+        [P.FacingRightFalling0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingRightFalling2)),
+            FallInto(P.FacingRightFalling1),
+        ],
+        // $C0FA
+        [P.FacingRightFalling1] =
+        [
+            Show(104, 5),
+            GoTo(P.FacingRightFalling1),
+        ],
+        // $C102
+        [P.FacingRightFalling2] =
+        [
+            Cue(new(K.PlayFootstepSound)),
+            Cue(new(K.SpawnLandingDust)),
+            Cue(new(K.GoToIfFaceBlownUpElseIfGolden, Target: P.FacingRightFacelessWalkingRightLegMoving, Alternate: P.GoldenWalkingRightRightLegMoving)),
+            GoTo(P.FacingRightWalkingRightLegMoving),
+        ],
+        // $C110
+        [P.FacingRightJumpBackwardLandRightFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingRightJumpBackwardLandRightFootFwd2)),
+            Show(103, 5),
+            Show(104, 5),
+            FallInto(P.FacingRightJumpBackwardLandRightFootFwd1),
+        ],
+        // $C120
+        [P.FacingRightJumpBackwardLandRightFootFwd1] =
+        [
+            Show(105, 1),
+            Cue(new(K.GoToIfRising, Target: P.FacingRightJumpBackwardLandRightFootFwd1)),
+            FallInto(P.FacingRightJumpBackwardLandRightFootFwd2),
+        ],
+        // $C128
+        [P.FacingRightJumpBackwardLandRightFootFwd2] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingRightJumpBackwardLandRightFootFwd4)),
+            FallInto(P.FacingRightJumpBackwardLandRightFootFwd3),
+        ],
+        // $C130
+        [P.FacingRightJumpBackwardLandRightFootFwd3] =
+        [
+            Show(104, 5),
+            GoTo(P.FacingRightJumpBackwardLandRightFootFwd3),
+        ],
+        // $C138
+        [P.FacingRightJumpBackwardLandRightFootFwd4] =
+        [
+            Cue(new(K.PlayFootstepSound)),
+            Cue(new(K.SpawnLandingDust)),
+            Cue(new(K.GoToIfFaceBlownUpElseIfGolden, Target: P.FacingRightFacelessWalkingLeftLegMoving, Alternate: P.GoldenLandedFromBackwardsJumpFacingRightRightFootFwd)),
+            Cue(new(K.CallBombTorizoAttack, Target: P.FacingRightSpewingChozoOrbsRightFootFwd0, Alternate: P.FacingRightSonicBoomsRightFootForward0)),
+            GoTo(P.FacingRightWalkingLeftLegMoving),
+        ],
+        // $C14C
+        [P.FacingRightJumpBackwardsLandLeftFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingRightJumpBackwardsLandLeftFootFwd2)),
+            Show(103, 5),
+            Show(104, 5),
+            FallInto(P.FacingRightJumpBackwardsLandLeftFootFwd1),
+        ],
+        // $C15C
+        [P.FacingRightJumpBackwardsLandLeftFootFwd1] =
+        [
+            Show(105, 1),
+            Cue(new(K.GoToIfRising, Target: P.FacingRightJumpBackwardsLandLeftFootFwd1)),
+            FallInto(P.FacingRightJumpBackwardsLandLeftFootFwd2),
+        ],
+        // $C164
+        [P.FacingRightJumpBackwardsLandLeftFootFwd2] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.Jump)),
+            Cue(new(K.Link, Target: P.FacingRightJumpBackwardsLandLeftFootFwd4)),
+            FallInto(P.FacingRightJumpBackwardsLandLeftFootFwd3),
+        ],
+        // $C16C
+        [P.FacingRightJumpBackwardsLandLeftFootFwd3] =
+        [
+            Show(104, 5),
+            GoTo(P.FacingRightJumpBackwardsLandLeftFootFwd3),
+        ],
+        // $C174
+        [P.FacingRightJumpBackwardsLandLeftFootFwd4] =
+        [
+            Cue(new(K.PlayFootstepSound)),
+            Cue(new(K.SpawnLandingDust)),
+            Cue(new(K.GoToIfFaceBlownUpElseIfGolden, Target: P.FacingRightFacelessWalkingRightLegMoving, Alternate: P.GoldenLandedFromBackwardsJumpFacingRightLeftFootFwd)),
+            Cue(new(K.CallBombTorizoAttack, Target: P.FacingRightSpewingChozoOrbsLeftFootFwd0, Alternate: P.FacingRightSonicBoomsLeftFootForward0)),
+            GoTo(P.FacingRightWalkingRightLegMoving),
+        ],
+        // $C188
+        [P.FacingRightFacelessTurningRight] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
+            Cue(new(K.SetTurningAround)),
+            Show(1, 8),
+            FallInto(P.FacingRightFacelessWalkingLeftLegMoving),
+        ],
+        // $C192
+        [P.FacingRightFacelessWalkingLeftLegMoving] =
+        [
+            Cue(new(K.SteppedRightWithRightFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.Active)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.SpawnLowHealthDrool)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(51, 1),
+            Cue(new(K.CallIfSamusCloseBehind, Target: P.FacingRightExplosiveSwipeRightFootForward)),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 22)),
+            Show(52, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 24)),
+            Show(53, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 26)),
+            Show(54, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 28)),
+            Show(55, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 30)),
+            FallInto(P.FacingRightFacelessWalkingRightLegMoving),
+        ],
+        // $C1CC
+        [P.FacingRightFacelessWalkingRightLegMoving] =
+        [
+            Cue(new(K.SteppedRightWithLeftFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.Active)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.AirTransition)),
+            Cue(new(K.SpawnLowHealthDrool)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(56, 1),
+            Cue(new(K.CallIfSamusCloseBehind, Target: P.FacingRightExplosiveSwipeLeftFootForward)),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 32)),
+            Show(57, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 34)),
+            Show(58, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 36)),
+            Show(59, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 38)),
+            Show(60, 5),
+            Cue(new(K.WalkFacelessBombTorizo, Value: 20)),
+            GoTo(P.FacingRightFacelessWalkingLeftLegMoving),
+        ],
+        // $C9CB
+        [P.GoldenInitial0] =
+        [
+            CopyTiles(21),
+            Cue(new(K.SteppedLeftWithRightFoot)),
+            Cue(new(K.LockAnimation)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.GoldenWaitForSamus)),
+            Show(47, 1),
+            Hold,
+        ],
+        // $C9E2
+        [P.GoldenInitial0Resumed] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
+            FallInto(P.GoldenInitial1),
+        ],
+        // $C9E6
+        [P.GoldenInitial1] =
+        [
+            Show(47, 1),
+            Cue(new(K.GoToIfAirborne, Target: P.GoldenInitial1)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(47, 3),
+            Cue(new(K.SitDown, Value: 4)),
+            Show(46, 4),
+            Cue(new(K.SitDown, Value: 2)),
+            Show(45, 5),
+            Cue(new(K.SitDown, Value: 0)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.Idle)),
+            Show(44, 48),
+            CopyTiles(22),
+            Show(44, 32),
+            CopyTiles(23),
+            Show(44, 16),
+            CopyTiles(24),
+            Show(44, 8),
+            CopyTiles(25),
+            Show(44, 32),
+            SetCounter(2),
+            FallInto(P.GoldenInitial2),
+        ],
+        // $CA48
+        [P.GoldenInitial2] =
+        [
+            Show(44, 4),
+            CopyTiles(26),
+            Show(44, 4),
+            CopyTiles(27),
+            Show(44, 4),
+            CopyTiles(28),
+            Show(44, 4),
+            CopyTiles(29),
+            RepeatWhileCounting(P.GoldenInitial2),
+            Show(44, 32),
+            Cue(new(K.StandUp, Value: 0)),
+            Show(45, 12),
+            Cue(new(K.StandUp, Value: 2)),
+            Show(46, 8),
+            Cue(new(K.StandUp, Value: 4)),
+            Show(47, 8),
+            Cue(new(K.StandUp, Value: 6)),
+            Show(48, 8),
+            Cue(new(K.StandUp, Value: 8)),
+            Show(49, 8),
+            Cue(new(K.StandUp, Value: 10)),
+            Cue(new(K.LoadGoldenTorizoPalettes)),
+            SetCounter(16),
+            FallInto(P.GoldenInitial3),
+        ],
+        // $CAB6
+        [P.GoldenInitial3] =
+        [
+            Show(50, 4),
+            Cue(new(K.AdvancePaletteFade)),
+            RepeatWhileCounting(P.GoldenInitial3),
+            Cue(new(K.NoOperation)),
+            Cue(new(K.UnlockAnimation)),
+            Cue(new(K.StartGoldenTorizoFight)),
+            Show(50, 16),
+            GoTo(P.GoldenWalkingLeftLeftLegMoving),
+        ],
+        // $CAFF
+        [P.GoldenSpewChozoOrbsFaceLeftRightFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            Show(12, 6),
+            Show(13, 3),
+            Show(14, 3),
+            Show(15, 3),
+            Show(16, 3),
+            Show(17, 6),
+            SetCounter(6),
+            FallInto(P.GoldenSpewChozoOrbsFaceLeftRightFootFwd1),
+        ],
+        // $CB1F
+        [P.GoldenSpewChozoOrbsFaceLeftRightFootFwd1] =
+        [
+            Cue(new(K.PlayShotSound)),
+            Cue(new(K.SpawnGoldenTorizoChozoOrbs)),
+            Wait(6),
+            RepeatWhileCounting(P.GoldenSpewChozoOrbsFaceLeftRightFootFwd1),
+            Show(16, 3),
+            Show(15, 3),
+            Show(14, 3),
+            Show(13, 3),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd0),
+        ],
+        // $CB41
+        [P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            Show(18, 6),
+            Show(19, 3),
+            Show(20, 3),
+            Show(21, 3),
+            Show(22, 3),
+            Show(23, 6),
+            SetCounter(6),
+            FallInto(P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd1),
+        ],
+        // $CB61
+        [P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd1] =
+        [
+            Cue(new(K.PlayShotSound)),
+            Cue(new(K.SpawnGoldenTorizoChozoOrbs)),
+            Wait(6),
+            RepeatWhileCounting(P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd1),
+            Show(22, 3),
+            Show(21, 3),
+            Show(20, 3),
+            Show(19, 3),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.GoldenSonicBoomsFacingLeftRightFootFwd0),
+        ],
+        // $CB83
+        [P.GoldenSonicBoomsFacingLeftRightFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            SetCounter(4),
+            FallInto(P.GoldenSonicBoomsFacingLeftRightFootFwd1),
+        ],
+        // $CB8B
+        [P.GoldenSonicBoomsFacingLeftRightFootFwd1] =
+        [
+            Show(12, 3),
+            Show(24, 3),
+            Show(25, 3),
+            Show(26, 3),
+            Show(27, 3),
+            Show(28, 3),
+            Show(27, 1),
+            Show(26, 1),
+            Cue(new(K.SpawnGoldenTorizoSonicBoom, Value: 0)),
+            Show(25, 1),
+            Show(24, 4),
+            Show(12, 3),
+            Show(29, 3),
+            Show(30, 3),
+            Show(31, 3),
+            Show(32, 3),
+            Show(33, 3),
+            Show(32, 1),
+            Show(31, 1),
+            Cue(new(K.SpawnGoldenTorizoSonicBoom, Value: 1)),
+            Show(30, 1),
+            Show(29, 4),
+            RepeatWhileCounting(P.GoldenSonicBoomsFacingLeftRightFootFwd1),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.GoldenSonicBoomsFacingLeftLeftFootFwd0),
+        ],
+        // $CBED
+        [P.GoldenSonicBoomsFacingLeftLeftFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            SetCounter(4),
+            FallInto(P.GoldenSonicBoomsFacingLeftLeftFootFwd1),
+        ],
+        // $CBF5
+        [P.GoldenSonicBoomsFacingLeftLeftFootFwd1] =
+        [
+            Show(18, 3),
+            Show(34, 3),
+            Show(35, 3),
+            Show(36, 3),
+            Show(37, 3),
+            Show(38, 3),
+            Show(37, 1),
+            Show(36, 1),
+            Cue(new(K.SpawnGoldenTorizoSonicBoom, Value: 0)),
+            Show(35, 1),
+            Show(34, 4),
+            Show(18, 3),
+            Show(39, 3),
+            Show(40, 3),
+            Show(41, 3),
+            Show(42, 3),
+            Show(43, 3),
+            Show(42, 1),
+            Show(41, 1),
+            Cue(new(K.SpawnGoldenTorizoSonicBoom, Value: 1)),
+            Show(40, 1),
+            Show(39, 4),
+            RepeatWhileCounting(P.GoldenSonicBoomsFacingLeftLeftFootFwd1),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0),
+        ],
+        // $CC57
+        [P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            Show(61, 6),
+            Show(62, 3),
+            Show(63, 3),
+            Show(64, 3),
+            Show(65, 3),
+            Show(66, 6),
+            SetCounter(6),
+            FallInto(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1),
+        ],
+        // $CC77
+        [P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1] =
+        [
+            Cue(new(K.PlayShotSound)),
+            Cue(new(K.SpawnGoldenTorizoChozoOrbs)),
+            Wait(6),
+            RepeatWhileCounting(P.GoldenSpewChozoOrbFacingLeftLeftFootFwd1),
+            Show(65, 3),
+            Show(64, 3),
+            Show(63, 3),
+            Show(62, 3),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.GoldenSpewChozoOrbFacingLeftRightFootFwd0),
+        ],
+        // $CC99
+        [P.GoldenSpewChozoOrbFacingLeftRightFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            Show(67, 6),
+            Show(68, 3),
+            Show(69, 3),
+            Show(70, 3),
+            Show(71, 3),
+            Show(72, 6),
+            SetCounter(6),
+            FallInto(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1),
+        ],
+        // $CCB9
+        [P.GoldenSpewChozoOrbFacingLeftRightFootFwd1] =
+        [
+            Cue(new(K.PlayShotSound)),
+            Cue(new(K.SpawnGoldenTorizoChozoOrbs)),
+            Wait(6),
+            RepeatWhileCounting(P.GoldenSpewChozoOrbFacingLeftRightFootFwd1),
+            Show(71, 3),
+            Show(70, 3),
+            Show(69, 3),
+            Show(68, 3),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.GoldenSonicBoomsFacingRightLeftFootFwd0),
+        ],
+        // $CCDB
+        [P.GoldenSonicBoomsFacingRightLeftFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            SetCounter(4),
+            FallInto(P.GoldenSonicBoomsFacingRightLeftFootFwd1),
+        ],
+        // $CCE3
+        [P.GoldenSonicBoomsFacingRightLeftFootFwd1] =
+        [
+            Show(61, 3),
+            Show(73, 3),
+            Show(74, 3),
+            Show(75, 3),
+            Show(76, 3),
+            Show(77, 3),
+            Show(76, 1),
+            Show(75, 1),
+            Cue(new(K.SpawnGoldenTorizoSonicBoom, Value: 0)),
+            Show(74, 1),
+            Show(73, 4),
+            Show(61, 3),
+            Show(78, 3),
+            Show(79, 3),
+            Show(80, 3),
+            Show(81, 3),
+            Show(82, 3),
+            Show(81, 1),
+            Show(80, 1),
+            Cue(new(K.SpawnGoldenTorizoSonicBoom, Value: 1)),
+            Show(79, 1),
+            Show(78, 4),
+            RepeatWhileCounting(P.GoldenSonicBoomsFacingRightLeftFootFwd1),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.GoldenSonicBoomsFacingRightRightFootFwd0),
+        ],
+        // $CD45
+        [P.GoldenSonicBoomsFacingRightRightFootFwd0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            SetCounter(4),
+            FallInto(P.GoldenSonicBoomsFacingRightRightFootFwd1),
+        ],
+        // $CD4D
+        [P.GoldenSonicBoomsFacingRightRightFootFwd1] =
+        [
+            Show(67, 3),
+            Show(83, 3),
+            Show(84, 3),
+            Show(85, 3),
+            Show(86, 3),
+            Show(87, 3),
+            Show(86, 1),
+            Show(85, 1),
+            Cue(new(K.SpawnGoldenTorizoSonicBoom, Value: 0)),
+            Show(84, 1),
+            Show(83, 4),
+            Show(67, 3),
+            Show(88, 3),
+            Show(89, 3),
+            Show(90, 3),
+            Show(91, 3),
+            Show(92, 3),
+            Show(91, 1),
+            Show(90, 1),
+            Cue(new(K.SpawnGoldenTorizoSonicBoom, Value: 1)),
+            Show(89, 1),
+            Show(88, 4),
+            RepeatWhileCounting(P.GoldenSonicBoomsFacingRightRightFootFwd1),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.Return)),
+            FallInto(P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd),
+        ],
+        // $CDAF
+        [P.GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd] =
+        [
+            Cue(new(K.CallGoldenTorizoAttack, Target: P.GoldenSpewChozoOrbsFacingLeftLeftFootFwd0, Alternate: P.GoldenSonicBoomsFacingLeftLeftFootFwd0)),
+            GoTo(P.GoldenWalkingLeftRightLegMoving),
+        ],
+        // $CDB9
+        [P.GoldenLandedFromBackwardsJumpFacingLeftRightFootFwd] =
+        [
+            Cue(new(K.CallGoldenTorizoAttack, Target: P.GoldenSpewChozoOrbsFaceLeftRightFootFwd0, Alternate: P.GoldenSonicBoomsFacingLeftRightFootFwd0)),
+            GoTo(P.GoldenWalkingLeftLeftLegMoving),
+        ],
+        // $CDC3
+        [P.GoldenLandedFromBackwardsJumpFacingRightRightFootFwd] =
+        [
+            Cue(new(K.CallGoldenTorizoAttack, Target: P.GoldenSpewChozoOrbFacingLeftRightFootFwd0, Alternate: P.GoldenSonicBoomsFacingRightRightFootFwd0)),
+            GoTo(P.GoldenWalkingRightLeftLegMoving),
+        ],
+        // $CDCD
+        [P.GoldenLandedFromBackwardsJumpFacingRightLeftFootFwd] =
+        [
+            Cue(new(K.CallGoldenTorizoAttack, Target: P.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, Alternate: P.GoldenSonicBoomsFacingRightLeftFootFwd0)),
+            GoTo(P.GoldenWalkingRightRightLegMoving),
+        ],
+        // $CDE1
+        [P.GoldenCaughtSuperFacingLeftLeftLegFwd] =
+        [
+            Cue(new(K.PlaySonicBoomSound)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.GoldenGravity)),
+            Show(18, 1),
+            Show(34, 1),
+            Show(35, 1),
+            Show(36, 1),
+            Show(37, 1),
+            Show(38, 1),
+            Show(37, 1),
+            Show(36, 1),
+            Show(35, 1),
+            Show(34, 1),
+            Show(34, 2),
+            Show(35, 2),
+            Show(36, 2),
+            Show(37, 2),
+            Cue(new(K.SpawnSuperMissile)),
+            Show(38, 48),
+            Show(37, 2),
+            Show(36, 2),
+            Show(35, 2),
+            Show(34, 2),
+            Show(18, 2),
+            Show(39, 16),
+            Cue(new(K.ClearCaughtSuperMissile)),
+            GoTo(P.GoldenWalkingLeftRightLegMoving),
+        ],
+        // $CE43
+        [P.GoldenCaughtSuperFacingLeftRightLegFwd] =
+        [
+            Cue(new(K.PlaySonicBoomSound)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.GoldenGravity)),
+            Show(12, 1),
+            Show(24, 1),
+            Show(25, 1),
+            Show(26, 1),
+            Show(27, 1),
+            Show(28, 1),
+            Show(27, 1),
+            Show(26, 1),
+            Show(25, 1),
+            Show(24, 1),
+            Show(24, 2),
+            Show(25, 2),
+            Show(26, 2),
+            Show(27, 2),
+            Cue(new(K.SpawnSuperMissile)),
+            Show(28, 48),
+            Show(27, 2),
+            Show(26, 2),
+            Show(25, 2),
+            Show(24, 2),
+            Show(12, 2),
+            Show(29, 16),
+            Cue(new(K.ClearCaughtSuperMissile)),
+            GoTo(P.GoldenWalkingLeftLeftLegMoving),
+        ],
+        // $CEA5
+        [P.GoldenCaughtSuperFacingRightRightLegFwd] =
+        [
+            Cue(new(K.PlaySonicBoomSound)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.GoldenGravity)),
+            Show(67, 1),
+            Show(83, 1),
+            Show(84, 1),
+            Show(85, 1),
+            Show(86, 1),
+            Show(87, 1),
+            Show(86, 1),
+            Show(85, 1),
+            Show(84, 1),
+            Show(84, 2),
+            Show(85, 2),
+            Show(86, 2),
+            Cue(new(K.SpawnSuperMissile)),
+            Show(87, 48),
+            Show(86, 2),
+            Show(85, 2),
+            Show(84, 2),
+            Show(83, 2),
+            Show(67, 2),
+            Show(88, 16),
+            Cue(new(K.ClearCaughtSuperMissile)),
+            GoTo(P.GoldenWalkingRightLeftLegMoving),
+        ],
+        // $CEFF
+        [P.GoldenCaughtSuperFacingRightLeftLegFwd] =
+        [
+            Cue(new(K.PlaySonicBoomSound)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.GoldenGravity)),
+            Show(61, 1),
+            Show(73, 1),
+            Show(74, 1),
+            Show(75, 1),
+            Show(76, 1),
+            Show(77, 1),
+            Show(76, 1),
+            Show(75, 1),
+            Show(74, 1),
+            Show(74, 2),
+            Show(75, 2),
+            Show(76, 2),
+            Cue(new(K.SpawnSuperMissile)),
+            Show(77, 48),
+            Show(76, 2),
+            Show(75, 2),
+            Show(74, 2),
+            Show(73, 2),
+            Show(61, 2),
+            Show(78, 16),
+            Cue(new(K.ClearCaughtSuperMissile)),
+            GoTo(P.GoldenWalkingRightRightLegMoving),
+        ],
+        // $CF59
+        [P.GoldenSitDownAttackFacingLeft] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            Show(50, 8),
+            Cue(new(K.SitDown, Value: 10)),
+            Show(49, 8),
+            Cue(new(K.SitDown, Value: 8)),
+            Show(48, 6),
+            Cue(new(K.SitDown, Value: 6)),
+            Show(47, 6),
+            Cue(new(K.SitDown, Value: 4)),
+            Show(46, 4),
+            Cue(new(K.SitDown, Value: 2)),
+            Show(45, 4),
+            Cue(new(K.SitDown, Value: 0)),
+            Show(44, 8),
+            Cue(new(K.StandUp, Value: 0)),
+            Show(45, 8),
+            Cue(new(K.StandUp, Value: 2)),
+            Show(46, 8),
+            Cue(new(K.StandUp, Value: 4)),
+            Show(47, 8),
+            Cue(new(K.StandUp, Value: 6)),
+            Show(48, 10),
+            Cue(new(K.StandUp, Value: 8)),
+            Show(49, 10),
+            Cue(new(K.StandUp, Value: 10)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            GoTo(P.GoldenWalkingLeftLeftLegMoving),
+        ],
+        // $CFC5
+        [P.GoldenSitDownAttackFacingRight] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            Show(99, 8),
+            Cue(new(K.SitDown, Value: 26)),
+            Show(98, 8),
+            Cue(new(K.SitDown, Value: 24)),
+            Show(97, 6),
+            Cue(new(K.SitDown, Value: 22)),
+            Show(96, 6),
+            Cue(new(K.SitDown, Value: 20)),
+            Show(95, 4),
+            Cue(new(K.SitDown, Value: 18)),
+            Show(94, 4),
+            Cue(new(K.SitDown, Value: 16)),
+            Show(93, 8),
+            Cue(new(K.StandUp, Value: 16)),
+            Show(94, 8),
+            Cue(new(K.StandUp, Value: 18)),
+            Show(95, 8),
+            Cue(new(K.StandUp, Value: 20)),
+            Show(96, 8),
+            Cue(new(K.StandUp, Value: 22)),
+            Show(97, 10),
+            Cue(new(K.StandUp, Value: 24)),
+            Show(98, 10),
+            Cue(new(K.StandUp, Value: 26)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            GoTo(P.GoldenWalkingRightRightLegMoving),
+        ],
+        // $D031
+        [P.GoldenReleaseGoldenTorizoEggs0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            CopyTiles(30),
+            CopyTiles(31),
+            Wait(8),
+            CopyTiles(32),
+            CopyTiles(33),
+            Wait(8),
+            CopyTiles(34),
+            CopyTiles(35),
+            Wait(16),
+            SetCounter(6),
+            FallInto(P.GoldenReleaseGoldenTorizoEggs1),
+        ],
+        // $D07B
+        [P.GoldenReleaseGoldenTorizoEggs1] =
+        [
+            Cue(new(K.PlayEggReleasedSound)),
+            Cue(new(K.SpawnEgg)),
+            Wait(8),
+            RepeatWhileCounting(P.GoldenReleaseGoldenTorizoEggs1),
+            FallInto(P.GoldenReleaseGoldenTorizoEggs2),
+        ],
+        // $D087
+        [P.GoldenReleaseGoldenTorizoEggs2] =
+        [
+            Wait(1),
+            Cue(new(K.GoToIfEyeBeamActive, Target: P.GoldenReleaseGoldenTorizoEggs2)),
+            CopyTiles(36),
+            CopyTiles(37),
+            Wait(8),
+            CopyTiles(38),
+            CopyTiles(39),
+            Wait(8),
+            CopyTiles(40),
+            CopyTiles(41),
+            Wait(8),
+            CopyTiles(42),
+            CopyTiles(43),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.Return)),
+            Unreachable,
+        ],
+        // $D10D
+        [P.GoldenEyeBeamAttack0] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.GoldenGravity)),
+            Cue(new(K.DisableEyeBeamExplosions)),
+            Cue(new(K.LockAnimation)),
+            Wait(8),
+            SetCounter(4),
+            Cue(new(K.PlayLaserSound)),
+            FallInto(P.GoldenEyeBeamAttack1),
+        ],
+        // $D11F
+        [P.GoldenEyeBeamAttack1] =
+        [
+            Cue(new(K.SpawnEyeBeam, Value: 0)),
+            Wait(4),
+            RepeatWhileCounting(P.GoldenEyeBeamAttack1),
+            Wait(8),
+            SetCounter(2),
+            FallInto(P.GoldenEyeBeamAttack2),
+        ],
+        // $D133
+        [P.GoldenEyeBeamAttack2] =
+        [
+            Wait(3),
+            CopyTiles(44),
+            Wait(3),
+            CopyTiles(45),
+            Wait(3),
+            CopyTiles(46),
+            Wait(3),
+            CopyTiles(47),
+            RepeatWhileCounting(P.GoldenEyeBeamAttack2),
+            Cue(new(K.EnableEyeBeamExplosions)),
+            Wait(8),
+            Cue(new(K.DisableEyeBeamExplosions)),
+            Cue(new(K.UnlockAnimation)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.GoldenPreInstruction)),
+            Cue(new(K.Return)),
+            Unreachable,
+        ],
+        // $D193
+        [P.Stunned0] =
+        [
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenGravity)),
+            Cue(new(K.LockAnimation)),
+            Wait(24),
+            SetCounter(2),
+            FallInto(P.Stunned1),
+        ],
+        // $D1A1
+        [P.Stunned1] =
+        [
+            Wait(3),
+            CopyTiles(48),
+            Wait(3),
+            CopyTiles(49),
+            Wait(3),
+            CopyTiles(50),
+            Wait(3),
+            CopyTiles(51),
+            RepeatWhileCounting(P.Stunned1),
+            Wait(16),
+            Cue(new(K.UnlockAnimation)),
+            Cue(new(K.UnmarkStunned)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.Return)),
+            Unreachable,
+        ],
+        // $D1F1
+        [P.GoldenDodgeTurningLeft] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
+            Cue(new(K.LockAnimation)),
+            Cue(new(K.SetTurningAround)),
+            Show(1, 24),
+            Cue(new(K.UnlockAnimation)),
+            GoTo(P.GoldenWalkingLeftRightLegMoving),
+        ],
+        // $D203
+        [P.GoldenTurningLeft] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
+            Cue(new(K.SetTurningAround)),
+            Show(1, 8),
+            FallInto(P.GoldenWalkingLeftRightLegMoving),
+        ],
+        // $D20D
+        [P.GoldenWalkingLeftRightLegMoving] =
+        [
+            Cue(new(K.SteppedLeftWithLeftFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.GoldenPreInstruction)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(2, 8),
+            Cue(new(K.JumpForwardIfSamusFar, Target: P.FacingLeftJumpingForwards0)),
+            Cue(new(K.JumpBackIfSamusCloseInFrontGolden, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd0)),
+            Cue(new(K.CallIfStunHealthHigh, Target: P.Stunned0)),
+            Cue(new(K.CallSometimesIfSamusMorphedInFront, Target: P.GoldenEyeBeamAttack0)),
+            Cue(new(K.WalkGoldenTorizo, Value: 2)),
+            Show(3, 4),
+            Cue(new(K.WalkGoldenTorizo, Value: 4)),
+            Show(4, 4),
+            Cue(new(K.CallSometimesIfHealthLow, Target: P.GoldenReleaseGoldenTorizoEggs0)),
+            Cue(new(K.JumpBackIfSamusCloseInFrontGolden, Target: P.FacingLeftJumpingBackwardLandLeftFootFwd0)),
+            Cue(new(K.WalkGoldenTorizo, Value: 6)),
+            Show(5, 4),
+            Cue(new(K.WalkGoldenTorizo, Value: 8)),
+            Show(6, 4),
+            Cue(new(K.WalkGoldenTorizo, Value: 10)),
+            FallInto(P.GoldenWalkingLeftLeftLegMoving),
+        ],
+        // $D259
+        [P.GoldenWalkingLeftLeftLegMoving] =
+        [
+            Cue(new(K.SteppedLeftWithRightFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.GoldenPreInstruction)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(7, 8),
+            Cue(new(K.GoToIfSamusMorphedBehind, Target: P.GoldenSitDownAttackFacingLeft)),
+            Cue(new(K.JumpForwardIfSamusFar, Target: P.FacingLeftJumpingForwards0)),
+            Cue(new(K.JumpBackIfSamusCloseInFrontGolden, Target: P.FacingLeftJumpingBackwardRightFootFwd0)),
+            Cue(new(K.CallIfStunHealthHigh, Target: P.Stunned0)),
+            Cue(new(K.CallSometimesIfSamusMorphedInFront, Target: P.GoldenEyeBeamAttack0)),
+            Cue(new(K.WalkGoldenTorizo, Value: 12)),
+            Show(8, 4),
+            Cue(new(K.WalkGoldenTorizo, Value: 14)),
+            Show(9, 4),
+            Cue(new(K.CallSometimesIfHealthLow, Target: P.GoldenReleaseGoldenTorizoEggs0)),
+            Cue(new(K.JumpBackIfSamusCloseInFrontGolden, Target: P.FacingLeftJumpingBackwardRightFootFwd0)),
+            Cue(new(K.WalkGoldenTorizo, Value: 16)),
+            Show(10, 4),
+            Cue(new(K.WalkGoldenTorizo, Value: 18)),
+            Show(11, 4),
+            Cue(new(K.WalkGoldenTorizo, Value: 0)),
+            GoTo(P.GoldenWalkingLeftRightLegMoving),
+        ],
+        // $D2AD
+        [P.GoldenDodgeTurningRight] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
+            Cue(new(K.LockAnimation)),
+            Cue(new(K.SetTurningAround)),
+            Show(1, 24),
+            Cue(new(K.UnlockAnimation)),
+            GoTo(P.GoldenWalkingRightLeftLegMoving),
+        ],
+        // $D2BF
+        [P.GoldenTurningRight] =
+        [
+            Cue(new(K.SetFunction, Function: TorizoFunction.Falling)),
+            Cue(new(K.SetTurningAround)),
+            Show(1, 8),
+            FallInto(P.GoldenWalkingRightLeftLegMoving),
+        ],
+        // $D2C9
+        [P.GoldenWalkingRightLeftLegMoving] =
+        [
+            Cue(new(K.SteppedRightWithRightFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.GoldenPreInstruction)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(51, 8),
+            Cue(new(K.JumpForwardIfSamusFar, Target: P.FacingRightJumpingForwards0)),
+            Cue(new(K.JumpBackIfSamusCloseInFrontGolden, Target: P.FacingRightJumpBackwardLandRightFootFwd0)),
+            Cue(new(K.CallIfStunHealthHigh, Target: P.Stunned0)),
+            Cue(new(K.CallSometimesIfSamusMorphedInFront, Target: P.GoldenEyeBeamAttack0)),
+            Cue(new(K.WalkGoldenTorizo, Value: 22)),
+            Show(52, 4),
+            Cue(new(K.WalkGoldenTorizo, Value: 24)),
+            Show(53, 4),
+            Cue(new(K.CallSometimesIfHealthLow, Target: P.GoldenReleaseGoldenTorizoEggs0)),
+            Cue(new(K.WalkGoldenTorizo, Value: 26)),
+            Show(54, 4),
+            Cue(new(K.JumpBackIfSamusCloseInFrontGolden, Target: P.FacingRightJumpBackwardLandRightFootFwd0)),
+            Cue(new(K.WalkGoldenTorizo, Value: 28)),
+            Show(55, 4),
+            Cue(new(K.WalkGoldenTorizo, Value: 30)),
+            FallInto(P.GoldenWalkingRightRightLegMoving),
+        ],
+        // $D315
+        [P.GoldenWalkingRightRightLegMoving] =
+        [
+            Cue(new(K.SteppedRightWithLeftFoot)),
+            Cue(new(K.SetFunction, Function: TorizoFunction.GoldenPreInstruction)),
+            Cue(new(K.SetPreInstruction, PreInstruction: TorizoPreInstruction.GoldenAirTransition)),
+            Cue(new(K.PlayFootstepSound)),
+            Show(56, 8),
+            Cue(new(K.GoToIfSamusMorphedBehind, Target: P.GoldenSitDownAttackFacingRight)),
+            Cue(new(K.JumpForwardIfSamusFar, Target: P.FacingRightJumpingForwards0)),
+            Cue(new(K.JumpBackIfSamusCloseInFrontGolden, Target: P.FacingRightJumpBackwardsLandLeftFootFwd0)),
+            Cue(new(K.CallIfStunHealthHigh, Target: P.Stunned0)),
+            Cue(new(K.CallSometimesIfSamusMorphedInFront, Target: P.GoldenEyeBeamAttack0)),
+            Cue(new(K.WalkGoldenTorizo, Value: 32)),
+            Show(57, 4),
+            Cue(new(K.WalkGoldenTorizo, Value: 34)),
+            Show(58, 4),
+            Cue(new(K.CallSometimesIfHealthLow, Target: P.GoldenReleaseGoldenTorizoEggs0)),
+            Cue(new(K.JumpBackIfSamusCloseInFrontGolden, Target: P.FacingRightJumpBackwardsLandLeftFootFwd0)),
+            Cue(new(K.WalkGoldenTorizo, Value: 36)),
+            Show(59, 4),
+            Cue(new(K.WalkGoldenTorizo, Value: 38)),
+            Show(60, 4),
+            Cue(new(K.WalkGoldenTorizo, Value: 20)),
+            GoTo(P.GoldenWalkingRightLeftLegMoving),
+        ],
+    });
+
+    /// <summary>
+    /// The program a sleeping list resumes into when the AI steps its pointer past the sleep, as Bomb Torizo's wake
+    /// and Golden Torizo's trigger do.
+    /// </summary>
+    internal static TorizoBodyProgram AfterSleep(TorizoBodyProgram program) => program switch
+    {
+        P.BombTorizoInitial0 => P.BombTorizoInitial0Resumed,
+        P.FacingLeftFacelessWalkingLeftLegMovingTrailing => P.FacingLeftFacelessWalkingLeftLegMovingTrailingResumed,
+        P.GoldenInitial0 => P.GoldenInitial0Resumed,
+        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
+    };
+
+    /// <summary>
+    /// The extended spritemaps <paramref name="programs"/> show, in authored order with repeats: the artwork schema's
+    /// first-seen frame order.
+    /// </summary>
+    internal static IEnumerable<ushort> Spritemaps(params TorizoBodyProgram[] programs) =>
+        programs.SelectMany(program => Programs.Steps(program))
+            .Where(step => step.Kind == AnimationProgramStepKind.Show)
+            .Select(step => TorizoFrameDefinitions.Spritemap(step.Frame));
+
+    /// <summary>Every body program, in authored address order.</summary>
+    internal static TorizoBodyProgram[] AllPrograms { get; } = Enum.GetValues<TorizoBodyProgram>();
+
+    /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
+    private static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> Show(int pose, int duration) =>
+        AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.Show(new(pose), duration);
+
+    /// <summary>Publishes <paramref name="cue"/>.</summary>
+    private static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> Cue(TorizoCue cue) =>
+        AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.Publish(cue);
+
+    /// <summary>Copies tile transfer <paramref name="transfer"/> to VRAM.</summary>
+    private static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> CopyTiles(int transfer) =>
+        Cue(new(K.CopyTiles, Transfer: transfer));
+
+    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
+    private static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> SetCounter(int count) =>
+        AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.SetCounter(count);
+
+    /// <summary>Repeats from <paramref name="program"/> while the loop counter counts down.</summary>
+    private static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> RepeatWhileCounting(TorizoBodyProgram program) =>
+        AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.RepeatWhileCounting(program);
+
+    /// <summary>Waits <paramref name="updates"/> updates on the current frame.</summary>
+    private static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> Wait(int updates) =>
+        AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.Wait(updates);
+
+    /// <summary>Continues at <paramref name="program"/>.</summary>
+    private static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> GoTo(TorizoBodyProgram program) =>
+        AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.GoTo(program);
+
+    /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
+    private static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> FallInto(TorizoBodyProgram program) =>
+        AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.FallInto(program);
+
+    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    private static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> Hold =>
+        AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.Hold;
+
+    /// <summary>Ends the actor's program, as the native stop does.</summary>
+    private static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> Stop =>
+        AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.Stop;
+
+    /// <summary>Closes a program after a cue that always redirects; the program never reaches it.</summary>
+    private static AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue> Unreachable => Hold;
+}

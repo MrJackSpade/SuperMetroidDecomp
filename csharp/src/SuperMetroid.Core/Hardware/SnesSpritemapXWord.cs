@@ -12,6 +12,9 @@ public readonly record struct SnesSpritemapXWord(ushort Raw)
     private const ushort OffsetMask = 0x01ff;
     /// <summary>The top bit carries the spritemap's large-object selector.</summary>
     private const ushort LargeObjectMask = 0x8000;
+    /// <summary>The largest value the nine-bit X offset field holds, $1FF.</summary>
+    public const int OffsetFieldMaximum = OffsetMask;
+
     /// <summary>Gets whether bit 15 selects the larger of the PPU's configured OBJ sizes.</summary>
     public bool IsLarge => (Raw & LargeObjectMask) != 0;
     /// <summary>Signed nine-bit visual displacement; unrelated upper bits never reach OAM X.</summary>
@@ -28,4 +31,7 @@ public readonly record struct SnesSpritemapXWord(ushort Raw)
 
     /// <summary>Wraps the cartridge's encoded X word without normalizing unused bits.</summary>
     public static implicit operator SnesSpritemapXWord(ushort raw) => new(raw);
+
+    /// <summary>This word with its nine-bit X offset replaced by <paramref name="offset"/>, keeping the size flag and every other bit.</summary>
+    public SnesSpritemapXWord WithOffset(int offset) => new(unchecked((ushort)((Raw & ~OffsetMask) | (offset & OffsetMask))));
 }

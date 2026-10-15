@@ -1,5 +1,6 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>Verification access to <see cref="SelectedPresentationHash"/> members production does not use.</summary>
 internal static class SelectedPresentationHashAccess

@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>Named, proven sound sequences in cartridge SFX library two.</summary>
 public static class SoundEffectLibrary2Sounds
 {
+    /// <summary>Library-two $25, queued (Max6) with each explosion by the Ceres escape door's destruction routine at $A6:F7DC.</summary>
+    public static readonly SoundEffectId CeresDoorExplosion = new(SoundEffectLibrary.Library2, 0x25); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$A6:B74F queues library-two $76 when Ridley's tail hits terrain.</summary>
     public static SoundEffectId RidleyTailTerrainImpact => SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x76); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
@@ -65,6 +68,12 @@ public static class SoundEffectLibrary2Sounds
 
     /// <summary>Torizo instruction QueueSonicBoomSFX queues library-two $48 (Max6).</summary>
     public static readonly SoundEffectId TorizoSonicBoom = new(SoundEffectLibrary.Library2, 0x48); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>$86:B14B and $86:B166 queue library-two $22 (Max6) as a Golden Torizo egg hatches.</summary>
+    public static readonly SoundEffectId GoldenTorizoEggHatch = new(SoundEffectLibrary.Library2, 0x22); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>$86:A4AA queues library-two $26 (Max1) as Bomb Torizo's explosive swipe appears.</summary>
+    public static readonly SoundEffectId BombTorizoExplosiveSwipe = new(SoundEffectLibrary.Library2, 0x26); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
     /// <summary>$A6:AABD queues library-two $4E (Max6) on the first entry of Ceres Ridley's getaway table.</summary>
     public static readonly SoundEffectId CeresRidleyGetaway = new(SoundEffectLibrary.Library2, 0x4e); // magic-number-audit: allow(AudioId) - named cartridge SFX identity

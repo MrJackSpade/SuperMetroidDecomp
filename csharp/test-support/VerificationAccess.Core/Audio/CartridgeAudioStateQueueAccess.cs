@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+namespace SuperMetroid.Core.Audio;
 
 /// <summary>Verification access to <see cref="CartridgeAudioState"/> queues, which production reads only to dispatch.</summary>
 internal static class CartridgeAudioStateQueueAccess

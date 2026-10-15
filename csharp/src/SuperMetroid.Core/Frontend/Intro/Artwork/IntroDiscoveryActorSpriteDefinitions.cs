@@ -1,0 +1,58 @@
+using System.Collections;
+
+namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+
+/// <summary>Visual OAM compositions selected by the SR388 egg and confused-baby lists.</summary>
+internal static class IntroDiscoveryActorSpriteDefinitions
+{
+    /// <summary>$8C:8D6F, first egg composition.</summary>
+    internal const ushort EggStart = 0x8d6f;
+    /// <summary>$8C:8FCB, first confused-baby composition.</summary>
+    internal const ushort BabyStart = 0x8fcb;
+    /// <summary>$8C:909D, Ceres large asteroids reused by the second confused-baby list.
+    /// The published asset key remains hatched-baby.</summary>
+    internal const ushort BabyLarge = 0x909d;
+
+    /// <summary>Six-part intact record, eight nine-part cracking records, then seven three-part remnants.</summary>
+    internal static ushort EggFramePointer(int frame)
+    {
+        if ((uint)frame >= 16) throw new ArgumentOutOfRangeException(nameof(frame));
+        return (ushort)(EggStart + (frame > 0 ? 32 : 0) + 47 * Math.Clamp(frame - 1, 0, 8) + 17 * Math.Max(frame - 9, 0));
+    }
+
+    /// <summary>Three consecutive one-part confused-baby records, seven bytes each.</summary>
+    internal static ushort BabyFramePointer(int frame)
+    {
+        if ((uint)frame >= 3) throw new ArgumentOutOfRangeException(nameof(frame));
+        return (ushort)(BabyStart + 7 * frame);
+    }
+
+    /// <summary>Exposes sixteen egg states, three confused Baby states, and the separately keyed large Baby composition.</summary>
+    internal static IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition> Frames { get; } = new FrameList();
+    /// <summary>Calculates native pointers and expected OAM part counts for the twenty discovery compositions.</summary>
+    private sealed class FrameList : IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition>
+    {
+        /// <summary>Sixteen egg states plus four Baby compositions.</summary>
+        public int Count => 20;
+        /// <summary>Pairs a discovery frame's native pointer with its asset key and expected part count.</summary>
+        public IntroDiscoveryActorSpriteFrameDefinition this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+                if (index == 19) return new(BabyLarge, "hatched-baby", 19);
+                if (index >= 16) return new(BabyFramePointer(index - 16), $"confused-baby-{index - 15}", 1);
+                string name = index == 0 ? "egg-intact" : index == 8 ? "egg-hatched"
+                    : index < 8 ? $"egg-crack-{index}" : $"egg-remnant-{index - 8}";
+                return new(EggFramePointer(index), name, index == 0 ? 6 : index < 9 ? 9 : 3);
+            }
+        }
+        /// <summary>Enumerates discovery frames in egg, confused Baby, then large Baby order.</summary>
+        public IEnumerator<IntroDiscoveryActorSpriteFrameDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        /// <summary>Exposes the same frame order to non-generic collection consumers.</summary>
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+}

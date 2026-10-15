@@ -1,8 +1,9 @@
 ﻿using System.Security.Cryptography;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Diagnostics.SaveStates;
 
-namespace SuperMetroid.Desktop;
+namespace SuperMetroid.Diagnostics;
 
 /// <summary>Development-tool construction of <see cref="DebuggerSaveStateStore"/>; never linked by player hosts.</summary>
 internal static class DebuggerSaveStateStoreTooling

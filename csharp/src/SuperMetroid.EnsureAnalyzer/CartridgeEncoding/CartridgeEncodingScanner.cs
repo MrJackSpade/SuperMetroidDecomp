@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace SuperMetroid.EnsureAnalyzer;
+namespace SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
 
 /// <summary>
 /// Finds cartridge encoding in production C# (#641): hexadecimal literals, address-valued pointer

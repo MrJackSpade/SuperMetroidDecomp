@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers Samus and projectile codecs resolve.</summary>
 [CpuBusBoundary("catalog: Samus cartridge tables")]
@@ -19,4 +19,7 @@ internal static class SamusCartridgeTables
     /// </summary>
     internal static readonly CpuBusCell ProjectileBank = CpuBusCell.CartridgeBytes(nameof(ProjectileBank), 0x938000, 0x8000,
         "projectile spritemaps (u16 count + 5-byte parts)");
+
+    /// <summary>$92:90ED: the first Samus spritemap; spritemap pointers below it are invalid.</summary>
+    internal const int FirstSpritemap = 0x90ed;
 }

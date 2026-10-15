@@ -1,5 +1,7 @@
 using System.Runtime.InteropServices;
 
+namespace SuperMetroid.TestSupport.WindowsConsole;
+
 /// <summary>Console diagnostics must report failures to stderr, never show native focus-stealing dialogs.</summary>
 internal static partial class NativeConsoleErrors
 {

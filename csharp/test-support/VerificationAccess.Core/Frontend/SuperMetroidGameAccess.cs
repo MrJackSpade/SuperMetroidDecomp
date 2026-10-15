@@ -1,4 +1,7 @@
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Gameplay;
+
+namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Verification access to <see cref="SuperMetroidGame"/> members production does not use.</summary>
 internal static class SuperMetroidGameAccess

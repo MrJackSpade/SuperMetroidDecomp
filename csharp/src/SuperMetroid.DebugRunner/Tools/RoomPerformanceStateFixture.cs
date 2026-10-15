@@ -1,11 +1,14 @@
 using System.Diagnostics;
 using System.Reflection;
-using SuperMetroid.Android;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Hardware;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.Diagnostics.Android;
 
 /// <summary>Representative retail-room fixtures for Android performance issues #361-363.</summary>
 internal static class RoomPerformanceStateFixture
@@ -29,7 +32,7 @@ internal static class RoomPerformanceStateFixture
         {
             // The actual map-room entrance runs its cartridge setup and door PLM;
             // this does not simulate an entire route merely to benchmark one room.
-            var door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(data.Bus, RoomPerformanceFixtureDefinitions.CrateriaMapEntranceDoor);
+            var door = SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(data.Bus, RoomPerformanceFixtureDefinitions.CrateriaMapEntranceDoor);
             runtime.LoadCartridgeRoomThroughDoorForVerification(door, new Position16<RoomPixels>(camera, camera));
         }
         else

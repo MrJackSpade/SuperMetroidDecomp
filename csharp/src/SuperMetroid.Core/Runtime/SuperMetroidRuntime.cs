@@ -1,9 +1,29 @@
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Areas.Maridia;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Runtime.Attract;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -254,7 +274,7 @@ public sealed class SuperMetroidRuntime
     /// $90:F4A2 test it from inside the outer frame; runtime-only hosts run state eight.
     /// </summary>
     [field: NonSerialized]
-    public ushort DispatchGameState { get; set; } = (ushort)Frontend.SuperMetroidGameState.MainGameplay;
+    public ushort DispatchGameState { get; set; } = (ushort)SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay;
 
     /// <summary>
     /// Native power-bomb explosion status at WRAM <c>$0CE2</c>. X-ray setup rejects every
@@ -1106,14 +1126,13 @@ public sealed class SuperMetroidRuntime
     /// <summary>State-eight tail parked when a PLM opens a message box during a gameplay frame.</summary>
     internal SuspendedGameplayFrameTail? _suspendedFrameTail;
 
-
     /// <summary>Updates live host guards without reconstructing any cartridge-owned state.</summary>
-    internal void ApplyHostOptions(SuperMetroidGameOptions options)
+    internal void ApplyHostOptions(HostGameplayOverrides options)
     {
-        if (!Enum.IsDefined(options.MapReveal))
+        if (!Enum.IsDefined(options.MapRevealMode))
             throw new ArgumentOutOfRangeException(nameof(options), "Unknown map reveal mode.");
-        Options.PlayerInvincibilityEnabled = options.Invincibility;
-        Options.InfiniteAmmoEnabled = options.InfiniteAmmo;
+        Options.PlayerInvincibilityEnabled = options.PlayerInvincibilityEnabled;
+        Options.InfiniteAmmoEnabled = options.InfiniteAmmoEnabled;
         if (!Tester.GrantAllEquipmentEnabled && options.GrantAllEquipment) Tester.testerInventoryRecipient = null;
         Tester.GrantAllEquipmentEnabled = options.GrantAllEquipment;
         bool openingTourian = !Tester.UnlockTourianEnabled && options.UnlockTourian;
@@ -1121,7 +1140,7 @@ public sealed class SuperMetroidRuntime
         Tester.ApplyTesterInventory();
         if (openingTourian && TourianStatues.Enabled) TourianStatues.Load();
         Options.PreventEscapeTimeout = options.PreventEscapeTimeout;
-        Options.MapRevealMode = options.MapReveal;
+        Options.MapRevealMode = options.MapRevealMode;
     }
 
     /// <summary>Room-owned native statue tile programs and HDMA descent.</summary>

@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Hardware;
 
+namespace SuperMetroid.TestSupport.CpuBusTestDoubles;
+
 /// <summary>
 /// A <see cref="CartridgeReadGuard"/> whose read rules also apply to WRAM/SRAM reads (#629): a WRAM/SRAM
 /// read no rule rejects is served by the source's mutable memory.

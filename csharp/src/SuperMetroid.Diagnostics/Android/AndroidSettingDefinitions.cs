@@ -1,4 +1,4 @@
-namespace SuperMetroid.Android;
+namespace SuperMetroid.Diagnostics.Android;
 
 /// <summary>Menu choices that read and edit the same INI settings used by the shared game host.</summary>
 internal static class AndroidSettingDefinitions

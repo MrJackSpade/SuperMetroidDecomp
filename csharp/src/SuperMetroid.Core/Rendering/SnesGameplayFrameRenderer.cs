@@ -1,8 +1,14 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using System.Buffers;
 using System.Runtime.CompilerServices;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -240,7 +246,6 @@ public static class SnesGameplayFrameRenderer
                         winnerRank = objRank;
                     }
                 }
-
 
                 output[destination] = winner;
             }

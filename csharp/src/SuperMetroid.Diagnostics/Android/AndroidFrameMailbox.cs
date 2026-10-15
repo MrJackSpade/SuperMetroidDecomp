@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 
-namespace SuperMetroid.Android;
+namespace SuperMetroid.Diagnostics.Android;
 
 /// <summary>
 /// One fixed-size pending frame. Publish copies borrowed pixels before returning;

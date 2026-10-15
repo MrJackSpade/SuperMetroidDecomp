@@ -1,0 +1,45 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
+
+/// <summary>Exports the nine palette rows selected by the compiled Ceres getaway zoom curve.</summary>
+[CpuBusBoundary("codec: ROM Ceres getaway Mode-7 palette rows → Ceres Ridley Mode-7 colors")]
+public static class CeresRidleyMode7ColorExtractor
+{
+    /// <summary>Reads the nine fixed-stride native palette rows selected by the compiled getaway zoom curve and serializes their RGB5 components.</summary>
+    /// <param name="bus">Supported-cartridge address space containing the Ceres Ridley Mode 7 zoom colors.</param>
+    /// <returns>UTF-8 JSON bytes for the versioned zoom-color catalog.</returns>
+    public static byte[] Extract(ISnesAddressSpace bus)
+    {
+        Ensure.NotNull(bus);
+        var rows = new PaletteRgb5[CeresRidleyPaletteRomData.Mode7ZoomRowCount][];
+        for (int row = 0; row < rows.Length; row++)
+        {
+            byte[] bytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                CeresRidleyPaletteRomData.Mode7ZoomColors +
+                row * CeresRidleyPaletteRomData.Mode7ZoomRowByteStride,
+                CeresRidleyPaletteRomData.Mode7ZoomColorCount * sizeof(ushort));
+            rows[row] = new PaletteRgb5[CeresRidleyPaletteRomData.Mode7ZoomColorCount];
+            for (int color = 0; color < rows[row].Length; color++)
+            {
+                ushort word = (ushort)(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
+                rows[row][color] = new PaletteRgb5
+                {
+                    Red = word & 31,
+                    Green = word >> 5 & 31,
+                    Blue = word >> 10 & 31,
+                };
+            }
+        }
+        return CeresRidleyMode7ColorCatalog.Write(new CeresRidleyMode7ColorDocument
+        {
+            Version = CeresRidleyMode7ColorFormat.Version,
+            ZoomRows = rows,
+        });
+    }
+}

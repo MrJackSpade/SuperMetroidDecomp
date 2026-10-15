@@ -1,3 +1,5 @@
+namespace SuperMetroid.TestSupport.WindowsConsole;
+
 /// <summary>Win32 SetErrorMode bits; documented independently of renderer behavior.</summary>
 internal static class ErrorModes
 {

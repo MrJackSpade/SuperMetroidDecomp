@@ -1,5 +1,4 @@
-using SuperMetroid.Core;
-using SuperMetroid.Core.Input;
+namespace SuperMetroid.Core.Input;
 
 /// <summary>A demo-input owner whose list uses only the shared instructions and pre-instructions (#633).</summary>
 internal sealed class DemoInputListProgram : IDemoInputProgram

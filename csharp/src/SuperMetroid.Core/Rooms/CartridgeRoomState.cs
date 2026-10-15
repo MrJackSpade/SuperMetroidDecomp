@@ -10,7 +10,7 @@ public sealed record CartridgeRoomState(
     ushort FxPointer,
     ushort EnemyPopulationPointer,
     ushort EnemyTilesetPointer,
-    SuperMetroid.Core.Game.Layer2ScrollModes Layer2Scroll,
+    SuperMetroid.Core.Rooms.Scrolling.Layer2ScrollModes Layer2Scroll,
     ushort ScrollPointer,
     ushort XrayPointer,
     ushort MainCodePointer,

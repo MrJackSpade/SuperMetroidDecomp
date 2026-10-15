@@ -1,0 +1,27 @@
+using static SuperMetroid.Verification.Enemies.Platforms.PlatformNativeListAddresses;
+using SuperMetroid.Core.Enemies.Platforms;
+using SuperMetroid.Core.Enemies.Platforms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Verification.Enemies;
+
+namespace SuperMetroid.Verification.Enemies.Platforms;
+
+/// <summary>#641: the Tripper's and Kamer's typed programs, each matched step by step to its native bank-$A3 list.</summary>
+internal static class PlatformAnimationsVerification
+{
+    /// <summary>Every program matches its native list.</summary>
+    internal static void VerifyPlatformAnimations(SuperMetroidAddressSpace rom)
+    {
+        int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, PlatformAnimations.Programs,
+            PlatformFrameDefinitions.Spritemap,
+            word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
+            (word, operands, cue, at) =>
+            {
+                var instruction = Instructions[word];
+                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                AssertEqual(0, operands.Length, $"{at}: operands");
+            });
+        Console.WriteLine($"  Tripper or Kamer programs: {Entries.Length} programs ({steps} steps) match bank $A3.");
+    }
+}

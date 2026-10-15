@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using C = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartCue;
 using F = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartFrameKind;
 using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartProgram;

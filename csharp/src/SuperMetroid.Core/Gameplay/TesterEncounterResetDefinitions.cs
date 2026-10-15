@@ -9,6 +9,6 @@ internal static class TesterEncounterResetDefinitions
     internal static ReadOnlySpan<AreaId> Areas =>
         [AreaId.Crateria, AreaId.Brinstar, AreaId.Norfair, AreaId.WreckedShip, AreaId.Maridia, AreaId.Ceres];
 
-    /// <summary>Bank-$8F eye-door population arguments $45/$5C/$85/$9B/$A8; these five door bits persist enemy defeat.</summary>
-    internal static ReadOnlySpan<ushort> EyeDoorBits => [0x0045, 0x005c, 0x0085, 0x009b, 0x00a8];
+    /// <summary>Bank-$8F eye-door population arguments $45/$5C/$85/$9B/$A8: the five door bits that persist enemy defeat.</summary>
+    internal static ReadOnlySpan<int> EyeDoorBits => [69, 92, 133, 155, 168];
 }

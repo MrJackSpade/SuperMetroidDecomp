@@ -40674,7 +40674,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Input/WindowsGamepadIdentifiers.cs",
+      "path": "csharp/src/SuperMetroid.Core/Input/WindowsGamepadCodes.cs",
       "module": "csharp/src/SuperMetroid.Core/Input",
       "role": "production",
       "namespace": "SuperMetroid.Core.Input",

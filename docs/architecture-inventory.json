@@ -59604,14 +59604,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Input.WindowsGamepadIdentifiers",
+      "type": "SuperMetroid.Core.Input.WindowsGamepadCodes",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Input/WindowsGamepadIdentifiers.cs"
+        "csharp/src/SuperMetroid.Core/Input/WindowsGamepadCodes.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

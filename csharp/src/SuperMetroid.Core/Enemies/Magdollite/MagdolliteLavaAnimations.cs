@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Magdollite.MagdolliteLavaCueKind;
 using P = SuperMetroid.Core.Enemies.Magdollite.MagdolliteLavaProgram;
 using SuperMetroid.Core.Fx;

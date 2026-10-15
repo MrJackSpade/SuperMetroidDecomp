@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Input;
 public static class GenericGamepadInput
 {
     /// <summary>POV value returned by Windows while a directional hat is centered.</summary>
-    public const uint CenteredPointOfView = WindowsGamepadIdentifiers.CenteredPointOfView;
+    public const uint CenteredPointOfView = WindowsGamepadCodes.CenteredPointOfView;
 
     /// <summary>
     /// Signed-axis magnitude required before an analogue direction is considered held.

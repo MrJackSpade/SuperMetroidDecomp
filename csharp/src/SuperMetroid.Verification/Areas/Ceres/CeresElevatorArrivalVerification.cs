@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;

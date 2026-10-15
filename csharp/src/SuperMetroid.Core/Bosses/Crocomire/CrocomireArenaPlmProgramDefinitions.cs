@@ -1,6 +1,7 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Fx;
-using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaProgram, SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaDraw, SuperMetroid.Core.Rooms.Plms.PlmNoCue>;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaProgram, SuperMetroid.Core.Bosses.Crocomire.CrocomireArenaDraw, SuperMetroid.Core.Rooms.Plms.PlmNoCue>;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 

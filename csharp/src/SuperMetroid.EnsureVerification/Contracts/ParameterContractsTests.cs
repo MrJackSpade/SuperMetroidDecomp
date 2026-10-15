@@ -39,11 +39,6 @@ internal static class ParameterContractsTests
         VerifyContract("runtime frames no longer take hook parameters",
             "runtime.StepFrame(0, advanceGameTime: false);", "CS1739");
 
-        // Demo input: one owner contract replaces the three nullable delegates.
-        VerifyContract("a demo step takes one owner program",
-            "IDemoInputProgram program = null!; demo.Step(bus, program);");
-        VerifyContract("demo steps no longer take delegate parameters",
-            "demo.Step(bus, instructionWord: pointer => pointer);", "CS1739");
         Console.WriteLine("#633: parameter contracts compose child capabilities and reject unrelated or omitted ones.");
     }
 

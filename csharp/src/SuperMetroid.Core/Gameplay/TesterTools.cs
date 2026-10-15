@@ -39,7 +39,7 @@ internal sealed class TesterTools
         Span<byte> doors = stackalloc byte[Bank80SystemState.DoorBitByteCount];
         for (int index = 0; index < doors.Length; index++)
             doors[index] = _system.GetOpenedDoorByteRaw(index);
-        foreach (ushort bit in TesterEncounterResetDefinitions.EyeDoorBits)
+        foreach (int bit in TesterEncounterResetDefinitions.EyeDoorBits)
             doors[bit >> 3] &= unchecked((byte)~(1 << (bit & 7)));
         _system.LoadOpenedDoorBytes(doors);
     }

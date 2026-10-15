@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
@@ -23,7 +24,7 @@ internal static class PaletteFxProgramsVerification
         HashSet<int> records = [];
         foreach (PaletteFxProgram program in Enum.GetValues<PaletteFxProgram>())
             foreach (var step in PaletteFxAnimations.Programs.Steps(program))
-                if (step.Kind == Core.Fx.AnimationProgramStepKind.Show)
+                if (step.Kind == Core.Programs.AnimationProgramStepKind.Show)
                     records.Add(step.Frame.Record);
         AssertEqual(PaletteFxRecordDefinitions.RecordCount, records.Count, "every colour record is shown by a program");
         Console.WriteLine($"  Palette-FX programs: {steps.Count} programs ({steps.Values.Sum(s => s.Length)} steps, {records.Count} colour records) match bank $8D.");

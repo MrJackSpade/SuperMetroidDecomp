@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Programs;
 
 /// <summary>What one step of an <see cref="AnimationProgramSet{TProgram, TFrame, TCue}"/> program does.</summary>
 internal enum AnimationProgramStepKind

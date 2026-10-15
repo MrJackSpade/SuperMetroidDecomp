@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Rios.RioCueKind;
 using P = SuperMetroid.Core.Enemies.Rios.RioProgram;
 using SuperMetroid.Core.Enemies.Rios.Artwork;

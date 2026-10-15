@@ -73,9 +73,13 @@ internal sealed class GameplayHudSetup
         // $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at
         // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
         // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
-        _vramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
-            sourceAddress: StandardObjectArtworkAddresses.Source,
-            destination: GameplayVram.ObjectCharactersDma());
+        if (_artwork.StandardObjectArt is null)
+            _vramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
+                sourceAddress: StandardObjectArtworkAddresses.Source,
+                destination: GameplayVram.ObjectCharactersDma());
+        else
+            _vramWrites.EnqueueAsset(VramAssetId.StandardObjectTiles, StandardObjectArtworkFormat.TransferByteCount,
+                GameplayVram.ObjectCharactersDma());
         _artwork.TrailArtwork?.Tiles?.QueueTo(_vramWrites);
 
         // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The
@@ -85,9 +89,13 @@ internal sealed class GameplayHudSetup
             _enemies.PopulationLoader.QueueGraphicsUploads(_vramWrites);
 
         // The immutable first row bypasses WRAM and is DMAed straight from $80:988B.
-        _vramWrites.Enqueue(sizeInBytes: GameplayHudDefinitions.TopRowByteCount,
-            sourceAddress: GameplayHudDefinitions.TopRowAddress,
-            destination: GameplayVram.HudTilemapDma());
+        if (_artwork.MapPresentation is null)
+            _vramWrites.Enqueue(sizeInBytes: GameplayHudDefinitions.TopRowByteCount,
+                sourceAddress: GameplayHudDefinitions.TopRowAddress,
+                destination: GameplayVram.HudTilemapDma());
+        else
+            _vramWrites.EnqueueAsset(VramAssetId.HudTopRowTilemap, GameplayHudDefinitions.TopRowByteCount,
+                GameplayVram.HudTilemapDma());
 
         _hud.Initialize(_addressSpace, snapshot);
         _hud.QueueUpload(_addressSpace, _vramWrites);

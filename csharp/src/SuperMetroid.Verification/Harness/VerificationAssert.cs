@@ -121,7 +121,6 @@ using static SuperMetroid.Verification.Enemies.Gunship.GunshipMotionDefinitionsV
 using static SuperMetroid.Verification.Hardware.HalfWaveAlgorithmsVerification;
 using static SuperMetroid.Verification.Hardware.HighlightTilePixelsVerification;
 using static SuperMetroid.Verification.Samus.Palettes.HyperBeamFxColorArtworkVerification;
-using static SuperMetroid.Verification.Frontend.Intro.IntroBabyDiscoveryInputVerification;
 using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroConfusedBabyPartsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryCollisionVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryFrameCatalogVerification;
@@ -135,7 +134,6 @@ using static SuperMetroid.Verification.Frontend.Intro.IntroMotherBrainCollisionS
 using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroMotherBrainExplosionPartsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroMotherBrainExplosionProgramsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroMotherBrainFrameCatalogVerification;
-using static SuperMetroid.Verification.Frontend.Intro.IntroMotherBrainInputSourceVerification;
 using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroMotherBrainPartsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.Artwork.IntroRinkaPartsVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroRinkaProgramsVerification;
@@ -2274,7 +2272,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifyIntroEggCrackingParts), () => VerifyIntroEggCrackingParts(rom));
         Suite(nameof(VerifyIntroConfusedBabyParts), () => VerifyIntroConfusedBabyParts(rom));
         Suite(nameof(VerifyCeresLargeAsteroidParts), () => VerifyCeresLargeAsteroidParts(rom));
-        Suite(nameof(VerifyIntroBabyDiscoveryInput), () => VerifyIntroBabyDiscoveryInput(rom));
         Suite(nameof(VerifyIntroDiscoveryCollision), () => VerifyIntroDiscoveryCollision(rom));
         Console.WriteLine("Intro discovery programs: all138 bytes, overlapping words, operations and boundaries pass.");
         return 0;
@@ -2315,18 +2312,6 @@ internal static class VerificationAssert
         Suite(nameof(VerifyIntroMotherBrainFrameCatalog), () => VerifyIntroMotherBrainFrameCatalog(rom));
         Suite(nameof(VerifyIntroMotherBrainParts), () => VerifyIntroMotherBrainParts(rom));
         Console.WriteLine("Mother Brain programs/catalog: all46 bytes,45 word views,three frames and boundaries pass.");
-        return 0;
-    }
-
-    /// <summary>Checks intro Mother Brain input gating and native transition rules.</summary>
-    [VerificationCommand("--lookup-intro-mother-brain-input")]
-    internal static int LookupIntroMotherBrainInputCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain input oracle revision");
-        Suite(nameof(VerifyIntroMotherBrainInputSource), () => VerifyIntroMotherBrainInputSource(rom));
-        Console.WriteLine("Mother Brain input: all112 bytes,110 word views and boundaries pass.");
         return 0;
     }
 

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Flies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Samus;

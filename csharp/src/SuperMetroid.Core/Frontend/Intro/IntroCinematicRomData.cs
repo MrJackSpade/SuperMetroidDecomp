@@ -213,13 +213,6 @@ public static class IntroCinematicRomData
         private static IntroPaletteSpan DiscoveryObjects => new((8 + 6) * 32, 9);
     }
 
-    /// <summary>Demo records and fixed Mother Brain room payload.</summary>
-    public static class Flashback
-    {
-        /// <summary>Native demo instruction expected when the Mother Brain flashback ends.</summary>
-        public const ushort ExpectedEndInstruction = 0x8739;
-    }
-
     /// <summary>Music operations performed by the intro's major scene handoffs.</summary>
     public static class Music
     {

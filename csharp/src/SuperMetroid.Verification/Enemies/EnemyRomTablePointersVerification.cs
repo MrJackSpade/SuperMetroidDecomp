@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Verification.Bosses.Torizo;

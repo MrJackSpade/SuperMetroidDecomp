@@ -65,7 +65,7 @@ public static class StockAttractDemoScenes
     /// Preserve the exact staged word without assigning this bit an invented ability;
     /// this chosen copied metadata is part of the exact demonstration staging, not an additional named ability.
     /// </summary>
-    private const ushort ChosenShinesparkUnassignedItemBit = 0x0010;
+    private const ushort ChosenShinesparkUnassignedItemBit = 1 << 4;
     /// <summary>Returns a staged demonstration or its exact native end-of-set sentinel.</summary>
     public static AttractDemoScene? Get(int set, int scene)
     {
@@ -111,8 +111,8 @@ public static class StockAttractDemoScenes
     private static AttractDemoScene Stage(Demonstration demonstration) => demonstration switch
     {
         Demonstration.LandingSite => new(
-            RoomPointer: 0x91f8,
-            DoorPointer: 0x896a,
+            RoomPointer: StockAttractDemoRoomPointers.LandingSiteRoom,
+            DoorPointer: StockAttractDemoRoomPointers.LandingSiteDoor,
             CameraPosition: CameraAtScreen(new(4, 4)),
             SamusOffset: new(1, 64),
             Duration: 1235,
@@ -127,8 +127,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.MissileDoor => new(
-            RoomPointer: 0x9f11,
-            DoorPointer: 0x8eaa,
+            RoomPointer: StockAttractDemoRoomPointers.MissileDoorRoom,
+            DoorPointer: StockAttractDemoRoomPointers.MissileDoorDoor,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-46, GroundedY(8, demonstration)),
             Duration: 337,
@@ -143,8 +143,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.PreSporeSpawnHall => new(
-            RoomPointer: 0x9d9c,
-            DoorPointer: 0x8dc6,
+            RoomPointer: StockAttractDemoRoomPointers.PreSporeSpawnHallRoom,
+            DoorPointer: StockAttractDemoRoomPointers.PreSporeSpawnHallDoor,
             CameraPosition: CameraAtScreen(new(1, 0)),
             SamusOffset: new(-32, GroundedY(13, demonstration)),
             Duration: 378,
@@ -159,8 +159,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.SpeedBooster => new(
-            RoomPointer: 0xb106,
-            DoorPointer: 0x970e,
+            RoomPointer: StockAttractDemoRoomPointers.SpeedBoosterRoom,
+            DoorPointer: StockAttractDemoRoomPointers.SpeedBoosterDoor,
             CameraPosition: CameraAtScreen(new(7, 0)),
             SamusOffset: new(72, GroundedY(10, demonstration)),
             Duration: 420,
@@ -175,8 +175,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.GrappleBeam => new(
-            RoomPointer: 0xaffb,
-            DoorPointer: 0x9792,
+            RoomPointer: StockAttractDemoRoomPointers.GrappleBeamRoom,
+            DoorPointer: StockAttractDemoRoomPointers.GrappleBeamDoor,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-62, GroundedY(10, demonstration)),
             Duration: 444,
@@ -191,8 +191,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.PseudoScrewAttack => new(
-            RoomPointer: 0x9d19,
-            DoorPointer: 0x8e7a,
+            RoomPointer: StockAttractDemoRoomPointers.PseudoScrewAttackRoom,
+            DoorPointer: StockAttractDemoRoomPointers.PseudoScrewAttackDoor,
             CameraPosition: CameraAtScreen(new(2, 6)),
             SamusOffset: new(39, GroundedY(10, demonstration)),
             Duration: 613,
@@ -207,8 +207,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.IceBeam => new(
-            RoomPointer: 0xa408,
-            DoorPointer: 0xa36c,
+            RoomPointer: StockAttractDemoRoomPointers.IceBeamRoom,
+            DoorPointer: StockAttractDemoRoomPointers.IceBeamDoor,
             CameraPosition: CameraAtScreen(new(1, 1)),
             SamusOffset: new(86, GroundedY(10, demonstration)),
             Duration: 509,
@@ -223,8 +223,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.FirefleaRoom => new(
-            RoomPointer: 0x9c5e,
-            DoorPointer: 0x8cca,
+            RoomPointer: StockAttractDemoRoomPointers.FirefleaRoomRoom,
+            DoorPointer: StockAttractDemoRoomPointers.FirefleaRoomDoor,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(73, GroundedY(10, demonstration)),
             Duration: 410,
@@ -239,8 +239,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.BrinstarDiagonalRoom => new(
-            RoomPointer: 0x9e52,
-            DoorPointer: 0x8dea,
+            RoomPointer: StockAttractDemoRoomPointers.BrinstarDiagonalRoomRoom,
+            DoorPointer: StockAttractDemoRoomPointers.BrinstarDiagonalRoomDoor,
             CameraPosition: CameraAtScreen(new(5, 3)),
             SamusOffset: new(-30, GroundedY(12, demonstration)),
             Duration: 279,
@@ -255,8 +255,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.LowerNorfairEntrance => new(
-            RoomPointer: 0xaf14,
-            DoorPointer: 0x967e,
+            RoomPointer: StockAttractDemoRoomPointers.LowerNorfairEntranceRoom,
+            DoorPointer: StockAttractDemoRoomPointers.LowerNorfairEntranceDoor,
             CameraPosition: CameraAtScreen(new(3, 0)),
             SamusOffset: new(75, GroundedY(10, demonstration)),
             Duration: 970,
@@ -271,8 +271,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.ScrewAttack => new(
-            RoomPointer: 0x9879,
-            DoorPointer: 0x8982,
+            RoomPointer: StockAttractDemoRoomPointers.ScrewAttackRoom,
+            DoorPointer: StockAttractDemoRoomPointers.ScrewAttackDoor,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-15, GroundedY(13, demonstration)),
             Duration: 213,
@@ -287,8 +287,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.Dachora => new(
-            RoomPointer: 0x9cb3,
-            DoorPointer: 0x8dd2,
+            RoomPointer: StockAttractDemoRoomPointers.DachoraRoom,
+            DoorPointer: StockAttractDemoRoomPointers.DachoraDoor,
             CameraPosition: CameraAtScreen(new(4, 2)),
             SamusOffset: new(5, 128),
             Duration: 791,
@@ -303,8 +303,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.PrePhantoonHall => new(
-            RoomPointer: 0xcc6f,
-            DoorPointer: 0xa21c,
+            RoomPointer: StockAttractDemoRoomPointers.PrePhantoonHallRoom,
+            DoorPointer: StockAttractDemoRoomPointers.PrePhantoonHallDoor,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(4, 96),
             Duration: 751,
@@ -319,8 +319,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.DiagonalShinespark => new(
-            RoomPointer: 0x91f8,
-            DoorPointer: 0x896a,
+            RoomPointer: StockAttractDemoRoomPointers.DiagonalShinesparkRoom,
+            DoorPointer: StockAttractDemoRoomPointers.DiagonalShinesparkDoor,
             CameraPosition: CameraAtScreen(new(3, 4)),
             SamusOffset: new(0, 176),
             Duration: 199,
@@ -335,8 +335,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.EyeDoor => new(
-            RoomPointer: 0xa56b,
-            DoorPointer: 0x919e,
+            RoomPointer: StockAttractDemoRoomPointers.EyeDoorRoom,
+            DoorPointer: StockAttractDemoRoomPointers.EyeDoorDoor,
             CameraPosition: CameraAtScreen(new(0, 1)),
             SamusOffset: new(-46, GroundedY(10, demonstration)),
             Duration: 723,
@@ -351,8 +351,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.RedBrinstarElevator => new(
-            RoomPointer: 0xa322,
-            DoorPointer: 0x90ea,
+            RoomPointer: StockAttractDemoRoomPointers.RedBrinstarElevatorRoom,
+            DoorPointer: StockAttractDemoRoomPointers.RedBrinstarElevatorDoor,
             CameraPosition: CameraAtScreen(new(0, 7)),
             SamusOffset: new(-86, GroundedY(10, demonstration)),
             Duration: 356,
@@ -367,8 +367,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.Kraid => new(
-            RoomPointer: 0xa59f,
-            DoorPointer: 0x91b6,
+            RoomPointer: StockAttractDemoRoomPointers.KraidRoom,
+            DoorPointer: StockAttractDemoRoomPointers.KraidDoor,
             CameraPosition: CameraAtScreen(new(0, 1)),
             SamusOffset: new(-65, GroundedY(10, demonstration)),
             Duration: 319,
@@ -383,8 +383,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.TourianEntrance => new(
-            RoomPointer: 0xa66a,
-            DoorPointer: 0x91f2,
+            RoomPointer: StockAttractDemoRoomPointers.TourianEntranceRoom,
+            DoorPointer: StockAttractDemoRoomPointers.TourianEntranceDoor,
             CameraPosition: CameraAtScreen(new(0, 0)),
             SamusOffset: new(-79, GroundedY(10, demonstration)),
             Duration: 407,
@@ -399,8 +399,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.GauntletEntrance => new(
-            RoomPointer: 0x91f8,
-            DoorPointer: 0x890a,
+            RoomPointer: StockAttractDemoRoomPointers.GauntletEntranceRoom,
+            DoorPointer: StockAttractDemoRoomPointers.GauntletEntranceDoor,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(48, 128),
             Duration: 256,
@@ -415,8 +415,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.AdvancedGrappleBeam => new(
-            RoomPointer: 0xd0b9,
-            DoorPointer: 0xa474,
+            RoomPointer: StockAttractDemoRoomPointers.AdvancedGrappleBeamRoom,
+            DoorPointer: StockAttractDemoRoomPointers.AdvancedGrappleBeamDoor,
             CameraPosition: CameraAtScreen(new(2, 0)),
             SamusOffset: new(0, GroundedY(12, demonstration)),
             Duration: 818,
@@ -431,8 +431,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.InfiniteBombJump => new(
-            RoomPointer: 0x91f8,
-            DoorPointer: 0x890a,
+            RoomPointer: StockAttractDemoRoomPointers.InfiniteBombJumpRoom,
+            DoorPointer: StockAttractDemoRoomPointers.InfiniteBombJumpDoor,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(32, 123),
             Duration: 389,
@@ -447,8 +447,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.SpecialBeamAttack => new(
-            RoomPointer: 0x9ad9,
-            DoorPointer: 0x8d42,
+            RoomPointer: StockAttractDemoRoomPointers.SpecialBeamAttackRoom,
+            DoorPointer: StockAttractDemoRoomPointers.SpecialBeamAttackDoor,
             CameraPosition: CameraAtScreen(new(0, 4)),
             SamusOffset: new(-73, GroundedY(10, demonstration)),
             Duration: 394,
@@ -463,8 +463,8 @@ public static class StockAttractDemoScenes
             EquippedBeams: EquippedBeamsFor(demonstration),
             InputObject: (ushort)demonstration),
         Demonstration.CrystalFlash => new(
-            RoomPointer: 0x91f8,
-            DoorPointer: 0x890a,
+            RoomPointer: StockAttractDemoRoomPointers.CrystalFlashRoom,
+            DoorPointer: StockAttractDemoRoomPointers.CrystalFlashDoor,
             CameraPosition: CameraAtScreen(new(6, 2)),
             SamusOffset: new(4, GroundedY(10, demonstration)),
             Duration: 512,

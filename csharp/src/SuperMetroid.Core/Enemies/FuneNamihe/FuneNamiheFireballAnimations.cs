@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using P = SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheFireballProgram;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;

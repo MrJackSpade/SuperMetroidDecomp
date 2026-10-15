@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>Typed Windows joystick/HID identifiers used by the desktop input adapter.</summary>
-public static class WindowsGamepadIdentifiers
+public static class WindowsGamepadCodes
 {
     /// <summary>The inexpensive SNES-style adapter whose buttons follow printed labels.</summary>
     public static readonly UsbGamepadIdentifier SnesUsbAdapter0079_0011 =
@@ -11,7 +11,7 @@ public static class WindowsGamepadIdentifiers
     public const uint NoDevice = uint.MaxValue;
 
     /// <summary>POV-hat value returned by Windows when no direction is held.</summary>
-    public const uint CenteredPointOfView = 0xffff;
+    public const uint CenteredPointOfView = ushort.MaxValue;
 
     /// <summary>Maps a Windows VID/PID pair to its proven physical face-button ordering.</summary>
     /// <param name="manufacturerId">Manufacturer identifier reported in WinMM's <c>JOYCAPS.wMid</c>.</param>

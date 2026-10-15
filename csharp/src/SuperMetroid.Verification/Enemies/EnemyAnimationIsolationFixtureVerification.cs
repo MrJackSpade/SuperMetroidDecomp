@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Torizo.GoldenTorizoRightOrbFramesVerification;

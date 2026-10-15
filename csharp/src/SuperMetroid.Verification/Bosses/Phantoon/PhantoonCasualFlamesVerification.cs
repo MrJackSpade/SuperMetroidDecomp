@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonSoundDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

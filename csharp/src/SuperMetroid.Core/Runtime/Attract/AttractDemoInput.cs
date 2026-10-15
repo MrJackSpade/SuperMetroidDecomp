@@ -19,13 +19,14 @@ public sealed class AttractDemoInput
     public AttractDemoInput(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
-        Script.LoadStockAttractObject(scene.InputObject);
+        Script.Load(DemoInputObjectDefinitions.StockAttract(scene.InputObject), scene.InputObject);
         Script.Enable();
     }
 
     /// <summary>Steps application-owned inputs; no address space is required.</summary>
     public void StepStock(SuperMetroidGameState gameState, SamusMovementType movementType) =>
-        Script.StepStockAttract((_, pointer) => ApplyPreInstruction(pointer, gameState, movementType));
+        Script.Step((_, pointer) => ApplyPreInstruction(pointer, gameState, movementType),
+            cue => throw new InvalidOperationException($"Title demonstrations call no {cue} routine."));
 
     /// <summary>Redirects stock demo input at leave and movement branches using the cartridge's actual type-$1A comparison.</summary>
     private void ApplyPreInstruction(ushort pointer, SuperMetroidGameState gameState, SamusMovementType movementType)
@@ -37,14 +38,14 @@ public sealed class AttractDemoInput
                 break;
             case AttractDemoPreInstruction.CheckLeave:
                 if (gameState == SuperMetroidGameState.TransitionFromDemoB)
-                    Script.Redirect(pointer, DemoInputRomData.Attract.DeleteList);
+                    Script.Redirect(pointer, DemoInputProgram.AttractDelete);
                 break;
             case AttractDemoPreInstruction.Shinespark:
                 // The routine's name does not match its type-$1A comparison. Retain
                 // the actual cartridge branch rather than correcting that oddity.
                 if (movementType != SamusMovementType.DraygonHeld)
                     Script.Redirect((ushort)AttractDemoPreInstruction.CheckLeave,
-                        DemoInputRomData.Attract.ShinesparkContinuation);
+                        DemoInputProgram.AttractDiagonalShinesparkContinuation);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(AttractDemoPreInstruction)} {pointer:X4}.");

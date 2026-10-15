@@ -1,5 +1,6 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
-using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.SpeedBoosterBlockProgram, SuperMetroid.Core.Rooms.Plms.SpeedBoosterBlockFrame, SuperMetroid.Core.Rooms.Plms.SpeedBoosterBlockCue>;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.SpeedBoosterBlockProgram, SuperMetroid.Core.Rooms.Plms.SpeedBoosterBlockFrame, SuperMetroid.Core.Rooms.Plms.SpeedBoosterBlockCue>;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

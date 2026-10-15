@@ -21,7 +21,7 @@ internal sealed partial class WindowsGamepadInput
     private const double RediscoveryIntervalSeconds = 1.0;
 
     /// <summary>WinMM device index currently selected, or the disconnected sentinel.</summary>
-    private uint activeDeviceId = WindowsGamepadIdentifiers.NoDevice;
+    private uint activeDeviceId = WindowsGamepadCodes.NoDevice;
     /// <summary>Advertised axis ranges, layout, and product identity of the active device.</summary>
     private JoystickCapabilities activeCapabilities;
     /// <summary>Stopwatch tick at which disconnected-device discovery may run again.</summary>
@@ -40,11 +40,11 @@ internal sealed partial class WindowsGamepadInput
     /// </summary>
     public SnesButton Poll()
     {
-        if (activeDeviceId != WindowsGamepadIdentifiers.NoDevice &&
+        if (activeDeviceId != WindowsGamepadCodes.NoDevice &&
             TryRead(activeDeviceId, out JoystickPosition position))
             return MapAndRemember(position);
 
-        if (activeDeviceId != WindowsGamepadIdentifiers.NoDevice)
+        if (activeDeviceId != WindowsGamepadCodes.NoDevice)
             ForgetActiveDevice();
 
         long now = Stopwatch.GetTimestamp();
@@ -54,7 +54,7 @@ internal sealed partial class WindowsGamepadInput
         nextDiscoveryTimestamp = now +
             (long)(RediscoveryIntervalSeconds * Stopwatch.Frequency);
         DiscoverFirstConnectedDevice();
-        if (activeDeviceId == WindowsGamepadIdentifiers.NoDevice ||
+        if (activeDeviceId == WindowsGamepadCodes.NoDevice ||
             !TryRead(activeDeviceId, out position))
             return SnesButton.None;
 
@@ -100,7 +100,7 @@ internal sealed partial class WindowsGamepadInput
     {
         if (DeviceName is not null)
             Console.WriteLine($"Gamepad disconnected: {DeviceName}.");
-        activeDeviceId = WindowsGamepadIdentifiers.NoDevice;
+        activeDeviceId = WindowsGamepadCodes.NoDevice;
         DeviceName = null;
         activeCapabilities = default;
         LastSnapshot = default;
@@ -113,7 +113,7 @@ internal sealed partial class WindowsGamepadInput
         {
             Size = (uint)Marshal.SizeOf<JoystickPosition>(),
             Flags = (uint)JoystickPositionQueryFlags.ReturnAll,
-            PointOfView = WindowsGamepadIdentifiers.CenteredPointOfView,
+            PointOfView = WindowsGamepadCodes.CenteredPointOfView,
         };
         return NativeMethods.JoyGetPosition(deviceId, ref position) ==
             WindowsMultimediaResult.NoError;
@@ -131,7 +131,7 @@ internal sealed partial class WindowsGamepadInput
     /// <summary>Selects face-button ordering from the driver's manufacturer and product IDs.</summary>
     private static GenericGamepadFaceButtonLayout ResolveFaceButtonLayout(
         JoystickCapabilities capabilities) =>
-        WindowsGamepadIdentifiers.ResolveFaceButtonLayout(
+        WindowsGamepadCodes.ResolveFaceButtonLayout(
             capabilities.ManufacturerId,
             capabilities.ProductId);
 
@@ -150,7 +150,7 @@ internal sealed partial class WindowsGamepadInput
             (((JoystickCapabilityFlags)capabilities.Capabilities) &
                 JoystickCapabilityFlags.HasPointOfView) != 0
                 ? position.PointOfView
-                : WindowsGamepadIdentifiers.CenteredPointOfView;
+                : WindowsGamepadCodes.CenteredPointOfView;
         return new GenericGamepadSnapshot(
             // Drivers can expose buttons without axes while leaving X/Y zero-filled.
             // Zero is a full negative deflection only for an axis that actually exists.

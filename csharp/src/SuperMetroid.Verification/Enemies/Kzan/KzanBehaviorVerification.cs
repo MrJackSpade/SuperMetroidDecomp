@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Enemies.Polyp.PolypBehaviorVerification;
 using static SuperMetroid.Verification.Enemies.Polyp.PolypRockAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.SingleFrameEnemyVisualsVerification;

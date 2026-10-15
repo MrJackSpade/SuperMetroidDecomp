@@ -45,7 +45,7 @@ public static class SuperMetroidRuntimeFrameRenderer
             // Ceres room main $A6:AAAF temporarily replaces ordinary mode-nine BG1/BG2
             // below the HUD with the rotating Ridley/Baby Mode-7 map. OAM stays live, so
             // Samus and the timer retain the usual gameplay compositor and priority rules.
-            frame = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(runtime.Vram, runtime.Cgram, runtime.DisplayedOam, new Mode7RenderRegisters { MatrixA = unchecked((short)getaway.Mode7MatrixA), MatrixB = unchecked((short)getaway.Mode7MatrixB), MatrixC = unchecked((short)getaway.Mode7MatrixC), MatrixD = unchecked((short)getaway.Mode7MatrixD), Center = getaway.Mode7Center.AsSignedRegister(), Scroll = new Offset16<Mode7Pixels>(unchecked((short)(getaway.Mode7Offset.X + shake.Bg1.X)), unchecked((short)(getaway.Mode7Offset.Y + shake.Bg1.Y))) }, new CeresGetawayFloor { Bg2Scroll = bg2Scroll, Bg2CharacterBaseWord = 0x6000 }, outputBuffer: runtime.GameplayFrameBuffer);
+            frame = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(runtime.Vram, runtime.Cgram, runtime.DisplayedOam, new Mode7RenderRegisters { MatrixA = unchecked((short)getaway.Mode7MatrixA), MatrixB = unchecked((short)getaway.Mode7MatrixB), MatrixC = unchecked((short)getaway.Mode7MatrixC), MatrixD = unchecked((short)getaway.Mode7MatrixD), Center = getaway.Mode7Center.AsSignedRegister(), Scroll = new Offset16<Mode7Pixels>(unchecked((short)(getaway.Mode7Offset.X + shake.Bg1.X)), unchecked((short)(getaway.Mode7Offset.Y + shake.Bg1.Y))) }, new CeresGetawayFloor { Bg2Scroll = bg2Scroll, Bg2CharacterBaseWord = GameplayRenderDefinitions.CeresCharacterWord }, outputBuffer: runtime.GameplayFrameBuffer);
         }
         else if (runtime.Room.ActiveDoor.UsesCeresElevatorMode7)
         {
@@ -71,7 +71,7 @@ public static class SuperMetroidRuntimeFrameRenderer
                 runtime.Room.ActiveRoom?.State.SetupCallback ==
                     RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze;
             ushort bgCharacterBaseWord = usesCeresRidleyCharacterBase
-                ? (ushort)0x6000
+                ? GameplayRenderDefinitions.CeresCharacterWord
                 : (ushort)0;
             bool crocomireOwnsBg2 = runtime.Enemies.CrocomireBehavior.Crocomire is not null;
             KraidEnemyState? kraid = runtime.Enemies.KraidBehavior.Kraid;

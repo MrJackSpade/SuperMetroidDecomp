@@ -104,8 +104,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         for (int quarter = 0; quarter < SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferCount;
              quarter++)
             _vramWrites.RebindBusSource(
-                SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TilesAddress +
-                    quarter * SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferBytes,
+                SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3QuarterAddress(quarter),
                 SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferBytes,
                 SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter));
         _vramWrites.RebindBusSource(EscapeTimerTileRomData.FirstSourceAddress,
@@ -114,6 +113,12 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         _vramWrites.RebindBusSource(EscapeTimerTileRomData.SecondSourceAddress,
             EscapeTimerTileAtlasFormat.SecondByteCount,
             SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerSecondTiles);
+        if (StandardObjectArt is not null)
+            _vramWrites.RebindBusSource(StandardObjectArtworkAddresses.Source, StandardObjectArtworkFormat.TransferByteCount,
+                VramAssetId.StandardObjectTiles);
+        if (MapPresentation is not null)
+            _vramWrites.RebindBusSource(GameplayHudDefinitions.TopRowAddress, GameplayHudDefinitions.TopRowByteCount,
+                VramAssetId.HudTopRowTilemap);
     }
 
     /// <summary>Rebinds current artwork when a saved or newly constructed Samus becomes active.</summary>
@@ -160,20 +165,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             return true;
         if (GrappleArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
-        if (MapPresentation is not null &&
-            sourceAddress == GameplayHudDefinitions.TopRowAddress &&
-            byteCount == GameplayHudDefinitions.TopRowByteCount)
-        {
-            data = MapPresentation.GameplayHud.TopRowTransfer;
-            return true;
-        }
-        if (StandardObjectArt is not null &&
-            sourceAddress == StandardObjectArtworkAddresses.Source &&
-            byteCount == StandardObjectArtworkFormat.TransferByteCount)
-        {
-            data = StandardObjectArt.Transfer;
-            return true;
-        }
         if (SamusBodyArt?.DeathTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (SamusBodyArt?.ArmCannon.TryResolveTile(sourceAddress, byteCount, out data) == true)
@@ -252,7 +243,11 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
 
     /// <summary>Dispatches a typed VRAM asset to its bound gunship, Grapple, trail, HUD, or beam catalog.</summary>
     internal ReadOnlyMemory<byte> ResolveVramAsset(VramAssetId asset) =>
-        asset is VramAssetId.GunshipLiftoffFirstTiles or
+        asset == VramAssetId.StandardObjectTiles
+            ? (StandardObjectArt ?? throw new InvalidOperationException("Standard OBJ artwork is not bound.")).Transfer
+            : asset == VramAssetId.HudTopRowTilemap
+            ? (MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).GameplayHud.TopRowTransfer
+            : asset is VramAssetId.GunshipLiftoffFirstTiles or
             VramAssetId.GunshipLiftoffSecondTiles or
             VramAssetId.GunshipLiftoffThirdTiles or
             VramAssetId.GunshipLiftoffFourthTiles or

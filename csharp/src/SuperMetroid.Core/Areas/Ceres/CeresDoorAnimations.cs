@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Areas.Ceres.CeresDoorCueKind;
 using P = SuperMetroid.Core.Areas.Ceres.CeresDoorProgram;
 using SuperMetroid.Core.Areas.Ceres.Artwork;

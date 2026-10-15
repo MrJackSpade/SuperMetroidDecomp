@@ -9,16 +9,16 @@ internal static class GamepadInputVerification
 internal static void VerifyGenericGamepadInput()
 {
     UsbGamepadIdentifier snesAdapter =
-        WindowsGamepadIdentifiers.SnesUsbAdapter0079_0011;
+        WindowsGamepadCodes.SnesUsbAdapter0079_0011;
     AssertEqual(
         GenericGamepadFaceButtonLayout.SnesUsbAdapter0079_0011,
-        WindowsGamepadIdentifiers.ResolveFaceButtonLayout(
+        WindowsGamepadCodes.ResolveFaceButtonLayout(
             snesAdapter.ManufacturerId,
             snesAdapter.ProductId),
         "known Windows VID/PID selects printed-label layout");
     AssertEqual(
         GenericGamepadFaceButtonLayout.Positional,
-        WindowsGamepadIdentifiers.ResolveFaceButtonLayout(0x045e, 0x028e),
+        WindowsGamepadCodes.ResolveFaceButtonLayout(0x045e, 0x028e),
         "ordinary Xbox-compatible VID/PID retains positional layout");
     AssertEqual(
         (uint)0xff,

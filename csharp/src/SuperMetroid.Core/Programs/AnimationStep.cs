@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Programs;
 
 /// <summary>One step of a typed animation timeline.</summary>
 /// <typeparam name="TFrame">The presentation the step shows.</typeparam>

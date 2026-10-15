@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Fx.PaletteFx.PaletteFxCueKind;
 using P = SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgram;
 

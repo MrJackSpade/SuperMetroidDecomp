@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Skultera.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 

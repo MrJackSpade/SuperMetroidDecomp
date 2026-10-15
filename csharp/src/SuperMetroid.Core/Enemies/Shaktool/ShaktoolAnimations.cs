@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Shaktool.ShaktoolCueKind;
 using P = SuperMetroid.Core.Enemies.Shaktool.ShaktoolProgram;
 using SuperMetroid.Core.Enemies.Shaktool.Artwork;

@@ -26,14 +26,6 @@ csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipBehavior.cs	SME6349	3
 csharp/src/SuperMetroid.Core/Enemies/Kago/KagoBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdollitePhaseDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Enemies/Shutters/ShuttersBehavior.cs	SME6349	1
-csharp/src/SuperMetroid.Core/Gameplay/RuntimeArtwork.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Gameplay/TesterEncounterResetDefinitions.cs	SME6342	1
-csharp/src/SuperMetroid.Core/Input/DemoInputState.cs	SME6341	2
-csharp/src/SuperMetroid.Core/Input/StockAttractInputProgramsCatalog.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Input/WindowsGamepadIdentifiers.cs	SME6340	3
-csharp/src/SuperMetroid.Core/Runtime/Attract/StockAttractDemoScenes.cs	SME6340	47
-csharp/src/SuperMetroid.Core/Runtime/GameplayDisplayCapture.cs	SME6340	2
-csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntimeFrameRenderer.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Samus/Abilities/SamusCrystalFlashState.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Samus/Abilities/SamusDrainedState.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Samus/Abilities/SamusShinesparkState.cs	SME6340	6
@@ -787,8 +779,8 @@ csharp/src/SuperMetroid.Verification/Frontend/FileSelect/FileSelectRoomMapVerifi
 csharp/src/SuperMetroid.Verification/Frontend/FileSelect/FileSelectSlotDestinationsVerification.cs	SME6340	37
 csharp/src/SuperMetroid.Verification/Frontend/FrontendCompletionVerification.cs	SME6340	39
 csharp/src/SuperMetroid.Verification/Frontend/FrontendRomFreeVerification.cs	SME6340	12
-csharp/src/SuperMetroid.Verification/Frontend/FrontendVerification.cs	SME6340	200
-csharp/src/SuperMetroid.Verification/Frontend/FrontendVerification.cs	SME6342	6
+csharp/src/SuperMetroid.Verification/Frontend/FrontendVerification.cs	SME6340	162
+csharp/src/SuperMetroid.Verification/Frontend/FrontendVerification.cs	SME6342	5
 csharp/src/SuperMetroid.Verification/Frontend/GameOver/GameOverBabyAnimationVerification.cs	SME6340	18
 csharp/src/SuperMetroid.Verification/Frontend/GameOver/GameOverBabyColorsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Frontend/GameOver/GameOverRomDataVerification.cs	SME6340	9
@@ -807,8 +799,6 @@ csharp/src/SuperMetroid.Verification/Frontend/Intro/Artwork/IntroScientistPartsV
 csharp/src/SuperMetroid.Verification/Frontend/Intro/CinematicCrystalFlashVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Frontend/Intro/CinematicTextGlowVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroBabyActorDefinitionsVerification.cs	SME6340	28
-csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroBabyDiscoveryInputVerification.cs	SME6340	11
-csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroBabyDiscoveryInputVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroCinematicRomDataVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroDiscoveryActorSpriteArtworkVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroDiscoveryCollisionVerification.cs	SME6340	3
@@ -825,9 +815,6 @@ csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroMotherBrainCollisionSou
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroMotherBrainDefinitionsVerification.cs	SME6340	17
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroMotherBrainExplosionProgramsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroMotherBrainFrameCatalogVerification.cs	SME6340	3
-csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroMotherBrainInputDefinitionsVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroMotherBrainInputSourceVerification.cs	SME6340	11
-csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroMotherBrainInputSourceVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroPoseHistoryVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroProjectileArtworkVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Frontend/Intro/IntroRinkaDefinitionsVerification.cs	SME6340	17
@@ -1203,7 +1190,7 @@ csharp/src/SuperMetroid.Verification/Rooms/Scrolling/ViewportParityVerification.
 csharp/src/SuperMetroid.Verification/Rooms/SpriteObjects/RoomSpriteObjectDefinitionsVerification.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Rooms/SpriteObjects/RoomSpriteObjectDefinitionsVerification.cs	SME6348	1
 csharp/src/SuperMetroid.Verification/Runtime/Attract/AttractDemoSceneVerification.cs	SME6340	38
-csharp/src/SuperMetroid.Verification/Runtime/Attract/AttractDemoSceneVerification.cs	SME6341	2
+csharp/src/SuperMetroid.Verification/Runtime/Attract/AttractDemoSceneVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Runtime/Attract/AttractDemoSceneVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Runtime/GameplayCaptureIntegrationTestsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Runtime/GameplayContentIdentityVerification.cs	SME6340	2

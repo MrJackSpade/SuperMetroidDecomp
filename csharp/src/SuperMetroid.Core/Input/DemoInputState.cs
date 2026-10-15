@@ -1,19 +1,15 @@
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Fx;
+
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// Bank-$91's ROM-driven demo-controller object (<c>$91:834E..8463</c>).
+/// Bank-$91's demo-controller object (<c>$91:834E..8463</c>), running a typed <see cref="DemoInputProgram"/> (#1300).
 /// </summary>
 /// <remarks>
-/// A demo input list is bytecode, not merely an array of controller samples. Positive
-/// words begin six-byte records (<c>duration, held, newly pressed</c>); negative words are
-/// control instructions that can change the object's pre-instruction, loop, or delete it.
-/// Keeping this interpreter independent of any one cinematic lets the intro flashbacks and
-/// the eventual title-screen demonstrations consume the same cartridge-authored machinery.
-///
-/// The object-specific initializer and pre-instruction are deliberately supplied as
-/// callbacks. Bank $91 dispatches those pointers as machine code, while this class owns only
-/// the shared object handler. A missing callback is accepted solely for the native RTS
-/// stubs; silently treating any other pointer as a no-op would fabricate game behavior.
+/// The object's pre-instruction is the owner's: each step hands it to the owner's callback, which may redirect the
+/// object, and the program's cues go to the owner as the object's private routines did. The object's own instruction
+/// timer gates the program, so each input lasts exactly as long as its native record.
 /// </remarks>
 public sealed class DemoInputState
 {
@@ -23,13 +19,16 @@ public sealed class DemoInputState
     /// <summary>Object-specific routine called before the shared instruction timer.</summary>
     public ushort PreInstructionPointer { get; private set; }
 
-    /// <summary>Address of the next bank-$91 input record or control instruction.</summary>
-    public ushort InstructionPointer { get; private set; }
+    /// <summary>Where the object's program resumes; null once the object is deleted.</summary>
+    internal AnimationProgramCursor<DemoInputProgram>? Cursor { get; private set; }
+
+    /// <summary>Whether the object still runs a program.</summary>
+    public bool IsActive => Cursor is not null;
 
     /// <summary>Frames remaining in the active input record, with native word wrapping.</summary>
     public NativeCountdown InstructionTimer { get; private set; }
 
-    /// <summary>General loop timer manipulated by instructions <c>$844F/$8459</c>.</summary>
+    /// <summary>General loop timer of instructions <c>$844F/$8459</c>; no demo program counts it.</summary>
     public NativeCountdown Timer { get; private set; }
 
     /// <summary>Initializer parameter stored at WRAM <c>$0A80</c>.</summary>
@@ -64,7 +63,7 @@ public sealed class DemoInputState
     {
         Enabled = false;
         PreInstructionPointer = 0;
-        InstructionPointer = 0;
+        Cursor = null;
         InstructionTimer = NativeCountdown.Start(0);
         Timer = NativeCountdown.Start(0);
         InitializationParameter = 0;
@@ -79,58 +78,21 @@ public sealed class DemoInputState
     /// <summary>Models <c>$91:834E</c>; loading and enabling remain separate native steps.</summary>
     public void Enable() => Enabled = true;
 
-    /// <summary>Loads a compiled title-demo header without accessing cartridge memory.</summary>
-    public void LoadStockAttractObject(ushort objectPointer)
+    /// <summary>Models <c>$91:835F</c> without destroying the loaded object's RAM.</summary>
+    public void Disable() => Enabled = false;
+
+    /// <summary>
+    /// Loads an object as <c>$91:8395</c> does: its pre-instruction and program, with the first record due on the next
+    /// step. Every object's initializer is the return-only <c>$91:83BF</c>.
+    /// </summary>
+    public void Load(DemoInputObjectDefinition definition, ushort initializationParameter)
     {
-        var definition = StockAttractInputProgramsCatalog.GetObject(objectPointer);
-        if (definition.Initializer != DemoInputRomData.Routines.NoOp)
-            throw UnsupportedRoutine("compiled initializer", definition.Initializer);
-        InitializationParameter = objectPointer;
+        InitializationParameter = initializationParameter;
         PreInstructionPointer = definition.PreInstruction;
-        InstructionPointer = definition.Start;
+        Cursor = AnimationProgramCursor<DemoInputProgram>.Start(definition.Program);
         InstructionTimer = NativeCountdown.Start(1);
         Timer = NativeCountdown.Start(0);
     }
-
-    /// <summary>Publishes one compiled stock title-demo frame using native timer semantics.</summary>
-    public void StepStockAttract(Action<DemoInputState, ushort> preInstruction)
-    {
-        if (!Enabled || InstructionPointer == 0) return;
-        preInstruction(this, PreInstructionPointer);
-        InstructionTimer = InstructionTimer.Decrement().Remaining;
-        if (InstructionTimer.IsZero)
-        {
-            ushort cursor = InstructionPointer;
-            while (true)
-            {
-                var command = StockAttractInputProgramsCatalog.GetCommand(cursor);
-                if (command.Kind == StockAttractInputProgramsCatalog.Operation.Goto)
-                {
-                    cursor = command.Next;
-                    continue;
-                }
-                if (command.Kind == StockAttractInputProgramsCatalog.Operation.Delete)
-                {
-                    InstructionPointer = Held = NewlyPressed = 0;
-                    break;
-                }
-                if (command.Kind != StockAttractInputProgramsCatalog.Operation.Input)
-                    throw new InvalidDataException("Invalid compiled attract operation.");
-                InstructionTimer = NativeCountdown.FromRaw(command.Duration);
-                Held = (ushort)command.Held;
-                NewlyPressed = (ushort)command.NewlyPressed;
-                InstructionPointer = command.Next;
-                break;
-            }
-        }
-        PublishedPreviousHeld = PreviousHeld;
-        PublishedPreviousNewlyPressed = PreviousNewlyPressed;
-        PreviousHeld = Held;
-        PreviousNewlyPressed = NewlyPressed;
-    }
-
-    /// <summary>Models <c>$91:835F</c> without destroying the loaded object's RAM.</summary>
-    public void Disable() => Enabled = false;
 
     /// <summary>
     /// Applies an object-specific pre-instruction redirect to the shared object words.
@@ -140,77 +102,59 @@ public sealed class DemoInputState
     /// prevents a host callback from publishing a new list with a stale countdown for one
     /// frame, a state the native routine cannot expose.
     /// </remarks>
-    public void Redirect(
-        ushort preInstructionPointer,
-        ushort instructionPointer,
-        ushort instructionTimer = 1)
+    public void Redirect(ushort preInstructionPointer, DemoInputProgram program, ushort instructionTimer = 1)
     {
         PreInstructionPointer = preInstructionPointer;
-        InstructionPointer = instructionPointer;
+        Cursor = AnimationProgramCursor<DemoInputProgram>.Start(program);
         InstructionTimer = NativeCountdown.FromRaw(instructionTimer);
     }
 
     /// <summary>
-    /// Loads one six-byte bank-$91 object definition as <c>$91:8395</c> does.
-    /// The owner must supply the compiled definition reader.
+    /// Executes <c>$91:83C0/$83F2</c> once and publishes the resulting controller words. The owner runs the object's
+    /// pre-instruction in <paramref name="preInstruction"/> and its private routines in <paramref name="cue"/>.
     /// </summary>
-    public void LoadObject(
-        ISnesAddressSpace bus,
-        ushort objectPointer,
-        ushort initializationParameter = 0,
-        Action<DemoInputState, ushort>? initializer = null,
-        Func<ushort, ushort>? definitionWord = null)
+    public void Step(Action<DemoInputState, ushort> preInstruction, Action<DemoInputCue> cue)
     {
-        Ensure.NotNull(bus);
-
-        InitializationParameter = initializationParameter;
-        Func<ushort, ushort> readDefinition = definitionWord ?? throw new InvalidOperationException(
-            "Demo input requires installed object definitions.");
-        ushort Read(ushort pointer) => readDefinition(pointer);
-        ushort initializerPointer = Read(objectPointer);
-        PreInstructionPointer = Read(unchecked((ushort)(objectPointer + 2)));
-        InstructionPointer = Read(unchecked((ushort)(objectPointer + 4)));
-        InstructionTimer = NativeCountdown.Start(1);
-        Timer = NativeCountdown.Start(0);
-
-        if (initializer is not null)
-            initializer(this, initializerPointer);
-        else if (initializerPointer != DemoInputRomData.Routines.NoOp)
-            throw UnsupportedRoutine("initializer", initializerPointer);
-    }
-
-    /// <summary>The return-only pre-instructions a demo object without an owner callback may hold.</summary>
-    private enum ReturnOnlyPreInstruction : ushort
-    {
-        /// <summary>$91:83BF, installed by the demo object definition.</summary>
-        NoOp = DemoInputRomData.Routines.NoOp,
-        /// <summary>$91:8447, installed when the pre-instruction is cleared.</summary>
-        Cleared = DemoInputRomData.Routines.ClearedPreInstruction,
-    }
-
-    /// <summary>
-    /// Executes <c>$91:83C0/$83F2</c> once and publishes the resulting controller words.
-    /// The owning <paramref name="program"/> supplies the bounded compiled list and its private routines.
-    /// </summary>
-    public void Step(ISnesAddressSpace bus, IDemoInputProgram program)
-    {
-        Ensure.NotNull(bus);
-        Ensure.NotNull(program);
-        if (!Enabled || InstructionPointer == 0)
+        Ensure.NotNull(preInstruction);
+        Ensure.NotNull(cue);
+        if (!Enabled || Cursor is not { } cursor)
             return;
 
-        if (!program.TryRunPreInstruction(this, PreInstructionPointer) &&
-            !Enum.IsDefined((ReturnOnlyPreInstruction)PreInstructionPointer))
-            throw UnsupportedRoutine("pre-instruction", PreInstructionPointer);
+        preInstruction(this, PreInstructionPointer);
+        cursor = Cursor ?? throw new InvalidOperationException("A demo pre-instruction deleted its object.");
 
         // DEC is a 16-bit 65C816 operation. In particular, a zero duration wraps and lasts
         // 65,536 handler calls; using an int countdown would quietly change malformed or
         // intentionally unusual ROM data.
-        NativeWordCounterStep instructionTimer =
-            InstructionTimer.Decrement();
+        NativeWordCounterStep instructionTimer = InstructionTimer.Decrement();
         InstructionTimer = instructionTimer.Remaining;
         if (instructionTimer.IsZero)
-            ProcessInstructionList(program);
+        {
+            NativeCountdown timer = Timer;
+            AnimationProgramAdvance<DemoInputFrame> advance = DemoInputAnimations.Programs.Advance(ref cursor, ref timer,
+                (published, _) =>
+                {
+                    cue(published);
+                    return null;
+                });
+            Timer = timer;
+            switch (advance.Kind)
+            {
+                case AnimationProgramAdvanceKind.Show:
+                    InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+                    Held = (ushort)advance.Frame.Held;
+                    NewlyPressed = (ushort)advance.Frame.NewlyPressed;
+                    Cursor = cursor;
+                    break;
+                case AnimationProgramAdvanceKind.Stop:
+                    Cursor = null;
+                    Held = 0;
+                    NewlyPressed = 0;
+                    break;
+                default:
+                    throw new InvalidOperationException($"Demo-input program {cursor.Program} ended its advance with {advance.Kind}.");
+            }
+        }
 
         // $91:83D3 publishes the old demo words to the drawing-input history before it
         // replaces the live joypad words and remembers the newly produced pair.
@@ -220,100 +164,22 @@ public sealed class DemoInputState
         PreviousNewlyPressed = NewlyPressed;
     }
 
-    /// <summary>Decodes shared bank-$91 demo opcodes or delegates private routines until a timed input record or deletion yields.</summary>
-    private void ProcessInstructionList(IDemoInputProgram program)
+    /// <summary>
+    /// The pre-instruction of an object whose owner has none of its own: only the return-only routines, the object
+    /// definition's <c>$91:83BF</c> and the cleared <c>$91:8447</c>, may be installed.
+    /// </summary>
+    public static void RunReturnOnlyPreInstruction(DemoInputState _, ushort preInstruction)
     {
-        ushort Read(ushort pointer) => program.ReadInstructionWord(pointer);
-        ushort cursor = InstructionPointer;
-        while (true)
-        {
-            ushort word = Read(cursor);
-            if ((word & DemoInputRomData.Instructions.OpcodeBit) == 0)
-            {
-                InstructionTimer = NativeCountdown.FromRaw(word);
-                ushort rawHeld = Read(unchecked((ushort)(cursor + 2)));
-                ushort rawNewlyPressed = Read(unchecked((ushort)(cursor + 4)));
-                Held = (ushort)SnesButtons.FromRaw(rawHeld, "demo held-input record");
-                NewlyPressed = (ushort)SnesButtons.FromRaw(
-                    rawNewlyPressed,
-                    "demo newly-pressed record");
-                InstructionPointer = unchecked((ushort)(
-                    cursor + DemoInputRomData.Instructions.InputRecordBytes));
-                return;
-            }
-
-            // Native increments Y past the opcode before dispatching, so every instruction
-            // below treats cursor as the first argument and either returns another cursor
-            // to the loop or terminates processing in the delete case.
-            cursor = unchecked((ushort)(cursor + 2));
-            var instruction = (DemoInputInstruction)word;
-            if (!Enum.IsDefined(instruction))
-            {
-                // Demo lists may call arbitrary bank-$91 routines in addition to the
-                // six shared object opcodes. The callback must explicitly identify a
-                // routine and return its post-operand cursor; this prevents a handler
-                // with parameters from accidentally being treated as a no-argument
-                // instruction and desynchronizing the cartridge bytecode stream.
-                DemoInputInstructionResult result = program.RunSpecialInstruction(this, word, cursor);
-                if (!result.Handled)
-                {
-                    // The reusable interpreter cannot infer an object's private
-                    // operand width. Its owner must supply the matching callback;
-                    // omission is an invalid composition, not an unknown generic opcode.
-                    throw new InvalidOperationException(
-                        $"Demo-input instruction $91:{word:X4} was not handled by the owning object's callback.");
-                }
-
-                cursor = result.NextInstructionPointer;
-                if (result.TerminateProcessing)
-                {
-                    InstructionPointer = cursor;
-                    return;
-                }
-                continue;
-            }
-
-            switch (instruction)
-            {
-                case DemoInputInstruction.Delete:
-                    InstructionPointer = 0;
-                    Held = 0;
-                    NewlyPressed = 0;
-                    return;
-
-                case DemoInputInstruction.SetPreInstruction:
-                    PreInstructionPointer = Read(cursor);
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-
-                case DemoInputInstruction.ClearPreInstruction:
-                    PreInstructionPointer = DemoInputRomData.Routines.ClearedPreInstruction;
-                    break;
-
-                case DemoInputInstruction.Goto:
-                    cursor = Read(cursor);
-                    break;
-
-                case DemoInputInstruction.DecrementTimerAndGoto:
-                    NativeWordCounterStep timer = Timer.Decrement();
-                    Timer = timer.Remaining;
-                    cursor = !timer.IsZero
-                        ? Read(cursor)
-                        : unchecked((ushort)(cursor + 2));
-                    break;
-
-                case DemoInputInstruction.SetTimer:
-                    Timer = NativeCountdown.FromRaw(Read(cursor));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-
-                default:
-                    throw new InvalidOperationException($"Undefined DemoInputInstruction {instruction}.");
-            }
-        }
+        if (!Enum.IsDefined((ReturnOnlyPreInstruction)preInstruction))
+            throw new InvalidOperationException($"Demo-input pre-instruction $91:{preInstruction:X4} was not supplied by the owning object.");
     }
 
-    /// <summary>Diagnoses a non-RTS initializer or pre-instruction whose object owner supplied no callback.</summary>
-    private static InvalidOperationException UnsupportedRoutine(string kind, ushort pointer) =>
-        new($"Demo-input {kind} $91:{pointer:X4} was not supplied by the owning object.");
+    /// <summary>The return-only pre-instructions an object without its own may hold.</summary>
+    private enum ReturnOnlyPreInstruction : ushort
+    {
+        /// <summary>$91:83BF, installed by the demo object definition.</summary>
+        NoOp = DemoInputRomData.Routines.NoOp,
+        /// <summary>$91:8447, installed when the pre-instruction is cleared.</summary>
+        Cleared = DemoInputRomData.Routines.ClearedPreInstruction,
+    }
 }

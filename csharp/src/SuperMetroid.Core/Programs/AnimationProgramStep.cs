@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Programs;
 
 /// <summary>One step of a program in an <see cref="AnimationProgramSet{TProgram, TFrame, TCue}"/>.</summary>
 /// <typeparam name="TProgram">The set's program identity.</typeparam>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyVisualSelectorInventoryVerification;
 using SuperMetroid.Core;

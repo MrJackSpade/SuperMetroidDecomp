@@ -1,56 +1,44 @@
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Intro.IntroCinematicArtworkVerification;
-using static SuperMetroid.Verification.Frontend.Intro.IntroMotherBrainInputSourceVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
-using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Verification.Input;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
-/// <summary>Checks the compiled Mother Brain flashback demo against its bank-$91 input program.</summary>
+/// <summary>Checks the Mother Brain flashback's typed demo program against its bank-$91 object and list (#1300).</summary>
 internal static class IntroMotherBrainInputDefinitionsVerification
 {
-    /// <summary>Compares every demo input edge and timer while forbidding program ROM reads in the live intro owner.</summary>
+    /// <summary>Compares every demo input edge, timer and list position with the native interpreter, then the live intro owner's first record.</summary>
     internal static void VerifyIntroMotherBrainDemoInput(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
-        Suite(nameof(VerifyIntroMotherBrainInputSource), () => VerifyIntroMotherBrainInputSource(bus));
-        ushort ReferenceWord(ushort pointer) => (ushort)(SnesLittleEndian.Word(IntroMotherBrainDemoInputRomByte(bus, 0x910000 | pointer), IntroMotherBrainDemoInputRomByte(bus, 0x910000 | unchecked((ushort)(pointer + 1)))));
-        AssertThrows<InvalidDataException>(() =>
-            IntroMotherBrainInputDefinitions.ReadWord(
-                IntroMotherBrainInputDefinitions.ListEnd),
-            "intro Mother Brain demo rejects adjacent bank-$91 code");
-
-        var guarded = NewIntroArtworkSourceReadGuard(bus);
+        ushort ReferenceWord(ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWord(DemoInputRomData.BankBase | pointer);
         var compiled = new DemoInputState();
-        var reference = new DemoInputState();
+        var reference = new NativeDemoInputReference(ReferenceWord);
         compiled.Clear();
-        reference.Clear();
         compiled.Enable();
         reference.Enable();
-        compiled.LoadObject(guarded, IntroMotherBrainInputDefinitions.HeaderStart,
-            definitionWord: IntroMotherBrainInputDefinitions.ReadWord);
-        reference.LoadObject(bus, IntroMotherBrainInputDefinitions.HeaderStart, definitionWord: ReferenceWord);
+        compiled.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback, initializationParameter: 0);
+        reference.Load(DemoInputListWords.IntroMotherBrainFlashbackObject, initializationParameter: 0);
         int endFrame = -1;
         for (int frame = 0; frame < 1024; frame++)
         {
-            compiled.Step(guarded, new FlashbackEndDemoProgram(IntroMotherBrainInputDefinitions.ReadWord));
-            reference.Step(bus, new FlashbackEndDemoProgram(ReferenceWord));
-            AssertEqual(reference.InstructionPointer, compiled.InstructionPointer,
-                $"intro Mother Brain demo cursor frame {frame}");
-            AssertEqual(reference.InstructionTimer.RawValue, compiled.InstructionTimer.RawValue,
-                $"intro Mother Brain demo countdown frame {frame}");
-            AssertEqual(reference.Held, compiled.Held,
-                $"intro Mother Brain demo held frame {frame}");
-            AssertEqual(reference.NewlyPressed, compiled.NewlyPressed,
-                $"intro Mother Brain demo input edge frame {frame}");
-            AssertEqual(reference.Enabled, compiled.Enabled,
-                $"intro Mother Brain demo enable state frame {frame}");
-            if (compiled.InstructionPointer == 0)
+            compiled.Step(DemoInputState.RunReturnOnlyPreInstruction, cue =>
+            {
+                AssertEqual(DemoInputCue.EndIntroMotherBrainFlashback, cue, $"intro Mother Brain demo routine frame {frame}");
+                compiled.Disable();
+            });
+            reference.Step(NativeDemoInputReference.ReturnOnly, (state, routine) =>
+            {
+                AssertEqual(DemoInputListWords.EndIntroMotherBrainFlashbackRoutine, routine, $"intro Mother Brain native routine frame {frame}");
+                state.Disable();
+            });
+            AssertEqual(reference.Snapshot(), NativeDemoInputReference.Of(compiled), $"intro Mother Brain demo object frame {frame}");
+            if (!compiled.IsActive)
             {
                 endFrame = frame;
                 break;
@@ -59,52 +47,18 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         AssertTrue(endFrame >= 0 && !compiled.Enabled,
             "intro Mother Brain demo reaches its native disable/delete instruction");
 
-        // Exercise the actual cinematic owner under the same source guard: both its
-        // constructor-time object load and frame-time interpreter must use installed data.
+        // The actual cinematic owner loads the same object and plays its first record in the flashback's first dispatch.
+        var guarded = NewIntroArtworkSourceReadGuard(bus);
         var intro = CreateRetailIntroFixture(guarded, characterArtwork: stock);
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         intro.SetupFirstIllustratedPage();
         intro.SetupMotherBrainFlashback();
         intro.StepMotherBrainDemo();
-        var live = intro.flashbackDemoInput;
-        var nativeFirst = new DemoInputState();
-        nativeFirst.Clear();
+        var live = intro.flashbackDemoInput ?? throw new InvalidOperationException("Verification requires the live flashback demo.");
+        var nativeFirst = new NativeDemoInputReference(ReferenceWord);
         nativeFirst.Enable();
-        nativeFirst.LoadObject(bus, IntroMotherBrainInputDefinitions.HeaderStart, definitionWord: ReferenceWord);
-        nativeFirst.Step(bus, new DemoInputListProgram(ReferenceWord));
-        AssertEqual(nativeFirst.PreInstructionPointer, (live ?? throw new InvalidOperationException("Verification requires live.")).PreInstructionPointer,
-            "production flashback owns the compiled demo header");
-        AssertEqual(nativeFirst.InstructionPointer, live.InstructionPointer,
-            "production flashback selects the native first record");
-        AssertEqual(nativeFirst.InstructionTimer.RawValue, live.InstructionTimer.RawValue,
-            "production flashback uses the native first-record timer");
-        AssertEqual(nativeFirst.Held, live.Held,
-            "production flashback publishes the native first held input");
-        AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "production flashback never rereads the Mother Brain demo program");
-
-    }
-
-    /// <summary>Reads one native demo-program byte for the independent comparison source.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain demo input")]
-    private static byte IntroMotherBrainDemoInputRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
-    /// <summary>The flashback demo's end routine over either instruction source (#633).</summary>
-    internal sealed class FlashbackEndDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
-    {
-        /// <summary>Obtains a word from the selected compiled or cartridge instruction source.</summary>
-        public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
-
-        /// <summary>The flashback demo has no separate pre-instruction action.</summary>
-        public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => false;
-
-        /// <summary>Disables the demo when the flashback's expected end opcode is reached.</summary>
-        public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor)
-        {
-            if (opcode != IntroCinematicRomData.Flashback.ExpectedEndInstruction)
-                return DemoInputInstructionResult.NotHandled(cursor);
-            demo.Disable();
-            return DemoInputInstructionResult.ContinueAt(cursor);
-        }
+        nativeFirst.Load(DemoInputListWords.IntroMotherBrainFlashbackObject, initializationParameter: 0);
+        nativeFirst.Step(NativeDemoInputReference.ReturnOnly, NativeDemoInputReference.NoRoutines);
+        AssertEqual(nativeFirst.Snapshot(), NativeDemoInputReference.Of(live), "production flashback plays the native first record");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "production flashback reads no guarded intro source");
     }
 }

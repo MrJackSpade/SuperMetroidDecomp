@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using K = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileCueKind;
 using P = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileProgram;

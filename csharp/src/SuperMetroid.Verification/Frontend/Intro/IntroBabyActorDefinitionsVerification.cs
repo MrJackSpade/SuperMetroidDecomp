@@ -1,7 +1,7 @@
+using SuperMetroid.Verification.Input;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using System.Reflection;
-using static SuperMetroid.Verification.Frontend.Intro.IntroBabyDiscoveryInputVerification;
 using static SuperMetroid.Verification.Frontend.Intro.IntroDiscoveryCollisionVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -18,37 +18,23 @@ internal static class IntroBabyActorDefinitionsVerification
     internal static void VerifyIntroBabyActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyIntroBabyDiscoveryInput), () => VerifyIntroBabyDiscoveryInput(retail));
-        AssertThrows<InvalidDataException>(() =>
-            IntroBabyDiscoveryInputDefinitions.ReadWord(
-                IntroBabyDiscoveryInputDefinitions.ListEnd),
-            "SR388 demo reader rejects adjacent bank-$91 code");
         // Hold the pre-instruction inert so the initial running-left loop is exercised
         // independently of Samus's position-dependent stop-and-look redirect.
         var compiledInput = new DemoInputState();
-        var cartridgeInput = new DemoInputState();
         compiledInput.Clear();
-        cartridgeInput.Clear();
         compiledInput.Enable();
-        cartridgeInput.Enable();
-        compiledInput.LoadObject(retail, IntroBabyDiscoveryInputDefinitions.HeaderStart,
-            definitionWord: IntroBabyDiscoveryInputDefinitions.ReadWord);
+        compiledInput.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery, initializationParameter: 0);
         ushort NativeInputWord(ushort pointer) => (ushort)(
             SnesLittleEndian.Word(IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | pointer), IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1)))));
-        cartridgeInput.LoadObject(retail, IntroBabyDiscoveryInputDefinitions.HeaderStart,
-            definitionWord: NativeInputWord);
+        var cartridgeInput = new NativeDemoInputReference(NativeInputWord);
+        cartridgeInput.Enable();
+        cartridgeInput.Load(DemoInputListWords.IntroBabyDiscoveryObject, initializationParameter: 0);
         for (int frame = 0; frame < 128; frame++)
         {
-            compiledInput.Step(retail, new InertPreInstructionDemoProgram(IntroBabyDiscoveryInputDefinitions.ReadWord));
-            cartridgeInput.Step(retail, new InertPreInstructionDemoProgram(NativeInputWord));
-            AssertEqual(cartridgeInput.InstructionPointer, compiledInput.InstructionPointer,
-                $"SR388 initial demo loop cursor at frame {frame}");
-            AssertEqual(cartridgeInput.InstructionTimer.RawValue, compiledInput.InstructionTimer.RawValue,
-                $"SR388 initial demo loop timer at frame {frame}");
-            AssertEqual(cartridgeInput.Held, compiledInput.Held,
-                $"SR388 initial demo held input at frame {frame}");
-            AssertEqual(cartridgeInput.NewlyPressed, compiledInput.NewlyPressed,
-                $"SR388 initial demo input edge at frame {frame}");
+            compiledInput.Step((_, _) => { }, cue => throw new InvalidOperationException($"SR388 running-left loop called {cue}."));
+            cartridgeInput.Step((_, _) => { }, NativeDemoInputReference.NoRoutines);
+            AssertEqual(cartridgeInput.Snapshot(), NativeDemoInputReference.Of(compiledInput),
+                $"SR388 initial demo loop object at frame {frame}");
         }
         // Native cinematic-object definitions $8B:CE5B/CE61/CE67/CE79, in compiled order.
         (IntroBabyActorDefinition Actor, ushort DefinitionPointer)[] actors =
@@ -85,10 +71,7 @@ internal static class IntroBabyActorDefinitionsVerification
         var referenceBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var reference = new IntroBabyDiscoveryState(referenceBus,
-            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()),
-            demoWordReader: pointer => (ushort)(
-                SnesLittleEndian.Word(IntroBabyActorDefinitionsRomByte(referenceBus, DemoInputRomData.BankBase | pointer), IntroBabyActorDefinitionsRomByte(referenceBus, DemoInputRomData.BankBase |
-                    unchecked((ushort)(pointer + 1))))));
+            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Samus.SamusState()));
         for (int block = 0; block < discovery.Level.ForegroundEntries.Length; block++)
         {
             ushort expected = block * sizeof(ushort) < nativeCollision.Length
@@ -111,7 +94,7 @@ internal static class IntroBabyActorDefinitionsVerification
         {
             discovery.Step((ushort)frame, introCrossfadeTimer: 0x007f);
             reference.Step((ushort)frame, introCrossfadeTimer: 0x007f);
-            AssertEqual(nativeDemo.InstructionPointer, demo.InstructionPointer,
+            AssertEqual(nativeDemo.Cursor, demo.Cursor,
                 $"SR388 demo list cursor at frame {frame} matches ROM-backed controller");
             AssertEqual(nativeDemo.InstructionTimer.RawValue, demo.InstructionTimer.RawValue,
                 $"SR388 demo countdown at frame {frame} matches ROM-backed controller");
@@ -171,10 +154,10 @@ internal static class IntroBabyActorDefinitionsVerification
         AssertTrue(!deliveredBaby.IsActive && !examinedBaby.IsActive,
             "scientist actors delete at zero crossfade");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "intro egg/baby playback never rereads compiled definitions, instructions, demo input or discovery collision bytes");
+            "intro egg/baby playback never rereads compiled definitions, instructions or discovery collision bytes");
 
         Console.WriteLine(
-            "  Intro baby actors: definition, 138 discovery, 142 scientist, 72 demo-input and 768 collision bytes match; full guarded scenes pass.");
+            "  Intro baby actors: definition, 138 discovery, 142 scientist and 768 collision bytes match; full guarded scenes pass.");
     }
 
     /// <summary>Reads a single retail byte only for the comparison oracle, outside the guarded production playback.</summary>
@@ -197,30 +180,8 @@ internal static class IntroBabyActorDefinitionsVerification
                 >= 0x8bad55 and < 0x8bad68 or
                 >= 0x8bad93 and < 0x8bada6 or
                 >= 0x8bba4b and < 0x8bba5e ||
-                CinematicSpriteNativeListAddresses.InListRegion(address) ||
-                (address >= (DemoInputRomData.BankBase |
-                    IntroBabyDiscoveryInputDefinitions.ListStart) &&
-                 address < (DemoInputRomData.BankBase |
-                    IntroBabyDiscoveryInputDefinitions.ListEnd)) ||
-                (address >= (DemoInputRomData.BankBase |
-                    IntroBabyDiscoveryInputDefinitions.HeaderStart) &&
-                 address < (DemoInputRomData.BankBase |
-                    IntroBabyDiscoveryInputDefinitions.HeaderEnd)),
+                CinematicSpriteNativeListAddresses.InListRegion(address),
             address => $"Intro egg/baby actor reread compiled byte ${address:X6}.");
-
-    /// <summary>A demo owner that accepts every pre-instruction without effect and has no private routines (#633).</summary>
-    internal sealed class InertPreInstructionDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
-    {
-        /// <summary>Supplies either compiled or retail demo-list words for a matched loop comparison.</summary>
-        public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
-
-        /// <summary>Leaves the initial running-left loop active without Samus's stop-and-look redirect.</summary>
-        public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => true;
-
-        /// <summary>Declines private demo opcodes so the common interpreter handles the stream.</summary>
-        public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
-            DemoInputInstructionResult.NotHandled(cursor);
-    }
 
     /// <summary>Runs the compiled intro Baby actor and discovery playback comparison.</summary>
     [VerificationCommand("--intro-baby-actor-definitions")]

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms;
+﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;

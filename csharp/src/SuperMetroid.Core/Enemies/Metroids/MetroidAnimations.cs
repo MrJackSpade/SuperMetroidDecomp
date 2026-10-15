@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Metroids.MetroidCueKind;
 using P = SuperMetroid.Core.Enemies.Metroids.MetroidProgram;
 using SuperMetroid.Core.Enemies.Metroids.Artwork;

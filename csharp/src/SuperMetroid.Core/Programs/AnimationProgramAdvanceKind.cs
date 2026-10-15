@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Programs;
 
 /// <summary>How an advance of an <see cref="AnimationProgramSet{TProgram, TFrame, TCue}"/> program ended.</summary>
 internal enum AnimationProgramAdvanceKind

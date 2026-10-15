@@ -737,8 +737,7 @@ public sealed class IntroCinematicState
         flashbackDemoInput = new DemoInputState();
         flashbackDemoInput.Clear();
         flashbackDemoInput.Enable();
-        flashbackDemoInput.LoadObject(bus, IntroMotherBrainInputDefinitions.HeaderStart,
-            definitionWord: IntroMotherBrainInputDefinitions.ReadWord);
+        flashbackDemoInput.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback, initializationParameter: 0);
         // $8B:AF62: Samus is processed, and drawn ahead of the cinematic objects.
         flashbackSamusDisplay = IntroSamusDisplay.SamusFirst;
 
@@ -1037,7 +1036,7 @@ public sealed class IntroCinematicState
     /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and palette updates for the Mother Brain flashback.</summary>
     internal void StepMotherBrainDemo()
     {
-        FlashbackDemoInput.Step(bus, new FlashbackDemoProgram(this));
+        FlashbackDemoInput.Step(DemoInputState.RunReturnOnlyPreInstruction, HandleMotherBrainDemoCue);
 
         // HandleHUDSpecificBehaviorAndProjectiles calls the shared cooldown owner before
         // its ordinary-projectile half. Standing pose two cannot place bombs, but running
@@ -1175,14 +1174,11 @@ public sealed class IntroCinematicState
         samus.DecrementHurtTimers();
     }
 
-    /// <summary>Handles the Mother Brain demo's special opcode by freezing input after its prescribed Samus pose change.</summary>
-    private DemoInputInstructionResult HandleMotherBrainDemoInstruction(
-        DemoInputState demo,
-        ushort instructionPointer,
-        ushort argumentPointer)
+    /// <summary>Runs the Mother Brain demo's end routine, freezing input after its prescribed Samus pose change.</summary>
+    private void HandleMotherBrainDemoCue(DemoInputCue cue)
     {
-        if (instructionPointer != IntroCinematicRomData.Flashback.ExpectedEndInstruction)
-            return DemoInputInstructionResult.NotHandled(argumentPointer);
+        if (cue != DemoInputCue.EndIntroMotherBrainFlashback)
+            throw new InvalidOperationException($"The Mother Brain flashback demo calls no {cue} routine.");
 
         // $91:8739 locks Samus in pose two, reinitializes the pose/animation bookkeeping,
         // disables demo publication, and then returns to the bytecode interpreter. The next
@@ -1195,8 +1191,7 @@ public sealed class IntroCinematicState
         // $91:874B: a Samus already in pose two keeps her running animation.
         FlashbackSamus.Presentation.SetAnimationFrameIfPoseChanged(bus);
         FlashbackSamus.CommitPoseHistory(bus);
-        demo.Disable();
-        return DemoInputInstructionResult.ContinueAt(argumentPointer);
+        FlashbackDemoInput.Disable();
     }
 
     /// <summary>Builds the flashback's 224-word collision room with native-cleared BTS storage.</summary>
@@ -1583,20 +1578,6 @@ public sealed class IntroCinematicState
     {
         if (bytes.Length < minimum)
             throw new InvalidDataException($"The {name} stream expanded to ${bytes.Length:X}, expected at least ${minimum:X}.");
-    }
-
-    /// <summary>Connects the Mother Brain input bytecode and special Samus instruction; no private pre-instructions are used.</summary>
-    private sealed class FlashbackDemoProgram(IntroCinematicState owner) : IDemoInputProgram
-    {
-        /// <summary>Reads a word from the installed Mother Brain demo instruction stream.</summary>
-        public ushort ReadInstructionWord(ushort pointer) => IntroMotherBrainInputDefinitions.ReadWord(pointer);
-
-        /// <summary>The flashback script has no pre-instruction dispatch at this boundary.</summary>
-        public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => false;
-
-        /// <summary>Delegates the Mother Brain-specific opcode to the owning cinematic state.</summary>
-        public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
-            owner.HandleMotherBrainDemoInstruction(demo, opcode, cursor);
     }
 
     /// <summary>Prepares the current display once and owns all inputs needed by a detached renderer.</summary>

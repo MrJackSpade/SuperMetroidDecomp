@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
 using P = SuperMetroid.Core.Enemies.KiHunters.KiHunterAcidSpitProgram;
 using SuperMetroid.Core.Enemies.Projectiles;

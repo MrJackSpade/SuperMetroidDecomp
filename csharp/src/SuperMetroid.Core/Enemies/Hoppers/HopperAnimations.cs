@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Hoppers.HopperCueKind;
 using P = SuperMetroid.Core.Enemies.Hoppers.HopperProgram;
 using SuperMetroid.Core.Enemies.Hoppers.Artwork;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
 using P = SuperMetroid.Core.Enemies.Powamp.PowampSpikeProgram;
 using SuperMetroid.Core.Enemies.Projectiles;

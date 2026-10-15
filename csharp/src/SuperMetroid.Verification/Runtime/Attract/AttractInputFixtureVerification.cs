@@ -1,71 +1,57 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
-using static SuperMetroid.Verification.Frontend.FrontendVerification;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime.Attract;
+using SuperMetroid.Verification.Input;
+using static SuperMetroid.Verification.Frontend.FrontendVerification;
 
 namespace SuperMetroid.Verification.Runtime.Attract;
 
-/// <summary>Provides a cartridge-backed interpreter for comparing compiled attract-demo input playback.</summary>
+/// <summary>Provides a cartridge-backed interpreter for comparing typed attract-demo input playback.</summary>
 internal static class AttractInputFixtureVerification
 {
     /// <summary>Interprets cartridge or synthetic demo words as the independent reference input stream.</summary>
-    /// <remarks>Production playback uses <c>StockAttractInputProgramsCatalog</c> and <c>StepStock</c>.</remarks>
+    /// <remarks>Production playback runs <c>DemoInputAnimations</c> through <c>StepStock</c>.</remarks>
     internal sealed class ReferenceAttractInput
     {
-        /// <summary>Mutable reference script state, including independently authored held and new inputs.</summary>
-        public DemoInputState Script { get; } = new();
+        /// <summary>The reference object, including independently authored held and new inputs.</summary>
+        public NativeDemoInputReference Script { get; }
 
         /// <summary>Loads the scene's native input object through the reference word reader.</summary>
         public ReferenceAttractInput(ISnesAddressSpace bus, AttractDemoScene scene)
         {
-            Script.LoadObject(bus, scene.InputObject, scene.InputObject,
-                definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
+            Script = new NativeDemoInputReference(pointer => ReadDemoFixtureWord(bus, pointer));
+            Script.Load(scene.InputObject, scene.InputObject);
             Script.Enable();
         }
 
         /// <summary>Advances one reference input frame using native words and pre-instructions.</summary>
-        public void Step(ISnesAddressSpace bus, SuperMetroidGameState gameState,
-            SamusMovementType movementType)
-        {
-            Script.Step(bus, new ReferenceAttractProgram(bus, gameState, movementType));
-        }
+        public void Step(SuperMetroidGameState gameState, SamusMovementType movementType) =>
+            Script.Step((state, pointer) => RunPreInstruction(state, pointer, gameState, movementType), NativeDemoInputReference.NoRoutines);
     }
 
-    /// <summary>The attract scene's reference owner for one frame: fixture words and the scene's pre-instructions (#633).</summary>
-    internal sealed class ReferenceAttractProgram(ISnesAddressSpace bus, SuperMetroidGameState gameState,
-        SamusMovementType movementType) : IDemoInputProgram
+    /// <summary>Applies demo leave and movement branches using the native pre-instruction identities.</summary>
+    private static void RunPreInstruction(NativeDemoInputReference state, ushort pointer, SuperMetroidGameState gameState,
+        SamusMovementType movementType)
     {
-        /// <summary>Reads a cartridge or synthetic fixture word for the reference script.</summary>
-        public ushort ReadInstructionWord(ushort pointer) => ReadDemoFixtureWord(bus, pointer);
-
-        /// <summary>Applies demo leave and movement branches using the native pre-instruction identities.</summary>
-        public bool TryRunPreInstruction(DemoInputState state, ushort pointer)
+        switch (ClosedNativeWords.Decode<AttractDemoPreInstruction>(pointer, "reference demo pre-instruction"))
         {
-            switch (ClosedNativeWords.Decode<AttractDemoPreInstruction>(pointer, "reference demo pre-instruction"))
-            {
-                case AttractDemoPreInstruction.NoOp:
-                case AttractDemoPreInstruction.Cleared:
-                    break;
-                case AttractDemoPreInstruction.CheckLeave:
-                    if (gameState == SuperMetroidGameState.TransitionFromDemoB)
-                        state.Redirect(pointer, DemoInputRomData.Attract.DeleteList);
-                    break;
-                case AttractDemoPreInstruction.Shinespark:
-                    if (movementType != SamusMovementType.DraygonHeld)
-                        state.Redirect((ushort)AttractDemoPreInstruction.CheckLeave,
-                            DemoInputRomData.Attract.ShinesparkContinuation);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(AttractDemoPreInstruction)} {pointer:X4}.");
-            }
-            return true;
+            case AttractDemoPreInstruction.NoOp:
+            case AttractDemoPreInstruction.Cleared:
+                break;
+            case AttractDemoPreInstruction.CheckLeave:
+                if (gameState == SuperMetroidGameState.TransitionFromDemoB)
+                    state.Redirect(pointer, DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDelete));
+                break;
+            case AttractDemoPreInstruction.Shinespark:
+                if (movementType != SamusMovementType.DraygonHeld)
+                    state.Redirect((ushort)AttractDemoPreInstruction.CheckLeave,
+                        DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation));
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(AttractDemoPreInstruction)} {pointer:X4}.");
         }
-
-        /// <summary>Defers all special instructions to the ordinary demo input interpreter.</summary>
-        public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
-            DemoInputInstructionResult.NotHandled(cursor);
     }
 }

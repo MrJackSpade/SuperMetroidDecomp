@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEffectCueKind;
 using P = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEffectProgram;
 using SuperMetroid.Core.Enemies.Projectiles;

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Programs;
 
 /// <summary>What one step of an <see cref="AnimationTimeline{TFrame, TCue}"/> does.</summary>
 internal enum AnimationStepKind

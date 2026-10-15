@@ -18,8 +18,6 @@ internal sealed class IntroBabyDiscoveryState
     private readonly ISnesAddressSpace bus;
     /// <summary>Receives egg-hatch and baby-cry sound requests when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
-    /// <summary>Reads the discovery demo's compiled input words.</summary>
-    private readonly Func<ushort, ushort> demoWordReader;
     /// <summary>Feeds the scripted pose and movement input to Samus.</summary>
     internal readonly DemoInputState demo = new();
     /// <summary>Particles emitted when the egg begins hatching.</summary>
@@ -33,11 +31,10 @@ internal sealed class IntroBabyDiscoveryState
 
     /// <summary>Sets up the native scene's Samus state, partial room collision map, actors, and demo input list.</summary>
     public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
-        SamusState? existingSamus = null, Func<ushort, ushort>? demoWordReader = null)
+        SamusState? existingSamus = null)
     {
         this.bus = Ensure.NotNull(bus);
         this.audio = audio;
-        this.demoWordReader = demoWordReader ?? IntroBabyDiscoveryInputDefinitions.ReadWord;
 
         egg = CreateActor(IntroBabyActorDefinitions.Egg);
         confusedBaby = CreateActor(IntroBabyActorDefinitions.ConfusedBaby);
@@ -61,8 +58,7 @@ internal sealed class IntroBabyDiscoveryState
 
         demo.Clear();
         demo.Enable();
-        demo.LoadObject(bus, IntroBabyDiscoveryInputDefinitions.HeaderStart,
-            definitionWord: this.demoWordReader);
+        demo.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery, initializationParameter: 0);
     }
 
     /// <summary>Samus' scene state, carried from the earlier intro when supplied.</summary>
@@ -98,7 +94,7 @@ internal sealed class IntroBabyDiscoveryState
         {
             // $90:E91D: the demo pose-input handler runs DemoInputObjectHandler inside Samus's
             // current-state handler, ahead of her pose input and movement.
-            demo.Step(bus, new DiscoveryDemoProgram(this, introCrossfadeTimer));
+            demo.Step((_, pointer) => RunDemoPreInstruction(pointer, introCrossfadeTimer), HandleDemoCue);
             // $90:E70D ends the current-state handler with ResetMovementAndPoseChangeVariables,
             // before this dispatch's movement records new distances.
             Samus.PoseTransitions.ClearPoseTransitionShotDirection();
@@ -182,14 +178,14 @@ internal sealed class IntroBabyDiscoveryState
                 if (Samus.Position.X.Whole < 178)
                     demo.Redirect(
                         (ushort)IntroBabyDiscoveryPreInstruction.StopAndLook,
-                        IntroBabyDiscoveryRomData.StopAndLookInputList);
+                        DemoInputProgram.IntroBabyDiscoveryStopAndLook);
                 return;
 
             case IntroBabyDiscoveryPreInstruction.StopAndLook:
                 if (introCrossfadeTimer == 0)
                     demo.Redirect(
                         (ushort)IntroBabyDiscoveryPreInstruction.Inert,
-                        IntroBabyDiscoveryRomData.EndInputList);
+                        DemoInputProgram.IntroBabyDiscoveryEnd);
                 return;
 
             case IntroBabyDiscoveryPreInstruction.Inert:
@@ -201,21 +197,17 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
-    /// <summary>Consumes the end-demo opcode, disabling input and both Samus handlers for subsequent dispatches.</summary>
-    private DemoInputInstructionResult HandleDemoInstruction(
-        DemoInputState state,
-        ushort pointer,
-        ushort argumentPointer)
+    /// <summary>Runs the discovery list's end routine, disabling input and both Samus handlers for subsequent dispatches.</summary>
+    private void HandleDemoCue(DemoInputCue cue)
     {
-        if (pointer != IntroBabyDiscoveryRomData.EndDemoInputInstruction)
-            return DemoInputInstructionResult.NotHandled(argumentPointer);
+        if (cue != DemoInputCue.EndIntroBabyDiscovery)
+            throw new InvalidOperationException($"The Baby-discovery demo calls no {cue} routine.");
 
         // $91:8682 replaces both Samus handlers with RTL $90:E8CD, disables demo input, and
         // returns into the following shared delete opcode. Samus is never processed again.
-        state.Disable();
+        demo.Disable();
         Samus.InputLocked = true;
         samusHandlersEnded = true;
-        return DemoInputInstructionResult.ContinueAt(argumentPointer);
     }
 
     /// <summary>Spawns hatch particles or requests the page-three transition from the egg's list.</summary>
@@ -420,26 +412,5 @@ internal sealed class IntroBabyDiscoveryState
         const int height = IntroBabyDiscoveryCollisionDefinitions.RoomRows;
         ushort[] foreground = IntroBabyDiscoveryCollisionDefinitions.CreateForeground();
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[width * height], new ushort[width * height]), Array.Empty<byte>());
-    }
-
-    /// <summary>
-    /// The discovery demo's owner for one frame: its compiled list, its pre-instructions (which read
-    /// this frame's crossfade timer) and its end-demo routine (#633).
-    /// </summary>
-    private sealed class DiscoveryDemoProgram(IntroBabyDiscoveryState owner, ushort introCrossfadeTimer) : IDemoInputProgram
-    {
-        /// <inheritdoc />
-        public ushort ReadInstructionWord(ushort pointer) => owner.demoWordReader(pointer);
-
-        /// <inheritdoc />
-        public bool TryRunPreInstruction(DemoInputState demo, ushort pointer)
-        {
-            owner.RunDemoPreInstruction(pointer, introCrossfadeTimer);
-            return true;
-        }
-
-        /// <inheritdoc />
-        public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
-            owner.HandleDemoInstruction(demo, opcode, cursor);
     }
 }

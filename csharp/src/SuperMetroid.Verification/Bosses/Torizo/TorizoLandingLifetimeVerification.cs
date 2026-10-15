@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;

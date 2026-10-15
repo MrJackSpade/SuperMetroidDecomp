@@ -18,6 +18,8 @@ public enum SnesMainScreenLayers : byte
     Bg2 = 0x02,
     /// <summary>TM bit 2 admits background layer 3, including the gameplay HUD, to the main screen.</summary>
     Bg3 = 0x04,
+    /// <summary>TM bit 3 admits background layer 4 to main-screen composition.</summary>
+    Bg4 = 0x08,
     /// <summary>TM bit 4 admits OBJ sprites to main-screen composition.</summary>
     Obj = 0x10,
 }

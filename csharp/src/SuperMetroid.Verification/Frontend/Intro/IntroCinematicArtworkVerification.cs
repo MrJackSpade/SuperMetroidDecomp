@@ -1044,7 +1044,7 @@ internal static class IntroCinematicArtworkVerification
         }
         if (address >= IntroCinematicRomData.Assets.MotherBrainLevelData &&
             address < IntroCinematicRomData.Assets.MotherBrainLevelData +
-                IntroCinematicRomData.Flashback.MotherBrainLevelByteCount)
+                IntroCinematicRomDataFlashbackConstants.MotherBrainLevelByteCount)
         {
             return $"Cinematic reread Mother Brain collision source ${address:X6}.";
         }
@@ -1137,19 +1137,6 @@ internal static class IntroCinematicArtworkVerification
             address >= scientistSpriteStart && address < scientistSpriteEnd)
         {
             return $"Cinematic reread intro scientist sprite ${address:X6}.";
-        }
-        int motherBrainDemoListStart = DemoInputRomData.BankBase |
-            IntroMotherBrainInputDefinitions.ListStart;
-        int motherBrainDemoListEnd = DemoInputRomData.BankBase |
-            IntroMotherBrainInputDefinitions.ListEnd;
-        int motherBrainDemoHeaderStart = DemoInputRomData.BankBase |
-            IntroMotherBrainInputDefinitions.HeaderStart;
-        int motherBrainDemoHeaderEnd = DemoInputRomData.BankBase |
-            IntroMotherBrainInputDefinitions.HeaderEnd;
-        if (address >= motherBrainDemoListStart && address < motherBrainDemoListEnd ||
-            address >= motherBrainDemoHeaderStart && address < motherBrainDemoHeaderEnd)
-        {
-            return $"Cinematic reread intro Mother Brain demo program ${address:X6}.";
         }
         if ((address >= eyeScriptStart &&
                 address < eyeScriptStart + IntroEyeAnimationDefinitions.EndPointer -

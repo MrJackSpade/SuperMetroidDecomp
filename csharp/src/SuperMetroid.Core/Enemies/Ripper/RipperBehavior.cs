@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Ripper.Artwork;
 using SuperMetroid.Core.Fx;

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Drawing;
+﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Puyo.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;

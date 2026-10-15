@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Programs;
 
 /// <summary>
 /// A family of typed animation programs that jump into one another (#641): frames with durations, cues whose

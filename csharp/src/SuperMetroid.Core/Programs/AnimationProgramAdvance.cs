@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Programs;
 
 /// <summary>The result of advancing a program: a new frame, a wait, a hold or a stop.</summary>
 /// <param name="Kind">How the advance ended.</param>

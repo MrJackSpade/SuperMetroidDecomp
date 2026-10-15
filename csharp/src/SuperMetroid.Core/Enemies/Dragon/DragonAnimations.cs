@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Dragon.DragonCueKind;
 using P = SuperMetroid.Core.Enemies.Dragon.DragonProgram;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;

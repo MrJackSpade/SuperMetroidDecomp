@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -584,54 +585,34 @@ internal static void VerifyCinematicPaletteFader()
     AssertEqual(0x0000, cgram.Colors[20], "32 fade-out calls reach exact black");
 }
 
-/// <summary>Checks the old Mother Brain demo's held and new input edges, record timing, control opcodes, and disable callback.</summary>
+/// <summary>Checks the Mother Brain flashback's typed demo program: held and new input edges, record timing and its end routine.</summary>
 internal static void VerifyDemoInputObject()
 {
-    var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
-    int objectAddress = DemoInputRomData.BankBase | DemoInputRomDataIntroMotherBrain.Object;
-    WriteRomWord(rom, objectAddress, DemoInputRomData.Routines.NoOp); // Initializer: RTS.
-    WriteRomWord(rom, objectAddress + 2, DemoInputRomData.Routines.NoOp); // Pre-instruction: RTS.
-    WriteRomWord(
-        rom,
-        objectAddress + 4,
-        DemoInputRomDataIntroMotherBrain.InputList);
-
-    // Exact six records at $91:8694. The two one-frame X edges are separated by held-X
-    // records; normal projectile cooldown/motion code—not this fixture—decides each shot.
-    ushort[] words =
-    [
-        0x005a, 0x0000, 0x0000,
-        0x0001, (ushort)SnesButton.X, (ushort)SnesButton.X,
-        0x0028, (ushort)SnesButton.X, 0x0000,
-        0x0001, (ushort)SnesButton.X, (ushort)SnesButton.X,
-        0x001d, (ushort)SnesButton.X, 0x0000,
-        0x0046, 0x0000, 0x0000,
-    ];
-    for (int index = 0; index < words.Length; index++)
-        WriteRomWord(
-            rom,
-            (DemoInputRomData.BankBase | DemoInputRomDataIntroMotherBrain.InputList) +
-                index * sizeof(ushort),
-            words[index]);
-
     var demo = new DemoInputState();
-    var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();
-    demo.LoadObject(bus, DemoInputRomDataIntroMotherBrain.Object, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
+    demo.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback, initializationParameter: 0);
 
+    // The first six records at $91:8694. The two one-frame X edges are separated by held-X
+    // records; normal projectile cooldown/motion code, not this program, decides each shot.
     int[] boundaries = [90, 1, 40, 1, 29, 70];
     ushort[] held =
         [0, (ushort)SnesButton.X, (ushort)SnesButton.X, (ushort)SnesButton.X,
             (ushort)SnesButton.X, 0];
     ushort[] newlyPressed =
         [0, (ushort)SnesButton.X, 0, (ushort)SnesButton.X, 0, 0];
-    int elapsed = 0;
+    int elapsed = 0, ends = 0;
+    void EndRoutine(DemoInputCue cue)
+    {
+        AssertEqual(DemoInputCue.EndIntroMotherBrainFlashback, cue, "flashback demo end routine");
+        ends++;
+        demo.Disable();
+    }
     for (int record = 0; record < boundaries.Length; record++)
     {
         for (int frame = 0; frame < boundaries[record]; frame++)
         {
-            demo.Step(bus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(bus, pointer)));
+            demo.Step(DemoInputState.RunReturnOnlyPreInstruction, EndRoutine);
             AssertEqual(held[record], demo.Held, $"demo record {record} held frame {frame}");
             AssertEqual(newlyPressed[record], demo.NewlyPressed,
                 $"demo record {record} new frame {frame}");
@@ -640,80 +621,23 @@ internal static void VerifyDemoInputObject()
     }
 
     AssertEqual(231, elapsed, "old Mother Brain demo-input duration");
-    AssertEqual(DemoInputRomDataIntroMotherBrain.NextRecord, demo.InstructionPointer,
+    AssertEqual(DemoInputRomDataIntroMotherBrain.NextRecord, DemoInputNativeListAddresses.Address(demo.Cursor),
         "old Mother Brain next record pointer");
     // Loading a record and publishing its first visible frame happen in the same handler
     // call. Consequently the last of its 70 visible frames leaves timer one; the following
     // call decrements to zero and fetches the next record.
     AssertEqual(1, demo.InstructionTimer.RawValue, "final visible record frame retains timer one");
 
-    string retailPath = Path.GetFullPath("Super Metroid.smc");
-    if (File.Exists(retailPath))
-    {
-        var retailDemo = new DemoInputState();
-        var retailBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(File.ReadAllBytes(retailPath));
-        retailDemo.Enable();
-        retailDemo.LoadObject(retailBus, DemoInputRomDataIntroMotherBrain.Object, definitionWord: pointer => ReadDemoFixtureWord(retailBus, pointer));
-        for (int frame = 0; frame < elapsed; frame++)
-            retailDemo.Step(retailBus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(retailBus, pointer)));
-        AssertEqual(demo.InstructionPointer, retailDemo.InstructionPointer,
-            "retail old-Mother-Brain stream reaches catalogued record boundary");
-        AssertEqual(demo.Held, retailDemo.Held,
-            "retail old-Mother-Brain stream publishes catalogued held input");
-    }
-
-    // Exercise the generic control instructions separately: set a loop count, consume the
-    // decrement/goto twice, then delete. This verifies that the reusable interpreter is not
-    // accidentally hard-coded to the intro's all-record list.
-    ushort fixtureHeld = (ushort)(
-        SnesButton.Start | SnesButton.Right | SnesButton.L | SnesButton.R);
-    WriteRomWord(rom, 0x918700, (ushort)DemoInputInstruction.SetTimer);
-    WriteRomWord(rom, 0x918702, 0x0002);
-    WriteRomWord(rom, 0x918704, 0x0001);
-    WriteRomWord(rom, 0x918706, fixtureHeld);
-    WriteRomWord(rom, 0x918708, 0x0020);
-    WriteRomWord(rom, 0x91870a, (ushort)DemoInputInstruction.DecrementTimerAndGoto);
-    WriteRomWord(rom, 0x91870c, 0x8704);
-    WriteRomWord(rom, 0x91870e, (ushort)DemoInputInstruction.Delete);
-    WriteRomWord(rom, 0x918720, DemoInputRomData.Routines.NoOp);
-    WriteRomWord(rom, 0x918722, DemoInputRomData.Routines.NoOp);
-    WriteRomWord(rom, 0x918724, 0x8700);
-
-    bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-    demo.Clear();
-    demo.Enable();
-    demo.LoadObject(bus, 0x8720, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
-    demo.Step(bus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(bus, pointer)));
-    AssertEqual(fixtureHeld, demo.Held, "demo opcode fixture first held word");
-    AssertEqual(2, demo.Timer.RawValue, "demo set-timer opcode");
-    demo.Step(bus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(bus, pointer)));
-    AssertEqual(1, demo.Timer.RawValue, "demo decrement/goto loops while nonzero");
-    AssertEqual(fixtureHeld, demo.Held, "demo loop replays input record");
-    demo.Step(bus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(bus, pointer)));
-    AssertEqual(0, demo.Timer.RawValue, "demo decrement/goto falls through at zero");
-    AssertEqual(0, demo.InstructionPointer, "demo delete clears list pointer");
+    // $8739 disables the object and returns into the shared delete in the same handler call.
+    for (int frame = 0; frame < 1024 && demo.IsActive; frame++)
+        demo.Step(DemoInputState.RunReturnOnlyPreInstruction, EndRoutine);
+    AssertEqual(1, ends, "flashback demo end routine runs once");
+    AssertEqual(false, demo.Enabled, "demo end routine disables the object");
+    AssertEqual(false, demo.IsActive, "demo end routine continues into delete");
     AssertEqual(0, demo.Held, "demo delete clears held input");
     AssertEqual(0, demo.NewlyPressed, "demo delete clears new input");
 
-    // Object-specific routine pointers must be acknowledged explicitly and return the exact
-    // bytecode cursor after their operands. Model $8739's no-argument disable followed by
-    // the shared delete opcode, just as the physical Mother Brain list ends in the ROM.
-    WriteRomWord(rom, 0x918730, DemoInputRomData.Routines.NoOp);
-    WriteRomWord(rom, 0x918732, DemoInputRomData.Routines.NoOp);
-    WriteRomWord(rom, 0x918734, 0x8750);
-    WriteRomWord(rom, 0x918750, 0x8739);
-    WriteRomWord(rom, 0x918752, (ushort)DemoInputInstruction.Delete);
-    bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-    demo.Clear();
-    demo.Enable();
-    demo.LoadObject(bus, 0x8730, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
-    var disabling = new DisablingDemoProgram(pointer => ReadDemoFixtureWord(bus, pointer));
-    demo.Step(bus, disabling);
-    AssertEqual(1, disabling.Calls, "demo special instruction callback count");
-    AssertEqual(false, demo.Enabled, "demo special instruction disable");
-    AssertEqual(0, demo.InstructionPointer, "demo special instruction continues into delete");
-
-    Console.WriteLine("  Demo input: records, edges, shared opcodes, special dispatch, and deletion agree.");
+    Console.WriteLine("  Demo input: records, edges, end routine and deletion agree.");
 }
 
 /// <summary>Reads a fixture instruction from bank $91 through the cartridge import boundary.</summary>
@@ -728,27 +652,6 @@ internal static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
     rom[offset + 1] = SnesLittleEndian.HighByte(value);
 }
 
-/// <summary>A demo owner whose one private routine ($8739) disables the object and continues (#633).</summary>
-internal sealed class DisablingDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
-{
-    /// <summary>Counts private opcode dispatches made by the demo interpreter.</summary>
-    public int Calls { get; private set; }
-
-    /// <summary>Supplies authored fixture words to the demo interpreter.</summary>
-    public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
-
-    /// <summary>Leaves ordinary pre-instructions to the default demo path.</summary>
-    public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => false;
-
-    /// <summary>Handles private opcode $8739 by disabling the object and continuing at the next cursor.</summary>
-    public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor)
-    {
-        AssertEqual(0x8739, opcode, "demo special instruction pointer");
-        Calls++;
-        demo.Disable();
-        return DemoInputInstructionResult.ContinueAt(cursor);
-    }
-}
 
     /// <summary>Runs the constructed demo-input object and control-opcode fixture.</summary>
     [VerificationCommand("--demo-input-fixture")]

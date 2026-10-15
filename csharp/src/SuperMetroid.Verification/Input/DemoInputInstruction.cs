@@ -1,7 +1,9 @@
-namespace SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
+
+namespace SuperMetroid.Verification.Input;
 
 /// <summary>The six bank-$91 control routines shared by every demo-input instruction list.</summary>
-public enum DemoInputInstruction : ushort
+internal enum DemoInputInstruction : ushort
 {
     /// <summary>$91:8427, <c>Instruction_DemoInputObject_Delete</c>: no operands; clears the instruction pointer and held/new input words, terminating list processing.</summary>
     Delete = 0x8427,

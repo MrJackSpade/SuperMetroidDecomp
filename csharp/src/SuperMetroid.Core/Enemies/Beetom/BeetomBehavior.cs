@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Beetom.Artwork;
 using SuperMetroid.Core.Fx;
 using System.Diagnostics.CodeAnalysis;

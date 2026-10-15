@@ -54,6 +54,8 @@ internal static class VramDmaOwnership
     internal static bool OwnsTyped(VramAssetId asset, int count)
     {
         if (asset == VramAssetId.StandardHudTiles) return count == HudTileAtlasFormat.TransferByteCount;
+        if (asset == VramAssetId.StandardObjectTiles) return count == StandardObjectArtworkFormat.TransferByteCount;
+        if (asset == VramAssetId.HudTopRowTilemap) return count == GameplayHudDefinitions.TopRowByteCount;
         if (asset == VramAssetId.EscapeTimerFirstTiles) return count == EscapeTimerTileAtlasFormat.FirstByteCount;
         if (asset == VramAssetId.EscapeTimerSecondTiles) return count == EscapeTimerTileAtlasFormat.SecondByteCount;
         if (asset is >= VramAssetId.BeamPowerTiles and <= VramAssetId.BeamPlasmaIceWaveTiles or VramAssetId.BeamChainsawTiles or VramAssetId.BeamSpacetimeTiles)

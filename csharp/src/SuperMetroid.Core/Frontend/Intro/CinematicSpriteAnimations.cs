@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Frontend.Intro.CinematicSpriteCueKind;
 using P = SuperMetroid.Core.Frontend.Intro.CinematicSpriteProgram;
 using SuperMetroid.Core.Fx;

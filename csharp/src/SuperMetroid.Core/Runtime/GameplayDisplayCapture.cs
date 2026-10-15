@@ -14,6 +14,10 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Simulation-side resolution of live room state into owned PPU composition inputs.</summary>
 public static class GameplayDisplayCapture
 {
+    /// <summary>The TM and TMW bits that admit a layer: the four backgrounds and OBJ.</summary>
+    private const int TmLayerBits = (int)(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Bg3 |
+        SnesMainScreenLayers.Bg4 | SnesMainScreenLayers.Obj);
+
     /// <summary>
     /// Captures the full currently modeled gameplay composition, including mixed video-mode bands,
     /// room FX, X-ray ownership, message glyphs, and the final suit/power-bomb color effects.
@@ -119,7 +123,7 @@ public static class GameplayDisplayCapture
         GameplayWindowRegisterSnapshot displayedWindows =
             runtime.GameplayWindows.DisplayedGameplayWindowRegisters;
         SnesMainScreenLayers displayedMainScreen =
-            (SnesMainScreenLayers)(displayedWindows.MainScreen & 0x1f);
+            (SnesMainScreenLayers)(displayedWindows.MainScreen & TmLayerBits);
         var registers = new OrdinaryGameplayRegisters(bg1Scroll,
             new Position16<Bg2Pixels>(kraidBg ? Add(kraidBg2Scroll.X, shake.Bg2.X)
                 : crocomireBg ? Add(runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll.X, shake.Bg2.X) : bg2Scroll.X, kraidBg ? Add(kraidBg2Scroll.Y, shake.Bg2.Y)
@@ -138,7 +142,7 @@ public static class GameplayDisplayCapture
             ppu.Bg2FirstScanline, ppu.Bg2EndScanline,
             Windows: displayedWindows.Windows,
             MainScreenWindowMask:
-                (SnesMainScreenLayers)(displayedWindows.MainScreenWindow & 0x1f),
+                (SnesMainScreenLayers)(displayedWindows.MainScreenWindow & TmLayerBits),
             Bg2Mosaic: BackgroundMosaicSampling.ForBg2(runtime.Enemies.PhantoonBehavior.Phantoon?.Blending.DisplayedMosaic ?? 0));
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.

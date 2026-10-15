@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Hibashi.Artwork;
+﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Hibashi.Artwork;
 using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using K = SuperMetroid.Core.Enemies.Choot.ChootCueKind;
 using P = SuperMetroid.Core.Enemies.Choot.ChootProgram;
 using SuperMetroid.Core.Enemies.Choot.Artwork;

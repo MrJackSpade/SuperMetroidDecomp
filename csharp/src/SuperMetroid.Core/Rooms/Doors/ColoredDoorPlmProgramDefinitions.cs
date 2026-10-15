@@ -1,5 +1,6 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
-using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Rooms.Doors.ColoredDoorProgram, SuperMetroid.Core.Rooms.Doors.DoorCapFrame, SuperMetroid.Core.Rooms.Doors.ColoredDoorCue>;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.Doors.ColoredDoorProgram, SuperMetroid.Core.Rooms.Doors.DoorCapFrame, SuperMetroid.Core.Rooms.Doors.ColoredDoorCue>;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 

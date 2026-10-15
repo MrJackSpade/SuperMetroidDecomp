@@ -55,6 +55,9 @@ public static class KraidBackgroundRomData
     /// <summary>Number of sequential standard-BG3 quarters restored by Kraid's death AI.</summary>
     public const int StandardBg3TransferCount = 4;
 
+    /// <summary>The cartridge source of standard-BG3 quarter <paramref name="quarter"/>.</summary>
+    public static int StandardBg3QuarterAddress(int quarter) => StandardBg3TilesAddress + quarter * StandardBg3TransferBytes;
+
     /// <summary>Maps the four cartridge-authored restoration phases to installed art.</summary>
     public static VramAssetId StandardBg3AssetForQuarter(int index) => index switch
     {

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Input;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleDemoTrajectoryVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -37,10 +38,10 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, 0x91c000, 5);
         WriteRomWord(rom, 0x91c002, (ushort)SnesButton.Left);
         WriteRomWord(rom, 0x91c004, 0);
-        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputRomData.Attract.DeleteList,
+        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDelete),
             (ushort)DemoInputInstruction.Delete);
-        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputRomData.Attract.ShinesparkContinuation, 7);
-        WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputRomData.Attract.ShinesparkContinuation) + 2,
+        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation), 7);
+        WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation)) + 2,
             (ushort)SnesButton.Right);
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var expected = new AttractDemoScene(0x91f8, 0x8000, new(0x100, 0x200), new(-46, 0x40),
@@ -52,18 +53,18 @@ internal static class AttractDemoSceneVerification
         if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 1) is not null)
             throw new InvalidDataException("Demo room sentinel did not terminate the set.");
         var input = new ReferenceAttractInput(bus, expected);
-        input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
+        input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
         if (input.Script.Held != (ushort)SnesButton.Left || input.Script.InstructionTimer.RawValue != 5)
             throw new InvalidDataException("Title demo did not publish its first timed input record.");
-        input.Step(bus, SuperMetroidGameState.TransitionFromDemoB, SamusMovementType.Standing);
+        input.Step(SuperMetroidGameState.TransitionFromDemoB, SamusMovementType.Standing);
         if (input.Script.InstructionPointer != 0 || input.Script.Held != 0)
             throw new InvalidDataException("Title demo departure did not delete input in the same handler call.");
         input = new ReferenceAttractInput(bus, expected);
         input.Script.Redirect((ushort)AttractDemoPreInstruction.Shinespark, 0xc000);
-        input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.DraygonHeld);
+        input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.DraygonHeld);
         if (input.Script.Held != (ushort)SnesButton.Left)
             throw new InvalidDataException("Native type-$1A branch should leave the current script intact.");
-        input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
+        input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
         if (input.Script.Held != (ushort)SnesButton.Right || input.Script.InstructionTimer.RawValue != 7 ||
             input.Script.PreInstructionPointer != (ushort)AttractDemoPreInstruction.CheckLeave)
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
@@ -106,86 +107,13 @@ internal static class AttractDemoSceneVerification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(-1, 0), "negative demo set");
         AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(0, -1), "negative demo scene");
-        Suite(nameof(VerifyAttractCommandDefinitionsAndPlayback), () => VerifyAttractCommandDefinitionsAndPlayback(retail, counts));
+        Suite(nameof(VerifyAttractPlayback), () => VerifyAttractPlayback(counts));
         Console.WriteLine($"Compiled attract scenes: {total} records and four sentinels match cartridge data.");
     }
 
-    /// <summary>Checks all compiled input commands and runs each scene's production input owner for its displayed duration.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for attract demo command definitions and playback")]
-    private static void VerifyAttractCommandDefinitionsAndPlayback(
-        ISnesAddressSpace retail,
-        int[] sceneCounts)
+    /// <summary>Runs each scene's production input owner for its displayed duration; <c>--demo-input-programs</c> checks the programs.</summary>
+    private static void VerifyAttractPlayback(int[] sceneCounts)
     {
-
-        var commandRoots = new HashSet<ushort>
-        {
-            DemoInputRomData.Attract.DeleteList,
-            DemoInputRomData.Attract.ShinesparkContinuation,
-        };
-        for (int set = 0; set < sceneCounts.Length; set++)
-        {
-            for (int sceneIndex = 0; sceneIndex < sceneCounts[set]; sceneIndex++)
-            {
-                AttractDemoScene scene = (StockAttractDemoScenes.Get(set, sceneIndex) ?? throw new InvalidOperationException("Verification requires StockAttractDemoScenes.Get(set, sceneIndex)."));
-                StockAttractInputProgramsCatalog.ObjectDefinition definition =
-                    StockAttractInputProgramsCatalog.GetObject((scene ?? throw new InvalidOperationException("Verification requires scene.")).InputObject);
-                int objectAddress = DemoInputRomData.BankBase | scene.InputObject;
-                AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(objectAddress), definition.Initializer, "native attract initializer");
-                AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((objectAddress + 2)), definition.PreInstruction, "native attract callback");
-                AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((objectAddress + 4)), definition.Start, "native attract initial command");
-                commandRoots.Add(definition.Start);
-            }
-        }
-
-        var visitedCommands = new HashSet<ushort>();
-        int inputCount = 0, deleteCount = 0, gotoCount = 0;
-        foreach (ushort root in commandRoots)
-        {
-            ushort cursor = root;
-            while (visitedCommands.Add(cursor))
-            {
-                StockAttractInputProgramsCatalog.Command command = StockAttractInputProgramsCatalog.GetCommand(cursor);
-                int address = DemoInputRomData.BankBase | cursor;
-                ushort nativeOperation = CartridgeImportSource.Require(retail).ReadCartridgeWord(address);
-                if (command.Kind == StockAttractInputProgramsCatalog.Operation.Input)
-                {
-                    inputCount++;
-                    AssertTrue(nativeOperation < DemoInputRomData.Instructions.OpcodeBit,
-                        $"native attract input ${cursor:X4}");
-                    AssertEqual(nativeOperation, command.Duration, $"native attract duration ${cursor:X4}");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), (ushort)command.Held,
-                        $"native attract held ${cursor:X4}");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), (ushort)command.NewlyPressed,
-                        $"native attract edge ${cursor:X4}");
-                    AssertEqual((ushort)(cursor + DemoInputRomData.Instructions.InputRecordBytes), command.Next,
-                        $"calculated attract successor ${cursor:X4}");
-                }
-                else if (command.Kind == StockAttractInputProgramsCatalog.Operation.Delete)
-                {
-                    deleteCount++;
-                    AssertEqual((ushort)DemoInputInstruction.Delete, nativeOperation,
-                        $"native attract deletion ${cursor:X4}");
-                    AssertEqual((ushort)0, command.Next, $"terminal attract successor ${cursor:X4}");
-                }
-                else if (command.Kind == StockAttractInputProgramsCatalog.Operation.Goto)
-                {
-                    gotoCount++;
-                    AssertEqual((ushort)DemoInputInstruction.Goto, nativeOperation,
-                        $"native attract jump ${cursor:X4}");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), command.Next,
-                        $"native attract jump destination ${cursor:X4}");
-                }
-                if (command.Kind == StockAttractInputProgramsCatalog.Operation.Delete)
-                    break;
-                cursor = command.Next;
-            }
-        }
-
-        AssertEqual(798, inputCount, "bounded native attract input inventory");
-        AssertEqual(24, deleteCount, "bounded native attract deletion inventory");
-        AssertEqual(1, gotoCount, "bounded native attract jump inventory");
-        Console.WriteLine("Attract command dispatch: 798 native input triples, 24 deletions and one jump match exactly.");
-
         for (int set = 0; set < sceneCounts.Length; set++)
         {
             for (int sceneIndex = 0; sceneIndex < sceneCounts[set]; sceneIndex++)
@@ -216,18 +144,12 @@ internal static class AttractDemoSceneVerification
                 var gameState = frame == leaveFrame
                     ? SuperMetroidGameState.TransitionFromDemoB : SuperMetroidGameState.PlayingDemo;
                 var movement = frame < 200 ? SamusMovementType.DraygonHeld : SamusMovementType.Standing;
-                reference.Step(bus, gameState, movement);
+                reference.Step(gameState, movement);
                 compiled.StepStock(gameState, movement);
-                AssertEqual(Snapshot(reference.Script), Snapshot(compiled.Script),
+                AssertEqual(reference.Script.Snapshot(), NativeDemoInputReference.Of(compiled.Script),
                     $"compiled attract ${scene.InputObject:X4}, leave {leaveFrame}, frame {frame}");
             }
         }
-
-        static string Snapshot(DemoInputState state) =>
-            $"{state.Enabled}/{state.InitializationParameter}/{state.PreInstructionPointer}/" +
-            $"{state.InstructionPointer}/{state.InstructionTimer.RawValue}/{state.Timer.RawValue}/{state.Held}/" +
-            $"{state.NewlyPressed}/{state.PreviousHeld}/{state.PreviousNewlyPressed}/" +
-            $"{state.PublishedPreviousHeld}/{state.PublishedPreviousNewlyPressed}";
     }
 
     /// <summary>Runs attract input fixtures and the paired grapple demo trajectory check.</summary>

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Programs;
 
 /// <summary>Where a program in an <see cref="AnimationProgramSet{TProgram, TFrame, TCue}"/> resumes.</summary>
 /// <param name="Program">The program being run.</param>

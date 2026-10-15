@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Programs;
 
 /// <summary>
 /// A typed animation: frames with durations, gameplay cues, and a terminal hold or loop (#641).

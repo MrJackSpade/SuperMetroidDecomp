@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Deaths;
+﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies;

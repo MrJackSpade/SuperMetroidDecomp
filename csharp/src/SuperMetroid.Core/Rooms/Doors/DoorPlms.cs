@@ -129,7 +129,7 @@ internal sealed class DoorPlms
         ushort originalWord = level.GetPlmCollisionBlockByIndex(blockIndex).LevelWord;
         level.SetPlmForegroundEntry(
             blockIndex,
-            unchecked((ushort)((originalWord & 0x0fff) | 0xc000)));
+            new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.ShootableBlock).Raw);
         level.SetPlmBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
     }
 
@@ -334,7 +334,7 @@ internal sealed class DoorPlms
             // animated draw occurs on this actor's next handler pass and owns the VRAM
             // update, while collision observes the type-$8 origin immediately.
             ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-            level.SetForegroundEntry(blockIndex, (ushort)((originalWord & 0x0fff) | 0x8000));
+            level.SetForegroundEntry(blockIndex, new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.SolidBlock).Raw);
             return true;
         }
 

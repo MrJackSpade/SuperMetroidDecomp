@@ -467,9 +467,9 @@ internal sealed class PlmBlockDrawing
         for (int entryNumber = 0; entryNumber < 32; entryNumber++)
         {
             ushort directionAndCount = RoomPlmSystem.ReadPlmWorkRamWord(memory, cursor);
-            bool vertical = (directionAndCount & 0x8000) != 0;
-            int count = directionAndCount & 0x7fff;
-            if (count is <= 0 or > 0xff)
+            bool vertical = RoomPlmShotBlockDrawDefinitions.IsVerticalRun(directionAndCount);
+            int count = RoomPlmShotBlockDrawDefinitions.RunCount(directionAndCount);
+            if (count is <= 0 or > RoomPlmShotBlockDrawDefinitions.MaximumRunCount)
             {
                 throw new InvalidDataException(
                     $"PLM draw list ${drawPointer:X4} has invalid block count {count}.");
@@ -505,8 +505,8 @@ internal sealed class PlmBlockDrawing
         for (int runIndex = 0; runIndex < runs.Length; runIndex++)
         {
             RoomPlmShotBlockDrawDefinitions.Run run = runs[runIndex];
-            bool vertical = (run.DirectionAndCount & 0x8000) != 0;
-            int count = run.DirectionAndCount & 0x7fff;
+            bool vertical = RoomPlmShotBlockDrawDefinitions.IsVerticalRun(run.DirectionAndCount);
+            int count = RoomPlmShotBlockDrawDefinitions.RunCount(run.DirectionAndCount);
             if (count != run.LevelWords.Length)
                 throw new InvalidDataException(
                     $"Compiled PLM draw list ${definition.Pointer:X4} has inconsistent block count.");

@@ -282,7 +282,7 @@ public sealed class RoomPlmSystem
         for (int dispatchCount = 0; dispatchCount < 16; dispatchCount++)
         {
             ushort instruction = ReadProgramWord(bus, slot.InstructionPointer);
-            if ((instruction & 0x8000) == 0)
+            if (!PlmListWordDefinitions.IsInstruction(instruction))
             {
                 ushort drawPointer = ReadProgramWord(
                     bus,
@@ -517,12 +517,15 @@ public sealed class RoomPlmSystem
     /// Shared Write_Level_Data_Block_Type_and_BTS operation: preserve visual index/flips,
     /// replace the collision nibble, and publish the independent low-byte behavior.
     /// </summary>
-    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, ushort typeAndBts)
+    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, ushort typeAndBts) =>
+        WritePlmCollisionTypeAndBts(level, blockIndex, new RoomLevelWord(typeAndBts).CollisionType, unchecked((byte)typeAndBts));
+
+    /// <summary>Replaces a block's collision type and BTS, keeping its visual payload.</summary>
+    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, RoomCollisionType collisionType, byte bts)
     {
         var original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord;
-        var replacement = new RoomLevelWord(typeAndBts);
         level.SetPlmForegroundEntry(blockIndex, RoomLevelWord.Create(original.VisualBlockIndex,
-            original.VisualFlipFlags, replacement.CollisionType).Raw);
-        level.SetPlmBehavior(blockIndex, unchecked((byte)typeAndBts));
+            original.VisualFlipFlags, collisionType).Raw);
+        level.SetPlmBehavior(blockIndex, bts);
     }
 }

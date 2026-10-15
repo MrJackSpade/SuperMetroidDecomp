@@ -35,7 +35,7 @@ internal sealed class StationPlms
     /// <summary>Frames spent extending or retracting the station access arm.</summary>
     private const ushort StationAccessMovementFrames = 6;
     /// <summary>Native hold before a fully extended arm publishes station activation.</summary>
-    private const ushort StationAccessExtendedHoldFrames = 0x60;
+    private const ushort StationAccessExtendedHoldFrames = 96;
     /// <summary>Messages and frontend actions produced in the current PLM handler pass.</summary>
     internal readonly List<StationActivationEvent> _stationActivationEvents = [];
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
@@ -98,7 +98,8 @@ internal sealed class StationPlms
 
         SamusState samus = _bindings.Samus?.Current
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
-        samus.Position = samus.Position.WithWholeX(unchecked((ushort)((samus.Position.X.Whole + 8) & 0xfff0)));
+        // Rounds Samus to the nearest block boundary.
+        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(((samus.Position.X.Whole + 8) >> 4) << 4)));
         samus.PoseMetadata.ApplyForwardFacingPoseSetup(bus);
         samus.InputLocked = true;
 
@@ -169,7 +170,7 @@ internal sealed class StationPlms
                 // bit 15 and the visual payload. The list at $AFB6 is then handled by the
                 // ordinary timer/draw interpreter without an elevator-specific animation.
                 ushort word = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
-                ushort deactivated = unchecked((ushort)(word & 0x8fff));
+                ushort deactivated = new RoomLevelWord(word).WithPlmDeactivation().Raw;
                 level.SetForegroundEntry(slot.BlockIndex, deactivated);
                 streamer.SetLevelEntry(slot.BlockIndex, deactivated);
                 slot.IsElevatorPlatform = true;
@@ -210,7 +211,7 @@ internal sealed class StationPlms
                 streamer,
                 slot.BlockIndex,
                 original,
-                11,
+                RoomCollisionType.SpecialBlock,
                 new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
             StationAnimationList saveList = ClosedNativeWords.Decode<StationAnimationList>(
                 slot.InstructionPointer, "save-station animation list");
@@ -223,7 +224,7 @@ internal sealed class StationPlms
             return;
         }
 
-        WriteStationBlock(level, streamer, slot.BlockIndex, original, 8, behavior: null);
+        WriteStationBlock(level, streamer, slot.BlockIndex, original, RoomCollisionType.SolidBlock, behavior: null);
         (int rightOffset, int leftOffset, StationAccessBehavior rightBts,
             StationAccessBehavior leftBts) = kind switch
         {
@@ -278,7 +279,7 @@ internal sealed class StationPlms
             streamer,
             blockIndex,
             original,
-            11,
+            RoomCollisionType.SpecialBlock,
             new RoomBlockBehavior((byte)behavior));
     }
 
@@ -288,10 +289,10 @@ internal sealed class StationPlms
         BackgroundTilemapStreamer streamer,
         int blockIndex,
         ushort original,
-        int collisionType,
+        RoomCollisionType collisionType,
         RoomBlockBehavior? behavior)
     {
-        ushort word = unchecked((ushort)((original & 0x0fff) | (collisionType << 12)));
+        ushort word = new RoomLevelWord(original).WithCollisionType(collisionType).Raw;
         level.SetForegroundEntry(blockIndex, word);
         streamer.SetLevelEntry(blockIndex, word);
         if (behavior is { } bts)

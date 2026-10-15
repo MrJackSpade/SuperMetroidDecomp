@@ -93,11 +93,11 @@ internal sealed class BlockReactionPlms
             // This is not the original visual word. Setup_CE83 deliberately replaces all
             // low twelve bits with visual block `$058`; multi-block restoration lists then
             // add type-$5/$D extension words around this type-$F parent.
-            slot.RestoreLevelWord = new RoomLevelWord(RoomPlmVisualBlockIndexes.CollisionBombParent)
+            slot.RestoreLevelWord = new RoomLevelWord(RoomPlmVisualBlockDefinitions.CollisionBombParent)
                 .WithCollisionType(block.CollisionType).Raw;
             slot.InstructionPointer = RoomPlmInstructionLists.CollisionBombByReactionIndex(bts.NormalReactionIndex);
             slot.InstructionTimer = NativeCountdown.Start(1);
-            level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockIndexes.CollisionBombParent);
+            level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockDefinitions.CollisionBombParent);
             return true;
         }
 
@@ -142,7 +142,7 @@ internal sealed class BlockReactionPlms
                 RoomPlmHeaders.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
             slot.BlockIndex = blockIndex;
             RoomLevelWord restoreWord = new RoomLevelWord(block.LevelWord)
-                .WithVisualBlockIndex(RoomPlmVisualBlockIndexes.ContactCrumbleParent);
+                .WithVisualBlockIndex(RoomPlmVisualBlockDefinitions.ContactCrumbleParent);
             slot.RestoreLevelWord = restoreWord.Raw;
             slot.InstructionPointer =
                 RoomPlmInstructionLists.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
@@ -209,7 +209,7 @@ internal sealed class BlockReactionPlms
             slot.HeaderPointer = definition.HeaderPointer;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = new RoomLevelWord(block.LevelWord)
-                .WithVisualBlockIndex(RoomPlmVisualBlockIndexes.SpeedBoosterParent)
+                .WithVisualBlockIndex(RoomPlmVisualBlockDefinitions.SpeedBoosterParent)
                 .Raw;
             slot.StartAnimation(new SpeedBoosterBlockPlmAnimation(definition.Program));
             slot.InstructionTimer = NativeCountdown.Start(1);

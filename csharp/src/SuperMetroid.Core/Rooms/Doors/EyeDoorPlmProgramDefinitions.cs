@@ -9,22 +9,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class EyeDoorPlmProgramDefinitions
 {
-    /// <summary>$84:9C03, DrawInst_EyeDoorEyeFacingLeft_1, the first eye pose.</summary>
-    private const ushort EyeDrawFirst = 0x9c03;
-    /// <summary>$84:9C2B, DrawInst_EyeDoorFacingLeft_0, the first component pose.</summary>
-    private const ushort ComponentDrawFirst = 0x9c2b;
-    /// <summary>$84:9C5B minus $84:9C03: the right-facing draws follow the left-facing ones by 88 bytes.</summary>
-    private const int DrawMirrorBytes = 88;
-    /// <summary>The bytes between one eye pose's draw and the next.</summary>
-    private const int EyePoseBytes = 8;
-    /// <summary>The bytes between the body's draws and the bottom's.</summary>
-    private const int ComponentBytes = 18;
-    /// <summary>The bytes between one component pose's draw and the next.</summary>
-    private const int ComponentPoseBytes = 6;
-    /// <summary>$84:A9A7, DrawInst_EyeDoorEyeFacingLeft: the blue cap the left eye flashes to.</summary>
-    private const ushort LeftBlueCapDraw = 0xa9a7;
-    /// <summary>$84:A9E3, DrawInst_EyeDoorEyeFacingRight: the blue cap the right eye flashes to.</summary>
-    private const ushort RightBlueCapDraw = 0xa9e3;
     /// <summary>The library-2 sound each hit on the eye queues.</summary>
     internal const byte HitSound = 9;
     /// <summary>The hit sound's queue cap.</summary>
@@ -89,43 +73,6 @@ internal static class EyeDoorPlmProgramDefinitions
         EyeDoorPlmCue.KeepPulsingIfSamusNear => new(ComponentWakeColumns, ComponentWakeRows, EyeDoorPlmProgram.ComponentCycle),
         _ => throw new InvalidOperationException($"{nameof(EyeDoorPlmCue)} {cue} is not a proximity branch."),
     };
-
-    /// <summary>The bank-$84 draw list <paramref name="frame"/> draws for <paramref name="component"/> facing <paramref name="orientation"/>.</summary>
-    internal static ushort DrawList(EyeDoorOrientation orientation, EyeDoorComponent component, EyeDoorPlmFrame frame)
-    {
-        int mirror = orientation switch
-        {
-            EyeDoorOrientation.Left => 0,
-            EyeDoorOrientation.Right => DrawMirrorBytes,
-            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
-        };
-        int componentOffset = component switch
-        {
-            EyeDoorComponent.Door => 0,
-            EyeDoorComponent.Bottom => ComponentBytes,
-            EyeDoorComponent.Eye => 0,
-            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorComponent)} {component}."),
-        };
-        int pose = frame switch
-        {
-            EyeDoorPlmFrame.Eye0 or EyeDoorPlmFrame.Pose0 or EyeDoorPlmFrame.OpeningClear or EyeDoorPlmFrame.BlueCap => 0,
-            EyeDoorPlmFrame.Eye1 or EyeDoorPlmFrame.Pose1 => 1,
-            EyeDoorPlmFrame.Eye2 or EyeDoorPlmFrame.Pose2 => 2,
-            EyeDoorPlmFrame.Eye3 => 3,
-            EyeDoorPlmFrame.Eye4 => 4,
-            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorPlmFrame)} {frame}."),
-        };
-        return frame switch
-        {
-            EyeDoorPlmFrame.Eye0 or EyeDoorPlmFrame.Eye1 or EyeDoorPlmFrame.Eye2 or EyeDoorPlmFrame.Eye3 or EyeDoorPlmFrame.Eye4 =>
-                (ushort)(EyeDrawFirst + mirror + pose * EyePoseBytes),
-            EyeDoorPlmFrame.OpeningClear => (ushort)(EyeDoorPlmDrawDefinitions.MirroredOpeningClear + mirror),
-            EyeDoorPlmFrame.BlueCap => orientation == EyeDoorOrientation.Right ? RightBlueCapDraw : LeftBlueCapDraw,
-            EyeDoorPlmFrame.Pose0 or EyeDoorPlmFrame.Pose1 or EyeDoorPlmFrame.Pose2 =>
-                (ushort)(ComponentDrawFirst + mirror + componentOffset + pose * ComponentPoseBytes),
-            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorPlmFrame)} {frame}."),
-        };
-    }
 
     /// <summary>One facing's programs.</summary>
     private static Dictionary<EyeDoorPlmProgram, Step[]> Build(EyeDoorOrientation orientation)

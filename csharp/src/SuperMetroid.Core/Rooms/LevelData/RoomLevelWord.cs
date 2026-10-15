@@ -95,6 +95,12 @@ public readonly record struct RoomLevelWord(ushort Raw)
             (Raw & ~CollisionTypeMask) | ((ushort)collisionType << CollisionTypeShift))));
     }
 
+    /// <summary>
+    /// <c>$84:B3C1 Setup_DeactivatePLM</c>: clears collision bits 12..14 and keeps bit 15 with the visual payload, so a
+    /// solid block stays solid and every other block becomes air.
+    /// </summary>
+    public RoomLevelWord WithPlmDeactivation() => new(unchecked((ushort)(Raw & (SolidProbeMask | VisualBitsMask))));
+
     /// <summary>Rejects a metatile index that would overwrite flip or collision bits.</summary>
     private static void ValidateVisualBlockIndex(ushort visualBlockIndex)
     {

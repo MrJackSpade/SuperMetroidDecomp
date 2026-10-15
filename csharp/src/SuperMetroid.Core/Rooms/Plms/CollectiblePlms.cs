@@ -29,8 +29,6 @@ internal sealed class CollectiblePlms
         _slotTable = slotTable;
         _sounds = sounds;
     }
-    /// <summary>First TileTable word used by instruction $8764's four dynamic character slots.</summary>
-    private const int DynamicBlockDefinitionFirstWord = 0x0470 / 2;
 
     /// <summary>Pickup events published by the current PLM handler pass.</summary>
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
@@ -202,9 +200,8 @@ internal sealed class CollectiblePlms
                 level, streamer, vram, kind, suppliedGraphic)
             : -1;
 
-        ushort setupWord = unchecked((ushort)(original.LevelWord & 0x0fff));
-        if (presentation == CollectiblePresentation.ShotBlock)
-            setupWord |= 0xc000;
+        ushort setupWord = new RoomLevelWord(original.LevelWord).WithCollisionType(
+            presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air).Raw;
         level.SetForegroundEntry(slot.BlockIndex, setupWord);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.CollectibleTrigger);
         streamer.SetLevelEntry(slot.BlockIndex, setupWord);
@@ -303,8 +300,8 @@ internal sealed class CollectiblePlms
         // The 256 bytes contain two 16x16 animation frames, four 4bpp tiles apiece.
         new RoomGraphicsVram(vram).CollectibleSlot(graphicsSlot).Load(graphics.Span);
 
-        int startingTileNumber = 0x03e0 + graphicsSlot * 8;
-        int firstDefinitionWord = DynamicBlockDefinitionFirstWord + graphicsSlot * 8;
+        int startingTileNumber = CollectibleDynamicGraphicsDefinitions.FirstTileNumber + graphicsSlot * 8;
+        int firstDefinitionWord = CollectibleDynamicGraphicsDefinitions.FirstBlockDefinitionWord + graphicsSlot * 8;
         for (int child = 0; child < 8; child++)
         {
             byte palette = paletteOffsets.Span[child];
@@ -624,11 +621,12 @@ internal sealed class CollectiblePlms
                 samus.CollectedBeams |= beamMask;
                 samus.EquippedBeams |= beamMask;
 
-                // Spazer and Plasma are the only mutually exclusive beam pair. These are the
-                // literal shifts used by $84:88B0, retained instead of naming either one as a
-                // blanket replacement for all beams.
-                samus.EquippedBeams &= unchecked((ushort)~((beamMask << 1) & 0x0008));
-                samus.EquippedBeams &= unchecked((ushort)~((beamMask >> 1) & 0x0004));
+                // Spazer and Plasma are the only mutually exclusive beam pair: $84:88B0 shifts the
+                // collected beam onto its partner, so collecting either one unequips the other.
+                if ((beamMask & (ushort)SamusBeamFlags.Spazer) != 0)
+                    samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Plasma);
+                if ((beamMask & (ushort)SamusBeamFlags.Plasma) != 0)
+                    samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Spazer);
                 return;
             default:
                 throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined collectible kind.");

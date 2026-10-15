@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// room level data. These are low ten-bit block-definition indexes, not complete packed
 /// level words or bank-$84 draw-list pointers.
 /// </summary>
-internal static class RoomPlmVisualBlockIndexes
+internal static class RoomPlmVisualBlockDefinitions
 {
     /// <summary>
     /// Bomb-block parent $058, synthesized by $84:CE83 on successful Samus contact.

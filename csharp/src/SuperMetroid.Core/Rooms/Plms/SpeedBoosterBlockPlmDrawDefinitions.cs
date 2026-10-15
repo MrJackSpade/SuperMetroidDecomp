@@ -22,7 +22,7 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
             : throw new ArgumentOutOfRangeException(nameof(frame));
 
     /// <summary>Physical type-B parent with the named Speed Booster visual block.</summary>
-    internal static ushort BombRevealWord => (ushort)(0xb000 | RoomPlmVisualBlockIndexes.SpeedBoosterParent);
+    internal static ushort BombRevealWord => (ushort)(0xb000 | RoomPlmVisualBlockDefinitions.SpeedBoosterParent);
 
     /// <summary>Materializes the one-block native reveal only when artwork import/export requests it.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList BombReveal =>

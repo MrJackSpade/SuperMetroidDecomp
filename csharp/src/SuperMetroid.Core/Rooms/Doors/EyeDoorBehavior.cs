@@ -273,10 +273,12 @@ internal sealed class EyeDoorBehavior
     {
         if (movingBack)
         {
-            ushort face = unchecked((ushort)((edge | 0x000f) + 1 + radius));
+            // The far face of the blocking block: the last pixel of its sixteen, plus one.
+            ushort face = unchecked((ushort)((edge | 15) + 1 + radius));
             return face <= current ? face : current;
         }
-        ushort near = unchecked((ushort)((edge & 0xfff0) - radius));
+        // The near face of the blocking block: its first pixel.
+        ushort near = unchecked((ushort)((edge & ~15) - radius));
         return near >= current ? near : current;
     }
 
@@ -322,7 +324,7 @@ internal sealed class EyeDoorBehavior
     {
         int fixedBlock = unchecked((ushort)fixedAxisPixel) >> 4;
         int startBlock = unchecked((ushort)spanStartPixel) >> 4;
-        int extraBlocks = unchecked((ushort)(spanEndPixel - (spanStartPixel & 0xfff0))) >> 4;
+        int extraBlocks = unchecked((ushort)(spanEndPixel - (spanStartPixel & ~15))) >> 4;
         int width = level.Size.X;
         int linear = verticalEdge ? fixedBlock * width + startBlock : startBlock * width + fixedBlock;
         int step = verticalEdge ? 1 : width;

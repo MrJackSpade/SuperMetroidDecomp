@@ -9,6 +9,9 @@ public sealed record PlmTilemapUpdate(
     ushort[] TopRow,
     ushort[] BottomRow)
 {
+    /// <summary>The words of one BG tilemap row: the lower character row starts this far below the upper.</summary>
+    private const int TilemapRowWords = 32;
+
     /// <summary>Applies the two horizontal two-word transfers produced by bank $84.</summary>
     [PpuLayoutBoundary("codec: DrawPLM two-row BG1 tilemap DMA (VMADD)")]
     public void ExecuteTo(SnesVram vram)
@@ -17,7 +20,7 @@ public sealed record PlmTilemapUpdate(
         vram.ExecuteWordTransfer(TopRow, TopRowDestination, 1);
         vram.ExecuteWordTransfer(
             BottomRow,
-            unchecked((ushort)(TopRowDestination + 0x20)),
+            unchecked((ushort)(TopRowDestination + TilemapRowWords)),
             1);
     }
 }

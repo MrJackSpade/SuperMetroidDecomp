@@ -121,7 +121,7 @@ internal sealed class GreyDoorPlms
         // Setup_GreyDoor and Setup_ColoredDoor share the exact `$C044` collision write.
         // Preserve the authored visual payload while replacing only type and BTS.
         ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-        level.SetForegroundEntry(blockIndex, unchecked((ushort)((originalWord & 0x0fff) | 0xc000)));
+        level.SetForegroundEntry(blockIndex, new RoomLevelWord(originalWord).WithCollisionType(RoomCollisionType.ShootableBlock).Raw);
         level.SetBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
     }
 
@@ -135,7 +135,7 @@ internal sealed class GreyDoorPlms
         ColoredDoorOrientation orientation)
     {
         ushort rawRoomArgument = slot.RoomArgument;
-        int conditionOffset = ((SnesLittleEndian.HighByte(rawRoomArgument)) & 0x7c) >> 1;
+        int conditionOffset = GreyDoorRoomArgumentDefinitions.ConditionOffset(rawRoomArgument);
         if ((conditionOffset & 1) != 0 || conditionOffset > 12)
         {
             throw new InvalidDataException(
@@ -144,7 +144,7 @@ internal sealed class GreyDoorPlms
         }
 
         GreyDoorCondition condition = GreyDoorConditions.AtTableIndex(conditionOffset >> 1);
-        slot.RoomArgument = unchecked((ushort)(rawRoomArgument & 0x83ff));
+        slot.RoomArgument = GreyDoorRoomArgumentDefinitions.DoorBitArgument(rawRoomArgument);
         ApplyGreyDoorSetup(level, slot.BlockIndex);
         slot.GreyDoor = new GreyDoorPlmState(orientation, condition);
         var variant = new GreyDoorVariant(orientation, BombTorizo: slot.HeaderPointer == PlmHeaderId.BombTorizoGreyDoor);

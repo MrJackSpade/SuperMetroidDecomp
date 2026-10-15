@@ -378,7 +378,7 @@ internal static class RoomPlmProgramsVerification
             var entries = DoorPlmNativeListAddresses.EyeDoorEntries(orientation, component);
             covered.UnionWith(entries.Select(entry => entry.Program));
             steps += CompareProgramSubset(cartridge, EyeDoorPlmProgramDefinitions.ProgramsFor(orientation), entries,
-                (EyeDoorPlmProgram _, EyeDoorPlmFrame frame) => EyeDoorPlmProgramDefinitions.DrawList(orientation, component, frame),
+                (EyeDoorPlmProgram _, EyeDoorPlmFrame frame) => EyeDoorPlmDrawDefinitions.DrawList(orientation, component, frame),
                 (IImportCartridgeSource source, ushort cursor, out EyeDoorPlmCue cue, out int length) =>
                     EyeDoorCueAt(source, cursor, orientation, entries, out cue, out length),
                 $"{orientation} eye door {component}");

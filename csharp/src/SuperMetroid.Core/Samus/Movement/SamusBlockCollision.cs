@@ -773,7 +773,7 @@ public static class SamusBlockCollision
     /// </remarks>
     private static bool ClearCollisionTypeWithoutLifecycle(RoomLevelData level, int blockIndex)
     {
-        level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockIndexes.CollisionBombParent);
+        level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockDefinitions.CollisionBombParent);
         return true;
     }
 

@@ -39,7 +39,7 @@ public readonly record struct CartridgeDoorOrientation
     /// <summary>Decodes the cartridge byte, rejecting values outside <c>Door_Closing_PLMs</c>.</summary>
     public static CartridgeDoorOrientation Decode(byte raw)
     {
-        if (raw > 0x0b)
+        if (raw > 11)
             throw new InvalidDataException($"Door orientation byte ${raw:X2} is outside Door_Closing_PLMs ($00-$0B).");
         return new CartridgeDoorOrientation((DoorDirection)(raw & 3), ClosingRow(raw >> 2));
     }

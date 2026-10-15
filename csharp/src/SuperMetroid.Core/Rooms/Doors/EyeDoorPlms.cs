@@ -196,13 +196,15 @@ internal sealed class EyeDoorPlms
         RoomPlmSystem.WritePlmCollisionTypeAndBts(
             level,
             slot.BlockIndex,
-            unchecked((ushort)(0xc000 | facing.Value)));
+            RoomCollisionType.ShootableBlock,
+            facing.Value);
         for (int row = 1; row <= EyeDoorPlmRomData.BlueDoorExtensionCount; row++)
         {
             RoomPlmSystem.WritePlmCollisionTypeAndBts(
                 level,
                 checked(slot.BlockIndex + row * level.Size.X),
-                unchecked((ushort)(0xd000 | unchecked((byte)-row))));
+                RoomCollisionType.VerticalExtension,
+                unchecked((byte)-row));
         }
     }
 

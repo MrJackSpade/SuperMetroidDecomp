@@ -410,7 +410,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRam",
+      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses",
       "name": "BossBits",
       "region": "WorkRam",
       "address": "$7E:D828",
@@ -422,7 +422,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRam",
+      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses",
       "name": "CollectedItemBits",
       "region": "WorkRam",
       "address": "$7E:D870",
@@ -434,7 +434,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRam",
+      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses",
       "name": "Events",
       "region": "WorkRam",
       "address": "$7E:D820",
@@ -447,7 +447,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRam",
+      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses",
       "name": "LoadedItemCount",
       "region": "WorkRam",
       "address": "$7E:D91A",
@@ -460,7 +460,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRam",
+      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses",
       "name": "LoadingGameState",
       "region": "WorkRam",
       "address": "$7E:D914",
@@ -472,7 +472,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRam",
+      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses",
       "name": "MapStations",
       "region": "WorkRam",
       "address": "$7E:D908",
@@ -484,7 +484,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRam",
+      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses",
       "name": "OpenedDoorBits",
       "region": "WorkRam",
       "address": "$7E:D8B0",
@@ -496,7 +496,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRam",
+      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses",
       "name": "RoomChozoBits",
       "region": "WorkRam",
       "address": "$7E:D830",
@@ -508,7 +508,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRam",
+      "owner": "SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses",
       "name": "UsedSaveStations",
       "region": "WorkRam",
       "address": "$7E:D8F8",

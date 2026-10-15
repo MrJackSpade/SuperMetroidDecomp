@@ -101,8 +101,6 @@ csharp/src/SuperMetroid.Core/Input/DemoInputState.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Input/StockAttractInputProgramsCatalog.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Input/WindowsGamepadIdentifiers.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Map/MapTileWord.cs	SME6340	8
-csharp/src/SuperMetroid.Core/Programs/InstructionItem.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Progression/Bank80SystemState.cs	SME6340	9
 csharp/src/SuperMetroid.Core/Rendering/Mode7ObjRenderSnapshot.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Rendering/SamusSuitPickupRenderer.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Rendering/SnesGameplayFrameRenderer.cs	SME6340	7
@@ -232,9 +230,6 @@ csharp/src/SuperMetroid.Core/Samus/Projectiles/SpacetimeBeamCopyDefinitions.cs	S
 csharp/src/SuperMetroid.Core/Samus/SamusOverreadMemory.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Samus/SamusReserveAutoRecoveryState.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Samus/SamusState.cs	SME6340	3
-csharp/src/SuperMetroid.Core/Saves/GameSaveJsonFormat.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Saves/SaveLoadingGameStates.cs	SME6340	4
-csharp/src/SuperMetroid.Core/Saves/SaveMirrorWorkRam.cs	SME6340	9
 csharp/src/SuperMetroid.DebugRunner/Program.cs	SME6340	3
 csharp/src/SuperMetroid.DebugRunner/Tools/ShutterNativeArc.cs	SME6340	61
 csharp/src/SuperMetroid.Desktop/Audio/WaveOutAudioDevice.cs	SME6340	1
@@ -1183,8 +1178,8 @@ csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME634
 csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME6340	197
 csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME6342	3
-csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6340	288
-csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6341	3
+csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6340	287
+csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6342	7
 csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6340	529
 csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6341	3

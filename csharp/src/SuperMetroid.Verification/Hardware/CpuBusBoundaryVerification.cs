@@ -226,8 +226,8 @@ internal static class CpuBusBoundaryVerification
         mirror.LoadedItemCount = 0x1234;
         mirror.Events.CopyFrom([1, 2, 3, 4, 5, 6, 7, 8]);
         AssertEqual((ushort)0x0022, mirror.LoadingGameState, "saved dispatcher word round-trips");
-        AssertEqual((ushort)0x1234, new WramWord(bus, SaveMirrorWorkRam.LoadedItemCount).Read(), "loaded-item count is a $7E:D91A word");
-        AssertEqual((byte)8, bus.ReadWorkRamByte(SaveMirrorWorkRam.Events.Address + 7), "event bitset lands at $7E:D820");
+        AssertEqual((ushort)0x1234, new WramWord(bus, SaveMirrorWorkRamAddresses.LoadedItemCount).Read(), "loaded-item count is a $7E:D91A word");
+        AssertEqual((byte)8, bus.ReadWorkRamByte(SaveMirrorWorkRamAddresses.Events.Address + 7), "event bitset lands at $7E:D820");
 
         var fireflea = new FirefleaFxMemory(bus);
         fireflea.Timer = 0x0102;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Saves;
 /// bank <c>$81</c> copies to and from a save slot (#629).
 /// </summary>
 [CpuBusBoundary("catalog: persistent-progress SRAM mirror in WRAM")]
-public static class SaveMirrorWorkRam
+public static class SaveMirrorWorkRamAddresses
 {
     /// <summary><c>$7E:D820-$7E:D827</c> <c>EventBits</c>: the 64 persistent event flags.</summary>
     public static readonly CpuBusCell Events = CpuBusCell.WramBytes(nameof(Events), 0x7ed820,

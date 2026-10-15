@@ -44,13 +44,13 @@ public sealed class Bank80SystemState
     /// the item table, but the two events are deliberately independent: an orb can be
     /// broken without its exposed item having been collected yet.
     /// </summary>
-    public const int RoomChozoBitByteCount = 0x40;
+    public const int RoomChozoBitByteCount = 64;
 
     /// <summary>
     /// Number of bytes in the persistent picked-up-item table at
     /// <c>$7E:D870-$7E:D8AF</c>. Room PLM arguments are bit indices into this table.
     /// </summary>
-    public const int ItemBitByteCount = 0x40;
+    public const int ItemBitByteCount = 64;
 
     /// <summary>
     /// Number of bytes in the persistent opened-door table at
@@ -58,7 +58,7 @@ public sealed class Bank80SystemState
     /// index into this table; the bit is set only when the door finishes accepting the
     /// cartridge-authored number and kind of projectile hits.
     /// </summary>
-    public const int DoorBitByteCount = 0x40;
+    public const int DoorBitByteCount = 64;
 
     /// <summary>
     /// Number of 256-byte explored-map planes retained by WRAM
@@ -68,17 +68,17 @@ public sealed class Bank80SystemState
     public const int ExploredMapAreaCount = 7;
 
     /// <summary>Bytes in one native 64-by-32 one-bit explored-map plane.</summary>
-    public const int ExploredMapBytesPerArea = 0x100;
+    public const int ExploredMapBytesPerArea = 256;
 
     /// <summary>Bytes at <c>$7E:D8F8-$7E:D907</c> for used save/elevator markers.</summary>
-    public const int UsedSaveStationByteCount = 0x10;
+    public const int UsedSaveStationByteCount = 16;
 
     /// <summary>
     /// Bytes at <c>$7E:D908-$7E:D913</c>. Only the area-indexed leading bytes are currently
     /// consumed, but preserving the complete SRAM allocation avoids destroying adjacent
     /// cartridge state written by hacks or untranslated routines.
     /// </summary>
-    public const int MapStationByteCount = 0x0c;
+    public const int MapStationByteCount = 12;
 
     // Keep these arrays private. Returning writable arrays would let callers bypass the
     // same masking semantics that the ROM routines enforce and would make watch-window
@@ -107,11 +107,14 @@ public sealed class Bank80SystemState
     /// </summary>
     public ushort SavedLoadingGameState { get; private set; } = SaveLoadingGameStates.MainGame;
 
+    /// <summary>The game's power-on random-number seed, <c>$0061</c>.</summary>
+    private const ushort PowerOnRandomSeed = 97;
+
     /// <summary>
     /// Creates the bank-$80 state using the game's power-on RNG seed, <c>$0061</c>.
     /// </summary>
     public Bank80SystemState()
-        : this(0x0061)
+        : this(PowerOnRandomSeed)
     {
     }
 
@@ -263,7 +266,7 @@ public sealed class Bank80SystemState
 
         // After PLA restores 16-bit A, ADC #$0011 consumes the carry left by the 8-bit
         // addition. That extra carry is the reason this is only *roughly* r*5+$0111.
-        int result = savedProduct + 0x0011 + (SnesCarry.OutOfByte(highByteSum));
+        int result = savedProduct + 17 + (SnesCarry.OutOfByte(highByteSum));
 
         // A 65C816 accumulator wraps at 16 bits. The explicit unchecked cast documents
         // that overflow is required behavior rather than an accidental omission.
@@ -677,7 +680,7 @@ public sealed class Bank80SystemState
     {
         if ((uint)areaIndex >= ExploredMapAreaCount)
             throw new ArgumentOutOfRangeException(nameof(areaIndex));
-        _mapStations[areaIndex] = 0xff;
+        _mapStations[areaIndex] = byte.MaxValue;
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>

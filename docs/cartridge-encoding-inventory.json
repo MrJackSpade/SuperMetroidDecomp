@@ -23,17 +23,17 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 29705,
+    "RawHexLiteral": 29681,
     "PointerDispatch": 331,
     "OpaqueWordArray": 1023,
-    "CatalogHexLiteral": 98491,
+    "CatalogHexLiteral": 98500,
     "JustifiedHexLiteral": 148,
     "RawWidthOperation": 44,
     "OwnedWidthOperation": 71,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 19,
-    "class:NumericQuantity": 54480,
+    "class:NumericQuantity": 54465,
     "class:DomainIdentity": 8726,
     "class:ComposableBits": 1256,
     "class:StructuredInstruction": 42287,
@@ -8252,9 +8252,8 @@
     {
       "name": "Gameplay core",
       "totals": {
-        "RawHexLiteral": 24,
-        "CatalogHexLiteral": 72,
-        "class:NumericQuantity": 74,
+        "CatalogHexLiteral": 81,
+        "class:NumericQuantity": 59,
         "class:DomainIdentity": 22,
         "storageWidthMembers": 54
       },
@@ -8264,8 +8263,6 @@
           "path": "csharp/src/SuperMetroid.Core/Programs/InstructionItem.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1,
             "storageWidthMembers": 1
           }
         },
@@ -8273,8 +8270,6 @@
           "path": "csharp/src/SuperMetroid.Core/Progression/Bank80SystemState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 9,
-            "class:NumericQuantity": 9,
             "storageWidthMembers": 8
           }
         },
@@ -8294,26 +8289,10 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Saves/GameSaveJsonFormat.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Saves/GameSaveSlotJsonDocument.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "storageWidthMembers": 6
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Saves/SaveLoadingGameStates.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 4
           }
         },
         {
@@ -8324,10 +8303,10 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Saves/SaveMirrorWorkRam.cs",
+          "path": "csharp/src/SuperMetroid.Core/Saves/SaveMirrorWorkRamAddresses.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 9,
+            "CatalogHexLiteral": 9,
             "class:NumericQuantity": 9
           }
         },

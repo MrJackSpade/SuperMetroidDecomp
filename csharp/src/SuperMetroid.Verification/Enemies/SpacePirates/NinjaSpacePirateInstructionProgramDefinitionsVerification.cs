@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx;
 using System.Reflection;
@@ -101,8 +102,31 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyDive), () => VerifyDive(
             NinjaSpacePirateProgram.DivekickRightDive,
             NinjaSpacePirateFunction.DivekickRightDive));
+        Suite(nameof(VerifyDiveLanding), () => VerifyDiveLanding(movingRight: false));
+        Suite(nameof(VerifyDiveLanding), () => VerifyDiveLanding(movingRight: true));
 
         Console.WriteLine("Ninja space pirate: programs and their cues pass through real behavior.");
+
+        // Checks that the divekick landing ($B2:FA0E/$FAE2) restores the spawn row's whole Y but keeps the
+        // dive's Y fraction. The contributed lowc movie lands one with a fraction of $0780 (update 111,288).
+        void VerifyDiveLanding(bool movingRight)
+        {
+            (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState _) = CreateSystem();
+            NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]
+                ?? throw new InvalidOperationException("Verification requires the initialized ninja state.");
+            const ushort diveFraction = 1920;
+            slot.Position = slot.Position.WithFractionY(diveFraction);
+            // One speed step left: the dive ends after this movement, wherever it is.
+            state.Speed = 64;
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
+                new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
+            enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(slot, state, level, movingRight);
+            AssertEqual(movingRight ? NinjaSpacePirateFunction.DivekickRightWalkToPost : NinjaSpacePirateFunction.DivekickLeftWalkToPost,
+                state.Function, $"ninja Pirate dive {(movingRight ? "right" : "left")} lands");
+            AssertEqual(state.SpawnY, slot.Position.Y.Whole, "the landing restores the spawn row");
+            // This last descent adds the speed's low byte to the fraction ($B2:F9D5) before the landing.
+            AssertEqual((ushort)(diveFraction + 64), slot.Position.Y.Fraction, "the landing keeps the dive's Y fraction");
+        }
 
         // Checks that a left or right claw attack spawns its first projectile at the correct horizontal offset.
         void VerifyClawAttack(NinjaSpacePirateProgram program, int expectedFirstXOffset)

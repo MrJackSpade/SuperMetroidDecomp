@@ -450,7 +450,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
     }
 
     /// <summary>Moves horizontally and descends with native packed speed until floor or speed ends the dive.</summary>
-    private void StepNinjaPirateDive(
+    internal void StepNinjaPirateDive(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
         RoomLevelData? level,
@@ -488,7 +488,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
             movingRight
                 ? NinjaSpacePirateProgram.WalkToRightPost
                 : NinjaSpacePirateProgram.WalkToLeftPost);
-        slot.Position = slot.Position.WithY(new(state.SpawnY, 0));
+        // $B2:FA0E/$FAE2 store the spawn row's whole Y only; the dive's Y fraction stays.
+        slot.Position = slot.Position.WithWholeY(state.SpawnY);
         SpawnNinjaPirateLandingDust(slot, state);
     }
 

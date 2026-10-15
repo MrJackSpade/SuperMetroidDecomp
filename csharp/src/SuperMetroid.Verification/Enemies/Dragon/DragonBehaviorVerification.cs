@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
@@ -44,6 +45,41 @@ internal static class DragonBehaviorVerification
             AssertEqual(attacks, state.AnimationFinished, $"Dragon {program} attack-completion cue");
         }
         Console.WriteLine("  Dragon behavior: both idles, both wing loops and both attacks with their completion cue pass.");
+        VerifyDragonsAttackingTogether(rom);
+    }
+
+    /// <summary>
+    /// `$A2:E70F` queues the fireball sound at every attack. Two Dragons firing in one frame queue it twice;
+    /// the contributed lowc movie's second queued sound makes the next door's sound wait (update 118,158).
+    /// </summary>
+    private static void VerifyDragonsAttackingTogether(SuperMetroidAddressSpace rom)
+    {
+        var enemies = new RoomEnemySystem();
+        enemies.BindFixtureBus(rom);
+        foreach (int bodySlot in new[] { 0, 2 })
+        {
+            for (int part = 0; part < 2; part++)
+            {
+                RoomEnemySlot slot = enemies.SlotTable.Slots[bodySlot + part];
+                slot.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
+                slot.Definition = default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank };
+                slot.Parameter1 = (ushort)part;
+                enemies.DragonBehavior.InitializeDragon(slot);
+            }
+        }
+        foreach (int bodySlot in new[] { 0, 2 })
+        {
+            DragonEnemyState body = enemies.DragonStates[bodySlot] ?? throw new InvalidOperationException("Dragon has no state.");
+            body.Function = DragonEnemyFunction.Attacking;
+            body.RequestedInstructionListIndex = DragonAnimationSelector.AttackingFacingLeft;
+            body.AttackCounter = NativeCountdown.Start(3);
+            body.AnimationFinished = true;
+            enemies.DragonBehavior.RunDragonAttacking(enemies.SlotTable.Slots[bodySlot], body);
+        }
+        SoundEffectId fireball = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DragonFireballSound);
+        AssertEqual(2, enemies.Audio.SoundRequests.Count(request => request.SoundEffect == fireball),
+            "two Dragons attacking in one frame queue two fireball sounds");
+        Console.WriteLine("  Dragon behavior: two Dragons attacking in one frame queue two fireball sounds.");
     }
 
     /// <summary>A Dragon body, or a wing for the wing selectors, with <paramref name="selector"/> freshly installed.</summary>

@@ -200,9 +200,12 @@ at the Landing Site. It converts to 183,020 updates (170,066 main-loop dispatche
 continuations), excluding 23,752 refreshes without accepted input and 1,262 APU-upload
 inputs. Run `--lowc-playthrough-movie csharp/test-fixtures/replay-traces/lowc`.
 
-When added, the replay matched through update 62,530. The first open divergence is at
-update 62,531 (source frame 74,711) on the pause equipment screen: an A press leaves native
-equipped items `$1004` but the port `$1024` (Gravity Suit still equipped).
+The complete input-only replay passes all 182,871 retained updates across all 208,183 source
+frames with one initial SRAM import (`--lowc-playthrough-movie`). When added, it matched only
+through update 62,530; its divergences were port defects: the pause menu read remapped buttons
+(the save swaps the aim bindings), a door's sound cancel tested a fixed shot button, Draygon's
+power-bombed goop, grab and spiral, the options menu and area-map load timing for a continued
+save, the Ninja Space Pirate's landing fraction, and per-geyser Hibashi sounds.
 
 The movie presses the console's reset button at SMV frame 99,920, which Snes9x records as the
 controller word `$FFFF`. Manifest v8 models such a reset: the reset vector reboots the cartridge,

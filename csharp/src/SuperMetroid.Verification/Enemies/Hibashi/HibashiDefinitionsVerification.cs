@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -84,10 +85,28 @@ internal static class HibashiDefinitionsVerification
         programHitbox.Position = programHitbox.Position.WithWhole(programGraphics.Position.Whole);
         initializeProgram(programHitbox);
 
+        // A second geyser erupting in lockstep: its eruption sound is queued in the same frame.
+        RoomEnemySlot twinGraphics = programSystem.SlotTable.Slots[2];
+        twinGraphics.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
+        twinGraphics.Definition = programGraphics.Definition;
+        twinGraphics.Parameter2 = 0;
+        twinGraphics.Position = twinGraphics.Position.WithWhole(new(448, 512));
+        initializeProgram(twinGraphics);
+        RoomEnemySlot twinHitbox = programSystem.SlotTable.Slots[3];
+        twinHitbox.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
+        twinHitbox.Definition = programGraphics.Definition;
+        twinHitbox.Parameter2 = 1;
+        twinHitbox.Position = twinHitbox.Position.WithWhole(twinGraphics.Position.Whole);
+        initializeProgram(twinHitbox);
+
         object?[] graphicsArguments =
             [programGraphics, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         object?[] hitboxArguments =
             [programHitbox, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+        object?[] twinGraphicsArguments =
+            [twinGraphics, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
+        object?[] twinHitboxArguments =
+            [twinHitbox, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
 
         // The visible stream needs 59 actor frames through its final cue; the margin proves both actors stay asleep.
         for (int frame = 0; frame < 70; frame++)
@@ -96,13 +115,16 @@ internal static class HibashiDefinitionsVerification
             shownSpritemaps.Add(programGraphics.SpritemapPointer);
             EnemyInstructionRunner.Process(programSystem, hitboxArguments);
             shownSpritemaps.Add(programHitbox.SpritemapPointer);
+            EnemyInstructionRunner.Process(programSystem, twinGraphicsArguments);
+            EnemyInstructionRunner.Process(programSystem, twinHitboxArguments);
         }
         AssertTrue(shownSpritemaps.SetEquals(HibashiVisualDefinitionsTooling.Spritemaps()), "the Hibashi shows every authored pose");
         AssertEqual(HibashiAnimations.Spritemaps(HibashiProgram.Graphics).Last(), programGraphics.SpritemapPointer,
             "Hibashi finish retains the last graphics sprite");
-        AssertEqual(HibashiDefinitions.EruptionSoundEffect,
-            (programSystem.HibashiBehavior.LastHibashiSoundEffect ?? throw new InvalidOperationException("Verification requires programSystem.HibashiBehavior.LastHibashiSoundEffect.")),
-            "Hibashi graphics program queues eruption sound");
+        // $A6:8DAF queues per geyser: the contributed lowc movie's two geysers queue two (update 118,130).
+        SoundEffectId eruption = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, HibashiDefinitions.EruptionSoundEffect);
+        AssertEqual(2, programSystem.Audio.SoundRequests.Count(request => request.SoundEffect == eruption),
+            "each Hibashi graphics program queues its eruption sound");
         AssertEqual(21, (programSystem.HibashiBehavior.LastHibashiActivityFrameIndex ?? throw new InvalidOperationException("Verification requires programSystem.HibashiBehavior.LastHibashiActivityFrameIndex.")),
             "Hibashi graphics program executes final activity callback");
         AssertEqual((ushort)1, (programSystem.HibashiStates[0] ?? throw new InvalidOperationException("Verification requires programSystem.HibashiStates[0].")).FinishedActivityFlag,

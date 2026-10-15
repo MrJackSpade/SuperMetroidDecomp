@@ -8,11 +8,14 @@ internal sealed class HibashiBehavior : IEnemySpecies
 {
     /// <summary>Locates the hitbox record immediately after each visible geyser record.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Receives each eruption's sound in call order, as the cartridge queues it.</summary>
+    private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds paired Hibashi parts to the room enemy slot table.</summary>
-    internal HibashiBehavior(EnemySlotTable slotTable)
+    /// <summary>Binds paired Hibashi parts to the room enemy slot table and the enemy audio queue.</summary>
+    internal HibashiBehavior(EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
         _slotTable = slotTable;
+        _audio = audio;
     }
 
     /// <summary>Carries out one cue of the Hibashi's eruption: its sound, an eruption frame's hitbox, or finishing.</summary>
@@ -122,7 +125,9 @@ internal sealed class HibashiBehavior : IEnemySpecies
     /// <summary>Ports instruction <c>$A6:8DAF</c>.</summary>
     private void PlayHibashiEruptionSound()
     {
-        LastHibashiSoundEffect = HibashiDefinitions.EruptionSoundEffect;
+        // Each geyser queues its own sound; two erupting in one frame queue two.
+        _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
+            HibashiDefinitions.EruptionSoundEffect), maximumQueued: 6);
     }
 
     /// <summary>
@@ -209,8 +214,6 @@ internal sealed class HibashiBehavior : IEnemySpecies
         });
 
 
-    /// <summary>Last library-two Hibashi eruption sound this enemy pass, using the Max6 queue entry; cleared at the next enemy-frame boundary.</summary>
-    public ushort? LastHibashiSoundEffect { get; private set; }
     /// <summary>
     /// Zero-based index of the bank-$A6 fire-geyser shape command executed this frame.
     /// This mirrors an instruction-dispatch event rather than inventing persistent enemy
@@ -221,7 +224,6 @@ internal sealed class HibashiBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        LastHibashiSoundEffect = null;
         LastHibashiActivityFrameIndex = null;
         Array.Clear(_hibashiStates);
     }
@@ -229,13 +231,6 @@ internal sealed class HibashiBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        LastHibashiSoundEffect = null;
         LastHibashiActivityFrameIndex = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueLegacySound(LastHibashiSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
     }
 }

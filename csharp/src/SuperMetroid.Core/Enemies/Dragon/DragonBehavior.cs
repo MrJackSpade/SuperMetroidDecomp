@@ -15,13 +15,17 @@ internal sealed class DragonBehavior : IEnemySpecies
     private readonly EnemySlotTable _slotTable;
     /// <summary>Performs common Samus touch resolution before Dragon's body and wing synchronization.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Receives each fireball's sound in call order, as the cartridge queues it.</summary>
+    private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Connects Dragon body AI, paired-wing state, and fireball spawning to room systems.</summary>
-    internal DragonBehavior(EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision)
+    /// <summary>Connects Dragon body AI, paired-wing state, fireball spawning and its sound to room systems.</summary>
+    internal DragonBehavior(EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision,
+        EnemyAudioQueue audio)
     {
         _projectiles = projectiles;
         _slotTable = slotTable;
         _collision = collision;
+        _audio = audio;
     }
 
     /// <summary>Carries out Dragon's animation cue: the attack body marks its animation complete for main AI.</summary>
@@ -55,17 +59,13 @@ internal sealed class DragonBehavior : IEnemySpecies
     /// <summary>Body and wing state indexed by their native physical enemy slots.</summary>
     internal readonly DragonEnemyState?[] _dragonStates = new DragonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
-    /// <summary>Last library-two sound queued by a Dragon volley during the current frame.</summary>
-    public ushort? LastDragonSoundEffect { get; private set; }
-
-    /// <summary>Clears per-slot animation requests, completion flags, species state, and the pending fireball sound on room load.</summary>
+    /// <summary>Clears per-slot animation requests, completion flags and species state on room load.</summary>
     internal void ResetDragonRoomState()
     {
         Array.Clear(_dragonRequestedInstructionLists);
         Array.Clear(_dragonInstalledInstructionLists);
         Array.Clear(_dragonAnimationFinishedFlags);
         Array.Clear(_dragonStates);
-        LastDragonSoundEffect = null;
     }
 
     /// <summary>Ports <c>InitAI_Dragon</c> at $A2:E606.</summary>
@@ -194,7 +194,9 @@ internal sealed class DragonBehavior : IEnemySpecies
         // sleep opcode. That restart is what spaces the three fireballs by a full ROM list.
         bodyState.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
         SpawnDragonFireball(body, bodyState);
-        LastDragonSoundEffect = EnemySoundEffectDefinitions.DragonFireballSound;
+        // $A2:E70F queues one sound per fireball; two Dragons attacking in one frame queue two.
+        _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
+            EnemySoundEffectDefinitions.DragonFireballSound), maximumQueued: 6);
         bodyState.AttackCounter = bodyState.AttackCounter.Decrement().Remaining;
         if (!bodyState.AttackCounter.IsZero)
             return;
@@ -486,12 +488,6 @@ internal sealed class DragonBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        LastDragonSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueLegacySound(LastDragonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        // Dragon keeps no per-frame publication; its sounds are queued as they happen.
     }
 }

@@ -567,7 +567,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         KiHunterBehavior = new KiHunterBehavior(Room, Terrain, Projectiles, Audio, SlotTable);
         KagoBehavior = new KagoBehavior(Room, Projectiles, Earthquake, SlotTable, DeathsAndDrops, RoomStatus);
         HoppersBehavior = new HoppersBehavior(Room, Terrain);
-        HibashiBehavior = new HibashiBehavior(SlotTable);
+        HibashiBehavior = new HibashiBehavior(SlotTable, Audio);
         GunshipHealthBehavior = new GunshipHealthBehavior(SlotTable);
         GrappleBehavior = new GrappleBehavior(this, Room, SlotTable, DeathsAndDrops);
         FuneNamiheBehavior = new FuneNamiheBehavior(Projectiles);
@@ -580,7 +580,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         EscapeExplosionsBehavior = new EscapeExplosionsBehavior(Audio, SpriteObjects);
         EscapeAnimalsBehavior = new EscapeAnimalsBehavior(Room, Terrain);
         DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, RoomStatus = RoomStatus, ScrollCap = ScrollCap });
-        DragonBehavior = new DragonBehavior(Projectiles, SlotTable, Collision);
+        DragonBehavior = new DragonBehavior(Projectiles, SlotTable, Collision, Audio);
         DownwardGateBehavior = new DownwardGateBehavior(Room, Projectiles);
         DeadTourianBehavior = new DeadTourianBehavior(Room, FrameContext, Projectiles, DeadMonsters);
         DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation);
@@ -1109,7 +1109,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         FuneNamiheBehavior.QueueLegacySounds(Audio);
         KagoBehavior.QueueLegacySounds(Audio);
         KzanBehavior.QueueLegacySounds(Audio);
-        HibashiBehavior.QueueLegacySounds(Audio);
         NuclearWaffleBehavior.QueueLegacySounds(Audio);
         FakeKraidBehavior.QueueLegacySounds(Audio);
         WorkRobotBehavior.QueueLegacySounds(Audio);
@@ -1119,7 +1118,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         NorfairRioBehavior.QueueLegacySounds(Audio);
         LowerNorfairRioBehavior.QueueLegacySounds(Audio);
         MaridiaLargeSnailBehavior.QueueLegacySounds(Audio);
-        DragonBehavior.QueueLegacySounds(Audio);
         MagdolliteBehavior.QueueLegacySounds(Audio);
         ShuttersBehavior.QueueLegacySounds(Audio);
 

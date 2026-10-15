@@ -72127,14 +72127,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealCodePointers",
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealTableWords",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealCodePointers.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealTableWords.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -72322,14 +72322,14 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Abilities.XrayWorkRam",
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayWorkRamAddresses",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayWorkRam.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayWorkRamAddresses.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -76759,14 +76759,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Palettes.SamusChargePalettePointerDefinitions",
+      "type": "SuperMetroid.Core.Samus.Palettes.SamusChargePaletteDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusChargePalettePointerDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusChargePaletteDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -78008,14 +78008,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.ProjectileInheritanceWorkRam",
+      "type": "SuperMetroid.Core.Samus.Projectiles.ProjectileInheritanceWorkRamAddresses",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileInheritanceWorkRam.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileInheritanceWorkRamAddresses.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"

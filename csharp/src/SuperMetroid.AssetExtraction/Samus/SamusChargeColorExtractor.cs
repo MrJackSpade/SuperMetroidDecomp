@@ -33,7 +33,7 @@ public static class SamusChargeColorExtractor
         var hyper = new PaletteRgb5[SamusChargeColorFormat.HyperFrameCount][];
         for (int frame = 0; frame < hyper.Length; frame++)
         {
-            int tableOffset = SamusChargePalettePointerDefinitions.LastHyperTableByteOffset -
+            int tableOffset = SamusChargePaletteDefinitions.LastHyperTableByteOffset -
                 frame * sizeof(ushort);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 SamusProjectileRomData.Palettes.HyperBeamShotPointers + tableOffset);

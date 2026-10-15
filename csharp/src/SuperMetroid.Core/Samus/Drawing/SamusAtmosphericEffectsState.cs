@@ -15,6 +15,9 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </remarks>
 public sealed class SamusAtmosphericEffectsState
 {
+    /// <summary>Exactly $8000: a delayed-start timer, which reloads the current frame's duration and draws it.</summary>
+    internal const ushort DelayedStartMarker = 1 << 15;
+
     /// <summary>Four shared slots, represented by four words in each native timer, X, Y, and packed frame/type array.</summary>
     public const int SlotCount = 4;
 
@@ -128,7 +131,7 @@ public sealed class SamusAtmosphericEffectsState
             {
                 // Negative timers suppress both drawing and motion. Exactly `$8000` is a
                 // delayed-start marker: reload the current frame's ROM duration and draw it.
-                if (slot.AnimationTimer.RawValue != 0x8000)
+                if (slot.AnimationTimer.RawValue != DelayedStartMarker)
                     continue;
                 slot.AnimationTimer =
                     NativeCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer));
@@ -145,7 +148,7 @@ public sealed class SamusAtmosphericEffectsState
                     // Diving splash graphics remain pinned to the live water surface even
                     // if room FX moves it while the nine-frame animation is running.
                     slot.Position = slot.Position.WithY(fxYPosition);
-                    DrawSamusTableSpritemap(bus, oam, slot, 0x018f, camera, artwork);
+                    DrawSamusTableSpritemap(bus, oam, slot, 399, camera, artwork);
                     break;
 
                 case 4:
@@ -156,7 +159,7 @@ public sealed class SamusAtmosphericEffectsState
                     break;
 
                 case 5:
-                    DrawSamusTableSpritemap(bus, oam, slot, 0x0186, camera, artwork);
+                    DrawSamusTableSpritemap(bus, oam, slot, 390, camera, artwork);
                     break;
 
                 case 6:
@@ -184,7 +187,7 @@ public sealed class SamusAtmosphericEffectsState
     {
         short screenX = unchecked((short)(slot.Position.X - camera.X - 4));
         short screenY = unchecked((short)(slot.Position.Y - camera.Y - 4));
-        if (screenX < 0 || screenX >= 0x0100 || screenY < 0 || screenY >= 0x0100)
+        if (screenX < 0 || screenX >= 256 || screenY < 0 || screenY >= 256)
             return;
 
         // Type two's native list pointer is zero. In bank $90 that address mirrors

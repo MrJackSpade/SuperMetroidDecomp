@@ -20,6 +20,9 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
 {
+    /// <summary>$8002: a negative atmospheric timer, so the slot neither moves nor draws while it holds.</summary>
+    private const ushort BreathBubbleHeldTimer = SamusAtmosphericEffectsState.DelayedStartMarker | 2;
+
     /// <summary>Audio requests published by movement, liquid effects, and landing during one Samus handler frame.</summary>
     private readonly List<SamusSoundRequest> _soundRequests = [];
     /// <summary>Transient Power Bomb state that suppresses selected sounds without entering saved Samus state.</summary>
@@ -286,7 +289,7 @@ public sealed class SamusLiquidPhysicsState
             samus.AnimationFrameBuffer = 3;
             if (enteredWater)
             {
-                QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0d), maximumQueued: 6);
+                QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 13), maximumQueued: 6);
                 SpawnWaterSplash(samus, movementType, bottom);
             }
 
@@ -332,8 +335,8 @@ public sealed class SamusLiquidPhysicsState
                 ? SamusLiquidDamageDefinitions.Lava
                 : SamusLiquidDamageDefinitions.Acid;
             AccumulatePeriodicDamage(damageRate.SubDamage, damageRate.WholeDamage);
-            if ((nmiFrameCounter & 7) == 0 && samus.Health >= 0x0047)
-                QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x2d), maximumQueued: 3);
+            if ((nmiFrameCounter & 7) == 0 && samus.Health >= 71)
+                QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 45), maximumQueued: 3);
 
             // Both lava and acid now share `$90:824C`'s delay-two submerged path.
             LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
@@ -352,10 +355,10 @@ public sealed class SamusLiquidPhysicsState
         LiquidPhysicsType = SamusLiquidMedium.Air;
         if (exitedWater)
         {
-            QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0e), maximumQueued: 6);
+            QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 14), maximumQueued: 6);
             if (!gravitySuit && movementType is
                 SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
-                QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x30), maximumQueued: 6);
+                QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 48), maximumQueued: 6);
             SpawnWaterSplash(samus, movementType, bottom);
             TrySpawnAirBubbles(
                 samus,
@@ -476,7 +479,7 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        if (RoomIndex >= 0x10)
+        if (RoomIndex >= 16)
         {
             DeleteLandingPair();
             return;
@@ -500,7 +503,7 @@ public sealed class SamusLiquidPhysicsState
         if ((roomFlags & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != 0)
         {
             // Above Y=$03B0 the entrance is dry and deletes; at/below it, use wet splashes.
-            if (samus.Position.Y.Whole >= 0x03b0)
+            if (samus.Position.Y.Whole >= 944)
                 SpawnLandingPairUnlessSubmerged(samus, type: 1);
             else
                 DeleteLandingPair();
@@ -656,9 +659,9 @@ public sealed class SamusLiquidPhysicsState
         ushort nmiFrameCounter,
         Bank80SystemState system)
     {
-        ushort mouthY = unchecked((ushort)(top - 0x18));
+        ushort mouthY = unchecked((ushort)(top - 24));
         if (unchecked((short)(mouthY - FxYPosition)) < 0 ||
-            (nmiFrameCounter & 0x007f) != 0 ||
+            (nmiFrameCounter & 127) != 0 ||
             AtmosphericEffects.Slots[2].FrameAndType != 0)
         {
             return;
@@ -668,7 +671,7 @@ public sealed class SamusLiquidPhysicsState
             2, type: 5, animationFrame: 0, animationTimer: 3,
             new(samus.Position.X.Whole, unchecked((ushort)(top + 6))));
         ushort random = system.NextRandom();
-        QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, (byte)((random & 1) != 0 ? 0x0f : 0x11)), maximumQueued: 6);
+        QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, (byte)((random & 1) != 0 ? 15 : 17)), maximumQueued: 6);
     }
 
     /// <summary>Starts the four-slot lava spray while Samus's top is above the surface and the previous spray has cleared.</summary>
@@ -678,7 +681,7 @@ public sealed class SamusLiquidPhysicsState
         ushort nmiFrameCounter)
     {
         if (unchecked((short)(top - LavaAcidYPosition)) >= 0 ||
-            (AtmosphericEffects.Slots[0].FrameAndType & 0x0400) != 0)
+            (AtmosphericEffects.Slots[0].FrameAndType & 1 << 10) != 0)
         {
             return;
         }
@@ -690,7 +693,7 @@ public sealed class SamusLiquidPhysicsState
             samus.Position.X.Whole,
             unchecked((ushort)(samus.Position.X.Whole - 6)),
         ];
-        ushort[] timers = [3, 0x8002, 0x8002, 3];
+        ushort[] timers = [3, BreathBubbleHeldTimer, BreathBubbleHeldTimer, 3];
         for (int slot = 0; slot < SamusAtmosphericEffectsState.SlotCount; slot++)
         {
             AtmosphericEffects.SetSlot(
@@ -699,7 +702,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         if ((nmiFrameCounter & 1) == 0)
-            QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x10), maximumQueued: 6);
+            QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 16), maximumQueued: 6);
     }
 
     /// <summary>Emits room-dependent wet or boosted footstep art at running contact frames and applies native sound suppression.</summary>
@@ -722,7 +725,7 @@ public sealed class SamusLiquidPhysicsState
             {
                 useWetFootsteps = false;
             }
-            else if (RoomIndex < 0x10)
+            else if (RoomIndex < 16)
             {
                 CrateriaAtmosphericEffectFlags specialType =
                     SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIndex);
@@ -731,7 +734,7 @@ public sealed class SamusLiquidPhysicsState
                 if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
                     useWetFootsteps = FxType == RoomFxType.Rain;
                 else if ((specialType & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != 0)
-                    useWetFootsteps = samus.Position.Y.Whole >= 0x03b0;
+                    useWetFootsteps = samus.Position.Y.Whole >= 944;
                 else if ((specialType & CrateriaAtmosphericEffectFlags.WetFootsteps) != 0)
                     useWetFootsteps = true;
             }
@@ -739,7 +742,7 @@ public sealed class SamusLiquidPhysicsState
 
         if (useWetFootsteps)
             SpawnFootstepPair(bus, samus, type: 1);
-        else if ((SnesLittleEndian.HighByteInPlace(samus.HorizontalSpeed.SpeedBoostCounter)) == 0x0400 &&
+        else if (samus.HorizontalSpeed.IsFullSpeedBoost &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)
             SpawnFootstepPair(bus, samus, type: 7);
 
@@ -749,9 +752,9 @@ public sealed class SamusLiquidPhysicsState
         if (!CinematicFunctionActive &&
             BossId == 0 &&
             samus.InputSnapshot.SharedShineTimer == 0 &&
-            (samus.HorizontalSpeed.SpeedBoostCounter & 0x0400) == 0)
+            (samus.HorizontalSpeed.SpeedBoostCounter & 1 << 10) == 0)
         {
-            QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x06), maximumQueued: 6);
+            QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 6), maximumQueued: 6);
         }
     }
 
@@ -766,7 +769,7 @@ public sealed class SamusLiquidPhysicsState
             ? unchecked((ushort)(samus.Position.X.Whole + 8))
             : unchecked((ushort)(samus.Position.X.Whole - 8));
         ushort y = unchecked((ushort)(samus.Position.Y.Whole + 16));
-        AtmosphericEffects.SetSlot(0, type, 0, 0x8002, new(firstX, y));
+        AtmosphericEffects.SetSlot(0, type, 0, BreathBubbleHeldTimer, new(firstX, y));
         AtmosphericEffects.SetSlot(1, type, 0, 3, new(secondX, y));
     }
 

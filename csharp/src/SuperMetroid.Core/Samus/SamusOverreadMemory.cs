@@ -73,7 +73,7 @@ internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
     {
         int bank = SnesAddressMath.BankNumber(address);
         int offset = SnesAddressMath.OffsetInBank(address);
-        if ((bank & 0x40) == 0 &&
+        if ((bank & 1 << 6) == 0 &&
             (offset >= SnesBusLayout.ReservedBBusStart &&
              offset <= SnesBusLayout.ReservedBBusEnd ||
              offset >= SnesBusLayout.UnpopulatedExpansionStart &&

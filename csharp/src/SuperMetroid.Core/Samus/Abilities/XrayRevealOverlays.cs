@@ -44,7 +44,7 @@ public static class XrayRevealOverlays
         int x = visible.X, y = visible.Y;
         // $91:D04C admits only the first 16x16 metatiles, not the fine-scroll column.
         if ((uint)x >= XrayTilemapLayout.MetatileColumns - 1 || (uint)y >= XrayTilemapLayout.MetatileRows) return;
-        int metatile = word & 0x03ff;
+        int metatile = new SuperMetroid.Core.Rooms.LevelData.RoomLevelWord(word).VisualBlockIndex;
         int source = metatile * 8;
         ReadOnlySpan<byte> definitions = level.BlockDefinitions.Span;
         if (source + 8 > definitions.Length)
@@ -52,7 +52,7 @@ public static class XrayRevealOverlays
         int destination = y * XrayTilemapLayout.MetatileRowStride + x * 2;
         // $91:D0A6 swaps the two tile rows for vertical flip. It neither toggles each
         // tile's flip bits nor implements horizontal flip; preserve that native behavior.
-        bool flip = (word & 0x0800) != 0;
+        bool flip = (new SuperMetroid.Core.Rooms.LevelData.RoomLevelWord(word).VisualFlipFlags & SuperMetroid.Core.Rooms.LevelData.LevelBlockFlipFlags.Vertical) != 0;
         for (int row = 0; row < 2; row++)
         for (int col = 0; col < 2; col++)
         {

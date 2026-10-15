@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public readonly struct XrayMemory(ISnesMemoryBus bus)
 {
     /// <summary>The two captured BG1 screens, first screen first.</summary>
-    public WorkRamWordTable SavedBg1 => new(bus, XrayWorkRam.SavedBg1);
+    public WorkRamWordTable SavedBg1 => new(bus, XrayWorkRamAddresses.SavedBg1);
 
     /// <summary>The frozen reveal map; it is never rebuilt from later room or VRAM changes.</summary>
-    public WorkRamWordTable RevealTilemap => new(bus, XrayWorkRam.RevealTilemap);
+    public WorkRamWordTable RevealTilemap => new(bus, XrayWorkRamAddresses.RevealTilemap);
 }

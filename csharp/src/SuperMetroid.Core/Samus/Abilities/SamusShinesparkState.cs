@@ -781,12 +781,12 @@ false,             CrashSequenceFinished: true);
         short delta = unchecked((short)(samus.Position.X.Whole - samus.PeekPreviousPositionWords(checkpoint).X));
         if (delta >= 0)
         {
-            if (delta >= 0x10)
-                samus.WritePreviousXPosition(unchecked((ushort)(samus.Position.X.Whole - 0x0f)));
+            if (delta >= 16)
+                samus.WritePreviousXPosition(unchecked((ushort)(samus.Position.X.Whole - 15)));
         }
-        else if (delta < unchecked((short)0xfff1))
+        else if (delta < -15)
         {
-            samus.WritePreviousXPosition(unchecked((ushort)(samus.Position.X.Whole + 0x0f)));
+            samus.WritePreviousXPosition(unchecked((ushort)(samus.Position.X.Whole + 15)));
         }
     }
 
@@ -797,9 +797,9 @@ false,             CrashSequenceFinished: true);
     private static void CapPreviousY(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
         ushort delta = unchecked((ushort)(samus.Position.Y.Whole - samus.PeekPreviousPositionWords(checkpoint).Y));
-        // CMP #$FFF2 / BPL: the sign of delta - $FFF2.
-        if (unchecked((short)(delta - 0xfff2)) < 0)
-            samus.WritePreviousYPosition(unchecked((ushort)(samus.Position.Y.Whole + 0x0e)));
+        // CMP #$FFF2 / BPL: the sign of delta - $FFF2, which is delta + 14 in sixteen bits.
+        if (unchecked((short)(delta + 14)) < 0)
+            samus.WritePreviousYPosition(unchecked((ushort)(samus.Position.Y.Whole + 14)));
     }
 
     /// <summary>Accelerates horizontal spark speed up to fifteen pixels per frame and probes breakable room blocks.</summary>

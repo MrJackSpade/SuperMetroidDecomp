@@ -73,7 +73,7 @@ public static class SamusInsideBlockReactions
                     speed.SpeedBoostCounter = 0;
                     speed.EchoSoundFlag = 0;
                     speed.ExtraRunSpeed = speed.ExtraRunSubspeed = speed.BaseSpeed = 0;
-                    speed.BaseSubspeed &= 0x7fff;
+                    speed.BaseSubspeed &= (ushort)short.MaxValue;
                     if (!bottomPoint) return;
                     QuicksandSurfacePhysics physics =
                         QuicksandDefinitions.SurfacePhysics(
@@ -219,7 +219,7 @@ public static class SamusInsideBlockReactions
             return true;
         }
         if (body.YDirection == SamusVerticalDirection.None && (ushort)(SnesEightEight.WholeOf((uint)displacement)) > (QuicksandRomData.SurfaceProbeLimit >> 8))
-            displacement = (displacement & unchecked((int)0xff0000ff)) | QuicksandRomData.SurfaceProbeLimit;
+            displacement = (displacement & ~(ushort.MaxValue << 8)) | QuicksandRomData.SurfaceProbeLimit;
         surfaceContact = true;
         return false;
     }

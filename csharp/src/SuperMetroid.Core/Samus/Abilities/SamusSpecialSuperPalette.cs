@@ -19,7 +19,7 @@ public static class SamusSpecialSuperPalette
         Ensure.NotNull(samus);
 
         ushort flags = samus.SpecialSuperPaletteFlags;
-        if (flags == 0 || (flags & 0x8000) != 0)
+        if (flags == 0 || unchecked((short)flags) < 0)
             return false;
 
         ushort suitOffset = samus.EquippedItems.GetSuitPaletteTableOffset();

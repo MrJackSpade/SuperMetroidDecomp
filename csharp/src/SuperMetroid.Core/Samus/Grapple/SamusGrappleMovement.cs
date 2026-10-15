@@ -66,7 +66,7 @@ public static class SamusGrappleMovement
         bool movingHeld = samus.Pose is SamusPoseId.DraygonGrabbedMovingLeftPose or
             SamusPoseId.DraygonGrabbedMovingRightPose;
         byte direction = movingHeld ? ReadDraygonHeldDirection(samus.Pose, controllerInput) : samus.PoseMetadata.ReadShotDirection(bus);
-        if ((direction & 0xf0) != 0)
+        if (direction >= 16)
         {
             // $9B:C53F-C547 treats ROM sentinel directions as ordinary cancellation,
             // including a shot arriving while a permitted posture is transitioning.
@@ -148,7 +148,7 @@ public static class SamusGrappleMovement
         uint rotated = (pair >> 2) | ((pair & 1) << 31);
         ushort whole = SnesFixedPosition.WholeOf(unchecked((int)rotated));
         if (velocity < 0)
-            whole |= 0xffc0;
+            whole |= ushort.MaxValue & ~63; // The rotate's sign fills the top ten bits.
         return SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), unchecked((ushort)rotated));
     }
 
@@ -356,8 +356,8 @@ public static class SamusGrappleMovement
             // Carry+overflow is the native connected result. $94:A8DA centers the point in
             // the accepted 16x16 block before bank $9B chooses the swing/locked pose.
             grapple.Anchor = new(
-                unchecked((ushort)((grapple.Anchor.X & 0xfff0) | 8)),
-                unchecked((ushort)((grapple.Anchor.Y & 0xfff0) | 8)));
+                unchecked((ushort)((grapple.Anchor.X & ~15) | 8)),
+                unchecked((ushort)((grapple.Anchor.Y & ~15) | 8)));
             return ConnectAcceptedFiringCore(
                 bus,
                 samus,
@@ -610,7 +610,7 @@ public static class SamusGrappleMovement
         samus.Health = samus.Health <= damage
             ? (ushort)0
             : unchecked((ushort)(samus.Health - damage));
-        samus.InvincibilityTimer = NativeCountdown.Start(0x0060);
+        samus.InvincibilityTimer = NativeCountdown.Start(96);
 
         // Facing left is knocked right and facing right is knocked left. Start owns the
         // authentic pose, animation, vertical speed, contact-damage cancellation, and
@@ -753,7 +753,7 @@ public static class SamusGrappleMovement
             return SamusPoseId.FacingLeftNormalPose;
 
         byte shotDirection = samus.PoseMetadata.ReadShotDirection(bus);
-        bool ordinaryDirection = (shotDirection & 0xf0) == 0 && shotDirection < 10;
+        bool ordinaryDirection = shotDirection < 10;
         if (!ordinaryDirection)
         {
             // `$9B:C8DB/$C93C` use the pose direction when the direction byte is a command
@@ -1268,7 +1268,7 @@ public static class SamusGrappleMovement
             0 => SnesAngle.HalfTurn.TableIndex - reciprocalEighths,
             1 => unchecked((byte)reciprocalEighths),
             2 => reciprocalEighths + SnesAngle.HalfTurn.TableIndex,
-            _ => 0x100 - reciprocalEighths,
+            _ => 256 - reciprocalEighths,
         });
     }
 
@@ -1392,8 +1392,8 @@ public static class SamusGrappleMovement
         // $94:AFDE derives X/Y flip bits from the grapple angle while retaining the packed
         // palette-five/priority-three instruction word. Tile $20 is the connected endpoint.
         int angleHigh = grapple.Angle.TableIndex;
-        int flipBits = (angleHigh & 0x80) >> 1;
-        flipBits |= 2 * ((((angleHigh ^ flipBits) & 0x40) ^ 0x40));
+        int flipBits = (angleHigh & 1 << 7) >> 1;
+        flipBits |= 2 * ((((angleHigh ^ flipBits) & 1 << 6) ^ 1 << 6));
         ushort flipAttributes = SnesLittleEndian.Word(0, unchecked((byte)flipBits));
         int screenXFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset));
         int screenYFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.Y - layer1.Y - SamusGrappleRomData.Rendering.CharacterCenterOffset));
@@ -1545,7 +1545,7 @@ public static class SamusGrappleMovement
         grapple.PoseChangeAutoFireTimer = grapple.PoseChangeAutoFireTimer.DecrementToZero();
         byte direction = samus.PoseMetadata.ReadShotDirection(bus);
         bool banned = GrappleConnectionDefinitions.CancelsFiring(samus.PoseMetadata.ReadMovementType(bus));
-        if (!banned && (direction & 0xf0) == 0)
+        if (!banned && direction < 16)
         {
             if (direction == grapple.FireDirection) return null;
             if (!grapple.PoseChangeAutoFireTimer.IsZero)
@@ -1765,7 +1765,7 @@ public static class SamusGrappleMovement
         if ((controllerInput & (ushort)SnesButton.Left) != 0)
         {
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
-                grapple.AngularVelocity = 0x100;
+                grapple.AngularVelocity = 256;
             grapple.DirectionInputAcceleration = grapple.Submerged
                 ? (short)(SamusGrappleRomData.Physics.DirectionInputMagnitude / 2)
                 : SamusGrappleRomData.Physics.DirectionInputMagnitude;
@@ -1775,7 +1775,7 @@ public static class SamusGrappleMovement
         if ((controllerInput & (ushort)SnesButton.Right) != 0)
         {
             if (HangsStraightDown(grapple) && grapple.AngularVelocity == 0)
-                grapple.AngularVelocity = -0x100;
+                grapple.AngularVelocity = -256;
             grapple.DirectionInputAcceleration = grapple.Submerged
                 ? (short)-(SamusGrappleRomData.Physics.DirectionInputMagnitude / 2)
                 : (short)-SamusGrappleRomData.Physics.DirectionInputMagnitude;
@@ -1860,7 +1860,7 @@ public static class SamusGrappleMovement
         // $9B:BC1F is deliberately quadrant-based rather than trigonometric. The four
         // magnitudes are 1/4, full, full, and 1/4 gravity as angle crosses $4000 boundaries.
         int angle = grapple.Angle.RawValue;
-        if ((angle & 0xc000) == 0xc000)
+        if ((angle & 3 << 14) == 3 << 14)
         {
             grapple.VelocityCorrection = (short)-(
                 SamusGrappleRomData.Physics.VelocityCorrectionMagnitude >> 2);
@@ -1868,14 +1868,14 @@ public static class SamusGrappleMovement
                 ? (short)-(SamusGrappleRomData.Physics.GravityMagnitude >> 3)
                 : (short)-(SamusGrappleRomData.Physics.GravityMagnitude >> 2);
         }
-        else if ((angle & 0x8000) != 0)
+        else if ((angle & 1 << 15) != 0)
         {
             // $9B:BC7B-BC84 compares only the high byte: all of $8000-$80FF hangs straight down.
             if (HangsStraightDown(grapple))
             {
                 grapple.GravityAcceleration = 0;
                 grapple.VelocityCorrection = 0;
-                if (Math.Abs((int)grapple.AngularVelocity) < 0x100)
+                if (Math.Abs((int)grapple.AngularVelocity) < 256)
                     grapple.AngularVelocity = 0;
             }
             else
@@ -1887,7 +1887,7 @@ public static class SamusGrappleMovement
                     : (short)-SamusGrappleRomData.Physics.GravityMagnitude;
             }
         }
-        else if ((angle & 0x4000) != 0)
+        else if ((angle & 1 << 14) != 0)
         {
             grapple.VelocityCorrection =
                 SamusGrappleRomData.Physics.VelocityCorrectionMagnitude;
@@ -1989,7 +1989,7 @@ public static class SamusGrappleMovement
                 // fractional half-byte `$80`. The body therefore stops just before the
                 // colliding sample rather than snapping back to the frame's original angle.
                 grapple.Angle = SnesAngle.FromRaw(
-                    SnesAngle.FromTableIndex(unchecked((byte)lastSafeAngleByte)).AddRaw(0x80).RawValue);
+                    SnesAngle.FromTableIndex(unchecked((byte)lastSafeAngleByte)).AddRaw(128).RawValue);
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == 8 &&
@@ -2081,8 +2081,8 @@ public static class SamusGrappleMovement
         // negative one. This one-pixel asymmetry is observable in both collision probes and
         // Samus positioning, and the adjusted endpoint remains stored after the helper.
         grapple.Anchor = new(
-            unchecked((ushort)((grapple.Anchor.X & 0xfff0) | (xSine >= 0 ? 8 : 7))),
-            unchecked((ushort)((grapple.Anchor.Y & 0xfff0) | (yNegativeCosine >= 0 ? 8 : 7))));
+            unchecked((ushort)((grapple.Anchor.X & ~15) | (xSine >= 0 ? 8 : 7))),
+            unchecked((ushort)((grapple.Anchor.Y & ~15) | (yNegativeCosine >= 0 ? 8 : 7))));
 
         Position16<RoomPixels> point = grapple.Anchor + new Offset16<RoomPixels>(
             unchecked((short)ScaleCoordinate(xSine, distance)),
@@ -2200,12 +2200,12 @@ public static class SamusGrappleMovement
         ushort damage = solidSpike
             ? behavior switch
             {
-                0 => (ushort)0x003c,
-                1 => (ushort)0x0010,
+                0 => (ushort)60,
+                1 => (ushort)16,
                 _ => (ushort)0,
             }
             : behavior == 2
-                ? (ushort)0x0010
+                ? (ushort)16
                 : (ushort)0;
         if (damage == 0)
             return;
@@ -2213,8 +2213,8 @@ public static class SamusGrappleMovement
         samus.LiquidPhysics.AccumulatePeriodicDamage(
             subDamage: 0,
             wholeDamage: damage);
-        samus.InvincibilityTimer = NativeCountdown.Start(0x003c);
-        samus.KnockbackTimer = NativeCountdown.Start(0x000a);
+        samus.InvincibilityTimer = NativeCountdown.Start(60);
+        samus.KnockbackTimer = NativeCountdown.Start(10);
     }
 
     /// <summary>Negates an arithmetic-shifted half, preserving the cartridge's rounding for odd negative values.</summary>

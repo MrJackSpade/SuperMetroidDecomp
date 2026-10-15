@@ -251,7 +251,7 @@ public sealed class SamusXrayState
         // Special prospective-pose command five immediately overrides the freshly selected
         // delay with frame two/timer `$3F`, installs the dedicated handler pair, starts the
         // visor palette, clears beam-flare state, and queues activation sound nine.
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 0x003f);
+        samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 63);
         SpecialPaletteType = (ushort)SamusSpecialPaletteType.Xray;
         samus.Shinespark.RelinquishPaletteToXray();
         samus.Shinespark.RelinquishMovementHandler();
@@ -532,7 +532,7 @@ public sealed class SamusXrayState
         Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
 
-        if ((BeamSizeFlag & 0x8000) != 0)
+        if (unchecked((short)BeamSizeFlag) < 0)
         {
             // Carry clear from the native handler asks the outer dispatcher to load the
             // complete normal suit palette, then clears every X-ray palette word.
@@ -704,7 +704,7 @@ public sealed class SamusXrayState
         AngularSubwidth = 0;
         AngularWidthDelta = 0;
         AngularSubwidthDelta = 0;
-        BeamSizeFlag = 0xffff;
+        BeamSizeFlag = ushort.MaxValue;
         DeactivationSoundRequested = true;
     }
 

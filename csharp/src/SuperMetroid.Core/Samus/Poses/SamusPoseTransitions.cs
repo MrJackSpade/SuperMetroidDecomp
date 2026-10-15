@@ -1022,8 +1022,8 @@ internal sealed class SamusPoseTransitions
         }
 
         int onePixelForward = facingLeft
-            ? -0x00010000
-            : 0x00010000;
+            ? -(1 << 16)
+            : 1 << 16;
         onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, _samus.Kinematics, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
         return onePixelProbe.Value.Collided
             ? SelectRanIntoWallPose(bus, target)

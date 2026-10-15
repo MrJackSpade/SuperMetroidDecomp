@@ -13,14 +13,14 @@ public static class SamusInsideBlockSamplePoints
         ushort bottom = unchecked((ushort)(yPosition + yRadius - 1));
         ushort top = unchecked((ushort)(yPosition - yRadius));
         visit(bottom, SamusInsideBlockPoint.Bottom);
-        if (((yPosition ^ bottom) & 0xfff0) != 0)
+        if (((yPosition ^ bottom) & ~15) != 0)
             visit(yPosition, SamusInsideBlockPoint.Center);
         // $94:9BDC-$9BF1 skip the top when it shares the bottom's row, then chain a second
         // XOR onto the first result instead of the top itself: the top is also skipped
         // whenever ((top ^ bottom) & $FFF0) ^ Y has no bits above the low nibble, even if
         // the top lies in a different row from both.
-        int topBottomRows = (top ^ bottom) & 0xfff0;
-        if (topBottomRows != 0 && ((topBottomRows ^ yPosition) & 0xfff0) != 0)
+        int topBottomRows = (top ^ bottom) & ~15;
+        if (topBottomRows != 0 && ((topBottomRows ^ yPosition) & ~15) != 0)
             visit(top, SamusInsideBlockPoint.Top);
     }
 }

@@ -3,29 +3,28 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// <summary>Native swing collision-body placement, independent of the displayed animation frame.</summary>
 internal static class GrappleBodyPlacementDefinitions
 {
-    /// <summary>$9B:C2C2 GrappleSwingSamusXYOffsets_Left: 32 signed X/Y pairs relative to physical rope Start.</summary>
-    private static ReadOnlySpan<byte> LeftOffsets =>
+    /// <summary>$9B:C2C2 GrappleSwingSamusXYOffsets_Left: 32 X/Y offsets relative to physical rope Start.</summary>
+    private static readonly (sbyte X, sbyte Y)[] LeftOffsets =
     [
-        0x00,0xf1, 0x07,0xf2, 0x0c,0xf5, 0x12,0xf6, 0x16,0xfa, 0x1a,0x02, 0x1d,0x05, 0x1f,0x0a,
-        0x1f,0x11, 0x1e,0x16, 0x1b,0x1b, 0x1a,0x1f, 0x15,0x26, 0x10,0x29, 0x10,0x2c, 0x08,0x2e,
-        0x00,0x2f, 0xf9,0x2e, 0xf4,0x2b, 0xee,0x2a, 0xea,0x26, 0xe6,0x1e, 0xe3,0x1b, 0xe1,0x16,
-        0xe1,0x0f, 0xe2,0x0a, 0xe5,0x05, 0xe6,0x01, 0xeb,0xfa, 0xf0,0xf7, 0xf0,0xf4, 0xf8,0xf2,
+        (0, -15), (7, -14), (12, -11), (18, -10), (22, -6), (26, 2), (29, 5), (31, 10),
+        (31, 17), (30, 22), (27, 27), (26, 31), (21, 38), (16, 41), (16, 44), (8, 46),
+        (0, 47), (-7, 46), (-12, 43), (-18, 42), (-22, 38), (-26, 30), (-29, 27), (-31, 22),
+        (-31, 15), (-30, 10), (-27, 5), (-26, 1), (-21, -6), (-16, -9), (-16, -12), (-8, -14),
     ];
 
-    /// <summary>$9B:C302 GrappleSwingSamusXYOffsets_Right: 32 signed X/Y pairs relative to physical rope Start.</summary>
-    private static ReadOnlySpan<byte> RightOffsets =>
+    /// <summary>$9B:C302 GrappleSwingSamusXYOffsets_Right: 32 X/Y offsets relative to physical rope Start.</summary>
+    private static readonly (sbyte X, sbyte Y)[] RightOffsets =
     [
-        0x00,0xf2, 0x09,0xf3, 0x10,0xf6, 0x12,0xf8, 0x15,0xfb, 0x1a,0x02, 0x1c,0x06, 0x1e,0x0a,
-        0x1e,0x10, 0x1e,0x17, 0x1b,0x1c, 0x1a,0x21, 0x15,0x25, 0x10,0x29, 0x0b,0x2b, 0x05,0x2d,
-        0x00,0x2e, 0xf7,0x2d, 0xf0,0x2a, 0xee,0x28, 0xeb,0x25, 0xe6,0x1e, 0xe4,0x1a, 0xe2,0x16,
-        0xe1,0x0f, 0xe2,0x09, 0xe5,0x04, 0xe6,0xff, 0xeb,0xfb, 0xf0,0xf7, 0xf5,0xf5, 0xfb,0xf3,
+        (0, -14), (9, -13), (16, -10), (18, -8), (21, -5), (26, 2), (28, 6), (30, 10),
+        (30, 16), (30, 23), (27, 28), (26, 33), (21, 37), (16, 41), (11, 43), (5, 45),
+        (0, 46), (-9, 45), (-16, 42), (-18, 40), (-21, 37), (-26, 30), (-28, 26), (-30, 22),
+        (-31, 15), (-30, 9), (-27, 4), (-26, -1), (-21, -5), (-16, -9), (-11, -11), (-5, -13),
     ];
 
     /// <summary>$9B:C1C2 GrappleSwingSamusXYOffsets: native 256-entry selector is nearest eight-angle bucket, wrapping at 32.</summary>
     internal static (sbyte X, sbyte Y) Offset(byte mirroredAngle, bool left)
     {
-        int pair = (((mirroredAngle + 4) >> 3) & 31) * 2;
-        var offsets = left ? LeftOffsets : RightOffsets;
-        return (unchecked((sbyte)offsets[pair]), unchecked((sbyte)offsets[pair + 1]));
+        int pair = ((mirroredAngle + 4) >> 3) & 31;
+        return (left ? LeftOffsets : RightOffsets)[pair];
     }
 }

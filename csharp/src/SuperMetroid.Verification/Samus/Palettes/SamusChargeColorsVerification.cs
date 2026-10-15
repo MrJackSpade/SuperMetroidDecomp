@@ -34,10 +34,10 @@ internal static class SamusChargeColorsVerification
         forbidden.UnionWith(VerifySamusChargeColorPhases(rom));
         for (int frame = 0; frame < SamusChargeColorFormat.HyperFrameCount; frame++)
         {
-            ushort offset = (ushort)(SamusChargePalettePointerDefinitions.LastHyperTableByteOffset -
+            ushort offset = (ushort)(SamusChargePaletteDefinitions.LastHyperTableByteOffset -
                 frame * sizeof(ushort));
             ushort pointer = BlockWord(SamusProjectileRomData.Palettes.HyperBeamShotPointers + offset);
-            AssertTrue(SamusChargePalettePointerDefinitions.TryHyperShot(offset, out ushort compiledPointer),
+            AssertTrue(SamusChargePaletteDefinitions.TryHyperShot(offset, out ushort compiledPointer),
                 "all native Hyper-shot entries are compiled");
             AssertEqual(pointer, compiledPointer, $"Hyper-shot frame {frame} pointer");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
@@ -192,8 +192,8 @@ internal static class SamusChargeColorsVerification
                     while (Word(0x910000 | (list + firstPhase * 2)) != pointer) firstPhase++;
                     AssertEqual(firstPhase, SamusChargeColorFormat.CanonicalPhase(family != 0, phase), "Canonical phase matches first native pointer identity");
                     bool found = family == 0
-                        ? SamusChargePalettePointerDefinitions.TryChargedBeam((ushort)(suit * 2), (ushort)(phase * 2), out ushort compiled)
-                        : SamusChargePalettePointerDefinitions.TryPseudoScrew((ushort)(suit * 2), (ushort)(phase * 2), out compiled);
+                        ? SamusChargePaletteDefinitions.TryChargedBeam((ushort)(suit * 2), (ushort)(phase * 2), out ushort compiled)
+                        : SamusChargePaletteDefinitions.TryPseudoScrew((ushort)(suit * 2), (ushort)(phase * 2), out compiled);
                     AssertTrue(found, "Native charge pointer supported");
                     AssertEqual(pointer, compiled, "Native charge pointer selection");
                     for (int index = 0; index < 256; index++) cgram.SetColor(index, Bgr555.FromWord(0x1234));

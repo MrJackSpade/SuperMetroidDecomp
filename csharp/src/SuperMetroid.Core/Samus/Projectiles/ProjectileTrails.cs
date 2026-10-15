@@ -20,7 +20,7 @@ internal sealed class ProjectileTrails
         {
             // Beam indices retain charge/SBA bits in the low six bits. Charged plain power
             // therefore selects entry $10, not ordinary-power entry zero.
-            pointerIndex = projectile.Type & 0x003f;
+            pointerIndex = projectile.Type & 63;
         }
         else
         {
@@ -29,7 +29,7 @@ internal sealed class ProjectileTrails
             int family = SnesLittleEndian.HighByte(projectile.PackedType.FamilyValue);
             if (family >= 3)
                 return;
-            pointerIndex = family + 0x001f;
+            pointerIndex = family + 31;
         }
 
         SamusProjectileTrailSlot? trail = null;
@@ -58,7 +58,7 @@ internal sealed class ProjectileTrails
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
         ushort animationFrame = GetTrailAnimationFrame(projectile);
         int direction = projectile.PackedDirection.DirectionIndex;
-        int familyTable = (projectile.Type & 0x0020) != 0
+        int familyTable = (projectile.Type & 1 << 5) != 0
             ? SamusProjectileRomData.Trails.SpazerSbaOffsetFamilies
             : projectile.PackedType.IsChargedBeam
                 ? SamusProjectileRomData.Trails.ChargedOffsetFamilies

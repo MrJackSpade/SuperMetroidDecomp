@@ -41,6 +41,15 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public ushort SpeedBoostCounter { get; set; }
 
+    /// <summary>One speed-booster stage in the counter's high byte.</summary>
+    private const int BoostStage = 1 << 8;
+
+    /// <summary>The fourth stage: the counter's high byte at four is full speed boost.</summary>
+    private const int FullBoostStage = 4 * BoostStage;
+
+    /// <summary>Whether the speed-boost counter's high byte stands at the full fourth stage.</summary>
+    public bool IsFullSpeedBoost => SnesLittleEndian.HighByteInPlace(SpeedBoostCounter) == FullBoostStage;
+
     /// <summary>
     /// Whether the counter's stage field is four, the cartridge condition used by
     /// Speed Booster block setup and active-boost contact behavior.
@@ -287,12 +296,12 @@ public sealed class SamusHorizontalSpeedState
 
         ushort stagedCounter = SpeedBoostCounter;
         ushort tableSelection = stagedCounter;
-        if ((stagedCounter & 0x0400) == 0)
+        if ((stagedCounter & FullBoostStage) == 0)
         {
-            stagedCounter = unchecked((ushort)(stagedCounter + 0x0100));
+            stagedCounter = unchecked((ushort)(stagedCounter + BoostStage));
             SpeedBoostCounter = stagedCounter;
             tableSelection = stagedCounter;
-            if ((stagedCounter & 0x0400) != 0)
+            if ((stagedCounter & FullBoostStage) != 0)
             {
                 EchoSoundFlag = 1;
                 if (queueEchoSound is null)
@@ -362,7 +371,7 @@ public sealed class SamusHorizontalSpeedState
         if (!gravitySuitEquipped && frame.BottomBoundarySubmerged)
             return paletteCopied;
 
-        bool screwAttackEquipped = (frame.EquippedItems & 0x0008) != 0;
+        bool screwAttackEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack);
         if (frame.MovementType == SamusMovementType.SpinJumping && screwAttackEquipped)
         {
             if (frame.AnimationFrame == 0)
@@ -373,7 +382,7 @@ public sealed class SamusHorizontalSpeedState
                 return paletteCopied;
             }
 
-            if (unchecked((short)(frame.AnimationFrame - 0x1b)) >= 0)
+            if (unchecked((short)(frame.AnimationFrame - 27)) >= 0)
             {
                 // Carry clear at `$91:DA48` asks the outer palette dispatcher to copy
                 // the normal suit palette for frames 27 onward. Frames 1..26 cycle below.
@@ -403,7 +412,7 @@ public sealed class SamusHorizontalSpeedState
             return true;
         }
 
-        if ((SnesLittleEndian.HighByteInPlace(SpeedBoostCounter)) != 0x0400)
+        if (!IsFullSpeedBoost)
             return paletteCopied;
 
         // DEC is a full 16-bit operation. BEQ/BPL mean zero and signed underflow both reload
@@ -488,8 +497,8 @@ public sealed class SamusHorizontalSpeedState
         ushort gameTimeFrames,
         Position16<RoomPixels> position)
     {
-        if ((SnesLittleEndian.HighByteInPlace(SpeedBoostCounter)) != 0x0400 ||
-            (SpeedEchoIndex & 0x8000) != 0 ||
+        if (!IsFullSpeedBoost ||
+            unchecked((short)SpeedEchoIndex) < 0 ||
             (gameTimeFrames & 3) != 0)
         {
             return false;
@@ -565,7 +574,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Enables Speed Booster contact damage only at the fully charged counter's high-byte state.</summary>
     private void PublishBoostContactDamage()
     {
-        if ((SnesLittleEndian.HighByteInPlace(SpeedBoostCounter)) == 0x0400)
+        if (IsFullSpeedBoost)
             ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
     }
 
@@ -591,9 +600,9 @@ public sealed class SamusHorizontalSpeedState
         // This block is intentionally outside the momentum test. Every native caller can
         // enter echo-departure mode even when `$0B3C` was already clear. Repeated calls while
         // `$0AAE` is negative must *not* reset the velocities or restart the two bodies.
-        if ((SpeedEchoIndex & 0x8000) == 0)
+        if (unchecked((short)SpeedEchoIndex) >= 0)
         {
-            SpeedEchoIndex = 0xffff;
+            SpeedEchoIndex = ushort.MaxValue;
             ushort velocity = facing == SamusFacingDirection.Left
                 ? unchecked((ushort)-8)
                 : (ushort)8;
@@ -694,7 +703,7 @@ public sealed class SamusHorizontalSpeedState
         int slot,
         Position16<RoomPixels> samusPosition)
     {
-        if ((SpeedEchoIndex & 0x8000) == 0)
+        if (unchecked((short)SpeedEchoIndex) >= 0)
             return false;
         if (slot is < 0 or > 1)
             throw new ArgumentOutOfRangeException(nameof(slot));
@@ -738,7 +747,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void FinishDepartingSpeedEchoFrame()
     {
-        if ((SpeedEchoIndex & 0x8000) != 0 &&
+        if (unchecked((short)SpeedEchoIndex) < 0 &&
             FirstSpeedEchoPosition.X == 0 &&
             SecondSpeedEchoPosition.X == 0)
         {

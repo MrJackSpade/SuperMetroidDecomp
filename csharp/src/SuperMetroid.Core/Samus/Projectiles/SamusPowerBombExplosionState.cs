@@ -77,10 +77,10 @@ public sealed class SamusPowerBombExplosionState
     public byte FixedColorBlue { get; private set; }
 
     /// <summary>True from placement until cleanup releases WRAM $0CEA.</summary>
-    public bool IsArmed => (Flag & 0x8000) != 0;
+    public bool IsArmed => unchecked((short)Flag) < 0;
 
     /// <summary>True while the bank-$88 color-math animation is running.</summary>
-    public bool IsActive => (Status & 0x8000) != 0;
+    public bool IsActive => unchecked((short)Status) < 0;
 
     /// <summary>HDMA fade timer; its zero initialization underflows to permit the first afterglow step.</summary>
     private NativeCountdown _afterglowTimer;
@@ -99,7 +99,7 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public void Arm()
     {
-        Flag = 0xffff;
+        Flag = ushort.MaxValue;
     }
 
     /// <summary>
@@ -108,7 +108,7 @@ public sealed class SamusPowerBombExplosionState
     public void Spawn(Position16<RoomPixels> position)
     {
         Position = position;
-        Status = 0x8000;
+        Status = 1 << 15;
 
         // Allocation occurs after this frame's HDMA pass. The NEXT pass consumes the
         // instruction list and installs the radius pre-instruction; that pre-instruction
@@ -142,7 +142,7 @@ public sealed class SamusPowerBombExplosionState
         // position, radius, speed, fixed-color, and window-table WRAM words.
         Flag = 0;
         Position = position;
-        Status = 0x8000;
+        Status = 1 << 15;
         PreExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
         ExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
         RadiusSpeed = 0;
@@ -261,7 +261,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PreExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.PreExplosion,
-            ((SnesUnsignedEightEight.Whole(PreExplosionRadius)) >> 3) & 0x0f);
+            ((SnesUnsignedEightEight.Whole(PreExplosionRadius)) >> 3) & 15);
 
         // $88:90DF uses wrapping 16-bit addition. It subtracts acceleration only while
         // the newly computed radius is still below $9200.
@@ -310,7 +310,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PreExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.PreExplosion,
-            ((SnesUnsignedEightEight.Whole(PreExplosionRadius)) >> 3) & 0x0f);
+            ((SnesUnsignedEightEight.Whole(PreExplosionRadius)) >> 3) & 15);
 
         // $91A8 builds this frame's two 192-byte window tables before incrementing the
         // source pointer. Preserve that consumed pointer for a host compositor running
@@ -324,7 +324,7 @@ public sealed class SamusPowerBombExplosionState
         // The carry test is performed on the sum before either state word is changed.
         // If it would exceed $FFFF, both radius and speed remain frozen for this frame.
         int nextRadius = PreExplosionRadius + RadiusSpeed;
-        if (nextRadius < 0x10000)
+        if (nextRadius < 1 << 16)
         {
             PreExplosionRadius = (ushort)nextRadius;
             RadiusSpeed = unchecked((ushort)(
@@ -379,7 +379,7 @@ public sealed class SamusPowerBombExplosionState
             ShapeDefinitionPointer == EndOf(ShapeSequence.White);
 
         int nextRadius = ExplosionRadius + RadiusSpeed;
-        if (nextRadius < 0x10000)
+        if (nextRadius < 1 << 16)
         {
             ExplosionRadius = (ushort)nextRadius;
             RadiusSpeed = unchecked((ushort)(

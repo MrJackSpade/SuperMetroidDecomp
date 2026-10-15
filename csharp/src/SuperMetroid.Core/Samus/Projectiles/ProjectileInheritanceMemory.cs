@@ -14,7 +14,7 @@ internal readonly struct ProjectileInheritanceMemory(ISnesMemoryBus bus)
     private const int RecordByteCount = 4;
 
     /// <summary>Provides byte and word access to the shared WRAM inheritance block.</summary>
-    private WorkRamByteTable Records => new(bus, ProjectileInheritanceWorkRam.Records);
+    private WorkRamByteTable Records => new(bus, ProjectileInheritanceWorkRamAddresses.Records);
 
     /// <summary><c>CameraYSubSpeed</c>; its high byte leaks into leftward launch velocity.</summary>
     internal ushort CameraYSubspeed

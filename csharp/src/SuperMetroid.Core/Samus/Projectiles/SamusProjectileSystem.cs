@@ -241,7 +241,7 @@ public sealed class SamusProjectileSystem
             bool chargePaletteActive =
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 Charge.FlareCounter != 0 &&
-                unchecked((short)(Charge.FlareCounter - 0x003c)) >= 0;
+                unchecked((short)(Charge.FlareCounter - 60)) >= 0;
             if (chargePaletteActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.PseudoScrew;
@@ -252,9 +252,9 @@ public sealed class SamusProjectileSystem
                 ushort palettePointer = 0;
                 bool catalogued = samus.Presentation.ChargeColors is not null &&
                     (pseudoScrew
-                        ? SamusChargePalettePointerDefinitions.TryPseudoScrew(
+                        ? SamusChargePaletteDefinitions.TryPseudoScrew(
                             suitOffset, Charge.SamusChargePaletteIndex, out palettePointer)
-                        : SamusChargePalettePointerDefinitions.TryChargedBeam(
+                        : SamusChargePaletteDefinitions.TryChargedBeam(
                             suitOffset, Charge.SamusChargePaletteIndex, out palettePointer));
                 if (!catalogued)
                     throw new InvalidDataException(
@@ -324,7 +324,7 @@ public sealed class SamusProjectileSystem
             return LastBeamChargePaletteStep;
         }
 
-        ushort tableOffset = unchecked((ushort)(Charge.ChargedShotGlowTimer.RawValue & 0x001e));
+        ushort tableOffset = unchecked((ushort)(Charge.ChargedShotGlowTimer.RawValue & 30));
         if (tableOffset == 0)
         {
             // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the
@@ -338,10 +338,10 @@ public sealed class SamusProjectileSystem
 
         ushort hyperPointer = 0;
         bool cataloguedHyper = samus.Presentation.ChargeColors is not null &&
-            SamusChargePalettePointerDefinitions.TryHyperShot(tableOffset, out hyperPointer);
+            SamusChargePaletteDefinitions.TryHyperShot(tableOffset, out hyperPointer);
         if (!cataloguedHyper)
             throw new InvalidDataException($"Hyper Beam palette offset {tableOffset} is not compiled.");
-        int hyperPaletteIndex = (0x14 - tableOffset) / 2;
+        int hyperPaletteIndex = (20 - tableOffset) / 2;
         (samus.Presentation.ChargeColors ?? throw new InvalidOperationException(
             "Hyper Beam palette requires installed colors."))
             .ApplyHyper(cgram, hyperPaletteIndex);
@@ -676,7 +676,7 @@ public sealed class SamusProjectileSystem
             // `$93:8268` first exempts every charged/projectile-family word selected by
             // mask `$0F10`. Only an ordinary uncharged beam reaches the flicker branches;
             // a charged beam must remain visible on every NMI parity.
-            if ((slot.Type & 0x0f10) == 0)
+            if ((slot.Type & (SamusProjectileTypeWord.FamilyMask | SamusProjectileTypeWord.ChargedBeamMarker)) == 0)
             {
                 // Native X is the even byte index `$00,$02,...,$08`, so native `X & 2`
                 // is exactly the parity of this host slot index. Spazer/plasma combinations
@@ -684,7 +684,7 @@ public sealed class SamusProjectileSystem
                 // wave, which use NMI bit zero. Keeping these branches separate is what
                 // prevents the wider beam art from disappearing on the wrong video field.
                 bool oddNativeSlot = (slotIndex & 1) != 0;
-                bool skip = (slot.Type & 0x000c) != 0
+                bool skip = (slot.Type & (ushort)(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)) != 0
                     ? oddNativeSlot != ((nmiFrameCounter & 2) != 0)
                     : oddNativeSlot == ((nmiFrameCounter & 1) != 0);
                 if (skip)
@@ -694,7 +694,7 @@ public sealed class SamusProjectileSystem
             // Unlike the bomb/explosion pass, native live projectile drawing does not
             // cull by world X. OAM retains the nine-bit X and lets the PPU clip it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
-            if ((slot.SpritemapPointer & 0x8000) != 0)
+            if (unchecked((short)slot.SpritemapPointer) < 0)
                 ProjectileAnimation.DrawSlot(oam, slot, layer1, horizontalMargin: null, compositions);
         }
     }

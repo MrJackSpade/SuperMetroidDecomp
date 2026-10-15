@@ -48010,7 +48010,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealCodePointers.cs",
+      "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealTableWords.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
       "namespace": "SuperMetroid.Core.Samus.Abilities",
@@ -48190,7 +48190,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayWorkRam.cs",
+      "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayWorkRamAddresses.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
       "namespace": "SuperMetroid.Core.Samus.Abilities",
@@ -50619,7 +50619,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusChargePalettePointerDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusChargePaletteDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
       "namespace": "SuperMetroid.Core.Samus.Palettes",
@@ -51352,7 +51352,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileInheritanceWorkRam.cs",
+      "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileInheritanceWorkRamAddresses.cs",
       "module": "csharp/src/SuperMetroid.Core/Samus",
       "role": "production",
       "namespace": "SuperMetroid.Core.Samus.Projectiles",

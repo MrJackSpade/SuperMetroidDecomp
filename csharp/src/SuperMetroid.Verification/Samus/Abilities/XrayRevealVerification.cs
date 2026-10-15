@@ -41,16 +41,16 @@ internal static class XrayRevealVerification
         byte bts)
     {
         int typeWord = (int)type << 12;
-        for (int entry = XrayRevealCodePointers.BlockTypeTable; ; entry += 4)
+        for (int entry = XrayRevealTableWords.BlockTypeTable; ; entry += 4)
         {
             ushort key = ReadNativeXrayRevealWord(bus, entry);
-            if (key == XrayRevealCodePointers.End) return null;
+            if (key == XrayRevealTableWords.End) return null;
             if (key != typeWord) continue;
             for (int match = ReadNativeXrayRevealWord(bus, entry + 2); ; match += 4)
             {
                 ushort value = ReadNativeXrayRevealWord(bus, match);
-                if (value == XrayRevealCodePointers.End) return null;
-                if (value != XrayRevealCodePointers.AnyBts && value != bts) continue;
+                if (value == XrayRevealTableWords.End) return null;
+                if (value != XrayRevealTableWords.AnyBts && value != bts) continue;
                 int commandPointer = ReadNativeXrayRevealWord(bus, match + 2);
                 XrayRevealCommand command = ClosedNativeWords.Decode<XrayRevealCommand>(
                     ReadNativeXrayRevealWord(bus, commandPointer), "native X-ray reveal command");
@@ -88,6 +88,6 @@ internal static class XrayRevealVerification
         if (pointer is < 0x8000 or >= ushort.MaxValue)
             throw new InvalidDataException(
                 $"Native X-ray reveal table crossed bank $91 at ${pointer:X}.");
-        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealCodePointers.Bank | pointer);
+        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealTableWords.Bank | pointer);
     }
 }

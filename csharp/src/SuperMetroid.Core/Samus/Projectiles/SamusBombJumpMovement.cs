@@ -16,13 +16,16 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public static class SamusBombJumpMovement
 {
+    /// <summary>Bit 11 of the bomb-jump direction word: a bomb jump is armed.</summary>
+    internal const ushort ActiveFlag = 1 << 11;
+
     /// <summary>Runs `$90:E025`, which initializes velocity but deliberately moves zero pixels.</summary>
     public static BombJumpMovementResult Start(ISnesAddressSpace bus, SamusState samus)
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         byte direction = unchecked((byte)samus.BombJumpDirection);
-        if (direction is < 1 or > 3 || (samus.BombJumpDirection & 0x0800) == 0)
+        if (direction is < 1 or > 3 || (samus.BombJumpDirection & ActiveFlag) == 0)
             throw new InvalidOperationException($"Bomb-jump start requires armed direction $0801-$0803, got ${samus.BombJumpDirection:X4}.");
 
         // `$90:9A2C` uses the same bottom-edge air/water/lava classification as ordinary

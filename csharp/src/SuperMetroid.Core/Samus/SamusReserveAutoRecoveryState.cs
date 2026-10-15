@@ -67,7 +67,7 @@ public sealed class SamusReserveAutoRecoveryState
                     // reserve word reaches exactly zero first.
                     samus.ReserveEnergy = 0;
                 }
-                else if ((samus.ReserveEnergy & 0x8000) != 0)
+                else if (unchecked((short)samus.ReserveEnergy) < 0)
                 {
                     samus.Health = unchecked((ushort)(samus.Health + samus.ReserveEnergy));
                     samus.ReserveEnergy = 0;

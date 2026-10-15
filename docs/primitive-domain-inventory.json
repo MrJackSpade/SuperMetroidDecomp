@@ -1455,7 +1455,7 @@
     "dfdaf5813"
    ]
   },
-  "XrayRevealCodePointers": {
+  "XrayRevealTableWords": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [

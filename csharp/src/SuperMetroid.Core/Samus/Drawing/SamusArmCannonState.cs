@@ -41,7 +41,7 @@ public sealed class SamusArmCannonState
     /// retained above because `$90:C5E0-$C5E6` stores it unmasked; only the drawing handler
     /// applies `$000F` before choosing mode zero, one, or two.
     /// </summary>
-    public ushort EffectiveDrawingMode => unchecked((ushort)(DrawingMode & 0x000f));
+    public ushort EffectiveDrawingMode => unchecked((ushort)(DrawingMode & 15));
 
     /// <summary>
     /// Runs the HUD selection stability update and `HandleArmCannonOpenState`. Calling once
@@ -104,10 +104,10 @@ public sealed class SamusArmCannonState
 
         ushort drawingData = PoseDrawingData((int)samus.Pose);
         byte firstSelector = ReadDrawingByte(drawingData);
-        bool frameDependentSelector = (firstSelector & 0x80) != 0;
+        bool frameDependentSelector = unchecked((sbyte)firstSelector) < 0;
         byte selector = frameDependentSelector && samus.AnimationFrame != 0
-            ? unchecked((byte)(ReadDrawingByte(unchecked((ushort)(drawingData + 2))) & 0x7f))
-            : unchecked((byte)(firstSelector & 0x7f));
+            ? unchecked((byte)(ReadDrawingByte(unchecked((ushort)(drawingData + 2))) & sbyte.MaxValue))
+            : unchecked((byte)(firstSelector & sbyte.MaxValue));
         if (selector >= SamusRenderingRomData.ArmCannon.DirectionCount)
             throw new InvalidDataException($"Arm-cannon direction selector {selector} is outside 0..9.");
 

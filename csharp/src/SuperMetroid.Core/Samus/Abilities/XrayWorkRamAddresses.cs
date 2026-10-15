@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>WRAM scratch buffers used by the native X-ray tilemap transfers (#629).</summary>
 [CpuBusBoundary("catalog: X-ray setup WRAM buffers")]
-public static class XrayWorkRam
+public static class XrayWorkRamAddresses
 {
     /// <summary>
     /// <c>$7E:6000-$7E:6FFF</c>: both BG1 tilemap screens captured during X-ray setup. The first

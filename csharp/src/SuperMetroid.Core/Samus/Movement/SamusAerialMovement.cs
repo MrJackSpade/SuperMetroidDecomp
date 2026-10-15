@@ -189,7 +189,7 @@ public static class SamusAerialMovement
             samus.AnimationFrameTimer.RawValue == 1 &&
             samus.AnimationFrame is 0 or 8)
         {
-            samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2f), maximumQueued: 6);
+            samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 47), maximumQueued: 6);
         }
 
         // Screw Attack's damaging body is republished every eligible dry-air spin frame.
@@ -198,7 +198,7 @@ public static class SamusAerialMovement
         // mirroring `$90:E725`, so neither stale damage mode can leak into another pose.
         if (!fullySubmergedWithoutGravity && SamusPoseMetadata.IsScrewAttackPose(samus.Pose))
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
-        else if (!fullySubmergedWithoutGravity && samus.ProjectileFlareCounter >= 0x003c)
+        else if (!fullySubmergedWithoutGravity && samus.ProjectileFlareCounter >= 60)
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
 
         // Bomb-block breaking is independent of contact-damage publication above: liquid
@@ -296,9 +296,9 @@ public static class SamusAerialMovement
         // Frames 23+ are the somersault portion and always use Screw-style index three.
         // Frames 3..22 use charge-beam index four only after the projectile flare counter
         // reaches 60. Frames 0..2 deliberately remain harmless even when fully charged.
-        if (samus.AnimationFrame >= 0x17)
+        if (samus.AnimationFrame >= 23)
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
-        else if (samus.AnimationFrame >= 3 && samus.ProjectileFlareCounter >= 0x003c)
+        else if (samus.AnimationFrame >= 3 && samus.ProjectileFlareCounter >= 60)
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
@@ -764,8 +764,8 @@ public static class SamusAerialMovement
 
         ushort distance = unchecked((ushort)Math.Abs(SnesSixteenSixteen.WholeOf(probe.AcceptedDisplacement)));
         ushort firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
-            ? (ushort)0x1b
-            : (ushort)0x0b;
+            ? (ushort)27
+            : (ushort)11;
         if (samus.AnimationFrame < firstEligibleFrame)
         {
             samus.PoseTransitions.ApplyWallContactAnimationRewind();
@@ -819,10 +819,10 @@ public static class SamusAerialMovement
         // velocity window can intentionally describe different samples for one frame.
         ushort minimumVelocity = samus.LiquidPhysics.LiquidPhysicsType !=
             SamusLiquidMedium.Air
-                ? (ushort)0x0080
-                : (ushort)0x0280;
+                ? (ushort)128
+                : (ushort)640;
         bool atOrAboveMinimum = unchecked((short)(fallingVelocity8_8 - minimumVelocity)) >= 0;
-        bool belowMaximum = unchecked((short)(fallingVelocity8_8 - 0x0500)) < 0;
+        bool belowMaximum = unchecked((short)(fallingVelocity8_8 - 1280)) < 0;
         if (!atOrAboveMinimum || !belowMaximum ||
             (controllerNewInput & (ushort)SnesButton.A) == 0)
         {

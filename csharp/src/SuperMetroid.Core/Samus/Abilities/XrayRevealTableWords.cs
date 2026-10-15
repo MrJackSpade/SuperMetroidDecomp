@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Bank-$91 revealed-block table and native command identities.</summary>
-public static class XrayRevealCodePointers
+public static class XrayRevealTableWords
 {
     /// <summary>Blank metatile selected by negative-coordinate extension exits at $91:CE95/$91:CED7.</summary>
     public const ushort BlankMetatile = 0x00ff;

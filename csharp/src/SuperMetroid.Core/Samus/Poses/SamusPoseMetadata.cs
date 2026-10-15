@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -244,7 +245,7 @@ internal sealed class SamusPoseMetadata
 
         // `$91:E438-$91:E44A` compares the live radius, still the previous pose's, and
         // lifts both Y words by three unless it is already the front view's 24.
-        if (_samus.Kinematics.Radius.Y != 0x18)
+        if (_samus.Kinematics.Radius.Y != 24)
         {
             _samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 3);
             _samus.WritePreviousYPosition(_samus.Kinematics.Position.Y.Whole);
@@ -832,7 +833,7 @@ internal sealed class SamusPoseMetadata
         // resume after the bomb arc returns control to normal movement.
         _samus.CrystalFlash.RelinquishMovementHandler();
         _samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        _samus.BombJumpDirection |= 0x0800;
+        _samus.BombJumpDirection |= SamusBombJumpMovement.ActiveFlag;
         _samus.BombJumpStarting = true;
         _samus.BombJumpActive = false;
         _samus.BombJumpPoseInputLocked = true;

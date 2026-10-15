@@ -52,7 +52,7 @@ internal sealed class BeamCombos
             for (int i = 3; i >= 0; i--)
             {
                 var slot = _slotTable._slots[i];
-                slot.Type = (ushort)((samus.EquippedBeams & 0x100f) | SamusComboRomData.ProjectileTag);
+                slot.Type = (ushort)((samus.EquippedBeams & SamusProjectileTypeWord.EquippedBeamBits) | SamusComboRomData.ProjectileTag);
                 slot.Direction = kind == SamusComboKind.Spazer ? (ushort)5 : (ushort)0;
                 slot.PreInstruction = kind switch
                 {
@@ -83,15 +83,15 @@ internal sealed class BeamCombos
                 InitializeComboData(slot, kind == SamusComboKind.Ice, kind == SamusComboKind.Spazer && i >= 2);
             }
             _slotTable.ProjectileCounter = 4;
-            shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slotTable._slots[0].Type & 0x3f)));
+            shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slotTable._slots[0].Type & 63)));
             ComboState = kind == SamusComboKind.Spazer ? (ushort)0
                 : kind == SamusComboKind.Wave || samus.PoseMetadata.IsFacingRight(bus) ? (ushort)4 : unchecked((ushort)-4);
             sound = kind switch
             {
-                SamusComboKind.Wave => 0x28,
-                SamusComboKind.Ice => 0x23,
-                SamusComboKind.Spazer => 0x25,
-                SamusComboKind.Plasma => 0x27,
+                SamusComboKind.Wave => 40,
+                SamusComboKind.Ice => 35,
+                SamusComboKind.Spazer => 37,
+                SamusComboKind.Plasma => 39,
                 _ => throw new InvalidOperationException($"Undefined combo {kind}."),
             };
         }
@@ -108,7 +108,7 @@ internal sealed class BeamCombos
         int index = echo ? (byte)slot.Type - 34 : slot.Type & 15;
         int data = SamusProjectileRomData.Banks.Projectile | SamusProjectileSelectionDefinitions.ReadWord(table + index * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(data);
-        if ((slot.Damage & 0x8000) != 0) throw new InvalidDataException("Negative native combo projectile damage.");
+        if (unchecked((short)slot.Damage) < 0) throw new InvalidDataException("Negative native combo projectile damage.");
         SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program((ushort)data, ordinary || echo ? slot.Direction & 15 : 0);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -122,10 +122,10 @@ internal sealed class BeamCombos
         bool outward = slot.PreInstruction == SamusProjectilePreInstruction.IceComboOutward;
         if (!outward && slot.PreInstruction != SamusProjectilePreInstruction.IceCombo)
             throw new InvalidOperationException("Ice combo update requires its own pre-instruction.");
-        if ((slot.Direction & 0xf0) != 0)
+        if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
         {
             _animation.ClearProjectile(slot);
-            return outward ? (ushort)0 : (ushort)0x24;
+            return outward ? (ushort)0 : (ushort)36;
         }
         ushort oldTimer = slot.TrailTimer.RawValue;
         slot.TrailTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
@@ -162,7 +162,7 @@ internal sealed class BeamCombos
             {
                 slot.PreInstruction = SamusProjectilePreInstruction.IceComboOutward;
                 slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(40));
-                sound = 0x24;
+                sound = 36;
             }
         }
         shared.SetSharedCooldown(2);
@@ -175,7 +175,7 @@ internal sealed class BeamCombos
     {
         if (slot.PreInstruction != SamusProjectilePreInstruction.PlasmaCombo)
             throw new InvalidOperationException("Plasma update requires its own pre-instruction.");
-        if ((slot.Direction & 0xf0) != 0)
+        if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
         {
             _animation.ClearProjectile(slot);
             return;
@@ -248,7 +248,7 @@ internal sealed class BeamCombos
         bool falling = slot.PreInstruction == SamusProjectilePreInstruction.SpazerComboFalling;
         if (!falling && slot.PreInstruction != SamusProjectilePreInstruction.SpazerCombo)
             throw new InvalidOperationException("Spazer update requires its own pre-instruction.");
-        if ((slot.Direction & 0xf0) != 0)
+        if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
         {
             int partner = slot.SlotIndex ^ 2;
             _animation.ClearProjectile(slot);
@@ -302,7 +302,7 @@ internal sealed class BeamCombos
                             slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
                             shared.SetSharedCooldown(2);
                             _charge.FlareCounter = 0;
-                            return slot.SlotIndex == 0 ? (ushort)0x26 : (ushort)0;
+                            return slot.SlotIndex == 0 ? (ushort)38 : (ushort)0;
                         }
                     }
                     break;
@@ -349,7 +349,7 @@ internal sealed class BeamCombos
             throw new InvalidOperationException("Wave update requires its own pre-instruction.");
         // A hit skips even the lifetime decrement. Expiry and collision both queue
         // the terminal sound, unlike Ice's silent outward-phase removal.
-        if ((slot.Direction & 0xf0) != 0)
+        if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
         {
             _animation.ClearProjectile(slot);
             return SamusComboRomData.WaveRemovalSound;

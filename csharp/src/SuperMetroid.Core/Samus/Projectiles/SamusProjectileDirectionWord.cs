@@ -4,15 +4,15 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public readonly record struct SamusProjectileDirectionWord(ushort Raw)
 {
     /// <summary>Four-bit direction-table index retained alongside lifecycle state.</summary>
-    private const ushort DirectionMask = 0x000f;
+    private const ushort DirectionMask = 15;
     /// <summary>Low-byte state that blocks the ordinary projectile movement path.</summary>
-    private const ushort LowByteLifecycleMask = 0x00f0;
+    internal const ushort LifecycleBits = 15 << 4;
 
     /// <summary>
     /// Bit written by the common enemy and enemy-projectile collision walkers to make the
     /// projectile's own pre-instruction dispose of or otherwise react to the contact.
     /// </summary>
-    private const ushort CollisionLifecycleState = 0x0010;
+    private const ushort CollisionLifecycleState = 1 << 4;
 
     /// <summary>Low-nibble native direction-table index.</summary>
     public byte DirectionIndex => (byte)(Raw & DirectionMask);
@@ -23,7 +23,7 @@ public readonly record struct SamusProjectileDirectionWord(ushort Raw)
     /// Native pre-instructions treat any state in bits 4–7 as a lifecycle transition and
     /// delete or skip the ordinary movement path. No individual meaning is assigned here.
     /// </summary>
-    public bool HasLowByteLifecycleState => (Raw & LowByteLifecycleMask) != 0;
+    public bool HasLowByteLifecycleState => (Raw & LifecycleBits) != 0;
 
     /// <summary>
     /// Firing and missile movement accept only indices 0–9 with no lifecycle bits in the

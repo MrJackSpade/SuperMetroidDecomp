@@ -132,9 +132,9 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>Installed indexed PNG filename holding the twelve 8-by-8 cover characters in native source-identity order.</summary>
     public const string TileFileName = "samus-arm-cannon-tiles.png";
     /// <summary>First pose descriptor at $90:C9D9.</summary>
-    public const ushort DrawingDataStart = 0xc9d9;
+    public const ushort DrawingDataStart = 0xc9d9; // cartridge-encoding: allow(CartridgeAddress) - the installed arm-cannon artwork format keys its records by these bank-$90 addresses
     /// <summary>Descriptor bytes end immediately before the $90:CC39 code entry.</summary>
-    public const ushort DrawingDataEndExclusive = 0xcc39;
+    public const ushort DrawingDataEndExclusive = 0xcc39; // cartridge-encoding: allow(CartridgeAddress) - the installed arm-cannon artwork format keys its records by these bank-$90 addresses
     /// <summary>608 installed bytes spanning the bank-$90 drawing descriptors from $C9D9 through $CC38.</summary>
     public const int DrawingDataByteCount = DrawingDataEndExclusive - DrawingDataStart;
     /// <summary>Four tile-selector slots per native aim direction: closed sentinel 0 and three successive nonclosed cover-art frames.</summary>
@@ -409,9 +409,9 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>$90:C9DC, ArmCannonDrawingData_FacingForward: forward-facing cover mode.</summary>
     private const byte ForwardDrawingMode = 2;
     /// <summary>$90:CA05 and vertical-aim descriptors: initial diagonal selector changes to the next direction word after frame zero.</summary>
-    private const byte FrameDependentDirectionFlag = 0x80;
+    private const byte FrameDependentDirectionFlag = 1 << 7;
     /// <summary>$90:CC21, CostOfSBAsInPowerBombs: the final24 installed drawing-window bytes alias this independent mechanics owner.</summary>
-    private const int AdjacentCostStart = SamusComboRomData.Costs & 0xffff;
+    private const int AdjacentCostStart = unchecked((ushort)SamusComboRomData.Costs);
 
     /// <summary>The $90:C9D9-$CC20 pose descriptors, ordered by native address.</summary>
     private static readonly ArmCannonDrawing[] DrawingsByAddress = Enum.GetValues<ArmCannonDrawing>();
@@ -779,7 +779,7 @@ public static class SamusArmCannonArtworkFormat
         UpwardDiagonal,
     }
     /// <summary>$90:C791..C7A4 assigns OBJ character $1F, palette4 and priority2 to the cannon cover.</summary>
-    private const ushort CoverSpriteIdentity = 0x001f | (4 << 9) | (2 << 12);
+    private const ushort CoverSpriteIdentity = 31 | (4 << 9) | (2 << 12);
     /// <summary>$90:C791..C7A4 uses bit14 to reflect the selected cover artwork horizontally.</summary>
     private const ushort HorizontalReflection = 1 << 14;
     /// <summary>$90:C791..C7A4 uses bit15 to reflect the vertical source for downward aim.</summary>
@@ -810,9 +810,9 @@ public static class SamusArmCannonArtworkFormat
         return (ushort)(CoverSpriteIdentity | (horizontal ? HorizontalReflection : 0) | (vertical ? VerticalReflection : 0));
     }
     /// <summary>$9A:9A00, Tiles_NonClosed_ArmCannon_Vertical_0, first of twelve cover tile sources.</summary>
-    private const int FirstTileSource = 0x9a00;
+    private const int FirstTileSource = 0x9a00; // cartridge-encoding: allow(CartridgeAddress) - the installed tile sheet keys its tiles by their bank-$9A source
     /// <summary>The twelve native cover sources from $9A:9A00 through $9A:B000 occupy successive $200-byte character blocks.</summary>
-    private const int TileSourceStride = 0x0200;
+    private const int TileSourceStride = 512;
     /// <summary>Twelve source identities selected by the four three-frame lists at $90:C7B9..C7D8.</summary>
     public static TileSourceSequence TileSourcePointers => new();
 

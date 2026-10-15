@@ -253,16 +253,16 @@ public static class XrayRevealVisualFiles
         RoomCollisionType type, byte bts)
     {
         int typeWord = (int)type << 12;
-        for (int entry = XrayRevealCodePointers.BlockTypeTable; ; entry += 4)
+        for (int entry = XrayRevealTableWords.BlockTypeTable; ; entry += 4)
         {
             ushort key = ReadWord(bus, entry);
-            if (XrayRevealCodePointers.IsEnd(key)) return null;
+            if (XrayRevealTableWords.IsEnd(key)) return null;
             if (key != typeWord) continue;
             for (int match = ReadWord(bus, entry + 2); ; match += 4)
             {
                 ushort value = ReadWord(bus, match);
-                if (XrayRevealCodePointers.IsEnd(value)) return null;
-                if (!XrayRevealCodePointers.MatchesBts(value, bts)) continue;
+                if (XrayRevealTableWords.IsEnd(value)) return null;
+                if (!XrayRevealTableWords.MatchesBts(value, bts)) continue;
                 int pointer = ReadWord(bus, match + 2);
                 XrayRevealCommand command = ClosedNativeWords.Decode<XrayRevealCommand>(
                     ReadWord(bus, pointer), "native X-ray reveal command");
@@ -290,7 +290,7 @@ public static class XrayRevealVisualFiles
     {
         if (pointer is < SnesBusLayout.RomWindowStart or >= ushort.MaxValue)
             throw new InvalidDataException($"X-ray reveal table crossed bank $91 at ${pointer:X}.");
-        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealCodePointers.Bank | pointer);
+        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealTableWords.Bank | pointer);
     }
 
     /// <summary>Reads ordered block-coordinate/metatile pairs from bank $8F until the required zero terminator.</summary>

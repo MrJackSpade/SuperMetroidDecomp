@@ -56,7 +56,7 @@ public static class SamusHurtFlashPalette
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
               samus.Pose == SamusPoseId.KnockbackLeftPose))
         {
-            samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x35), maximumQueued: 6);
+            samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 53), maximumQueued: 6);
         }
 
         // Only calls one through six write colors. Odd calls select the fixed hurt palette;
@@ -156,7 +156,7 @@ public static class SamusHurtFlashPalette
                         : SamusHurtFlashRecoveryAction.SpinJumpSound;
             }
 
-            if (samus.ProjectileFlareCounter >= 0x10 &&
+            if (samus.ProjectileFlareCounter >= 16 &&
                 (controllerInput & (ushort)SnesButton.X) != 0)
             {
                 samus.ResumeChargingBeamSoundFlag = 1;
@@ -178,7 +178,7 @@ public static class SamusHurtFlashPalette
         if (!grappleSoundActive)
             return SamusHurtFlashRecoveryAction.None;
 
-        samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x06), maximumQueued: 9);
+        samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 6), maximumQueued: 9);
         return SamusHurtFlashRecoveryAction.GrappleSound;
     }
 

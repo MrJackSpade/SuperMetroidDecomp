@@ -45,11 +45,11 @@ internal static class SamusExtraDisplacement
             return AddPositiveDownwardBias(extra);
 
         if (kinematics.PositionAdjustedBySlope)
-            return 0x00010000;
+            return 1 << 16;
 
         uint total = (SnesSixteenSixteen.FromWhole((uint)horizontalSpeed.TotalSpeed)) |
             horizontalSpeed.TotalSubspeed;
-        return unchecked((int)(total + 0x00010000u));
+        return unchecked((int)(total + (1u << 16)));
     }
 
     /// <summary>
@@ -69,5 +69,5 @@ internal static class SamusExtraDisplacement
     private static int AddPositiveDownwardBias(int displacement) =>
         displacement < 0
             ? displacement
-            : unchecked(displacement + 0x00010000);
+            : unchecked(displacement + (1 << 16));
 }

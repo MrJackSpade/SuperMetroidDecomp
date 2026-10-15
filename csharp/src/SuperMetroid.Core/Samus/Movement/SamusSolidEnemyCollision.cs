@@ -88,7 +88,7 @@ public static class SamusSolidEnemyCollision
                 _ => throw new InvalidOperationException("Unreachable collision direction."),
             };
 
-            if (gap != 0 && (gap & 0x8000) != 0)
+            if (gap != 0 && (gap & 1 << 15) != 0)
                 continue;
 
             bool wasTouching = gap == 0;
@@ -224,7 +224,7 @@ public static class SamusSolidEnemyCollision
         // `$A0:A9F1` obtains a 16-bit absolute center delta with EOR #$FFFF / INC. This
         // intentionally leaves $8000 unchanged, matching the native two's-complement edge.
         ushort signedDelta = unchecked((ushort)(secondPosition - firstPosition));
-        ushort absoluteDelta = (signedDelta & 0x8000) == 0
+        ushort absoluteDelta = unchecked((short)signedDelta) >= 0
             ? signedDelta
             : unchecked((ushort)(~signedDelta + 1));
 

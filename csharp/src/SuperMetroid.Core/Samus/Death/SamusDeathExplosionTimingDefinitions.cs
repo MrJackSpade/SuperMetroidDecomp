@@ -26,7 +26,7 @@ internal static class SamusDeathExplosionTimingDefinitions
 
     /// <summary>Nine authored dwell times: initial whiteout hold, seven drawing cadences, and final completion delay.</summary>
     private static ReadOnlySpan<byte> Durations =>
-        [0x15, 0x06, 0x03, 0x04, 0x05, 0x05, 0x06, 0x06, 0x50];
+        [21, 6, 3, 4, 5, 5, 6, 6, 80];
 
     /// <summary>Returns the fixed duration for one authored explosion-frame index.</summary>
     public static ushort DurationForIndex(ushort index)

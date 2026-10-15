@@ -271,7 +271,7 @@ public sealed class SamusDeathSequenceState
         {
             // The terminal call writes shade 21 (`$7FFF`) across every non-Samus/non-
             // suitless palette and returns one without drawing a tenth explosion frame.
-            AnimationCounter = 0x0015;
+            AnimationCounter = 21;
             whiteoutChanged = ApplyWhiteout(cgram, artwork);
             Phase = SamusDeathSequencePhase.Complete;
             return false;
@@ -301,7 +301,7 @@ public sealed class SamusDeathSequenceState
         palettes.DeathWhiteoutBelowSuit.Fill(shade);
         palettes.DeathWhiteoutBetweenSuits.Fill(shade);
 
-        if (AnimationCounter < 0x0014)
+        if (AnimationCounter < 20)
             AnimationCounter = unchecked((ushort)(AnimationCounter + 1));
         return true;
     }

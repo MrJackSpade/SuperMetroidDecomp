@@ -303,7 +303,7 @@ internal sealed class SamusPresentation
         }
 
         _samus.LastAnimationDelayCommand = delayOrCommand;
-        switch (delayOrCommand & 0x0f)
+        switch (delayOrCommand & 15)
         {
             case 0:
             case 1:
@@ -397,8 +397,8 @@ internal sealed class SamusPresentation
                 _samus.AnimationFrame = unchecked((ushort)(_samus.AnimationFrame + (
                     !_samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
                     _samus.LiquidPhysics.IsTopBoundarySubmerged(_samus) ? 1 :
-                    _samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack) ? 0x15 :
-                    _samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ? 0x0b : 1)));
+                    _samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack) ? 21 :
+                    _samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ? 11 : 1)));
                 break;
 
             case 12:
@@ -617,8 +617,9 @@ internal sealed class SamusPresentation
         if (_samus.Pose == SamusPoseId.ForwardFacingPowerSuitPose)
         {
             ushort chestX = unchecked((ushort)(_samus.Position.X.Whole - 7 - layer1.X));
-            ushort chestY = unchecked((ushort)(_samus.Position.Y.Whole - 0x11 - layer1.Y));
-            oam.AddRawSmallSprite(new Position16<OamPixels>(chestX, chestY), attributes: 0x3821);
+            ushort chestY = unchecked((ushort)(_samus.Position.Y.Whole - 17 - layer1.Y));
+            oam.AddRawSmallSprite(new Position16<OamPixels>(chestX, chestY),
+                attributes: SnesObjAttributeWord.Create(tileNumber: 33, paletteIndex: 4, priority: 3));
         }
 
         // $90:8686 suppresses the ordinary spin-jump bottom half for art frames 1..A;
@@ -628,7 +629,7 @@ internal sealed class SamusPresentation
         bool ordinarySpinBottom = movementType != SamusMovementType.SpinJumping ||
             _samus.Pose is SamusPoseId.SpaceJumpRightPose or SamusPoseId.SpaceJumpLeftPose or
                 SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose ||
-            _samus.AnimationFrame == 0 || _samus.AnimationFrame >= 0x0b;
+            _samus.AnimationFrame == 0 || _samus.AnimationFrame >= 11;
 
         // `$90:86EE` is movement type `$0A`'s only exception. The first three frames of
         // the `$D7/$D8` Crystal-Flash-end/fatal-damage body are complete top spritemaps;
@@ -658,7 +659,7 @@ internal sealed class SamusPresentation
             _samus.AnimationFrame < 1;
 
         bool wallJumpBottom = movementType != SamusMovementType.WallJumping ||
-            _samus.AnimationFrame < 3 || _samus.AnimationFrame >= 0x0d;
+            _samus.AnimationFrame < 3 || _samus.AnimationFrame >= 13;
         bool damageBoostBottom = movementType != SamusMovementType.DamageBoost ||
             _samus.AnimationFrame < 2 || _samus.AnimationFrame >= 9;
         // `$90:8790` suppresses the lower half for vertical shinesparks and for drained
@@ -716,7 +717,7 @@ internal sealed class SamusPresentation
         Ensure.NotNull(bus);
         Ensure.NotNull(oam);
 
-        if ((_samus.HorizontalSpeed.SpeedEchoIndex & 0x8000) != 0)
+        if (unchecked((short)_samus.HorizontalSpeed.SpeedEchoIndex) < 0)
         {
             // `$90:87D3` walks slot one before slot zero. Movement is a draw-handler side
             // effect in the retail game, so do not advance it earlier in StepFrame: frames
@@ -747,7 +748,7 @@ internal sealed class SamusPresentation
             return;
         }
 
-        if ((SnesLittleEndian.HighByteInPlace(_samus.HorizontalSpeed.SpeedBoostCounter)) != 0x0400)
+        if (!_samus.HorizontalSpeed.IsFullSpeedBoost)
             return;
 
         // `$90:87C7` draws slot one before slot zero. OAM order is observable when their

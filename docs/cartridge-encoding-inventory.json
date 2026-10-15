@@ -23,22 +23,22 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 27563,
-    "PointerDispatch": 104,
-    "OpaqueWordArray": 959,
-    "CatalogHexLiteral": 98312,
-    "JustifiedHexLiteral": 150,
+    "RawHexLiteral": 27170,
+    "PointerDispatch": 79,
+    "OpaqueWordArray": 845,
+    "CatalogHexLiteral": 100294,
+    "JustifiedHexLiteral": 153,
     "RawWidthOperation": 44,
-    "OwnedWidthOperation": 71,
+    "OwnedWidthOperation": 70,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 18,
-    "class:NumericQuantity": 53934,
-    "class:DomainIdentity": 7653,
-    "class:ComposableBits": 1118,
-    "class:StructuredInstruction": 40954,
-    "class:CartridgeAddress": 22841,
-    "class:Unknown": 727,
+    "class:NumericQuantity": 56595,
+    "class:DomainIdentity": 7671,
+    "class:ComposableBits": 996,
+    "class:StructuredInstruction": 40157,
+    "class:CartridgeAddress": 22550,
+    "class:Unknown": 710,
     "storageWidthMembers": 1522
   },
   "subsystems": [
@@ -8200,19 +8200,19 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 27261,
-        "PointerDispatch": 66,
-        "OpaqueWordArray": 846,
+        "RawHexLiteral": 27127,
+        "PointerDispatch": 63,
+        "OpaqueWordArray": 836,
         "CatalogHexLiteral": 3123,
         "RawWidthOperation": 44,
         "OwnedWidthOperation": 11,
         "CountdownSignTest": 3,
         "CountdownSelfDecrement": 1,
-        "class:NumericQuantity": 11217,
-        "class:DomainIdentity": 507,
-        "class:ComposableBits": 530,
-        "class:StructuredInstruction": 11467,
-        "class:CartridgeAddress": 7194,
+        "class:NumericQuantity": 11206,
+        "class:DomainIdentity": 506,
+        "class:ComposableBits": 525,
+        "class:StructuredInstruction": 11413,
+        "class:CartridgeAddress": 7118,
         "class:Unknown": 440,
         "storageWidthMembers": 84
       },
@@ -8250,8 +8250,7 @@
         "TourianStatueProjectileInstructionProgramDefinitionsTooling",
         "VramDmaOwnership",
         "Walker",
-        "WrapShotEnemiesVerification",
-        "XrayRevealVerification"
+        "WrapShotEnemiesVerification"
       ],
       "files": [
         {
@@ -10722,10 +10721,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainBodyHitboxesVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 18,
+            "RawHexLiteral": 17,
             "class:NumericQuantity": 14,
             "class:ComposableBits": 2,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -10879,9 +10878,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainHeadHitboxVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 9,
+            "RawHexLiteral": 8,
             "class:NumericQuantity": 7,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -10904,10 +10903,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainLaterContactVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 5,
+            "RawHexLiteral": 4,
             "class:NumericQuantity": 1,
             "class:StructuredInstruction": 2,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -10955,9 +10954,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainPlasmaImpactVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 6,
-            "class:NumericQuantity": 5,
-            "class:CartridgeAddress": 1
+            "RawHexLiteral": 5,
+            "class:NumericQuantity": 5
           }
         },
         {
@@ -11421,9 +11419,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyShotHealthStageVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 10,
+            "RawHexLiteral": 9,
             "class:NumericQuantity": 8,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -11770,9 +11768,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Artwork/EmptyExtendedFrameShotsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 8,
-            "class:NumericQuantity": 7,
-            "class:CartridgeAddress": 1
+            "RawHexLiteral": 7,
+            "class:NumericQuantity": 7
           }
         },
         {
@@ -13268,9 +13265,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/Metroids/MetroidDeathDropsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 7,
+            "RawHexLiteral": 6,
             "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 2,
+            "class:CartridgeAddress": 1,
             "class:Unknown": 2
           }
         },
@@ -13673,12 +13670,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/ShotCallbackDefinitionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 10,
+            "RawHexLiteral": 9,
             "RawWidthOperation": 3,
             "class:NumericQuantity": 7,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 3,
-            "class:CartridgeAddress": 1
+            "class:ComposableBits": 3
           }
         },
         {
@@ -13762,9 +13758,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Enemies/SpacePirates/GoldNinjaDeathDropsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 1
+            "RawHexLiteral": 3,
+            "class:NumericQuantity": 3
           }
         },
         {
@@ -16361,14 +16356,14 @@
           "path": "csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 843,
+            "RawHexLiteral": 766,
             "PointerDispatch": 1,
-            "OpaqueWordArray": 18,
-            "class:NumericQuantity": 178,
-            "class:DomainIdentity": 26,
-            "class:ComposableBits": 28,
-            "class:StructuredInstruction": 157,
-            "class:CartridgeAddress": 449,
+            "OpaqueWordArray": 11,
+            "class:NumericQuantity": 173,
+            "class:DomainIdentity": 25,
+            "class:ComposableBits": 23,
+            "class:StructuredInstruction": 136,
+            "class:CartridgeAddress": 397,
             "class:Unknown": 24
           }
         },
@@ -17797,12 +17792,12 @@
           "path": "csharp/src/SuperMetroid.Verification/Rooms/RoomEnemiesVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 521,
+            "RawHexLiteral": 520,
             "OpaqueWordArray": 5,
             "class:NumericQuantity": 260,
             "class:DomainIdentity": 5,
             "class:StructuredInstruction": 37,
-            "class:CartridgeAddress": 224
+            "class:CartridgeAddress": 223
           }
         },
         {
@@ -18173,9 +18168,8 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 7,
-            "PointerDispatch": 3,
             "class:NumericQuantity": 6,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -19041,17 +19035,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Samus/Projectiles/OverlappingEnemyShotsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 2,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Verification/Samus/Projectiles/PlasmaPenetrationVerification.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
             "RawHexLiteral": 2,
-            "class:CartridgeAddress": 2
+            "class:NumericQuantity": 2
           }
         },
         {
@@ -19084,11 +19069,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Samus/Projectiles/PowerBombFuseVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 19,
+            "RawHexLiteral": 6,
             "OpaqueWordArray": 1,
-            "class:NumericQuantity": 8,
+            "class:NumericQuantity": 2,
             "class:StructuredInstruction": 3,
-            "class:CartridgeAddress": 9
+            "class:CartridgeAddress": 2
           }
         },
         {
@@ -19195,12 +19180,12 @@
           "path": "csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileInstructionsVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 924,
-            "OpaqueWordArray": 2,
+            "RawHexLiteral": 921,
+            "OpaqueWordArray": 1,
             "class:NumericQuantity": 4,
             "class:DomainIdentity": 2,
-            "class:StructuredInstruction": 916,
-            "class:CartridgeAddress": 3,
+            "class:StructuredInstruction": 911,
+            "class:CartridgeAddress": 4,
             "class:Unknown": 1
           }
         },
@@ -19241,10 +19226,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileRadiiVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 813,
-            "OpaqueWordArray": 2,
+            "RawHexLiteral": 809,
+            "OpaqueWordArray": 1,
             "class:NumericQuantity": 2,
-            "class:StructuredInstruction": 811,
+            "class:StructuredInstruction": 806,
             "class:CartridgeAddress": 2
           }
         },
@@ -19271,11 +19256,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileTrailCoordinatesVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 65,
-            "OpaqueWordArray": 2,
+            "RawHexLiteral": 43,
+            "OpaqueWordArray": 1,
             "class:NumericQuantity": 7,
             "class:ComposableBits": 8,
-            "class:StructuredInstruction": 26,
+            "class:StructuredInstruction": 3,
             "class:CartridgeAddress": 26
           }
         },
@@ -19303,8 +19288,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectileRomDataVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 3,
-            "class:CartridgeAddress": 3
+            "RawHexLiteral": 2,
+            "class:CartridgeAddress": 2
           }
         },
         {
@@ -19336,9 +19321,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Samus/Projectiles/SuperMissileDeathAnimationVerification.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 6,
+            "RawHexLiteral": 5,
             "class:NumericQuantity": 3,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
@@ -24070,34 +24055,25 @@
     {
       "name": "Samus: movement, poses and projectiles",
       "totals": {
-        "RawHexLiteral": 259,
-        "PointerDispatch": 22,
-        "OpaqueWordArray": 111,
-        "CatalogHexLiteral": 31621,
-        "JustifiedHexLiteral": 3,
-        "OwnedWidthOperation": 4,
+        "OpaqueWordArray": 7,
+        "CatalogHexLiteral": 33603,
+        "JustifiedHexLiteral": 6,
+        "OwnedWidthOperation": 3,
         "JustifiedWidthOperation": 3,
-        "class:NumericQuantity": 993,
-        "class:DomainIdentity": 604,
-        "class:ComposableBits": 157,
-        "class:StructuredInstruction": 29440,
-        "class:CartridgeAddress": 782,
-        "class:Unknown": 47,
+        "class:NumericQuantity": 3665,
+        "class:DomainIdentity": 623,
+        "class:ComposableBits": 40,
+        "class:StructuredInstruction": 28697,
+        "class:CartridgeAddress": 567,
+        "class:Unknown": 30,
         "storageWidthMembers": 203
       },
-      "addressInterpretingTypes": [
-        "ProjectileAnimation",
-        "SamusChargePalettePointerDefinitions",
-        "SamusProjectileInstructionDefinitions",
-        "XrayRevealCodePointers"
-      ],
+      "addressInterpretingTypes": [],
       "files": [
         {
           "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/SamusCrystalFlashState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 2,
             "storageWidthMembers": 5
           }
         },
@@ -24105,8 +24081,6 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/SamusDrainedState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1,
             "storageWidthMembers": 2
           }
         },
@@ -24130,8 +24104,6 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/SamusShinesparkState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 6,
-            "class:NumericQuantity": 6,
             "storageWidthMembers": 8
           }
         },
@@ -24145,19 +24117,9 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/SamusSpecialSuperPalette.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/SamusSuitPickupState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1,
             "storageWidthMembers": 6
           }
         },
@@ -24173,9 +24135,6 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/SamusXrayState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 2,
-            "class:ComposableBits": 1,
             "storageWidthMembers": 7
           }
         },
@@ -24235,16 +24194,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealCodePointers.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 2,
-            "CatalogHexLiteral": 5,
-            "class:NumericQuantity": 4,
-            "class:CartridgeAddress": 3
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealCommand.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -24263,26 +24212,19 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealExtensions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealTableWords.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
+            "CatalogHexLiteral": 5,
+            "class:NumericQuantity": 4,
+            "class:CartridgeAddress": 1
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealOverlays.cs",
+          "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayWorkRamAddresses.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:ComposableBits": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayWorkRam.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 2,
+            "CatalogHexLiteral": 2,
             "class:NumericQuantity": 2
           }
         },
@@ -24347,10 +24289,9 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusArmCannonArtworkFormat.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 7,
             "CatalogHexLiteral": 57,
-            "class:NumericQuantity": 5,
-            "class:ComposableBits": 2,
+            "JustifiedHexLiteral": 3,
+            "class:NumericQuantity": 3,
             "class:CartridgeAddress": 57
           }
         },
@@ -24467,20 +24408,9 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathExplosionTimingDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "OpaqueWordArray": 1,
-            "CatalogHexLiteral": 9,
-            "class:StructuredInstruction": 10
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Death/SamusDeathSequenceState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 2,
             "storageWidthMembers": 2
           }
         },
@@ -24488,8 +24418,6 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusArmCannonState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 4,
-            "class:ComposableBits": 4,
             "storageWidthMembers": 7
           }
         },
@@ -24501,23 +24429,9 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusAtmosphericEffectsState.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 5,
-            "class:NumericQuantity": 4,
-            "class:DomainIdentity": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusPresentation.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 9,
-            "class:NumericQuantity": 4,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 2,
-            "class:Unknown": 2,
             "storageWidthMembers": 2
           }
         },
@@ -24551,15 +24465,6 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "storageWidthMembers": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleBodyPlacementDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "OpaqueWordArray": 2,
-            "CatalogHexLiteral": 128,
-            "class:StructuredInstruction": 130
           }
         },
         {
@@ -24616,13 +24521,9 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Grapple/SamusGrappleMovement.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 26,
             "JustifiedHexLiteral": 2,
             "JustifiedWidthOperation": 3,
-            "class:NumericQuantity": 8,
-            "class:DomainIdentity": 3,
-            "class:ComposableBits": 19,
-            "class:Unknown": 1
+            "class:ComposableBits": 5
           }
         },
         {
@@ -24673,15 +24574,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusAerialMovement.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 9,
-            "class:NumericQuantity": 5,
-            "class:Unknown": 4
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusBallBounceState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -24690,28 +24582,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusBlockCollision.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 17,
-            "class:NumericQuantity": 4,
-            "class:ComposableBits": 13
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusCollisionDirection.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 1,
             "class:DomainIdentity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusExtraDisplacement.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 3
           }
         },
         {
@@ -24728,27 +24603,7 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusHorizontalSpeedState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 13,
-            "class:NumericQuantity": 3,
-            "class:DomainIdentity": 3,
-            "class:ComposableBits": 7,
             "storageWidthMembers": 16
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusInsideBlockReactions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:ComposableBits": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusInsideBlockSamplePoints.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:ComposableBits": 3
           }
         },
         {
@@ -24770,13 +24625,6 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusLiquidPhysicsState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 21,
-            "OpaqueWordArray": 1,
-            "class:NumericQuantity": 13,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 3,
-            "class:StructuredInstruction": 3,
-            "class:Unknown": 2,
             "storageWidthMembers": 7
           }
         },
@@ -24806,32 +24654,6 @@
             "class:DomainIdentity": 2,
             "class:CartridgeAddress": 7,
             "class:Unknown": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusScrollCap.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 5,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 2,
-            "class:Unknown": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusSlopePhysics.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 5,
-            "class:ComposableBits": 5
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Movement/SamusSolidEnemyCollision.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:ComposableBits": 2
           }
         },
         {
@@ -24869,21 +24691,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusChargePalettePointerDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusChargePaletteDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 2,
             "CatalogHexLiteral": 5,
-            "class:NumericQuantity": 5,
-            "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusHurtFlashPalette.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 3
+            "class:NumericQuantity": 5
           }
         },
         {
@@ -25015,36 +24827,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseMetadata.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseProjectileOriginDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 6,
             "class:DomainIdentity": 6
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseTransitionTable.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseTransitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:Unknown": 2
           }
         },
         {
@@ -25058,22 +24845,7 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/BeamCombos.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 14,
-            "class:NumericQuantity": 1,
-            "class:DomainIdentity": 4,
-            "class:ComposableBits": 7,
-            "class:Unknown": 2,
             "storageWidthMembers": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/BeamFiring.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 6,
-            "class:NumericQuantity": 3,
-            "class:ComposableBits": 1,
-            "class:Unknown": 2
           }
         },
         {
@@ -25121,12 +24893,8 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileAnimation.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 7,
-            "PointerDispatch": 2,
             "JustifiedHexLiteral": 1,
-            "class:DomainIdentity": 6,
-            "class:ComposableBits": 2,
-            "class:CartridgeAddress": 2
+            "class:ComposableBits": 1
           }
         },
         {
@@ -25144,16 +24912,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileEnemyImpacts.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 1,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileInheritanceMemory.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -25161,20 +24919,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileInheritanceWorkRam.cs",
+          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileInheritanceWorkRamAddresses.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
+            "CatalogHexLiteral": 1,
             "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileMotion.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 7,
-            "class:NumericQuantity": 3,
-            "class:ComposableBits": 4
           }
         },
         {
@@ -25185,22 +24934,14 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileTerrainCollision.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:ComposableBits": 3
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileTrailCoordinateDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "OpaqueWordArray": 101,
-            "CatalogHexLiteral": 720,
-            "class:NumericQuantity": 1,
+            "OpaqueWordArray": 1,
+            "CatalogHexLiteral": 320,
+            "class:NumericQuantity": 101,
             "class:DomainIdentity": 2,
-            "class:StructuredInstruction": 629,
+            "class:StructuredInstruction": 29,
             "class:CartridgeAddress": 189
           }
         },
@@ -25241,28 +24982,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileTrails.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 2
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusBeamCombination.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 16,
             "class:DomainIdentity": 16
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusBeamCombinations.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
           }
         },
         {
@@ -25274,28 +24998,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusBeamLoadoutWord.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 2,
-            "class:ComposableBits": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusBeamPreInstructionCodes.cs",
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 10,
             "class:NumericQuantity": 10
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusBombJumpMovement.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
           }
         },
         {
@@ -25309,9 +25016,6 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusBombProjectileSystem.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 16,
-            "class:NumericQuantity": 2,
-            "class:ComposableBits": 14,
             "storageWidthMembers": 1
           }
         },
@@ -25344,18 +25048,7 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusPowerBombExplosionState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 9,
-            "class:NumericQuantity": 5,
-            "class:ComposableBits": 4,
             "storageWidthMembers": 13
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusPowerBombFuseData.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 2
           }
         },
         {
@@ -25389,17 +25082,7 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirectionWord.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 3,
             "storageWidthMembers": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileFamilies.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
           }
         },
         {
@@ -25419,11 +25102,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileInheritance.cs",
+          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileHeaderDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
+            "CatalogHexLiteral": 40,
+            "class:DomainIdentity": 40
           }
         },
         {
@@ -25432,16 +25115,6 @@
           "totals": {
             "CatalogHexLiteral": 2,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileInstructionDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 16,
-            "CatalogHexLiteral": 194,
-            "class:NumericQuantity": 6,
-            "class:CartridgeAddress": 204
           }
         },
         {
@@ -25461,30 +25134,35 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileRadiusDefinitions.cs",
+          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileProgramAddresses.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 1,
-            "OwnedWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 1
+            "CatalogHexLiteral": 290,
+            "class:NumericQuantity": 290
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileRecordDefinitions.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 2415,
+            "class:NumericQuantity": 2415
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileRomData.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 46,
+            "CatalogHexLiteral": 42,
             "class:NumericQuantity": 6,
-            "class:CartridgeAddress": 40
+            "class:CartridgeAddress": 36
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileSelectionDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 35,
-            "class:NumericQuantity": 30,
+            "CatalogHexLiteral": 5,
             "class:CartridgeAddress": 5
           }
         },
@@ -25504,15 +25182,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileSystem.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 6,
-            "class:NumericQuantity": 2,
-            "class:ComposableBits": 4
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileTrailSide.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -25523,9 +25192,6 @@
           "path": "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileTypeWord.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 7,
-            "class:NumericQuantity": 5,
-            "class:ComposableBits": 2,
             "storageWidthMembers": 1
           }
         },
@@ -25593,28 +25259,9 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Samus/SamusOverreadMemory.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Samus/SamusReserveAutoRecoveryState.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Samus/SamusState.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 2,
             "storageWidthMembers": 35
           }
         }

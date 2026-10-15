@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// These relationships are verified against every top-level and nested pointer in the
 /// pinned cartridge. The target RGB5 words remain authored presentation data.
 /// </remarks>
-public static class SamusChargePalettePointerDefinitions
+public static class SamusChargePaletteDefinitions
 {
     /// <summary>Bank-$9B first Power Suit charged-beam shade, selected by $91:D7D5.</summary>
     public const ushort FirstChargedBeamPalette = 0x9820;

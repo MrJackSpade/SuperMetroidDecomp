@@ -127,7 +127,7 @@ public sealed class SamusCrystalFlashState
         // be empty even when the reserve mode is manual; possession of a reserve tank alone
         // does not matter. Each current ammo count—not its maximum—must supply ten shots.
         if (samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0 ||
-            !SignedLessThan(samus.Health, 0x0033) || samus.ReserveEnergy != 0 ||
+            !SignedLessThan(samus.Health, 51) || samus.ReserveEnergy != 0 ||
             SignedLessThan(samus.Missiles, 10) ||
             SignedLessThan(samus.SuperMissiles, 10) ||
             SignedLessThan(samus.PowerBombs, 10))
@@ -324,7 +324,7 @@ public sealed class SamusCrystalFlashState
         if (samus.PoseMetadata.ReadMovementKind(bus) != SamusMovementType.Standing)
             return;
 
-        SpecialPaletteTimer = NativeCountdown.Start(0xffff);
+        SpecialPaletteTimer = NativeCountdown.Start(ushort.MaxValue);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the native return path.

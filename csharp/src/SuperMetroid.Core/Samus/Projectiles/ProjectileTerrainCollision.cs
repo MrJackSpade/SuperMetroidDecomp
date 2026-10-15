@@ -489,7 +489,7 @@ internal sealed class ProjectileTerrainCollision
     {
         // `$90:AE3A` moves the explosion anchor to the leading edge before bank $93 swaps
         // the instruction list. Diagonals adjust both axes in their respective signs.
-        byte direction = unchecked((byte)(slot.Direction & 0x0f));
+        byte direction = slot.PackedDirection.DirectionIndex;
         if (direction is 1 or 2 or 3)
             slot.Position += new Offset16<RoomPixels>(unchecked((short)slot.Radius.X), 0);
         else if (direction is 6 or 7 or 8)
@@ -553,7 +553,7 @@ internal sealed class ProjectileTerrainCollision
     {
         ushort top = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
         ushort bottom = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
-        int remaining = unchecked((ushort)(bottom - (top & 0xfff0))) >> 4;
+        int remaining = unchecked((ushort)(bottom - (top & ~15))) >> 4;
         int span = remaining;
         ushort targetX = unchecked((ushort)(slot.Velocity.X.SignedRawValue < 0
             ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1));
@@ -603,7 +603,7 @@ internal sealed class ProjectileTerrainCollision
     {
         ushort left = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
         ushort right = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
-        int remaining = unchecked((ushort)(right - (left & 0xfff0))) >> 4;
+        int remaining = unchecked((ushort)(right - (left & ~15))) >> 4;
         if (remaining >= 16) return;
         int span = remaining;
         ushort targetY = unchecked((ushort)(slot.Velocity.Y.SignedRawValue < 0

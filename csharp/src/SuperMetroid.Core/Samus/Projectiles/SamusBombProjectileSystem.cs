@@ -334,7 +334,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>$90:F4C2: the flare count from which a charging beam's loop is audible.</summary>
-    private const ushort ChargeSoundFlareThreshold = 0x10;
+    private const ushort ChargeSoundFlareThreshold = 16;
 
     /// <summary>Ticks the shared shot cooldown, or holds it at $20 during X-Ray time freeze.</summary>
     private void StepCooldown(bool timeIsFrozen)
@@ -485,7 +485,7 @@ public sealed class SamusBombProjectileSystem
     internal void SpawnBombSpread(SamusState samus)
     {
         int verticalModifier =
-            (samus.BombSpreadChargeTimeoutCounter >> 6) & 0x0003;
+            (samus.BombSpreadChargeTimeoutCounter >> 6) & 3;
         for (int index = 0; index < SlotCount; index++)
         {
             SamusBombProjectileSlot slot = _slots[index];
@@ -564,7 +564,7 @@ public sealed class SamusBombProjectileSystem
         int dataAddress = SamusProjectileRomData.Banks.Projectile | dataPointer;
 
         slot.Damage = SamusProjectileDamageDefinitions.Read(dataAddress);
-        if ((slot.Damage & 0x8000) != 0)
+        if (unchecked((short)slot.Damage) < 0)
             throw new InvalidDataException($"Bomb data at $93:{dataPointer:X4} has crash-marker damage ${slot.Damage:X4}.");
 
         slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaderDefinitions.Program(dataPointer, 0));
@@ -582,7 +582,7 @@ public sealed class SamusBombProjectileSystem
     {
         // Direction high nibble is a generic projectile kill request. Normal placed bombs
         // leave direction zero for their lifetime, but debugger state can exercise it.
-        if ((slot.Direction & 0x00f0) != 0)
+        if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
         {
             ClearProjectile(slot);
             return false;
@@ -641,12 +641,12 @@ public sealed class SamusBombProjectileSystem
 
         if (typeFamily == SamusProjectileFamily.Bomb &&
             slot.BombTimer.IsZero &&
-            (slot.Type & 0x0001) == 0)
+            (slot.Type & 1) == 0)
         {
             // Normal bomb type five maps through $94:9C73 to collision mode two. As soon
             // as timer zero is visible, $94:9CF4 sets type bit zero and reacts to a
             // five-block cross exactly once.
-            slot.Type |= 0x0001;
+            slot.Type |= 1;
             CollectBlockExplosionReactions(level, slot, blockReactions, roomPlms, areaIndex);
         }
         else if (typeFamily == SamusProjectileFamily.PowerBomb)
@@ -694,7 +694,7 @@ public sealed class SamusBombProjectileSystem
         if (BombSpreadCollides(level, slot))
         {
             slot.Position = slot.Position.WithWholeY(previousY).WithFractionY(previousYSub);
-            if ((slot.BombSpreadYVelocity & 0x8000) != 0)
+            if (unchecked((short)slot.BombSpreadYVelocity) < 0)
             {
                 slot.BombSpreadYVelocity = 0;
                 slot.Radius = slot.Radius.WithY(0);
@@ -714,7 +714,7 @@ public sealed class SamusBombProjectileSystem
             return;
 
         slot.Position = slot.Position.WithWholeX(previousX).WithFractionX(previousXSub);
-        slot.BombSpreadDirectionMagnitude ^= 0x8000;
+        slot.BombSpreadDirectionMagnitude ^= 1 << 15;
     }
 
     /// <summary>Decodes the spread bomb's byte-swapped direction and magnitude, then advances split X coordinates with native carry.</summary>
@@ -722,8 +722,8 @@ public sealed class SamusBombProjectileSystem
     {
         ushort swapped = SnesLittleEndian.SwapBytes(slot.BombSpreadDirectionMagnitude);
         ushort subvelocity = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(swapped)));
-        ushort wholeMagnitude = unchecked((ushort)(swapped & 0x007f));
-        bool movingLeft = (swapped & 0x0080) != 0;
+        ushort wholeMagnitude = unchecked((ushort)(swapped & 127));
+        bool movingLeft = (swapped & 1 << 7) != 0;
 
         uint fraction = movingLeft
             ? unchecked((uint)slot.Position.X.Fraction - subvelocity)
@@ -783,11 +783,11 @@ public sealed class SamusBombProjectileSystem
         // `$94:A58F` mirrors X before indexing the slope-height row, then compares the
         // resulting height with Y within the block. Equality counts as collision.
         int xWithinBlock = (block.Bts.SlopeFlipsHorizontally
-            ? slot.Position.X.Whole ^ 0x000f
-            : slot.Position.X.Whole) & 0x000f;
-        int yWithinBlock = slot.Position.Y.Whole & 0x000f;
+            ? slot.Position.X.Whole ^ 15
+            : slot.Position.X.Whole) & 15;
+        int yWithinBlock = slot.Position.Y.Whole & 15;
         if (block.Bts.SlopeFlipsVertically)
-            yWithinBlock ^= 0x000f;
+            yWithinBlock ^= 15;
         int height = SlopeHeightDefinitions.Read(block.Bts.SlopeShape, xWithinBlock);
         return height <= yWithinBlock;
     }

@@ -254,7 +254,7 @@ public sealed class SamusSuitPickupState
         if (left == 0 || unchecked((sbyte)(oldLeft - amount)) < 0)
         {
             left = 0;
-            right = 0xff;
+            right = byte.MaxValue;
         }
         else
         {

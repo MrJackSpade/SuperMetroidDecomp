@@ -125,7 +125,7 @@ internal sealed class ProjectileAnimation
     internal void DrawFlareComponent(ISnesAddressSpace bus, OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork)
     {
         byte direction = samus.PoseMetadata.ReadShotDirection(bus);
-        if (direction is 0xff or 0x10 || (direction & 0xf0) != 0)
+        if (direction >= 16)
             return;
 
         DrawFlareComponentWithMetadata(oam, samus, layer1, component, mode7Transform, artwork, new ChargeFlarePose { Direction = direction, Running = samus.PoseMetadata.ReadMovementKind(bus) == SamusMovementType.Running, PoseYOffset = unchecked((byte)samus.PoseMetadata.ReadGraphicsYOffset(bus)), FacingLeft = samus.PoseMetadata.IsFacingLeft(bus) });
@@ -158,8 +158,8 @@ internal sealed class ProjectileAnimation
             return;
 
         ushort indexOffset = unchecked((ushort)(pose.FacingLeft
-            ? component switch { 0 => 0, 1 => 0x2a, _ => 0x30 }
-            : component switch { 0 => 0, 1 => 0x1e, _ => 0x24 }));
+            ? component switch { 0 => 0, 1 => 42, _ => 48 }
+            : component switch { 0 => 0, 1 => 30, _ => 36 }));
         // `$90:BBEA` keeps only the low byte of the frame word before adding the offset.
         ushort tableIndex = unchecked((ushort)(indexOffset + (SnesLittleEndian.LowByte(_charge._flareFrames[component]))));
         var catalog = artwork.Compositions ?? throw new InvalidOperationException(

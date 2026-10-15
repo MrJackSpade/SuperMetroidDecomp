@@ -396,7 +396,7 @@ public sealed class SamusDrainedState
             SamusBeamFlags.Charge |
             SamusBeamFlags.Wave |
             SamusBeamFlags.Plasma).ToNativeWord();
-        samus.HyperBeam = 0x8000;
+        samus.HyperBeam = 1 << 15;
         HyperBeamPaletteFx.Spawn();
     }
 

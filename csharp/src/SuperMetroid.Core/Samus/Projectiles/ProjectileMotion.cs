@@ -211,7 +211,7 @@ internal sealed class ProjectileMotion
             // `$90:C301` is the literal `$0100` ignition increment. Crossing into a nonzero
             // high byte re-runs `$90:B1F3` with that word as base 8.8 speed. A normal missile
             // crosses on its first alpha pass: one pixel/frame plus native inheritance.
-            slot.Variable = unchecked((ushort)(slot.Variable + 0x0100));
+            slot.Variable = unchecked((ushort)(slot.Variable + 256));
             if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) != 0)
                 BeamFiring.InitializeDirectionalVelocity(bus, slot, unchecked((short)slot.Variable));
         }
@@ -277,7 +277,7 @@ internal sealed class ProjectileMotion
             // The shared missile accelerator crosses `$0100` on its first alpha pass. Only
             // the Super family immediately allocates `$90:BF46`'s invisible collision link;
             // the link's native byte index is retained in the variable's low byte.
-            slot.Variable = unchecked((ushort)(slot.Variable + 0x0100));
+            slot.Variable = unchecked((ushort)(slot.Variable + 256));
             if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) != 0)
             {
                 BeamFiring.InitializeDirectionalVelocity(bus, slot, unchecked((short)slot.Variable));
@@ -358,7 +358,7 @@ internal sealed class ProjectileMotion
             return;
 
         link.ClearFields();
-        link.Type = 0x8200;
+        link.Type = (ushort)(SamusProjectileTypeWord.LiveMarker | (ushort)SamusProjectileFamily.SuperMissile);
         link.Direction = owner.Direction;
         link.Position = link.Position.WithWhole(owner.Position.Whole);
 
@@ -579,13 +579,13 @@ internal sealed class ProjectileMotion
             // the cartridge table. BTS bit 6 flips X and bit 7 flips Y. A table height at or
             // above the mirrored Y point (the original uses signed `height - y <= 0`) is
             // solid. Values can reach 20 for overhanging shapes, so do not mask to a nibble.
-            int xInBlock = slot.Position.X.Whole & 0x000f;
+            int xInBlock = slot.Position.X.Whole & 15;
             if (block.Bts.SlopeFlipsHorizontally)
-                xInBlock ^= 0x000f;
+                xInBlock ^= 15;
 
-            int yInBlock = slot.Position.Y.Whole & 0x000f;
+            int yInBlock = slot.Position.Y.Whole & 15;
             if (block.Bts.SlopeFlipsVertically)
-                yInBlock ^= 0x000f;
+                yInBlock ^= 15;
 
             int height = SlopeHeightDefinitions.Read(slopeShape, xInBlock);
             return height <= yInBlock;

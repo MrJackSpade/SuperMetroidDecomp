@@ -158,10 +158,10 @@ internal sealed class ProjectileEnemyImpacts
         for (int slotIndex = SamusProjectileSystem.SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileSlot slot = _slotTable._slots[slotIndex];
-            if ((slot.Type & 0x0fff) != 0x0100)
+            if (!slot.PackedType.HasPlainFamilyPayload(SamusProjectileFamily.Missile))
                 continue;
 
-            if (unchecked((short)(slot.Position.X.Whole - 0x0054)) >= 0)
+            if (unchecked((short)(slot.Position.X.Whole - 84)) >= 0)
                 return false;
 
             _terrainCollision.KillMissile(slot, sharedProjectiles);

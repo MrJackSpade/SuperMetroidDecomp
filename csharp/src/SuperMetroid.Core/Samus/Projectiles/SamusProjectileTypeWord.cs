@@ -4,15 +4,21 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public readonly record struct SamusProjectileTypeWord(ushort Raw)
 {
     /// <summary>Beam equipment combination carried by the projectile's four low bits.</summary>
-    private const ushort BeamCombinationMask = 0x000f;
+    private const ushort BeamCombinationMask = 15;
     /// <summary>Native marker distinguishing a charged beam from an ordinary beam payload.</summary>
-    private const ushort ChargedBeamMarker = 0x0010;
+    internal const ushort ChargedBeamMarker = 1 << 4;
     /// <summary>Four-bit projectile family in native bits 8 through 11.</summary>
-    private const ushort FamilyMask = 0x0f00;
+    internal const ushort FamilyMask = 15 << 8;
     /// <summary>High-bit marker installed for active projectiles and resident PLM triggers.</summary>
-    internal const ushort LiveMarker = 0x8000;
+    internal const ushort LiveMarker = 1 << 15;
     /// <summary>Payload bits retained when a projectile becomes a resident PLM trigger.</summary>
-    private const ushort ResidentPlmPayloadMask = 0x1fff;
+    private const ushort ResidentPlmPayloadMask = (1 << 13) - 1;
+
+    /// <summary>The low twelve bits: the family nibble with the beam and control payload, below the lifecycle nibble.</summary>
+    private const ushort PayloadBits = (1 << 12) - 1;
+
+    /// <summary>The equipped-beam bits a charged beam keeps: the four beam components and the Charge bit.</summary>
+    internal const ushort EquippedBeamBits = (ushort)(SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Charge);
 
     /// <summary>Low-nibble beam combination; all sixteen values are defined.</summary>
     public SamusBeamCombination BeamCombination => (SamusBeamCombination)(Raw & BeamCombinationMask);
@@ -32,7 +38,7 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     /// lifecycle state in the high nibble.
     /// </summary>
     public bool HasPlainFamilyPayload(SamusProjectileFamily family) =>
-        (Raw & 0x0fff) == (ushort)family;
+        (Raw & PayloadBits) == (ushort)family;
 
     /// <summary>
     /// Reproduces generic PLM trigger setup <c>$84:C7E2</c>: retain projectile payload
@@ -54,7 +60,7 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     /// markers; uncharged firing preserves the complete loadout word as the ROM does.
     /// </summary>
     public static ushort CreateBeam(ushort equippedBeams, bool charged) => charged
-        ? (ushort)((equippedBeams & 0x100f) | LiveMarker | ChargedBeamMarker)
+        ? (ushort)((equippedBeams & EquippedBeamBits) | LiveMarker | ChargedBeamMarker)
         : (ushort)(equippedBeams | LiveMarker);
 
     /// <summary>Converts a raw projectile type word to its lossless semantic view.</summary>

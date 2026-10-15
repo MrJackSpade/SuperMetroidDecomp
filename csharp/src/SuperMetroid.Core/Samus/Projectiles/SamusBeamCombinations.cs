@@ -5,7 +5,7 @@ public static class SamusBeamCombinations
 {
     /// <summary>The combination at a four-bit table index.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The index is outside $0-$F.</exception>
-    public static SamusBeamCombination FromTableIndex(int index) => (uint)index <= 0xf
+    public static SamusBeamCombination FromTableIndex(int index) => (uint)index <= 15
         ? (SamusBeamCombination)index
         : throw new ArgumentOutOfRangeException(nameof(index), index, "Beam-combination table index is outside $0-$F.");
 

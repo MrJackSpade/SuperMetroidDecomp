@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The projectile-inheritance WRAM block (#629).</summary>
 [CpuBusBoundary("catalog: projectile-inheritance WRAM")]
-internal static class ProjectileInheritanceWorkRam
+internal static class ProjectileInheritanceWorkRamAddresses
 {
     /// <summary>
     /// <c>$7E:0DA8-$7E:0DB9</c>, addressed through the bank-$00 low-WRAM mirror: <c>CameraYSubSpeed</c>

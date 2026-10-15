@@ -19,7 +19,7 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ISnesMemoryBus bus)
     private const int RecordByteCount = 4;
 
     /// <summary>Byte-table view over the projectile-inheritance WRAM block.</summary>
-    private WorkRamByteTable Records => new(bus, ProjectileInheritanceWorkRam.Records);
+    private WorkRamByteTable Records => new(bus, ProjectileInheritanceWorkRamAddresses.Records);
 
     /// <summary><c>CameraYSubSpeed</c>, the block's first word.</summary>
     internal ushort CameraYSubspeed => Records.ReadWord(0);

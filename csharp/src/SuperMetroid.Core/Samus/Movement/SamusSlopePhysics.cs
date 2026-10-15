@@ -79,9 +79,9 @@ public static class SamusSlopePhysics
         // BTS bit $40 mirrors the profile horizontally. XORing the complete coordinate by
         // $000F is equivalent to flipping its low nibble while retaining native word math.
         ushort sampledX = bts.SlopeFlipsHorizontally
-            ? unchecked((ushort)(xPosition ^ 0x000f))
+            ? unchecked((ushort)(xPosition ^ 15))
             : xPosition;
-        return SlopeHeightDefinitions.Read(bts.SlopeShape, sampledX & 0x0f);
+        return SlopeHeightDefinitions.Read(bts.SlopeShape, sampledX & 15);
     }
 
     /// <summary>
@@ -123,7 +123,7 @@ public static class SamusSlopePhysics
             if (!bottom.Bts.SlopeFlipsVertically)
             {
                 int height = ReadAlignmentHeight(bus, bottom.Bts, xPosition);
-                int bottomNibble = bottomPosition & 0x0f;
+                int bottomNibble = bottomPosition & 15;
                 short correction = unchecked((short)(height - bottomNibble - 1));
                 if (correction < 0)
                 {
@@ -144,7 +144,7 @@ public static class SamusSlopePhysics
             if (top.Bts.SlopeFlipsVertically)
             {
                 int height = ReadAlignmentHeight(bus, top.Bts, xPosition);
-                int invertedTopNibble = (topPosition & 0x0f) ^ 0x0f;
+                int invertedTopNibble = (topPosition & 15) ^ 15;
                 short correction = unchecked((short)(height - invertedTopNibble - 1));
                 if (correction <= 0)
                 {

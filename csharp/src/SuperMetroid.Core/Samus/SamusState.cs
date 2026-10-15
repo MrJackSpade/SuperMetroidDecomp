@@ -436,7 +436,7 @@ public sealed class SamusState
     /// Enemy AI owns consumption of this word. Retaining the slot index now makes the
     /// movement result complete even before the general live-enemy update loop is translated.
     /// </remarks>
-    public ushort EnemyIndexToShake { get; set; } = 0xffff;
+    public ushort EnemyIndexToShake { get; set; } = ushort.MaxValue;
 
     /// <summary>
     /// Host-visible equivalent of movement-handler pointer `$90:DF38`. It is separate from
@@ -679,12 +679,12 @@ public sealed class SamusState
         RoomPlmSystem? plms)
     {
         short wholePixels = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));
-        if ((Math.Abs(wholePixels) & 0xfff8) != 0)
+        if ((Math.Abs(wholePixels) & ~7) != 0)
         {
             // `$94:96C0` computes `(signedWhole & $FFF0) | 8`. Retain the literal
             // two's-complement expression rather than replacing it with a magnitude
             // shortcut; negative probes deliberately produce -8 for the known pose radii.
-            short intermediateWhole = unchecked((short)((wholePixels & 0xfff0) | 8));
+            short intermediateWhole = unchecked((short)((wholePixels & ~15) | 8));
             BlockMoveResult intermediate = Probe(SnesSixteenSixteen.FromWhole(intermediateWhole));
             if (intermediate.Collided)
                 return intermediate;

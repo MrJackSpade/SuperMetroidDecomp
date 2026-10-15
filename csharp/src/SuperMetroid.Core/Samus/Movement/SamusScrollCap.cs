@@ -41,11 +41,11 @@ internal sealed class SamusScrollCap
     private static ushort? CappedPreviousPosition(ushort position, ushort previous)
     {
         ushort delta = unchecked((ushort)(position - previous));
-        ushort magnitude = (delta & 0x8000) != 0 ? unchecked((ushort)-delta) : delta;
+        ushort magnitude = unchecked((short)delta) < 0 ? unchecked((ushort)-delta) : delta;
         // CMP #$000C / BMI: the sign of magnitude - 12.
-        if (unchecked((short)(magnitude - 0x000c)) < 0)
+        if (unchecked((short)(magnitude - 12)) < 0)
             return null;
-        short offset = (delta & 0x8000) != 0 ? (short)-0x0c : (short)0x0c;
+        short offset = unchecked((short)delta) < 0 ? (short)-12 : (short)12;
         return unchecked((ushort)(position + offset));
     }
 }

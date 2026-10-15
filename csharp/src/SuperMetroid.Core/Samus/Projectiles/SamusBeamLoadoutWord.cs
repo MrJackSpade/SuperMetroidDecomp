@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public readonly record struct SamusBeamLoadoutWord(ushort Raw)
 {
     /// <summary>Native defensive checks index by all twelve low equipped-beam bits.</summary>
-    private const ushort NativeConfigurationMask = 0x0fff;
+    private const ushort NativeConfigurationMask = (1 << 12) - 1;
 
     /// <summary>
     /// Exact low-twelve-bit index used by native defensive table checks. Unlike
@@ -17,12 +17,12 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
     /// The combination $90:AC8D and $90:ACCD index their tables by, or null when unknown bits
     /// 4-11 make the twelve-bit index exceed $F.
     /// </summary>
-    public SamusBeamCombination? Combination => NativeConfigurationIndex <= 0xf
+    public SamusBeamCombination? Combination => NativeConfigurationIndex <= 15
         ? (SamusBeamCombination)NativeConfigurationIndex
         : null;
 
     /// <summary>The combination FireSBA ($90:CCC0) reads: the low nibble alone, ignoring bits 4-11.</summary>
-    public SamusBeamCombination LowNibbleCombination => (SamusBeamCombination)(Raw & 0x000f);
+    public SamusBeamCombination LowNibbleCombination => (SamusBeamCombination)(Raw & 15);
 
     /// <summary>Only the equipment bits whose meanings are verified.</summary>
     public SamusBeamFlags KnownFlags => (SamusBeamFlags)(Raw & (ushort)(

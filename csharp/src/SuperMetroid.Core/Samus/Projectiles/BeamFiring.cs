@@ -389,7 +389,7 @@ internal sealed class BeamFiring
         // acquisition equips `$1009` Wave+Plasma tiles/palette. InitializeProjectile first
         // reads charged table entry eight; `$90:BD21` then deliberately replaces its damage
         // with 1000 before the first instruction record executes.
-        slot.Type = 0x9018;
+        slot.Type = SamusProjectileTypeWord.CreateBeam((ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Plasma), charged: true);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.Beams.ChargedDataPointers + hyperBeamType.TableIndex * 2);
@@ -415,12 +415,12 @@ internal sealed class BeamFiring
         // These are literal stores at `$90:BD29-$BD52`. `$8014` is not an ordinary four-call
         // glow timer: its sign bit identifies Hyper's palette phase to the later consumer.
         sharedProjectiles.SetSharedCooldown(21);
-        _charge.ChargedShotGlowTimer = NativeCountdown.Start(0x8014);
+        _charge.ChargedShotGlowTimer = NativeCountdown.Start((1 << 15) | 20);
         _charge._flareFrames[0] = 29;
         _charge._flareFrames[1] = 5;
         _charge._flareFrames[2] = 5;
         _charge._flareTimers[0] = _charge._flareTimers[1] = _charge._flareTimers[2] = NativeCountdown.Start(3);
-        _charge.FlareCounter = 0x8000;
+        _charge.FlareCounter = 1 << 15;
 
         ushort sound = SamusProjectileSoundRoutingDefinitions.Resolve(
             charged: true, hyperBeamType);
@@ -479,7 +479,7 @@ internal sealed class BeamFiring
         else
             samus.Missiles = NativeWordCounter.Decrement(samus.Missiles).Value;
         slot.TrailTimer = NativeCountdown.Start(4);
-        slot.Type = isSuperMissile ? (ushort)0x8200 : (ushort)0x8100;
+        slot.Type = (ushort)(SamusProjectileTypeWord.LiveMarker | (ushort)(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile));
         slot.Variable = 0;
 
         // The producer first calls the generic velocity initializer with base speed zero.
@@ -537,7 +537,7 @@ internal sealed class BeamFiring
         ISnesAddressSpace bus,
         SamusProjectileSlot slot)
     {
-        byte direction = unchecked((byte)(slot.Direction & 0x0f));
+        byte direction = slot.PackedDirection.DirectionIndex;
         bool diagonal = direction is 1 or 3 or 6 or 8;
         int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusProjectileRomData.Beams.InitialSpeedRowBytes;
         short speed = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(

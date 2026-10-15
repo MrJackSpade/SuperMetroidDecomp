@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 public static class SamusPoseTransitionTable
 {
     /// <summary>Held Start and Select bits excluded from the native pose-table input match.</summary>
-    private const ushort StartAndSelectMask = 0x3000;
+    private const ushort StartAndSelectMask = (ushort)(SuperMetroid.Core.Input.SnesButton.Start | SuperMetroid.Core.Input.SnesButton.Select);
 
     /// <summary>
     /// Runs the complete native lookup and preserves whether failure enters

@@ -60,7 +60,7 @@ internal static class RoomFxSnapshotTestsVerification
             (ExpandedColorMathOperation)255, lines), "BG math rejects unknown equation");
         var encoded = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory, [owned], 3, 15));
         byte[] data = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(encoded);
-        AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(data[..^1]), "truncated FX packet rejected");
+        AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(encoded)[..^1]), "truncated FX packet rejected");
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(data.AsSpan(RenderPacketFormat.Signature.Length),
             RenderPacketFormat.MessageLayerVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(data), "older version rejects BG math");

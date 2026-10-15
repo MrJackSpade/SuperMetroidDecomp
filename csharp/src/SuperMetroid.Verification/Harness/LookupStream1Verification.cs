@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -204,7 +205,7 @@ internal static class LookupStream1Verification
             EscapeDachoraEnemyState state = enemies.EscapeDachoraStates[0] ?? throw new InvalidOperationException("The Dachora fixture has no state.");
             state.Program = AnimationProgramCursor<EscapeDachoraProgram>.Start(program == 0 ? EscapeDachoraProgram.RunningAroundLowTide
                 : program == 1 ? EscapeDachoraProgram.RunningAroundHighTide : EscapeDachoraProgram.RunningForEscape);
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             int records = program == 2 ? 19 : 60, expectedX = slot.Position.X.Whole, calls = 0;
             for (int record = 0; record < records; record++)
             {
@@ -291,7 +292,7 @@ internal static class LookupStream1Verification
             });
             var pair = new PowampBalloon(balloon, enemies.PowampBehavior.RequirePowampState(balloon));
             slot.InstructionTimer = NativeCountdown.Start(1);
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             int calls = 0;
             for (int pose = 0; pose < 3; pose++)
             {
@@ -353,7 +354,7 @@ internal static class LookupStream1Verification
             {
                 Program = AnimationProgramCursor<MetroidProgram>.Start(chasing ? MetroidProgram.ChasingSamus : MetroidProgram.DrainingSamus),
             };
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int record = 0; record < records; record++)
             {
                 ushort address = (ushort)(root + record * 4);

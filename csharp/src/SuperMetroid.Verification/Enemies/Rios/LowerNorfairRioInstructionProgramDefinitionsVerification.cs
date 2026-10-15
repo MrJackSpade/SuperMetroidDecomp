@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -39,7 +40,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         foreach ((LowerNorfairRioProgram entry, int calls, bool visible, bool signal, string name) in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, LowerNorfairRioEnemyState state) = NewLowerNorfairRioInstructionSystem(rom, entry);
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int call = 0; call < calls; call++)
             {
                 slot.InstructionTimer = NativeCountdown.Start(1);

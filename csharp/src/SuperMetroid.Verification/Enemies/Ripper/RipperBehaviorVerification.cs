@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Ripper;
@@ -104,7 +105,7 @@ internal static class RipperBehaviorVerification
             int[] expectedUpdates = [0, 8, 15, 23, 30];
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.Timer = NativeCountdown.Start(0);
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             List<(int Update, ushort Spritemap)> shown = [];
             for (int update = 0; update < 31; update++)
             {

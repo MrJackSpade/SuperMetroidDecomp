@@ -75,7 +75,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         states[0] = state;
         enemies.BindFixtureBus(bus);
 
-        object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+        object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
 
         // One complete list is 127 timer frames plus zero-time callback/goto dispatch. The
         // margin proves that the native terminal goto loops rather than merely reaching it.

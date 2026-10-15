@@ -85,9 +85,9 @@ internal static class HibashiDefinitionsVerification
         initializeProgram(programHitbox);
 
         object?[] graphicsArguments =
-            [programGraphics, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            [programGraphics, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         object?[] hitboxArguments =
-            [programHitbox, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            [programHitbox, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
 
         // The visible stream needs 59 actor frames through its final cue; the margin proves both actors stay asleep.
         for (int frame = 0; frame < 70; frame++)

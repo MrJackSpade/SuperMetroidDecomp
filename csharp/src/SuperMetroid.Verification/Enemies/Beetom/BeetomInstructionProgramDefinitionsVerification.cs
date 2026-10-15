@@ -46,7 +46,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0)) };
         enemies.BeetomBehavior.InitializeBeetom(slot, samus, 0);
         BeetomEnemyState state = enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BeetomStates[0].");
-        object?[] processArguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+        object?[] processArguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
 
         AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(BeetomProgram.CrawlingLeft), state.Program,
             "real Beetom initializer installs the left crawl");

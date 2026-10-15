@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -164,7 +165,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
                 EnemyInstructionRunner.Process(enemies, arguments);
         }

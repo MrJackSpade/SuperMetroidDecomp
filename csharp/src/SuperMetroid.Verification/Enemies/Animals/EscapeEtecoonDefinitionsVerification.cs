@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Fx;
@@ -166,7 +167,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         HashSet<ushort> shown)
     {
         object?[] arguments =
-            [etecoon, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            [etecoon, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         for (int step = 0; step < steps; step++)
         {
             etecoon.InstructionTimer = NativeCountdown.Start(1);

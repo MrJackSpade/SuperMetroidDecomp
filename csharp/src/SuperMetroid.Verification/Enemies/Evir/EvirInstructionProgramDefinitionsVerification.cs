@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -64,7 +65,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             state.Function = EvirAiFunction.ProjectileRegenerating;
             var states = (EvirEnemyState?[])enemies.EvirBehavior._evirStates;
             states[0] = new EvirEnemyState(enemies.SlotTable.Slots[0]) { InstalledProgram = EvirProgram.BodyFacingLeft };
-            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int call = 0; call < 10; call++)
             {
                 slot.InstructionTimer = NativeCountdown.Start(1);

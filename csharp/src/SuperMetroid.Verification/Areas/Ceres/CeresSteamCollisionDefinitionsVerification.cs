@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -37,7 +38,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
             slot.Parameter1 = (ushort)variant;
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
             object?[] arguments =
-                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < 90; frame++)
             {
                 EnemyInstructionRunner.Process(enemies, arguments);

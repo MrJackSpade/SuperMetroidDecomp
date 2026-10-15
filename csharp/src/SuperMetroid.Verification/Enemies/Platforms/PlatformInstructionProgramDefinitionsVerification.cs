@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -113,7 +114,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         int callCount)
     {
         object?[] arguments =
-            [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = NativeCountdown.Start(1);

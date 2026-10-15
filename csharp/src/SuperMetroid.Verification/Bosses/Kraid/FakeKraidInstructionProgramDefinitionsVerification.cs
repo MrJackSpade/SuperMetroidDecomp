@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using System.Reflection;
@@ -159,7 +160,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             int frames)
         {
             object?[] arguments =
-                [slot, samus, level, Position16<RoomPixels>.Zero, (ushort)0];
+                [slot, samus, level, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
                 EnemyInstructionRunner.Process(enemies, arguments);
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -251,7 +252,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             ushort radiusY, bool shot)
         {
             object?[] arguments =
-                [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, (ushort)0];
+                [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, SnesButton.None];
             bool hit = slot.EnemyDefinitionPointer == (EnemyDefinitionId)0xffff
                 ? ReferenceExtendedCollision(rom, arguments)
                 : ExtendedHitboxWalker.Find(enemies, arguments);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
@@ -85,7 +86,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
 
             slot.SpritemapPointer = frame.Pointer;
             object?[] arguments =
-                [slot, new Position16<RoomPixels>(0x100, 0x100), Extent16<RoomPixels>.Zero, true, (ushort)0];
+                [slot, new Position16<RoomPixels>(0x100, 0x100), Extent16<RoomPixels>.Zero, true, SnesButton.None];
             AssertTrue(!ExtendedHitboxWalker.Find(enemies, arguments),
                 $"Draygon OAM frame {frame.Name} has no shot callback without ROM reads");
             arguments[3] = false;

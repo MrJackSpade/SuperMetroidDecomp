@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Skultera;
@@ -124,7 +125,7 @@ internal static class EnemySpritemapArtworkVerification
             { Bank = EnemySpritemapDefinitions.BullBank };
         new Action<RoomEnemySlot>(enemies.BullBehavior.InitializeBull)(bull);
         object?[] arguments =
-            [bull, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            [bull, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         for (int frame = 0; frame < 41; frame++)
             EnemyInstructionRunner.Process(enemies, arguments);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,

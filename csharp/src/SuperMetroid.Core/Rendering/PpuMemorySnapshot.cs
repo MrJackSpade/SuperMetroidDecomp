@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using System.Collections.Immutable;
+using System.Runtime.InteropServices;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -40,8 +41,11 @@ public sealed class PpuMemorySnapshot
     /// </summary>
     public int ModeledSpriteCount { get; }
 
+    /// <summary>The draws as a plain array; debugger state (a captured frontend display) cannot hold immutable collections.</summary>
+    private readonly OrderedSpriteDraw[] spriteDraws;
+
     /// <summary>The displayed whole-frame sprite draws, each placed among the OAM sprites by its ordinal.</summary>
-    public ImmutableArray<OrderedSpriteDraw> SpriteDraws { get; }
+    public ImmutableArray<OrderedSpriteDraw> SpriteDraws => ImmutableCollectionsMarshal.AsImmutableArray(spriteDraws);
 
     /// <summary>
     /// Copies complete memory images. No caller-owned arrays or mutable hardware
@@ -84,7 +88,8 @@ public sealed class PpuMemorySnapshot
         this.cgram = cgram;
         this.oam = oam;
         ModeledSpriteCount = modeledSpriteCount;
-        SpriteDraws = spriteDraws;
+        this.spriteDraws = ImmutableCollectionsMarshal.AsArray(spriteDraws) ?? throw new ArgumentException(
+            "A frame requires a draw list.", nameof(spriteDraws));
     }
 
     /// <summary>Captures currently published memories without changing their owners.</summary>

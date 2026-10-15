@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -126,7 +127,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             int frames)
         {
             object?[] arguments =
-                [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0];
+                [slot, samus, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
                 EnemyInstructionRunner.Process(enemies, arguments);
         }

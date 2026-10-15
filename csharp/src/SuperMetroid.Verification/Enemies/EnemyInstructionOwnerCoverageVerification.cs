@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Globalization;
 using System.Reflection;
@@ -147,7 +148,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         unknown.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
         unknown.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         InvalidDataException unknownException = AssertThrows<InvalidDataException>(
-            () => EnemyInstructionRunner.Process(unknownEnemies, [unknown, null, null, Position16<RoomPixels>.Zero, (ushort)0]),
+            () => EnemyInstructionRunner.Process(unknownEnemies, [unknown, null, null, Position16<RoomPixels>.Zero, SnesButton.None]),
             "an instruction-processing enemy without a typed animation fails instead of reading cartridge lists");
         AssertTrue(
             unknownException.Message.Contains("has no typed animation", StringComparison.Ordinal),

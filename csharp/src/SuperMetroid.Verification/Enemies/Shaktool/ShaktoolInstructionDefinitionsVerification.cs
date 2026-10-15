@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -128,7 +129,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
     {
         bool moved = false;
         object?[] arguments =
-            [segment, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            [segment, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         for (int step = 0; step < steps; step++)
         {
             (ushort X, ushort Y) before = (segment.Position.X.Whole, segment.Position.Y.Whole);

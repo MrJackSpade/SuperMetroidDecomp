@@ -148,11 +148,11 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
         $"{Enabled}/{InitializationParameter}/{PreInstructionPointer}/{InstructionPointer}/{InstructionTimer.RawValue}/" +
         $"{Timer.RawValue}/{Held}/{NewlyPressed}/{PreviousHeld}/{PreviousNewlyPressed}/{PublishedPreviousHeld}/{PublishedPreviousNewlyPressed}";
 
-    /// <summary>A typed object's words, its cursor given as the native instruction pointer it stands for.</summary>
+    /// <summary>A typed object's words: its cursor as the native instruction pointer and its buttons as joypad words.</summary>
     internal static string Of(DemoInputState state) =>
         $"{state.Enabled}/{state.InitializationParameter}/{state.PreInstructionPointer}/{DemoInputNativeListAddresses.Address(state.Cursor)}/" +
-        $"{state.InstructionTimer.RawValue}/{state.Timer.RawValue}/{state.Held}/{state.NewlyPressed}/{state.PreviousHeld}/" +
-        $"{state.PreviousNewlyPressed}/{state.PublishedPreviousHeld}/{state.PublishedPreviousNewlyPressed}";
+        $"{state.InstructionTimer.RawValue}/{state.Timer.RawValue}/{(ushort)state.Held}/{(ushort)state.NewlyPressed}/{(ushort)state.PreviousHeld}/" +
+        $"{(ushort)state.PreviousNewlyPressed}/{(ushort)state.PublishedPreviousHeld}/{(ushort)state.PublishedPreviousNewlyPressed}";
 
     /// <summary>A pre-instruction for an object whose owner runs none: only the return-only routines may be installed.</summary>
     internal static void ReturnOnly(NativeDemoInputReference _, ushort preInstruction)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -101,7 +102,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         ((FuneNamiheEnemyState?[])enemies.FuneNamiheBehavior._funeNamiheStates)[0] = state;
         enemies.BindFixtureBus(bus);
 
-        object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+        object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         int frames = program.Active ? 140 : 4;
         for (int frame = 0; frame < frames; frame++)
             EnemyInstructionRunner.Process(enemies, arguments);

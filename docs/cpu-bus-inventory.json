@@ -275,7 +275,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Hardware.PpuFixedColorMirrors",
+      "owner": "SuperMetroid.Core.Hardware.PpuFixedColorMirrorAddresses",
       "name": "Blue",
       "region": "WorkRam",
       "address": "$00:0076",
@@ -287,7 +287,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Hardware.PpuFixedColorMirrors",
+      "owner": "SuperMetroid.Core.Hardware.PpuFixedColorMirrorAddresses",
       "name": "Green",
       "region": "WorkRam",
       "address": "$00:0075",
@@ -299,7 +299,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Hardware.PpuFixedColorMirrors",
+      "owner": "SuperMetroid.Core.Hardware.PpuFixedColorMirrorAddresses",
       "name": "Red",
       "region": "WorkRam",
       "address": "$00:0074",

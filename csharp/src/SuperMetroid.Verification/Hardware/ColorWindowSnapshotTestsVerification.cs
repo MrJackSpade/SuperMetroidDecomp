@@ -96,7 +96,7 @@ internal static class ColorWindowSnapshotTestsVerification
             "window operation rejects incomplete scanline table");
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { owned }, 3, 15));
         byte[] bytes = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
-        AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(bytes[..^1]), "truncated window table rejected");
+        AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet)[..^1]), "truncated window table rejected");
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(RenderPacketFormat.Signature.Length),
             RenderPacketFormat.OrdinaryGameplayLayerVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(bytes), "old format rejects color windows");

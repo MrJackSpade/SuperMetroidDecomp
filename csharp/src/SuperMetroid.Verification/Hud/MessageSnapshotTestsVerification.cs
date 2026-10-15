@@ -98,7 +98,7 @@ internal static class MessageSnapshotTestsVerification
             if (rows == 3 && radius == 0)
             {
                 byte[] bytes = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
-                AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(bytes[..^1]), "truncated message rejected");
+                AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet)[..^1]), "truncated message rejected");
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(RenderPacketFormat.Signature.Length),
                     RenderPacketFormat.ScanlineColorLayerVersion);
                 AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(bytes), "older format rejects message operation");

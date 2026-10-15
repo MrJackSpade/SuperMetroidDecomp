@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
@@ -43,7 +44,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, NorfairRioEnemyState state) =
                 NewNorfairRioInstructionSystem(rom, entry);
             object?[] arguments =
-                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+                [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             RunNorfairRioInstructionFrames(
                 enemies,
                 arguments,

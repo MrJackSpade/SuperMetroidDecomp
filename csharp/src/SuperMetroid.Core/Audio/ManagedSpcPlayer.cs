@@ -892,7 +892,7 @@ public sealed class ManagedSpcPlayer
     {
         0 => command != 1 && command != 2 && priority != 0,
         1 => command != 0x71 && command != 0x7e && priority != 0, // cartridge-encoding: allow(HardwareValue) - retail SFX2 cancellation overrides
-        2 => command != 1 && (mode == 2 || command != 2 && priority != 0),
+        2 => command != 1 && (mode == SpcDriverDefinitions.SoundEffects.LowHealthMode || command != 2 && priority != 0),
         _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
     };
 
@@ -944,7 +944,7 @@ public sealed class ManagedSpcPlayer
                 break;
             case SpcLibrary3Policy.LowHealthModePreservePriority:
                 library.VoicesToSetup = 1;
-                library.Mode = 2;
+                library.Mode = SpcDriverDefinitions.SoundEffects.LowHealthMode;
                 break;
             case SpcLibrary3Policy.OneVoiceLowPriority:
                 library.VoicesToSetup = 1;

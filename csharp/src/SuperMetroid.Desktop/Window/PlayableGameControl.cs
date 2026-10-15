@@ -73,7 +73,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Current frontend dispatcher and its retained display state.</summary>
     internal SuperMetroidGame game;
     /// <summary>Installed audio catalog the session binds for synthesis.</summary>
-    private ExtractedAudioAssetCatalog? audioAssets;
+    private ClipAudioCatalog? audioAssets;
     /// <summary>Host-owned PCM storage; the device copies each frame on submit.</summary>
     private readonly short[] audioFrame = new short[CartridgeAudioSession.PcmSamplesPerFrame];
     /// <summary>Optional selected audio override directory for this session.</summary>
@@ -227,16 +227,16 @@ public sealed class PlayableGameControl : UserControl
         SetPlaying(playing: true);
     }
 
-    /// <summary>Loads the selected audio override, or the installation's stock catalog.</summary>
-    private ExtractedAudioAssetCatalog LoadAudioAssets()
+    /// <summary>Loads the clips of the selected audio directory, or the installation's.</summary>
+    private ClipAudioCatalog LoadAudioAssets()
     {
         var installation = new GameInstallation(playerDataDirectory);
         if (installedAudioDirectory is null || Path.GetFullPath(installedAudioDirectory).Equals(
                 Path.GetFullPath(installation.AudioDirectory), StringComparison.OrdinalIgnoreCase))
         {
-            return installation.LoadAudio();
+            return installation.LoadAudioClips();
         }
-        return ExtractedAudioAssetCatalog.Load(installedAudioDirectory);
+        return ClipAudioCatalog.Load(installedAudioDirectory);
     }
 
     /// <summary>Starts a new display generation before resetting a software-rendered session.</summary>
@@ -266,7 +266,7 @@ public sealed class PlayableGameControl : UserControl
         var installation = new GameInstallation(playerDataDirectory);
         addressSpace = installation.OpenRuntimeAddressSpace();
         mapPresentation = installation.LoadMaps();
-        ExtractedAudioAssetCatalog selectedAudioAssets = LoadAudioAssets();
+        ClipAudioCatalog selectedAudioAssets = LoadAudioAssets();
         audioAssets = selectedAudioAssets;
         if (gameOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
@@ -275,8 +275,8 @@ public sealed class PlayableGameControl : UserControl
         else
             LoadReplaySaveRam();
         game = new SuperMetroidGame(addressSpace, gameOptions);
-        // The session synthesizes in every configuration so a debugger state always carries
-        // its player; whether samples reach a device is the host's choice alone.
+        // The session binds clips in every configuration so a debugger state always carries
+        // its playback state; whether samples reach a device is the host's choice alone.
         game.BindAudio(selectedAudioAssets);
         projectilePresentation = installation.LoadProjectiles();
         artwork = installation.LoadGameArtwork(

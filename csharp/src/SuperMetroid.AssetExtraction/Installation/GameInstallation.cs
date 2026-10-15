@@ -50,6 +50,9 @@ public sealed record GameInstallation(string Root)
     public string AudioDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.AudioDirectoryName);
     /// <summary>Persistent editable audio content, outside the replaceable stock installation.</summary>
     public string AudioOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.AudioDirectoryName);
+    /// <summary>Loads the installed pre-rendered audio clips (#1305) the game plays.</summary>
+    /// <exception cref="InvalidDataException">The clip manifest or a clip's size is invalid.</exception>
+    public ClipAudioCatalog LoadAudioClips() => ClipAudioCatalog.Load(AudioDirectory);
     /// <summary>Validates stock content, then selects a complete compatible user override when present.</summary>
     public ExtractedAudioAssetCatalog LoadAudio() =>
         ExtractedAudioAssetCatalog.Load(AudioDirectory, AudioOverrideDirectory);

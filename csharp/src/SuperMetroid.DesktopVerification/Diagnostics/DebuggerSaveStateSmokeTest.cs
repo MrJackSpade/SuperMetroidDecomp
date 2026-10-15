@@ -34,7 +34,7 @@ public static class DebuggerSaveStateSmokeTest
             {
                 MapPresentation = maps,
             });
-            game.BindAudio(installation.LoadAudio());
+            game.BindAudio(installation.LoadAudioClips());
             for (int frame = 0; frame < 90; frame++)
                 game.Step(0);
             GameContentIdentity contentIdentity = GameContentIdentity.Create(
@@ -104,7 +104,7 @@ public static class DebuggerSaveStateSmokeTest
                     "Selected-audio drift did not supplement the two assembly-build warnings.");
             }
             // The player is restored inside the game graph; the host rebinds only the catalog.
-            loaded.Game.BindAudio(installation.LoadAudio());
+            loaded.Game.BindAudio(installation.LoadAudioClips());
             if (loaded.Game.FrameNumber != saved.FrameNumber)
             {
                 throw new InvalidDataException(

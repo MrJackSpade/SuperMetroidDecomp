@@ -44,7 +44,7 @@ internal static class SimulationProfile
     {
         var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
             new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
-        game.BindAudio(DesktopAccess.LoadAudioAssets());
+        game.BindAudio(DesktopAccess.LoadAudioClips());
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         using var publicationProfile = new RenderPublicationProfile();
         long sequence = 0;

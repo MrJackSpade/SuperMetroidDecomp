@@ -5,6 +5,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Recording;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>
 /// Local-only diagnostic for a reset-origin journal and Android output WAV. Compares
@@ -26,8 +27,8 @@ internal static class FileSelectCaptureComparison
         // Caller must select a reset-origin journal, not a debugger-state continuation.
         SaveRamImage.Load(bus, recording.InitialSaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
-        var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
-        game.BindAudio(assets);
+        var assets = RepositoryInstallation.Installation.LoadAudio();
+        game.BindAudio(RepositoryInstallation.Installation.LoadAudioClips());
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         var muted = new ManagedSpcAudioBackend(assets);
         var suppressed = new short[CartridgeAudioSession.PcmSamplesPerFrame];

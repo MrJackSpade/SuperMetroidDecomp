@@ -49,6 +49,9 @@ public static class SoundEffectLibrary3Sounds
     /// <summary>Stops/cancels every currently active library-three sound.</summary>
     public static readonly SoundEffectId CancelAll = new(SoundEffectLibrary.Library3, 0x01); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
+    /// <summary>The low-health beep: it loops, enters low-health mode and keeps its priority (#1305).</summary>
+    public static readonly SoundEffectId LowHealthBeep = new(SoundEffectLibrary.Library3, 0x02); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>Samus taking periodic damage from room heat, lava, or acid.</summary>
     public static readonly SoundEffectId EnvironmentalDamage = new(SoundEffectLibrary.Library3, 0x2d); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

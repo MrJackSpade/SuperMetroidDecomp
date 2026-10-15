@@ -33,8 +33,8 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     /// </summary>
     internal static void VerifyHostIndependentAudioAcknowledgements()
     {
-        var assets = RepositoryInstallation.Installation.LoadAudio();
-        var oracle = new ManagedSpcAudioBackend(assets);
+        var assets = RepositoryInstallation.Installation.LoadAudioClips();
+        var oracle = new ClipAudioBackend(assets);
         SuperMetroidGame silent = CreateLandingSiteSession();
         SuperMetroidGame playing = CreateLandingSiteSession();
         playing.BindAudio(assets);

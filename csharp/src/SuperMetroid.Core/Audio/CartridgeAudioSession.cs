@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <remarks>
 /// Acknowledgements come only from the synthesis-free <see cref="SpcCommandPorts"/>, so they are
-/// identical whether a host plays audio, has audio disabled, or has no device. Synthesis is
-/// presentation: when a host binds the extracted audio catalog, the update's events also drive
-/// a <see cref="ManagedSpcAudioBackend"/> whose PCM the host copies out. The backend is never
+/// identical whether a host plays audio, has audio disabled, or has no device. Audio output is
+/// presentation: when a host binds the installed clips, the update's events also drive a
+/// <see cref="ClipAudioBackend"/> whose PCM the host copies out (#1305). The backend is never
 /// read back by gameplay.
 /// </remarks>
 public sealed class CartridgeAudioSession
@@ -30,9 +30,11 @@ public sealed class CartridgeAudioSession
     internal ManagedSpcPlayer? player;
     /// <summary>Whether any update has advanced the session, so PCM exists to copy.</summary>
     private bool hasAdvanced;
-    /// <summary>Host-bound backend that renders each update's events; the emulated driver is the one <see cref="IAudioBackend"/> today.</summary>
+    /// <summary>The clip backend's playback state, kept with the session so a restored session continues its PCM.</summary>
+    internal ClipPlaybackState? clipState;
+    /// <summary>Host-bound backend that renders each update's events.</summary>
     [NonSerialized]
-    private ManagedSpcAudioBackend? backend;
+    private IAudioBackend? backend;
     /// <summary>The most recent update's interleaved 48-kHz PCM, copied out by hosts.</summary>
     [NonSerialized]
     private short[]? lastPcm;
@@ -50,6 +52,8 @@ public sealed class CartridgeAudioSession
     /// <exception cref="InvalidOperationException">The session has already advanced without a synthesizer.</exception>
     public void BindSynthesis(ExtractedAudioAssetCatalog assets)
     {
+        if (clipState is not null)
+            throw new InvalidOperationException("This session already plays installed clips.");
         Ensure.NotNull(assets);
         if (player is null)
         {
@@ -59,6 +63,29 @@ public sealed class CartridgeAudioSession
             player = new ManagedSpcPlayer();
         }
         backend = new ManagedSpcAudioBackend(assets, player);
+        lastPcm = null;
+    }
+
+    /// <summary>
+    /// Binds the installed clips (#1305) so each following update also renders host PCM from them.
+    /// A restored session keeps its saved playback state; otherwise the binding must precede the
+    /// first update, because the backend has to see the reset upload.
+    /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="clips"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">The session has already advanced without clips, or synthesizes.</exception>
+    public void BindClips(ClipAudioCatalog clips)
+    {
+        Ensure.NotNull(clips);
+        if (player is not null)
+            throw new InvalidOperationException("This session already synthesizes its audio.");
+        if (clipState is null)
+        {
+            if (hasAdvanced)
+                throw new InvalidOperationException(
+                    "Audio clips must be bound before the session's first update; this session advanced without them.");
+            clipState = new ClipPlaybackState();
+        }
+        backend = new ClipAudioBackend(clips, clipState);
         lastPcm = null;
     }
 

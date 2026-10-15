@@ -1,3 +1,5 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -26,7 +28,9 @@ public static class PauseAudioSmokeTest
         var game = new SuperMetroidGame(
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
-        game.BindAudio(DesktopAccess.LoadAudioAssets());
+        // A bare game draws the title and file screens from installed artwork, as the hosts bind it.
+        InstalledGameBindings.Create(RepositoryInstallation.Installation)(game);
+        game.BindAudio(RepositoryInstallation.Installation.LoadAudioClips());
         var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         FrontendFrame frame = default;
         int frames = 0;
@@ -65,16 +69,17 @@ public static class PauseAudioSmokeTest
         frame = StepUntil(frame, candidate => candidate.Phase == nameof(TitleSequencePhase.TitleScreen), 120);
         frame = Step((ushort)SnesButton.Start);
         frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.FileSelectMenus, 120);
-        for (int index = 0; index < 16; index++) frame = Step(0);
-        frame = Step((ushort)SnesButton.A);
-        frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.GameOptionsMenu, 180);
-        for (int index = 0; index < 16; index++) frame = Step(0);
-        frame = Step((ushort)SnesButton.A);
         // This fixture loads existing SRAM, so follow both saved-game map confirmations.
-        // Waiting for the new-game setup state would now stall on the area map and never
-        // exercise pause audio. Keep the real frontend path and audio acknowledgements.
-        frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.FileSelectMap &&
-            candidate.Phase == nameof(FileSelectMapNavigationPhase.Area), 240);
+        // Accept on the cadence FileSelectSoundVerification uses until the area map opens: the
+        // menus take a press only once their transitions settle. Keep the real frontend path
+        // and audio acknowledgements.
+        for (int index = 0; !(frame.GameState == SuperMetroidGameState.FileSelectMap &&
+            frame.Phase == nameof(FileSelectMapNavigationPhase.Area)); index++)
+        {
+            if (index == 600)
+                throw new InvalidOperationException($"Pause PCM route stalled in {frame.GameState}/{frame.Phase}.");
+            frame = Step(index % 47 == 46 ? (ushort)SnesButton.A : (ushort)0);
+        }
         frame = Step((ushort)SnesButton.A);
         frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.FileSelectMap &&
             candidate.Phase == nameof(FileSelectMapNavigationPhase.Room), 120);

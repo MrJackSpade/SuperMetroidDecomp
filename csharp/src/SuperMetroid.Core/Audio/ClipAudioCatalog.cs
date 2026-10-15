@@ -34,6 +34,8 @@ public sealed class ClipAudioCatalog
     private readonly Dictionary<(AudioBank Bank, int Track), MusicClipEntry> music;
     /// <summary>Sound-effect entries by (bank context, library, command).</summary>
     private readonly Dictionary<(AudioBank? Context, SoundEffectLibrary Library, byte Command), SoundEffectClipEntry> soundEffects;
+    /// <summary>Each request's acceptance policy, the same in every bank context.</summary>
+    private readonly Dictionary<(SoundEffectLibrary Library, byte Command), SoundEffectClipPolicy> policies = [];
     /// <summary>Effects with no clip in a context, by (bank context, library, command).</summary>
     private readonly Dictionary<(AudioBank? Context, SoundEffectLibrary Library, byte Command), UnrenderableSoundEffect> unrenderable;
 
@@ -54,6 +56,8 @@ public sealed class ClipAudioCatalog
         {
             if (!soundEffects.TryAdd((entry.Context, entry.Library, entry.Command), entry))
                 throw new InvalidDataException($"Clip manifest repeats {entry.Library} ${entry.Command:X2} in {ContextName(entry.Context)}.");
+            if (!policies.TryAdd((entry.Library, entry.Command), entry.Policy) && policies[(entry.Library, entry.Command)] != entry.Policy)
+                throw new InvalidDataException($"Clip manifest gives {entry.Library} ${entry.Command:X2} different policies by context.");
         }
         unrenderable = [];
         foreach (UnrenderableSoundEffect entry in manifest.Unrenderable)
@@ -154,6 +158,13 @@ public sealed class ClipAudioCatalog
         }
         throw new KeyNotFoundException($"No sound effect {library} ${command:X2} in {ContextName(context)}.");
     }
+
+    /// <summary>The request's acceptance policy, which does not depend on the bank context.</summary>
+    /// <exception cref="KeyNotFoundException">No context renders the effect.</exception>
+    public SoundEffectClipPolicy GetPolicy(SoundEffectLibrary library, byte command) =>
+        policies.TryGetValue((library, command), out SoundEffectClipPolicy? policy)
+            ? policy
+            : throw new KeyNotFoundException($"No sound effect {library} ${command:X2} in any bank context.");
 
     /// <summary>Reads a clip's interleaved stereo samples, verifying its SHA-256, rate and length.</summary>
     /// <exception cref="InvalidDataException">The file's hash, encoding, rate or length does not match the manifest.</exception>

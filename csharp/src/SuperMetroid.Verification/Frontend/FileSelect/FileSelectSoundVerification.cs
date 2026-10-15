@@ -52,10 +52,10 @@ internal static class FileSelectSoundVerification
         if (existingSave)
             new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
         var game = CreateRetailGameFixture(bus);
-        var assets = ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory);
+        var assets = RepositoryInstallation.Installation.LoadAudioClips();
         game.BindAudio(assets);
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        var withoutSwoosh = new ManagedSpcAudioBackend(assets);
+        var withoutSwoosh = new ClipAudioBackend(assets);
         var control = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         int starts = 0, differentSamples = 0;
         int firstSoundTick = -1, firstDifferenceTick = -1;

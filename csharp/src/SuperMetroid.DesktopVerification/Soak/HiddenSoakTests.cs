@@ -28,7 +28,7 @@ internal static class HiddenSoakTests
         {
             var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
                 new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
-            game.BindAudio(DesktopAccess.LoadAudioAssets());
+            game.BindAudio(DesktopAccess.LoadAudioClips());
             var audio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
             long sequence = 0;
             CapturedFrontendFrame Step(ushort input)

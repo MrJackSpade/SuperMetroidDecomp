@@ -450,7 +450,7 @@ public sealed class SuperMetroidGame
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="assets"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The session already advanced without synthesis and has no player to continue.</exception>
-    public void BindAudio(ExtractedAudioAssetCatalog assets) => audioSession.BindSynthesis(assets);
+    public void BindAudio(ClipAudioCatalog clips) => audioSession.BindClips(clips);
 
     /// <summary>Copies the last update's 1,600 interleaved 48-kHz stereo samples into host-owned storage.</summary>
     /// <exception cref="InvalidOperationException">No audio catalog is bound.</exception>

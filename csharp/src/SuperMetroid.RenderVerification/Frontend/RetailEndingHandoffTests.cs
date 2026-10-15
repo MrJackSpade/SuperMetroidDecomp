@@ -24,7 +24,7 @@ internal static class RetailEndingHandoffTests
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
         var legacy = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
         var captured = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
-        var audioAssets = DesktopAccess.LoadAudioAssets();
+        var audioAssets = DesktopAccess.LoadAudioClips();
         legacy.BindAudio(audioAssets);
         captured.BindAudio(audioAssets);
         var leftAudio = new short[CartridgeAudioSession.PcmSamplesPerFrame];

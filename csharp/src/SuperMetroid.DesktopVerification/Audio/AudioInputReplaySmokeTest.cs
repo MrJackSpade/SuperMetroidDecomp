@@ -38,7 +38,7 @@ public static class AudioInputReplaySmokeTest
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
-        game.BindAudio(DesktopAccess.LoadAudioAssets());
+        game.BindAudio(DesktopAccess.LoadAudioClips());
 
         int framesExecuted = 0;
         bool projectileFired = false;
@@ -151,7 +151,7 @@ public static class AudioInputReplaySmokeTest
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
-        game.BindAudio(DesktopAccess.LoadAudioAssets());
+        game.BindAudio(DesktopAccess.LoadAudioClips());
         for (int frameIndex = 0; frameIndex < recording.ControllerInputs.Length; frameIndex++)
         {
             try
@@ -193,7 +193,7 @@ public static class AudioInputReplaySmokeTest
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
-        game.BindAudio(DesktopAccess.LoadAudioAssets());
+        game.BindAudio(DesktopAccess.LoadAudioClips());
         var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         var completed = new List<RecordedPauseAudioResult>();
         PauseAccumulator? active = null;

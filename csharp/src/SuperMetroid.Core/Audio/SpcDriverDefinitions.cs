@@ -160,5 +160,7 @@ internal static class SpcDriverDefinitions
         internal const byte Active = byte.MaxValue;
         /// <summary>A note-packet note byte of $F6 keeps the channel's previous note instead of setting one.</summary>
         internal const byte RetainedNote = 0xf6;
+        /// <summary>Library 3's low-health mode value, in which it rejects every request except the clearing one.</summary>
+        internal const byte LowHealthMode = 2;
     }
 }

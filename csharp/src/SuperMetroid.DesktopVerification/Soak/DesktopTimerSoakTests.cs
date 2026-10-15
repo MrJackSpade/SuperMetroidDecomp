@@ -132,7 +132,7 @@ internal static class DesktopTimerSoakTests
     {
         var bus = installation.OpenRuntimeAddressSpace();
         var game = InstalledFixtures.CreateGame(bus, options);
-        game.BindAudio(DesktopAccess.LoadAudioAssets());
+        game.BindAudio(DesktopAccess.LoadAudioClips());
         long sequence = 0;
         void Step(ushort input) => game.StepCaptured(input, ++sequence, 1);
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
@@ -143,7 +143,7 @@ internal static class DesktopTimerSoakTests
         Step(0);
         if (paused) Step((ushort)SnesButton.Start);
         for (int warmup = 0; warmup < 120; warmup++) Step(0);
-        var identity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(installation.LoadAudio(),
+        var identity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(installation.LoadAudioClips(),
             installation.LoadMaps(), installation.LoadProjectiles());
         DebuggerSaveStateStore.ForInstalledGame(installation.Root, options, identity).Save(0, bus, game);
     }

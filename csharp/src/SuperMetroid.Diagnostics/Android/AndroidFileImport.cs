@@ -17,7 +17,7 @@ internal static class AndroidFileImport
         var maps = installation.LoadMaps();
         var projectiles = installation.LoadProjectiles();
         var contentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
-            installation.LoadAudio(),
+            installation.LoadAudioClips(),
             maps,
             projectiles,
             SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(installation.LoadGameArtwork(maps, projectiles)));

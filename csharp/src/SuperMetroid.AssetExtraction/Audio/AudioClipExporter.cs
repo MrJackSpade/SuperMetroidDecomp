@@ -183,7 +183,7 @@ internal static class AudioClipExporter
         {
             UnsetMode => LowHealthModeEffect.Unchanged,
             0 => LowHealthModeEffect.Clear,
-            2 => LowHealthModeEffect.Enter,
+            SpcDriverDefinitions.SoundEffects.LowHealthMode => LowHealthModeEffect.Enter,
             _ => throw new InvalidDataException($"Configuration {configuration} set low-health mode {library.Mode}."),
         };
         return new SoundEffectClipPolicy(
@@ -191,7 +191,7 @@ internal static class AudioClipExporter
             priority,
             mode,
             IgnoresPriority: !ManagedSpcPlayer.RejectsRequest(libraryIndex, command, priority: 1, mode: 0),
-            IgnoresLowHealthMode: libraryIndex == 2 && !ManagedSpcPlayer.RejectsRequest(libraryIndex, command, priority: 0, mode: 2));
+            IgnoresLowHealthMode: libraryIndex == 2 && !ManagedSpcPlayer.RejectsRequest(libraryIndex, command, priority: 0, mode: SpcDriverDefinitions.SoundEffects.LowHealthMode));
     }
 
     /// <summary>Writes <paramref name="pcm"/> once under its SHA-256 and returns its manifest file record.</summary>

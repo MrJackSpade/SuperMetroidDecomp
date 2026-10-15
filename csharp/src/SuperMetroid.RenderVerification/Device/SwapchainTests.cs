@@ -302,7 +302,7 @@ internal static partial class SwapchainTests
         var headless = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
         // Each session synthesizes through its own Core audio session, as the desktop host does;
         // do not substitute a second hand-written queue-to-PCM implementation.
-        var audioAssets = DesktopAccess.LoadAudioAssets();
+        var audioAssets = DesktopAccess.LoadAudioClips();
         legacy.BindAudio(audioAssets);
         captured.BindAudio(audioAssets);
         headless.BindAudio(audioAssets);

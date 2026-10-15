@@ -21,7 +21,7 @@ internal sealed class AndroidSessionData : IDisposable
     /// <summary>Atomic JSON save path for the session's live SRAM.</summary>
     private readonly string savePath;
     /// <summary>Installed audio catalog retained across debugger state loads.</summary>
-    private readonly ExtractedAudioAssetCatalog assets;
+    private readonly ClipAudioCatalog assets;
     /// <summary>Installed map presentation used for save migration and persistence.</summary>
     private readonly SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog maps;
     /// <summary>Installed projectile art contributing to the session content identity.</summary>
@@ -59,8 +59,8 @@ internal sealed class AndroidSessionData : IDisposable
         Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
         Game.SaveRamChanged += PersistSave;
         assets = audioDirectory is null
-            ? installation.LoadAudio()
-            : ExtractedAudioAssetCatalog.Load(audioDirectory);
+            ? installation.LoadAudioClips()
+            : ClipAudioCatalog.Load(audioDirectory);
         ContentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
             assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork));
         Console.WriteLine(
@@ -125,7 +125,7 @@ internal sealed class AndroidSessionData : IDisposable
         if (!states.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
             return $"Slot {DebuggerSaveStateStore.SlotName(slot)} is empty. No state to load.";
         // All decoding/validation happens before replacing the live game, including the
-        // audio binding, which rejects a state whose session never synthesized. Retain the
+        // audio binding, which rejects a state whose session never bound clips. Retain the
         // precise seed before future saves can overwrite this user-visible slot.
         loaded.Game.BindAudio(assets);
         recorder.Dispose();

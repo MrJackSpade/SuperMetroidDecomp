@@ -49,7 +49,7 @@ internal static class DoorTransitionAutosaveVerification
             var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             game.runtime = runtime;
-            var assets = RepositoryInstallation.Installation.LoadAudio();
+            var assets = RepositoryInstallation.Installation.LoadAudioClips();
             game.BindAudio(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
                 typeof(SuperMetroidGame).Module.ModuleVersionId);

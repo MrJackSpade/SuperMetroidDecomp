@@ -253,9 +253,9 @@ public sealed class GitHubErrorReporter : IDisposable
         if (context.Phase is not null)
             body.Append("- Phase: ").AppendLine(context.Phase);
         AppendHexContext(body, "Controller input", context.ControllerInput);
-        AppendBankContext(body, "Room", 0x8F, context.RoomPointer);
-        AppendBankContext(body, "Room state", 0x8F, context.RoomStatePointer);
-        AppendBankContext(body, "Door", 0x83, context.DoorPointer);
+        AppendBankContext(body, "Room", ReportedPointerBank.RoomHeaders, context.RoomPointer);
+        AppendBankContext(body, "Room state", ReportedPointerBank.RoomHeaders, context.RoomStatePointer);
+        AppendBankContext(body, "Door", ReportedPointerBank.DoorHeaders, context.DoorPointer);
         if (context.InputRecordingPath is not null)
             body.Append("- Input recording: `").Append(context.InputRecordingPath).AppendLine("`");
         if (context.FrameDiagnostics is not null)
@@ -282,13 +282,13 @@ public sealed class GitHubErrorReporter : IDisposable
     private static void AppendBankContext(
         StringBuilder body,
         string name,
-        byte bank,
+        ReportedPointerBank bank,
         ushort? value)
     {
         if (value is ushort address)
         {
             body.Append("- ").Append(name).Append(": $")
-                .Append(bank.ToString("X2")).Append(':').AppendLine(address.ToString("X4"));
+                .Append(((byte)bank).ToString("X2")).Append(':').AppendLine(address.ToString("X4"));
         }
     }
 

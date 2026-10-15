@@ -16,9 +16,9 @@ internal static class Program
         // stderr. This is especially important under a debugger, where a modal native dialog can
         // otherwise steal focus from both Visual Studio and the game window.
         NativeGameProcess.SetErrorMode(
-            NativeGameProcess.SemFailCriticalErrors |
-            NativeGameProcess.SemNoGpFaultErrorBox |
-            NativeGameProcess.SemNoOpenFileErrorBox);
+            ProcessErrorModes.FailCriticalErrors |
+            ProcessErrorModes.NoGpFaultErrorBox |
+            ProcessErrorModes.NoOpenFileErrorBox);
 
         DesktopSessionLog? sessionLog = null;
         GitHubErrorReporter? githubErrorReporter = null;

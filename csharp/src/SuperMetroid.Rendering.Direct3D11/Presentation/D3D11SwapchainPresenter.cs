@@ -77,7 +77,7 @@ public sealed class D3D11SwapchainPresenter : IDisposable
         {
             var result = swapchain.Present(1, PresentFlags.None);
             result.CheckError();
-            if (result.Code == DxgiPresentationStatus.Occluded) outcome = D3D11PresentationResult.Occluded;
+            if (result.Code == (int)DxgiPresentationStatus.Occluded) outcome = D3D11PresentationResult.Occluded;
             else if (result.Code == 0) outcome = D3D11PresentationResult.Presented;
             else throw new InvalidOperationException($"Unexpected DXGI presentation status {result}.");
         });

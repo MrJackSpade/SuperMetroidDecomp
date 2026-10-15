@@ -16,8 +16,6 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
 {
     /// <summary>Windows mapper ID selecting the default wave output device.</summary>
     private const uint WaveMapper = uint.MaxValue;
-    /// <summary>Wave header flag set after Windows finishes playing a buffer.</summary>
-    private const uint HeaderDone = 0x0000_0001;
     /// <summary>WinMM result code indicating a completed device operation.</summary>
     private const uint MultimediaSuccess = 0;
     /// <summary>Pinned hardware buffers submitted in a rotating sequence.</summary>
@@ -430,7 +428,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         public uint Flags => Marshal.PtrToStructure<WaveHeader>(Header).Flags;
         /// <summary>Whether the native completion flag permits this slot to be reused.</summary>
         public bool IsDone =>
-            (Flags & HeaderDone) != 0;
+            ((WaveHeaderFlags)Flags).HasFlag(WaveHeaderFlags.Done);
 
         /// <summary>Repoints the header at pinned PCM storage and clears prior native flags.</summary>
         public void ResetHeader()

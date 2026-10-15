@@ -232,8 +232,6 @@ csharp/src/SuperMetroid.Core/Samus/SamusReserveAutoRecoveryState.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Samus/SamusState.cs	SME6340	3
 csharp/src/SuperMetroid.DebugRunner/Program.cs	SME6340	3
 csharp/src/SuperMetroid.DebugRunner/Tools/ShutterNativeArc.cs	SME6340	61
-csharp/src/SuperMetroid.Desktop/Audio/WaveOutAudioDevice.cs	SME6340	1
-csharp/src/SuperMetroid.Desktop/Diagnostics/GitHubErrorReporter.cs	SME6340	3
 csharp/src/SuperMetroid.DesktopVerification/Audio/AudioInputReplaySmokeTest.cs	SME6340	2
 csharp/src/SuperMetroid.DesktopVerification/Audio/CartridgeAudioSmokeTest.cs	SME6340	2
 csharp/src/SuperMetroid.DesktopVerification/Audio/ManagedAudioRegressionSmokeTest.cs	SME6340	2
@@ -277,7 +275,6 @@ csharp/src/SuperMetroid.RenderVerification/PpuFeatures/WaterfallTests.cs	SME6340
 csharp/src/SuperMetroid.RenderVerification/PpuFeatures/WindowSceneSmokeTests.cs	SME6340	2
 csharp/src/SuperMetroid.RenderVerification/PpuFeatures/XrayGameplayTests.cs	SME6340	7
 csharp/src/SuperMetroid.RenderVerification/Samus/SamusIsolationArtworkEdits.cs	SME6340	1
-csharp/src/SuperMetroid.Rendering.Direct3D11/Presentation/DxgiPresentationStatus.cs	SME6340	1
 csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Bosses/CrocomireSkeletonResourceChecks.cs	SME6340	1
 csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Bosses/MotherBrainRoomFlashAudit.cs	SME6340	1
 csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Enemies/EnemyCompositionResourceChecks.cs	SME6340	3

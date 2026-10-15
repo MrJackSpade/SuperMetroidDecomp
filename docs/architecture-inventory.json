@@ -22134,7 +22134,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxProgramDefinition)",
+      "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -52388,33 +52388,33 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.BeaconPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BeaconPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BeaconPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BeaconPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.BeaconPaletteFxProgramMechanicsDefinitions.MechanicsWord",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BeaconPaletteFxColorDefinitions.MechanicsWord",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BeaconPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BeaconPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.BeaconPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BeaconPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -52424,13 +52424,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BeaconPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BeaconPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.BeaconPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.BeaconPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BeaconPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.BeaconPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -52440,26 +52440,26 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BeaconPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BeaconPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxProgramDefinitionAccess",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -52469,13 +52469,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxProgramDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxProgramDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -52485,39 +52485,39 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ProgramOwners",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxColorDefinitions.ProgramOwners",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -52527,13 +52527,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.BrinstarBlueSporePaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -52543,7 +52543,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -52575,46 +52575,46 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxColorDefinition",
       "kind": "record struct",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxProgramMechanicsDefinitions.MechanicsWord",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxColorDefinitions.MechanicsWord",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -52624,13 +52624,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -52640,33 +52640,33 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxProgramMechanicsDefinitionsTooling",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxColorDefinitionsTooling",
       "kind": "static class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramMechanicsDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxProgramMechanicsDefinitionsTooling.ProgramEntries",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CeresCinematicLightPaletteFxColorDefinitionsTooling.ProgramEntries",
       "kind": "class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramMechanicsDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -52685,20 +52685,20 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxProgramDefinitionAccess",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -52708,13 +52708,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CinematicGlowPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CinematicGlowPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxProgramDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxProgramDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -52724,33 +52724,33 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CinematicGlowPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CinematicGlowPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxProgramMechanicsDefinitions.ProgramEntries",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CinematicGlowPaletteFxColorDefinitions.ProgramEntries",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -52782,46 +52782,46 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.ProgramList",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxColorDefinitions.ProgramList",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -52831,13 +52831,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.CrateriaEscapeLightningPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -52847,7 +52847,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -52879,33 +52879,33 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxProgramDefinition.CalculatedList\u003CT\u003E",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition.CalculatedList\u003CT\u003E",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxProgramDefinitionAccess",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -52915,13 +52915,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxProgramDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxProgramDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -52931,33 +52931,33 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxProgramMechanicsDefinitions.ProgramList",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinitions.ProgramList",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -52976,20 +52976,20 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ExplodingZebesFadePaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ExplodingZebesFadePaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ExplodingZebesFadePaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ExplodingZebesFadePaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -52999,13 +52999,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ExplodingZebesFadePaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.ExplodingZebesFadePaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ExplodingZebesFadePaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.ExplodingZebesFadePaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -53015,7 +53015,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -53034,33 +53034,33 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.HyperBeamPaletteFxProgramDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/HyperBeamPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.HyperBeamPaletteFxProgramDefinitions.ControlPointer",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitions.ControlPointer",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/HyperBeamPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.HyperBeamPaletteFxProgramDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -53070,13 +53070,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/HyperBeamPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.HyperBeamPaletteFxProgramDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.HyperBeamPaletteFxProgramDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -53086,26 +53086,26 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/HyperBeamPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxProgramDefinitionAccess",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -53115,13 +53115,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxProgramDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxProgramDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -53131,39 +53131,39 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.DefinitionSequence",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitions.DefinitionSequence",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -53173,13 +53173,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -53189,7 +53189,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -53208,33 +53208,33 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxColorDefinition",
       "kind": "record",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -53244,13 +53244,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -53260,78 +53260,78 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxProgramMechanicsDefinitionsTooling",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxColorDefinitionsTooling",
       "kind": "static class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramMechanicsDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxProgramMechanicsDefinitionsTooling.DefinitionList",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.NintendoLogoFadePaletteFxColorDefinitionsTooling.DefinitionList",
       "kind": "class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramMechanicsDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ProgramDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxColorDefinitions.ProgramDefinitions",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -53341,13 +53341,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -53357,7 +53357,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -53376,59 +53376,59 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FlickerPass",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxColorDefinitions.FlickerPass",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.ProgramDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxColorDefinitions.ProgramDefinitions",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -53438,13 +53438,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -53454,7 +53454,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -53473,33 +53473,33 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeRedFlashPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ControlWord",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeRedFlashPaletteFxColorDefinitions.ControlWord",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -53509,13 +53509,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.OldTourianEscapeRedFlashPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -53525,7 +53525,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -53557,27 +53557,27 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxDeleteProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxDeleteDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxDeleteProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxDeleteDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxDeleteProgramMechanicsDefinitions.DeletionList",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxDeleteDefinitions.DeletionList",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxDeleteProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxDeleteDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -53900,20 +53900,20 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxProgramDefinitionAccess",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -53923,13 +53923,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxProgramDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxProgramDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -53939,39 +53939,39 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxProgramMechanicsDefinitions.DefinitionSequence",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitions.DefinitionSequence",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -53981,13 +53981,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -53997,7 +53997,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -54016,33 +54016,33 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ControlWord",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitions.ControlWord",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54052,13 +54052,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54068,39 +54068,39 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.RedBrinstarGlowPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.RedBrinstarGlowPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ControlWord",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.RedBrinstarGlowPaletteFxColorDefinitions.ControlWord",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.RedBrinstarGlowPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.RedBrinstarGlowPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54110,13 +54110,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.RedBrinstarGlowPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.RedBrinstarGlowPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.RedBrinstarGlowPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.RedBrinstarGlowPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54126,65 +54126,65 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.RoomPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.RoomPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RoomPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RoomPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ProgramList",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitions.ProgramList",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54194,13 +54194,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54210,7 +54210,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -54229,20 +54229,20 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleLogoFadePaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleLogoFadePaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleLogoFadePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleLogoFadePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleLogoFadePaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleLogoFadePaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54252,13 +54252,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleLogoFadePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleLogoFadePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleLogoFadePaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.TitleLogoFadePaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleLogoFadePaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.TitleLogoFadePaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54268,26 +54268,26 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleLogoFadePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleLogoFadePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxProgramDefinitionAccess",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54297,13 +54297,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxProgramDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxProgramDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54313,33 +54313,33 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.ProgramList",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TitleScreenAmbientPaletteFxColorDefinitions.ProgramList",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -54358,46 +54358,46 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxProgramMechanicsDefinitions.ProgramDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxColorDefinitions.ProgramDefinitions",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54407,13 +54407,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TorizoBellyPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TorizoBellyPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.TorizoBellyPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54423,7 +54423,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TorizoBellyPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TorizoBellyPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -54442,20 +54442,20 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeRedFlashPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeRedFlashPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeRedFlashPaletteFxProgramDefinitionAccess",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeRedFlashPaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54465,13 +54465,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeRedFlashPaletteFxProgramDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.TourianEscapeRedFlashPaletteFxProgramDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeRedFlashPaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.TourianEscapeRedFlashPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54481,20 +54481,20 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeRedFlashPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -54513,46 +54513,46 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ProgramEntries",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ProgramEntries",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54562,13 +54562,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54578,20 +54578,20 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsTooling",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianEscapeSharedRedFlashPaletteFxColorDefinitionsTooling",
       "kind": "static class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxColorDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -54610,20 +54610,20 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianGlowPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianGlowPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianGlowPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianGlowPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianGlowPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianGlowPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54633,13 +54633,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianGlowPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianGlowPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianGlowPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.TourianGlowPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianGlowPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.TourianGlowPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54649,52 +54649,52 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianGlowPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianGlowPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ProgramEntries",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitions.ProgramEntries",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54704,13 +54704,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54720,52 +54720,52 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxProgramMechanicsDefinitionsTooling",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitionsTooling",
       "kind": "static class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/TourianStatueGreyPaletteFxProgramMechanicsDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.UnusedCinematicFadePaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.UnusedCinematicFadePaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ControlWord",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.UnusedCinematicFadePaletteFxColorDefinitions.ControlWord",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.UnusedCinematicFadePaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.UnusedCinematicFadePaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54775,13 +54775,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.UnusedCinematicFadePaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.UnusedCinematicFadePaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.UnusedCinematicFadePaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.UnusedCinematicFadePaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54791,26 +54791,26 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54820,13 +54820,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54836,39 +54836,39 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.WreckedShipGreenLightPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ControlWord",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.WreckedShipGreenLightPaletteFxColorDefinitions.ControlWord",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.WreckedShipGreenLightPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54878,13 +54878,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.WreckedShipGreenLightPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.WreckedShipGreenLightPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54894,33 +54894,33 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionAmbientPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionAmbientPaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionAmbientPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionAmbientPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionAmbientPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionAmbientPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -54939,33 +54939,33 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionFinalePaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.MechanicsWord",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionFinalePaletteFxColorDefinitions.MechanicsWord",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionFinalePaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionFinalePaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -54975,13 +54975,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionFinalePaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionFinalePaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionFinalePaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -54991,39 +54991,39 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionForegroundPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ControlWord",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionForegroundPaletteFxColorDefinitions.ControlWord",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionForegroundPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -55033,13 +55033,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionForegroundPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -55049,26 +55049,26 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -55078,13 +55078,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -55094,26 +55094,26 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxColorDefinition",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxProgramDefinitionAccess",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -55123,13 +55123,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxProgramDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxProgramDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -55139,20 +55139,20 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxProgramDefinitionAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxColorDefinitionAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -55171,46 +55171,46 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxProgramDefinition",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxColorDefinition",
       "kind": "record struct",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramDefinition.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinition.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.MechanicsWord",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxColorDefinitions.MechanicsWord",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsConstants",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -55220,13 +55220,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -55236,20 +55236,20 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsTooling",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionWhiteoutPaletteFxColorDefinitionsTooling",
       "kind": "static class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -103040,14 +103040,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Fx.PaletteFx.HyperBeamPaletteFxProgramDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Fx.PaletteFx.HyperBeamPaletteFxColorDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Fx/PaletteFx/HyperBeamPaletteFxColorDefinitionsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

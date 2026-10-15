@@ -309,7 +309,7 @@
     "dfdaf5813"
    ]
   },
-  "BeaconPaletteFxProgramMechanicsDefinitions": {
+  "BeaconPaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
@@ -388,7 +388,7 @@
     "dfdaf5813"
    ]
   },
-  "CeresCinematicLightPaletteFxProgramMechanicsDefinitions": {
+  "CeresCinematicLightPaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
@@ -682,7 +682,7 @@
     "4f6b7ba20"
    ]
   },
-  "ExplodingZebesFadePaletteFxProgramMechanicsDefinitions": {
+  "ExplodingZebesFadePaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
@@ -768,7 +768,7 @@
     "dfdaf5813"
    ]
   },
-  "HyperBeamPaletteFxProgramDefinitions": {
+  "HyperBeamPaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
@@ -939,7 +939,7 @@
     "4f6b7ba20"
    ]
   },
-  "NintendoLogoFadePaletteFxProgramMechanicsDefinitions": {
+  "NintendoLogoFadePaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
@@ -970,7 +970,7 @@
     "b2ae390fa"
    ]
   },
-  "OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions": {
+  "OldTourianEscapeRedFlashPaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
@@ -1029,7 +1029,7 @@
     "b2ae390fa"
    ]
   },
-  "PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions": {
+  "PostCreditsIconGlarePaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
@@ -1366,7 +1366,7 @@
     "4f6b7ba20"
    ]
   },
-  "TitleLogoFadePaletteFxProgramMechanicsDefinitions": {
+  "TitleLogoFadePaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
@@ -1390,7 +1390,7 @@
     "4f6b7ba20"
    ]
   },
-  "TourianGlowPaletteFxProgramMechanicsDefinitions": {
+  "TourianGlowPaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
@@ -1417,14 +1417,14 @@
     "b2ae390fa"
    ]
   },
-  "UnusedCinematicFadePaletteFxProgramMechanicsDefinitions": {
+  "UnusedCinematicFadePaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
     "4f6b7ba20"
    ]
   },
-  "UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions": {
+  "UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
@@ -1465,7 +1465,7 @@
     "b2ae390fa"
    ]
   },
-  "ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions": {
+  "ZebesExplosionFinalePaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
@@ -1475,21 +1475,21 @@
     "b2ae390fa"
    ]
   },
-  "ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions": {
+  "ZebesExplosionForegroundPaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
     "4f6b7ba20"
    ]
   },
-  "ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions": {
+  "ZebesExplosionGunshipPaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [
     "dfdaf5813"
    ]
   },
-  "ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions": {
+  "ZebesExplosionWhiteoutPaletteFxColorDefinitions": {
    "previous": "primitive switched over named constants (see git history of the listed commits)",
    "status": "resolved",
    "commits": [

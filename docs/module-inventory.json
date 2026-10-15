@@ -37099,7 +37099,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BeaconPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BeaconPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37109,7 +37109,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37119,7 +37119,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37153,7 +37153,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37163,7 +37163,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37173,7 +37173,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CinematicGlowPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37203,7 +37203,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37213,7 +37213,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37243,7 +37243,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37253,7 +37253,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37273,7 +37273,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37293,7 +37293,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/HyperBeamPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37306,7 +37306,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37316,7 +37316,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37336,7 +37336,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37346,7 +37346,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37356,7 +37356,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37376,7 +37376,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37386,7 +37386,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37406,7 +37406,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37439,7 +37439,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxDeleteProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxDeleteDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37608,7 +37608,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37618,7 +37618,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37638,7 +37638,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37651,7 +37651,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37661,7 +37661,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RoomPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/RoomPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37671,7 +37671,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37681,7 +37681,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37701,7 +37701,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleLogoFadePaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleLogoFadePaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37711,7 +37711,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37721,7 +37721,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37741,7 +37741,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37751,7 +37751,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TorizoBellyPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37771,7 +37771,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37781,7 +37781,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37801,7 +37801,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37811,7 +37811,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37831,7 +37831,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianGlowPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianGlowPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37841,20 +37841,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxProgramDefinition.cs",
-      "module": "csharp/src/SuperMetroid.Core/Fx",
-      "role": "production",
-      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Areas"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37867,7 +37854,20 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Fx",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Areas"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37877,7 +37877,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37887,7 +37887,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37897,7 +37897,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionAmbientPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionAmbientPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37907,7 +37907,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionAmbientPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37927,7 +37927,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37937,7 +37937,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37947,7 +37947,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37957,7 +37957,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37967,7 +37967,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -37987,7 +37987,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Fx",
       "role": "production",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -59551,7 +59551,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -59561,7 +59561,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramMechanicsDefinitionsTooling.cs",
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinitionsTooling.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -59581,7 +59581,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -59591,7 +59591,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramMechanicsDefinitionsTooling.cs",
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinitionsTooling.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -59601,20 +59601,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsTooling.cs",
-      "module": "csharp/src/SuperMetroid.Tooling",
-      "role": "tooling",
-      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
-      "layer": "Simulation",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "dependsOn": [
-        "csharp/src/SuperMetroid.Core/Fx"
-      ]
-    },
-    {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/TourianStatueGreyPaletteFxProgramMechanicsDefinitionsTooling.cs",
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxColorDefinitionsTooling.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -59627,7 +59614,20 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramDefinition.cs",
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinitionsTooling.cs",
+      "module": "csharp/src/SuperMetroid.Tooling",
+      "role": "tooling",
+      "namespace": "SuperMetroid.Core.Fx.PaletteFx",
+      "layer": "Simulation",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Fx"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinition.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -59637,7 +59637,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsTooling.cs",
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinitionsTooling.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -78020,7 +78020,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Verification/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitionsVerification.cs",
+      "path": "csharp/src/SuperMetroid.Verification/Fx/PaletteFx/HyperBeamPaletteFxColorDefinitionsVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
       "namespace": "SuperMetroid.Verification.Fx.PaletteFx",
@@ -91253,7 +91253,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BeaconPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BeaconPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91269,7 +91269,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramDefinitionAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinitionAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91285,7 +91285,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/BrinstarBlueSporePaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91301,7 +91301,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CeresCinematicLightPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91317,7 +91317,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CinematicGlowPaletteFxProgramDefinitionAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CinematicGlowPaletteFxColorDefinitionAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91333,7 +91333,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91349,7 +91349,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaLightningPaletteFxProgramDefinitionAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinitionAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91365,7 +91365,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ExplodingZebesFadePaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91381,7 +91381,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/HyperBeamPaletteFxProgramDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/HyperBeamPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91397,7 +91397,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramDefinitionAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitionAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91413,7 +91413,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91429,7 +91429,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NintendoLogoFadePaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91445,7 +91445,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/NorfairEnvironmentalPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91461,7 +91461,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91477,7 +91477,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91541,7 +91541,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramDefinitionAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitionAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91557,7 +91557,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91573,7 +91573,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91589,7 +91589,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/RedBrinstarGlowPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91605,7 +91605,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91621,7 +91621,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleLogoFadePaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleLogoFadePaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91637,7 +91637,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxProgramDefinitionAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TitleScreenAmbientPaletteFxColorDefinitionAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91654,7 +91654,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TorizoBellyPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TorizoBellyPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91670,7 +91670,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxProgramDefinitionAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeRedFlashPaletteFxColorDefinitionAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91686,7 +91686,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91702,7 +91702,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianGlowPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianGlowPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91718,7 +91718,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91734,7 +91734,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UnusedCinematicFadePaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91750,7 +91750,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91766,7 +91766,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/WreckedShipGreenLightPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91782,7 +91782,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionFinalePaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91798,7 +91798,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91814,7 +91814,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91830,7 +91830,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxProgramDefinitionAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionLayerFadePaletteFxColorDefinitionAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",
@@ -91846,7 +91846,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitionsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Fx.PaletteFx",

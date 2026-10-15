@@ -48,7 +48,7 @@ internal static class EnemyProjectileDefinitionCatalog
             PrePhantoonRoomVisualDefinitions.Program,
             0x0000, 0x3000, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.YappingMawBody => new(
-0xEC94, YappingMawBodyProjectileInstructionProgramDefinitions.FacingDown,
+0xEC94, 0xEC56,
             0x0202, 0x2005, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.SkreeParticleDownRight => new(
 0x8B5D, 0x8ABD,
@@ -268,7 +268,7 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0000,
             0x84FC),
         RoomEnemyProjectileKind.NuclearWaffleBody => new(
-0xBBC6, NuclearWaffleProjectileInstructionProgramDefinitions.Initial,
+0xBBC6, 0xBB5E,
             0x0808, 0xC040, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.FakeKraidSpit => new(
 0x9E1E, FakeKraidProjectileInstructionProgramDefinitions.Spit,
@@ -298,7 +298,7 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0202, 0x0010, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CacatacSpike => new(0xD9DB, 0xD92E, 0x0202, 0x0005, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.StokeProjectile => new(
-0xDB5B, StokeProjectileInstructionProgramDefinitions.Initial,
+0xDB5B, 0xDB0C,
             0x0202, 0x0005, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.NamiheFireball => new(
             0xDF39,
@@ -330,11 +330,11 @@ internal static class EnemyProjectileDefinitionCatalog
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.EyeDoorProjectile => new(
             0x84FB,
-            EyeDoorProjectileInstructionProgramDefinitions.Initial,
+            0xB5D9,
             0x0808,
             0x8004,
             0x0000,
-            EyeDoorProjectileInstructionProgramDefinitions.Shot),
+            0xB603),
         RoomEnemyProjectileKind.EyeDoorSweat => new(
             0xB714,
             EyeDoorSweatInstructionProgramDefinitions.Initial,
@@ -418,9 +418,9 @@ internal static class EnemyProjectileDefinitionCatalog
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep => new(0x84FB, 0xAEC4, 0x0000, 0x3000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate => new(0x84FB, 0xAEDC, 0x0000, 0x3000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.TourianStatueDescentDust => new(0x84FB, 0xAF14, 0x0000, 0x3000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.ShaktoolAttackFrontCircle => new(0xBE03, ShaktoolProjectileInstructionProgramDefinitions.Front, 0x0404, 0x000A, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle => new(0x84FB, ShaktoolProjectileInstructionProgramDefinitions.Middle, 0x0404, 0x2000, 0x0000, 0x84FC),
-        RoomEnemyProjectileKind.ShaktoolAttackBackCircle => new(0x84FB, ShaktoolProjectileInstructionProgramDefinitions.Back, 0x0404, 0x2000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.ShaktoolAttackFrontCircle => new(0xBE03, 0xBD68, 0x0404, 0x000A, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle => new(0x84FB, 0xBD78, 0x0404, 0x2000, 0x0000, 0x84FC),
+        RoomEnemyProjectileKind.ShaktoolAttackBackCircle => new(0x84FB, 0xBD8C, 0x0404, 0x2000, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.SporeSpawnStalk => new(0xDD44, SporeSpawnProjectileVisualDefinitions.StalkProgram, 0x0808, 0x2000, 0x0000, SporeSpawnProjectileVisualDefinitions.StalkProgram),
         RoomEnemyProjectileKind.SporeSpawnSpore => new(0xDCEE, SporeSpawnProjectileVisualDefinitions.SporeProgram, 0x0202, 0x8004, 0x0000, SporeSpawnProjectileVisualDefinitions.SporeShotProgram),
         RoomEnemyProjectileKind.SporeSpawnSpawner => new(0xDD46, SporeSpawnProjectileVisualDefinitions.SpawnerClosedProgram, 0x0202, 0x2000, 0x0000, SporeSpawnProjectileVisualDefinitions.SpawnerClosedProgram),
@@ -433,14 +433,14 @@ internal static class EnemyProjectileDefinitionCatalog
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.DownwardGateMoving => new(
             (ushort)EnemyProjectilePreInstruction.DownwardGateInertPreInstruction,
-            DownwardGateProjectileInstructionProgramDefinitions.Moving,
+            0xE53C,
             0x0000,
             0x2000,
             0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.DownwardGateClosed => new(
             (ushort)EnemyProjectilePreInstruction.DownwardGateInertPreInstruction,
-            DownwardGateProjectileInstructionProgramDefinitions.Closed,
+            0xE55E,
             0x0000,
             0x2000,
             0x0000,

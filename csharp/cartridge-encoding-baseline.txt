@@ -1212,7 +1212,7 @@ csharp/src/SuperMetroid.Verification/Harness/FixtureRoomHeaders.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Harness/FullMovieReplayVerification.cs	SME6340	63
 csharp/src/SuperMetroid.Verification/Harness/LookupRomOraclesVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Harness/LookupRomOraclesVerification.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6340	851
+csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6340	844
 csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Harness/LookupStream1Verification.cs	SME6342	18
 csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME6340	197

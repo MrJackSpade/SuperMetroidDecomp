@@ -1,3 +1,11 @@
+using SuperMetroid.Core.Rooms.Plms.Artwork;
+using SuperMetroid.Core.Rooms.Doors.Artwork;
+using SuperMetroid.Core.Enemies.Kago.Artwork;
+using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
+using SuperMetroid.Core.Enemies.Shaktool.Artwork;
+using SuperMetroid.Core.Enemies.Stoke.Artwork;
+using SuperMetroid.Core.Enemies.Nuclear.Artwork;
+using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.Core.Enemies.Deaths.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
@@ -177,42 +185,42 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             index => RidleyFireballVisualDefinitions.PresentationKey(RidleyFireballVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "old_tourian_escape_wall_explosion", OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordCount,
             OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordAddress);
-        Add(frames, "cacatac_spike", CacatacProjectileInstructionProgramDefinitions.PresentationWordCount,
-            CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "cacatac_spike", CacatacProjectileFrameDefinitions.PoseCount,
+            index => CacatacProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "botwoon", BotwoonVisualDefinitions.ProjectileFrameCount,
             index => BotwoonVisualDefinitions.ProjectilePresentationKey(BotwoonVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "crocomire", CrocomireProjectileVisualDefinitions.ProjectileFrameCount,
             index => CrocomireProjectileVisualDefinitions.PresentationKey(CrocomireProjectileVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "draygon", DraygonProjectileVisualDefinitions.ProjectileFrameCount,
             index => DraygonProjectileVisualDefinitions.PresentationKey(DraygonProjectileVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "downward_gate", DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount,
-            DownwardGateProjectileInstructionProgramDefinitions.PresentationWordAddress);
-        Add(frames, "eye_door", EyeDoorProjectileInstructionProgramDefinitions.PresentationWordCount,
-            EyeDoorProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "downward_gate", DownwardGateProjectileFrameDefinitions.PoseCount,
+            index => DownwardGateProjectileFrameDefinitions.PresentationKey(new(index)));
+        Add(frames, "eye_door", EyeDoorProjectileFrameDefinitions.PoseCount,
+            index => EyeDoorProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "fake_kraid", FakeKraidProjectileInstructionProgramDefinitions.PresentationWordCount,
             FakeKraidProjectileInstructionProgramDefinitions.PresentationWordAddress);
-        Add(frames, "kago_bug", KagoBugProjectileInstructionProgramDefinitions.PresentationWordCount,
-            KagoBugProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "kago_bug", KagoBugProjectileFrameDefinitions.PoseCount,
+            index => KagoBugProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "kraid_rock", KraidRockVisualDefinitions.ProjectileFrameCount,
             index => KraidRockVisualDefinitions.PresentationKey(KraidRockVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "noob_tube", NoobTubeProjectileInstructionProgramDefinitions.PresentationWordCount,
             NoobTubeProjectileInstructionProgramDefinitions.PresentationWordAddress);
-        Add(frames, "nuclear_waffle", NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordCount,
-            NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "nuclear_waffle", NuclearWaffleProjectileFrameDefinitions.PoseCount,
+            index => NuclearWaffleProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "phantoon", PhantoonFlameVisualDefinitions.ProjectileFrameCount,
             index => PhantoonFlameVisualDefinitions.PresentationKey(PhantoonFlameVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "shaktool", ShaktoolProjectileInstructionProgramDefinitions.PresentationWordCount,
-            ShaktoolProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "shaktool", ShaktoolProjectileFrameDefinitions.PoseCount,
+            index => ShaktoolProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "space_pirate", SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount,
             SpacePirateProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "spore_spawn", SporeSpawnProjectileVisualDefinitions.ProjectileFrameCount,
             index => SporeSpawnProjectileVisualDefinitions.PresentationKey(SporeSpawnProjectileVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "stoke", StokeProjectileInstructionProgramDefinitions.PresentationWordCount,
-            StokeProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "stoke", StokeProjectileFrameDefinitions.PoseCount,
+            index => StokeProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "tourian_statue", TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount,
             TourianStatueProjectileInstructionProgramDefinitions.PresentationWordAddress);
-        Add(frames, "yapping_maw", YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordCount,
-            YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "yapping_maw", YappingMawBodyProjectileFrameDefinitions.PoseCount,
+            index => YappingMawBodyProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "alcoon_fireball", AlcoonFireballFrameDefinitions.PoseCount,
             index => AlcoonFireballFrameDefinitions.PresentationKey(new(index)));
         if (generation >= CatalogGeneration.PreGoldenTorizoEgg)

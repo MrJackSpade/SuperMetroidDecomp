@@ -96,7 +96,7 @@ using static SuperMetroid.Verification.Enemies.Animals.EscapeEtecoonDefinitionsV
 using static SuperMetroid.Verification.Areas.Escape.EscapeGateVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.ExtendedFrameSequenceVerification;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorPlmDrawDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.EyeDoorProjectileInstructionProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.Doors.EyeDoorProjectileAnimationsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileProgramMappingsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidSpitVelocitiesVerification;
@@ -217,7 +217,6 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassPlmDra
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainGlassShardDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.NoobTubePlmDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Nuclear.NuclearWaffleProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Menus.OptionsGeometryLookupsVerification;
 using static SuperMetroid.Verification.Enemies.Owtch.OwtchMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.PaletteFxInstructionCodesVerification;
@@ -1563,7 +1562,6 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 1 oracle revision");
         Suite(nameof(CrawlerBehaviorVerification.VerifyCrawlerBehavior), () => CrawlerBehaviorVerification.VerifyCrawlerBehavior(rom));
         Suite(nameof(VerifySamusDeathSequence), () => VerifySamusDeathSequence());
-        Suite(nameof(VerifyNuclearWaffleProjectileInstructionProgramDefinitions), () => VerifyNuclearWaffleProjectileInstructionProgramDefinitions());
         Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(rom));
         Suite(nameof(OwtchBehaviorVerification.VerifyOwtchBehavior), () => OwtchBehaviorVerification.VerifyOwtchBehavior(rom));
         Suite(nameof(StokeBehaviorVerification.VerifyStokeBehavior), () => StokeBehaviorVerification.VerifyStokeBehavior(rom));
@@ -1609,7 +1607,6 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 4 oracle revision");
         Suite(nameof(VerifyMamaTurtleInstructionProgramDefinitions), () => VerifyMamaTurtleInstructionProgramDefinitions());
-        Suite(nameof(VerifyEyeDoorProjectileInstructionProgramDefinitions), () => VerifyEyeDoorProjectileInstructionProgramDefinitions());
         Suite(nameof(VerifyCompiledDraygonBg2Collision), () => VerifyCompiledDraygonBg2Collision(rom));
         Suite(nameof(VerifyRidleyCollisionDefinitions), () => VerifyRidleyCollisionDefinitions());
         Suite(nameof(VerifyLookupStream4), () => VerifyLookupStream4(rom));

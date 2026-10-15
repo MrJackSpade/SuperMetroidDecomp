@@ -44,6 +44,8 @@ internal static class NativeEnemyProjectileListDefinitions
         Callback,
         /// <summary>The random scatter and its two packed operand words, recorded rather than run.</summary>
         Scatter,
+        /// <summary>An owner callback with one operand word, recorded rather than run.</summary>
+        CallbackWithWord,
     }
 
     /// <summary>The bank-$86 opcodes the reader decodes besides frames.</summary>
@@ -64,6 +66,12 @@ internal static class NativeEnemyProjectileListDefinitions
         [(ushort)EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX] = WordKind.Callback,
         [(ushort)EnemyProjectileInstruction.Spores_SpawnEnemyDrops] = WordKind.Callback,
         [(ushort)EnemyProjectileInstruction.MagdolliteFlame_SpawnDrops] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.KagoBugStartJumpInstruction] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.CalculateDirectionTowardsSamus] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.DownwardGateSetYVelocityInstruction] = WordKind.CallbackWithWord,
+        [(ushort)EnemyProjectileInstruction.KagoBugStartIdleInstruction] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.KagoBugSpawnDropInstruction] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction] = WordKind.Callback,
         [(ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = WordKind.Scatter,
         [(ushort)TourianStatueInstruction.ResetDustPosition] = WordKind.Callback,
     };
@@ -157,6 +165,10 @@ internal static class NativeEnemyProjectileListDefinitions
                         continue;
                     case WordKind.Scatter:
                         cursor = unchecked((ushort)(cursor + 6));
+                        continue;
+                    case WordKind.CallbackWithWord:
+                        Callbacks.Add((EnemyProjectileInstruction)word);
+                        cursor = unchecked((ushort)(cursor + 4));
                         continue;
                     default:
                         throw new InvalidOperationException($"Undefined {nameof(WordKind)}.");

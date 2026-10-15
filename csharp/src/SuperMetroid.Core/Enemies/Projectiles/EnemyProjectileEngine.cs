@@ -889,28 +889,9 @@ internal sealed class EnemyProjectileEngine
                         unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
-                case EnemyProjectileInstruction.CalculateDirectionTowardsSamus:
-                    if (samus is null)
-                    {
-                        throw new InvalidOperationException(
-                            "Enemy-projectile direction bytecode requires Samus.");
-                    }
-                    projectile.Variable0 = unchecked((ushort)(2 * EnemyMath.CalculateCartridgeAngle(
-                        new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole))))));
-                    int eyeDoorAngle = projectile.Variable0 >> 1;
-                    projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)eyeDoorAngle))));
-                    projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(eyeDoorAngle - 64)))));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
                 case EnemyProjectileInstruction.ClearPreInstruction:
                     projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
                     cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case EnemyProjectileInstruction.DownwardGateSetYVelocityInstruction:
-                    projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(ReadEnemyProjectileInstructionMechanicsWord(
-                        projectile,
-                        unchecked((ushort)(cursor + 2)))));
-                    cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileInstruction.GotoY:
                     cursor = ReadEnemyProjectileInstructionMechanicsWord(
@@ -987,10 +968,6 @@ internal sealed class EnemyProjectileEngine
                     projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 12)));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction:
-                    projectile.GraphicsIndex = 0;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
                 default:
                     throw new InvalidDataException(
                         $"Enemy projectile instruction $86:{word:X4} at $86:{cursor:X4} is not translated.");
@@ -1047,17 +1024,6 @@ internal sealed class EnemyProjectileEngine
         if (OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind))
             return OldTourianEscapeShaftWallExplosionDefinitions.ReadMechanicsWord(address);
 
-        if (projectile.Kind == RoomEnemyProjectileKind.KagoBug)
-        {
-            return KagoBugProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.YappingMawBody)
-        {
-            return YappingMawBodyProjectileInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
         if (SpacePirateProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return SpacePirateProjectileInstructionProgramDefinitions.ReadMechanicsWord(
@@ -1067,12 +1033,6 @@ internal sealed class EnemyProjectileEngine
         if (projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity)
         {
             return SaveStationElectricityInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
-        if (DownwardGateProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return DownwardGateProjectileInstructionProgramDefinitions.ReadMechanicsWord(
                 address);
         }
 
@@ -1091,28 +1051,6 @@ internal sealed class EnemyProjectileEngine
             return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
-        if (projectile.Kind == RoomEnemyProjectileKind.StokeProjectile)
-        {
-            return StokeProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.NuclearWaffleBody)
-        {
-            return NuclearWaffleProjectileInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.CacatacSpike)
-        {
-            return CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile)
-        {
-            return EyeDoorProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat)
         {
             return EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord(address);
@@ -1121,11 +1059,6 @@ internal sealed class EnemyProjectileEngine
         if (EnemyProjectileInstructionMechanicsDefinitions.Owns(projectile.Kind))
         {
             return EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (ShaktoolProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return ShaktoolProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (TourianStatueProjectileInstructionProgramDefinitions.Owns(projectile.Kind))

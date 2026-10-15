@@ -143,29 +143,34 @@ internal sealed class KagoBehavior : IEnemySpecies
             RunKagoBugFalling(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.KagoBug_Falling);
 
-        table.RegisterInstruction(EnemyProjectileInstruction.KagoBugStartJumpInstruction, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
+        table.RegisterCue<KagoBugProjectileCue>(ApplyKagoBugCue);
+        // A shot bug runs its typed shot program, the list its definition names.
+        table.RegisterShotAnimation(RoomEnemyProjectileKind.KagoBug, () => new KagoBugProjectileAnimation(KagoBugProjectileProgram.Shot));
+    }
+
+    /// <summary>Carries out one cue of the bugs' programs.</summary>
+    private void ApplyKagoBugCue(RoomEnemyProjectileSlot projectile, SamusState? samus, KagoBugProjectileCue cue)
+    {
+        switch (cue.Kind)
+        {
+            case KagoBugProjectileCueKind.StartJump:
                 StartKagoBugJump(projectile);
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
-
-        table.RegisterInstruction(EnemyProjectileInstruction.KagoBugStartIdleInstruction, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
+                break;
+            case KagoBugProjectileCueKind.StartIdle:
                 StartKagoBugIdle(projectile);
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
-
-        table.RegisterInstruction(EnemyProjectileInstruction.KagoBugSpawnDropInstruction, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
+                break;
+            case KagoBugProjectileCueKind.SpawnDrop:
                 RequestKagoBugDrop(projectile);
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
+                break;
+            case KagoBugProjectileCueKind.UsePaletteZero:
+                projectile.GraphicsIndex = 0;
+                break;
+            case KagoBugProjectileCueKind.Delete:
+                projectile.Clear();
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(KagoBugProjectileCueKind)} {cue.Kind}.");
+        }
     }
 
     /// <summary>Runs Kago's shell animation as a typed program (#641).</summary>
@@ -287,9 +292,7 @@ internal sealed class KagoBehavior : IEnemySpecies
             return;
         }
 
-        projectile.InstructionPointer =
-            KagoBugProjectileInstructionProgramDefinitions.JumpStart;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
+        projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.JumpStart));
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86D0EB;
     }
 
@@ -337,9 +340,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
         {
             projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86D0EB;
-            projectile.InstructionPointer =
-                KagoBugProjectileInstructionProgramDefinitions.Landed;
-            projectile.InstructionTimer = NativeCountdown.Start(1);
+            projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.Landed));
             return;
         }
 
@@ -351,8 +352,7 @@ internal sealed class KagoBehavior : IEnemySpecies
     {
         projectile.PreInstruction =
             (ushort)EnemyProjectilePreInstruction.KagoBug_Falling;
-        projectile.InstructionPointer = KagoBugProjectileInstructionProgramDefinitions.Falling;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
+        projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.Falling));
     }
 
     /// <summary>Ports instruction <c>$86:D15C</c>, including its unusual RNG reuse.</summary>

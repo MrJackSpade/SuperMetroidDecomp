@@ -149,9 +149,8 @@ internal static class DownwardGatePlmsVerification
             "closed gate actor begins four tiles beneath a row-two PLM origin");
         enemies.StepEnemyProjectiles(level, samus: null);
         enemies.StepEnemyProjectiles(level, samus: null);
-        AssertEqual(DownwardGateEnemyProjectileRomData.ClosedSleepInstruction,
-            actor.InstructionPointer,
-            "closed gate actor reaches its cartridge sleep before a shot can wake it");
+        AssertTrue(actor.Animation is DownwardGateProjectileAnimation { Cursor.Program: DownwardGateProjectileProgram.Closed },
+            "closed gate actor holds its closed program's sleep before a shot can wake it");
 
         // The closed resident list first draws its collision state and then sleeps under
         // $BB6B. The Green Hill Zone fixture uses room argument zero, so an ordinary beam

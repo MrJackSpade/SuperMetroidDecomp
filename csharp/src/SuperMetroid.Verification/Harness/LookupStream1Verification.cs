@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Cacatac;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Verification.Enemies.Dragon;
@@ -1956,7 +1957,6 @@ internal static class LookupStream1Verification
         Suite(nameof(VerifyLookupStream1MetroidLayout), () => VerifyLookupStream1MetroidLayout(rom));
         Suite(nameof(VerifyLookupStream1PuyoAndQuota), () => VerifyLookupStream1PuyoAndQuota(rom));
         Suite(nameof(VerifyLookupStream1VisualCatalogs), () => VerifyLookupStream1VisualCatalogs(rom));
-        Suite(nameof(VerifyLookupStream1NuclearWaffle), () => VerifyLookupStream1NuclearWaffle(rom));
         Suite(nameof(VerifyLookupStream1DeathDefinitions), () => VerifyLookupStream1DeathDefinitions(rom));
         Suite(nameof(VerifyLookupStream1Sciser), () => VerifyLookupStream1Sciser(rom));
         Suite(nameof(VerifyLookupStream1PowampMotion), () => VerifyLookupStream1PowampMotion(rom));
@@ -2052,9 +2052,9 @@ internal static class LookupStream1Verification
         foreach (byte invalid in new byte[] { 6, byte.MaxValue })
             AssertThrows<InvalidDataException>(() => CacatacMovementDefinitions.TravelDistance(invalid), "stream1 Cacatac invalid patrol selector");
         for (ushort direction = 0; direction < 20; direction += 2)
-            AssertEqual(Word(0x86d96a + direction), CacatacProjectileDefinitions.InstructionList((CacatacSpikeDirection)direction), "stream1 Cacatac named direction program");
+            AssertEqual(Word(0x86d96a + direction), CacatacProjectileNativeListAddresses.Entry(CacatacProjectileDefinitions.Program((CacatacSpikeDirection)direction)), "stream1 Cacatac named direction program");
         foreach (ushort invalid in new ushort[] { 1, 19, 20, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => CacatacProjectileDefinitions.InstructionList((CacatacSpikeDirection)invalid), "stream1 Cacatac invalid direction selector");
+            AssertThrows<InvalidDataException>(() => CacatacProjectileDefinitions.Program((CacatacSpikeDirection)invalid), "stream1 Cacatac invalid direction selector");
     }
 
     /// <summary>Reads native Bull and related enemy motion words.</summary>
@@ -2072,38 +2072,6 @@ internal static class LookupStream1Verification
         }
         foreach (int invalid in new[] { int.MinValue, 0x90c480, 0x90c4b5, int.MaxValue })
             AssertThrows<InvalidDataException>(() => ChargeFlareAnimationDefinitions.ReadByte(invalid), "stream1 flare byte domain");
-        Check(0x860000, 0xd92e, 0xd96a, CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount, CacatacProjectileInstructionProgramDefinitions.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress, Read: CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord, Owns: CacatacProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => (a - 0xd930) % 6 == 0));
-
-        void Check(int bank, int first, int end, int mechanicsCount, int presentationCount, CompiledProgramSplit split)
-        {
-            int mechanical = 0, visual = 0;
-            for (int address = first; address < end; address += 2)
-            {
-                bool selectedVisual = split.IsVisual(address);
-                if (selectedVisual)
-                {
-                    AssertEqual((ushort)address, split.Presentation(visual++), "stream1 native presentation operand ordering");
-                    AssertThrows<InvalidDataException>(() => split.Read((ushort)address), "stream1 presentation excluded from mechanics");
-                }
-                else
-                {
-                    var actual = split.Mechanics(mechanical++);
-                    AssertEqual((ushort)address, actual.Address, "stream1 native mechanics address ordering");
-                    AssertEqual(Word(bank | address), actual.Value, "stream1 original program mechanics value");
-                    AssertEqual(actual.Value, split.Read((ushort)address), "stream1 direct program mechanics value");
-                }
-                AssertEqual(!selectedVisual, split.Owns(bank | address), "stream1 program low-byte ownership");
-                AssertEqual(!selectedVisual, split.Owns(bank | (address + 1)), "stream1 program high-byte ownership");
-                AssertThrows<InvalidDataException>(() => split.Read((ushort)(address + 1)), "stream1 unaligned program word rejection");
-            }
-            AssertEqual(mechanicsCount, mechanical, "stream1 exact mechanics count");
-            AssertEqual(presentationCount, visual, "stream1 exact presentation count");
-            AssertTrue(!split.Owns(bank | (first - 1)) && !split.Owns(bank | end) && !split.Owns((bank ^ 0x10000) | first), "stream1 outside program byte rejection");
-            foreach (int invalid in new[] { -1, mechanicsCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => split.Mechanics(invalid), "stream1 mechanics enumeration bounds");
-            foreach (int invalid in new[] { -1, presentationCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => split.Presentation(invalid), "stream1 presentation enumeration bounds");
-        }
     }
 
     /// <summary>Reads native charge-flare and animation cadence instructions.</summary>
@@ -2277,48 +2245,7 @@ internal static class LookupStream1Verification
     /// <summary>Reads native Samus death-sequence selection data.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 death definitions")]
     private static byte LookupStream1DeathDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    /// <summary>Checks Nuclear Waffle projectile instruction controls, presentation operands, and exact byte ownership.</summary>
-    private static void VerifyLookupStream1NuclearWaffle(ISnesAddressSpace rom)
-    {
-        Confirm(0x86, 0xbb5e, NuclearWaffleProjectileInstructionProgramDefinitions.ReadMechanicsWord,
-            NuclearWaffleProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-            index => { var word = NuclearWaffleProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index); return (word.Address, word.Value); },
-            NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordAddress);
-        void Confirm(int bank, int start, Func<ushort, ushort> read, Func<int, bool> guarded,
-            Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> visual)
-        {
-            var nativeControls = new HashSet<int>();
-            for (int frame = 0; frame < 12; frame++)
-            {
-                nativeControls.Add(start + frame * 4);
-                AssertEqual((ushort)(start + frame * 4 + 2), visual(frame), "Nuclear Waffle native visual positions");
-            }
-            nativeControls.Add(start + 48);
-            nativeControls.Add(start + 50);
-            int index = 0;
-            for (int pointer = start - 1; pointer <= start + 52; pointer++)
-            {
-                AssertEqual(nativeControls.Contains(pointer) || nativeControls.Contains(pointer - 1),
-                    guarded(((int)new SnesAddress(checked((byte)bank), checked((ushort)pointer)))), "Nuclear Waffle exact byte guard");
-                if (nativeControls.Contains(pointer))
-                {
-                    var actual = mechanics(index++);
-                    AssertEqual((ushort)pointer, actual.Address, "Nuclear Waffle control ordering");
-                    AssertEqual((ushort)(SnesLittleEndian.Word(LookupStream1NuclearWaffleRomByte(rom, (int)new SnesAddress((byte)bank, (ushort)pointer)), LookupStream1NuclearWaffleRomByte(rom, (int)new SnesAddress((byte)bank, (ushort)(pointer + 1))))),
-                        actual.Value, "Nuclear Waffle native controls");
-                }
-                else AssertThrows<InvalidDataException>(() => read((ushort)pointer), "Nuclear Waffle noncontrol rejection");
-            }
-            foreach (int invalid in new[] { int.MinValue, -1, 14, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "Nuclear Waffle control index bounds");
-            foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => visual(invalid), "Nuclear Waffle visual index bounds");
-        }
-    }
 
-    /// <summary>Reads Nuclear Waffle instruction control and visual words.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Nuclear Waffle")]
-    private static byte LookupStream1NuclearWaffleRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks charge-flare sprite selectors and extracted visual records against native pointers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)

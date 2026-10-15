@@ -97,7 +97,7 @@ internal static class DownwardGatePlmProgramDefinitions
             0xbc27 or 0xbc4a => (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6,
             0xbc46 => (ushort)RoomPlmInstruction.WakeDownwardGateProjectile,
             // Native BBF0 advances over this operand without using its value.
-            0xbc48 => DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep,
+            0xbc48 => 0xe566,
             0xbc5d => (ushort)RoomPlmInstruction.Goto,
             0xbc5f => OpenStart,
             _ => 0,

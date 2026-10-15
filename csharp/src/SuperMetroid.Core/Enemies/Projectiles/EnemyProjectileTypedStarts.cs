@@ -1,3 +1,10 @@
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Enemies.YappingMaws;
+using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.Core.Enemies.Stoke;
+using SuperMetroid.Core.Enemies.Nuclear;
+using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Skree;
@@ -50,6 +57,16 @@ internal static class EnemyProjectileTypedStarts
         [RoomEnemyProjectileKind.TourianStatueDescentDust] = () => new ChozoTourianDustAnimation(ChozoTourianDustProgram.TourianDescentDust),
         [RoomEnemyProjectileKind.EnemyDeathPickup] = () => new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallEnergy),
         [RoomEnemyProjectileKind.EnemyDeathExplosion] = () => new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallEnergy),
+        [RoomEnemyProjectileKind.CacatacSpike] = () => new CacatacProjectileAnimation(CacatacProjectileProgram.LeftFacingUp),
+        [RoomEnemyProjectileKind.NuclearWaffleBody] = () => new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileProgram.Initial),
+        [RoomEnemyProjectileKind.StokeProjectile] = () => new StokeProjectileAnimation(StokeProjectileProgram.Initial),
+        [RoomEnemyProjectileKind.ShaktoolAttackFrontCircle] = () => new ShaktoolProjectileAnimation(ShaktoolProjectileProgram.Front),
+        [RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle] = () => new ShaktoolProjectileAnimation(ShaktoolProjectileProgram.Middle),
+        [RoomEnemyProjectileKind.ShaktoolAttackBackCircle] = () => new ShaktoolProjectileAnimation(ShaktoolProjectileProgram.Back),
+        [RoomEnemyProjectileKind.YappingMawBody] = () => new YappingMawBodyProjectileAnimation(YappingMawBodyProjectileProgram.FacingDown),
+        [RoomEnemyProjectileKind.EyeDoorProjectile] = () => new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Initial),
+        [RoomEnemyProjectileKind.DownwardGateMoving] = () => new DownwardGateProjectileAnimation(DownwardGateProjectileProgram.Moving),
+        [RoomEnemyProjectileKind.DownwardGateClosed] = () => new DownwardGateProjectileAnimation(DownwardGateProjectileProgram.Closed),
     };
 
     /// <summary>A new animation running the typed initial program of <paramref name="kind"/>, or null when the kind has none.</summary>

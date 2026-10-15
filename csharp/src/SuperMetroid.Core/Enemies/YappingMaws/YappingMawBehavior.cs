@@ -116,9 +116,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies
                 RoomEnemyProjectileKind.YappingMawBody,
                 unchecked((ushort)(slot.VramTilesIndex | slot.PaletteIndex)));
             body.Position = body.Position.WithWhole(slot.Position.Whole);
-            body.InstructionPointer = slot.Parameter2 == 0
-                ? YappingMawBodyProjectileInstructionProgramDefinitions.FacingDown
-                : YappingMawBodyProjectileInstructionProgramDefinitions.FacingUp;
+            body.InstallAnimation(new YappingMawBodyProjectileAnimation(slot.Parameter2 == 0
+                ? YappingMawBodyProjectileProgram.FacingDown
+                : YappingMawBodyProjectileProgram.FacingUp));
             state.BodyProjectiles[parameter] = body;
         }
 

@@ -19,7 +19,7 @@ internal static class CacatacProjectileDefinitions
     /// $86:D96A CacatacSpike_InstListPointers: dispatch the spike direction and
     /// facing to its corresponding named animation program.
     /// </summary>
-    internal static ushort InstructionList(CacatacSpikeDirection direction)
+    internal static CacatacProjectileProgram Program(CacatacSpikeDirection direction)
     {
         ushort raw = (ushort)direction;
         if ((raw & 1) != 0 || raw > (ushort)CacatacSpikeDirection.DownRight)
@@ -30,16 +30,16 @@ internal static class CacatacProjectileDefinitions
 
         return direction switch
         {
-            CacatacSpikeDirection.LeftFacingUp => CacatacProjectileInstructionProgramDefinitions.LeftFacingUp,
-            CacatacSpikeDirection.Up => CacatacProjectileInstructionProgramDefinitions.Up,
-            CacatacSpikeDirection.RightFacingUp => CacatacProjectileInstructionProgramDefinitions.RightFacingUp,
-            CacatacSpikeDirection.LeftFacingDown => CacatacProjectileInstructionProgramDefinitions.LeftFacingDown,
-            CacatacSpikeDirection.Down => CacatacProjectileInstructionProgramDefinitions.Down,
-            CacatacSpikeDirection.RightFacingDown => CacatacProjectileInstructionProgramDefinitions.RightFacingDown,
-            CacatacSpikeDirection.UpLeft => CacatacProjectileInstructionProgramDefinitions.UpLeft,
-            CacatacSpikeDirection.UpRight => CacatacProjectileInstructionProgramDefinitions.UpRight,
-            CacatacSpikeDirection.DownLeft => CacatacProjectileInstructionProgramDefinitions.DownLeft,
-            CacatacSpikeDirection.DownRight => CacatacProjectileInstructionProgramDefinitions.DownRight,
+            CacatacSpikeDirection.LeftFacingUp => CacatacProjectileProgram.LeftFacingUp,
+            CacatacSpikeDirection.Up => CacatacProjectileProgram.Up,
+            CacatacSpikeDirection.RightFacingUp => CacatacProjectileProgram.RightFacingUp,
+            CacatacSpikeDirection.LeftFacingDown => CacatacProjectileProgram.LeftFacingDown,
+            CacatacSpikeDirection.Down => CacatacProjectileProgram.Down,
+            CacatacSpikeDirection.RightFacingDown => CacatacProjectileProgram.RightFacingDown,
+            CacatacSpikeDirection.UpLeft => CacatacProjectileProgram.UpLeft,
+            CacatacSpikeDirection.UpRight => CacatacProjectileProgram.UpRight,
+            CacatacSpikeDirection.DownLeft => CacatacProjectileProgram.DownLeft,
+            CacatacSpikeDirection.DownRight => CacatacProjectileProgram.DownRight,
             _ => throw new InvalidDataException(),
         };
     }
@@ -52,7 +52,7 @@ internal static class CacatacProjectileDefinitions
     /// </summary>
     internal static CacatacSpikeSpeedPair SpeedPair(CacatacSpikeDirection direction)
     {
-        _ = InstructionList(direction); // Apply the identical native direction domain.
+        _ = Program(direction); // Apply the identical native direction domain.
         return direction >= CacatacSpikeDirection.UpLeft
             ? DiagonalSpeeds
             : CardinalSpeeds;

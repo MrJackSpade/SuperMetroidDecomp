@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -152,9 +153,7 @@ internal sealed class EyeDoorBehavior
         if (MoveEyeDoorEffectHorizontally(projectile, level) ||
             MoveEyeDoorEffectVertically(projectile, level))
         {
-            SetEyeDoorEffectImpactList(
-                projectile,
-                EyeDoorProjectileInstructionProgramDefinitions.Impact);
+            StartEyeDoorProjectileImpact(projectile);
             return;
         }
 
@@ -167,11 +166,7 @@ internal sealed class EyeDoorBehavior
         Bank80SystemState system = _eyeDoorProjectileSystem ??
             throw new InvalidOperationException("A live eye-door projectile has no door-bit owner.");
         if (system.HasOpenedDoorBit(projectile.Variable1))
-        {
-            SetEyeDoorEffectImpactList(
-                projectile,
-                EyeDoorProjectileInstructionProgramDefinitions.Impact);
-        }
+            StartEyeDoorProjectileImpact(projectile);
     }
 
     /// <summary>Applies sweat gravity and enters the impact list on a downward vertical collision.</summary>
@@ -208,6 +203,48 @@ internal sealed class EyeDoorBehavior
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
         projectile.InstructionPointer = instructionList;
         projectile.InstructionTimer = NativeCountdown.Start(1);
+    }
+
+    /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the native list switch does.</summary>
+    private static void StartEyeDoorProjectileImpact(RoomEnemyProjectileSlot projectile)
+    {
+        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
+        projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Impact));
+    }
+
+    /// <summary>Carries out one cue of the eye-door shot's programs.</summary>
+    private static void ApplyEyeDoorProjectileCue(RoomEnemyProjectileSlot projectile, SamusState? samus, EyeDoorProjectileCue cue)
+    {
+        switch (cue.Kind)
+        {
+            case EyeDoorProjectileCueKind.AimAtSamus:
+                AimEyeDoorProjectileAtSamus(projectile, samus ?? throw new InvalidOperationException("The eye-door shot's aim requires Samus."));
+                break;
+            case EyeDoorProjectileCueKind.SetPreInstruction:
+                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                break;
+            case EyeDoorProjectileCueKind.ClearPreInstruction:
+                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                break;
+            case EyeDoorProjectileCueKind.Delete:
+                projectile.Clear();
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(EyeDoorProjectileCueKind)} {cue.Kind}.");
+        }
+    }
+
+    /// <summary>
+    /// Ports <c>Instruction_EnemyProjectile_CalculateDirectionTowardsSamus</c> ($86:82A5): stores the doubled angle to
+    /// Samus and launches the shot along it at unit speed.
+    /// </summary>
+    private static void AimEyeDoorProjectileAtSamus(RoomEnemyProjectileSlot projectile, SamusState samus)
+    {
+        projectile.Variable0 = unchecked((ushort)(2 * EnemyMath.CalculateCartridgeAngle(
+            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole))))));
+        int angle = projectile.Variable0 >> 1;
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)angle))));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(angle - 64)))));
     }
 
     /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>
@@ -332,6 +369,10 @@ internal sealed class EyeDoorBehavior
     /// <summary>Routes live eye shots and sweat through their distinct movement routines.</summary>
     internal void RegisterEyeDoorProjectiles(EnemyProjectileHandlerTable table)
     {
+        table.RegisterCue<EyeDoorProjectileCue>(ApplyEyeDoorProjectileCue);
+        // A shot eye-door projectile runs its typed shot program, the list its definition names.
+        table.RegisterShotAnimation(RoomEnemyProjectileKind.EyeDoorProjectile, () => new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Shot));
+
         table.RegisterPreInstruction(context =>
         {
             RunEyeDoorProjectilePreInstruction(context.Projectile, context.Level);

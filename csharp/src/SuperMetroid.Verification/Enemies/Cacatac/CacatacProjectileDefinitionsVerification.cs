@@ -33,7 +33,7 @@ internal static class CacatacProjectileDefinitionsVerification
 
             ushort raw = (ushort)direction;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + raw);
-            AssertEqual(native, CacatacProjectileDefinitions.InstructionList(direction),
+            AssertEqual(native, CacatacProjectileNativeListAddresses.Entry(CacatacProjectileDefinitions.Program(direction)),
                 $"compiled Cacatac spike instruction {direction}");
 
             CacatacSpikeSpeedPair speeds = CacatacProjectileDefinitions.SpeedPair(direction);
@@ -59,10 +59,10 @@ internal static class CacatacProjectileDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => CacatacProjectileDefinitions.InstructionList((CacatacSpikeDirection)1),
+            () => CacatacProjectileDefinitions.Program((CacatacSpikeDirection)1),
             "Cacatac odd spike selector");
         AssertThrows<InvalidDataException>(
-            () => CacatacProjectileDefinitions.InstructionList((CacatacSpikeDirection)20),
+            () => CacatacProjectileDefinitions.Program((CacatacSpikeDirection)20),
             "Cacatac spike selector beyond authored table");
 
         Console.WriteLine(

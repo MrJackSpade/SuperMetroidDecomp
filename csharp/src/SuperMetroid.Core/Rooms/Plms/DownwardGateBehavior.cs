@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -98,8 +99,7 @@ internal sealed class DownwardGateBehavior
                 $"Downward gate PLM block {plmBlockIndex} has no associated bank-$86 actor.");
         }
 
-        projectile.InstructionTimer = NativeCountdown.Start(1);
-        projectile.InstructionPointer = unchecked((ushort)(projectile.InstructionPointer + 2));
+        ResumeDownwardGate(projectile);
     }
 
     /// <summary>Ports <c>$86:E605</c>'s one-block-at-a-time signed 8.8 motion.</summary>
@@ -109,19 +109,53 @@ internal sealed class DownwardGateBehavior
         int accumulated = projectile.GeneralTimer + speedMagnitude;
         if (accumulated >= DownwardGateEnemyProjectileRomData.OneBlockDistance)
         {
-            // The sleeping opcode is the current instruction pointer. Advancing two bytes
-            // wakes the next visual frame on this same projectile-handler pass.
-            projectile.InstructionTimer = NativeCountdown.Start(1);
-            projectile.InstructionPointer = unchecked((ushort)(projectile.InstructionPointer + 2));
+            // Native steps the list two bytes past its sleep, which wakes the next visual frame
+            // on this same projectile-handler pass.
+            ResumeDownwardGate(projectile);
             accumulated = 0;
         }
         projectile.GeneralTimer = unchecked((ushort)accumulated);
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
     }
 
+    /// <summary>
+    /// Steps a gate past the sleep its program holds, as the native two-byte list advance with a one-update timer
+    /// does: the program resumes with the one authored after that sleep.
+    /// </summary>
+    private static void ResumeDownwardGate(RoomEnemyProjectileSlot projectile)
+    {
+        DownwardGateProjectileProgram sleeping = projectile.Animation is DownwardGateProjectileAnimation gate
+            ? gate.Cursor.Program
+            : throw new InvalidOperationException($"A downward gate resumed without its typed program; it runs {projectile.Animation}.");
+        projectile.StartAnimation(new DownwardGateProjectileAnimation(DownwardGateProjectileAnimations.Resumption[sleeping]));
+    }
+
+    /// <summary>Carries out one cue of the gate's programs.</summary>
+    private static void ApplyDownwardGateCue(RoomEnemyProjectileSlot projectile, SamusState? samus, DownwardGateProjectileCue cue)
+    {
+        switch (cue.Kind)
+        {
+            case DownwardGateProjectileCueKind.SetYVelocity:
+                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(cue.Value));
+                break;
+            case DownwardGateProjectileCueKind.SetPreInstruction:
+                projectile.PreInstruction = (ushort)cue.PreInstruction;
+                break;
+            case DownwardGateProjectileCueKind.ClearPreInstruction:
+                projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                break;
+            case DownwardGateProjectileCueKind.Delete:
+                projectile.Clear();
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(DownwardGateProjectileCueKind)} {cue.Kind}.");
+        }
+    }
+
     /// <summary>Connects the bank-$86 moving-gate pre-instruction to the projectile handler table.</summary>
     internal static void RegisterDownwardGateProjectiles(EnemyProjectileHandlerTable table)
     {
+        table.RegisterCue<DownwardGateProjectileCue>(ApplyDownwardGateCue);
         table.RegisterPreInstruction(context =>
         {
             RunDownwardGateProjectileMovement(context.Projectile);

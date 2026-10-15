@@ -262,7 +262,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         projectile.DirectionParameter = rawDirection;
         projectile.Variable0 = rawDirection;
         var direction = (CacatacSpikeDirection)rawDirection;
-        projectile.InstructionPointer = CacatacProjectileDefinitions.InstructionList(direction);
+        projectile.InstallAnimation(new CacatacProjectileAnimation(CacatacProjectileDefinitions.Program(direction)));
         projectile.Position = source.Position;
         CacatacSpikeSpeedPair speeds = CacatacProjectileDefinitions.SpeedPair(direction);
         projectile.Velocity = new(new SnesSignedEightEight(speeds.Positive), new SnesSignedEightEight(speeds.Negative));

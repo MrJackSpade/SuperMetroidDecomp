@@ -90,7 +90,9 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.SporeSpawnSpawner or RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
                 RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
                 // The Powamp spike's and the Magdollite lava's shot lists run as typed programs (#1291).
-                RoomEnemyProjectileKind.PowampSpike or RoomEnemyProjectileKind.LavaThrownByMagdollite))
+                RoomEnemyProjectileKind.PowampSpike or RoomEnemyProjectileKind.LavaThrownByMagdollite or
+                // The Kago bug's shot list is typed too (#1292).
+                RoomEnemyProjectileKind.KagoBug or RoomEnemyProjectileKind.EyeDoorProjectile))
                 VerifyEntry(definition.ShotInstructionList, "shot");
 
             void VerifyEntry(ushort address, string role)

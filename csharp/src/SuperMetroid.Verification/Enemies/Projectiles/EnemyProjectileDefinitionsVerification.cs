@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Bosses.Torizo;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
@@ -200,6 +202,20 @@ internal static class EnemyProjectileDefinitionsVerification
                 // The spike's shot list is its private delete list, typed with its programs (#1291).
                 AssertTrue(projectile.Animation is PowampSpikeAnimation { Cursor.Program: PowampSpikeProgram.Delete },
                     $"{kind} production shot starts the typed delete program");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+            }
+            else if (kind == RoomEnemyProjectileKind.KagoBug)
+            {
+                // The bug's shot list spawns its drop; it is typed with its programs (#1292).
+                AssertTrue(projectile.Animation is KagoBugProjectileAnimation { Cursor.Program: KagoBugProjectileProgram.Shot },
+                    $"{kind} production shot starts the typed shot program");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+            }
+            else if (kind == RoomEnemyProjectileKind.EyeDoorProjectile)
+            {
+                // The eye-door shot's shot list is typed with its programs (#1292).
+                AssertTrue(projectile.Animation is EyeDoorProjectileAnimation { Cursor.Program: EyeDoorProjectileProgram.Shot },
+                    $"{kind} production shot starts the typed shot program");
                 AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
             }
             else if (kind == RoomEnemyProjectileKind.LavaThrownByMagdollite)

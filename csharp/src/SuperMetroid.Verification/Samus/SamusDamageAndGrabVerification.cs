@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Abilities.DrainedPoseHistoryVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.HyperBeamPaletteFxProgramDefinitionsVerification;
@@ -208,8 +210,8 @@ internal static void VerifySamusDrainedController()
         "controller three spawns Hyper Beam palette-FX object");
     AssertEqual(1, left.Drained.HyperBeamPaletteFx.InstructionTimer.RawValue,
         "palette-FX spawn installs native timer one");
-    AssertEqual(0xd900, left.Drained.HyperBeamPaletteFx.InstructionPointer,
-        "palette-FX spawn installs object instruction pointer");
+    AssertEqual(AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.HyperBeam0), left.Drained.HyperBeamPaletteFx.Cursor,
+        "palette-FX spawn starts the object's program");
 
     // Seed both neighboring colors so the test can distinguish the exact eight-color
     // write from a convenient whole-palette copy. Calls 1/2 show frame zero, calls 3/4

@@ -123,15 +123,6 @@ internal static class TitleSequenceRomDataVerification
         WriteRomWord(rom, 0x8cbc7f, 0xe07f);
         WriteRomWord(rom, TitleGradientRomData.ControlTable, 0xa17a);
         WriteRomWord(rom, TitleGradientRomData.ControlTable + 2, 0x317f);
-        // Phase-chain fixtures supply valid empty programs at the compiled retail list
-        // identities. The separate retail console audit checks the real color words,
-        // timing, and rendered blinking; fixed object headers are not mutable fixture data.
-        foreach (ushort definition in new[] { TitleSequenceRomData.ConsolePaletteFx.SlowLights,
-                     TitleSequenceRomData.ConsolePaletteFx.FastLights })
-        {
-            ushort list = RoomPaletteFxDefinitions.Get(definition).InitialInstructionList;
-            WriteRomWord(rom, 0x8d0000 | list, (ushort)PaletteFxInstruction.Delete);
-        }
         WriteRepeatedCompressedStream(
             rom,
             TitleSequenceRomData.Assets.Mode7CharactersAddress,

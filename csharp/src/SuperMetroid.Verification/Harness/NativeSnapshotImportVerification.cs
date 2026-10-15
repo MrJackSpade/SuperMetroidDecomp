@@ -87,7 +87,11 @@ internal static class NativeSnapshotImportVerification
             paletteSlot.Id = W(NativeSnapshotMemory.PaletteFxId + slot * 2);
             paletteSlot.ColorByteIndex = W(NativeSnapshotMemory.PaletteFxColor + slot * 2);
             paletteSlot.PreInstruction = W(NativeSnapshotMemory.PaletteFxPreInstruction + slot * 2);
-            paletteSlot.InstructionPointer = W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2);
+            // A live object resumes its typed program where the recorded native pointer stands.
+            paletteSlot.Cursor = paletteSlot.Id == 0
+                ? default
+                : SuperMetroid.Verification.Fx.PaletteFx.PaletteFxProgramsVerification.CursorAt(
+                    SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
             paletteSlot.InstructionTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxInstructionTimer + slot * 2));
             paletteSlot.Timer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2));
         }

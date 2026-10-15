@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -7,7 +9,7 @@ internal static class HyperBeamPaletteFxStateAccess
     /// <summary>Reads the active Hyper Beam palette-FX instruction cursor for timing diagnostics.</summary>
     extension(HyperBeamPaletteFxState self)
     {
-        /// <summary>Current bank-$8D instruction pointer, exposed for exact-step debugging.</summary>
-        internal ushort InstructionPointer => self._instructionPointer;
+        /// <summary>Where the object's typed program resumes, exposed for exact-step debugging.</summary>
+        internal AnimationProgramCursor<PaletteFxProgram> Cursor => self._cursor;
     }
 }

@@ -31,14 +31,13 @@ internal static class PaletteFxInstructionCodesVerification
         AssertPaletteFxCatalog(PaletteFxInstructionCodesType(), expectedCount: 19);
         AssertPaletteFxCatalog(typeof(PaletteFxSetup), expectedCount: 4);
         AssertPaletteFxCatalog(typeof(PaletteFxPreInstruction), expectedCount: 9);
-        AssertPaletteFxCatalog(typeof(PaletteFxInstructionListPointers), expectedCount: 5);
         AssertPaletteFxCatalog(typeof(PaletteFxHeatData), expectedCount: 2, requireMappedPointers: false);
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
         {
             Console.WriteLine(
-                "  Palette FX: 37 instruction, setup, pre-instruction, and list " +
+                "  Palette FX: 32 instruction, setup and pre-instruction " +
                 "pointers are structurally valid; retail ROM reads skipped.");
             return;
         }
@@ -49,7 +48,6 @@ internal static class PaletteFxInstructionCodesVerification
             PaletteFxInstructionCodesType(),
             typeof(PaletteFxSetup),
             typeof(PaletteFxPreInstruction),
-            typeof(PaletteFxInstructionListPointers),
         ];
         foreach (Type catalog in catalogs)
             ReadPaletteFxCatalogPointerTargets(bus, catalog);

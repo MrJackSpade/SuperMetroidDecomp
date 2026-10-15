@@ -187,7 +187,7 @@ public sealed class RoomPaletteFxSystem
         slot.Id = definition;
         slot.ColorByteIndex = 0;
         slot.PreInstruction = (ushort)PaletteFxPreInstruction.Null;
-        slot.InstructionPointer = compiled.InitialInstructionList;
+        slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(compiled.InitialProgram);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -204,11 +204,8 @@ public sealed class RoomPaletteFxSystem
             case PaletteFxSetup.Norfair:
                 // `$8D:E440` chooses the complete program from the same live suit bits
                 // used by Samus. Gravity has priority when both bits are present.
-                slot.InstructionPointer = equippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-                    ? PaletteFxInstructionListPointers.NorfairGravitySuit
-                    : equippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                        ? PaletteFxInstructionListPointers.NorfairVariaSuit
-                        : PaletteFxInstructionListPointers.NorfairPowerSuit;
+                slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(
+                    PaletteFxHeatPrograms.Start(PaletteFxHeatPrograms.SuitFor(equippedItems)));
                 return;
 
             case PaletteFxSetup.Brinstar:
@@ -249,7 +246,7 @@ public sealed class RoomPaletteFxSystem
                     CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY)
                 {
                     slot.InstructionTimer = NativeCountdown.Start(1);
-                    slot.InstructionPointer = PaletteFxInstructionListPointers.AboveY380;
+                    slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.Crateria11);
                 }
                 return;
 
@@ -258,7 +255,7 @@ public sealed class RoomPaletteFxSystem
                     CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY)
                 {
                     slot.InstructionTimer = NativeCountdown.Start(1);
-                    slot.InstructionPointer = PaletteFxInstructionListPointers.AboveY380Second;
+                    slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.CrateriaAboveY380Second);
                 }
                 return;
 
@@ -323,265 +320,106 @@ public sealed class RoomPaletteFxSystem
 
         previousSamusInHeatPaletteIndex = samusInHeatPaletteIndex;
         slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.InstructionPointer = PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems(
-            equippedItems,
-            samusInHeatPaletteIndex);
+        slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxHeatPrograms.Phase(
+            PaletteFxHeatPrograms.SuitFor(equippedItems),
+            samusInHeatPaletteIndex));
     }
 
-    /// <summary>Executes bounded bank-$8D control words until a timed color record, wait, or delete command yields.</summary>
+    /// <summary>Runs the slot's typed program until it shows its next timed colour record or deletes the object.</summary>
     private void ExecuteProgram(
         SnesCgram cgram,
         IPaletteFxColorSource colors,
         PaletteFxSlot slot)
     {
-        ushort cursor = slot.InstructionPointer;
-        for (int commandGuard = 0; commandGuard < 256; commandGuard++)
+        AnimationProgramCursor<PaletteFxProgram> cursor = slot.Cursor;
+        NativeCountdown timer = slot.Timer;
+        AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref cursor, ref timer,
+            (cue, _) =>
+            {
+                Publish(slot, cue);
+                return null;
+            });
+        slot.Cursor = cursor;
+        slot.Timer = timer;
+        switch (advance.Kind)
         {
-            ushort word = ReadBank8dWord(cursor);
-            if ((word & 0x8000) == 0)
-            {
-                slot.InstructionTimer = NativeCountdown.FromRaw(word);
-                WritePaletteRecord(cgram, colors, slot, unchecked((ushort)(cursor + 2)));
+            case AnimationProgramAdvanceKind.Show:
+                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+                WritePaletteRecord(cgram, colors, slot, advance.Frame);
                 return;
-            }
-
-            var instruction = (PaletteFxInstruction)word;
-            if (!Enum.IsDefined(instruction))
-            {
-                throw new InvalidDataException(
-                    $"Unknown palette-FX command $8D:{word:X4} at $8D:{cursor:X4} " +
-                    $"for object $8D:{slot.Id:X4}.");
-            }
-            switch (instruction)
-            {
-                case PaletteFxInstruction.Delete:
-                    slot.Clear();
-                    return;
-
-                case PaletteFxInstruction.SetPreInstruction:
-                    slot.PreInstruction = ReadBank8dWord(unchecked((ushort)(cursor + 2)));
-                    cursor = unchecked((ushort)(cursor + 4));
-                    break;
-
-                case PaletteFxInstruction.ClearPreInstruction:
-                    slot.PreInstruction = (ushort)PaletteFxPreInstruction.Cleared;
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-
-                case PaletteFxInstruction.Goto:
-                    cursor = ReadBank8dWord(unchecked((ushort)(cursor + 2)));
-                    break;
-
-                case PaletteFxInstruction.DecrementTimerAndGoto:
-                    slot.Timer = slot.Timer.Decrement().Remaining;
-                    cursor = slot.Timer.IsZero
-                        ? unchecked((ushort)(cursor + 4))
-                        : ReadBank8dWord(unchecked((ushort)(cursor + 2)));
-                    break;
-
-                case PaletteFxInstruction.SetTimer:
-                    // The assembly writes only the low byte addressed by the physical
-                    // object index. The high byte was cleared at spawn and remains intact.
-                    slot.Timer = NativeCountdown.FromRaw((ushort)((SnesLittleEndian.HighByteInPlace(slot.Timer.RawValue)) |
-                        ReadBank8dByte(unchecked((ushort)(cursor + 2)))));
-                    cursor = unchecked((ushort)(cursor + 3));
-                    break;
-
-                case PaletteFxInstruction.SetColorIndex:
-                    slot.ColorByteIndex = ReadBank8dWord(unchecked((ushort)(cursor + 2)));
-                    cursor = unchecked((ushort)(cursor + 4));
-                    break;
-
-                case PaletteFxInstruction.QueueMusic:
-                    musicRequests.Add(new PaletteFxMusicRequest(
-                        MusicCommand.FromCartridge(ReadBank8dByte(
-                            unchecked((ushort)(cursor + 2)))),
-                        MusicCommandDelay.EightFrames));
-                    cursor = unchecked((ushort)(cursor + 3));
-                    break;
-
-                case PaletteFxInstruction.QueueSfx1:
-                case PaletteFxInstruction.QueueSfx2:
-                case PaletteFxInstruction.QueueSfx3:
-                    // This case group has already excluded every other word. A final
-                    // library-three fallback mirrors the third opcode without introducing
-                    // an impossible/error branch into an otherwise exhaustive dispatcher.
-                    SoundEffectLibrary library =
-                        instruction == PaletteFxInstruction.QueueSfx1
-                            ? SoundEffectLibrary.Library1
-                            : instruction == PaletteFxInstruction.QueueSfx2
-                                ? SoundEffectLibrary.Library2
-                                : SoundEffectLibrary.Library3;
-                    soundRequests.Add(new PaletteFxSoundRequest(
-                        SoundEffectId.FromCartridge(
-                            library,
-                            ReadBank8dByte(unchecked((ushort)(cursor + 2)))),
-                        PaletteFxAudioQueueLimits.SoundEffects,
-                        SoundSuppressed: audioPowerBomb?.IsActive == true));
-                    cursor = unchecked((ushort)(cursor + 3));
-                    break;
-
-                case PaletteFxInstruction.SetPaletteFxIndex:
-                    // `$8D:F1C6` consumes one byte, despite living among word-sized
-                    // commands. Advancing by three is essential: advancing by four would
-                    // parse the high byte of the following duration as an opcode.
-                    samusInHeatPaletteIndex = ReadBank8dByte(
-                        unchecked((ushort)(cursor + 2)));
-                    cursor = unchecked((ushort)(cursor + 3));
-                    break;
-
-                case PaletteFxInstruction.Wait:
-                case PaletteFxInstruction.ColorPlus2:
-                case PaletteFxInstruction.ColorPlus3:
-                case PaletteFxInstruction.ColorPlus4:
-                case PaletteFxInstruction.ColorPlus8:
-                case PaletteFxInstruction.ColorPlus9:
-                case PaletteFxInstruction.ColorPlus15:
-                    throw new InvalidDataException(
-                        $"Inline palette-FX command {instruction} leads a record at $8D:{cursor:X4} " +
-                        $"for object $8D:{slot.Id:X4}.");
-
-                default:
-                    throw new InvalidOperationException($"Undefined palette-FX command {instruction}.");
-            }
+            case AnimationProgramAdvanceKind.Stop:
+                slot.Clear();
+                return;
+            case AnimationProgramAdvanceKind.Wait:
+            case AnimationProgramAdvanceKind.Hold:
+                throw new InvalidOperationException($"Palette-FX program {cursor.Program} reached a {advance.Kind}, which no palette program has.");
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(AnimationProgramAdvanceKind)} {advance.Kind}.");
         }
-
-        throw new InvalidDataException(
-            $"Palette-FX object $8D:{slot.Id:X4} exceeded 256 leading commands at $8D:{cursor:X4}.");
     }
 
-    /// <summary>Writes a mixed color record to CGRAM, honoring inline destination skips and the native wait cursor.</summary>
+    /// <summary>Carries out one palette-FX program command.</summary>
+    private void Publish(PaletteFxSlot slot, PaletteFxCue cue)
+    {
+        switch (cue.Kind)
+        {
+            case PaletteFxCueKind.SetColorIndex:
+                slot.ColorByteIndex = cue.ColorByteIndex;
+                return;
+            case PaletteFxCueKind.SetPreInstruction:
+                slot.PreInstruction = (ushort)cue.PreInstruction;
+                return;
+            case PaletteFxCueKind.ClearPreInstruction:
+                slot.PreInstruction = (ushort)PaletteFxPreInstruction.Cleared;
+                return;
+            case PaletteFxCueKind.SetHeatPaletteIndex:
+                samusInHeatPaletteIndex = cue.HeatPaletteIndex;
+                return;
+            case PaletteFxCueKind.QueueSoundLibrary2:
+                soundRequests.Add(new PaletteFxSoundRequest(
+                    SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, cue.Sound),
+                    PaletteFxAudioQueueLimits.SoundEffects,
+                    SoundSuppressed: audioPowerBomb?.IsActive == true));
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(PaletteFxCueKind)} {cue.Kind}.");
+        }
+    }
+
+    /// <summary>Writes one timed colour record to CGRAM from the slot's colour index, skipping the entries its layout skips.</summary>
     [PpuLayoutBoundary("codec: palette-FX instruction colour-index operands ($8D SetColorIndex)")]
     private static void WritePaletteRecord(
         SnesCgram cgram,
         IPaletteFxColorSource colors,
         PaletteFxSlot slot,
-        ushort cursor)
+        PaletteFxFrame frame)
     {
         ushort colorByteIndex = slot.ColorByteIndex;
-        for (int guard = 0; guard < 256; guard++)
+        // The record's colour words follow its timer word; each skip command occupies one word too.
+        ushort colorWord = unchecked((ushort)(PaletteFxRecordDefinitions.Address(frame) + sizeof(ushort)));
+        foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(frame))
         {
-            PaletteRecordEntry entry = ReadPaletteRecordEntry(cursor, colors);
-            if (entry.Color is Bgr555 color)
+            if (part.Skip)
             {
+                colorByteIndex = unchecked((ushort)(colorByteIndex + part.Count * sizeof(ushort)));
+                colorWord = unchecked((ushort)(colorWord + sizeof(ushort)));
+                continue;
+            }
+            for (int index = 0; index < part.Count; index++)
+            {
+                if (!colors.TryReadColor(colorWord, out Bgr555 color))
+                    throw new InvalidDataException($"Palette-FX colour $8D:{colorWord:X4} of object $8D:{slot.Id:X4} has no installed definition.");
                 if ((colorByteIndex & 1) != 0 || colorByteIndex >= CgramPalettes.ByteCount)
                 {
                     throw new InvalidDataException(
-                        $"Palette-FX object $8D:{slot.Id:X4} selected invalid CGRAM byte " +
-                        $"index ${colorByteIndex:X4} at $8D:{cursor:X4}.");
+                        $"Palette-FX object $8D:{slot.Id:X4} selected invalid CGRAM byte index ${colorByteIndex:X4}.");
                 }
                 // The colour index is palette-FX instruction data ($8D:xxxx SetColorIndex).
                 new CgramPalettes(cgram).All.Write(colorByteIndex / 2, color);
-                colorByteIndex = unchecked((ushort)(colorByteIndex + 2));
-                cursor = unchecked((ushort)(cursor + 2));
-                continue;
-            }
-
-            ushort command = entry.Command;
-            var inline = (PaletteFxInstruction)command;
-            if (!Enum.IsDefined(inline))
-            {
-                throw new InvalidDataException(
-                    $"Unsupported inline palette-FX command $8D:{command:X4} at " +
-                    $"$8D:{cursor:X4} for object $8D:{slot.Id:X4}.");
-            }
-            switch (inline)
-            {
-                case PaletteFxInstruction.Wait:
-                    // Native receives the cursor two bytes before this opcode and saves
-                    // j+4. In direct terms that is simply the word following `$C595`.
-                    slot.InstructionPointer = unchecked((ushort)(cursor + 2));
-                    return;
-                case PaletteFxInstruction.ColorPlus2:
-                    colorByteIndex = unchecked((ushort)(colorByteIndex + 4));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case PaletteFxInstruction.ColorPlus3:
-                    colorByteIndex = unchecked((ushort)(colorByteIndex + 6));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case PaletteFxInstruction.ColorPlus4:
-                    colorByteIndex = unchecked((ushort)(colorByteIndex + 8));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case PaletteFxInstruction.ColorPlus8:
-                    colorByteIndex = unchecked((ushort)(colorByteIndex + 16));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case PaletteFxInstruction.ColorPlus9:
-                    colorByteIndex = unchecked((ushort)(colorByteIndex + 18));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case PaletteFxInstruction.ColorPlus15:
-                    colorByteIndex = unchecked((ushort)(colorByteIndex + 30));
-                    cursor = unchecked((ushort)(cursor + 2));
-                    break;
-                case PaletteFxInstruction.Delete:
-                case PaletteFxInstruction.SetPreInstruction:
-                case PaletteFxInstruction.ClearPreInstruction:
-                case PaletteFxInstruction.Goto:
-                case PaletteFxInstruction.DecrementTimerAndGoto:
-                case PaletteFxInstruction.SetTimer:
-                case PaletteFxInstruction.SetColorIndex:
-                case PaletteFxInstruction.QueueMusic:
-                case PaletteFxInstruction.QueueSfx1:
-                case PaletteFxInstruction.QueueSfx2:
-                case PaletteFxInstruction.QueueSfx3:
-                case PaletteFxInstruction.SetPaletteFxIndex:
-                    throw new InvalidDataException(
-                        $"Unsupported inline palette-FX command {inline} at " +
-                        $"$8D:{cursor:X4} for object $8D:{slot.Id:X4}.");
-                default:
-                    throw new InvalidOperationException($"Undefined palette-FX command {inline}.");
+                colorByteIndex = unchecked((ushort)(colorByteIndex + sizeof(ushort)));
+                colorWord = unchecked((ushort)(colorWord + sizeof(ushort)));
             }
         }
-
-        throw new InvalidDataException(
-            $"Palette-FX object $8D:{slot.Id:X4} did not terminate its color record.");
-    }
-
-    /// <summary>Reads a compiled palette-FX control word and rejects an unconverted mechanics address.</summary>
-    private static ushort ReadBank8dWord(ushort pointer)
-    {
-        if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                pointer,
-                out ushort compiled))
-        {
-            return compiled;
-        }
-
-        throw new InvalidDataException(
-            $"Palette-FX mechanics word $8D:{pointer:X4} has no compiled definition.");
-    }
-
-    /// <summary>One word of a mixed color/command record: a color, or an inline command at $8000 and above.</summary>
-    private readonly record struct PaletteRecordEntry(Bgr555? Color, ushort Command);
-
-    /// <summary>Reads a mixed color/wait record through its explicitly supplied presentation.</summary>
-    private static PaletteRecordEntry ReadPaletteRecordEntry(ushort pointer, IPaletteFxColorSource colors)
-    {
-        // $8D:C4E1 treats a record word below $8000 as a color and any other word as a command.
-        if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort compiled))
-            return (compiled & 0x8000) == 0 ? new(Bgr555.FromWord(compiled), 0) : new(null, compiled);
-        if (colors.TryReadColor(pointer, out Bgr555 color))
-            return new(color, 0);
-
-        throw new InvalidDataException(
-            $"Palette-FX word $8D:{pointer:X4} has no compiled mechanics or installed color definition.");
-    }
-
-    /// <summary>Reads a compiled byte operand for timers, audio, or heat-palette selection.</summary>
-    private static byte ReadBank8dByte(ushort pointer)
-    {
-        if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
-                pointer,
-                out byte compiled))
-        {
-            return compiled;
-        }
-
-        throw new InvalidDataException(
-            $"Palette-FX byte $8D:{pointer:X4} has no compiled mechanics definition.");
     }
 
     /// <summary>Serializable native object state retained between palette-FX handler passes.</summary>
@@ -593,8 +431,8 @@ public sealed class RoomPaletteFxSystem
         public ushort ColorByteIndex { get; set; }
         /// <summary>Pre-instruction pointer evaluated before this slot's program timer.</summary>
         public ushort PreInstruction { get; set; }
-        /// <summary>Next compiled bank-$8D command or color record for this object.</summary>
-        public ushort InstructionPointer { get; set; }
+        /// <summary>Where this object's typed program resumes.</summary>
+        public AnimationProgramCursor<PaletteFxProgram> Cursor { get; set; }
         /// <summary>Frames remaining before this object's next bytecode step.</summary>
         public NativeCountdown InstructionTimer { get; set; }
         /// <summary>Loop counter consumed by the decrement-and-goto command.</summary>
@@ -606,7 +444,7 @@ public sealed class RoomPaletteFxSystem
             Id = 0;
             ColorByteIndex = 0;
             PreInstruction = 0;
-            InstructionPointer = 0;
+            Cursor = default;
             InstructionTimer = NativeCountdown.Start(0);
             Timer = NativeCountdown.Start(0);
         }

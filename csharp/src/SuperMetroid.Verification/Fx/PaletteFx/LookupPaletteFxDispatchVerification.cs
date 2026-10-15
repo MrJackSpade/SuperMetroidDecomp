@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.RoomPaletteFxDefinitionsVerification;
@@ -47,7 +48,7 @@ internal static class LookupPaletteFxDispatchVerification
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(ReadVerificationWord(rom, (0x8d0000 | pointer) + 2),
-                RoomPaletteFxDefinitions.Get(pointer).InitialInstructionList, "Native palette-FX initial program");
+                PaletteFxNativeListAddresses.Entry(RoomPaletteFxDefinitions.Get(pointer).InitialProgram), "Native palette-FX initial program");
     }
 
     /// <summary>Runs identity, setup, list, and spawn checks while guarding compiled definition bytes.</summary>

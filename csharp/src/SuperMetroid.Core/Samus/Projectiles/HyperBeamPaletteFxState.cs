@@ -20,8 +20,13 @@ public sealed class HyperBeamPaletteFxState
     private const int DestinationColorIndex =
         SamusPaletteRomData.HyperBeamFx.DestinationByteIndex / sizeof(ushort);
 
-    /// <summary>Native bank-$8D program cursor retained between palette handler calls.</summary>
-    internal ushort _instructionPointer;
+    /// <summary>Where the object's typed program resumes between palette handler calls.</summary>
+    internal AnimationProgramCursor<PaletteFxProgram> _cursor;
+
+    /// <summary>The cycle's ten records in the order <see cref="PaletteFxProgram.HyperBeam1"/> shows them; a record's place is its colour frame.</summary>
+    private static readonly int[] CycleRecords = [.. PaletteFxAnimations.Programs.Steps(PaletteFxProgram.HyperBeam1)
+        .Where(step => step.Kind == AnimationProgramStepKind.Show)
+        .Select(step => step.Frame.Record)];
 
     /// <summary>True after controller function three has spawned object <c>$E1F0</c>.</summary>
     public bool IsActive { get; private set; }
@@ -51,7 +56,7 @@ public sealed class HyperBeamPaletteFxState
         InstructionTimer = NativeCountdown.Start(1);
         CurrentFrameIndex = -1;
         CompletedCycles = 0;
-        _instructionPointer = HyperBeamPaletteFxProgramDefinitions.InitialInstructionPointer;
+        _cursor = AnimationProgramCursor<PaletteFxProgram>.Start(HyperBeamDefinition().InitialProgram);
     }
 
     /// <summary>Runs one call of <c>PaletteFXObject_Handler</c> for the Hyper Beam object.</summary>
@@ -66,15 +71,13 @@ public sealed class HyperBeamPaletteFxState
             return new HyperBeamPaletteFxStepResult();
         }
 
-        RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(
-            unchecked((ushort)SamusPaletteRomData.HyperBeamFx.ObjectDefinition));
+        RoomPaletteFxDefinition definition = HyperBeamDefinition();
         if (definition.SetupCallback != SamusPaletteRomData.HyperBeamFx.SetupCallback ||
-            definition.InitialInstructionList !=
-                HyperBeamPaletteFxProgramDefinitions.InitialInstructionPointer)
+            definition.InitialProgram != PaletteFxProgram.HyperBeam0)
         {
             throw new InvalidDataException(
                 $"Compiled Hyper Beam palette-FX definition is inconsistent: setup " +
-                $"${(int)definition.SetupCallback:X4}, list ${definition.InitialInstructionList:X4}.");
+                $"${(int)definition.SetupCallback:X4}, program {definition.InitialProgram}.");
         }
 
         // `$8D:C552` decrements before testing. A timer of two therefore displays a frame
@@ -85,21 +88,31 @@ public sealed class HyperBeamPaletteFxState
             return new HyperBeamPaletteFxStepResult();
         }
 
-        HyperBeamPaletteFxFrame frame =
-            HyperBeamPaletteFxProgramDefinitions.ResolveFrame(
-                _instructionPointer,
-                out bool completedCycle);
-        if (completedCycle)
+        NativeCountdown unusedCounter = default;
+        AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref _cursor, ref unusedCounter,
+            (cue, _) => cue == new PaletteFxCue(PaletteFxCueKind.SetColorIndex, ColorByteIndex: (ushort)SamusPaletteRomData.HyperBeamFx.DestinationByteIndex)
+                ? (PaletteFxProgram?)null
+                : throw new InvalidDataException($"The Hyper Beam palette program published {cue}, which its object does not carry out."));
+        if (advance.Kind != AnimationProgramAdvanceKind.Show)
+            throw new InvalidDataException($"The Hyper Beam palette program reached a {advance.Kind}; its cycle only shows records.");
+        int frameIndex = Array.IndexOf(CycleRecords, advance.Frame.Record);
+        if (frameIndex < 0)
+            throw new InvalidDataException($"The Hyper Beam palette program showed record {advance.Frame.Record}, outside its cycle.");
+        // The cycle's goto returns to its first record: showing it again completes a cycle.
+        if (frameIndex == 0 && CurrentFrameIndex >= 0)
             CompletedCycles = unchecked((ushort)(CompletedCycles + 1));
 
         (presentationColors ?? throw new InvalidOperationException(
             "Hyper Beam palette FX requires installed colors."))
-            .Apply(cgram, frame.Index, DestinationColorIndex);
+            .Apply(cgram, frameIndex, DestinationColorIndex);
 
-        InstructionTimer = NativeCountdown.FromRaw(frame.Duration);
-        CurrentFrameIndex = frame.Index;
-        _instructionPointer = frame.NextInstructionPointer;
+        InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
+        CurrentFrameIndex = frameIndex;
         return new HyperBeamPaletteFxStepResult();
     }
+
+    /// <summary>The palette-FX object definition the Hyper Beam spawns.</summary>
+    private static RoomPaletteFxDefinition HyperBeamDefinition() =>
+        RoomPaletteFxDefinitions.Get(unchecked((ushort)SamusPaletteRomData.HyperBeamFx.ObjectDefinition));
 
 }

@@ -46,23 +46,19 @@ internal static class RoomPaletteFxDefinitionsVerification
                 forbidden.Add(address + index);
 
             RoomPaletteFxDefinition definition = RoomPaletteFxDefinitions.Get(pointer);
-            if (definition.InitialInstructionList ==
-                HyperBeamPaletteFxProgramDefinitions.InitialInstructionPointer)
+            if (definition.InitialProgram == PaletteFxProgram.HyperBeam0)
             {
                 specializedCompiledPrograms++;
             }
             else
             {
-                AssertTrue(RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                        definition.InitialInstructionList,
-                        out _),
-                    $"palette-FX ${pointer:X4} begins at compiled mechanics word " +
-                    $"$8D:{definition.InitialInstructionList:X4}");
+                AssertTrue(Enum.IsDefined(definition.InitialProgram),
+                    $"palette-FX ${pointer:X4} begins a typed program");
                 genericCompiledPrograms++;
             }
         }
         AssertEqual(62, genericCompiledPrograms,
-            "generic palette-FX definitions with compiled initial mechanics");
+            "generic palette-FX definitions with typed initial programs");
         AssertEqual(1, specializedCompiledPrograms,
             "specialized Hyper Beam palette-FX definition count");
 
@@ -149,11 +145,11 @@ internal static class RoomPaletteFxDefinitionsVerification
                 slot.PreInstruction,
                 $"${pointer:X4} production pre-instruction");
             AssertEqual(
-                definition.SetupCallback == PaletteFxSetup.Norfair
-                    ? PaletteFxInstructionListPointers.NorfairPowerSuit
-                    : definition.InitialInstructionList,
-                slot.InstructionPointer,
-                $"${pointer:X4} production initial list");
+                AnimationProgramCursor<PaletteFxProgram>.Start(definition.SetupCallback == PaletteFxSetup.Norfair
+                    ? PaletteFxHeatPrograms.Start(PaletteFxHeatSuit.Power)
+                    : definition.InitialProgram),
+                slot.Cursor,
+                $"${pointer:X4} production initial program");
         }
 
     }

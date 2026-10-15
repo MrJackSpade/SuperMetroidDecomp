@@ -54,7 +54,6 @@ csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxProgramM
 csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Fx/RoomFxAnimatedTilesState.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Fx/RoomLayer3FxState.cs	SME6340	8
-csharp/src/SuperMetroid.Core/Fx/RoomPaletteFxSystem.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Gameplay/RuntimeArtwork.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Gameplay/TesterEncounterResetDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Input/DemoInputState.cs	SME6341	2
@@ -122,7 +121,6 @@ csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseTransitions.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Samus/Projectiles/BeamCombos.cs	SME6340	14
 csharp/src/SuperMetroid.Core/Samus/Projectiles/BeamFiring.cs	SME6340	6
 csharp/src/SuperMetroid.Core/Samus/Projectiles/ChainsawBeamGraphicsDefinitions.cs	SME6342	1
-csharp/src/SuperMetroid.Core/Samus/Projectiles/HyperBeamPaletteFxState.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileAnimation.cs	SME6340	7
 csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileAnimation.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileEnemyImpacts.cs	SME6340	3
@@ -964,7 +962,7 @@ csharp/src/SuperMetroid.Verification/Frontend/Recording/ControllerInputRecording
 csharp/src/SuperMetroid.Verification/Frontend/Recording/ControllerInputRecordingVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Frontend/Title/Artwork/PlanetZebesTitlePartsVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Frontend/Title/TitleGradientVerification.cs	SME6340	12
-csharp/src/SuperMetroid.Verification/Frontend/Title/TitleSequenceRomDataVerification.cs	SME6340	8
+csharp/src/SuperMetroid.Verification/Frontend/Title/TitleSequenceRomDataVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Fx/AcidStatueFirstEntryVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Fx/AnimatedTileInstructionCodesVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Fx/AnimatedTileInstructionCodesVerification.cs	SME6342	1
@@ -1019,7 +1017,6 @@ csharp/src/SuperMetroid.Verification/Fx/RoomFxRomDataVerification.cs	SME6340	37
 csharp/src/SuperMetroid.Verification/Fx/RoomFxSharedRandomVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Fx/RoomFxSnapshotTestsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Fx/RoomPaletteFxDefinitionsVerification.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Fx/RoomPaletteFxDefinitionsVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Fx/RoomShakeDefinitionsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Fx/SandAnimatedTilesVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Fx/TreadmillPhysicsVerification.cs	SME6340	6
@@ -1454,7 +1451,7 @@ csharp/src/SuperMetroid.Verification/Samus/SamusAimVerification.cs	SME6340	869
 csharp/src/SuperMetroid.Verification/Samus/SamusAimVerification.cs	SME6342	81
 csharp/src/SuperMetroid.Verification/Samus/SamusAtmosphereArtworkBoundaryVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Samus/SamusContentIdentityVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Samus/SamusDamageAndGrabVerification.cs	SME6340	450
+csharp/src/SuperMetroid.Verification/Samus/SamusDamageAndGrabVerification.cs	SME6340	449
 csharp/src/SuperMetroid.Verification/Samus/SamusDamageAndGrabVerification.cs	SME6342	26
 csharp/src/SuperMetroid.Verification/Samus/SamusImpulseDefinitionsVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Samus/SamusIndexedSpeedsVerification.cs	SME6340	11

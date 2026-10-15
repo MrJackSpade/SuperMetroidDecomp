@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using System.Globalization;
@@ -258,6 +259,9 @@ internal static class FullMovieReplayVerification
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)} anim={Native(0x0a96)}/{Native(0x0a94)}");
         if (game.CeresDestructionForVerification is { } boom)
             Console.WriteLine($"  cinematic port={boom.Phase} native={Native(0x1f51)}");
+        if (game.pauseMenu is { } pause)
+            Console.WriteLine($"  pause port mode={pause.ScreenMode} cat={(int)pause.SelectedCategory} item={pause.SelectedItem} transition={pause.IsPageTransitionActive} " +
+                $"held cur={(ushort)game.GameplayRuntime.Controller1.Current:X4} new={(ushort)game.GameplayRuntime.Controller1.NewlyPressed:X4} hp={(ushort)game.GameplayRuntime.System.HeldInputPrevious:X4} tt={game.GameplayRuntime.System.TimedHeldInputTimer.RawValue:X4} th={(ushort)game.GameplayRuntime.System.TimedHeldInput:X4} tn={(ushort)game.GameplayRuntime.System.NewlyTimedHeldInput:X4} tp={(ushort)game.GameplayRuntime.System.TimedHeldInputPrevious:X4}");
         Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.Nmi.NmiFrameCounter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
         if (game.RuntimeForVerification?.EscapeTimer is { } escape)
             Console.WriteLine($"  escape port={escape.RawStatus:X4} {escape.Minutes.Raw:X2}:{escape.Seconds.Raw:X2}.{escape.Centiseconds.Raw:X2} " +

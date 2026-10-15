@@ -986,8 +986,8 @@ public sealed class SuperMetroidGame
                 ushort previousReserveMode = GameplayRuntime.Player.IntroducedSamus.ReserveTankMode;
                 bool unpauseRequested = ActivePauseMenu.Step(
                     GameplayRuntime.System.TimedHeldInput,
-                    GameplayRuntime.Controller1.NewlyPressed,
-                    GameplayRuntime.Controller1.Current,
+                    GameplayRuntime.PhysicalController1.NewlyPressed,
+                    GameplayRuntime.PhysicalController1.Current,
                     GameplayRuntime.Nmi.NmiFrameCounter8);
                 // State $0F runs the HUD writer after pause input. Its DMA is visible
                 // at the next accepted NMI, including the first unpause fade frame.

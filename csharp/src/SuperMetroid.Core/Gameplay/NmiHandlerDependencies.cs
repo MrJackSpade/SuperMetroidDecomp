@@ -26,6 +26,9 @@ internal sealed record NmiHandlerDependencies
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }
 
+    /// <summary>Physical controller-1 latch.</summary>
+    public required ControllerInputState PhysicalController1 { get; init; }
+
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
 

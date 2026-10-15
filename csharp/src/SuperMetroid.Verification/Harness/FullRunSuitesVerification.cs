@@ -355,6 +355,7 @@ using static SuperMetroid.Verification.Hardware.TypedWordsVerification;
 using static SuperMetroid.Verification.Frontend.Pause.UnpauseElevatorFlagsVerification;
 using static SuperMetroid.Verification.Frontend.Pause.UnpauseReserveBlackoutVerification;
 using static SuperMetroid.Verification.Frontend.Pause.UnpauseStationLockReleaseVerification;
+using static SuperMetroid.Verification.Frontend.Pause.PauseRemappedShoulderVerification;
 using static SuperMetroid.Verification.Enemies.VerticalOffScreenDeletionVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.ViewportParityVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpDustVerification;
@@ -822,6 +823,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash()),
         new(nameof(VerifyEyeDoorSweatSpanUnderflow), () => VerifyEyeDoorSweatSpanUnderflow()),
         new(nameof(VerifyUnpauseStationLockRelease), () => VerifyUnpauseStationLockRelease()),
+        new(nameof(VerifyPauseRemappedShoulder), () => VerifyPauseRemappedShoulder()),
         new(nameof(VerifyDoorWaitsForMessageBox), () => VerifyDoorWaitsForMessageBox()),
         new(nameof(VerifyMotherBrainFakeDeathLock), () => VerifyMotherBrainFakeDeathLock()),
         new(nameof(VerifyMoonwalkRanIntoWall), () => VerifyMoonwalkRanIntoWall()),

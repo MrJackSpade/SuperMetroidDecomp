@@ -163,7 +163,7 @@ public sealed class SuperMetroidRuntime
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Display = Display, Enemies = Enemies, Hud = Hud, Player = Player, Vram = Vram, VramWrites = VramWrites, AddressSpace = _addressSpace });
         GameplayWindows = new GameplayWindowRegisters(Enemies, Projectiles, Room, RoomLayer3Fx);
         Xray = new XrayReveal(BackgroundScroll, Player, Plms, Room, System, Vram, _addressSpace);
-        NmiHandler = new NmiHandler(new NmiHandlerDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Controller1 = Controller1, Display = Display, DisplayedSprites = DisplayedSprites, Enemies = Enemies, GameplayWindows = GameplayWindows, Nmi = Nmi, Sprites = Sprites, Options = Options, Player = Player, Room = Room, RoomLayer3Fx = RoomLayer3Fx, SuitPickup = SuitPickup, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, Xray = Xray, AddressSpace = _addressSpace });
+        NmiHandler = new NmiHandler(new NmiHandlerDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Controller1 = Controller1, PhysicalController1 = PhysicalController1, Display = Display, DisplayedSprites = DisplayedSprites, Enemies = Enemies, GameplayWindows = GameplayWindows, Nmi = Nmi, Sprites = Sprites, Options = Options, Player = Player, Room = Room, RoomLayer3Fx = RoomLayer3Fx, SuitPickup = SuitPickup, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, Xray = Xray, AddressSpace = _addressSpace });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room, Vram);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Cgram = Cgram, Controller1 = Controller1, Display = Display, Enemies = Enemies, Freeze = Freeze, Nmi = Nmi, Sprites = Sprites, Player = Player, Projectiles = Projectiles, Room = Room, VramWrites = VramWrites, AddressSpace = _addressSpace });
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, Enemies = Enemies, EscapeTimer = EscapeTimer, Player = Player, Plms = Plms, Room = Room, RoomLayer3Fx = RoomLayer3Fx, RoomPaletteFx = RoomPaletteFx, System = System, AddressSpace = _addressSpace });
@@ -220,8 +220,18 @@ public sealed class SuperMetroidRuntime
     /// <summary>Gameplay clock mirrored at WRAM $09DA-$09E1 and in each SRAM slot.</summary>
     public GameTimeState GameTime { get; } = new();
 
-    /// <summary>Controller-1 NMI latch from <c>$80:9459</c>.</summary>
+    /// <summary>
+    /// Controller-1 NMI latch from <c>$80:9459</c>, in the default action layout: the configured bindings are
+    /// applied once at the latch, so bank-$90/$91 action checks read the buttons they test natively through the
+    /// binding words at <c>$09B2-$09BE</c>.
+    /// </summary>
     public ControllerInputState Controller1 { get; } = new();
+
+    /// <summary>
+    /// The same NMI sample as physical buttons, as WRAM <c>$8B/$8F</c> hold it. Code that tests fixed button bits
+    /// rather than the binding words (the bank-$82 pause menu) reads this latch.
+    /// </summary>
+    public ControllerInputState PhysicalController1 { get; } = new();
 
     /// <summary>Escape timer state machine from <c>$80:9DE7</c>.</summary>
     public EscapeTimer EscapeTimer { get; } = new();
@@ -1095,7 +1105,7 @@ public sealed class SuperMetroidRuntime
     /// </summary>
     public void UpdatePauseHeldInput(ushort timerReset = 3)
     {
-        System.UpdateHeldInput(timerReset, Controller1.Current, Controller1.NewlyPressed);
+        System.UpdateHeldInput(timerReset, PhysicalController1.Current, PhysicalController1.NewlyPressed);
     }
 
     /// <summary>Applies host-only frame-exit guards before publishing the runtime result.</summary>

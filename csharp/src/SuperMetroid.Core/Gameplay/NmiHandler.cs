@@ -33,6 +33,8 @@ internal sealed class NmiHandler
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Latches remapped controller input only for a main-loop-requested NMI.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Physical controller-1 latch, for code that reads raw <c>$8B/$8F</c> bits.</summary>
+    private readonly ControllerInputState _physicalController1;
     /// <summary>Supplies the power-bomb explosion whose COLDATA color is latched.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
     /// <summary>Retains the accepted-NMI display latch.</summary>
@@ -75,6 +77,7 @@ internal sealed class NmiHandler
         _backgroundScroll = dependencies.BackgroundScroll;
         _bombProjectiles = dependencies.BombProjectiles;
         _controller1 = dependencies.Controller1;
+        _physicalController1 = dependencies.PhysicalController1;
         _display = dependencies.Display;
         _displayedSprites = dependencies.DisplayedSprites;
         _enemies = dependencies.Enemies;
@@ -140,11 +143,11 @@ internal sealed class NmiHandler
         if (mainLoopRequestedNmi)
         {
             PublishAcceptedNmiTransfers();
-            // Menu code consumes raw physical buttons before a runtime exists. Once room
-            // gameplay owns the controller, all bank-$90/$91 action checks use the seven
-            // configurable WRAM masks. Canonicalizing here preserves one shared rising-edge
-            // latch and prevents different movement subsystems from interpreting a remap on
-            // different frames.
+            // Bank-$90/$91 action checks use the seven configurable WRAM masks. Canonicalizing
+            // here preserves one shared rising-edge latch and prevents different movement
+            // subsystems from interpreting a remap on different frames. Code that tests fixed
+            // bits of $8B/$8F instead (the pause menu's L/R and A) reads the physical latch.
+            _physicalController1.Latch(controller1Input);
             _controller1.Latch(_options.ControllerBindings.Normalize(controller1Input));
 
             _nmi.NmiLagCounter = 0;

@@ -1,5 +1,6 @@
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus.Abilities;
+
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>X-ray setup WRAM buffer addresses and the frozen reveal map, as verification reads them.</summary>
 internal static class XraySetupMemory

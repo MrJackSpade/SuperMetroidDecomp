@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
@@ -20,6 +18,13 @@ public sealed class OamBuffer
     /// <summary>Byte length of the 128 four-byte coordinate and attribute records.</summary>
     [PpuLayoutAccess]
     public const int LowTableByteCount = SnesPpuLayout.OamLowTableByteCount;
+
+    /// <summary>The values of one byte: a coordinate sum at or past it carried out of the low byte.</summary>
+    private const int ByteRange = 256;
+    /// <summary>The X at which $81:8907 parks a clipped Samus part, beyond the visible screen.</summary>
+    private const ushort ParkedX = 384;
+    /// <summary>The Y that hides an unused or wrapped sprite below the visible screen.</summary>
+    private const byte HiddenY = 240;
     /// <summary>Total 544-byte DMA payload containing the low table followed by the high table.</summary>
     [PpuLayoutAccess]
     public const int UploadByteCount = SnesPpuLayout.OamUploadByteCount;
@@ -84,7 +89,7 @@ public sealed class OamBuffer
         // survives even when vertical clipping parks the sprite off screen.
         ushort calculatedX = unchecked((ushort)(origin.X + encodedXOffset.Raw));
         int calculatedY = (byte)origin.Y + encodedYOffset;
-        bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
+        bool yOffsetIsNegative = unchecked((sbyte)encodedYOffset) < 0;
         bool hideForVerticalWrap = ShouldHideForOnScreenOrigin(calculatedY, yOffsetIsNegative);
         if (!originIsOnScreen)
             hideForVerticalWrap = !hideForVerticalWrap;
@@ -92,8 +97,8 @@ public sealed class OamBuffer
         if (hideForVerticalWrap)
         {
             // $81:8907 parks a clipped sprite beyond the visible screen.
-            calculatedX = 0x0180;
-            calculatedY = 0x00e0;
+            calculatedX = ParkedX;
+            calculatedY = SnesPpuLayout.ScreenHeightPixels;
         }
 
         int spriteIndex = NextByteOffset >> 2;
@@ -103,45 +108,6 @@ public sealed class OamBuffer
         WriteAttributes(lowOffset, finalAttributes);
         SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
         NextByteOffset += 4;
-    }
-
-    /// <summary>
-    /// Ports <c>AddSamusSpritemapToOAM</c> at <c>$81:89AE</c>.
-    /// </summary>
-    /// <remarks>
-    /// This looks tantalizingly similar to <see cref="AddOnScreenSpritePart"/>, but the
-    /// differences are part of the game data contract. The input is an index into the
-    /// bank-$92 pointer table at <c>$92:808D</c>, not a direct address. More importantly,
-    /// Samus entries keep their ROM-authored palette bits and do not use the generic
-    /// routine's vertical-wrap hiding rule. Keeping a distinct method prevents a future
-    /// cleanup from quietly changing the native draw behavior.
-    /// </remarks>
-    /// <param name="memory">Mutable memory for the native zero-pointer WRAM case.</param>
-    /// <param name="spritemapIndex">Word index into <c>$92:808D</c>.</param>
-    /// <param name="origin">Screen-space origin produced by bank $90.</param>
-    /// <param name="artwork">Required installed Samus compositions indexed by the native pointer-table ordinal; a zero-pointer catalog entry selects the mutable WRAM spritemap case rather than an empty image.</param>
-    public void AddSamusSpritemap(
-        ISnesMutableMemory memory,
-        ushort spritemapIndex,
-        Position16<OamPixels> origin,
-        SamusSpritemapArtworkCatalog artwork)
-    {
-        Ensure.NotNull(memory);
-        Ensure.NotNull(artwork);
-
-        if (artwork.TryGet(spritemapIndex, out SamusSpritemapDefinition? definition))
-        {
-            foreach (SamusSpritePart part in definition.Parts)
-                AddSamusSpritePart(new SnesSpritemapXWord(part.X), part.Y,
-                    part.Attributes, origin);
-            return;
-        }
-
-        // A zero entry in the installed pointer table is not an empty picture: the
-        // native bank-local dereference lands in the WRAM mirror at $92:0000.
-        // Read that mutable state explicitly. No cartridge address is reachable here.
-        foreach (Game.SamusZeroSpritemapEntry entry in Game.SamusOverreadMemory.ZeroPointerSpritemap(memory))
-            AddSamusSpritePart(entry.EncodedX, entry.EncodedY, entry.Attributes, origin);
     }
 
     /// <summary>Emits one already-decoded Samus part with native OAM wrapping and authored attributes.</summary>
@@ -161,7 +127,7 @@ public sealed class OamBuffer
         SetHighTablePair(spriteIndex,
             SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
         // Native OAMStack is a nine-bit byte offset and wraps after $1FC.
-        NextByteOffset = (NextByteOffset + 4) & 0x01ff;
+        NextByteOffset = (NextByteOffset + 4) % LowTableByteCount;
     }
 
     /// <summary>
@@ -181,7 +147,7 @@ public sealed class OamBuffer
         _lowTable[lowOffset + 1] = y;
         WriteAttributes(lowOffset, attributes);
         SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(x, xOffset.IsLarge));
-        NextByteOffset = (NextByteOffset + 4) & 0x01ff;
+        NextByteOffset = (NextByteOffset + 4) % LowTableByteCount;
     }
 
     /// <summary>Draws an installed enemy frame without reading visual records from ROM.</summary>
@@ -230,11 +196,11 @@ public sealed class OamBuffer
             // Extended enemy spritemaps route each component through $81:8B22 or
             // $81:8B96. Their complementary carry/sign tests prevent a piece on one
             // side of the vertical boundary from wrapping onto the other side.
-            bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
+            bool yOffsetIsNegative = unchecked((sbyte)encodedYOffset) < 0;
             bool hideForVerticalWrap = originYIsOnScreen
-                ? yOffsetIsNegative ? unsignedYSum < 0x100 : unsignedYSum >= 0x100
-                : yOffsetIsNegative ? unsignedYSum >= 0x100 : unsignedYSum < 0x100;
-            calculatedY = hideForVerticalWrap ? (byte)0xf0 : unchecked((byte)unsignedYSum);
+                ? yOffsetIsNegative ? unsignedYSum < ByteRange : unsignedYSum >= ByteRange
+                : yOffsetIsNegative ? unsignedYSum >= ByteRange : unsignedYSum < ByteRange;
+            calculatedY = hideForVerticalWrap ? HiddenY : unchecked((byte)unsignedYSum);
         }
         SnesObjAttributeWord finalAttributes = part.Attributes
             .AddPackedTileBase(baseTileIndex)
@@ -249,7 +215,7 @@ public sealed class OamBuffer
             spriteIndex,
             SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
 
-        NextByteOffset = (NextByteOffset + 4) & 0x01ff;
+        NextByteOffset = (NextByteOffset + 4) % LowTableByteCount;
     }
 
     /// <summary>
@@ -269,7 +235,7 @@ public sealed class OamBuffer
         _lowTable[lowOffset + 1] = unchecked((byte)position.Y);
         WriteAttributes(lowOffset, attributes);
         SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(position.X, isLarge: false));
-        NextByteOffset = (NextByteOffset + 4) & 0x01ff;
+        NextByteOffset = (NextByteOffset + 4) % LowTableByteCount;
     }
 
     /// <summary>
@@ -309,7 +275,7 @@ public sealed class OamBuffer
         // the same writes without hiding the important rule: only each record's Y byte is
         // changed, leaving its other stale bytes harmless while it is parked off-screen.
         for (int spriteIndex = usedSpriteCount; spriteIndex < SpriteCount; spriteIndex++)
-            _lowTable[spriteIndex * 4 + 1] = 0xf0;
+            _lowTable[spriteIndex * 4 + 1] = HiddenY;
 
         NextByteOffset = 0;
     }
@@ -328,7 +294,7 @@ public sealed class OamBuffer
             SnesLittleEndian.Word(_lowTable[lowOffset + 2], _lowTable[lowOffset + 3]));
 
         return new OamEntry(
-            X: _lowTable[lowOffset] | (highPair.XHigh ? 0x0100 : 0),
+            X: _lowTable[lowOffset] + (highPair.XHigh ? ByteRange : 0),
             Y: _lowTable[lowOffset + 1],
             TileNumber: attributes.TileNumber,
             Palette: attributes.PaletteIndex,
@@ -403,10 +369,10 @@ public sealed class OamBuffer
     {
         byte wrappedY = (byte)unsignedYSum;
         if (!offsetIsNegative)
-            return unsignedYSum >= 0x100 || wrappedY >= 0xe0;
+            return unsignedYSum >= ByteRange || wrappedY >= SnesPpuLayout.ScreenHeightPixels;
 
         // This is the deliberately literal form of $81:8800-$81:881C. Negative offsets
         // may legitimately wrap into $E0-$FF to appear partly above the screen.
-        return (unsignedYSum & 0x100) != 0 ? wrappedY >= 0xe0 : wrappedY < 0xe0;
+        return (unsignedYSum & ByteRange) != 0 ? wrappedY >= SnesPpuLayout.ScreenHeightPixels : wrappedY < SnesPpuLayout.ScreenHeightPixels;
     }
 }

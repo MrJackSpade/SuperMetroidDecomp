@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Hardware;
 using System.Text;
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.TestSupport.CatalogInventories;
 
 /// <summary>Development command for rebuilding literal enemy visual-selector source
 /// from the pinned cartridge inventory.</summary>
@@ -37,7 +38,7 @@ internal static class EnemyVisualSelectorGenerator
             bankSource.AppendLine("//     Generated from the pinned cartridge by --generate-enemy-visual-selectors. Regenerate instead of editing.");
             bankSource.AppendLine("// </auto-generated>");
             bankSource.AppendLine("#nullable enable");
-            bankSource.AppendLine("namespace SuperMetroid.Core.Assets;");
+            bankSource.AppendLine("namespace SuperMetroid.Core.Enemies.Artwork;");
             bankSource.AppendLine();
             bankSource.AppendLine("internal static partial class CompiledEnemyVisualSelectors");
             bankSource.AppendLine("{");
@@ -48,7 +49,7 @@ internal static class EnemyVisualSelectorGenerator
             bankSource.AppendLine("    ];");
             bankSource.AppendLine("}");
             string bankPath =
-                $"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank{bank.Key:X2}.Definitions.Generated.cs";
+                $"csharp/src/SuperMetroid.Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank.Key:X2}.Definitions.Generated.cs";
             File.WriteAllText(bankPath, bankSource.ToString(), new UTF8Encoding(false));
         }
 

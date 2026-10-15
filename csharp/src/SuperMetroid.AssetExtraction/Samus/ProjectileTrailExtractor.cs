@@ -1,0 +1,31 @@
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.AssetExtraction.Samus;
+
+/// <summary>Extracts trail OBJ appearance without exposing native timing or movement commands.</summary>
+[CpuBusBoundary("codec: ROM projectile trail OBJ records → projectile trail appearance")]
+public static class ProjectileTrailExtractor
+{
+    /// <summary>Imports OBJ appearance words from the catalogued bank-$90 projectile-trail frame records.</summary>
+    /// <param name="bus">Cartridge-import-capable address space supplying each native frame's visual operand.</param>
+    /// <returns>New UTF-8 JSON bytes containing named tile-column and tile-row references, palette indices, priorities, and flips.</returns>
+    /// <remarks>Frame duration, position, movement, and trail-spawning mechanics remain compiled rather than becoming editable visual fields.</remarks>
+    public static byte[] Extract(ISnesAddressSpace bus)
+    {
+        var frames = new Dictionary<string, ProjectileTrailAppearance>();
+        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
+        {
+            var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (frame + 2)));
+            frames.Add(ProjectileTrailVisualDefinitions.Name(frame), new()
+            {
+                TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns,
+                TileRow = a.TileNumber / ProjectileSpriteDefinitions.TileColumns,
+                Palette = a.PaletteIndex, Priority = a.Priority, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically,
+            });
+        }
+        return ProjectileTrailCatalog.Write(new() { Version = ProjectileTrailVisualDefinitions.Version, Frames = frames });
+    }
+}

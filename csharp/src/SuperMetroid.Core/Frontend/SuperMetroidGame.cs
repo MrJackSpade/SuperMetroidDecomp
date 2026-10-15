@@ -1,11 +1,30 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Runtime.Attract;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -766,8 +785,8 @@ public sealed class SuperMetroidGame
                     audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
                     audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
                     audio.QueueMusicDelayed8(MusicCommand.Stop);
-                    audio.QueueMusicDelayed8(MusicCommand.LoadData(0x39));
-                    audio.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x000e));
+                    audio.QueueMusicDelayed8(MusicCommand.LoadData(SamusDeathRomData.Music.DataIndex));
+                    audio.QueueMusicDelayed(MusicCommand.SelectTrack(SamusDeathRomData.Music.TrackIndex), MusicCommandDelay.FromDelayedYArgument(14));
                     GameState = SuperMetroidGameState.DeathWaitForMusic;
                 }
                 break;
@@ -1336,8 +1355,7 @@ public sealed class SuperMetroidGame
             // The opening dispatch's HandleSounds runs only once the routine returns.
             soundHandlers = 0;
         }
-        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = audio.AdvanceFrame(
-            bus, SoundAcknowledgements.ForNextFrame(audioSession.Acknowledgements),
+        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = audio.AdvanceFrame(SoundAcknowledgements.ForNextFrame(audioSession.Acknowledgements),
             advanceMusicQueue: musicHandler,
             soundEffectHandlerCalls: soundHandlers);
         IReadOnlyList<CartridgeAudioCommand> audioCommands = prologueMusicCommands.Count == 0 ? trailingAudioCommands
@@ -1456,11 +1474,11 @@ public sealed class SuperMetroidGame
             if (samus.CrystalFlash.ConsumeActivationSoundRequest())
                 audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
             if (samus.Xray.ConsumeActivationSoundRequest())
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x09), maximumQueued: 6);
+                audio.QueueSound(SoundEffectLibrary1Sounds.XrayStart, maximumQueued: 6);
             if (samus.Xray.ConsumeDeactivationSoundRequest())
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x0a), maximumQueued: 6);
+                audio.QueueSound(SoundEffectLibrary1Sounds.XrayEnd, maximumQueued: 6);
             if (samus.DeathSequence.ConsumeSpinJumpSoundRequest())
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x32), maximumQueued: 6);
+                audio.QueueSound(SoundEffectLibrary1Sounds.StopSpinJump, maximumQueued: 6);
         }
 
         if (runtime.Projectiles.LastFrameResult.QueuedSoundEffect is { } projectileSound)
@@ -1796,7 +1814,7 @@ public sealed class SuperMetroidGame
         ReadOnlySpan<Bgr555> current = new CgramPalettes(runtime.Cgram).Image;
         // `$82:DCA3-$DCB3` restores only palette-buffer colors $C0-$CF into the otherwise
         // black target. Suitless row $F0 and all room/OBJ rows therefore fade away.
-        current.Slice(0xc0, 0x10).CopyTo(target.AsSpan(0xc0, 0x10));
+        current.Slice(192, 16).CopyTo(target.AsSpan(192, 16));
         deathPaletteFade = new CartridgePaletteTransition(target, denominator: 6, runtime.Enemies.Presentation.GradualColorChange);
     }
 
@@ -2072,10 +2090,10 @@ public sealed class SuperMetroidGame
             // Preserve the appearance track sequence, but upload the room's bank first
             // just as ordinary room loading does; track numbers alone are bank-local.
             audio.QueueRoomMusicData(loadedState.MusicDataIndex);
-            audio.QueueMusicDelayed(MusicCommand.SelectTrack(1), MusicCommandDelay.FromDelayedYArgument(0x000e));
+            audio.QueueMusicDelayed(MusicCommand.SelectTrack(1), MusicCommandDelay.FromDelayedYArgument(14));
             audio.QueueMusicDelayed(
                 MusicCommand.SelectTrackOrStop(loadedState.MusicTrackIndex),
-                MusicCommandDelay.FromDelayedYArgument(0x0168 + 5));
+                MusicCommandDelay.FromDelayedYArgument(360 + 5));
             lastAudioRoomStatePointer = loadedState.Pointer;
             return false;
         }
@@ -2425,7 +2443,7 @@ public sealed class SuperMetroidGame
     public void ApplyHostOptions(SuperMetroidGameOptions hostOptions)
     {
         Ensure.NotNull(hostOptions);
-        runtime?.ApplyHostOptions(hostOptions);
+        runtime?.ApplyHostOptions(hostOptions.RuntimeOverrides(forAttractDemo: false));
         ConfiguredOptions = hostOptions;
     }
 

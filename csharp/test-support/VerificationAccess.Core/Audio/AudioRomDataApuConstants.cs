@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+namespace SuperMetroid.Core.Audio;
 
 /// <summary>Cartridge values of <see cref="AudioRomData.Apu"/> that only verification reads.</summary>
 internal static class AudioRomDataApuConstants

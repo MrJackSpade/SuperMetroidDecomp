@@ -1,4 +1,6 @@
-using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Installation;
+
+namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>A disposable copy of an installation root in a test scratch directory.</summary>
 internal sealed class PrivateInstallationCopy : IDisposable
@@ -10,11 +12,17 @@ internal sealed class PrivateInstallationCopy : IDisposable
     internal PrivateInstallationCopy(string sourceRoot)
     {
         Root = scratch.Root;
-        Directory.CreateDirectory(Root);
+        CopyInstallation(sourceRoot, Root);
+    }
+
+    /// <summary>Copies every directory and file of an installation root into a new root.</summary>
+    internal static void CopyInstallation(string sourceRoot, string destinationRoot)
+    {
+        Directory.CreateDirectory(destinationRoot);
         foreach (string directory in Directory.GetDirectories(sourceRoot, "*", SearchOption.AllDirectories))
-            Directory.CreateDirectory(Path.Combine(Root, Path.GetRelativePath(sourceRoot, directory)));
+            Directory.CreateDirectory(Path.Combine(destinationRoot, Path.GetRelativePath(sourceRoot, directory)));
         foreach (string file in Directory.GetFiles(sourceRoot, "*", SearchOption.AllDirectories))
-            File.Copy(file, Path.Combine(Root, Path.GetRelativePath(sourceRoot, file)));
+            File.Copy(file, Path.Combine(destinationRoot, Path.GetRelativePath(sourceRoot, file)));
     }
 
     /// <summary>Root directory containing the isolated copy.</summary>

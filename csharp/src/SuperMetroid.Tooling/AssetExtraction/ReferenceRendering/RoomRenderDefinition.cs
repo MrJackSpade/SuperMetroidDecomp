@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.AssetExtraction.ReferenceRendering;
 
 /// <summary>
 /// Names the ROM-derived pieces required to render one static room state. Keeping filenames

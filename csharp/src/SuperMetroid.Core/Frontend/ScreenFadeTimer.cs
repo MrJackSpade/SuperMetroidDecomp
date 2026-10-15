@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Pause;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>

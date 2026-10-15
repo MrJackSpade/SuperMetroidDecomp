@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Game;
-
-namespace SuperMetroid.Core.Rooms;
+﻿namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Development-tool members of <see cref="RoomHeaderDefinitions"/>; never linked by player hosts.</summary>
 internal static class RoomHeaderDefinitionsTooling

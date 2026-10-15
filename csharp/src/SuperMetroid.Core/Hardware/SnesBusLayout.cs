@@ -1,0 +1,44 @@
+namespace SuperMetroid.Core.Hardware;
+
+/// <summary>
+/// The SNES CPU-bus layout this LoROM cartridge sees (#1297): the WRAM and save-RAM banks, the system banks' low
+/// windows, the ROM window and the reserved windows no device drives.
+/// </summary>
+public static class SnesBusLayout
+{
+    /// <summary>The bytes of one bank.</summary>
+    public const int BankBytes = 0x10000;
+    /// <summary>The highest 24-bit bus address.</summary>
+    public const int MaximumAddress = 0x00ff_ffff;
+    /// <summary>ROM drives the data bus from $8000 in every cartridge bank.</summary>
+    public const int RomWindowStart = 0x8000;
+    /// <summary>Banks $7E and $7F hold the 128 KiB of WRAM.</summary>
+    public const int FirstWorkRamBank = 0x7e;
+    /// <summary>The bytes of battery-backed save RAM, mirrored through every save-RAM bank's low window.</summary>
+    public const int SaveRamBytes = 0x2000;
+    /// <summary>System banks $00-$3F/$80-$BF mirror the first 8 KiB of bank-$7E WRAM through $1FFF.</summary>
+    public const int WorkRamMirrorEnd = 0x2000;
+    /// <summary>Start of the unconnected $6000-$7FFF cartridge expansion window.</summary>
+    public const int ExpansionStart = 0x6000;
+    /// <summary>Banks $80-$BF mirror the system-bank expansion window of $00-$3F.</summary>
+    public const int MirrorBankMask = 0x7f;
+    /// <summary>First non-system bank after the $00-$3F expansion windows.</summary>
+    public const int SystemBankLimit = 0x40;
+    /// <summary>$2184: first unused B-bus register after the WRAM port registers.</summary>
+    public const int ReservedBBusStart = 0x2184;
+    /// <summary>$21FF: final address in the mirrored B-bus register window.</summary>
+    public const int ReservedBBusEnd = 0x21ff;
+    /// <summary>$2200: first A-bus expansion address; no device responds on Super Metroid's cartridge.</summary>
+    public const int UnpopulatedExpansionStart = 0x2200;
+    /// <summary>$3FFF: final expansion address before the CPU controller-register window.</summary>
+    public const int UnpopulatedExpansionEnd = 0x3fff;
+
+    /// <summary>Whether <paramref name="bank"/> is one of the two WRAM banks.</summary>
+    public static bool IsWorkRamBank(int bank) => bank is 0x7e or 0x7f;
+
+    /// <summary>Whether <paramref name="bank"/> is a system bank ($00-$3F or $80-$BF), whose low window mirrors WRAM and the I/O.</summary>
+    public static bool IsSystemBank(int bank) => bank is <= 0x3f or >= 0x80 and <= 0xbf;
+
+    /// <summary>Whether <paramref name="bank"/> maps save RAM into its low window ($70-$7D or $F0-$FF).</summary>
+    public static bool IsSaveRamBank(int bank) => bank is >= 0x70 and <= 0x7d or >= 0xf0 and <= 0xff;
+}

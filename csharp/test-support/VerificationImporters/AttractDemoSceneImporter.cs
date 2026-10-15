@@ -1,10 +1,11 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Runtime.Attract;
 
-namespace SuperMetroid.AssetExtraction;
+namespace SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Reads native title-demo scene records for import and reference diagnostics.</summary>
 [CpuBusBoundary("codec: ROM attract-demo room, equipment and Samus-setup set tables → AttractDemoScene")]
@@ -15,7 +16,7 @@ internal static class AttractDemoSceneImporter
     {
         Ensure.NotNull(bus);
         Ensure.AtLeastZero(scene);
-        if ((uint)set >= AttractDemoRomData.SetCount)
+        if ((uint)set >= DemoSetUnlockRomData.SetCount)
             throw new ArgumentOutOfRangeException(nameof(set));
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         int roomList = RomDataReader.ReadWordFixedBank(cartridge, AttractDemoRomData.RoomSetPointers + set * 2);

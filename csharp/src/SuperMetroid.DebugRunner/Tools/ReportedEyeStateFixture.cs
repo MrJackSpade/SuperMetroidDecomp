@@ -1,9 +1,11 @@
 using System.Reflection;
-using SuperMetroid.Android;
-using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Gameplay;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.Diagnostics.Android;
 
 /// <summary>Portable #51 seed for the reported Blue Brinstar eye, isolated from player saves.</summary>
 internal static class ReportedEyeStateFixture

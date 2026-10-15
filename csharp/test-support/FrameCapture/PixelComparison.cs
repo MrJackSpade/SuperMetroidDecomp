@@ -1,5 +1,7 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.TestSupport.FrameCapture;
 
 /// <summary>Exact diagnostic comparison shared by GPU fixtures; failures preserve all reproduction inputs.</summary>
 internal static class PixelComparison

@@ -1,0 +1,81 @@
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using System.Reflection;
+using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
+using static SuperMetroid.Verification.Bosses.Kraid.KraidHeadInstructionsVerification;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+namespace SuperMetroid.Verification.Bosses.Kraid;
+using SuperMetroid.Verification.Harness;
+
+/// <summary>Checks Kraid's growth transition when a head command is interrupted by a foot lunge.</summary>
+internal static class KraidGrowthCommandCursorVerification
+{
+    /// <summary>Verifies the offset-two command cursor, retained head image, 64-frame delay, and ROM-free execution.</summary>
+    internal static void VerifyKraidGrowthCommandCursor()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var guard = new KraidHeadProgramReadGuard(rom);
+        var referenceArt = new EnemyIdentityFixture().Build().KraidBackground;
+        var head = KraidHeadTilemapAtlas.Load(new MemoryStream(KraidHeadTilemapAtlas.Encode(
+            new byte[KraidBackgroundRomData.HeadTilemapWords * 2])));
+        var enemies = new RoomEnemySystem
+        {
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), KraidBackground = new KraidBackgroundArtwork((referenceArt ?? throw new InvalidOperationException("Verification requires referenceArt.")).Upper, referenceArt.Lower,
+                    new Dictionary<ushort, KraidHeadTilemapAtlas> { [0x9dc8] = head }, referenceArt.RoomBackgroundTiles) }),
+        };
+        var state = new KraidEnemyState();
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._vram = new SnesVram();
+        enemies.KraidBehavior.Kraid = state;
+        Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.ExecuteKraidHeadInstruction;
+        Action<RoomEnemySlot, ushort> footMain = enemies.KraidBehavior.RunKraidFootMain;
+        var body = enemies.SlotTable.Slots[0];
+        var foot = enemies.SlotTable.Slots[5];
+        body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
+        state.InitialHealth = 1000;
+        body.Health = 874;
+        body.VariableB = 0x96e2;
+        execute(body, state);
+        AssertEqual((ushort)0x96ea, body.VariableB, "head interpreter leaves the next cursor on the roar command");
+        ushort displayed = state.CurrentHeadTilemap;
+        foot.VariableA = (ushort)KraidAiFunction.FootPrepareFirstPhaseLunge;
+        footMain(foot, 0);
+        AssertEqual((ushort)0x96f4, body.VariableB, "native command-cursor growth resumes at the closing-mouth frame");
+        AssertEqual((ushort)64, body.VariableC, "native quick-kill growth delay is preserved");
+        AssertEqual(displayed, state.CurrentHeadTilemap, "growth selection does not advance the displayed head");
+        AssertEqual(KraidAiFunction.GrowReleaseCamera, state.Parts[0].NextFunction, "growth schedules camera release");
+        AssertEqual((ushort)180, body.VariableF, "growth function timer");
+        AssertEqual((ushort)KraidAiFunction.NoOperation, foot.VariableA, "growth stops the foot lunge");
+        AssertEqual(0, guard.ForbiddenReadAttempts, "growth selection does not read compiled cartridge programs");
+
+        // Confirm this offset-two conversion for every declared command form,
+        // including sound words and terminal words adjacent to the next list.
+        foreach (var definition in KraidHeadInstructionDefinitions.All)
+        {
+            int address = 0xa70000 | (definition.Pointer + 2);
+            ushort expected = (ushort)(SnesLittleEndian.Word(KraidGrowthCommandCursorRomByte(rom, address), KraidGrowthCommandCursorRomByte(rom, address + 1)));
+            AssertEqual(expected, KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(guard, definition.Pointer),
+                $"native growth selection word at ${definition.Pointer:X4}");
+        }
+        Console.WriteLine("Kraid growth command cursor: reported foot-lunge transition, native 64-frame delay, retained display, and offset-two words for all declared commands pass.");
+    }
+
+    /// <summary>Reads one native command byte as an independent growth-selection oracle.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth command cursor")]
+    private static byte KraidGrowthCommandCursorRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    /// <summary>Runs the Kraid growth command-cursor regression.</summary>
+    [VerificationCommand("--kraid-growth-command-cursor")]
+    internal static int KraidGrowthCommandCursorCommand()
+    {
+        Suite(nameof(VerifyKraidGrowthCommandCursor), () => VerifyKraidGrowthCommandCursor());
+        return 0;
+    }
+}

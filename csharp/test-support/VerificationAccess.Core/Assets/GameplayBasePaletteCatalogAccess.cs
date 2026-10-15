@@ -1,5 +1,6 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>Verification access to <see cref="GameplayBasePaletteCatalog"/> members production does not use.</summary>
 internal static class GameplayBasePaletteCatalogAccess

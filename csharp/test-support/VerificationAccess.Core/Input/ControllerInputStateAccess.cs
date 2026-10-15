@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Input;
+namespace SuperMetroid.Core.Input;
 
 /// <summary>Verification access to <see cref="ControllerInputState"/> members production does not use.</summary>
 internal static class ControllerInputStateAccess

@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Frontend.Title;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -13,10 +13,10 @@ public static class TitleGradientColorMath
     {
         if (objectPalette is > 7) throw new ArgumentOutOfRangeException(nameof(objectPalette));
         bool enabled = objectPalette.HasValue
-            ? objectPalette >= 4 && (line.Control & 0x10) != 0
-            : (line.Control & 1) != 0;
+            ? objectPalette >= 4 && ((ColorMathControlFlags)line.Control).HasFlag(ColorMathControlFlags.Obj)
+            : ((ColorMathControlFlags)line.Control).HasFlag(ColorMathControlFlags.Bg1);
         if (!enabled || pixel.A == 0) return pixel;
-        bool subtract = (line.Control & 0x80) != 0;
+        bool subtract = ((ColorMathControlFlags)line.Control).HasFlag(ColorMathControlFlags.Subtract);
         byte Component(byte source, byte color)
         {
             int value = subtract ? Math.Max(0, (source >> 3) - color) : Math.Min(31, (source >> 3) + color);

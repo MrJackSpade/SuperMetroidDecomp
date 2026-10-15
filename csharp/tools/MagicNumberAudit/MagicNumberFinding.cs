@@ -15,15 +15,16 @@ internal sealed record MagicNumberFinding(
     /// <summary>First 64 SHA-256 bits used for membership in the compact reviewed baseline.</summary>
     public string BaselineFingerprint => Signature[..16];
 
-    /// <summary>Hashes the source identity, category, literal, and expression to identify a reviewed occurrence.</summary>
+    /// <summary>Hashes the owning type, category, literal, and expression to identify a reviewed occurrence wherever its file lives.</summary>
     public static MagicNumberFinding Create(
         string relativePath,
+        string owner,
         int lineNumber,
         string literal,
         MagicNumberCategory category,
         string source)
     {
-        string fingerprintSource = $"{relativePath}|{category}|{literal.ToLowerInvariant()}|{source}";
+        string fingerprintSource = $"{owner}|{category}|{literal.ToLowerInvariant()}|{source}";
         string signature = Convert.ToHexString(
             SHA256.HashData(Encoding.UTF8.GetBytes(fingerprintSource))).ToLowerInvariant();
         return new MagicNumberFinding(

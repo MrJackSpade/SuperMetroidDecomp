@@ -1,0 +1,174 @@
+namespace SuperMetroid.Core.Samus.Projectiles;
+
+/// <summary>Immutable cartridge tables and instruction pointers for Samus projectiles.</summary>
+/// <remarks>
+/// The native implementation spreads projectile metadata across banks $90, $91, $93,
+/// $94, $9A, and $9B. Grouping by purpose keeps those cross-bank relationships explicit
+/// while leaving live projectile slots, timers, and positions on the runtime system.
+/// </remarks>
+public static class SamusProjectileRomData
+{
+    /// <summary>$91:F8F3-$F903: tag on the prior Moonwalk muzzle direction, consumed by turning HUD dispatch.</summary>
+    public const ushort MoonwalkPoseHandoffTag = 0x0100;
+
+    /// <summary>$91:F5E3: normal-jump initializer tags the new pose's shot direction for the next HUD producer.</summary>
+    public const ushort NormalJumpPoseHandoffTag = 0x8000;
+
+    /// <summary>Native banks used to expand same-bank projectile pointers.</summary>
+    public static class Banks
+    {
+        /// <summary>Bank containing projectile producers, motion tables, and trails.</summary>
+        public const int Movement = 0x900000;
+        /// <summary>Eight-bit form of <see cref="Movement"/> for <c>SnesAddress</c>.</summary>
+        public const byte MovementNumber = 0x90;
+        /// <summary>Bank containing pose and projectile-driven suit-palette lists.</summary>
+        public const int Pose = 0x910000;
+        /// <summary>Bank containing projectile definitions and animation instructions.</summary>
+        public const int Projectile = 0x930000;
+        /// <summary>Eight-bit form of <see cref="Projectile"/> for <c>SnesAddress</c>.</summary>
+        public const byte ProjectileNumber = 0x93;
+        /// <summary>Bank containing projectile character graphics.</summary>
+        public const int CharacterData = 0x9a0000;
+        /// <summary>Bank containing Samus palettes and beam-trail offsets.</summary>
+        public const int PaletteAndTrailData = 0x9b0000;
+    }
+
+    /// <summary>Pose-relative projectile and charge-flare origins.</summary>
+    public static class Origins
+    {
+        /// <summary>Ten direction-indexed X origins for non-running poses.</summary>
+        public const int DefaultX = 0x90c204;
+        /// <summary>Ten direction-indexed Y origins for non-running poses.</summary>
+        public const int DefaultY = 0x90c218;
+        /// <summary>Ten direction-indexed X origins for running poses.</summary>
+        public const int RunningX = 0x90c22c;
+        /// <summary>Ten direction-indexed Y origins for running poses.</summary>
+        public const int RunningY = 0x90c240;
+        /// <summary>Charge-flare X offsets for non-running poses.</summary>
+        public const int FlareDefaultX = 0x90c1a8;
+        /// <summary>Charge-flare Y offsets for non-running poses.</summary>
+        public const int FlareDefaultY = 0x90c1c2;
+        /// <summary>Charge-flare X offsets for running poses.</summary>
+        public const int FlareRunningX = 0x90c1dc;
+        /// <summary>Charge-flare Y offsets for running poses.</summary>
+        public const int FlareRunningY = 0x90c1f0;
+        /// <summary>Number of projectile directions represented by each origin table.</summary>
+        public const int DirectionCount = 10;
+    }
+
+    /// <summary>Beam cooldown, audio, speed, acceleration, graphics, and palette tables.</summary>
+    public static class Beams
+    {
+        /// <summary>Flare-counter value at which <c>$90:BAFC</c> starts SFX `$08`.</summary>
+        public const ushort ChargeSoundStartCounter = 16;
+        /// <summary>Flare-counter value at which release selects the charged beam family.</summary>
+        public const ushort FullyChargedCounter = 60;
+        /// <summary>Flare-counter clamp at which bank $90 begins testing special beam attacks.</summary>
+        public const ushort SpecialAttackCounter = 120;
+        /// <summary>Uncharged and charged delays indexed by beam combination.</summary>
+        public const int UnchargedCooldowns = 0x90c254;
+        /// <summary>Offset from uncharged delays to the charged-shot delay row.</summary>
+        public const int ChargedRowOffset = 0x10;
+        /// <summary>Held-Shot repeat delays indexed by beam combination.</summary>
+        public const int AutoFireCooldowns = 0x90c283;
+        /// <summary>Speed word for horizontal and vertical power-beam travel.</summary>
+        public const int HorizontalVerticalSpeeds = 0x90c2d1;
+        /// <summary>Speed word for diagonal power-beam travel.</summary>
+        public const int DiagonalSpeeds = 0x90c2d3;
+        /// <summary>$90:B197 indexes $C2D1 by four times the low-nibble beam combination: two speed words per row.</summary>
+        public const int InitialSpeedRowBytes = 2 * sizeof(ushort);
+        /// <summary>Direction-indexed X acceleration words.</summary>
+        public const int XAccelerations = 0x90c353;
+        /// <summary>Direction-indexed Y acceleration words.</summary>
+        public const int YAccelerations = 0x90c367;
+        /// <summary>Beam-combination-indexed character-data pointers.</summary>
+        public const int TilePointers = 0x90c3b1;
+        /// <summary>Beam-combination-indexed palette pointers at <c>$90:C3C9..C3E0</c>.</summary>
+        /// <remarks>
+        /// The twelve stock little-endian words select one of five bank-$90
+        /// sixteen-color palettes. For combination index <c>i = 0..11</c>,
+        /// Ice (<c>i &amp; 2</c>) selects <c>$C401</c>; otherwise Plasma
+        /// (<c>i &amp; 8</c>) selects <c>$C441</c>; otherwise Wave
+        /// (<c>i &amp; 1</c>) selects <c>$C421</c>; otherwise Spazer
+        /// (<c>i &amp; 4</c>) selects <c>$C461</c>; otherwise Power selects
+        /// <c>$C3E1</c>. All twelve match the pinned NTSC J/U v1.0 ROM and
+        /// native listing. The native caller masks equipped beams with
+        /// <c>$0FFF</c> and doubles the index; indices beyond eleven read
+        /// adjacent physical data, including the Chainsaw path, rather than
+        /// extending this rule. Keep the words available to ROM-backed
+        /// consumers and the intentional adjacent-data overread. Selected ordinary
+        /// beam colors are supplied by <see cref="SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog"/>.
+        /// Investigation: #625 / #900.
+        /// </remarks>
+        public const int PalettePointers = 0x90c3c9;
+        /// <summary>Bank-$93 projectile-data pointers for uncharged combinations.</summary>
+        public const int UnchargedDataPointers = 0x9383c1;
+        /// <summary>Bank-$93 projectile-data pointers for charged combinations.</summary>
+        public const int ChargedDataPointers = 0x9383d9;
+        /// <summary>Pointers to the three charge-flare component delay lists.</summary>
+        public const int ChargeFlareDelayListPointers = 0x90c481;
+        /// <summary>Number of beam combinations present in each complete pointer table.</summary>
+        public const int CombinationCount =
+            (ChargedDataPointers - UnchargedDataPointers) / sizeof(ushort);
+    }
+
+    /// <summary>Projectile-driven Samus and beam palette pointer tables.</summary>
+    public static class Palettes
+    {
+        /// <summary>$90:ACCD writes the sixteen beam colors beginning at CGRAM index $E0.</summary>
+        public const int BeamDestinationIndex = 0xe0;
+        /// <summary>Suit-indexed pointers to charged-beam palette instruction lists.</summary>
+        public const int BeamChargePointers = 0x91d7d5;
+        /// <summary>Suit-indexed pointers to pseudo-Screw palette instruction lists.</summary>
+        public const int PseudoScrewPointers = 0x91d7ff;
+        /// <summary>Hyper Beam shot palette pointers indexed by flash frame.</summary>
+        public const int HyperBeamShotPointers = 0x91d829;
+    }
+
+    /// <summary>Missile, Super Missile, bomb, and linked-projectile definitions.</summary>
+    public static class NonBeam
+    {
+        /// <summary>$90:AC86, Samus_CanFireSuperMissile: reject at four live projectiles, reserving the fifth slot for the collision link.</summary>
+        public const int SuperMissileAdmissionLimit = 4;
+        /// <summary>Bank-$93 data pointers for missiles, bombs, and special projectiles.</summary>
+        public const int DataPointers = 0x9383f1;
+        /// <summary>Bank-$93 definitions for Super Missile link projectiles.</summary>
+        public const int SuperMissileLinkDataPointers = 0x93842b;
+        /// <summary>Direction-indexed missile acceleration records.</summary>
+        public const int MissileAccelerations = 0x90c303;
+        /// <summary>Direction-indexed Super Missile acceleration records.</summary>
+        public const int SuperMissileAccelerations = 0x90c32b;
+        /// <summary>$93:8125, KillProjectileInner: one-pixel diagonal quake affecting both BGs and enemies.</summary>
+        public const ushort SuperMissileEarthquakeType = 20;
+        /// <summary>$93:812B, KillProjectileInner: thirty room-shaking calls after Super Missile impact.</summary>
+        public const ushort SuperMissileEarthquakeDuration = 30;
+        /// <summary>
+        /// $A0:9CB7 / $A0:A1E9, enemy/projectile collision: a Super Missile touching an enemy
+        /// starts this quake for the same thirty calls. Crawlers fall only for the impact's
+        /// type, so an enemy hit leaves them crawling.
+        /// </summary>
+        public const ushort SuperMissileEnemyHitEarthquakeType = 18;
+    }
+
+    /// <summary>Beam-trail instructions and direction/frame offset families.</summary>
+    public static class Trails
+    {
+        /// <summary>Left trail instruction-list pointers for every supported projectile.</summary>
+        public const int LeftInstructionPointers = 0x90b5bb;
+        /// <summary>Right trail instruction-list pointers for every supported projectile.</summary>
+        public const int RightInstructionPointers = 0x90b609;
+        /// <summary>Uncharged beam-combination offset-family pointers.</summary>
+        public const int UnchargedOffsetFamilies = 0x9ba4b3;
+        /// <summary>Charged beam-combination offset-family pointers.</summary>
+        public const int ChargedOffsetFamilies = 0x9ba4cb;
+        /// <summary>Spazer special-beam-attack offset-family pointers.</summary>
+        public const int SpazerSbaOffsetFamilies = 0x9ba4e3;
+    }
+
+    /// <summary>Shared bank-$93 projectile instruction opcodes.</summary>
+    public static class Instructions
+    {
+        /// <summary>Bytes in one ordinary bank-$93 timer/spritemap/radius/frame record.</summary>
+        public const int AnimationRecordByteCount = 8;
+    }
+}

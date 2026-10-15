@@ -1,7 +1,10 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Map;
+
+namespace SuperMetroid.TestSupport.RepositoryInstallation;
 
 /// <summary>
 /// The repository ROM's extracted installation in the ignored <see cref="CacheRoot"/>, shared by the

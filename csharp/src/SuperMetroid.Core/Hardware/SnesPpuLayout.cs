@@ -61,6 +61,9 @@ public static class SnesPpuLayout
     [PpuLayoutAccess]
     public const int OamSpriteCount = 128;
 
+    /// <summary>The PPU's $2100-$21FF register window.</summary>
+    public const int PpuRegisterCount = 256;
+
     /// <summary>Size of OAM's four-byte-per-OBJ low table.</summary>
     [PpuLayoutAccess]
     public const int OamLowTableByteCount = OamSpriteCount * 4;

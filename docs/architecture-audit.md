@@ -90,3 +90,65 @@ Repository code, including any generator it adds, is analyzed; only the framewor
 file when its usings, namespace, attributes and documentation carry over unambiguously; a file with preprocessor
 directives, statements or file-local types needs manual placement. The analyzer projects and their verifier are
 checked by `SuperMetroid.EnsureVerification`.
+
+**SME6401** requires the file to be named after that type: `Type.cs`, or `Type.Purpose.cs` for a deliberate partial
+part. Files declaring no type (entry-point statements, assembly attributes) are not named by the rule.
+
+Because a file now identifies one type, the production magic-number audit keys each reviewed finding on its declaring
+type rather than its path, so moving or renaming a file keeps the finding's reviewed identity.
+
+## Core source layout
+
+Core is organized by gameplay domain first and then by cohesive feature (#626). Each directory is a module whose
+namespace matches its path (`Core/Bosses/Kraid` is `SuperMetroid.Core.Bosses.Kraid`):
+
+| Module | Owns |
+| --- | --- |
+| `Samus` | Samus state, with `Movement`, `Poses`, `Projectiles`, `Grapple`, `Abilities` (X-ray, Crystal Flash, Shinespark, Speed Booster, morph), `Palettes`, `Drawing`, `Death` and `Hud` |
+| `Enemies` | the shared enemy engine, one directory per enemy family, `Projectiles` (the enemy-projectile engine), `Drawing` and `Artwork` |
+| `Bosses/<Boss>` | one boss encounter: its AI, room objects, projectiles and `Artwork` |
+| `Rooms` | room headers, states and loading, with `LevelData`, `Backgrounds`, `Scrolling`, `Plms`, `Doors`, `SpriteObjects`, `Xray` and `Artwork` |
+| `Fx` | room FX, animated tiles and HDMA, with `PaletteFx` |
+| `Areas/<Area>` | scripted gameplay sequences that belong to one place (Ceres, the escapes, Tourian, Maridia) |
+| `Gameplay` | the services every gameplay domain shares within a frame: the NMI clock and handler, time freeze, display state, host options and tester tools, runtime artwork, actor drawing, the game-state word, and the narrow contracts gameplay reads from the frontend (`IGameplayPresentationContent`, `IAttractDemoState`) |
+| `Map` | the area map model: layouts, tile words, exploration and explored-bit packing, the minimap, reveal modes and the map views (`IAreaMapSource`) |
+| `Hud`, `Saves`, `Progression`, `Programs` | the gameplay HUD and message boxes; save images; boss and event progression; the shared instruction-program machinery |
+| `Runtime` | the gameplay frame loop that composes the simulation, with `Attract` (demo playback), door transitions, checkpoint autosaves and the runtime's renderer and audio publication |
+| `Frontend/<Screen>` | the game-state dispatcher and host options, and one module per screen or cinematic (title, intro, `CeresCinematics`, file select, pause map, options, game over, ending, recordings) |
+| `Assets` | artwork infrastructure every domain shares: PNG and JSON documents (`ArtworkJson`), tile encoders, base palettes |
+| `Hardware`, `Rendering`, `Audio`, `Spatial`, `Input` | the SNES models and host colors, renderers, SPC driver, spatial and fixed-point types, and controller input |
+
+A domain's installed-artwork layer (catalogs, presentations, formats and documents of extracted artwork) lives in
+its `Artwork` module, so gameplay code and the artwork it draws stay separable. The resource audit uses that layer
+boundary: files in `Assets` or an `Artwork` module are providers, and code elsewhere consumes them. `Tooling/Core` and
+`test-support/VerificationAccess.Core` mirror the module of the type each file extends.
+
+## Module map and dependency rules
+
+`csharp/module-map.json` registers every maintained source root as a module: its path, namespace root, role
+(production, tooling, analyzer, verification, verification support, tool source, fixture), its allowed project
+references and shared-source imports, and mirror subdirectories (`Tooling/Core` is namespace `SuperMetroid.Core`).
+Every project receives the map as an additional file, and the build enforces it:
+
+| Rule | Requires |
+| --- | --- |
+| **SME6402** | a file declaring a type uses its module's namespace followed by its subdirectories |
+| **SME6403** | every compiled source file lies inside a registered module |
+| **SME6404** | a Core module references only types of its own or a lower layer |
+| **SME6405** | a Verification file lives in the module of the Core domain it exercises, or in the shared `Harness` |
+| **SME6406** | every top-level Core module is assigned a layer |
+
+Core's layers, lowest first, are Geometry (`Spatial`), Hardware, Foundation (`Input`, `Audio`, `Programs`,
+`Assets`), Simulation (`Gameplay`, `Map` and the gameplay domains), Presentation (`Rendering`), Runtime and Frontend.
+Code below the frontend reads frontend-owned content through narrow contracts that the frontend implements, never
+through the frontend's types; documentation crefs are not dependencies.
+
+`SuperMetroid.BuildPolicyVerification` checks what an analyzer cannot: every directory under `csharp/src`,
+`csharp/test-support` and `csharp/tools` is registered; each project's `ProjectReference` and `.projitems` imports
+equal the map's lists; production projects reference only production projects; and no build or tool output sits in
+a source root outside each project's own ignored `bin` and `obj` (test fixtures excepted).
+
+The architecture audit also writes `docs/module-inventory.json`: every compiled source file with its module, role,
+namespace, assemblies, Core layer and the modules it references, each module's aggregate dependencies, and the
+dependency cycles among Core modules. A cycle fails the audit unless `acceptedCycles` in the map lists exactly that
+set of modules with its tracking issues; the remaining Simulation cycle is tracked by #1362, #1315 and #1328.

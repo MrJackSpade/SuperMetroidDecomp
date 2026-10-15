@@ -36,8 +36,8 @@ public static class SnesIndirectLongDataRead
     {
         int bank = SnesAddressMath.BankNumber(address);
         int offset = SnesAddressMath.OffsetInBank(address);
-        if ((bank & LoRomExpansionReadMap.MirrorBankMask) < LoRomExpansionReadMap.SystemBankLimit &&
-            offset >= LoRomExpansionReadMap.ExpansionStart && offset < LoRomExpansionReadMap.RomStart)
+        if ((bank & SnesBusLayout.MirrorBankMask) < SnesBusLayout.SystemBankLimit &&
+            offset >= SnesBusLayout.ExpansionStart && offset < SnesBusLayout.RomWindowStart)
             return busLatch;
         var kind = SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address));
         if (kind == SnesDmaSourceKind.Cartridge && (uint)(address - definitionAddress) < cartridgeDefinition.Length)

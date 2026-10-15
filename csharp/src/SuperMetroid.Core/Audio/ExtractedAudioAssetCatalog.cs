@@ -79,12 +79,12 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException(
                     $"Extracted audio stream '{path}' has SHA-256 {actualHash}, expected {entry.Sha256}.");
             }
-            AudioBank uploadBank = AudioAssetCatalogData.ResolveSnesAddress(entry.SnesAddress).Bank;
+            AudioBank uploadBank = AudioAssetCatalogDefinitions.ResolveSnesAddress(entry.SnesAddress).Bank;
             if (!loaded.TryAdd(uploadBank, bytes))
                 throw new InvalidDataException($"Audio manifest repeats SNES upload address ${entry.SnesAddress:X6}.");
         }
 
-        int[] missing = AudioAssetCatalogData.All
+        int[] missing = AudioAssetCatalogDefinitions.All
             .Where(definition => !loaded.ContainsKey(definition.Bank))
             .Select(definition => definition.SnesAddress)
             .ToArray();
@@ -100,7 +100,7 @@ public sealed class ExtractedAudioAssetCatalog
         Dictionary<AudioBank, AudioBankMetadata> musicBanks = [];
         foreach (AudioBankMetadata bank in manifest.Banks)
         {
-            AudioUploadAssetDefinition definition = AudioAssetCatalogData.All.SingleOrDefault(
+            AudioUploadAssetDefinition definition = AudioAssetCatalogDefinitions.All.SingleOrDefault(
                 candidate => candidate.SnesAddress == bank.SnesAddress)
                 ?? throw new InvalidDataException(
                     $"Audio manifest contains unknown PCM bank address ${bank.SnesAddress:X6}.");
@@ -145,7 +145,7 @@ public sealed class ExtractedAudioAssetCatalog
             if (!musicBanks.TryAdd(definition.Bank, bank))
                 throw new InvalidDataException($"Audio manifest repeats music bank address ${bank.SnesAddress:X6}.");
         }
-        int[] missingBanks = AudioAssetCatalogData.All
+        int[] missingBanks = AudioAssetCatalogDefinitions.All
             .Where(definition => !banks.ContainsKey(definition.Bank))
             .Select(definition => definition.SnesAddress)
             .ToArray();
@@ -276,24 +276,24 @@ public sealed class ExtractedAudioAssetCatalog
         ValidateInstruments(
         AudioBankMetadata bank)
     {
-        if (bank.Instruments.Count != SpcDriverData.Ram.InstrumentCount)
+        if (bank.Instruments.Count != SpcDriverDefinitions.Ram.InstrumentCount)
         {
             throw new InvalidDataException(
                 $"Audio bank '{bank.Name}' defines {bank.Instruments.Count} instruments; " +
-                $"expected {SpcDriverData.Ram.InstrumentCount}.");
+                $"expected {SpcDriverDefinitions.Ram.InstrumentCount}.");
         }
 
         Dictionary<int, AudioInstrumentMetadata> byId = [];
         foreach (AudioInstrumentMetadata instrument in bank.Instruments)
         {
-            if ((uint)instrument.Instrument >= SpcDriverData.Ram.InstrumentCount)
+            if ((uint)instrument.Instrument >= SpcDriverDefinitions.Ram.InstrumentCount)
             {
                 throw new InvalidDataException(
                     $"Audio bank '{bank.Name}' instrument {instrument.Instrument} is outside " +
-                    $"0..{SpcDriverData.Ram.InstrumentCount - 1}.");
+                    $"0..{SpcDriverDefinitions.Ram.InstrumentCount - 1}.");
             }
             if (instrument.UsesNoise !=
-                ((instrument.SourceOrNoiseRate & SpcDriverData.Instruments.NoiseMarker) != 0))
+                ((instrument.SourceOrNoiseRate & SpcDriverDefinitions.Instruments.NoiseMarker) != 0))
             {
                 throw new InvalidDataException(
                     $"Audio bank '{bank.Name}' instrument {instrument.Instrument} has inconsistent " +
@@ -306,7 +306,7 @@ public sealed class ExtractedAudioAssetCatalog
             }
         }
 
-        var ordered = new AudioInstrumentMetadata[SpcDriverData.Ram.InstrumentCount];
+        var ordered = new AudioInstrumentMetadata[SpcDriverDefinitions.Ram.InstrumentCount];
         for (int instrument = 0; instrument < ordered.Length; instrument++)
         {
             if (!byId.TryGetValue(instrument, out AudioInstrumentMetadata? definition))
@@ -441,7 +441,7 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException($"Audio manifest repeats sound program ID '{program.Id}'.");
             if (!addresses.Add(program.Address))
                 throw new InvalidDataException($"Audio manifest repeats sound program address ${program.Address:X4}.");
-            if (program.ByteCapacity <= 0 || program.Address + program.ByteCapacity > SpcDriverData.ApuRamSize)
+            if (program.ByteCapacity <= 0 || program.Address + program.ByteCapacity > SpcDriverDefinitions.ApuRamSize)
             {
                 throw new InvalidDataException(
                     $"Audio sound program '{program.Id}' has invalid fixed slot " +
@@ -450,11 +450,11 @@ public sealed class ExtractedAudioAssetCatalog
             _ = SpcSoundEffectProgramCodec.Encode(program);
         }
 
-        if (manifest.SoundLibraries.Count != SpcDriverData.SoundEffects.LibraryCount)
+        if (manifest.SoundLibraries.Count != SpcDriverDefinitions.SoundEffects.LibraryCount)
         {
             throw new InvalidDataException(
                 $"Audio manifest defines {manifest.SoundLibraries.Count} SFX libraries; " +
-                $"expected {SpcDriverData.SoundEffects.LibraryCount}.");
+                $"expected {SpcDriverDefinitions.SoundEffects.LibraryCount}.");
         }
         for (int libraryIndex = 0; libraryIndex < manifest.SoundLibraries.Count; libraryIndex++)
         {

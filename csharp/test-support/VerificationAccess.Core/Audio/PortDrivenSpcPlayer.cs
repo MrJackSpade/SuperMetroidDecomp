@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// Drives a bare <see cref="ManagedSpcPlayer"/> by raw APU port writes for driver-level

@@ -1,0 +1,17 @@
+
+namespace SuperMetroid.Core.Enemies.Magdollite;
+
+/// <summary>Verification access to <see cref="MagdollitePhaseDefinitions"/> members production does not use.</summary>
+internal static class MagdollitePhaseDefinitionsAccess
+{
+    /// <summary>Exposes the per-slot Magdollite apex table size and native arm-height threshold address.</summary>
+    extension(MagdollitePhaseDefinitions)
+    {
+        /// <summary>Number of enemy slots covered by <see cref="MagdollitePhaseDefinitions.ApexThreshold"/>.</summary>
+        internal static int ApexThresholdSlotCount =>
+            MagdollitePhaseDefinitions.s_apexThresholdsByEnemySlot.Length;
+
+        /// <summary>$A8:AF55, <c>MagdolliteArmHeightThreshold</c>.</summary>
+        internal static ushort ArmHeightThresholdTable => 0xaf55;
+    }
+}

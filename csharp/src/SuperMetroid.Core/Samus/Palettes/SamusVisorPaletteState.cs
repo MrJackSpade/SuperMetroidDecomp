@@ -1,0 +1,100 @@
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Artwork;
+
+namespace SuperMetroid.Core.Samus.Palettes;
+
+/// <summary>
+/// Exact packed timer/index animation used by <c>HandleVisorPalette</c> at
+/// <c>$91:D83F-$91:D8A4</c>.
+/// </summary>
+/// <remarks>
+/// This is intentionally not a generic color tween. In rooms whose default layer-blending
+/// configuration is <c>$28</c> or <c>$2A</c>, the ROM rotates only Samus OBJ palette-four
+/// color four through the last three words at <c>$9B:A3C0</c>. The timer and table offset
+/// are adjacent bytes in WRAM, so the native routine decrements them as one 16-bit word.
+/// Keeping that alias visible makes unusual externally edited states debugger-faithful too.
+/// </remarks>
+public sealed class SamusVisorPaletteState
+{
+    /// <summary>Host-owned visor artwork, excluded from debugger-state serialization.</summary>
+    [field: NonSerialized]
+    public SamusVisorColorCatalog? PresentationColors { get; set; }
+
+    /// <summary>
+    /// Native word at WRAM <c>$0A72</c>: low byte is the countdown and high byte is an
+    /// even byte offset into the six-word visor table.
+    /// </summary>
+    public ushort PackedTimerIndex { get; private set; } =
+        SamusPaletteRomData.Visor.NormalRoomReset;
+
+    /// <summary>Low byte at WRAM <c>$0A72</c>.</summary>
+    public byte Timer => unchecked((byte)PackedTimerIndex);
+
+    /// <summary>High byte at WRAM <c>$0A73</c>; this is a byte offset, not an ordinal.</summary>
+    public byte PaletteByteOffset => SnesLittleEndian.HighByte(PackedTimerIndex);
+
+    /// <summary>
+    /// Advances one palette-handler call and optionally writes CGRAM color 196.
+    /// </summary>
+    public SamusVisorPaletteStepResult Update(
+        ISnesAddressSpace bus,
+        SnesCgram cgram,
+        SamusSpecialPaletteType specialSamusPaletteType,
+        LayerBlendingConfiguration layerBlendingDefaultConfig)
+    {
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
+
+        ushort packedBefore = PackedTimerIndex;
+
+        // X-ray handler eight owns this same visor color. `$91:D842` returns immediately,
+        // preserving both packed bytes so ordinary room animation resumes where it stopped.
+        if (specialSamusPaletteType == SamusSpecialPaletteType.Xray)
+        {
+            return new SamusVisorPaletteStepResult();
+        }
+
+        // Every other room writes `$0601` on every call. Besides disabling the animation,
+        // this primes an immediate color write on the first call after entering a backdrop-
+        // color-math room: 1 decrements to 0 before the table is consulted.
+        if (!layerBlendingDefaultConfig.AnimatesVisor())
+        {
+            PackedTimerIndex = SamusPaletteRomData.Visor.NormalRoomReset;
+            return new SamusVisorPaletteStepResult();
+        }
+
+        // DEC is deliberately word-wide. Normally only the low timer changes, but if an
+        // external debugger supplies timer zero the borrow also decrements the high offset,
+        // exactly as the adjacent native WRAM bytes do.
+        PackedTimerIndex = NativeWordCounter.Decrement(PackedTimerIndex).Value;
+        if (Timer != 0)
+        {
+            return new SamusVisorPaletteStepResult();
+        }
+
+        // OR rather than assignment is literal `$91:D864`: the expired low byte is zero in
+        // admitted state, so it becomes five while the high table offset is retained.
+        PackedTimerIndex |= SamusPaletteRomData.Visor.FrameDelay;
+        byte sourceOffset = PaletteByteOffset;
+        // An externally edited packed word can address bytes outside the six authored
+        // colors. Preserve the native address-space read in that exceptional case.
+        if (PresentationColors is null ||
+            !PresentationColors.TryResolveByteOffset(sourceOffset, out Bgr555 color))
+            throw new InvalidDataException($"Visor palette offset {sourceOffset} has no installed color.");
+        new SamusPalettes(cgram).Visor.Write(0, color);
+
+        // Only offsets 6, 8, and 10 belong to the room-backdrop cycle. Offsets 0/2/4 are
+        // X-ray widening colors and are selected by the separate X-ray palette handler.
+        int nextOffset = sourceOffset + 2;
+        byte storedNextOffset = unchecked((byte)(
+            nextOffset < SamusPaletteRomData.Visor.CycleEndByteOffset
+                ? nextOffset
+                : SamusPaletteRomData.Visor.CycleFirstByteOffset));
+        PackedTimerIndex = unchecked((ushort)(SnesLittleEndian.Word(Timer, storedNextOffset)));
+
+        return new SamusVisorPaletteStepResult();
+    }
+
+}

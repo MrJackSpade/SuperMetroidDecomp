@@ -9,7 +9,7 @@ other caller works with typed, domain-named members.
 | Layer | Lives in | May know addresses? |
 |---|---|---|
 | Address-space implementation | `SuperMetroidAddressSpace` (`ISnesMemoryBus`), cartridge import source | yes — `[CpuBusBoundary("CPU-bus implementation …")]` |
-| Cell catalogs | static classes of `CpuBusCell` descriptors, one per domain (e.g. `SamusWorkRam`, `RoomScrollWorkRam`, `SaveSlotSram`) | yes — the only place an address literal appears; `[CpuBusBoundary("catalog …")]` |
+| Cell catalogs | static classes of `CpuBusCell` descriptors, one per domain (e.g. `SamusWorkRam`, `RoomScrollWorkRamAddresses`, `SaveSlotSram`) | yes — the only place an address literal appears; `[CpuBusBoundary("catalog …")]` |
 | Domain memory views | classes over `ISnesMemoryBus` exposing typed properties/operations/tables (e.g. `SamusMemory.Health`, `RoomScrollMemory[cell]`) | through cells only — `[CpuBusBoundary("domain view …")]` |
 | Native-layout codecs | save/SRAM codecs, WRAM snapshot import/export, ROM import decoders | through cells only — `[CpuBusBoundary("codec …")]` |
 | Exact bus tests | mapping/mirror/wrap/side-effect tests and bus test doubles | `[CpuBusBoundary("exact bus test …")]` on the narrowest type or method |

@@ -60,6 +60,10 @@ internal static partial class ProductionMagicNumberAudit
     [GeneratedRegex(@"^\s*(?:\[[^\]]*\]\s*)*(?:(?:public|internal|private|protected|file|static|sealed|abstract|readonly|partial|unsafe|ref)\s+)*(?:class|struct|record|interface)\s+\w+", RegexOptions.CultureInvariant)]
     private static partial Regex BehaviorTypeDeclarationRegex();
 
+    /// <summary>A type declaration line, capturing the declared name.</summary>
+    [GeneratedRegex(@"^\s*(?:\[[^\]]*\]\s*)*(?:(?:public|internal|private|protected|file|static|sealed|abstract|readonly|partial|unsafe|ref)\s+)*(?:class|struct|record|interface|enum|delegate\s+[\w<>\[\],.? ]+?)\s+(?<name>\w+)", RegexOptions.CultureInvariant)]
+    private static partial Regex TypeDeclarationRegex();
+
     /// <summary>Recognizes a raw hexadecimal switch discriminator before small-value exemptions apply.</summary>
     [GeneratedRegex(@"\bcase\s+0[xX]", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex RawCaseRegex();
@@ -205,6 +209,10 @@ internal static partial class ProductionMagicNumberAudit
         {
             return;
         }
+        // A finding belongs to the file's declared type (one per file, #626), so moving or renaming the file keeps
+        // its reviewed identity; a file declaring no type is identified by its name.
+        string owner = source.Select(line => TypeDeclarationRegex().Match(line)).FirstOrDefault(match => match.Success)?.Groups["name"].Value ??
+            Path.GetFileNameWithoutExtension(relativePath);
 
         bool insideBlockComment = false;
         int lineNumber = 0;
@@ -225,6 +233,7 @@ internal static partial class ProductionMagicNumberAudit
 
                 findings.Add(MagicNumberFinding.Create(
                     relativePath,
+                    owner,
                     lineNumber,
                     literal,
                     category.Value,

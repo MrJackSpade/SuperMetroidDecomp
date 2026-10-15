@@ -4,25 +4,25 @@ namespace SuperMetroid.Core.Hardware;
 [CpuBusBoundary("domain view: COLDATA fixed-color WRAM mirrors")]
 public readonly struct FixedColorMemory(ISnesMemoryBus bus)
 {
-    /// <summary>The raw COLDATA byte mirrored at <see cref="PpuFixedColorMirrors.Red"/>.</summary>
+    /// <summary>The raw COLDATA byte mirrored at <see cref="PpuFixedColorMirrorAddresses.Red"/>.</summary>
     public byte Red
     {
-        get => new WramByte(bus, PpuFixedColorMirrors.Red).Read();
-        set => new WramByte(bus, PpuFixedColorMirrors.Red).Write(value);
+        get => new WramByte(bus, PpuFixedColorMirrorAddresses.Red).Read();
+        set => new WramByte(bus, PpuFixedColorMirrorAddresses.Red).Write(value);
     }
 
-    /// <summary>The raw COLDATA byte mirrored at <see cref="PpuFixedColorMirrors.Green"/>.</summary>
+    /// <summary>The raw COLDATA byte mirrored at <see cref="PpuFixedColorMirrorAddresses.Green"/>.</summary>
     public byte Green
     {
-        get => new WramByte(bus, PpuFixedColorMirrors.Green).Read();
-        set => new WramByte(bus, PpuFixedColorMirrors.Green).Write(value);
+        get => new WramByte(bus, PpuFixedColorMirrorAddresses.Green).Read();
+        set => new WramByte(bus, PpuFixedColorMirrorAddresses.Green).Write(value);
     }
 
-    /// <summary>The raw COLDATA byte mirrored at <see cref="PpuFixedColorMirrors.Blue"/>.</summary>
+    /// <summary>The raw COLDATA byte mirrored at <see cref="PpuFixedColorMirrorAddresses.Blue"/>.</summary>
     public byte Blue
     {
-        get => new WramByte(bus, PpuFixedColorMirrors.Blue).Read();
-        set => new WramByte(bus, PpuFixedColorMirrors.Blue).Write(value);
+        get => new WramByte(bus, PpuFixedColorMirrorAddresses.Blue).Read();
+        set => new WramByte(bus, PpuFixedColorMirrorAddresses.Blue).Write(value);
     }
 
     /// <summary>The five-bit intensity of <see cref="Red"/>.</summary>

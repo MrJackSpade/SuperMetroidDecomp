@@ -1,0 +1,6 @@
+#!/bin/sh
+# Reports how much of the agent's time since the previous commit was spent waiting on tools,
+# warning above 20% and demanding the waste be found and fixed above 50%.
+# See "Agent turnaround time" in AGENTS.md and tools/agent-time-report.py.
+set -eu
+python "$(git rev-parse --show-toplevel)/tools/agent-time-report.py" --head

@@ -1,0 +1,129 @@
+using SuperMetroid.Tooling;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.ResourceAudit.Reports;
+using SuperMetroid.ResourceAudit.Resources;
+
+namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
+
+/// <summary>Confirms the identified complete BG2/effect/fragment and owned-length contracts using source fixtures.</summary>
+internal static class BackgroundTransferPresentationContractChecks
+{
+    /// <summary>Compiles source-backed BG2 and transfer call fixtures, then checks accepted and revoked audit classifications.</summary>
+    internal static void Run(bool bg2Only = false)
+    {
+        var contracts = BackgroundTransferClosedContractDefinitions.All.Where(contract =>
+            !bg2Only || contract.Rule.EndsWith("-complete-bg2-membership", StringComparison.Ordinal));
+        var trees = contracts.SelectMany(contract => contract.Sources)
+            .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
+                File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
+        trees.Add(CoreGlobalUsings.Tree());
+        SyntaxTree calls = CSharpSyntaxTree.ParseText("""
+            using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+            using SuperMetroid.Core.Bosses.Draygon.Artwork;
+            using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+            using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+            using SuperMetroid.Core.Enemies.Artwork;
+            using SuperMetroid.Core.Frontend.Ending.Artwork;
+            using SuperMetroid.Core.Fx;
+            using SuperMetroid.Core.Fx.Artwork;
+            using SuperMetroid.Core.Hardware;
+            class BackgroundConsumer {
+                void Inspect(PhantoonBg2FrameCatalog phantoon, DraygonBg2FrameCatalog draygon,
+                    CrocomireBg2FrameCatalog crocomire, MotherBrainBodyBg2FrameCatalog motherBrain,
+                    RoomFxLayer3TilemapCatalog pages, RoomFxPaletteBlendCatalog blends,
+                    EndingObjectArtworkCatalog ending, GunshipLiftoffArtworkCatalog ship, SnesCgram cgram) {
+                    phantoon.TryGet(0, out _);
+                    draygon.TryGet(0, out _);
+                    crocomire.TryGet(0, out _);
+                    motherBrain.TryGet(MotherBrainBodyVisualDefinitions.InitialDummyFrame, out _);
+                    pages.Resolve(RoomFxType.Lava);
+                    pages.Resolve((RoomFxType)255);
+                    blends.Apply(cgram, 0);
+                    blends.Apply(cgram, RoomFxPaletteBlend.Lava);
+                    blends.Apply(cgram, 1);
+                    blends.Resolve(0);
+                    blends.Resolve(RoomFxPaletteBlend.Fog);
+                    ending.Fragment(EndingObjectFragmentId.Segment7C);
+                    ending.Fragment((EndingObjectFragmentId)4);
+                    ship.Resolve(VramAssetId.GunshipLiftoffFirstTiles);
+                    ship.Resolve(VramAssetId.GunshipLiftoffFifthTiles);
+                    ship.Resolve(VramAssetId.BeamPowerTiles);
+                    ship.TryResolve(GunshipLiftoffTransferDefinitions.First.SourceAddress, GunshipLiftoffTransferDefinitions.ByteCount, out _);
+                    ship.TryResolve(GunshipLiftoffTransferDefinitions.First.SourceAddress, GunshipLiftoffTransferDefinitions.ByteCount - 1, out _);
+                    ship.TryResolve(0, GunshipLiftoffTransferDefinitions.ByteCount - 1, out _);
+                }
+            }
+            """, path: "fixture-bg-transfer-consumer.cs");
+        if (bg2Only)
+            calls = CSharpSyntaxTree.ParseText("""
+                using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+                using SuperMetroid.Core.Bosses.Draygon.Artwork;
+                using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+                using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+                class BackgroundConsumer {
+                    void Inspect(PhantoonBg2FrameCatalog phantoon, DraygonBg2FrameCatalog draygon,
+                        CrocomireBg2FrameCatalog crocomire, MotherBrainBodyBg2FrameCatalog motherBrain) {
+                        phantoon.TryGet(0, out _);
+                        draygon.TryGet(0, out _);
+                        crocomire.TryGet(0, out _);
+                        motherBrain.TryGet(MotherBrainBodyVisualDefinitions.InitialDummyFrame, out _);
+                    }
+                }
+                """, path: "fixture-bg-transfer-consumer.cs");
+        trees.Add(calls);
+        // First.SourceAddress is an immutable record field, not a language constant.
+        // Materialize its actual compiled value so the negative case tests constant correlation.
+        calls = CSharpSyntaxTree.ParseText(calls.GetText().ToString().Replace(
+            "GunshipLiftoffTransferDefinitions.First.SourceAddress", GunshipLiftoffTransferDefinitionsTooling.First.SourceAddress
+                .ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal), path: calls.FilePath);
+        trees[^1] = calls;
+        string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
+        CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("BackgroundTransferProviderFixture", sources,
+            platforms.Append(typeof(GunshipLiftoffArtworkCatalog).Assembly.Location).Distinct()
+                .Select(path => MetadataReference.CreateFromFile(path)),
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        AuditReport Inspect(CSharpCompilation compilation, bool adapted)
+        {
+            var exports = new ResourceIndex();
+            var adapter = adapted ? new ClosedPresentationAudit(compilation, exports) : null;
+            var report = new AuditReport();
+            foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
+                ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
+            return report;
+        }
+        CSharpCompilation compilation = Compile(trees);
+        AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
+        Require(before.UnresolvedCount == (bg2Only ? 4 : 19), "constructed calls must first expose the missing adapters");
+        Require(after.Classifications.Count == (bg2Only ? 4 : 13) && after.UnresolvedCount == (bg2Only ? 0 : 6) && after.MissingCount == 0 &&
+            after.Consumers.Count == (bg2Only ? 4 : 19), "complete owned sets/false queries qualify; bad selections and owned lengths fail");
+        Require(bg2Only || after.Findings.Any(item => item.Owner == "GunshipLiftoffArtworkCatalog.TryResolve" &&
+            item.Message.Contains("requires 1024 bytes", StringComparison.Ordinal)),
+            "an owned source with a short length cannot borrow unsupported-source false behavior");
+        const string sharedLoader = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyBg2FrameCatalog.cs";
+        var changed = trees.Select(tree => tree.FilePath == sharedLoader ?
+            CSharpSyntaxTree.ParseText(tree.GetText().ToString().Replace("document.Frames.Count != definitions.Length",
+                "false", StringComparison.Ordinal), path: tree.FilePath) : tree);
+        AuditReport revoked = Inspect(Compile(changed), true);
+        Require(revoked.Classifications.Count == after.Classifications.Count - 4 && revoked.UnresolvedCount == after.UnresolvedCount + 4 &&
+            revoked.Findings.Count(item => item.Message.Contains("stale", StringComparison.Ordinal)) == 4,
+            "changed shared frame admission must revoke all four wrapper proofs");
+        const string sequence = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyBg2FrameDefinitionSequence.cs";
+        var changedSequence = trees.Select(tree => tree.FilePath == sequence ?
+            CSharpSyntaxTree.ParseText(tree.GetText().ToString().Replace("generate(index)",
+                "generate(0)", StringComparison.Ordinal), path: tree.FilePath) : tree);
+        AuditReport revokedSequence = Inspect(Compile(changedSequence), true);
+        Require(revokedSequence.Classifications.Count == after.Classifications.Count - 4 &&
+            revokedSequence.UnresolvedCount == after.UnresolvedCount + 4 &&
+            revokedSequence.Findings.Count(item => item.Message.Contains("stale", StringComparison.Ordinal)) == 4,
+            "changed generated frame selection must revoke all four wrapper proofs");
+    }
+
+    /// <summary>Fails the contract fixture with the specific classification mismatch.</summary>
+    private static void Require(bool valid, string reason)
+    {
+        if (!valid) throw new InvalidOperationException("Background/transfer provider confirmation failed: " + reason);
+    }
+}

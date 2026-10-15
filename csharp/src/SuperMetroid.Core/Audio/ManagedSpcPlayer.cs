@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
@@ -28,7 +27,7 @@ public sealed class ManagedSpcPlayer
             {
                 // Indices21 and above start at the echo FIR data after the21 pan samples.
                 // Preserve the existing mutable SPC-RAM compatibility branch.
-                int address = panIndex + SpcDriverData.Music.PanVolumeTableAddress;
+                int address = panIndex + SpcDriverDefinitions.Music.PanVolumeTableAddress;
                 (baseVolume, nextVolume) = ReadPanVolumePair(address);
             }
             else
@@ -42,17 +41,17 @@ public sealed class ManagedSpcPlayer
             byte delta = unchecked((byte)(nextVolume - baseVolume));
             byte interpolated = unchecked((byte)(baseVolume + SpcFixedPoint.Scale(delta, SpcFixedPoint.Fraction(volume))));
             byte final = (byte)SpcFixedPoint.Scale(interpolated, channel.FinalVolume);
-            if (((channel.PanFlags << side) & 0x80) != 0) // allow(BitMask): phase-inversion bit
+            if (((channel.PanFlags << side) & 0x80) != 0) // cartridge-encoding: allow(BitMask) - phase-inversion bit
                 final = unchecked((byte)-final);
             Dsp.Voice(channel.Index).WriteVolume((DspStereoSide)side, unchecked((sbyte)final));
-            volume = unchecked((ushort)(SpcDriverData.Music.FullyLeftPan - volume));
+            volume = unchecked((ushort)(SpcDriverDefinitions.Music.FullyLeftPan - volume));
         }
     }
 
     /// <summary>Converts a fractional note through the twelve-semitone table and instrument pitch base into DSP frequency.</summary>
     private void WritePitchInner(ManagedSpcMusicChannel channel, ushort pitch)
     {
-        byte note = unchecked((byte)(SpcFixedPoint.Whole(pitch) & SpcDriverData.Music.NoteNumberMask));
+        byte note = unchecked((byte)(SpcFixedPoint.Whole(pitch) & SpcDriverDefinitions.Music.NoteNumberMask));
         byte octave = unchecked((byte)(note / 12));
         byte semitone = unchecked((byte)(note % 12));
         ushort basis = SpcMusicTables.BaseNoteFrequency(semitone);
@@ -75,23 +74,23 @@ public sealed class ManagedSpcPlayer
     /// <summary>Applies the driver's high/low note correction before DSP pitch conversion.</summary>
     private void WritePitch(ManagedSpcMusicChannel channel, ushort pitch)
     {
-        if (SpcFixedPoint.Whole(pitch) >= 0x34) // allow(HardwareMagnitude): native high-note correction threshold
-            pitch = AddWord(pitch, SpcFixedPoint.Whole(pitch) - 0x34); // allow(HardwareMagnitude): native high-note correction threshold
-        else if (SpcFixedPoint.Whole(pitch) < 0x13) // allow(HardwareMagnitude): native low-note correction threshold
-            pitch = AddWord(pitch, unchecked((byte)((SpcFixedPoint.Whole(pitch) - 0x13) * 2)) - 256); // allow(HardwareMagnitude): native low-note correction
+        if (SpcFixedPoint.Whole(pitch) >= 0x34) // cartridge-encoding: allow(HardwareMagnitude) - native high-note correction threshold
+            pitch = AddWord(pitch, SpcFixedPoint.Whole(pitch) - 0x34); // cartridge-encoding: allow(HardwareMagnitude) - native high-note correction threshold
+        else if (SpcFixedPoint.Whole(pitch) < 0x13) // cartridge-encoding: allow(HardwareMagnitude) - native low-note correction threshold
+            pitch = AddWord(pitch, unchecked((byte)((SpcFixedPoint.Whole(pitch) - 0x13) * 2)) - 256); // cartridge-encoding: allow(HardwareMagnitude) - native low-note correction
         WritePitchInner(channel, pitch);
     }
 
     /// <summary>Restores eight music voices, fades, transposition and tempo to the driver's track defaults.</summary>
     private void ResetMusicChannels()
     {
-        for (int index = channels.Length - 1, bit = 0x80; index >= 0; index--, bit >>= 1) // allow(BitMask): highest voice bit
+        for (int index = channels.Length - 1, bit = 0x80; index >= 0; index--, bit >>= 1) // cartridge-encoding: allow(BitMask) - highest voice bit
         {
             ManagedSpcMusicChannel channel = channels[index];
             currentChannelBit = unchecked((byte)bit);
-            channel.ChannelVolume = SpcFixedPoint.WithWhole(channel.ChannelVolume, SpcDriverData.Music.DefaultChannelVolume);
-            channel.PanFlags = SpcDriverData.Music.CenterPan;
-            channel.PanValue = SpcFixedPoint.FromWhole(SpcDriverData.Music.CenterPan);
+            channel.ChannelVolume = SpcFixedPoint.WithWhole(channel.ChannelVolume, SpcDriverDefinitions.Music.DefaultChannelVolume);
+            channel.PanFlags = SpcDriverDefinitions.Music.CenterPan;
+            channel.PanValue = SpcFixedPoint.FromWhole(SpcDriverDefinitions.Music.CenterPan);
             channel.InstrumentId = 0;
             channel.FineTune = 0;
             channel.ChannelTransposition = 0;
@@ -107,24 +106,24 @@ public sealed class ManagedSpcPlayer
         globalTransposition = 0;
         blockCount = 0;
         percussionBaseId = 0;
-        masterVolume = SpcFixedPoint.WithWhole(masterVolume, SpcDriverData.Music.DefaultMasterVolume);
-        tempo = SpcFixedPoint.WithWhole(tempo, SpcDriverData.Music.DefaultTrackTempo);
+        masterVolume = SpcFixedPoint.WithWhole(masterVolume, SpcDriverDefinitions.Music.DefaultMasterVolume);
+        tempo = SpcFixedPoint.WithWhole(tempo, SpcDriverDefinitions.Music.DefaultTrackTempo);
     }
 
     /// <summary>Installs an instrument's source, envelope, gain and pitch base without replacing the channel's remembered ID.</summary>
     private void SetInstrumentWithoutSavingId(ManagedSpcMusicChannel channel, byte instrument)
     {
-        if ((instrument & 0x80) != 0) // allow(BitMask): percussion instrument marker
-            instrument = unchecked((byte)(instrument + 54 + percussionBaseId)); // allow(HardwareMagnitude): native percussion table bias
-        int address = SpcDriverData.Ram.InstrumentTable + instrument * SpcDriverData.Ram.InstrumentRecordSize;
+        if ((instrument & 0x80) != 0) // cartridge-encoding: allow(BitMask) - percussion instrument marker
+            instrument = unchecked((byte)(instrument + 54 + percussionBaseId)); // cartridge-encoding: allow(HardwareMagnitude) - native percussion table bias
+        int address = SpcDriverDefinitions.Ram.InstrumentTable + instrument * SpcDriverDefinitions.Ram.InstrumentRecordSize;
         if ((channelOnMask & currentChannelBit) != 0)
             return;
 
         SnesDspVoiceControls voice = Dsp.Voice(channel.Index);
         SpcInstrumentRecord record = ReadInstrument(address);
-        if ((record.SourceOrNoiseRate & SpcDriverData.Instruments.NoiseMarker) != 0)
+        if ((record.SourceOrNoiseRate & SpcDriverDefinitions.Instruments.NoiseMarker) != 0)
         {
-            dspFlags = unchecked((byte)((dspFlags & SpcDriverData.Echo.WriteDisable) |
+            dspFlags = unchecked((byte)((dspFlags & SpcDriverDefinitions.Echo.WriteDisable) |
                 DspFlags.NoiseRateOf(record.SourceOrNoiseRate)));
             noiseEnable |= currentChannelBit;
             voice.WriteSource(0);
@@ -148,7 +147,7 @@ public sealed class ManagedSpcPlayer
     /// <summary>Derives the signed per-tick pitch-slide increment toward a transposed target note.</summary>
     private static void ComputePitchAdd(ManagedSpcMusicChannel channel, byte pitch)
     {
-        channel.PitchTarget = unchecked((byte)(pitch & SpcDriverData.Music.NoteNumberMask));
+        channel.PitchTarget = unchecked((byte)(pitch & SpcDriverDefinitions.Music.NoteNumberMask));
         channel.PitchAddPerTick = SpcFixedPoint.DivideSigned(
             channel.PitchTarget - SpcFixedPoint.Whole(channel.Pitch), channel.PitchSlideLength);
     }
@@ -168,7 +167,7 @@ public sealed class ManagedSpcPlayer
     /// <summary>Decodes one music effect and its native operand length, updating channel or global driver state.</summary>
     internal void HandleEffect(ManagedSpcMusicChannel channel, byte rawEffect)
     {
-        int tableIndex = rawEffect - SpcDriverData.Music.FirstEffect;
+        int tableIndex = rawEffect - SpcDriverDefinitions.Music.FirstEffect;
         if ((uint)tableIndex >= SpcMusicTables.EffectCount)
             throw new InvalidDataException($"Unknown SPC music effect ${rawEffect:X2}.");
         byte argument = SpcMusicTables.EffectByteLength(tableIndex) != 0
@@ -182,7 +181,7 @@ public sealed class ManagedSpcPlayer
                 break;
             case SpcMusicEffect.SetPan:
                 channel.PanFlags = argument;
-                channel.PanValue = SpcFixedPoint.FromWhole((argument & 0x1f)); // allow(BitMask): five-bit pan value
+                channel.PanValue = SpcFixedPoint.FromWhole((argument & 0x1f)); // cartridge-encoding: allow(BitMask) - five-bit pan value
                 break;
             case SpcMusicEffect.FadePan:
                 channel.PanTicks = argument;
@@ -271,17 +270,17 @@ public sealed class ManagedSpcPlayer
                 echoEnable = argument;
                 echoVolumeLeft = SpcFixedPoint.FromWhole(NextSequenceByte(ref channel.PatternOrderPointer));
                 echoVolumeRight = SpcFixedPoint.FromWhole(NextSequenceByte(ref channel.PatternOrderPointer));
-                dspFlags &= unchecked((byte)~SpcDriverData.Echo.WriteDisable);
+                dspFlags &= unchecked((byte)~SpcDriverDefinitions.Echo.WriteDisable);
                 break;
             case SpcMusicEffect.DisableEcho:
                 echoVolumeLeft = echoVolumeRight = 0;
-                dspFlags |= SpcDriverData.Echo.WriteDisable;
+                dspFlags |= SpcDriverDefinitions.Echo.WriteDisable;
                 break;
             case SpcMusicEffect.ConfigureEcho:
                 SetupEchoDelay(argument);
                 echoFeedback = NextSequenceByte(ref channel.PatternOrderPointer);
                 int preset = NextSequenceByte(ref channel.PatternOrderPointer);
-                int firOffset = unchecked((byte)(preset * SpcDriverData.Echo.FirTapCount));
+                int firOffset = unchecked((byte)(preset * SpcDriverDefinitions.Echo.FirTapCount));
                 // `$F7` indexes from APU `$1E32`, not from an abstract four-entry host
                 // array. Retail sequences use values beyond three: Kraid's post-defeat
                 // room track executes `F7 02 0A 0A` and therefore reads the eight resident
@@ -289,7 +288,7 @@ public sealed class ManagedSpcPlayer
                 // preserves changes to those adjacent bytes. Native MUL YA then MOV X,A
                 // keeps only the product's low byte: presets32..255 alias0..31. Each
                 // eight-tap group ends at or before offset255; no tap carries past X.
-                for (int tap = 0; tap < SpcDriverData.Echo.FirTapCount; tap++)
+                for (int tap = 0; tap < SpcDriverDefinitions.Echo.FirTapCount; tap++)
                 {
                     Dsp.Global.WriteFirCoefficient(tap,
                         ReadFirCoefficient(firOffset + tap));
@@ -337,7 +336,7 @@ public sealed class ManagedSpcPlayer
     {
         int loops = channel.SubroutineLoops;
         ushort pointer = channel.PatternOrderPointer;
-        for (int instructions = 0; instructions < SpcDriverData.MaximumFastForwardTicks; instructions++)
+        for (int instructions = 0; instructions < SpcDriverDefinitions.MaximumFastForwardTicks; instructions++)
         {
             byte command = NextSequenceByte(ref pointer);
             if (command == 0)
@@ -349,14 +348,14 @@ public sealed class ManagedSpcPlayer
             }
             else
             {
-                while ((command & 0x80) == 0) // allow(BitMask): music-command marker
+                while ((command & 0x80) == 0) // cartridge-encoding: allow(BitMask) - music-command marker
                     command = NextSequenceByte(ref pointer);
-                if (command == SpcDriverData.Music.TieNote)
+                if (command == SpcDriverDefinitions.Music.TieNote)
                     return false;
                 if (command == (byte)SpcMusicEffect.CallPattern)
                     pointer = ReadWord(pointer);
-                else if (command >= SpcDriverData.Music.FirstEffect)
-                    pointer = AddWord(pointer, SpcMusicTables.EffectByteLength(command - SpcDriverData.Music.FirstEffect));
+                else if (command >= SpcDriverDefinitions.Music.FirstEffect)
+                    pointer = AddWord(pointer, SpcMusicTables.EffectByteLength(command - SpcDriverDefinitions.Music.FirstEffect));
                 else
                     return true;
             }
@@ -376,7 +375,7 @@ public sealed class ManagedSpcPlayer
     /// <summary>Folds the tremolo wave and applies depth before recalculating final voice volume.</summary>
     private void CalculateTremolo(ManagedSpcMusicChannel channel, byte value)
     {
-        value = (value & 0x80) != 0 // allow(BitMask): tremolo waveform phase
+        value = (value & 0x80) != 0 // cartridge-encoding: allow(BitMask) - tremolo waveform phase
             ? unchecked((byte)((value * 2) ^ byte.MaxValue))
             : unchecked((byte)(value * 2));
         value = (byte)SpcFixedPoint.Scale(value, channel.TremoloDepth);
@@ -386,7 +385,7 @@ public sealed class ManagedSpcPlayer
     /// <summary>Marks volume dirty and samples tremolo at the current tempo accumulator.</summary>
     private void HandleTremolo(ManagedSpcMusicChannel channel)
     {
-        affectedVolumeOrPitch |= 0x80; // allow(BitMask): dirty result marker
+        affectedVolumeOrPitch |= 0x80; // cartridge-encoding: allow(BitMask) - dirty result marker
         CalculateTremolo(channel, (byte)SpcFixedPoint.Scale(channel.TremoloRate, mainTempoAccumulator));
     }
 
@@ -394,11 +393,11 @@ public sealed class ManagedSpcPlayer
     private void CalculateVibratoPitch(ManagedSpcMusicChannel channel, ushort pitch, byte value)
     {
         int scaled = value << 2;
-        scaled ^= (scaled & 0x100) != 0 ? byte.MaxValue : 0; // allow(BitMask): folded vibrato phase
-        int delta = channel.VibratoDepth >= 0xf1 // allow(HardwareMagnitude): native deep-vibrato threshold
-            ? unchecked((byte)scaled) * (channel.VibratoDepth & 0x0f) // allow(BitMask): deep-vibrato fractional depth
+        scaled ^= (scaled & 0x100) != 0 ? byte.MaxValue : 0; // cartridge-encoding: allow(BitMask) - folded vibrato phase
+        int delta = channel.VibratoDepth >= 0xf1 // cartridge-encoding: allow(HardwareMagnitude) - native deep-vibrato threshold
+            ? unchecked((byte)scaled) * (channel.VibratoDepth & 0x0f) // cartridge-encoding: allow(BitMask) - deep-vibrato fractional depth
             : SpcFixedPoint.Scale(unchecked((byte)scaled), channel.VibratoDepth);
-        WritePitch(channel, AddWord(pitch, (value & 0x80) != 0 ? -delta : delta)); // allow(BitMask): vibrato direction
+        WritePitch(channel, AddWord(pitch, (value & 0x80) != 0 ? -delta : delta)); // cartridge-encoding: allow(BitMask) - vibrato direction
     }
 
     /// <summary>Interpolates active pan and pitch sweeps between full music ticks and publishes affected DSP registers.</summary>
@@ -411,7 +410,7 @@ public sealed class ManagedSpcPlayer
         ushort volume = channel.PanValue;
         if (channel.PanTicks != 0)
         {
-            affectedVolumeOrPitch = 0x80; // allow(BitMask): dirty result marker
+            affectedVolumeOrPitch = 0x80; // cartridge-encoding: allow(BitMask) - dirty result marker
             volume = AddWord(volume, mainTempoAccumulator * unchecked((short)channel.PanAddPerTick) / 256);
         }
         if (affectedVolumeOrPitch != 0)
@@ -421,7 +420,7 @@ public sealed class ManagedSpcPlayer
         ushort pitch = channel.Pitch;
         if (channel.PitchSlideLength != 0 && channel.PitchSlideDelayLeft == 0)
         {
-            affectedVolumeOrPitch |= 0x80; // allow(BitMask): dirty result marker
+            affectedVolumeOrPitch |= 0x80; // cartridge-encoding: allow(BitMask) - dirty result marker
             pitch = AddWord(pitch, mainTempoAccumulator * unchecked((short)channel.PitchAddPerTick) / 256);
         }
         if (channel.VibratoDepth != 0 && channel.VibratoDelayTicks == channel.VibratoHoldCount)
@@ -438,7 +437,7 @@ public sealed class ManagedSpcPlayer
     private void HandleNoteTick(ManagedSpcMusicChannel channel)
     {
         if (channel.NoteKeyOffTicksLeft != 0 &&
-            (--channel.NoteKeyOffTicksLeft == 0 || channel.NoteTicksLeft == 2))
+            ((channel.NoteKeyOffTicksLeft = NativeWordCounter.DecrementByte(channel.NoteKeyOffTicksLeft)) == 0 || channel.NoteTicksLeft == 2))
         {
             if (WantsKeyOff(channel) && (currentChannelBit & channelOnMask) == 0)
                 Dsp.Global.KeyOff(new DspVoiceMask(currentChannelBit));
@@ -449,12 +448,12 @@ public sealed class ManagedSpcPlayer
         {
             if (channel.PitchSlideDelayLeft != 0)
             {
-                channel.PitchSlideDelayLeft--;
+                channel.PitchSlideDelayLeft = NativeWordCounter.DecrementByte(channel.PitchSlideDelayLeft);
             }
             else
             {
-                affectedVolumeOrPitch = 0x80; // allow(BitMask): dirty result marker
-                channel.PitchSlideLength--;
+                affectedVolumeOrPitch = 0x80; // cartridge-encoding: allow(BitMask) - dirty result marker
+                channel.PitchSlideLength = NativeWordCounter.DecrementByte(channel.PitchSlideLength);
                 channel.Pitch = channel.PitchSlideLength == 0
                     ? unchecked((ushort)(SnesLittleEndian.Word(channel.FineTune, channel.PitchTarget)))
                     : AddWord(channel.Pitch, channel.PitchAddPerTick);
@@ -486,7 +485,7 @@ public sealed class ManagedSpcPlayer
     {
         if (channel.VolumeFadeTicks != 0)
         {
-            channel.VolumeFadeTicks--;
+            channel.VolumeFadeTicks = NativeWordCounter.DecrementByte(channel.VolumeFadeTicks);
             channel.ChannelVolume = channel.VolumeFadeTicks == 0
                 ? SpcFixedPoint.FromWhole(channel.VolumeFadeTarget)
                 : AddWord(channel.ChannelVolume, channel.VolumeFadeAddPerTick);
@@ -497,9 +496,9 @@ public sealed class ManagedSpcPlayer
             if (channel.TremoloDelayTicks == channel.TremoloHoldCount)
             {
                 volumeDirty |= currentChannelBit;
-                channel.TremoloCount = (channel.TremoloCount & 0x80) != 0 && // allow(BitMask): tremolo phase
+                channel.TremoloCount = (channel.TremoloCount & 0x80) != 0 && // cartridge-encoding: allow(BitMask) - tremolo phase
                     channel.TremoloDepth == byte.MaxValue
-                    ? (byte)0x80 // allow(BitMask): tremolo phase origin
+                    ? (byte)0x80 // cartridge-encoding: allow(BitMask) - tremolo phase origin
                     : unchecked((byte)(channel.TremoloCount + channel.TremoloRate));
                 CalculateTremolo(channel, channel.TremoloCount);
             }
@@ -516,7 +515,7 @@ public sealed class ManagedSpcPlayer
 
         if (channel.PanTicks != 0)
         {
-            channel.PanTicks--;
+            channel.PanTicks = NativeWordCounter.DecrementByte(channel.PanTicks);
             channel.PanValue = channel.PanTicks == 0
                 ? SpcFixedPoint.FromWhole(channel.PanTarget)
                 : AddWord(channel.PanValue, channel.PanAddPerTick);
@@ -556,7 +555,7 @@ public sealed class ManagedSpcPlayer
             goto ProcessChannels;
         if (counter != 0)
         {
-            counter--;
+            counter = NativeWordCounter.Decrement(counter).Value;
             if (counter != 0)
             {
                 ResetMusicChannels();
@@ -568,11 +567,11 @@ public sealed class ManagedSpcPlayer
         ushort patternTable;
         for (int records = 0; ; records++)
         {
-            if (records > SpcDriverData.MaximumFastForwardTicks)
+            if (records > SpcDriverDefinitions.MaximumFastForwardTicks)
                 throw new InvalidDataException("SPC top-level music stream did not reach a pattern table.");
             ushort record = ReadWord(musicTopLevelPointer);
             musicTopLevelPointer += 2;
-            if (SnesLittleEndian.HighByte(record) >= SpcDriverData.Music.PatternPointerHighByteMinimum)
+            if (SnesLittleEndian.HighByte(record) >= SpcDriverDefinitions.Music.PatternPointerHighByteMinimum)
             {
                 patternTable = record;
                 break;
@@ -594,8 +593,8 @@ public sealed class ManagedSpcPlayer
             }
             else
             {
-                blockCount--;
-                if ((blockCount & 0x80) != 0) // allow(BitMask): signed block-counter underflow
+                blockCount = NativeWordCounter.DecrementByte(blockCount);
+                if ((blockCount & 0x80) != 0) // cartridge-encoding: allow(BitMask) - signed block-counter underflow
                     blockCount = unchecked((byte)record);
                 ushort loopPointer = ReadWord(musicTopLevelPointer);
                 musicTopLevelPointer += 2;
@@ -630,35 +629,35 @@ public sealed class ManagedSpcPlayer
             currentChannelBit = unchecked((byte)bit);
             if (SnesLittleEndian.HighByte(channel.PatternOrderPointer) == 0)
                 continue;
-            channel.NoteTicksLeft--;
+            channel.NoteTicksLeft = NativeWordCounter.DecrementByte(channel.NoteTicksLeft);
             if (channel.NoteTicksLeft == 0)
             {
                 for (int instructions = 0; ; instructions++)
                 {
-                    if (instructions > SpcDriverData.MaximumFastForwardTicks)
+                    if (instructions > SpcDriverDefinitions.MaximumFastForwardTicks)
                         throw new InvalidDataException($"SPC channel {index} did not reach a timed note.");
                     byte noteCommand = NextSequenceByte(ref channel.PatternOrderPointer);
                     if (noteCommand == 0)
                     {
                         if (channel.SubroutineLoops == 0)
                             goto NextPhrase;
-                        channel.SubroutineLoops--;
+                        channel.SubroutineLoops = NativeWordCounter.DecrementByte(channel.SubroutineLoops);
                         channel.PatternOrderPointer = channel.SubroutineLoops == 0
                             ? channel.SavedPatternPointer : channel.PatternStartPointer;
                         continue;
                     }
-                    if ((noteCommand & 0x80) == 0) // allow(BitMask): music-command marker
+                    if ((noteCommand & 0x80) == 0) // cartridge-encoding: allow(BitMask) - music-command marker
                     {
                         channel.NoteLength = noteCommand;
                         noteCommand = NextSequenceByte(ref channel.PatternOrderPointer);
-                        if ((noteCommand & 0x80) == 0) // allow(BitMask): music-command marker
+                        if ((noteCommand & 0x80) == 0) // cartridge-encoding: allow(BitMask) - music-command marker
                         {
                             channel.NoteGateOffFixedPoint = SpcMusicTables.NoteGateOffPercentage((noteCommand >> 4) & 7);
-                            channel.ChannelVolumeMaster = SpcMusicTables.NoteVolume(noteCommand & 0x0f); // allow(BitMask): volume nibble
+                            channel.ChannelVolumeMaster = SpcMusicTables.NoteVolume(noteCommand & 0x0f); // cartridge-encoding: allow(BitMask) - volume nibble
                             noteCommand = NextSequenceByte(ref channel.PatternOrderPointer);
                         }
                     }
-                    if (noteCommand >= SpcDriverData.Music.FirstEffect)
+                    if (noteCommand >= SpcDriverDefinitions.Music.FirstEffect)
                     {
                         HandleEffect(channel, noteCommand);
                         continue;
@@ -682,7 +681,7 @@ public sealed class ManagedSpcPlayer
 
         if (tempoFadeTicks != 0)
         {
-            tempoFadeTicks--;
+            tempoFadeTicks = NativeWordCounter.DecrementByte(tempoFadeTicks);
             tempo = tempoFadeTicks == 0
                 ? SpcFixedPoint.FromWhole(tempoFadeTarget)
                 : AddWord(tempo, tempoFadeAdd);
@@ -691,7 +690,7 @@ public sealed class ManagedSpcPlayer
         {
             echoVolumeLeft = AddWord(echoVolumeLeft, echoVolumeFadeAddLeft);
             echoVolumeRight = AddWord(echoVolumeRight, echoVolumeFadeAddRight);
-            echoVolumeFadeTicks--;
+            echoVolumeFadeTicks = NativeWordCounter.DecrementByte(echoVolumeFadeTicks);
             if (echoVolumeFadeTicks == 0)
             {
                 echoVolumeLeft = SpcFixedPoint.FromWhole(echoVolumeFadeTargetLeft);
@@ -700,7 +699,7 @@ public sealed class ManagedSpcPlayer
         }
         if (masterVolumeFadeTicks != 0)
         {
-            masterVolumeFadeTicks--;
+            masterVolumeFadeTicks = NativeWordCounter.DecrementByte(masterVolumeFadeTicks);
             masterVolume = masterVolumeFadeTicks == 0
                 ? SpcFixedPoint.FromWhole(masterVolumeFadeTarget)
                 : AddWord(masterVolume, masterVolumeFadeAdd);
@@ -720,23 +719,23 @@ public sealed class ManagedSpcPlayer
     {
         musicPortToSnes = track;
         // Track zero deliberately indexes the word immediately before the numbered table.
-        musicTopLevelPointer = ReadPointerEntry(SpcDriverData.Ram.DefaultMusicPointer, track);
-        counter = SpcDriverData.Music.TrackStartupTicks;
+        musicTopLevelPointer = ReadPointerEntry(SpcDriverDefinitions.Ram.DefaultMusicPointer, track);
+        counter = SpcDriverDefinitions.Music.TrackStartupTicks;
         keyOff |= unchecked((byte)~channelOnMask);
     }
 
     /// <summary>Applies note or percussion pitch, volume and key-on state to the selected music voice.</summary>
     private void PlayNote(ManagedSpcMusicChannel channel, byte note)
     {
-        if (note >= SpcDriverData.Music.FirstPercussionNote)
+        if (note >= SpcDriverDefinitions.Music.FirstPercussionNote)
         {
             SetInstrument(channel, note);
-            note = SpcDriverData.Music.PercussionPlaybackNote;
+            note = SpcDriverDefinitions.Music.PercussionPlaybackNote;
         }
-        if (note >= SpcDriverData.Music.TieNote || (channelOnMask & currentChannelBit) != 0)
+        if (note >= SpcDriverDefinitions.Music.TieNote || (channelOnMask & currentChannelBit) != 0)
             return;
 
-        channel.Pitch = SpcFixedPoint.Compose((note & SpcDriverData.Music.NoteNumberMask) + globalTransposition +
+        channel.Pitch = SpcFixedPoint.Compose((note & SpcDriverDefinitions.Music.NoteNumberMask) + globalTransposition +
             channel.ChannelTransposition, channel.FineTune);
         channel.VibratoCount = unchecked((byte)(channel.VibratoFadeTicks << 7));
         channel.VibratoHoldCount = 0;
@@ -787,7 +786,7 @@ public sealed class ManagedSpcPlayer
 
     /// <summary>Byte <paramref name="index"/> of the echo FIR coefficient preset table.</summary>
     [SpcMemoryBoundary("driver-memory view: echo FIR preset table")]
-    internal sbyte ReadFirCoefficient(int index) => unchecked((sbyte)ram[SpcDriverData.Echo.FirCoefficientTableAddress + index]);
+    internal sbyte ReadFirCoefficient(int index) => unchecked((sbyte)ram[SpcDriverDefinitions.Echo.FirCoefficientTableAddress + index]);
 
     /// <summary>The instrument record at <paramref name="address"/> (pitch base big-endian).</summary>
     [SpcMemoryBoundary("driver-memory view: instrument records")]
@@ -823,12 +822,12 @@ public sealed class ManagedSpcPlayer
     [SpcMemoryBoundary("driver-memory view: reset work regions")]
     private void ClearDriverWorkRegions()
     {
-        Array.Clear(ram, SpcDriverData.Ram.FirstWorkRegion, SpcDriverData.Ram.FirstWorkRegionLength);
-        Array.Clear(ram, SpcDriverData.Ram.SmallWorkRegion, SpcDriverData.Ram.SmallWorkRegionLength);
-        Array.Clear(ram, SpcDriverData.Ram.SoundPointerRegion, SpcDriverData.Ram.SoundPointerRegionLength);
-        Array.Clear(ram, SpcDriverData.Ram.SoundStateRegion, SpcDriverData.Ram.SoundStateRegionLength);
-        Array.Clear(ram, SpcDriverData.Ram.SecondarySoundStateRegion,
-            SpcDriverData.Ram.SecondarySoundStateRegionLength);
+        Array.Clear(ram, SpcDriverDefinitions.Ram.FirstWorkRegion, SpcDriverDefinitions.Ram.FirstWorkRegionLength);
+        Array.Clear(ram, SpcDriverDefinitions.Ram.SmallWorkRegion, SpcDriverDefinitions.Ram.SmallWorkRegionLength);
+        Array.Clear(ram, SpcDriverDefinitions.Ram.SoundPointerRegion, SpcDriverDefinitions.Ram.SoundPointerRegionLength);
+        Array.Clear(ram, SpcDriverDefinitions.Ram.SoundStateRegion, SpcDriverDefinitions.Ram.SoundStateRegionLength);
+        Array.Clear(ram, SpcDriverDefinitions.Ram.SecondarySoundStateRegion,
+            SpcDriverDefinitions.Ram.SecondarySoundStateRegionLength);
     }
 
     /// <summary>The DSP reads BRR samples and the echo buffer straight from APU RAM.</summary>
@@ -854,7 +853,7 @@ public sealed class ManagedSpcPlayer
         bool reject = !changed || command == 0 || libraryIndex switch
         {
             0 => command != 1 && command != 2 && library.Priority != 0,
-            1 => command != 0x71 && command != 0x7e && library.Priority != 0, // allow(HardwareValue): retail SFX2 cancellation overrides
+            1 => command != 0x71 && command != 0x7e && library.Priority != 0, // cartridge-encoding: allow(HardwareValue) - retail SFX2 cancellation overrides
             2 => command != 1 && (library.Mode == 2 || command != 2 && library.Priority != 0),
             _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
         };
@@ -965,7 +964,7 @@ public sealed class ManagedSpcPlayer
     {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
         ManagedSpcSoundChannel[] libraryChannels = soundChannels[libraryIndex];
-        if (library.InitializationFlag != SpcDriverData.SoundEffects.Active)
+        if (library.InitializationFlag != SpcDriverDefinitions.SoundEffects.Active)
         {
             InitializeSoundLibrary(libraryIndex, library, libraryChannels);
             for (int index = 0; index < libraryChannels.Length; index++)
@@ -987,28 +986,28 @@ public sealed class ManagedSpcPlayer
         ManagedSpcSoundLibrary library,
         ManagedSpcSoundChannel[] libraryChannels)
     {
-        library.VoiceId = SpcDriverData.SoundEffects.VoiceSearchStart;
+        library.VoiceId = SpcDriverDefinitions.SoundEffects.VoiceSearchStart;
         library.VoicesRemaining = channelOnMask;
-        library.InitializationFlag = SpcDriverData.SoundEffects.Active;
+        library.InitializationFlag = SpcDriverDefinitions.SoundEffects.Active;
         library.ChannelIndex = library.ChannelIndexTimesTwo = 0;
         foreach (ManagedSpcSoundChannel channel in libraryChannels)
         {
             channel.VoiceBitset = 0;
             channel.VoiceIndex = 0;
             channel.ChannelMask = byte.MaxValue;
-            channel.Disabled = SpcDriverData.SoundEffects.Active;
+            channel.Disabled = SpcDriverDefinitions.SoundEffects.Active;
         }
 
-        while (--library.VoiceId != 0)
+        while ((library.VoiceId = NativeWordCounter.DecrementByte(library.VoiceId)) != 0)
         {
             int occupied = library.VoicesRemaining;
             library.VoicesRemaining <<= 1;
-            if ((occupied & 0x80) != 0) // allow(BitMask): high-to-low hardware voice scan
+            if ((occupied & 0x80) != 0) // cartridge-encoding: allow(BitMask) - high-to-low hardware voice scan
                 continue;
             if (library.VoicesToSetup == 0)
                 return;
 
-            library.VoicesToSetup--;
+            library.VoicesToSetup = NativeWordCounter.DecrementByte(library.VoicesToSetup);
             ManagedSpcSoundChannel soundChannel = libraryChannels[library.ChannelIndex];
             soundChannel.Disabled = 0;
             library.ChannelVoiceBitsetPointer = unchecked((ushort)(
@@ -1043,7 +1042,7 @@ public sealed class ManagedSpcPlayer
     /// <summary>Releases a borrowed DSP voice and restores its music instrument, pan and volume ownership.</summary>
     private void ResetSoundChannel(ManagedSpcSoundLibrary library, ManagedSpcSoundChannel soundChannel)
     {
-        soundChannel.Disabled = SpcDriverData.SoundEffects.Active;
+        soundChannel.Disabled = SpcDriverDefinitions.SoundEffects.Active;
         soundChannel.UpdateAdsr = 0;
         library.EnabledVoices &= soundChannel.ChannelMask;
         channelOnMask &= soundChannel.ChannelMask;
@@ -1061,13 +1060,12 @@ public sealed class ManagedSpcPlayer
         }
     }
 
-
     /// <summary>Interprets one sound stream's timed note, repeat, noise, ADSR and pitch-slide commands.</summary>
     private void RunSoundChannel(ManagedSpcSoundLibrary library, ManagedSpcSoundChannel soundChannel)
     {
-        if (soundChannel.Disabled == SpcDriverData.SoundEffects.Active)
+        if (soundChannel.Disabled == SpcDriverDefinitions.SoundEffects.Active)
             return;
-        soundChannel.InstructionTimer--;
+        soundChannel.InstructionTimer = NativeWordCounter.DecrementByte(soundChannel.InstructionTimer);
         if (soundChannel.InstructionTimer == 0)
         {
             if (soundChannel.Legato == 0)
@@ -1075,14 +1073,14 @@ public sealed class ManagedSpcPlayer
                 soundChannel.EnablePitchSlide = 0;
                 soundChannel.SubnoteDelta = 0;
                 soundChannel.TargetNote = 0;
-                if (soundChannel.ReleaseFlag != SpcDriverData.SoundEffects.Active)
+                if (soundChannel.ReleaseFlag != SpcDriverDefinitions.SoundEffects.Active)
                 {
                     keyOff |= soundChannel.VoiceBitset;
                     soundChannel.ReleaseTimer = 2;
                     soundChannel.InstructionTimer = 1;
-                    soundChannel.ReleaseFlag = SpcDriverData.SoundEffects.Active;
+                    soundChannel.ReleaseFlag = SpcDriverDefinitions.SoundEffects.Active;
                 }
-                soundChannel.ReleaseTimer--;
+                soundChannel.ReleaseTimer = NativeWordCounter.DecrementByte(soundChannel.ReleaseTimer);
                 if (soundChannel.ReleaseTimer != 0)
                     return;
                 soundChannel.ReleaseFlag = 0;
@@ -1093,22 +1091,22 @@ public sealed class ManagedSpcPlayer
             byte command;
         NextCommand:
             command = ReadSoundByte(soundChannel);
-            if (command == 0xf9) // allow(DomainDiscriminator): SFX inline ADSR override
+            if (command == 0xf9) // cartridge-encoding: allow(DomainDiscriminator) - SFX inline ADSR override
             {
                 soundChannel.AdsrSettings = ReadSoundByte(soundChannel);
                 soundChannel.AdsrSettings |= SnesLittleEndian.Word(low: 0, high: ReadSoundByte(soundChannel));
                 soundChannel.PointerIndex += 2;
-                soundChannel.UpdateAdsr = SpcDriverData.SoundEffects.Active;
+                soundChannel.UpdateAdsr = SpcDriverDefinitions.SoundEffects.Active;
                 goto NextCommand;
             }
-            if (command is 0xf5 or 0xf8) // allow(DomainDiscriminator): SFX pitch-slide forms
+            if (command is 0xf5 or 0xf8) // cartridge-encoding: allow(DomainDiscriminator) - SFX pitch-slide forms
             {
-                soundChannel.EnablePitchSlideLegato = command == 0xf5 // allow(DomainDiscriminator): legato slide
-                    ? (byte)0xf5 // allow(DomainDiscriminator): retained cartridge marker
+                soundChannel.EnablePitchSlideLegato = command == 0xf5 // cartridge-encoding: allow(DomainDiscriminator) - legato slide
+                    ? (byte)0xf5 // cartridge-encoding: allow(DomainDiscriminator) - retained cartridge marker
                     : (byte)0;
                 soundChannel.SubnoteDelta = ReadSoundByte(soundChannel);
                 soundChannel.TargetNote = ReadSoundByte(soundChannel);
-                soundChannel.EnablePitchSlide = SpcDriverData.SoundEffects.Active;
+                soundChannel.EnablePitchSlide = SpcDriverDefinitions.SoundEffects.Active;
                 command = ReadSoundByte(soundChannel);
             }
             if (command == byte.MaxValue)
@@ -1116,24 +1114,24 @@ public sealed class ManagedSpcPlayer
                 ResetSoundChannel(library, soundChannel);
                 return;
             }
-            if (command == 0xfe) // allow(DomainDiscriminator): SFX repeat-start opcode
+            if (command == 0xfe) // cartridge-encoding: allow(DomainDiscriminator) - SFX repeat-start opcode
             {
                 soundChannel.RepeatCounter = ReadSoundByte(soundChannel);
                 soundChannel.RepeatPoint = soundChannel.PointerIndex;
                 command = ReadSoundByte(soundChannel);
             }
-            if (command is 0xfb or 0xfd) // allow(DomainDiscriminator): SFX repeat opcodes
+            if (command is 0xfb or 0xfd) // cartridge-encoding: allow(DomainDiscriminator) - SFX repeat opcodes
             {
-                if (command == 0xfd) // allow(DomainDiscriminator): counted repeat opcode
+                if (command == 0xfd) // cartridge-encoding: allow(DomainDiscriminator) - counted repeat opcode
                 {
-                    soundChannel.RepeatCounter--;
+                    soundChannel.RepeatCounter = NativeWordCounter.DecrementByte(soundChannel.RepeatCounter);
                     if (soundChannel.RepeatCounter == 0)
                         goto NextCommand;
                 }
                 soundChannel.PointerIndex = soundChannel.RepeatPoint;
                 command = ReadSoundByte(soundChannel);
             }
-            if (command == 0xfc) // allow(DomainDiscriminator): SFX noise-enable opcode
+            if (command == 0xfc) // cartridge-encoding: allow(DomainDiscriminator) - SFX noise-enable opcode
             {
                 noiseEnable |= soundChannel.VoiceBitset;
                 goto NextCommand;
@@ -1145,7 +1143,7 @@ public sealed class ManagedSpcPlayer
             musicChannel.PanFlags = 0;
             WriteVolume(musicChannel, SpcFixedPoint.FromWhole(ReadSoundByte(soundChannel)));
             command = ReadSoundByte(soundChannel);
-            if (command != 0xf6) // allow(DomainDiscriminator): retain prior SFX note opcode
+            if (command != 0xf6) // cartridge-encoding: allow(DomainDiscriminator) - retain prior SFX note opcode
             {
                 soundChannel.Note = command;
                 soundChannel.Subnote = 0;
@@ -1160,18 +1158,18 @@ public sealed class ManagedSpcPlayer
                 keyOn |= soundChannel.VoiceBitset;
         }
 
-        if (soundChannel.EnablePitchSlide != SpcDriverData.SoundEffects.Active)
+        if (soundChannel.EnablePitchSlide != SpcDriverDefinitions.SoundEffects.Active)
             return;
         if (soundChannel.EnablePitchSlideLegato != 0)
-            soundChannel.Legato = SpcDriverData.SoundEffects.Active;
+            soundChannel.Legato = SpcDriverDefinitions.SoundEffects.Active;
 
         if (soundChannel.Note >= soundChannel.TargetNote)
         {
             int next = soundChannel.Subnote - soundChannel.SubnoteDelta;
             soundChannel.Subnote = unchecked((byte)next);
-            if ((next & 0x100) != 0) // allow(BitMask): subnote borrow
+            if ((next & 0x100) != 0) // cartridge-encoding: allow(BitMask) - subnote borrow
             {
-                soundChannel.Note--;
+                soundChannel.Note = NativeWordCounter.DecrementByte(soundChannel.Note);
                 if (soundChannel.Note == soundChannel.TargetNote)
                     soundChannel.EnablePitchSlide = soundChannel.Legato = 0;
             }
@@ -1180,7 +1178,7 @@ public sealed class ManagedSpcPlayer
         {
             int next = soundChannel.Subnote + soundChannel.SubnoteDelta;
             soundChannel.Subnote = unchecked((byte)next);
-            if ((next & 0x100) != 0) // allow(BitMask): subnote carry
+            if ((next & 0x100) != 0) // cartridge-encoding: allow(BitMask) - subnote carry
             {
                 soundChannel.Note++;
                 if (soundChannel.Note == soundChannel.TargetNote)
@@ -1193,7 +1191,7 @@ public sealed class ManagedSpcPlayer
 
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
     [SpcMemoryAccess]
-    internal readonly byte[] ram = new byte[SpcDriverData.ApuRamSize];
+    internal readonly byte[] ram = new byte[SpcDriverDefinitions.ApuRamSize];
     /// <summary>
     /// <c>$F4</c> as the sequencer reads it: the CPU's latest music command, or
     /// <see cref="MusicPortCommand.None"/> once a tempo tick consumed it. The sound-effect
@@ -1205,22 +1203,22 @@ public sealed class ManagedSpcPlayer
     internal byte musicPortToSnes;
     /// <summary>Eight music sequencer states that continue advancing under borrowed DSP voices.</summary>
     private readonly ManagedSpcMusicChannel[] channels = Enumerable
-        .Range(0, SpcDriverData.ChannelCount)
+        .Range(0, SpcDriverDefinitions.ChannelCount)
         .Select(index => new ManagedSpcMusicChannel { Index = unchecked((byte)index) })
         .ToArray();
     /// <summary>Priority, mode and voice-allocation state for the three SFX libraries.</summary>
     internal readonly ManagedSpcSoundLibrary[] soundLibraries = Enumerable
-        .Range(0, SpcDriverData.SoundEffects.LibraryCount)
+        .Range(0, SpcDriverDefinitions.SoundEffects.LibraryCount)
         .Select(_ => new ManagedSpcSoundLibrary())
         .ToArray();
     /// <summary>Per-library SFX instruction cursors and borrowed voice state.</summary>
     internal readonly ManagedSpcSoundChannel[][] soundChannels =
     [
-        Enumerable.Range(0, SpcDriverData.SoundEffects.LibraryOneChannelCount)
+        Enumerable.Range(0, SpcDriverDefinitions.SoundEffects.LibraryOneChannelCount)
             .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
-        Enumerable.Range(0, SpcDriverData.SoundEffects.OtherLibraryChannelCount)
+        Enumerable.Range(0, SpcDriverDefinitions.SoundEffects.OtherLibraryChannelCount)
             .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
-        Enumerable.Range(0, SpcDriverData.SoundEffects.OtherLibraryChannelCount)
+        Enumerable.Range(0, SpcDriverDefinitions.SoundEffects.OtherLibraryChannelCount)
             .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
     ];
 
@@ -1321,11 +1319,11 @@ public sealed class ManagedSpcPlayer
         IReadOnlyList<AudioInstrumentMetadata> instruments)
     {
         Ensure.NotNull(instruments);
-        if (instruments.Count != SpcDriverData.Ram.InstrumentCount)
+        if (instruments.Count != SpcDriverDefinitions.Ram.InstrumentCount)
         {
             throw new InvalidDataException(
                 $"Instrument bank contains {instruments.Count} records; " +
-                $"expected {SpcDriverData.Ram.InstrumentCount}.");
+                $"expected {SpcDriverDefinitions.Ram.InstrumentCount}.");
         }
 
         for (int index = 0; index < instruments.Count; index++)
@@ -1337,14 +1335,14 @@ public sealed class ManagedSpcPlayer
                     $"Instrument bank index {index} contains identity {instrument.Instrument}.");
             }
             if (instrument.UsesNoise !=
-                ((instrument.SourceOrNoiseRate & SpcDriverData.Instruments.NoiseMarker) != 0))
+                ((instrument.SourceOrNoiseRate & SpcDriverDefinitions.Instruments.NoiseMarker) != 0))
             {
                 throw new InvalidDataException(
                     $"Instrument {index} has inconsistent usesNoise and sourceOrNoiseRate fields.");
             }
 
-            int address = SpcDriverData.Ram.InstrumentTable +
-                index * SpcDriverData.Ram.InstrumentRecordSize;
+            int address = SpcDriverDefinitions.Ram.InstrumentTable +
+                index * SpcDriverDefinitions.Ram.InstrumentRecordSize;
             WriteInstrument(address, new SpcInstrumentRecord(instrument.SourceOrNoiseRate, instrument.Adsr1,
                 instrument.Adsr2, instrument.Gain, instrument.PitchBase));
         }
@@ -1403,7 +1401,7 @@ public sealed class ManagedSpcPlayer
         Ensure.NotNull(bank);
         for (int track = 0; track < bank.MusicTracks.Count; track++)
         {
-            int pointerAddress = SpcDriverData.Ram.DefaultMusicPointer + track * 2;
+            int pointerAddress = SpcDriverDefinitions.Ram.DefaultMusicPointer + track * 2;
             ushort uploadedPointer = ReadWord(pointerAddress);
             AudioMusicTrackMetadata definition = bank.MusicTracks[track];
             if (uploadedPointer != definition.Address || bank.TrackPointers[track] != definition.Address)
@@ -1453,8 +1451,8 @@ public sealed class ManagedSpcPlayer
         musicPortToSnes = 0;
         // The music latch reads empty after an upload; the port model resets the sound-effect latches.
         musicInputLatch = (byte)MusicPortCommand.None;
-        musicTopLevelPointer = ReadWord(SpcDriverData.Ram.DefaultMusicPointer);
-        counter = SpcDriverData.Music.TrackStartupTicks;
+        musicTopLevelPointer = ReadWord(SpcDriverDefinitions.Ram.DefaultMusicPointer);
+        counter = SpcDriverDefinitions.Music.TrackStartupTicks;
         keyOff |= unchecked((byte)~channelOnMask);
     }
 
@@ -1472,10 +1470,10 @@ public sealed class ManagedSpcPlayer
     /// <exception cref="InvalidDataException">The schedule is out of order or outside the frame, or the driver state cannot be synthesized.</exception>
     public void GenerateFrame(ReadOnlySpan<SpcDriverTick> schedule, Span<short> destination)
     {
-        if (destination.Length < SpcDriverData.HostStereoFramesPerVideoFrame * 2)
+        if (destination.Length < SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2)
         {
             throw new ArgumentException(
-                $"Audio destination requires {SpcDriverData.HostStereoFramesPerVideoFrame * 2} samples.",
+                $"Audio destination requires {SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2} samples.",
                 nameof(destination));
         }
         if (dsp.BufferedStereoFrameCount != 0)
@@ -1494,7 +1492,7 @@ public sealed class ManagedSpcPlayer
         for (; cycle < SpcCommandPorts.DspCyclesPerFrame; cycle++)
             dsp.Cycle();
 
-        dsp.CopyResampledSamples(destination, SpcDriverData.HostStereoFramesPerVideoFrame);
+        dsp.CopyResampledSamples(destination, SpcDriverDefinitions.HostStereoFramesPerVideoFrame);
     }
 
     /// <summary>Resets DSP/work RAM and publishes the driver's initial echo and master-register state.</summary>
@@ -1505,12 +1503,12 @@ public sealed class ManagedSpcPlayer
 
         for (int index = 0; index < channels.Length; index++)
             channels[index].Index = unchecked((byte)index);
-        SetupEchoDelay(SpcDriverData.Echo.InitialDelay);
-        dspFlags |= SpcDriverData.Echo.WriteDisable;
-        Dsp.Global.WriteMasterVolume(DspStereoSide.Left, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
-        Dsp.Global.WriteMasterVolume(DspStereoSide.Right, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
-        Dsp.Global.WriteSourceDirectory(0x6d); // allow(HardwareAddress): cartridge BRR directory page
-        tempo = SpcFixedPoint.WithWhole(tempo, SpcDriverData.Music.InitialTempo);
+        SetupEchoDelay(SpcDriverDefinitions.Echo.InitialDelay);
+        dspFlags |= SpcDriverDefinitions.Echo.WriteDisable;
+        Dsp.Global.WriteMasterVolume(DspStereoSide.Left, 0x60); // cartridge-encoding: allow(HardwareMagnitude) - cartridge reset master volume
+        Dsp.Global.WriteMasterVolume(DspStereoSide.Right, 0x60); // cartridge-encoding: allow(HardwareMagnitude) - cartridge reset master volume
+        Dsp.Global.WriteSourceDirectory(0x6d); // cartridge-encoding: allow(HardwareAddress) - cartridge BRR directory page
+        tempo = SpcFixedPoint.WithWhole(tempo, SpcDriverDefinitions.Music.InitialTempo);
         LoopPartOne();
     }
 
@@ -1527,7 +1525,7 @@ public sealed class ManagedSpcPlayer
         Dsp.Global.WriteNoiseEnable(new DspVoiceMask(noiseEnable));
         Dsp.Global.KeyOff(DspVoiceMask.None);
         Dsp.Global.KeyOn(new DspVoiceMask(keyOn));
-        if ((echoStoredTime & 0x80) == 0) // allow(BitMask): signed SPC countdown bit
+        if ((echoStoredTime & 0x80) == 0) // cartridge-encoding: allow(BitMask) - signed SPC countdown bit
         {
             Dsp.Global.WriteFlags(new DspFlags(dspFlags));
             if (echoStoredTime == echoDelay)
@@ -1556,13 +1554,13 @@ public sealed class ManagedSpcPlayer
 
         int musicAccumulator = mainTempoAccumulator + unchecked((byte)(ticks * SpcFixedPoint.Whole(tempo)));
         mainTempoAccumulator = unchecked((byte)musicAccumulator);
-        if (musicAccumulator >= 0x100) // allow(HardwareMagnitude): eight-bit timer carry
+        if (musicAccumulator >= 0x100) // cartridge-encoding: allow(HardwareMagnitude) - eight-bit timer carry
         {
             int fastForwardIterations = 0;
             do
             {
                 HandleMusicCommand();
-                if (++fastForwardIterations > SpcDriverData.MaximumFastForwardTicks)
+                if (++fastForwardIterations > SpcDriverDefinitions.MaximumFastForwardTicks)
                     throw new InvalidDataException("SPC music fast-forward failed to reach a timed event.");
             }
             while (fastForward != 0);
@@ -1586,7 +1584,7 @@ public sealed class ManagedSpcPlayer
         if (requestedDelay != lastWrittenEchoDelay)
         {
             byte countdown = unchecked((byte)(SnesDspControls.EchoDelayOf(lastWrittenEchoDelay) ^ byte.MaxValue));
-            if ((echoStoredTime & 0x80) != 0) // allow(BitMask): signed SPC countdown bit
+            if ((echoStoredTime & 0x80) != 0) // cartridge-encoding: allow(BitMask) - signed SPC countdown bit
                 countdown = unchecked((byte)(countdown + echoStoredTime));
             echoStoredTime = countdown;
 
@@ -1594,13 +1592,13 @@ public sealed class ManagedSpcPlayer
             Dsp.Global.WriteEchoFeedback(0);
             Dsp.Global.WriteEchoVolume(DspStereoSide.Right, 0);
             Dsp.Global.WriteEchoVolume(DspStereoSide.Left, 0);
-            Dsp.Global.WriteFlags(new DspFlags(unchecked((byte)(dspFlags | SpcDriverData.Echo.WriteDisable))));
+            Dsp.Global.WriteFlags(new DspFlags(unchecked((byte)(dspFlags | SpcDriverDefinitions.Echo.WriteDisable))));
             lastWrittenEchoDelay = echoDelay;
             Dsp.Global.WriteEchoDelay(echoDelay);
         }
 
-        byte echoPage = unchecked((byte)(((echoDelay * SpcDriverData.Echo.DelayToPages) ^
-            byte.MaxValue) + SpcDriverData.Echo.BufferPageBias));
+        byte echoPage = unchecked((byte)(((echoDelay * SpcDriverDefinitions.Echo.DelayToPages) ^
+            byte.MaxValue) + SpcDriverDefinitions.Echo.BufferPageBias));
         Dsp.Global.WriteEchoBufferPage(echoPage);
     }
 
@@ -1615,10 +1613,9 @@ public sealed class ManagedSpcPlayer
     [DspRegisterBoundary("native quirk: sound-effect ADSR writes address voice × 8 + ADSR1/ADSR2, as the cartridge driver does")]
     private void WriteSoundEffectAdsr(byte voiceIndexTimesEight, ushort adsr)
     {
-        dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterMap.Voice.Adsr1)), unchecked((byte)adsr));
-        dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterMap.Voice.Adsr2)), SnesLittleEndian.HighByte(adsr));
+        dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterLayout.Voice.Adsr1)), unchecked((byte)adsr));
+        dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterLayout.Voice.Adsr2)), SnesLittleEndian.HighByte(adsr));
     }
-
 
     /// <summary>Applies signed arithmetic with the SPC driver's 16-bit word wrap.</summary>
     private static ushort AddWord(ushort left, int right) => unchecked((ushort)(left + right));

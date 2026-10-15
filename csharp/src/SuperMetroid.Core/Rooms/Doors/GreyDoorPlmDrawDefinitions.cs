@@ -1,0 +1,104 @@
+using SuperMetroid.Core.Rooms.Plms;
+
+namespace SuperMetroid.Core.Rooms.Doors;
+
+/// <summary>
+/// Physical four-block draw lists for grey door caps and the four shared clear-cap
+/// frames. Bomb Torizo's special resident door uses the ordinary right-facing art.
+/// </summary>
+internal static class GreyDoorPlmDrawDefinitions
+{
+    /// <summary>Shared left-facing door-clear frame at $84:A677.</summary>
+    private const ushort ClearLeft = 0xa677;
+    /// <summary>Native byte stride between consecutive four-block clear or grey-cap records.</summary>
+    internal const int DrawListBytes = 12;
+
+    /// <summary>One of twenty twelve-byte records at $84:A677..A766.</summary>
+    internal readonly record struct Draw(int Orientation, int Frame)
+    {
+        /// <summary>Left and right caps use a vertical four-cell run.</summary>
+        internal bool Vertical => Orientation < 2;
+        /// <summary>Encodes four blocks and the native vertical-run flag for the draw interpreter.</summary>
+        internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
+
+        /// <summary>
+        /// Four cells in native run order. Frame -1 clears collision; frame zero
+        /// carries the native shootable/extension types. Opening frames are solid,
+        /// except the middle cells of final left/down frames, which are air.
+        /// Vertical tiles advance one per frame with a 32-tile inner-row stride;
+        /// horizontal tiles alternate tileset rows, advancing two every two frames.
+        /// Mirror bits follow orientation and the cell's half of the cap.
+        /// </summary>
+        internal ushort WordAt(int cell)
+        {
+            if ((uint)cell >= 4) throw new IndexOutOfRangeException();
+            bool inner = cell is 1 or 2;
+            int tile;
+            if (Frame < 0)
+                tile = Vertical ? 0x82 + (inner ? 32 : 0) : 0x83 + (inner ? 0 : 1);
+            else
+                tile = Vertical ? 0xae + Frame + (inner ? 32 : 0) :
+                    0xb2 + Frame / 2 * 2 + Frame % 2 * 32 + (inner ? 0 : 1);
+            int flips = Vertical ? (Orientation == 1 ? 0x400 : 0) | (cell >= 2 ? 0x800 : 0) :
+                (cell < 2 ? 0x400 : 0) | (Orientation == 3 ? 0x800 : 0);
+            int collision = Frame < 0 ? 0 : Frame == 0 ? (cell == 0 ? 12 : Vertical ? 13 : 5) :
+                Frame == 3 && inner && Orientation is 0 or 3 ? 0 : 8;
+            return (ushort)(collision << 12 | flips | tile);
+        }
+    }
+
+    /// <summary>Decodes a pointer on the twelve-byte grid into clear or animated cap orientation and frame.</summary>
+    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    {
+        int offset = pointer - ClearLeft;
+        bool owned = offset >= 0 && offset < 20 * DrawListBytes && offset % DrawListBytes == 0;
+        int index = offset / DrawListBytes;
+        draw = owned ? new(index < 4 ? index : (index - 4) / 4, index < 4 ? -1 : (index - 4) % 4) : default;
+        return owned;
+    }
+
+    /// <summary>Enumerates all twenty native cap records for artwork import and export.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get
+        {
+            for (int index = 0; index < 20; index++)
+            {
+                TryGet((ushort)(ClearLeft + index * DrawListBytes), out var draw);
+                yield return draw;
+            }
+        }
+    }
+
+    /// <summary>Builds a temporary import or export draw list; runtime calculates physical cells directly.</summary>
+    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        list = default;
+        if (!TryDescribe(pointer, out var draw)) return false;
+        var words = new ushort[4];
+        for (int cell = 0; cell < 4; cell++) words[cell] = draw.WordAt(cell);
+        list = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(draw.DirectionAndCount, words, new(0, 0)) });
+        return true;
+    }
+
+    /// <summary>Names a supported clear or grey animation frame by direction and frame number.</summary>
+    internal static string VisualId(ushort pointer)
+    {
+        if (!TryDescribe(pointer, out var draw))
+            throw new InvalidDataException($"Grey-door draw ${pointer:X4} has no visual ID.");
+        string direction = draw.Orientation switch { 0 => "left", 1 => "right", 2 => "up", _ => "down" };
+        return draw.Frame < 0 ? $"clear-{direction}" : $"grey-{direction}-frame-{draw.Frame}";
+    }
+
+    /// <summary>Resolves a stable artwork name to its compiled cap draw pointer and shape.</summary>
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    {
+        for (int index = 0; index < 20; index++)
+        {
+            ushort pointer = (ushort)(ClearLeft + index * DrawListBytes);
+            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal)) return TryGet(pointer, out list);
+        }
+        list = default;
+        return false;
+    }
+}

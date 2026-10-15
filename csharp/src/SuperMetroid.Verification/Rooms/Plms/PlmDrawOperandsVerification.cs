@@ -1,0 +1,42 @@
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.Verification.Rooms.Plms;
+
+/// <summary>Confirms the previously identified bank-$84 PLM draw operands without expanding the control-word search.</summary>
+internal static class PlmDrawOperandsVerification
+{
+    /// <summary>Reads an owned compiled PLM word, reporting whether the given bank offset exists.</summary>
+    internal delegate bool TryCompiledPlmWord(ushort address, out ushort value);
+
+    /// <summary>Reads a native bank-$84 word with fixed-bank high-byte wrapping for the comparison.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for bank-$84 PLM program words")]
+    private static ushort ReadImportedPlmWord(SuperMetroidAddressSpace source, ushort offset)
+    {
+        int bank = (int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, 0);
+        return CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(bank | offset);
+    }
+
+    /// <summary>
+    /// #1161: confirm the 107 statically identified missing operands against the
+    /// pinned import fixture. This neither runs gameplay nor discovers new tasks.
+    /// Control enumeration intentionally remains distinct from draw operands.
+    /// </summary>
+    private static void ConfirmCompiledPlmDrawOperands(IEnumerable<ushort> controls,
+        TryCompiledPlmWord readControl, TryCompiledPlmWord readDraw,
+        Func<ushort, ushort> readNative, int expectedCount, string family)
+    {
+        int count = 0;
+        foreach (ushort address in controls)
+        {
+            AssertTrue(readControl(address, out ushort control), $"{family} declared control exists");
+            if ((control & RoomPlmMemoryLayoutTooling.RoutineWordMask) != 0) continue;
+            ushort operand = checked((ushort)(address + sizeof(ushort)));
+            AssertTrue(readDraw(operand, out ushort draw), $"{family} timer ${address:X4} has a compiled draw operand");
+            AssertEqual(readNative(operand), draw, $"{family} draw operand ${operand:X4} matches pinned import");
+            count++;
+        }
+        AssertEqual(expectedCount, count, $"{family} corrected draw operand count");
+    }
+}

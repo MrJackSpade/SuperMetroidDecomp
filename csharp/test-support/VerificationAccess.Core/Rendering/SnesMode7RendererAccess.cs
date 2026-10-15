@@ -1,7 +1,7 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rendering;
+
+namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Verification access to <see cref="SnesMode7Renderer"/> members production does not use.</summary>
 internal static class SnesMode7RendererAccess

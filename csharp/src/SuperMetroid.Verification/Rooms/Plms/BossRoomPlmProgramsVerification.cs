@@ -1,0 +1,239 @@
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Botwoon;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Rooms;
+using static SuperMetroid.Verification.Rooms.Plms.BossRoomPlmNativeListAddresses;
+using static SuperMetroid.Verification.Rooms.Plms.NativePlmListDefinitions;
+
+namespace SuperMetroid.Verification.Rooms.Plms;
+
+/// <summary>
+/// #1296: the boss-room PLM programs typed in place of their bank-$84 lists. Each typed program must equal its native
+/// list step by step: draws and durations, loop counts, fall-through, deletion, and the cue of every other instruction.
+/// The families' runtime suites check the room mutations those programs make.
+/// </summary>
+internal static class BossRoomPlmProgramsVerification
+{
+    /// <summary>Botwoon's wall programs equal their native lists.</summary>
+    internal static void VerifyBotwoonWallPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BotwoonWallPlmProgramDefinitions.Programs, BotwoonWallEntries,
+            draw => (ushort)draw, BotwoonWallCueAt, "Botwoon wall");
+        Console.WriteLine($"  Botwoon wall programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The Kraid room programs equal their native lists.</summary>
+    internal static void VerifyKraidRoomPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), KraidRoomPlmProgramDefinitions.Programs, KraidRoomEntries,
+            draw => (ushort)draw, KraidRoomCueAt, "Kraid room");
+        Console.WriteLine($"  Kraid room programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>Crocomire's arena programs equal their native lists.</summary>
+    internal static void VerifyCrocomireArenaPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), CrocomireArenaPlmProgramDefinitions.Programs, CrocomireArenaEntries,
+            draw => (ushort)draw, NoCues<PlmNoCue>(), "Crocomire arena");
+        Console.WriteLine($"  Crocomire arena programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>Mother Brain's fake-death programs equal their native lists.</summary>
+    internal static void VerifyMotherBrainFakeDeathPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), MotherBrainFakeDeathPlmProgramDefinitions.Programs,
+            MotherBrainFakeDeathEntries, draw => (ushort)draw, NoCues<PlmNoCue>(), "Mother Brain fake death");
+        Console.WriteLine($"  Mother Brain fake-death programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>Spore Spawn's ceiling programs equal their native lists.</summary>
+    internal static void VerifySporeSpawnCeilingPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SporeSpawnCeilingPlmProgramDefinitions.Programs, SporeSpawnCeilingEntries,
+            draw => (ushort)draw,
+            (IImportCartridgeSource cartridge, ushort cursor, out SporeSpawnCeilingCue cue, out int length) =>
+            {
+                (cue, length) = (SporeSpawnCeilingCue.QueueCrumbleSound, 3);
+                if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.QueueSoundLibrary2Maximum6)
+                    return false;
+                AssertEqual(SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundId, ReadOperandByte(cartridge, cursor + 2), "Spore Spawn ceiling sound");
+                AssertEqual((byte)6, SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundMaximumQueued, "Spore Spawn ceiling sound queue cap");
+                return true;
+            }, "Spore Spawn ceiling");
+        Console.WriteLine($"  Spore Spawn ceiling programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>Draygon's cannon programs equal their native lists, each facing's links and branches staying on its side.</summary>
+    internal static void VerifyDraygonCannonPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), DraygonCannonPlmProgramDefinitions.Programs, DraygonCannonEntries,
+            draw => (ushort)draw, DraygonCannonCueAt, "Draygon cannon");
+        Console.WriteLine($"  Draygon cannon programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The cannon's link, missile-wake, hit-count and damage instructions with their operands.</summary>
+    private static bool DraygonCannonCueAt(IImportCartridgeSource cartridge, ushort cursor, out DraygonCannonCue cue, out int length)
+    {
+        ushort leftStart = DraygonCannonEntries.Single(entry => entry.Program == DraygonCannonProgram.LeftStart).Entry;
+        bool right = cursor < leftStart;
+        DraygonCannonProgram Entry(ushort address) => DraygonCannonEntries.Single(entry => entry.Entry == address).Program;
+        RoomPlmInstruction instruction = InstructionAt<RoomPlmInstruction>(cartridge, cursor);
+        (DraygonCannonCue Cue, int Length)? decoded = instruction switch
+        {
+            RoomPlmInstruction.LinkInstruction => (DraygonCannonCue.LinkHit, 4),
+            RoomPlmInstruction.InstallPreInstruction => (DraygonCannonCue.ArmMissileWake, 4),
+            RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual => (DraygonCannonCue.CountHit, 5),
+            RoomPlmInstruction.DamageDraygonCannonFacingRight or RoomPlmInstruction.DamageDraygonCannonFacingLeft => (DraygonCannonCue.Damage, 2),
+            _ => null,
+        };
+        (cue, length) = decoded ?? default;
+        if (decoded is null)
+            return false;
+        switch (cue)
+        {
+            case DraygonCannonCue.LinkHit:
+                AssertEqual(right ? DraygonCannonProgram.RightHit : DraygonCannonProgram.LeftHit,
+                    Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2))), "cannon links its own hit program");
+                break;
+            case DraygonCannonCue.ArmMissileWake:
+                AssertEqual(DraygonCannonRomData.MissileHitPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "cannon missile wake");
+                break;
+            case DraygonCannonCue.CountHit:
+                AssertEqual(DraygonCannonRomData.HitsToDestroy, ReadOperandByte(cartridge, cursor + 2), "cannon hits to destroy");
+                AssertEqual(right ? DraygonCannonProgram.RightDestroy : DraygonCannonProgram.LeftDestroy,
+                    Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 3))), "cannon destroys its own side");
+                break;
+            case DraygonCannonCue.Damage:
+                AssertEqual(right ? RoomPlmInstruction.DamageDraygonCannonFacingRight : RoomPlmInstruction.DamageDraygonCannonFacingLeft,
+                    instruction, "cannon damage faces its own side");
+                break;
+        }
+        return true;
+    }
+
+    /// <summary>Mother Brain's glass programs equal their native lists, every stage repeating itself until its hits.</summary>
+    internal static void VerifyMotherBrainGlassPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), MotherBrainGlassPlmProgramDefinitions.Programs, MotherBrainGlassEntries,
+            draw => (ushort)draw, MotherBrainGlassCueAt, "Mother Brain glass");
+        Console.WriteLine($"  Mother Brain glass programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The glass's branch, wake, hit-threshold, shard-burst and event instructions with their operands.</summary>
+    private static bool MotherBrainGlassCueAt(IImportCartridgeSource cartridge, ushort cursor, out MotherBrainGlassPlmCue cue, out int length)
+    {
+        ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
+        MotherBrainGlassPlmProgram Entry(ushort address) => MotherBrainGlassEntries.Single(entry => entry.Entry == address).Program;
+        RoomPlmInstruction instruction = InstructionAt<RoomPlmInstruction>(cartridge, cursor);
+        switch (instruction)
+        {
+            case RoomPlmInstruction.GotoIfAreaBossBitSet:
+                AssertEqual((byte)BossBits.AreaBoss, ReadOperandByte(cartridge, cursor + 2), "glass area-boss bit");
+                AssertEqual(MotherBrainGlassPlmProgram.BossDead, Entry(Word(3)), "glass boss-dead target");
+                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfBossDead), 5);
+                return true;
+            case RoomPlmInstruction.GotoIfEventSet:
+                AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed, Word(2), "glass destroyed event");
+                AssertEqual(MotherBrainGlassPlmProgram.NoGlass, Entry(Word(4)), "glass no-glass target");
+                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SkipIfGlassDestroyed), 6);
+                return true;
+            case RoomPlmInstruction.InstallPreInstruction:
+                AssertEqual(MotherBrainGlassPlmProgramDefinitions.HitPreInstruction, Word(2), "glass hit wake");
+                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.ArmHitWake), 4);
+                return true;
+            case RoomPlmInstruction.GotoIfRoomArgumentLess:
+                ushort stage = MotherBrainGlassEntries.Where(entry => entry.Entry <= cursor).Max(entry => entry.Entry);
+                AssertEqual(stage, Word(4), $"glass stage at $84:{cursor:X4} repeats itself");
+                (cue, length) = (MotherBrainGlassPlmCue.RepeatUntil(Word(2)), 6);
+                return true;
+            case RoomPlmInstruction.SpawnFourMotherBrainGlassShards:
+                (cue, length) = (MotherBrainGlassPlmCue.Burst((MotherBrainGlassShard)Word(2), (MotherBrainGlassShard)Word(4),
+                    (MotherBrainGlassShard)Word(6), (MotherBrainGlassShard)Word(8)), 10);
+                return true;
+            case RoomPlmInstruction.SetEvent:
+                AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed, Word(2), "glass sets its destroyed event");
+                (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SetGlassDestroyed), 4);
+                return true;
+            default:
+                (cue, length) = (default, 0);
+                return false;
+        }
+    }
+
+    /// <summary>The Bomb Torizo hand's programs equal its native list, the debris transfer naming the installed page.</summary>
+    internal static void VerifyBombTorizoHandPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BombTorizoHandPlmProgramDefinitions.Programs, BombTorizoHandEntries,
+            draw => (ushort)draw, BombTorizoHandCueAt, "Bomb Torizo hand");
+        AssertEqual(BombTorizoHandProgram.Crumble, BombTorizoHandPlmProgramDefinitions.ProgramAfterSleep(BombTorizoHandProgram.Sleeping),
+            "the woken hand continues after its sleep");
+        AssertEqual(unchecked((ushort)(BombTorizoHandEntries[0].Entry + 10)), BombTorizoHandEntries[1].Entry,
+            "the crumble list follows the sleeping list's sleep");
+        Console.WriteLine($"  Bomb Torizo hand programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The hand's wake, debris transfer, fragment and music instructions with their operands.</summary>
+    private static bool BombTorizoHandCueAt(IImportCartridgeSource cartridge, ushort cursor, out BombTorizoHandCue cue, out int length)
+    {
+        ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
+        switch (InstructionAt<RoomPlmInstruction>(cartridge, cursor))
+        {
+            case RoomPlmInstruction.InstallPreInstruction:
+                AssertEqual(BombTorizoHandPlmProgramDefinitions.WakeIfSamusHasBombsPreInstruction, Word(2), "hand bomb wake");
+                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.ArmBombWake), 4);
+                return true;
+            case RoomPlmInstruction.CopyFromRamToVram:
+                AssertEqual(TorizoInstructionTileRomData.ChozoDebrisByteCount, (int)Word(2), "hand debris size");
+                AssertEqual(TorizoInstructionTileRomData.ChozoDebrisSource,
+                    (int)new SnesAddress(ReadOperandByte(cartridge, cursor + 6), Word(4)), "hand debris source");
+                AssertEqual(BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord, Word(7), "hand debris destination");
+                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.CopyDebrisTiles), 9);
+                return true;
+            case RoomPlmInstruction.SpawnTorizoStatueBreaking:
+                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, Word(2) / sizeof(ushort)), 4);
+                AssertEqual(Word(2), cue.FragmentParameter, "hand fragment parameter");
+                return true;
+            case RoomPlmInstruction.QueueSongOneMusicTrack:
+                (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic), 2);
+                return true;
+            default:
+                (cue, length) = (default, 0);
+                return false;
+        }
+    }
+
+    /// <summary>Botwoon's scroll, crumble-sound and move-down instructions.</summary>
+    private static bool BotwoonWallCueAt(IImportCartridgeSource cartridge, ushort cursor, out BotwoonWallCue cue, out int length)
+    {
+        if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.QueueSoundLibrary2Maximum6)
+        {
+            AssertEqual(BotwoonWallPlmProgramDefinitions.CrumbleSound,
+                SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)),
+                "Botwoon wall crumble sound");
+            AssertEqual((byte)6, BotwoonWallPlmProgramDefinitions.CrumbleSoundMaximumQueued, "Botwoon wall crumble sound queue cap");
+            (cue, length) = (BotwoonWallCue.QueueCrumbleSound, 3);
+            return true;
+        }
+        BossRoomPlmNativeRoutine routine = InstructionAt<BossRoomPlmNativeRoutine>(cartridge, cursor);
+        (cue, length) = (routine == BossRoomPlmNativeRoutine.BotwoonWallMoveDown ? BotwoonWallCue.MoveDownOneBlock : BotwoonWallCue.SetScrollsBlue, 2);
+        return routine is BossRoomPlmNativeRoutine.BotwoonWallScrollsBlue or BossRoomPlmNativeRoutine.BotwoonWallMoveDown;
+    }
+
+    /// <summary>The Kraid room's move-right instruction.</summary>
+    private static bool KraidRoomCueAt(IImportCartridgeSource cartridge, ushort cursor, out KraidRoomCue cue, out int length)
+    {
+        (cue, length) = (KraidRoomCue.MoveRightOneBlock, 2);
+        return InstructionAt<BossRoomPlmNativeRoutine>(cartridge, cursor) == BossRoomPlmNativeRoutine.KraidRoomMoveRight;
+    }
+}

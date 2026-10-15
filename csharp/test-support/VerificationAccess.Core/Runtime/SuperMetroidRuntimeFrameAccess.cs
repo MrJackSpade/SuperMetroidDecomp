@@ -1,3 +1,5 @@
+namespace SuperMetroid.Core.Runtime;
+
 /// <summary>Verifier-facing step seam for one ordinary gameplay frame.</summary>
 internal static class SuperMetroidRuntimeFrameAccess
 {

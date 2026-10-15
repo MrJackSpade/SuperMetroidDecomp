@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// <remarks>
 /// The banks are mutually exclusive; an upload installs exactly one of them. Cartridge
 /// source addresses and room-header data indexes are mapped from this identity only by
-/// <see cref="AudioAssetCatalogData"/>, at the extraction boundary.
+/// <see cref="AudioAssetCatalogDefinitions"/>, at the extraction boundary.
 /// </remarks>
 public enum AudioBank : byte
 {

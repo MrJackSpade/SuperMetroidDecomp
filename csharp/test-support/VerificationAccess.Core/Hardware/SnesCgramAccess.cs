@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Verification access to <see cref="SnesCgram"/> members production does not use.</summary>
 internal static class SnesCgramAccess

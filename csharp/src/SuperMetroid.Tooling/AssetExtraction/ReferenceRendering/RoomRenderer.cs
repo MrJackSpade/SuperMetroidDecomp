@@ -2,8 +2,11 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction.Compression;
+using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.AssetExtraction.ReferenceRendering;
 
 /// <summary>
 /// Import/reference-only renderer for named raw assets extracted from bank $82.

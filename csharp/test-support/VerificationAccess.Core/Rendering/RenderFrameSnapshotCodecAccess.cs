@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Verification access to <see cref="RenderFrameSnapshotCodec"/> members production does not use.</summary>
 internal static class RenderFrameSnapshotCodecAccess

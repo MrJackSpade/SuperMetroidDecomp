@@ -1,0 +1,125 @@
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Hardware;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Evir;
+using SuperMetroid.Core.Enemies.Evir.Artwork;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
+using SuperMetroid.TestSupport.CpuBusTestDoubles;
+namespace SuperMetroid.Verification.Enemies.Evir;
+using SuperMetroid.Verification.Harness;
+
+/// <summary>Checks the Evir body's, arms' and projectile's typed animations.</summary>
+internal static class EvirInstructionProgramDefinitionsVerification
+{
+    /// <summary>Loads the retail cartridge for the Evir animation checks.</summary>
+    internal static void VerifyEvirInstructionProgramDefinitions()
+    {
+        Suite(nameof(VerifyEvirInstructionProgramDefinitions), () => VerifyEvirInstructionProgramDefinitions(
+            CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+    }
+
+    /// <summary>
+    /// The four body and arms loops run on time; the normal projectile holds its flight pose; regeneration follows the
+    /// body's installed facing, moves the mouth offset back eight times, plays the spit sound and returns the projectile
+    /// to idle; the program oracle matches bank $A8.
+    /// </summary>
+    internal static void VerifyEvirInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    {
+        foreach (EvirProgram loop in new[] { EvirProgram.BodyFacingLeft, EvirProgram.ArmsFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingRight })
+        {
+            var enemies = NewEvirInstructionSystem(rom);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            PrepareEvirInstructionSlot(enemies, slot, EnemyDefinitionId.Evir, loop);
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Programs, loop)),
+                $"Evir {loop} loop");
+        }
+
+        {
+            var enemies = NewEvirInstructionSystem(rom);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            EvirEnemyState state = PrepareEvirInstructionSlot(enemies, slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileNormal);
+            _ = EnemyInstructionRunner.ShownFrames(enemies, slot, 4);
+            AssertEqual(EvirAnimations.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
+                "normal Evir projectile shows its flight pose");
+            AnimationProgramCursor<EvirProgram>? held = state.Program;
+            _ = EnemyInstructionRunner.ShownFrames(enemies, slot, 4);
+            AssertEqual(held, state.Program, "normal Evir projectile holds its flight pose");
+        }
+
+        {
+            var enemies = NewEvirInstructionSystem(rom);
+            // The regeneration cues read Evir.instList-$80,X: the body record two slots before the projectile, as the
+            // retail population lays them out.
+            RoomEnemySlot slot = enemies.SlotTable.Slots[2];
+            EvirEnemyState state = PrepareEvirInstructionSlot(enemies, slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileRegenerating);
+            // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
+            // body's installed list, so the offset starts at +8.
+            state.FacingDirection = 1;
+            state.MovingFlag = 1;
+            state.RegenerationFlag = 1;
+            state.Function = EvirAiFunction.ProjectileRegenerating;
+            var states = (EvirEnemyState?[])enemies.EvirBehavior._evirStates;
+            states[0] = new EvirEnemyState(enemies.SlotTable.Slots[0]) { InstalledProgram = EvirProgram.BodyFacingLeft };
+            object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
+            for (int call = 0; call < 10; call++)
+            {
+                slot.InstructionTimer = NativeCountdown.Start(1);
+                EnemyInstructionRunner.Process(enemies, arguments);
+                if (call == 0)
+                    AssertEqual((ushort)8, state.RegenerationXOffset,
+                        "a left-facing body sets the +8 offset whatever the projectile's facing word");
+            }
+            AssertEqual(EvirAnimations.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
+                "regenerating Evir projectile ends on its flight pose");
+            AssertEqual((ushort)0, state.RegenerationXOffset, "regeneration loop advances the projectile mouth offset eight times");
+            AssertEqual((ushort)0, state.RegenerationFlag, "regeneration finish cue clears regeneration ownership");
+            AssertEqual((ushort)0, state.MovingFlag, "regeneration finish cue leaves the projectile stationary");
+            AssertEqual(EvirAiFunction.ProjectileIdle, state.Function, "regeneration finish cue restores idle AI");
+            AssertEqual((ushort)0x005e, enemies.EvirBehavior.LastEvirSoundEffect, "regeneration publishes the native spit sound");
+        }
+
+        Suite(nameof(EvirAnimationsVerification.VerifyEvirAnimations), () => EvirAnimationsVerification.VerifyEvirAnimations(rom));
+        Console.WriteLine(
+            "Evir: the four body and arms loops, the held flight pose and the body-relative regeneration cues pass.");
+    }
+
+    /// <summary>Creates an enemy system bound to the supplied address space.</summary>
+    internal static RoomEnemySystem NewEvirInstructionSystem(ISnesAddressSpace bus)
+    {
+        var enemies = new RoomEnemySystem();
+        enemies.BindFixtureBus(bus);
+        return enemies;
+    }
+
+    /// <summary>Seeds an Evir body or projectile slot with its bank-$A8 definition and starting program.</summary>
+    internal static EvirEnemyState PrepareEvirInstructionSlot(
+        RoomEnemySystem enemies,
+        RoomEnemySlot slot,
+        EnemyDefinitionId definition,
+        EvirProgram program)
+    {
+        slot.EnemyDefinitionPointer = definition;
+        slot.Definition = default(RoomEnemyDefinition) with { Bank = EvirFrameDefinitions.Bank };
+        slot.InstructionTimer = NativeCountdown.Start(1);
+        var state = new EvirEnemyState(slot)
+        {
+            RequestedProgram = program,
+            InstalledProgram = program,
+            Program = AnimationProgramCursor<EvirProgram>.Start(program),
+        };
+        ((EvirEnemyState?[])enemies.EvirBehavior._evirStates)[slot.SlotIndex] = state;
+        return state;
+    }
+
+    /// <summary>Runs retail-cartridge Evir animation verification.</summary>
+    [VerificationCommand("--evir-instruction-program-definitions")]
+    internal static int EvirInstructionProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifyEvirInstructionProgramDefinitions), () => VerifyEvirInstructionProgramDefinitions());
+        return 0;
+    }
+}

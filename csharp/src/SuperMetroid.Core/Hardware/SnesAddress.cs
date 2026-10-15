@@ -9,11 +9,6 @@ namespace SuperMetroid.Core.Hardware;
 [SnesEncodingOwner]
 public readonly record struct SnesAddress
 {
-    /// <summary>Highest packed address representable by the SNES eight-bit bank and sixteen-bit offset.</summary>
-    private const int MaximumValue = 0x00ff_ffff;
-    /// <summary>Upper-half bank offset bit distinguishing cartridge-backed LoROM windows.</summary>
-    private const ushort UpperLoRomWindowMask = 0x8000;
-
     /// <summary>Creates an address from its exact native bank and offset fields.</summary>
     public SnesAddress(byte bank, ushort offset)
     {
@@ -36,12 +31,12 @@ public readonly record struct SnesAddress
     public ushort Offset => (ushort)Value;
 
     /// <summary>Whether the address lies in a bank's cartridge-backed upper LoROM window.</summary>
-    public bool IsUpperLoRomWindow => (Offset & UpperLoRomWindowMask) != 0;
+    public bool IsUpperLoRomWindow => Offset >= SnesBusLayout.RomWindowStart;
 
     /// <summary>Validates and preserves an already-packed CPU-bus address.</summary>
     public static SnesAddress FromBusAddress(int address)
     {
-        if ((uint)address > MaximumValue)
+        if ((uint)address > SnesBusLayout.MaximumAddress)
             throw new ArgumentOutOfRangeException(nameof(address), address, "SNES addresses are 24-bit values.");
         return new SnesAddress(address);
     }
@@ -62,7 +57,7 @@ public readonly record struct SnesAddress
         if (!IsUpperLoRomWindow)
             throw new InvalidOperationException($"${Bank:X2}:${Offset:X4} is outside an upper LoROM window.");
         return Offset == ushort.MaxValue
-            ? new SnesAddress(unchecked((byte)(Bank + 1)), UpperLoRomWindowMask)
+            ? new SnesAddress(unchecked((byte)(Bank + 1)), SnesBusLayout.RomWindowStart)
             : new SnesAddress(Bank, (ushort)(Offset + 1));
     }
 

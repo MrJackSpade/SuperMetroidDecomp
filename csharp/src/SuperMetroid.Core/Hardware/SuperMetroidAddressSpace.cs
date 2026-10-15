@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Hardware;
 public class SuperMetroidAddressSpace : ISnesMemoryBus
 {
     /// <summary>Two complete 64 KiB WRAM banks, <c>$7E</c> and <c>$7F</c>.</summary>
-    public const int WorkRamByteCount = 0x20000;
+    public const int WorkRamByteCount = 2 * SnesBusLayout.BankBytes;
 
     /// <summary>8 KiB of battery-backed SRAM used by three save slots and metadata.</summary>
-    public const int SaveRamByteCount = 0x2000;
+    public const int SaveRamByteCount = SnesBusLayout.SaveRamBytes;
 
     /// <summary>Backing bytes for both full WRAM banks and their low-window system-bank mirrors.</summary>
     internal readonly byte[] _workRam = new byte[WorkRamByteCount];
@@ -35,9 +35,9 @@ public class SuperMetroidAddressSpace : ISnesMemoryBus
         ValidateAddress(cpuAddress);
         int bank = SnesAddressMath.BankNumber(cpuAddress);
         int offset = SnesAddressMath.OffsetInBank(cpuAddress);
-        if (bank is 0x7e or 0x7f)
-            return _workRam[(bank - 0x7e) * 0x10000 + offset];
-        if (IsSystemBank(bank) && offset < LoRomExpansionReadMap.WorkRamMirrorEnd)
+        if (SnesBusLayout.IsWorkRamBank(bank))
+            return _workRam[(bank - SnesBusLayout.FirstWorkRamBank) * SnesBusLayout.BankBytes + offset];
+        if (SnesBusLayout.IsSystemBank(bank) && offset < SnesBusLayout.WorkRamMirrorEnd)
             return _workRam[offset];
         throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
             "WRAM reads require bank $7E/$7F or a low-window system-bank mirror.");
@@ -49,10 +49,10 @@ public class SuperMetroidAddressSpace : ISnesMemoryBus
         ValidateAddress(cpuAddress);
         int bank = SnesAddressMath.BankNumber(cpuAddress);
         int offset = SnesAddressMath.OffsetInBank(cpuAddress);
-        if (!IsSaveRamBank(bank) || offset >= LoRomExpansionReadMap.RomStart)
+        if (!SnesBusLayout.IsSaveRamBank(bank) || offset >= SnesBusLayout.RomWindowStart)
             throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
                 "SRAM reads require a lower-window bank $70-$7D or $F0-$FF address.");
-        return _saveRam[offset & 0x1fff];
+        return _saveRam[offset % SaveRamByteCount];
     }
 
     /// <summary>
@@ -64,41 +64,35 @@ public class SuperMetroidAddressSpace : ISnesMemoryBus
         int bank = SnesAddressMath.BankNumber(address);
         int offset = SnesAddressMath.OffsetInBank(address);
 
-        if (bank is 0x7e or 0x7f)
+        if (SnesBusLayout.IsWorkRamBank(bank))
         {
-            _workRam[(bank - 0x7e) * 0x10000 + offset] = value;
+            _workRam[(bank - SnesBusLayout.FirstWorkRamBank) * SnesBusLayout.BankBytes + offset] = value;
             return;
         }
 
-        if (IsSystemBank(bank) && offset < LoRomExpansionReadMap.WorkRamMirrorEnd)
+        if (SnesBusLayout.IsSystemBank(bank) && offset < SnesBusLayout.WorkRamMirrorEnd)
         {
             _workRam[offset] = value;
             return;
         }
 
-        if (IsSaveRamBank(bank) && offset < 0x8000)
+        if (SnesBusLayout.IsSaveRamBank(bank) && offset < SnesBusLayout.RomWindowStart)
         {
-            _saveRam[offset & 0x1fff] = value;
+            _saveRam[offset % SaveRamByteCount] = value;
             return;
         }
 
-        if (offset >= 0x8000)
+        if (offset >= SnesBusLayout.RomWindowStart)
             throw new InvalidOperationException($"Cannot write cartridge ROM at ${bank:X2}:{offset:X4}.");
 
         throw new InvalidOperationException(
             $"CPU write ${bank:X2}:{offset:X4} is outside the runtime address map.");
     }
 
-    /// <summary>Identifies banks whose first 8 KiB mirror the start of WRAM.</summary>
-    private static bool IsSystemBank(int bank) => bank is <= 0x3f or >= 0x80 and <= 0xbf;
-
-    /// <summary>Identifies banks whose lower address window maps to mirrored save RAM.</summary>
-    private static bool IsSaveRamBank(int bank) => bank is >= 0x70 and <= 0x7d or >= 0xf0 and <= 0xff;
-
     /// <summary>Rejects values outside the SNES CPU bus's 24-bit address range before decoding bank and offset.</summary>
     private static void ValidateAddress(int address)
     {
-        if ((uint)address > 0x00ff_ffff)
+        if ((uint)address > SnesBusLayout.MaximumAddress)
             throw new ArgumentOutOfRangeException(nameof(address), address, "SNES CPU address must fit in 24 bits.");
     }
 }

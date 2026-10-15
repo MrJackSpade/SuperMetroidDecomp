@@ -1,4 +1,4 @@
-namespace SuperMetroid.EnsureAnalyzer;
+namespace SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
 
 /// <summary>What a cartridge-encoding occurrence is, for the ratchet and the #641 inventory.</summary>
 internal enum CartridgeEncodingRule

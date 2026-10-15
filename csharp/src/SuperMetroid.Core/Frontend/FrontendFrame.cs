@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Frontend;
 

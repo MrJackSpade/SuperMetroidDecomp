@@ -1,7 +1,14 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rom;
-using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.AssetExtraction.Cartridge;
+
+namespace SuperMetroid.TestSupport.CatalogInventories;
 
 /// <summary>
 /// Cartridge-backed development inventory, never a production ROM fallback.
@@ -79,33 +86,6 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
                 keyed[source] = pointer;
                 owners[source] = owner;
             }
-        }
-        // Ceres Baby deliberately split its old mixed presentation list into
-        // independently typed OAM and palette operands. Only the former belong
-        // in this sprite-pointer catalog; the thirteen palette addresses must
-        // never be interpreted as enemy spritemaps.
-        for (int index = 0;
-             index < CeresBabyInstructionProgramDefinitions.SpritemapOperandCount;
-             index++)
-        {
-            ushort address = CeresBabyInstructionProgramDefinitions
-                .SpritemapOperandAddress(index);
-            int source = ((int)new SnesAddress(CeresBabyInstructionProgramDefinitions.Bank, address));
-            ushort pointer = CeresBabyInstructionProgramDefinitions
-                .ReadSpritemapOperand(address);
-            if (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(source) != pointer)
-                throw new InvalidDataException(
-                    $"Ceres Baby sprite selector ${source:X6} does not match its typed owner.");
-            int frameAddress =
-                ((int)new SnesAddress(CeresBabyInstructionProgramDefinitions.Bank, pointer));
-            ushort partCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(frameAddress);
-            if (partCount is not (> 0 and <= 128) || pointer + 2 + partCount * 5 > 0x10000)
-                throw new InvalidDataException(
-                    $"Ceres Baby selector ${source:X6} does not target an ordinary OAM frame.");
-            if (!keyed.TryAdd(source, pointer))
-                throw new InvalidDataException(
-                    $"Ceres Baby sprite selector ${source:X6} overlaps another owner.");
-            owners[source] = nameof(CeresBabyInstructionProgramDefinitions);
         }
         return new(keyed, unresolved, owners);
     }

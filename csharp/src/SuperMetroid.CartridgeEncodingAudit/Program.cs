@@ -1,5 +1,6 @@
-using SuperMetroid.EnsureAnalyzer;
-using SuperMetroid.ReachabilityAudit;
+using SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
+using SuperMetroid.TestSupport.WindowsConsole;
 
 namespace SuperMetroid.CartridgeEncodingAudit;
 

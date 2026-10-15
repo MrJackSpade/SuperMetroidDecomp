@@ -1,0 +1,52 @@
+namespace SuperMetroid.Core.Areas.Ceres;
+
+/// <summary>
+/// Compiled bank-$86 mechanics for the two enemy projectiles used by the initial
+/// Ceres elevator arrival. Spritemap payloads remain presentation data in bank $8D.
+/// </summary>
+internal static class CeresElevatorArrivalDefinitions
+{
+
+    /// <summary>$86:A387, moving pad spawned first into enemy-projectile slot $22.</summary>
+    internal static readonly CeresElevatorProjectileDefinition MovingPad = new(
+        DefinitionPointer: 0xa387,
+        Program: CeresElevatorArrivalProgram.Pad);
+
+    /// <summary>$86:A395, stationary level-data concealer spawned into slot $20.</summary>
+    internal static readonly CeresElevatorProjectileDefinition StationaryPlatform = new(
+        DefinitionPointer: 0xa395,
+        Program: CeresElevatorArrivalProgram.Platform);
+
+    /// <summary>$86:A301 clears the transient enemy graphics word in both projectiles.</summary>
+    internal const ushort NativeGraphicsIndex = 0;
+
+    /// <summary>$86:A316 seeds the moving pad's pre-instruction delay to sixty frames.</summary>
+    internal const ushort MovingPadWaitFrames = 60;
+
+    /// <summary>$86:A2FE places the moving pad twenty-eight pixels below Samus.</summary>
+    internal const ushort MovingPadYOffset = 28;
+
+    /// <summary>$86:A31B places the stationary platform at world Y=97.</summary>
+    internal const ushort StationaryPlatformY = 97;
+
+    /// <summary>$86:A34D clamps Samus to world Y=72 at the end of the descent.</summary>
+    internal const ushort LandingSamusY = 72;
+
+    /// <summary>$86:A345 compares the incremented Samus Y against 73 before clamping.</summary>
+    internal const ushort LandingThresholdY = 73;
+
+    /// <summary>$8000 is the inactive/no-spritemap sentinel used before the first frame.</summary>
+    internal const ushort NoSpritemap = 0x8000;
+
+    /// <summary>The bank-$8D spritemap each arrival pose shows.</summary>
+    internal static ushort Spritemap(CeresElevatorArrivalPose pose) => pose switch
+    {
+        // Spritemap_CeresElevatorPad_0, shown by $86:A28D.
+        CeresElevatorArrivalPose.PadFirst => 0xb1ba,
+        // Spritemap_CeresElevatorPad_1, shown by $86:A291.
+        CeresElevatorArrivalPose.PadSecond => 0xb1d0,
+        // Spritemap_CeresElevatorPlatform, shown by $86:A299.
+        CeresElevatorArrivalPose.Platform => 0x846d,
+        _ => throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined Ceres elevator arrival pose."),
+    };
+}

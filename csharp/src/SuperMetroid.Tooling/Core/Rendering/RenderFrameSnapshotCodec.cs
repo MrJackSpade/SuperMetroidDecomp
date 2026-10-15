@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Spatial;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rendering;
@@ -42,10 +41,10 @@ public static class RenderFrameSnapshotCodec
                     Mode7RenderRegisters? bg = ReadBoolean(reader)
                         ? ReadMode7Registers(reader, version)
                         : null;
-                    var gradient = Array.Empty<Frontend.TitleGradientLine>();
+                    var gradient = Array.Empty<SuperMetroid.Core.Rendering.TitleGradientLine>();
                     if (version >= RenderPacketFormat.TitleGradientVersion && ReadBoolean(reader))
                     {
-                        gradient = new Frontend.TitleGradientLine[SnesPpuLayout.ScreenHeightPixels];
+                        gradient = new SuperMetroid.Core.Rendering.TitleGradientLine[SnesPpuLayout.ScreenHeightPixels];
                         for (int i = 0; i < gradient.Length; i++)
                             gradient[i] = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
                     }
@@ -292,9 +291,9 @@ public static class RenderFrameSnapshotCodec
     {
         int rows = reader.ReadByte();
         int radius = reader.ReadByte();
-        if (rows is < Game.GameplayMessageRomData.Layout.MinimumRows or > Game.GameplayMessageRomData.Layout.MaximumRows)
+        if (rows is < SuperMetroid.Core.Hud.GameplayMessageRomData.Layout.MinimumRows or > SuperMetroid.Core.Hud.GameplayMessageRomData.Layout.MaximumRows)
             throw new InvalidDataException("Invalid message row count in display fixture.");
-        var tiles = new ushort[rows * Game.GameplayMessageRomData.Layout.TilemapWidth];
+        var tiles = new ushort[rows * SuperMetroid.Core.Hud.GameplayMessageRomData.Layout.TilemapWidth];
         for (int i = 0; i < tiles.Length; i++) tiles[i] = reader.ReadUInt16();
         return new(tiles, radius);
     }

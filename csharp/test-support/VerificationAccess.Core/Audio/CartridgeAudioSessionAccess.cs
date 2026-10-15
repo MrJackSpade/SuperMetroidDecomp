@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// Verification drivers over <see cref="CartridgeAudioSession"/> for fixtures that feed cartridge

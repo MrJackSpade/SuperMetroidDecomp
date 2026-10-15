@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+namespace SuperMetroid.Core.Audio;
 
 /// <summary>Verification access to <see cref="ManagedSpcPlayer"/> members production does not use.</summary>
 internal static class ManagedSpcPlayerAccess

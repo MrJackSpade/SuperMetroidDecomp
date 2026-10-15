@@ -26,10 +26,10 @@ public static class SnesCpuOperandRead
         // these reserved B-bus and expansion A-bus windows. This is not a generic
         // mapping for enhancement-chip cartridges, which can decode expansion I/O.
         // ROM/WRAM banks with the same low offset must not be treated as open bus.
-        if ((bank & 0x40) == 0 &&
-            ((offset >= SnesCpuOpenBusWindows.ReservedBBusStart && offset <= SnesCpuOpenBusWindows.ReservedBBusEnd) ||
-             (offset >= SnesCpuOpenBusWindows.UnpopulatedExpansionStart && offset <= SnesCpuOpenBusWindows.UnpopulatedExpansionEnd) ||
-             (offset >= LoRomExpansionReadMap.ExpansionStart && offset < LoRomExpansionReadMap.RomStart)))
+        if (SnesBusLayout.IsSystemBank(bank) &&
+            ((offset >= SnesBusLayout.ReservedBBusStart && offset <= SnesBusLayout.ReservedBBusEnd) ||
+             (offset >= SnesBusLayout.UnpopulatedExpansionStart && offset <= SnesBusLayout.UnpopulatedExpansionEnd) ||
+             (offset >= SnesBusLayout.ExpansionStart && offset < SnesBusLayout.RomWindowStart)))
             return memoryDataRegister;
         return SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {

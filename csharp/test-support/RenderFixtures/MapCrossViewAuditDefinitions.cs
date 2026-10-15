@@ -1,3 +1,5 @@
+namespace SuperMetroid.TestSupport.RenderFixtures;
+
 /// <summary>Representative retail rooms used to compare both map presentation paths.</summary>
 internal static class MapCrossViewAuditDefinitions
 {

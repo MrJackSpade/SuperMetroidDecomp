@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Hardware;
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>
 /// Import-only decoder for Super Metroid's command-stream compression format.
@@ -20,7 +20,7 @@ public static class SmCompression
     /// </summary>
     public static byte[] Decompress(
         ReadOnlySpan<byte> source,
-        int maximumOutputBytes = SmCompressionFormat.DefaultMaximumOutputBytes)
+        int maximumOutputBytes = SmCompressionCodes.DefaultMaximumOutputBytes)
     {
         if (!TryDecompress(source, out byte[] output, out int consumed, maximumOutputBytes) || consumed != source.Length)
             throw new InvalidDataException("Input is not one complete Super Metroid compressed stream.");
@@ -41,7 +41,7 @@ public static class SmCompression
         ReadOnlySpan<byte> source,
         out byte[] output,
         out int consumed,
-        int maximumOutputBytes = SmCompressionFormat.DefaultMaximumOutputBytes)
+        int maximumOutputBytes = SmCompressionCodes.DefaultMaximumOutputBytes)
     {
         // ReadOnlySpan cannot be captured by a local function. Owning this small copy keeps
         // Next() readable and also prevents a caller from mutating input during decoding.
@@ -74,7 +74,7 @@ public static class SmCompression
 
         while (Next(out byte header))
         {
-            if (header == SmCompressionFormat.Terminator)
+            if (header == SmCompressionCodes.Terminator)
             {
                 output = destination.ToArray();
                 consumed = input;
@@ -82,7 +82,7 @@ public static class SmCompression
             }
 
             byte? longLength = null;
-            if (SmCompressionFormat.IsLongHeader(header))
+            if (SmCompressionCodes.IsLongHeader(header))
             {
                 if (!Next(out byte lowLength))
                     break;

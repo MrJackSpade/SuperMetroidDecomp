@@ -20,7 +20,7 @@ internal static class PpuLayoutCatalogInventory
     internal static IReadOnlyList<Assembly> ProductionAssemblies =>
     [
         typeof(PpuLayoutCell).Assembly,
-        typeof(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace).Assembly,
+        typeof(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace).Assembly,
         typeof(PpuLayoutCatalogInventory).Assembly,
     ];
 

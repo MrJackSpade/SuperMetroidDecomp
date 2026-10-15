@@ -1,4 +1,6 @@
-using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Installation;
+
+namespace SuperMetroid.DebugRunner.Tools;
 
 /// <summary>
 /// Installation, Android-export and state-fixture tools that operate on caller-supplied files. The

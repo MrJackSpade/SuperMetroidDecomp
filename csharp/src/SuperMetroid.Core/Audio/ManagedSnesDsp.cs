@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
@@ -19,7 +18,7 @@ public sealed class ManagedSnesDsp
     /// <summary>Shared 64-KiB audio RAM holding BRR directories and the echo ring.</summary>
     private readonly byte[] apuRam;
     /// <summary>Mirrored DSP registers, including values published by each sample cycle.</summary>
-    internal readonly byte[] registers = new byte[SnesDspRegisterMap.RegisterFileSize];
+    internal readonly byte[] registers = new byte[SnesDspRegisterLayout.RegisterFileSize];
     /// <summary>Eight independent pitch, envelope, and PCM windows mixed each cycle.</summary>
     private readonly Voice[] voices = Enumerable.Range(0, VoiceCount)
         .Select(_ => new Voice())
@@ -74,7 +73,7 @@ public sealed class ManagedSnesDsp
     public ManagedSnesDsp(byte[] apuRam)
     {
         Ensure.NotNull(apuRam);
-        Ensure.LengthEqual(apuRam, 0x10000);
+        Ensure.LengthEqual(apuRam, SpcDriverDefinitions.ApuRamSize);
         this.apuRam = apuRam;
         Reset();
     }
@@ -93,7 +92,7 @@ public sealed class ManagedSnesDsp
         reset = true;
         masterVolumeLeft = 0;
         masterVolumeRight = 0;
-        noiseSample = -0x4000;
+        noiseSample = SnesDspRegisterLayout.NoiseResetSample;
         noiseRate = 0;
         noiseCounter = 0;
         echoWrites = false;
@@ -124,11 +123,11 @@ public sealed class ManagedSnesDsp
     [DspRegisterAccess]
     public void WriteRegister(byte address, byte value)
     {
-        if (address >= SnesDspRegisterMap.RegisterFileSize)
+        if (address >= SnesDspRegisterLayout.RegisterFileSize)
             throw new ArgumentOutOfRangeException(nameof(address), address, "DSP register is outside $00-$7F.");
-        int voiceIndex = (address / SnesDspRegisterMap.VoiceStride) & SnesDspRegisterMap.VoiceIndexMask;
+        int voiceIndex = (address / SnesDspRegisterLayout.VoiceStride) & SnesDspRegisterLayout.VoiceIndexMask;
         Voice voice = voices[voiceIndex];
-        if (SnesDspRegisterMap.VoiceRegisterAt(address) is DspVoiceRegister voiceRegister)
+        if (SnesDspRegisterLayout.VoiceRegisterAt(address) is DspVoiceRegister voiceRegister)
         {
             switch (voiceRegister)
             {
@@ -139,42 +138,42 @@ public sealed class ManagedSnesDsp
                 voice.VolumeRight = unchecked((sbyte)value);
                 break;
             case DspVoiceRegister.PitchLow:
-                voice.Pitch = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(voice.Pitch) & SnesDspRegisterMap.Fields.PitchMask | value));
+                voice.Pitch = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(voice.Pitch) & SnesDspRegisterLayout.Fields.PitchMask | value));
                 break;
             case DspVoiceRegister.PitchHigh:
-                voice.Pitch = unchecked((ushort)(SnesLittleEndian.Word(SnesLittleEndian.LowByte(voice.Pitch), value) & SnesDspRegisterMap.Fields.PitchMask));
+                voice.Pitch = unchecked((ushort)(SnesLittleEndian.Word(SnesLittleEndian.LowByte(voice.Pitch), value) & SnesDspRegisterLayout.Fields.PitchMask));
                 break;
             case DspVoiceRegister.SourceNumber:
                 voice.SourceNumber = value;
                 break;
             case DspVoiceRegister.Adsr1:
                 voice.AdsrRates[0] = SnesDspTables.RatePeriod(
-                    (value & SnesDspRegisterMap.Fields.AdsrAttackMask) * 2 + 1);
+                    (value & SnesDspRegisterLayout.Fields.AdsrAttackMask) * 2 + 1);
                 voice.AdsrRates[1] = SnesDspTables.RatePeriod(
-                    ((value & SnesDspRegisterMap.Fields.AdsrDecayMask) >>
-                        SnesDspRegisterMap.Fields.AdsrDecayShift) * 2 + 16);
-                voice.UseGain = (value & SnesDspRegisterMap.Fields.AdsrEnabled) == 0;
+                    ((value & SnesDspRegisterLayout.Fields.AdsrDecayMask) >>
+                        SnesDspRegisterLayout.Fields.AdsrDecayShift) * 2 + 16);
+                voice.UseGain = (value & SnesDspRegisterLayout.Fields.AdsrEnabled) == 0;
                 break;
             case DspVoiceRegister.Adsr2:
                 voice.AdsrRates[2] = SnesDspTables.RatePeriod(
-                    value & SnesDspRegisterMap.Fields.AdsrSustainRateMask);
+                    value & SnesDspRegisterLayout.Fields.AdsrSustainRateMask);
                 voice.SustainLevel = unchecked((ushort)((((value &
-                    SnesDspRegisterMap.Fields.AdsrSustainLevelMask) >>
-                    SnesDspRegisterMap.Fields.AdsrSustainLevelShift) + 1) * 0x100));
+                    SnesDspRegisterLayout.Fields.AdsrSustainLevelMask) >>
+                    SnesDspRegisterLayout.Fields.AdsrSustainLevelShift) + 1) * SnesDspRegisterLayout.SustainLevelStep));
                 break;
             case DspVoiceRegister.Gain:
-                voice.DirectGain = (value & SnesDspRegisterMap.Fields.AdsrEnabled) == 0;
-                if ((value & SnesDspRegisterMap.Fields.AdsrEnabled) != 0)
+                voice.DirectGain = (value & SnesDspRegisterLayout.Fields.AdsrEnabled) == 0;
+                if ((value & SnesDspRegisterLayout.Fields.AdsrEnabled) != 0)
                 {
-                    voice.GainMode = unchecked((byte)((value & SnesDspRegisterMap.Fields.GainModeMask) >>
-                        SnesDspRegisterMap.Fields.GainModeShift));
+                    voice.GainMode = unchecked((byte)((value & SnesDspRegisterLayout.Fields.GainModeMask) >>
+                        SnesDspRegisterLayout.Fields.GainModeShift));
                     voice.AdsrRates[3] = SnesDspTables.RatePeriod(
-                        value & SnesDspRegisterMap.Fields.AdsrSustainRateMask);
+                        value & SnesDspRegisterLayout.Fields.AdsrSustainRateMask);
                 }
                 else
                 {
                     voice.GainValue = unchecked((ushort)((value &
-                        SnesDspRegisterMap.Fields.GainValueMask) * 16));
+                        SnesDspRegisterLayout.Fields.GainValueMask) * 16));
                 }
                 break;
             // The DSP publishes these each sample; a write does not change the voice.
@@ -186,11 +185,11 @@ public sealed class ManagedSnesDsp
             }
         }
 
-        if ((address & SnesDspRegisterMap.VoiceRegisterMask) == SnesDspRegisterMap.FirstFirCoefficient)
+        if ((address & SnesDspRegisterLayout.VoiceRegisterMask) == SnesDspRegisterLayout.FirstFirCoefficient)
         {
             firValues[voiceIndex] = unchecked((sbyte)value);
         }
-        else if (SnesDspRegisterMap.GlobalRegisterAt(address) is DspGlobalRegister globalRegister)
+        else if (SnesDspRegisterLayout.GlobalRegisterAt(address) is DspGlobalRegister globalRegister)
         {
             switch (globalRegister)
             {
@@ -221,10 +220,10 @@ public sealed class ManagedSnesDsp
                 }
                 break;
             case DspGlobalRegister.Flags:
-                reset = (value & SnesDspRegisterMap.Fields.Reset) != 0;
-                mute = (value & SnesDspRegisterMap.Fields.Mute) != 0;
-                echoWrites = (value & SnesDspRegisterMap.Fields.EchoWriteDisable) == 0;
-                noiseRate = SnesDspTables.RatePeriod(value & SnesDspRegisterMap.Fields.NoiseRateMask);
+                reset = (value & SnesDspRegisterLayout.Fields.Reset) != 0;
+                mute = (value & SnesDspRegisterLayout.Fields.Mute) != 0;
+                echoWrites = (value & SnesDspRegisterLayout.Fields.EchoWriteDisable) == 0;
+                noiseRate = SnesDspTables.RatePeriod(value & SnesDspRegisterLayout.Fields.NoiseRateMask);
                 break;
             case DspGlobalRegister.EndFlags:
                 value = 0;
@@ -252,7 +251,7 @@ public sealed class ManagedSnesDsp
                 echoBufferAddress = SnesLittleEndian.Word(0, value);
                 break;
             case DspGlobalRegister.EchoDelay:
-                echoDelay = unchecked((ushort)((value & SnesDspRegisterMap.Fields.EchoDelayMask) * 512));
+                echoDelay = unchecked((ushort)((value & SnesDspRegisterLayout.Fields.EchoDelayMask) * 512));
                 if (echoDelay == 0)
                     echoDelay = 1;
                 break;
@@ -323,8 +322,8 @@ public sealed class ManagedSnesDsp
         int pitch = voice.Pitch;
         if (index > 0 && voice.PitchModulation)
         {
-            int factor = (voices[index - 1].SampleOutput >> 4) + 0x400;
-            pitch = Math.Min(0x3fff, (pitch * factor) >> 10);
+            int factor = (voices[index - 1].SampleOutput >> 4) + SnesDspRegisterLayout.PitchModulationBias;
+            pitch = Math.Min(SnesDspRegisterLayout.Fields.PitchMask, (pitch * factor) >> 10);
         }
         ManagedPcmSample? sampleSource = voice.Sample;
         // A stock 32-kHz WAV is numerically identical to decoded BRR. Scaling the phase step
@@ -371,11 +370,11 @@ public sealed class ManagedSnesDsp
         }
         if (direct)
             voice.Gain = voice.GainValue;
-        registers[(index * SnesDspRegisterMap.VoiceStride) |
-            SnesDspRegisterMap.Voice.EnvelopeOutput] = unchecked((byte)(voice.Gain >> 4));
+        registers[(index * SnesDspRegisterLayout.VoiceStride) |
+            SnesDspRegisterLayout.Voice.EnvelopeOutput] = unchecked((byte)(voice.Gain >> 4));
         sample = unchecked((short)((sample * voice.Gain) >> 11));
-        registers[(index * SnesDspRegisterMap.VoiceStride) |
-            SnesDspRegisterMap.Voice.SampleOutput] = unchecked((byte)(sample >> 7));
+        registers[(index * SnesDspRegisterLayout.VoiceStride) |
+            SnesDspRegisterLayout.Voice.SampleOutput] = unchecked((byte)(sample >> 7));
         voice.SampleOutput = sample;
     }
 
@@ -387,10 +386,10 @@ public sealed class ManagedSnesDsp
             case EnvelopeState.Attack:
                 voice.Gain = unchecked((ushort)(voice.Gain +
                     (voice.AdsrRates[(int)EnvelopeState.Attack] == 1 ? 1024 : 32)));
-                if (voice.Gain >= 0x7e0)
+                if (voice.Gain >= SnesDspRegisterLayout.AttackEndLevel)
                     voice.AdsrState = EnvelopeState.Decay;
-                if (voice.Gain > 0x7ff)
-                    voice.Gain = 0x7ff;
+                if (voice.Gain > SnesDspRegisterLayout.EnvelopeMaximum)
+                    voice.Gain = SnesDspRegisterLayout.EnvelopeMaximum;
                 break;
             case EnvelopeState.Decay:
                 voice.Gain = unchecked((ushort)(voice.Gain - (SnesEightEight.WholeOf(voice.Gain - 1) + 1)));
@@ -405,7 +404,7 @@ public sealed class ManagedSnesDsp
                 {
                     case 0:
                         voice.Gain = unchecked((ushort)(voice.Gain - 32));
-                        if (voice.Gain > 0x7ff)
+                        if (voice.Gain > SnesDspRegisterLayout.EnvelopeMaximum)
                             voice.Gain = 0;
                         break;
                     case 1:
@@ -413,13 +412,13 @@ public sealed class ManagedSnesDsp
                         break;
                     case 2:
                         voice.Gain = unchecked((ushort)(voice.Gain + 32));
-                        if (voice.Gain > 0x7ff)
-                            voice.Gain = 0x7ff;
+                        if (voice.Gain > SnesDspRegisterLayout.EnvelopeMaximum)
+                            voice.Gain = SnesDspRegisterLayout.EnvelopeMaximum;
                         break;
                     case 3:
-                        voice.Gain = unchecked((ushort)(voice.Gain + (voice.Gain < 0x600 ? 32 : 8)));
-                        if (voice.Gain > 0x7ff)
-                            voice.Gain = 0x7ff;
+                        voice.Gain = unchecked((ushort)(voice.Gain + (voice.Gain < SnesDspRegisterLayout.BentLineThreshold ? 32 : 8)));
+                        if (voice.Gain > SnesDspRegisterLayout.EnvelopeMaximum)
+                            voice.Gain = SnesDspRegisterLayout.EnvelopeMaximum;
                         break;
                     default:
                         throw new InvalidDataException($"Unknown S-DSP gain mode {voice.GainMode}.");
@@ -427,7 +426,7 @@ public sealed class ManagedSnesDsp
                 break;
             case EnvelopeState.Release:
                 voice.Gain = unchecked((ushort)(voice.Gain - 8));
-                if (voice.Gain > 0x7ff)
+                if (voice.Gain > SnesDspRegisterLayout.EnvelopeMaximum)
                     voice.Gain = 0;
                 break;
             default:
@@ -550,8 +549,8 @@ public sealed class ManagedSnesDsp
         if (noiseRate == 0 || noiseCounter < noiseRate)
             return;
         int bit = (noiseSample & 1) ^ ((noiseSample >> 1) & 1);
-        int next = ((noiseSample >> 1) & 0x3fff) | (bit << 14);
-        noiseSample = unchecked((short)((unchecked((short)((next & 0x7fff) << 1))) >> 1));
+        int next = ((noiseSample >> 1) & SnesDspRegisterLayout.NoiseShiftMask) | (bit << 14);
+        noiseSample = unchecked((short)((unchecked((short)((next & SnesDspRegisterLayout.NoiseSampleMask) << 1))) >> 1));
         noiseCounter = 0;
     }
 
@@ -600,7 +599,7 @@ public sealed class ManagedSnesDsp
         }
         firBufferIndex = unchecked((byte)((firBufferIndex + 1) & 7));
         echoBufferIndex++;
-        echoRemaining--;
+        echoRemaining = NativeWordCounter.Decrement(echoRemaining).Value;
         if (echoRemaining == 0)
         {
             echoRemaining = echoDelay;

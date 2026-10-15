@@ -1,0 +1,67 @@
+namespace SuperMetroid.Core.Bosses.Ridley;
+
+/// <summary>Arena targets and health-dependent inertia selectors for Norfair Ridley.</summary>
+public static class RidleyMovementTargets
+{
+    /// <summary>$A6:B60D Ridley_Func_15: descending pogo uses quarter-arena points in reverse facing order.</summary>
+    public static ushort DescendingPogoX(RidleyFacing facing) => (ushort)(256 - AscendingPogoX(facing));
+
+    /// <summary>$A6:B63B Ridley_Func_16: ascending pogo uses successive 64-pixel quarter-arena points.</summary>
+    public static ushort AscendingPogoX(RidleyFacing facing)
+    {
+        ValidateFacing(facing);
+        return (ushort)(64 * ((int)facing + 1));
+    }
+
+    /// <summary>$A6:B6C8 Ridley_Func_19: left, turning and right attack staging positions.</summary>
+    public static ushort GroundAttackX(RidleyFacing facing) => facing switch
+    {
+        RidleyFacing.Left => 176,
+        RidleyFacing.Turning => 128,
+        RidleyFacing.Right => 96,
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {(int)facing}."),
+    };
+
+    /// <summary>$A6:BBEB Ridley_Func_36: carry anchors at the left/right sides; turning has no anchor.</summary>
+    public static ushort CarryAnchorX(RidleyFacing facing) => facing switch
+    {
+        RidleyFacing.Left => 64,
+        RidleyFacing.Turning => 0,
+        RidleyFacing.Right => 208,
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {(int)facing}."),
+    };
+
+    /// <summary>$A6:BC62: carry-release destinations reflected about the arena center; turning has no target.</summary>
+    public static ushort CarryReleaseX(RidleyFacing facing)
+    {
+        ValidateFacing(facing);
+        return facing == RidleyFacing.Turning ? (ushort)0 : (ushort)(176 - 48 * (int)facing);
+    }
+
+    /// <summary>$A6:B439: hover divisor index first rises by four, then by two per health stage.</summary>
+    public static ushort HoverDivisorIndexes(int stage)
+    {
+        ValidateStage(stage);
+        return (ushort)(4 + 2 * stage + 2 * Math.Min(stage, 1));
+    }
+
+    /// <summary>$A6:BB4E: grab divisor indexes double-plus-one until the final cap of ten.</summary>
+    public static ushort GrabDivisorIndexes(int stage)
+    {
+        ValidateStage(stage);
+        return (ushort)Math.Min(10, (1 << (stage + 1)) - 1);
+    }
+
+    /// <summary>Rejects facing values outside the three native arena-table indices.</summary>
+    private static void ValidateFacing(RidleyFacing facing)
+    {
+        if (!Enum.IsDefined(facing))
+            throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {(int)facing}.");
+    }
+
+    /// <summary>Limits health-stage selection to the four entries represented by the native movement tables.</summary>
+    private static void ValidateStage(int stage)
+    {
+        if ((uint)stage >= 4) throw new IndexOutOfRangeException();
+    }
+}

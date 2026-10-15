@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// that decides when each sound-effect port is polled (#1304).
 /// </summary>
 /// <remarks>
-/// The driver ticks every <see cref="SpcDriverData.DspCyclesPerDriverTick"/> DSP cycles and
+/// The driver ticks every <see cref="SpcDriverDefinitions.DspCyclesPerDriverTick"/> DSP cycles and
 /// polls the three sound-effect ports every eighth tick (512 DSP cycles), while a 60-Hz
 /// update spans <see cref="DspCyclesPerFrame"/> cycles, so the poll phase drifts across
 /// frames and is carried between them. Each poll acts on the value latched by the previous
@@ -23,7 +23,7 @@ public sealed class SpcCommandPorts
     public const int DspCyclesPerFrame = ManagedSnesDsp.NativeStereoFramesPerVideoFrame;
 
     /// <summary>The most driver ticks one frame can contain: one pending at the frame start plus one per whole tick period.</summary>
-    public const int MaximumTicksPerFrame = DspCyclesPerFrame / SpcDriverData.DspCyclesPerDriverTick + 1;
+    public const int MaximumTicksPerFrame = DspCyclesPerFrame / SpcDriverDefinitions.DspCyclesPerDriverTick + 1;
 
     /// <summary><c>$F4-$F7</c> as the SPC reads them: the CPU's most recent write to each input port.</summary>
     [SpcMemoryAccess]
@@ -70,7 +70,7 @@ public sealed class SpcCommandPorts
     public void ResetForUpload()
     {
         inputPorts[(int)ApuPort.Music] = (byte)MusicPortCommand.None;
-        soundEffectOutputPorts[0] = SpcDriverData.UploadReadyLibraryOnePort;
+        soundEffectOutputPorts[0] = SpcDriverDefinitions.UploadReadyLibraryOnePort;
         for (int port = (int)ApuPort.SoundLibrary1; port < inputPorts.Length; port++)
             inputPorts[port] = 0;
     }
@@ -87,20 +87,20 @@ public sealed class SpcCommandPorts
     {
         if (schedule.Length < MaximumTicksPerFrame)
             throw new ArgumentException($"Driver schedule requires {MaximumTicksPerFrame} entries.", nameof(schedule));
-        if (timerCycles > SpcDriverData.DspCyclesPerDriverTick)
+        if (timerCycles > SpcDriverDefinitions.DspCyclesPerDriverTick)
             throw new InvalidDataException($"SPC timer contains impossible value {timerCycles}.");
 
         int count = 0;
         int cycle = 0;
         while (cycle < DspCyclesPerFrame)
         {
-            if (timerCycles >= SpcDriverData.DspCyclesPerDriverTick)
+            if (timerCycles >= SpcDriverDefinitions.DspCyclesPerDriverTick)
             {
-                schedule[count++] = Tick(cycle, unchecked((byte)(timerCycles / SpcDriverData.DspCyclesPerDriverTick)));
-                timerCycles &= SpcDriverData.DspCyclesPerDriverTick - 1;
+                schedule[count++] = Tick(cycle, unchecked((byte)(timerCycles / SpcDriverDefinitions.DspCyclesPerDriverTick)));
+                timerCycles &= SpcDriverDefinitions.DspCyclesPerDriverTick - 1;
             }
 
-            int cycles = Math.Min(DspCyclesPerFrame - cycle, SpcDriverData.DspCyclesPerDriverTick - timerCycles);
+            int cycles = Math.Min(DspCyclesPerFrame - cycle, SpcDriverDefinitions.DspCyclesPerDriverTick - timerCycles);
             timerCycles = unchecked((byte)(timerCycles + cycles));
             cycle += cycles;
         }
@@ -110,7 +110,7 @@ public sealed class SpcCommandPorts
     /// <summary>Runs one driver tick at <paramref name="dspCycleOffset"/>, advancing the sound-effect timer and polling the SFX ports on its carry.</summary>
     private SpcDriverTick Tick(int dspCycleOffset, byte ticks)
     {
-        int soundAccumulator = soundEffectTimerAccumulator + unchecked((byte)(ticks * SpcDriverData.SoundEffectTimerStep));
+        int soundAccumulator = soundEffectTimerAccumulator + unchecked((byte)(ticks * SpcDriverDefinitions.SoundEffectTimerStep));
         soundEffectTimerAccumulator = unchecked((byte)soundAccumulator);
         if (soundAccumulator <= byte.MaxValue)
             return new SpcDriverTick(dspCycleOffset, ticks, SoundEffectsPolled: false, default, default, default);

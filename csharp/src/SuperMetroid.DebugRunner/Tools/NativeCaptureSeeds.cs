@@ -1,5 +1,8 @@
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
+namespace SuperMetroid.DebugRunner.Tools;
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.ScenarioFixtures;
 
 /// <summary>Exports bounded production traces and seeds for native comparison of reported movement cases.</summary>
 internal static class NativeCaptureSeeds

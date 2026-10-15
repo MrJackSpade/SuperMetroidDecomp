@@ -18,7 +18,6 @@ using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.PaletteFxInstructionCodesVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SaveStationElectricityInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Skree.SkreeMetareeParticleInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Botwoon;
@@ -2180,27 +2179,6 @@ internal static class LookupStream4Verification
             AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationDefinitions.MetareeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Metaree phase");
             AssertThrows<InvalidDataException>(() => SkreeMetareeAnimationDefinitions.SkreeProgram((SkreeMetareeAnimationPhase)invalid), "stream4 invalid Skree phase");
         }
-        int particleMechanics = 0, particlePresentation = 0;
-        for (int address = 0x8abd; address < 0x8acd; address += 2)
-        {
-            bool presentation = address is 0x8abf or 0x8ac7;
-            if (presentation)
-            {
-                AssertEqual((ushort)address, SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordAddress(particlePresentation++), "stream4 debris presentation ordering");
-                AssertThrows<InvalidDataException>(() => SkreeMetareeParticleInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream4 debris presentation not mechanics");
-            }
-            else
-            {
-                var actual = SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWord(particleMechanics++);
-                AssertEqual((ushort)address, actual.Address, "stream4 debris mechanics ordering");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | address)), actual.Value, "stream4 native debris mechanics");
-                AssertEqual(actual.Value, SkreeMetareeParticleInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream4 debris direct mechanics");
-            }
-            for (int half = 0; half < 2; half++)
-                AssertEqual(!presentation, SkreeMetareeParticleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | (address + half)), "stream4 debris byte ownership");
-        }
-        AssertEqual(particleMechanics, SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWordCount, "stream4 debris mechanics count");
-        AssertEqual(particlePresentation, SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordCount, "stream4 debris presentation count");
         int electricMechanics = 0, electricPresentation = 0;
         for (int address = 0xe683; address < 0xe6ad; address += 2)
         {
@@ -2224,13 +2202,9 @@ internal static class LookupStream4Verification
         AssertEqual(electricPresentation, SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount, "stream4 electricity presentation count");
         foreach (int invalid in new[] { -1, int.MaxValue })
         {
-            AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWord(invalid), "stream4 debris mechanics bounds");
-            AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid), "stream4 debris presentation bounds");
             AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(invalid), "stream4 electricity mechanics bounds");
             AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(invalid), "stream4 electricity presentation bounds");
         }
-        AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWord(particleMechanics), "stream4 debris mechanics end");
-        AssertThrows<IndexOutOfRangeException>(() => SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordAddress(particlePresentation), "stream4 debris presentation end");
         AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.MechanicsWord(electricMechanics), "stream4 electricity mechanics end");
         AssertThrows<IndexOutOfRangeException>(() => SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(electricPresentation), "stream4 electricity presentation end");
     }
@@ -2259,32 +2233,6 @@ internal static class LookupStream4Verification
         electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
         AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
         AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
-        foreach (bool metaree in new[] { false, true })
-        {
-            var guard = NewSkreeMetareeParticleInstructionReadGuard(rom);
-            var system = new RoomEnemySystem();
-            system.BindFixtureBus(guard);
-            Action<RoomEnemySlot> spawn = metaree ? system.Projectiles.SpawnMetareeParticleBurst : system.Projectiles.SpawnSkreeParticleBurst;
-            spawn(new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96))});
-            ushort start = metaree ? (ushort)0x8ac5 : (ushort)0x8abd;
-            int active = 0;
-            foreach (var particle in system.Projectiles.EnemyProjectiles)
-            {
-                if (!particle.IsActive) continue;
-                active++;
-                for (int loop = 0; loop < 2; loop++)
-                {
-                    particle.InstructionTimer = NativeCountdown.Start(1);
-                    system.Projectiles.ProcessEnemyProjectileInstructions(particle, null, Position16<RoomPixels>.Zero);
-                    AssertEqual((ushort)(start + 4), particle.InstructionPointer, "stream4 debris goto-self loop pointer");
-                    AssertEqual((ushort)16, particle.InstructionTimer.RawValue, "stream4 debris sixteen-frame duration");
-                    ushort nativeSprite = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x860000 | (start + 2));
-                    AssertEqual(nativeSprite, particle.SpritemapPointer, "stream4 debris compiled presentation identity");
-                }
-            }
-            AssertEqual(4, active, "stream4 debris native four-direction burst");
-            AssertEqual(0, guard.ForbiddenReadAttempts, "stream4 debris no mechanics ROM reads");
-        }
     }
 
     /// <summary>Checks statue palette rows and selection data against native colors.</summary>

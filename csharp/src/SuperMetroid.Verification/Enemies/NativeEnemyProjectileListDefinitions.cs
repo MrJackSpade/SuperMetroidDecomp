@@ -60,6 +60,7 @@ internal static class NativeEnemyProjectileListDefinitions
         [(ushort)EnemyProjectileInstruction.Spores_SetProperties3000] = WordKind.Callback,
         [(ushort)EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX] = WordKind.Callback,
         [(ushort)EnemyProjectileInstruction.Spores_SpawnEnemyDrops] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.MagdolliteFlame_SpawnDrops] = WordKind.Callback,
     };
 
     /// <summary>Decodes a native projectile list word, rejecting words outside the compared set.</summary>

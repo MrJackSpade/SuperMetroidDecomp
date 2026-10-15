@@ -13,5 +13,6 @@ internal sealed class PhantoonFlameAnimation(PhantoonFlameProgram program)
         PhantoonFlameAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort PresentationKey(PhantoonFlameFrame frame) => PhantoonFlameVisualDefinitions.PresentationKey(frame);
+    private protected override EnemyProjectileFramePresentation Present(PhantoonFlameFrame frame) =>
+        EnemyProjectileFramePresentation.Installed(PhantoonFlameVisualDefinitions.PresentationKey(frame));
 }

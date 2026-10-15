@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Enemies.FuneNamihe;
 using SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Enemies.WorkRobots;
@@ -163,7 +164,6 @@ using static SuperMetroid.Verification.Enemies.Kzan.KzanAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Kzan.KzanBehaviorVerification;
 using static SuperMetroid.Verification.Enemies.Rios.LowerNorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Magdollite.MagdolliteInstructionProgramDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Magdollite.MagdolliteLavaInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.MaridiaSnails.MaridiaLargeSnailInstructionDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MetroidBehaviorDefinitionsVerification;
@@ -251,7 +251,6 @@ using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolSegmentDefinitio
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using static SuperMetroid.Verification.Enemies.ShotCallbackDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Skree.SkreeMetareeAnimationDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Skree.SkreeMetareeParticleInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.SlopeSpeedDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.SpacePirates.SpacePirateProjectileInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Sparks.SparkMovementDefinitionsVerification;
@@ -326,12 +325,14 @@ internal static class EnemyTrigonometryVerification
         new(nameof(FallingSparkBehaviorVerification.VerifyFallingSparkBehavior), () => FallingSparkBehaviorVerification.VerifyFallingSparkBehavior(LoadRepositoryRom())),
         new(nameof(FuneNamiheFireballAnimationsVerification.VerifyFuneNamiheFireballAnimations), () => FuneNamiheFireballAnimationsVerification.VerifyFuneNamiheFireballAnimations(LoadRepositoryRom())),
         new(nameof(FuneNamiheFireballBehaviorVerification.VerifyFuneNamiheFireballBehavior), () => FuneNamiheFireballBehaviorVerification.VerifyFuneNamiheFireballBehavior(LoadRepositoryRom())),
-        new(nameof(VerifyMagdolliteLavaInstructionProgramDefinitions), () => VerifyMagdolliteLavaInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(MagdolliteLavaAnimationsVerification.VerifyMagdolliteLavaAnimations), () => MagdolliteLavaAnimationsVerification.VerifyMagdolliteLavaAnimations(LoadRepositoryRom())),
+        new(nameof(MagdolliteLavaBehaviorVerification.VerifyMagdolliteLavaBehavior), () => MagdolliteLavaBehaviorVerification.VerifyMagdolliteLavaBehavior(LoadRepositoryRom())),
         new(nameof(DragonFireballAnimationsVerification.VerifyDragonFireballAnimations), () => DragonFireballAnimationsVerification.VerifyDragonFireballAnimations(LoadRepositoryRom())),
         new(nameof(DragonFireballBehaviorVerification.VerifyDragonFireballBehavior), () => DragonFireballBehaviorVerification.VerifyDragonFireballBehavior(LoadRepositoryRom())),
         new(nameof(VerifyEyeDoorProjectileInstructionProgramDefinitions), () => VerifyEyeDoorProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEyeDoorSweatInstructionProgramDefinitions), () => VerifyEyeDoorSweatInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifySkreeMetareeParticleInstructionProgramDefinitions), () => VerifySkreeMetareeParticleInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(SkreeMetareeParticleAnimationsVerification.VerifySkreeMetareeParticleAnimations), () => SkreeMetareeParticleAnimationsVerification.VerifySkreeMetareeParticleAnimations(LoadRepositoryRom())),
+        new(nameof(SkreeMetareeParticleBehaviorVerification.VerifySkreeMetareeParticleBehavior), () => SkreeMetareeParticleBehaviorVerification.VerifySkreeMetareeParticleBehavior(LoadRepositoryRom())),
         new(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(AlcoonFireballAnimationsVerification.VerifyAlcoonFireballAnimations), () => AlcoonFireballAnimationsVerification.VerifyAlcoonFireballAnimations(LoadRepositoryRom())),
         new(nameof(AlcoonFireballBehaviorVerification.VerifyAlcoonFireballBehavior), () => AlcoonFireballBehaviorVerification.VerifyAlcoonFireballBehavior(LoadRepositoryRom())),

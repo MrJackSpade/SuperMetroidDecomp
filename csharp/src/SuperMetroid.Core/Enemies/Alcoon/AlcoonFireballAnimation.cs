@@ -12,5 +12,6 @@ internal sealed class AlcoonFireballAnimation(AlcoonFireballProgram program)
     private protected override AnimationProgramSet<AlcoonFireballProgram, AlcoonFireballFrame, EnemyProjectileCommonCue> Programs => AlcoonFireballAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort PresentationKey(AlcoonFireballFrame frame) => AlcoonFireballFrameDefinitions.PresentationKey(frame);
+    private protected override EnemyProjectileFramePresentation Present(AlcoonFireballFrame frame) =>
+        EnemyProjectileFramePresentation.Installed(AlcoonFireballFrameDefinitions.PresentationKey(frame));
 }

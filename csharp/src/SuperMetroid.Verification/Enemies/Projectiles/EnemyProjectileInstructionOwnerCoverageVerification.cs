@@ -76,7 +76,9 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.GoldenTorizoEyeBeam or
                 RoomEnemyProjectileKind.CeresFallingDebrisLight or
                 RoomEnemyProjectileKind.CeresFallingDebrisDark or
-                RoomEnemyProjectileKind.GunshipLiftoffDustCloud;
+                RoomEnemyProjectileKind.GunshipLiftoffDustCloud ||
+                // The regular enemies' projectiles whose definitions start typed programs (#1291).
+                EnemyProjectileTypedStarts.Initial(kind) is not null;
             if (!typed)
                 VerifyEntry(definition.InitialInstructionList, "initial");
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet))
@@ -86,7 +88,9 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
                 RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or
                 RoomEnemyProjectileKind.SporeSpawnSpawner or RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
-                RoomEnemyProjectileKind.GunshipLiftoffDustCloud))
+                RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
+                // The Powamp spike's and the Magdollite lava's shot lists run as typed programs (#1291).
+                RoomEnemyProjectileKind.PowampSpike or RoomEnemyProjectileKind.LavaThrownByMagdollite))
                 VerifyEntry(definition.ShotInstructionList, "shot");
 
             void VerifyEntry(ushort address, string role)

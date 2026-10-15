@@ -27,12 +27,12 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
     /// <summary>The program set this animation runs.</summary>
     private protected abstract AnimationProgramSet<TProgram, TFrame, TCue> Programs { get; }
 
-    /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
-    private protected abstract ushort PresentationKey(TFrame frame);
+    /// <summary>How <paramref name="frame"/> is drawn.</summary>
+    private protected abstract EnemyProjectileFramePresentation Present(TFrame frame);
 
     /// <summary>Runs the program, publishing each cue to the family's registered handler.</summary>
     private protected sealed override bool TryShowNextFrame(
-        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out ushort presentationKey)
+        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out EnemyProjectileFramePresentation presentation)
     {
         AnimationProgramCursor<TProgram> cursor = Cursor;
         // Counter steps use the projectile's general timer, as the native TimerInY and DecrementTimer_GotoYIfNonZero do.
@@ -48,10 +48,10 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
         switch (advance.Kind)
         {
             case AnimationProgramAdvanceKind.Show:
-                presentationKey = PresentationKey(advance.Frame);
+                presentation = Present(advance.Frame);
                 return true;
             case AnimationProgramAdvanceKind.Hold:
-                presentationKey = 0;
+                presentation = default;
                 return false;
             default:
                 throw new InvalidOperationException($"A projectile program ended an update with {advance.Kind}.");

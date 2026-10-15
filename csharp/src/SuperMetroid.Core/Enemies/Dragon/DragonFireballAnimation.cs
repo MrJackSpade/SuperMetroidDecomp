@@ -12,5 +12,6 @@ internal sealed class DragonFireballAnimation(DragonFireballProgram program)
     private protected override AnimationProgramSet<DragonFireballProgram, DragonFireballFrame, EnemyProjectileCommonCue> Programs => DragonFireballAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort PresentationKey(DragonFireballFrame frame) => DragonFireballFrameDefinitions.PresentationKey(frame);
+    private protected override EnemyProjectileFramePresentation Present(DragonFireballFrame frame) =>
+        EnemyProjectileFramePresentation.Installed(DragonFireballFrameDefinitions.PresentationKey(frame));
 }

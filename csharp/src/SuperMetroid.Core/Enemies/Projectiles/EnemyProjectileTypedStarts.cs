@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Skree;
+using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Alcoon;
@@ -32,6 +34,15 @@ internal static class EnemyProjectileTypedStarts
         [RoomEnemyProjectileKind.FuneFireball] = () => new FuneNamiheFireballAnimation(FuneNamiheFireballProgram.Left),
         [RoomEnemyProjectileKind.NamiheFireball] = () => new FuneNamiheFireballAnimation(FuneNamiheFireballProgram.Left),
         [RoomEnemyProjectileKind.PolypRock] = () => new PolypRockAnimation(PolypRockProgram.Initial),
+        [RoomEnemyProjectileKind.LavaThrownByMagdollite] = () => new MagdolliteLavaAnimation(MagdolliteLavaProgram.Left),
+        [RoomEnemyProjectileKind.SkreeParticleDownRight] = () => new SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram.Skree),
+        [RoomEnemyProjectileKind.SkreeParticleUpRight] = () => new SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram.Skree),
+        [RoomEnemyProjectileKind.SkreeParticleDownLeft] = () => new SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram.Skree),
+        [RoomEnemyProjectileKind.SkreeParticleUpLeft] = () => new SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram.Skree),
+        [RoomEnemyProjectileKind.MetareeParticleDownRight] = () => new SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram.Metaree),
+        [RoomEnemyProjectileKind.MetareeParticleUpRight] = () => new SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram.Metaree),
+        [RoomEnemyProjectileKind.MetareeParticleDownLeft] = () => new SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram.Metaree),
+        [RoomEnemyProjectileKind.MetareeParticleUpLeft] = () => new SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram.Metaree),
     };
 
     /// <summary>A new animation running the typed initial program of <paramref name="kind"/>, or null when the kind has none.</summary>

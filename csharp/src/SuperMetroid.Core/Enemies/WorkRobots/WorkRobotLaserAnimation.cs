@@ -12,5 +12,6 @@ internal sealed class WorkRobotLaserAnimation(WorkRobotLaserProgram program)
     private protected override AnimationProgramSet<WorkRobotLaserProgram, WorkRobotLaserFrame, EnemyProjectileCommonCue> Programs => WorkRobotLaserAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort PresentationKey(WorkRobotLaserFrame frame) => WorkRobotLaserFrameDefinitions.PresentationKey(frame);
+    private protected override EnemyProjectileFramePresentation Present(WorkRobotLaserFrame frame) =>
+        EnemyProjectileFramePresentation.Installed(WorkRobotLaserFrameDefinitions.PresentationKey(frame));
 }

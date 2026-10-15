@@ -730,7 +730,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Connects thrown-lava movement and its shot-list drop instruction to the projectile interpreter.</summary>
+    /// <summary>Connects thrown-lava movement, its typed programs' cues and its shot program to the projectile engine.</summary>
     internal void RegisterMagdolliteProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -738,13 +738,24 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
             RunMagdolliteLavaPreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.MagdolliteLava);
 
-        table.RegisterInstruction(EnemyProjectileInstruction.MagdolliteFlame_SpawnDrops, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
+        table.RegisterCue<MagdolliteLavaCue>(ApplyMagdolliteLavaCue);
+        table.RegisterShotAnimation(RoomEnemyProjectileKind.LavaThrownByMagdollite, () => new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
+    }
+
+    /// <summary>Carries out one cue of the thrown lava's programs.</summary>
+    private void ApplyMagdolliteLavaCue(RoomEnemyProjectileSlot projectile, SamusState? samus, MagdolliteLavaCue cue)
+    {
+        switch (cue.Kind)
+        {
+            case MagdolliteLavaCueKind.Delete:
+                projectile.Clear();
+                break;
+            case MagdolliteLavaCueKind.SpawnDrops:
                 RequestMagdolliteLavaDrop(projectile);
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(MagdolliteLavaCueKind)} {cue.Kind}.");
+        }
     }
 
     /// <summary>Binds the bank-$A8 initialization address to the three-part species initializer.</summary>
@@ -840,9 +851,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         projectile.Velocity = new(new SnesSignedEightEight(MagdolliteLavaHorizontalSpeed), new SnesSignedEightEight(MagdolliteLavaUpwardSpeed));
         projectile.PreInstruction =
             (ushort)EnemyProjectilePreInstruction.MagdolliteLava;
-        projectile.InstructionPointer = directionParameter == 0
-            ? MagdolliteLavaInstructionProgramDefinitions.Left
-            : MagdolliteLavaInstructionProgramDefinitions.Right;
+        projectile.InstallAnimation(new MagdolliteLavaAnimation(directionParameter == 0 ? MagdolliteLavaProgram.Left : MagdolliteLavaProgram.Right));
     }
 
     /// <summary>Ports $86:E049-$E09B, including the cartridge's asymmetric velocity use.</summary>

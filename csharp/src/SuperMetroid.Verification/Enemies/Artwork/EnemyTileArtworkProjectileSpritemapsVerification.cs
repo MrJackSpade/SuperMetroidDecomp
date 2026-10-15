@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies.Skree;
+using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.KiHunters.Artwork;
@@ -273,8 +275,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 FallingSparkFrameDefinitions.PoseCount,
                 index => FallingSparkFrameDefinitions.PresentationKey(new(index))),
             ("Magdollite lava", RoomEnemyProjectileKind.LavaThrownByMagdollite,
-                MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount,
-                MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress),
+                MagdolliteLavaFrameDefinitions.PoseCount,
+                index => MagdolliteLavaFrameDefinitions.PresentationKey(new(index))),
             ("Chozo/Tourian dust", RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
                 ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount,
                 ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress),
@@ -503,9 +505,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         AssertEqual((byte)(originalOam.LowTable[0] + 1), editedOam.LowTable[0],
             "enemy-projectile composition override moves the live Ceres pad OAM part");
         OamBuffer stockBurst = DrawBurst(stock,
-            SkreeMetareeParticleInstructionProgramDefinitions.Skree, bus);
+            SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus);
         OamBuffer editedBurst = DrawBurst(editedArt,
-            SkreeMetareeParticleInstructionProgramDefinitions.Skree, bus);
+            SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus);
         AssertTrue(!stockBurst.LowTable.SequenceEqual(editedBurst.LowTable),
             "edited Skree debris composition changes production burst OAM");
         AssertTrue(!DrawSharedFrame(stock, editableProgramFrame.OperandAddress, bus)
@@ -631,7 +633,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             EnemyProjectileSpritemapDefinitions.FileName), legacyJson);
         EnemyTileArtworkCatalog migrated = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawBurst(migrated,
-                SkreeMetareeParticleInstructionProgramDefinitions.Skree, bus)
+                SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus)
             .LowTable.SequenceEqual(stockBurst.LowTable),
             "version-one Ceres override inherits stock Skree debris composition");
         var migratedPad = new OamBuffer();
@@ -650,7 +652,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             EnemyProjectileSpritemapDefinitions.FileName), versionTwoJson);
         EnemyTileArtworkCatalog migratedV2 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawBurst(migratedV2,
-                SkreeMetareeParticleInstructionProgramDefinitions.Skree, bus)
+                SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus)
             .LowTable.SequenceEqual(editedBurst.LowTable),
             "version-two edits retain the Skree debris frame");
         AssertTrue(DrawSharedFrame(stock, editableProgramFrame.OperandAddress, bus)
@@ -947,8 +949,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             foreach (ushort program in new[]
                      {
-                         SkreeMetareeParticleInstructionProgramDefinitions.Skree,
-                         SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
+                         SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree),
+                         SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Metaree),
                      })
             {
                 OamBuffer native = DrawReferenceBurst(program, bus);
@@ -993,7 +995,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             enemies.BindFixtureBus(source);
-            Action<RoomEnemySlot> spawn = program == SkreeMetareeParticleInstructionProgramDefinitions.Skree
+            Action<RoomEnemySlot> spawn = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree)
                 ? enemies.Projectiles.SpawnSkreeParticleBurst : enemies.Projectiles.SpawnMetareeParticleBurst;
             var enemy = new RoomEnemySlot(0)
             {

@@ -19,18 +19,18 @@ internal abstract class EnemyProjectileTimelineAnimation<TFrame, TCue> : EnemyPr
     /// <summary>The timeline this animation plays.</summary>
     private protected abstract AnimationTimeline<TFrame, TCue> Timeline { get; }
 
-    /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
-    private protected abstract ushort PresentationKey(TFrame frame);
+    /// <summary>How <paramref name="frame"/> is drawn.</summary>
+    private protected abstract EnemyProjectileFramePresentation Present(TFrame frame);
 
     /// <summary>Plays the timeline, publishing each cue to the family's registered handler.</summary>
     private protected sealed override bool TryShowNextFrame(
-        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out ushort presentationKey)
+        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out EnemyProjectileFramePresentation presentation)
     {
         int position = Position;
         AnimationAdvance<TFrame> advance = Timeline.Advance(ref position, cue => handlers.PublishCue(projectile, samus, cue));
         Position = position;
         duration = advance.Duration;
-        presentationKey = advance.Held ? (ushort)0 : PresentationKey(advance.Frame);
+        presentation = advance.Held ? default : Present(advance.Frame);
         return !advance.Held;
     }
 }

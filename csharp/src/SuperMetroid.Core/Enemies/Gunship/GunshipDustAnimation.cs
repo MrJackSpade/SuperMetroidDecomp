@@ -13,5 +13,6 @@ internal sealed class GunshipDustAnimation(GunshipDustProgram program)
         GunshipDustAnimations.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort PresentationKey(GunshipDustFrame frame) => GunshipDustVisualDefinitions.PresentationKey(frame);
+    private protected override EnemyProjectileFramePresentation Present(GunshipDustFrame frame) =>
+        EnemyProjectileFramePresentation.Installed(GunshipDustVisualDefinitions.PresentationKey(frame));
 }

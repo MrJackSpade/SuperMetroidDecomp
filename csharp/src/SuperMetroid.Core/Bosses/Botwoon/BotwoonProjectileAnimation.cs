@@ -43,14 +43,14 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileAnimation
 
     /// <summary>Advances the segment or spit timeline and maps its frame to installed projectile artwork.</summary>
     private protected override bool TryShowNextFrame(
-        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out ushort presentationKey)
+        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out EnemyProjectileFramePresentation presentation)
     {
         var timeline = Segment is { } segment ? BotwoonAnimations.Segment(segment) : BotwoonAnimations.Spit;
         int position = Position;
         AnimationAdvance<BotwoonProjectileFrame> advance = timeline.Advance(ref position, NoCues);
         Position = position;
         duration = advance.Duration;
-        presentationKey = advance.Held ? (ushort)0 : BotwoonVisualDefinitions.ProjectilePresentationKey(advance.Frame);
+        presentation = advance.Held ? default : EnemyProjectileFramePresentation.Installed(BotwoonVisualDefinitions.ProjectilePresentationKey(advance.Frame));
         return !advance.Held;
     }
 

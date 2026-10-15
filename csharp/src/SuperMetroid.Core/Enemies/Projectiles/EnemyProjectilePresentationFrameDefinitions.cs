@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
@@ -252,8 +253,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
                 FallingSparkFrameDefinitions.PoseCount,
                 index => FallingSparkFrameDefinitions.PresentationKey(new(index)));
             Add(frames, "magdollite_lava",
-                MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount,
-                MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress);
+                MagdolliteLavaFrameDefinitions.PoseCount,
+                index => MagdolliteLavaFrameDefinitions.PresentationKey(new(index)));
             Add(frames, "chozo_tourian_dust",
                 ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount,
                 ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress);

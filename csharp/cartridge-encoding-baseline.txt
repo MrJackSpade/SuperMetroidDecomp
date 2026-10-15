@@ -745,7 +745,6 @@ csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkNorfairRidl
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkPhantoonBg2FramesVerification.cs	SME6340	15
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkPhantoonColorsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkProjectileSpritemapsVerification.cs	SME6340	28
-csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkProjectileSpritemapsVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkShitroidColorsVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkSporeSpawnCollisionVerification.cs	SME6340	18
 csharp/src/SuperMetroid.Verification/Enemies/Artwork/EnemyTileArtworkSporeSpawnCollisionVerification.cs	SME6342	1
@@ -1269,7 +1268,7 @@ csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME634
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6340	338
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6342	9
-csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6340	538
+csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6340	529
 csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6342	5
 csharp/src/SuperMetroid.Verification/Harness/LookupStream5Verification.cs	SME6340	132

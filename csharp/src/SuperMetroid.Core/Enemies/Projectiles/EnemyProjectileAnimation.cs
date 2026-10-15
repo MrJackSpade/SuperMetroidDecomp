@@ -26,7 +26,7 @@ internal abstract class EnemyProjectileAnimation
         projectile.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
             return;
-        bool shown = TryShowNextFrame(projectile, handlers, samus, out int duration, out ushort presentationKey);
+        bool shown = TryShowNextFrame(projectile, handlers, samus, out int duration, out EnemyProjectileFramePresentation presentation);
         if (projectile.Animation != this)
             return;
         if (!shown)
@@ -36,8 +36,8 @@ internal abstract class EnemyProjectileAnimation
             return;
         }
         projectile.InstructionTimer = NativeCountdown.FromRaw((ushort)duration);
-        projectile.PresentationOperandAddress = presentationKey;
-        projectile.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
+        projectile.PresentationOperandAddress = presentation.PresentationKey;
+        projectile.SpritemapPointer = presentation.SpritemapPointer;
     }
 
     /// <summary>Advances the timeline to its next frame, or reports that it holds.</summary>
@@ -45,7 +45,7 @@ internal abstract class EnemyProjectileAnimation
     /// <param name="handlers">The engine's handlers, which carry out published cues.</param>
     /// <param name="samus">Samus, for cues that act on her; null in fixtures without her.</param>
     /// <param name="duration">How many projectile passes the frame lasts.</param>
-    /// <param name="presentationKey">The installed artwork key of the frame, or <see cref="EmptyFrameKey"/>.</param>
+    /// <param name="presentation">How the frame is drawn.</param>
     private protected abstract bool TryShowNextFrame(
-        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out ushort presentationKey);
+        RoomEnemyProjectileSlot projectile, EnemyProjectileHandlerTable handlers, SamusState? samus, out int duration, out EnemyProjectileFramePresentation presentation);
 }

@@ -1020,9 +1020,7 @@ internal sealed class EnemyProjectileEngine
 
         projectile.PresentationOperandAddress = 0;
         projectile.SpritemapPointer =
-            SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind)
-                ? SkreeMetareeParticleVisualDefinitions.Resolve(operandAddress)
-                : CompiledEnemyVisualSelectors.TryGet(SnesLittleEndian.BankByte(EnemyProjectileCodePointers.BankBase),
+            CompiledEnemyVisualSelectors.TryGet(SnesLittleEndian.BankByte(EnemyProjectileCodePointers.BankBase),
                     operandAddress, out ushort selector)
                     ? selector
                     : throw new InvalidDataException(
@@ -1112,11 +1110,6 @@ internal sealed class EnemyProjectileEngine
                 address);
         }
 
-        if (projectile.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite)
-        {
-            return MagdolliteLavaInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile)
         {
             return EyeDoorProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
@@ -1130,11 +1123,6 @@ internal sealed class EnemyProjectileEngine
         if (EnemyProjectileInstructionMechanicsDefinitions.Owns(projectile.Kind))
         {
             return EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return SkreeMetareeParticleInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (EnemyPickupInstructionProgramDefinitions.Owns(projectile.Kind, address))

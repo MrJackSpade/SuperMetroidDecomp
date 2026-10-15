@@ -51,28 +51,28 @@ internal static class EnemyProjectileDefinitionCatalog
 0xEC94, YappingMawBodyProjectileInstructionProgramDefinitions.FacingDown,
             0x0202, 0x2005, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.SkreeParticleDownRight => new(
-0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Skree,
+0x8B5D, 0x8ABD,
             0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.SkreeParticleUpRight => new(
-0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Skree,
+0x8B5D, 0x8ABD,
             0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.SkreeParticleDownLeft => new(
-0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Skree,
+0x8B5D, 0x8ABD,
             0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.SkreeParticleUpLeft => new(
-0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Skree,
+0x8B5D, 0x8ABD,
             0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MetareeParticleDownRight => new(
-0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
+0x8B5D, 0x8AC5,
             0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MetareeParticleUpRight => new(
-0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
+0x8B5D, 0x8AC5,
             0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MetareeParticleDownLeft => new(
-0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
+0x8B5D, 0x8AC5,
             0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.MetareeParticleUpLeft => new(
-0x8B5D, SkreeMetareeParticleInstructionProgramDefinitions.Metaree,
+0x8B5D, 0x8AC5,
             0x0202, 0x0004, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CrocomireProjectile => new(
 0x906B, 0x8FCF,
@@ -316,11 +316,11 @@ internal static class EnemyProjectileDefinitionCatalog
             0x84FC),
         RoomEnemyProjectileKind.LavaThrownByMagdollite => new(
             0xE049,
-            MagdolliteLavaInstructionProgramDefinitions.Left,
+            0xDFD8,
             0x0202,
             0x8028,
             0x0000,
-            MagdolliteLavaInstructionProgramDefinitions.Shot),
+            0xDFE4),
         RoomEnemyProjectileKind.DragonFireball => new(
             0xB535,
             0xB4BF,

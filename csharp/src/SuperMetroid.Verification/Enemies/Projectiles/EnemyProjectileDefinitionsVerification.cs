@@ -8,6 +8,8 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.Powamp;
+using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -54,7 +56,10 @@ internal static class EnemyProjectileDefinitionsVerification
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             AssertEqual(definition.PreInstruction, projectile.PreInstruction,
                 $"{kind} production pre-instruction");
-            AssertEqual(definition.InitialInstructionList, projectile.InstructionPointer,
+            // A kind with a typed initial program (#641) runs it in place of the definition's native list.
+            bool typedStart = EnemyProjectileTypedStarts.Initial(kind) is not null;
+            AssertEqual(typedStart, projectile.Animation is not null, $"{kind} production typed start");
+            AssertEqual(typedStart ? (ushort)0 : definition.InitialInstructionList, projectile.InstructionPointer,
                 $"{kind} production initial list");
             AssertEqual((ushort)1, projectile.InstructionTimer.RawValue,
                 $"{kind} production timer");
@@ -188,6 +193,20 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(projectile.Animation is TorizoProjectileAnimation started
                         && started.Cursor == AnimationProgramCursor<TorizoProjectileProgram>.Start(expected),
                     $"{kind} production shot starts the typed {expected} program");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+            }
+            else if (kind == RoomEnemyProjectileKind.PowampSpike)
+            {
+                // The spike's shot list is its private delete list, typed with its programs (#1291).
+                AssertTrue(projectile.Animation is PowampSpikeAnimation { Cursor.Program: PowampSpikeProgram.Delete },
+                    $"{kind} production shot starts the typed delete program");
+                AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
+            }
+            else if (kind == RoomEnemyProjectileKind.LavaThrownByMagdollite)
+            {
+                // The lava's shot list drops its pickup; it is typed with its programs (#1291).
+                AssertTrue(projectile.Animation is MagdolliteLavaAnimation { Cursor.Program: MagdolliteLavaProgram.Shot },
+                    $"{kind} production shot starts the typed shot program");
                 AssertEqual((ushort)0, projectile.InstructionPointer, $"{kind} typed shot keeps no native list");
             }
             else

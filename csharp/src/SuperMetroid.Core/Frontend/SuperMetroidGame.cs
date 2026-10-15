@@ -893,6 +893,16 @@ public sealed class SuperMetroidGame
                 }
                 if (mapSlot.Area != (ushort)AreaId.Ceres)
                 {
+                    if (fileSelectMap is { LoadRequested: true })
+                    {
+                        // $81:AF8C forced blank and waited for this NMI inside the previous map
+                        // dispatch; returning, it raises the dispatcher to state six. The map runs no more.
+                        fileSelectMap = null;
+                        stateSixLoadingRoute = SaveLoadingGameState.MainGame;
+                        GameState = SuperMetroidGameState.LoadingGameData;
+                        display.PublishBlack();
+                        break;
+                    }
                     if (fileSelectMap is null)
                     {
                         // Menu construction consumes only save/map data. A dead runtime
@@ -913,8 +923,8 @@ public sealed class SuperMetroidGame
                         display.PublishMenu(options);
                         break;
                     }
-                    if (!fileSelectMap.LoadRequested) break;
-                    fileSelectMap = null;
+                    // A latched load request waits for the next NMI before state six (see above).
+                    break;
                 }
                 // Ceres has no world-map entry; preserve its checkpoint arrival path.
                 bool continueUsesCeresArrival = SetupSelectedGame();
@@ -1147,6 +1157,7 @@ public sealed class SuperMetroidGame
                 {
                     // CADF forces blank and publishes state six. The loader's special
                     // `$22` branch—not cinematic code—selects area zero/station eighteen.
+                    stateSixLoadingRoute = SaveLoadingGameState.CeresDestruction;
                     GameState = SuperMetroidGameState.LoadingGameData;
                     display.PublishBlack();
                 }
@@ -1158,12 +1169,28 @@ public sealed class SuperMetroidGame
                     StepGameLoadingWait(controllerInput);
                     break;
                 }
-                // The `$22` Zebes-landing branch of $82:8000, followed by its NMI waits. The
-                // dispatch's own accepted NMI counts in the gameplay owner kept from Ceres.
-                GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-                GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
-                BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
-                    GameLoadingCompletion.GameplayFadeIn);
+                // $82:801D branches on the save's loading state.
+                switch (stateSixLoadingRoute)
+                {
+                    case SaveLoadingGameState.MainGame:
+                        // A save continued from the file-select map: the ordinary branch loads the
+                        // game in one dispatch, then waits for the same NMIs as state $1F.
+                        if (SetupSelectedGame())
+                            throw new InvalidOperationException("A save continued from the area map cannot use the Ceres arrival.");
+                        BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
+                            GameLoadingCompletion.GameplayFadeIn);
+                        break;
+                    case SaveLoadingGameState.CeresDestruction:
+                        // The `$22` Zebes-landing branch, followed by its NMI waits. The dispatch's
+                        // own accepted NMI counts in the gameplay owner kept from Ceres.
+                        GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                        GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
+                        BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
+                            GameLoadingCompletion.GameplayFadeIn);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"State six has no loading branch for {stateSixLoadingRoute}.");
+                }
                 break;
 
             case SuperMetroidGameState.MainGameplayFadeIn:
@@ -2351,6 +2378,11 @@ public sealed class SuperMetroidGame
     private int gameLoadingWaitsRemaining;
     /// <summary>Destination to enter when game-loading waits finish.</summary>
     private GameLoadingCompletion gameLoadingCompletion;
+    /// <summary>
+    /// The loading state state six branches on (<c>SRAMMirror_LoadingGameState</c>): a save continued
+    /// from the file-select map, or the Ceres destruction's Zebes landing.
+    /// </summary>
+    private SaveLoadingGameState stateSixLoadingRoute;
 
     /// <summary>
     /// True when the next update is an NMI continuation inside the loading dispatch rather
@@ -2474,6 +2506,8 @@ public sealed class SuperMetroidGame
     internal bool NextUpdateResumesNmiWait => GameState switch
     {
         SuperMetroidGameState.FileSelectMenus => fileSelect?.ResumesAfterNmiWait == true,
+        // The final map dispatch latched its load request, then waited for this NMI ($81:AF8C).
+        SuperMetroidGameState.FileSelectMap => fileSelectMap?.LoadRequested == true,
         SuperMetroidGameState.SetUpNewGame or SuperMetroidGameState.LoadingGameData => ResumesGameLoadingWait,
         SuperMetroidGameState.CeresGoesBoom or SuperMetroidGameState.CeresGoesBoomWithSamus =>
             ceresDestruction?.ResumesAfterNmiWait == true,
@@ -2481,7 +2515,7 @@ public sealed class SuperMetroidGame
         SuperMetroidGameState.GameOverMenu => gameOver?.ResumesAfterNmiWait == true,
         SuperMetroidGameState.Reset or SuperMetroidGameState.OpeningCinematic or
             SuperMetroidGameState.GameOptionsMenu or SuperMetroidGameState.Unused03 or
-            SuperMetroidGameState.FileSelectMap or SuperMetroidGameState.MainGameplayFadeIn or
+            SuperMetroidGameState.MainGameplayFadeIn or
             SuperMetroidGameState.MainGameplay or SuperMetroidGameState.HitDoorBlock or
             SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB or
             SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Pausing or
@@ -2537,12 +2571,13 @@ public sealed class SuperMetroidGame
             case SuperMetroidGameState.EndingAndCredits:
             // Game-over indexes zero and one resume inside their own NMI waits.
             case SuperMetroidGameState.GameOverMenu:
+            // The map's final dispatch resumes after its forced-blank NMI wait.
+            case SuperMetroidGameState.FileSelectMap:
                 if (!NextUpdateResumesNmiWait)
                     FrontendRandomOwner.NextRandom();
                 break;
             case SuperMetroidGameState.OpeningCinematic:
             case SuperMetroidGameState.GameOptionsMenu:
-            case SuperMetroidGameState.FileSelectMap:
             case SuperMetroidGameState.IntroCinematic:
             // State $19 only fades; MainGameLoop's RNG call precedes it as any dispatch.
             case SuperMetroidGameState.DeathFinalBlackOut:

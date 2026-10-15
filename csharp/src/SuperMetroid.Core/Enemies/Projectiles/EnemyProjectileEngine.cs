@@ -305,9 +305,10 @@ internal sealed class EnemyProjectileEngine
                 camera,
                 projectileFrame,
                 samusBombs);
-            if (!projectile.IsActive)
-                continue;
-
+            // `$86:8125` does not re-read the ID after the pre-instruction: a slot whose identity
+            // the pre-instruction released still runs its instructions in this pass (a power-bombed
+            // Draygon goop that reaches Samus attaches through its touch list). A slot the port
+            // cleared outright has no timer or animation left, so processing it does nothing.
             ProcessEnemyProjectileInstructions(projectile, samus, camera);
         }
 

@@ -1030,7 +1030,8 @@ internal sealed class DraygonBehavior : IEnemySpecies
         {
             // $86:8DFF deletes a power-bombed shot, then still moves the released slot.
             DeleteEnemyProjectileIfPowerBombed(context.Projectile, context.Samus);
-            RunDraygonProjectileFlight(context.Projectile);
+            MoveDraygonProjectile(context.Projectile);
+            DeleteDraygonProjectileOutsideRoom(context.Projectile);
         }, EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired);
 
         table.RegisterPreInstruction(context =>
@@ -1969,8 +1970,8 @@ internal sealed class DraygonBehavior : IEnemySpecies
         projectile.Variable1 = unchecked((ushort)yMagnitude);
     }
 
-    /// <summary>Moves a Draygon projectile in 16.16 space and clears it beyond the arena.</summary>
-    internal static void RunDraygonProjectileFlight(RoomEnemyProjectileSlot projectile)
+    /// <summary>Moves a Draygon projectile in 16.16 space by its angle and speed.</summary>
+    internal static void MoveDraygonProjectile(RoomEnemyProjectileSlot projectile)
     {
         int xMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.X.RawValue, projectile.Variable0)));
         int yMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, projectile.Variable1)));
@@ -1978,7 +1979,11 @@ internal sealed class DraygonBehavior : IEnemySpecies
         int yDisplacement = EnemyMath.SineIsNegative(projectile.DirectionParameter) ? -yMagnitude : yMagnitude;
         projectile.Position = projectile.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
         projectile.Position = projectile.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
+    }
 
+    /// <summary>Deletes a projectile that has left Draygon's room (<c>$86:E722</c>).</summary>
+    private static void DeleteDraygonProjectileOutsideRoom(RoomEnemyProjectileSlot projectile)
+    {
         if (IsOutsideDraygonRoom(projectile))
             projectile.Clear();
     }
@@ -1989,19 +1994,24 @@ internal sealed class DraygonBehavior : IEnemySpecies
         SamusState? samus)
     {
         // $86:8E0F: a power-bombed goop loses its ID but the routine still moves it and
-        // tests Samus; only the room-boundary branch ends it early.
+        // tests Samus. Contact is tested before the room boundary, so a goop that touches
+        // Samus outside the boundary still runs its touch list instead of being deleted.
         DeleteEnemyProjectileIfPowerBombed(goop, samus);
-        bool releasedByPowerBomb = !goop.IsActive;
-        RunDraygonProjectileFlight(goop);
-        if (!releasedByPowerBomb && !goop.IsActive || samus is null)
+        MoveDraygonProjectile(goop);
+        if (samus is null)
+        {
+            DeleteDraygonProjectileOutsideRoom(goop);
             return;
+        }
 
         ushort xDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - goop.Position.X.Whole)));
         ushort yDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.Y.Whole - goop.Position.Y.Whole)));
         if (xDistance < 16 && yDistance < 20)
         {
             goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
+            return;
         }
+        DeleteDraygonProjectileOutsideRoom(goop);
     }
 
     /// <summary>Attaches goop to Samus, increasing her X-speed divisor until it expires.</summary>

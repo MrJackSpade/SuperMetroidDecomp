@@ -44,8 +44,13 @@ public sealed record Mode7ObjRenderSnapshot
         if (!gradient.IsEmpty && gradient.Length != Hardware.SnesPpuLayout.ScreenHeightPixels)
             throw new ArgumentException("Title gradient requires 224 scanlines.", nameof(gradient));
         foreach (var line in gradient)
-            if (line.Red > 31 || line.Green > 31 || line.Blue > 31 || line.Control is not (0xa1 or 0x31))
+            if (line.Red > 31 || line.Green > 31 || line.Blue > 31 || !IsTitleGradientControl((ColorMathControlFlags)line.Control))
                 throw new ArgumentException("Title gradient has invalid fixed color or unsupported CGADSUB control.", nameof(gradient));
         this.gradient = gradient.ToArray();
     }
+
+    /// <summary>The two CGADSUB settings the title gradient uses: subtracting from BG1 and the backdrop, or adding to them and the OBJs.</summary>
+    private static bool IsTitleGradientControl(ColorMathControlFlags control) => control is
+        (ColorMathControlFlags.Subtract | ColorMathControlFlags.Backdrop | ColorMathControlFlags.Bg1) or
+        (ColorMathControlFlags.Backdrop | ColorMathControlFlags.Obj | ColorMathControlFlags.Bg1);
 }

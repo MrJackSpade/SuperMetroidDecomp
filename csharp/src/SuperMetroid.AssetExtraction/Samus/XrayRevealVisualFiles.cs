@@ -85,7 +85,7 @@ public static class XrayRevealVisualFiles
             .Select(slot =>
             {
                 ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemDrawPointers + slot * sizeof(ushort)));
-                if (pointer is < LoRomExpansionReadMap.RomStart or > ushort.MaxValue - 3)
+                if (pointer is < SnesBusLayout.RomWindowStart or > ushort.MaxValue - 3)
                     throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
                 return new RoomLevelWord(CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemBank | (pointer + 2)))).VisualWord;
             }).ToArray();
@@ -288,7 +288,7 @@ public static class XrayRevealVisualFiles
     /// <summary>Reads one fixed-bank $91 word only after rejecting addresses outside the native table bank.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer)
     {
-        if (pointer is < LoRomExpansionReadMap.RomStart or >= ushort.MaxValue)
+        if (pointer is < SnesBusLayout.RomWindowStart or >= ushort.MaxValue)
             throw new InvalidDataException($"X-ray reveal table crossed bank $91 at ${pointer:X}.");
         return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealCodePointers.Bank | pointer);
     }

@@ -33,7 +33,7 @@ public sealed record PpuLayoutCell(string Name, PpuLayoutRegion Region, int Offs
         PpuLayoutRegion.Vram => SnesPpuLayout.VramWordCount,
         PpuLayoutRegion.Cgram => SnesPpuLayout.CgramColorCount,
         PpuLayoutRegion.OamLow or PpuLayoutRegion.OamHigh => SnesPpuLayout.OamSpriteCount,
-        PpuLayoutRegion.Register => 0x100,
+        PpuLayoutRegion.Register => SnesPpuLayout.PpuRegisterCount,
         _ => throw new ArgumentOutOfRangeException(nameof(region), region, "Unknown PPU layout region."),
     };
 

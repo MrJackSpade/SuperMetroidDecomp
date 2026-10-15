@@ -19,7 +19,7 @@ public static class SnesMode7Renderer
     /// <summary>Each Mode 7 character occupies an eight-pixel square in high VRAM bytes.</summary>
     private const int CharacterWidth = 8;
     /// <summary>Wraps transformed source coordinates to the native 1024-pixel map.</summary>
-    private const int Mode7CoordinateMask = 0x03ff;
+    private const int Mode7CoordinateMask = 1023;
 
     /// <summary>
     /// Projects Mode 7 directly over caller-owned storage. Transparent samples leave the
@@ -52,8 +52,9 @@ public static class SnesMode7Renderer
         int signedCenterY = SignExtend13(registers.Center.Y);
         int clippedH = SignExtend13(registers.Scroll.X) - signedCenterX;
         int clippedV = SignExtend13(registers.Scroll.Y) - signedCenterY;
-        clippedH = (clippedH & 0x2000) != 0 ? clippedH | ~1023 : clippedH & 1023;
-        clippedV = (clippedV & 0x2000) != 0 ? clippedV | ~1023 : clippedV & 1023;
+        // Bit 13 is the sign of the thirteen-bit register difference.
+        clippedH = (clippedH & (1 << 13)) != 0 ? clippedH | ~Mode7CoordinateMask : clippedH & Mode7CoordinateMask;
+        clippedV = (clippedV & (1 << 13)) != 0 ? clippedV | ~Mode7CoordinateMask : clippedV & Mode7CoordinateMask;
         for (int screenY = 0; screenY < height; screenY++)
         {
             // Mode 7 uses physical scanline one for the first displayed row. Truncate

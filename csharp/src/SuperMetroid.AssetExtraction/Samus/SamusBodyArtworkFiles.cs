@@ -179,7 +179,7 @@ public static class SamusBodyArtworkFiles
             int start = pointers[set];
             int order = Array.IndexOf(sortedPointers, pointers[set]);
             int end = order + 1 == sortedPointers.Length ? SamusBodyDefinitionLayout.EndOffset : sortedPointers[order + 1];
-            if (start < LoRomExpansionReadMap.RomStart || end <= start || (end - start) % 7 != 0)
+            if (start < SnesBusLayout.RomWindowStart || end <= start || (end - start) % 7 != 0)
                 throw new InvalidDataException($"Samus body set {set:X2} has invalid native bounds.");
             int count = (end - start) / 7;
             byte[] planar = new byte[count * SamusBodyArtworkCatalog.BytesPerDefinitionSlot];
@@ -192,7 +192,7 @@ public static class SamusBodyArtworkFiles
                 ushort firstSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 3));
                 ushort secondSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 5));
                 int byteCount = firstSize + secondSize;
-                if (sourceOffset < LoRomExpansionReadMap.RomStart || firstSize == 0 || byteCount >
+                if (sourceOffset < SnesBusLayout.RomWindowStart || firstSize == 0 || byteCount >
                     SamusBodyArtworkCatalog.BytesPerDefinitionSlot || byteCount % 32 != 0 ||
                     sourceOffset + byteCount > CartridgeFormatDefinitions.BankByteCount)
                     throw new InvalidDataException($"Invalid Samus body DMA at ${definitionAddress:X6}.");

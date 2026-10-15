@@ -67,7 +67,7 @@ public static class SamusSuitPickupRenderer
 
     /// <summary>Expands a five-bit COLDATA channel to the compositor's eight-bit channel range.</summary>
     private static byte ExpandFiveBit(byte rawColdata) =>
-        (byte)(((rawColdata & 0x1f) << 3) | ((rawColdata & 0x1f) >> 2));
+        Bgr555.ExpandChannel(rawColdata);
 
     /// <summary>Clamps the combined source and fixed-color channels before storing a pixel.</summary>
     private static byte SaturatingAdd(byte left, byte right) =>

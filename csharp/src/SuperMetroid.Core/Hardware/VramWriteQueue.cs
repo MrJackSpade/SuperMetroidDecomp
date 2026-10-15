@@ -21,7 +21,7 @@ public sealed class VramWriteQueue
 {
     /// <summary>Bytes reserved by the original WRAM layout before the Mode 7 table.</summary>
     [PpuLayoutAccess]
-    public const int StorageByteCount = 0x200;
+    public const int StorageByteCount = 512;
 
     /// <summary>Physical size of one packed queue entry.</summary>
     [PpuLayoutAccess]
@@ -47,7 +47,7 @@ public sealed class VramWriteQueue
     {
         if (sizeInBytes == 0)
             throw new ArgumentOutOfRangeException(nameof(sizeInBytes), "Zero is reserved for the queue terminator.");
-        if ((uint)sourceAddress > 0x00ff_ffff)
+        if ((uint)sourceAddress > SnesBusLayout.MaximumAddress)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "Source must be a 24-bit SNES CPU address.");
 
         Append(new VramWriteEntry(sizeInBytes, sourceAddress, destination.Encoded));

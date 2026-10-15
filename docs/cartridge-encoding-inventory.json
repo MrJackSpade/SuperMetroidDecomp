@@ -23,22 +23,22 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 27992,
-    "PointerDispatch": 193,
+    "RawHexLiteral": 27890,
+    "PointerDispatch": 192,
     "OpaqueWordArray": 964,
-    "CatalogHexLiteral": 98260,
+    "CatalogHexLiteral": 98291,
     "JustifiedHexLiteral": 150,
     "RawWidthOperation": 44,
     "OwnedWidthOperation": 71,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 18,
-    "class:NumericQuantity": 54029,
-    "class:DomainIdentity": 8501,
-    "class:ComposableBits": 1216,
+    "class:NumericQuantity": 54000,
+    "class:DomainIdentity": 8496,
+    "class:ComposableBits": 1187,
     "class:StructuredInstruction": 40988,
-    "class:CartridgeAddress": 22218,
-    "class:Unknown": 746,
+    "class:CartridgeAddress": 22212,
+    "class:Unknown": 743,
     "storageWidthMembers": 1516
   },
   "subsystems": [
@@ -22571,27 +22571,21 @@
     {
       "name": "Rendering and hardware",
       "totals": {
-        "RawHexLiteral": 102,
-        "PointerDispatch": 1,
-        "CatalogHexLiteral": 97,
+        "CatalogHexLiteral": 128,
         "OwnedWidthOperation": 32,
-        "class:NumericQuantity": 122,
-        "class:DomainIdentity": 7,
-        "class:ComposableBits": 82,
-        "class:CartridgeAddress": 11,
-        "class:Unknown": 10,
+        "class:NumericQuantity": 93,
+        "class:DomainIdentity": 2,
+        "class:ComposableBits": 53,
+        "class:CartridgeAddress": 5,
+        "class:Unknown": 7,
         "storageWidthMembers": 36
       },
-      "addressInterpretingTypes": [
-        "SnesAddress"
-      ],
+      "addressInterpretingTypes": [],
       "files": [
         {
           "path": "csharp/src/SuperMetroid.Core/Hardware/Bgr555.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1,
             "storageWidthMembers": 1
           }
         },
@@ -22624,14 +22618,6 @@
           "totals": {
             "CatalogHexLiteral": 14,
             "class:NumericQuantity": 14
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Hardware/LoRomExpansionReadMap.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 5,
-            "class:NumericQuantity": 5
           }
         },
         {
@@ -22677,41 +22663,19 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Hardware/OamBuffer.cs",
+          "path": "csharp/src/SuperMetroid.Core/Hardware/PpuFixedColorMirrorAddresses.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 20,
-            "class:NumericQuantity": 11,
-            "class:ComposableBits": 7,
-            "class:Unknown": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Hardware/PpuFixedColorMirrors.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 3,
+            "CatalogHexLiteral": 3,
             "class:NumericQuantity": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Hardware/PpuLayoutCell.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:DomainIdentity": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Core/Hardware/SnesAddress.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "PointerDispatch": 1,
-            "CatalogHexLiteral": 2,
             "OwnedWidthOperation": 2,
-            "class:NumericQuantity": 1,
             "class:ComposableBits": 2,
-            "class:CartridgeAddress": 2,
             "storageWidthMembers": 2
           }
         },
@@ -22735,6 +22699,17 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Hardware/SnesBusLayout.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 22,
+            "class:NumericQuantity": 12,
+            "class:DomainIdentity": 2,
+            "class:CartridgeAddress": 1,
+            "class:Unknown": 7
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Hardware/SnesCarry.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -22749,22 +22724,6 @@
             "CatalogHexLiteral": 3,
             "class:NumericQuantity": 1,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Hardware/SnesCpuOpenBusWindows.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 4,
-            "class:NumericQuantity": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Hardware/SnesCpuOperandRead.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:ComposableBits": 1
           }
         },
         {
@@ -22852,16 +22811,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Hardware/SnesVram.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 16,
-            "class:ComposableBits": 14,
-            "class:CartridgeAddress": 1,
-            "class:Unknown": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Hardware/SnesWordReads.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -22870,33 +22819,10 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Hardware/SuperMetroidAddressSpace.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 22,
-            "class:NumericQuantity": 6,
-            "class:DomainIdentity": 4,
-            "class:ComposableBits": 2,
-            "class:CartridgeAddress": 3,
-            "class:Unknown": 7
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Hardware/VramDmaDestination.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 2,
             "storageWidthMembers": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Hardware/VramWriteQueue.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 1,
-            "class:CartridgeAddress": 1
           }
         },
         {
@@ -22918,6 +22844,14 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "storageWidthMembers": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rendering/ColorMathControlFlags.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 8,
+            "class:ComposableBits": 8
           }
         },
         {
@@ -22968,52 +22902,7 @@
           "path": "csharp/src/SuperMetroid.Core/Rendering/Mode7ObjRenderSnapshot.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:DomainIdentity": 2,
             "storageWidthMembers": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rendering/SamusSuitPickupRenderer.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:ComposableBits": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rendering/SnesGameplayFrameRenderer.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 7,
-            "class:NumericQuantity": 3,
-            "class:ComposableBits": 4
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rendering/SnesMode7Renderer.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rendering/SnesObjRenderer.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 8,
-            "class:NumericQuantity": 5,
-            "class:ComposableBits": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rendering/TitleGradientColorMath.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:ComposableBits": 2
           }
         },
         {
@@ -23022,14 +22911,6 @@
           "totals": {
             "CatalogHexLiteral": 2,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rendering/XrayRoomDisplayRules.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
           }
         },
         {

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Cartridge WRAM mirrors written to COLDATA during NMI (#629).</summary>
 [CpuBusBoundary("catalog: COLDATA fixed-color WRAM mirrors")]
-public static class PpuFixedColorMirrors
+public static class PpuFixedColorMirrorAddresses
 {
     /// <summary>$00:0074, DP_ColorMathSubScreenBackdropColor0, normally the red write.</summary>
     public static readonly CpuBusCell Red = CpuBusCell.WramByte(nameof(Red), 0x000074, "COLDATA write (u8: channel bits | 5-bit intensity)");

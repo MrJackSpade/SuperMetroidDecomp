@@ -68,7 +68,7 @@ internal static class RoomSkyTilemapsVerification
                 // Ocean's wrapped top-of-room pointer deliberately selects the
                 // low-half bank-$8A WRAM mirror, not an editable ROM sky page.
                 // That transfer must remain live bus data at NMI time.
-                if ((SnesAddressMath.OffsetInBank(transfer.SourceAddress)) < LoRomExpansionReadMap.WorkRamMirrorEnd)
+                if ((SnesAddressMath.OffsetInBank(transfer.SourceAddress)) < SnesBusLayout.WorkRamMirrorEnd)
                 {
                     AssertTrue(callback == RoomMainCallback.ScrollingSkyOcean && cameraY < 16,
                         $"only ocean's wrapped top row may stream live WRAM (${transfer.SourceAddress:X6})");

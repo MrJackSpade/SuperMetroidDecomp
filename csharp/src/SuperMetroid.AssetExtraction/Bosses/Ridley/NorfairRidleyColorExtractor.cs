@@ -23,7 +23,7 @@ public static class NorfairRidleyColorExtractor
         {
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 NorfairRidleyPaletteRomData.RevealSourcePointers + row * sizeof(ushort));
-            if (pointer < LoRomExpansionReadMap.RomStart)
+            if (pointer < SnesBusLayout.RomWindowStart)
                 throw new InvalidDataException($"Norfair Ridley reveal row {row} has invalid source ${pointer:X4}.");
             reveal[row] = ReadColors(bus, CartridgeBankWindow.At(EnemyCartridgeTables.RidleyBank, pointer),
                 NorfairRidleyPaletteRomData.RevealColorCount);

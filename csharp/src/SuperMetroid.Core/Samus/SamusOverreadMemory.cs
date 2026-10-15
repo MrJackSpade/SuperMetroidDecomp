@@ -74,10 +74,10 @@ internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
         int bank = SnesAddressMath.BankNumber(address);
         int offset = SnesAddressMath.OffsetInBank(address);
         if ((bank & 0x40) == 0 &&
-            (offset >= SnesCpuOpenBusWindows.ReservedBBusStart &&
-             offset <= SnesCpuOpenBusWindows.ReservedBBusEnd ||
-             offset >= SnesCpuOpenBusWindows.UnpopulatedExpansionStart &&
-             offset <= SnesCpuOpenBusWindows.UnpopulatedExpansionEnd))
+            (offset >= SnesBusLayout.ReservedBBusStart &&
+             offset <= SnesBusLayout.ReservedBBusEnd ||
+             offset >= SnesBusLayout.UnpopulatedExpansionStart &&
+             offset <= SnesBusLayout.UnpopulatedExpansionEnd))
             return memoryDataRegister;
 
         return SnesLiveDataRead.TryRead(bus, address, "Trail coordinate", out byte value)
